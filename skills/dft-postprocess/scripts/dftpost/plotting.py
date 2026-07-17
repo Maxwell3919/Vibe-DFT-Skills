@@ -57,6 +57,10 @@ def plot_table(
         axis.set_ylabel(ylabel)
         if title:
             axis.set_title(title)
+        all_x = [point[0] for points in groups.values() for point in points]
+        if min(all_x) < max(all_x):
+            axis.set_xlim(min(all_x), max(all_x))
+        axis.margins(x=0)
         if group_column or len(groups) > 1:
             axis.legend()
         figure.savefig(output_path)

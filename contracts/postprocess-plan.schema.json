@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/dft-codex-skills/postprocess-plan.schema.json",
+  "title": "DFT postprocessing execution plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "plan_id",
+    "observable",
+    "code",
+    "status",
+    "source_root_label",
+    "output_root_label",
+    "source_files",
+    "parameters",
+    "backend",
+    "steps",
+    "blockers",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "plan_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "observable": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "code": {"enum": ["qe", "vasp", "mixed"]},
+    "status": {"enum": ["planned", "blocked"]},
+    "source_root_label": {"type": "string", "minLength": 1},
+    "output_root_label": {"type": "string", "minLength": 1},
+    "source_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "path", "required", "present"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "path": {"type": ["string", "null"]},
+          "required": {"type": "boolean"},
+          "present": {"type": "boolean"}
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+      "additionalProperties": {"type": "string", "minLength": 1}
+    },
+    "backend": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["id", "kind", "maturity", "available"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["builtin-python", "python-package", "external-executable"]},
+        "maturity": {"$ref": "#/$defs/maturity"},
+        "available": {"type": "boolean"}
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["step_id", "operation", "adapter", "action", "command", "inputs", "outputs", "timeout_s", "overwrite"],
+        "properties": {
+          "step_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$"},
+          "operation": {"type": "string", "minLength": 1},
+          "adapter": {"type": "string", "minLength": 1},
+          "action": {"enum": ["python", "external"]},
+          "command": {"type": "array", "items": {"type": "string"}},
+          "inputs": {"type": "array", "items": {"type": "string"}},
+          "outputs": {"type": "array", "items": {"type": "string"}},
+          "timeout_s": {"type": "integer", "minimum": 1},
+          "overwrite": {"const": false}
+        }
+      }
+    },
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["planner", "planner_version", "generated_utc"],
+      "properties": {
+        "planner": {"type": "string", "minLength": 1},
+        "planner_version": {"type": "string", "minLength": 1},
+        "generated_utc": {"type": "string", "format": "date-time"}
+      }
+    }
+  },
+  "$defs": {
+    "maturity": {
+      "enum": [
+        "design-only",
+        "synthetic-validated",
+        "format-fixture-validated",
+        "real-artifact-validated",
+        "tool-integration-validated"
+      ]
+    }
+  }
+}

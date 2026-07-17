@@ -7,12 +7,18 @@ from typing import Any
 
 EXTERNAL_TOOLS = {
     "qe.bands": "bands.x",
+    "qe.plotband": "plotband.x",
     "qe.dos": "dos.x",
     "qe.projwfc": "projwfc.x",
+    "qe.sumpdos": "sumpdos.x",
     "qe.pp": "pp.x",
     "qe.average": "average.x",
     "qe.q2r": "q2r.x",
     "qe.matdyn": "matdyn.x",
+    "qe.dynmat": "dynmat.x",
+    "qe.lambda": "lambda.x",
+    "qe.alpha2f": "alpha2f.x",
+    "qe.epsilon": "epsilon.x",
     "vasp.vaspkit": "vaspkit",
     "charge.bader": "bader",
     "charge.critic2": "critic2",
@@ -22,7 +28,19 @@ EXTERNAL_TOOLS = {
     "wannier.wannier90": "wannier90.x",
 }
 
-PYTHON_PACKAGES = ("numpy", "scipy", "pandas", "matplotlib", "ase", "pymatgen")
+PYTHON_PACKAGES = (
+    "numpy",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "ase",
+    "pymatgen",
+    "py4vasp",
+    "h5py",
+    "xarray",
+    "spglib",
+    "seekpath",
+)
 
 
 def detect_capabilities() -> dict[str, Any]:

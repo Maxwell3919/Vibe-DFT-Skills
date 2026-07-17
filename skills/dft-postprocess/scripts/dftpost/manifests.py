@@ -15,6 +15,9 @@ SCHEMAS = {
     "artifact": "artifact-manifest.schema.json",
     "campaign": "campaign-record.schema.json",
     "recommendation": "recommendation-record.schema.json",
+    "dataset": "normalized-dataset.schema.json",
+    "plan": "postprocess-plan.schema.json",
+    "execution": "tool-execution.schema.json",
 }
 
 

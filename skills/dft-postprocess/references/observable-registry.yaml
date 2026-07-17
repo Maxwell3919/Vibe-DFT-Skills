@@ -1,0 +1,241 @@
+schema_version: "1.0"
+maturity_levels:
+  - design-only
+  - synthetic-validated
+  - format-fixture-validated
+  - real-artifact-validated
+  - tool-integration-validated
+
+backends:
+  python.qe-text:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.vasp-text:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.qe-bands:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.qe-dos:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.vasp-bands:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.vasp-dos:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.qe-phonon:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.qe-epc:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.grid:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.neb:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.optical:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.pymatgen:
+    kind: python-package
+    capability_key: pymatgen
+  python.py4vasp:
+    kind: python-package
+    capability_key: py4vasp
+  qe.bands:
+    kind: external-executable
+    capability_key: qe.bands
+  qe.dos:
+    kind: external-executable
+    capability_key: qe.dos
+  qe.projwfc:
+    kind: external-executable
+    capability_key: qe.projwfc
+  qe.pp:
+    kind: external-executable
+    capability_key: qe.pp
+  qe.average:
+    kind: external-executable
+    capability_key: qe.average
+  qe.q2r:
+    kind: external-executable
+    capability_key: qe.q2r
+  qe.matdyn:
+    kind: external-executable
+    capability_key: qe.matdyn
+  qe.dynmat:
+    kind: external-executable
+    capability_key: qe.dynmat
+  qe.lambda:
+    kind: external-executable
+    capability_key: qe.lambda
+  qe.alpha2f:
+    kind: external-executable
+    capability_key: qe.alpha2f
+  qe.epsilon:
+    kind: external-executable
+    capability_key: qe.epsilon
+  charge.bader:
+    kind: external-executable
+    capability_key: charge.bader
+  charge.critic2:
+    kind: external-executable
+    capability_key: charge.critic2
+  phonon.phonopy:
+    kind: external-executable
+    capability_key: phonon.phonopy
+  vasp.vaspkit:
+    kind: external-executable
+    capability_key: vasp.vaspkit
+
+observables:
+  run-trace:
+    title: Run and convergence trace
+    scope: Extract generic electronic and ionic step traces without assessing material-specific physical validity.
+    dataset_kind: run-trace-v1
+    validators: [completion-marker, finite-values, ordered-steps, unit-declaration]
+    analyses: [final-energy, iteration-count, force-trace]
+    plots: [energy-trace, force-trace]
+    codes:
+      qe:
+        maturity: real-artifact-validated
+        required_evidence: [main-output]
+        backends: [python.qe-text]
+      vasp:
+        maturity: real-artifact-validated
+        required_evidence: [main-output]
+        backends: [python.vasp-text]
+  bands:
+    title: Electronic bands and projected bands
+    scope: Normalize eigenvalues, path coordinates, labels, spin channels, and projection weights.
+    dataset_kind: electronic-bands-v1
+    validators: [finite-values, band-kpoint-dimensions, energy-reference, path-mapping]
+    analyses: [band-edges, fermi-crossings, projection-sums]
+    plots: [band-structure, fatband]
+    codes:
+      qe:
+        maturity: real-artifact-validated
+        required_evidence: [eigenvalues, energy-reference]
+        backends: [python.qe-bands, qe.bands]
+      vasp:
+        maturity: real-artifact-validated
+        required_evidence: [eigenvalues, k-path, structure, energy-reference]
+        backends: [python.vasp-bands, python.py4vasp, python.pymatgen]
+  dos-pdos:
+    title: Total and projected density of states
+    scope: Normalize energy grids, total channels, projected channels, spin conventions, and aggregation metadata.
+    dataset_kind: electronic-dos-v1
+    validators: [finite-values, monotonic-energy-grid, grid-alignment, energy-reference, channel-mapping]
+    analyses: [window-integral, value-at-reference, channel-sum]
+    plots: [dos, pdos, bands-dos]
+    codes:
+      qe:
+        maturity: real-artifact-validated
+        required_evidence: [dos-table, energy-reference]
+        backends: [python.qe-dos, qe.dos, qe.projwfc]
+      vasp:
+        maturity: real-artifact-validated
+        required_evidence: [dos-data, structure, energy-reference]
+        backends: [python.vasp-dos, python.py4vasp, python.pymatgen]
+  phonon:
+    title: Phonon dispersion and density of states
+    scope: Normalize q paths or meshes, frequencies, modes, interpolation provenance, and imaginary-frequency signs.
+    dataset_kind: phonon-v1
+    validators: [finite-values, q-mode-dimensions, frequency-unit, path-mapping, imaginary-mode-visibility]
+    analyses: [frequency-extrema, imaginary-mode-count, phonon-dos-integral]
+    plots: [phonon-dispersion, phonon-dos]
+    codes:
+      qe:
+        maturity: real-artifact-validated
+        required_evidence: [phonon-frequencies]
+        required_parameters: [frequency-unit]
+        backends: [python.qe-phonon, qe.q2r, qe.matdyn, qe.dynmat]
+      vasp:
+        maturity: design-only
+        required_evidence: [force-constants-or-phonon-data, q-path-or-mesh]
+        backends: [phonon.phonopy, python.pymatgen]
+  epc:
+    title: Electron-phonon coupling
+    scope: Normalize smearing, q and mode contributions, lambda, alpha2F, logarithmic frequencies, and reported transition-temperature tables.
+    dataset_kind: epc-v1
+    validators: [finite-values, smearing-grid, q-weight-closure, mode-closure, frequency-alignment]
+    analyses: [cumulative-lambda, smearing-sensitivity, q-contributions, mode-contributions]
+    plots: [alpha2f, cumulative-lambda, smearing-series, q-mode-contributions]
+    codes:
+      qe:
+        maturity: real-artifact-validated
+        required_evidence: [epc-table, smearing-definition]
+        backends: [python.qe-epc, qe.lambda, qe.alpha2f, qe.matdyn]
+      vasp:
+        maturity: design-only
+        required_evidence: [epc-table, phonon-frequencies, smearing-definition]
+        backends: [python.pymatgen]
+  real-space:
+    title: Real-space fields, charge partitioning, and work function
+    scope: Normalize cells, grids, scalar fields, planar averages, atomic partitions, vacuum windows, and energy references.
+    dataset_kind: real-space-v1
+    validators: [finite-values, cell-grid-alignment, integral-check, coordinate-unit, energy-reference]
+    analyses: [field-difference, planar-average, cumulative-integral, region-sum, vacuum-plateau]
+    plots: [planar-profile, cumulative-profile, field-slice]
+    codes:
+      qe:
+        maturity: real-artifact-validated
+        required_evidence: [grid-field]
+        required_parameters: [field-kind, field-unit]
+        backends: [python.grid, qe.pp, qe.average, charge.bader, charge.critic2]
+      vasp:
+        maturity: real-artifact-validated
+        required_evidence: [grid-field]
+        required_parameters: [field-kind, field-unit]
+        backends: [python.grid, python.py4vasp, python.pymatgen, charge.bader, charge.critic2]
+  neb:
+    title: Minimum-energy path and barrier
+    scope: Normalize image order, reaction coordinate, energies, forces, convergence, and reference-energy transformations.
+    dataset_kind: neb-v1
+    validators: [finite-values, image-order, endpoint-presence, force-convergence, energy-reference]
+    analyses: [forward-barrier, reverse-barrier, saddle-image]
+    plots: [neb-profile, image-force]
+    codes:
+      qe:
+        maturity: synthetic-validated
+        required_evidence: [neb-table]
+        required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
+        backends: [python.neb]
+      vasp:
+        maturity: synthetic-validated
+        required_evidence: [neb-table]
+        required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
+        backends: [python.neb, python.pymatgen]
+  optical:
+    title: Dielectric and optical spectra
+    scope: Normalize frequency or energy grids, complex dielectric components, tensor channels, and broadening metadata.
+    dataset_kind: optical-v1
+    validators: [finite-values, monotonic-energy-grid, tensor-shape, unit-declaration, broadening-declaration]
+    analyses: [component-extrema, absorption-derived-table]
+    plots: [dielectric-spectrum, optical-spectrum]
+    codes:
+      qe:
+        maturity: synthetic-validated
+        required_evidence: [dielectric-data]
+        required_parameters: [energy-column, components, broadening]
+        backends: [python.optical, qe.epsilon]
+      vasp:
+        maturity: synthetic-validated
+        required_evidence: [dielectric-data]
+        required_parameters: [energy-column, components, broadening]
+        backends: [python.optical, python.py4vasp, python.pymatgen]

@@ -16,6 +16,16 @@ import validate_contract  # noqa: E402
 
 
 class ContractTests(unittest.TestCase):
+    def test_postprocess_core_schemas_are_registered(self) -> None:
+        expected = {
+            "dataset": "normalized-dataset.schema.json",
+            "plan": "postprocess-plan.schema.json",
+            "execution": "tool-execution.schema.json",
+        }
+        for kind, filename in expected.items():
+            self.assertEqual(validate_contract.SCHEMAS[kind], filename)
+            self.assertTrue(ROOT.joinpath("contracts", filename).is_file())
+
     def test_all_schemas_are_valid_draft_202012(self) -> None:
         for path in sorted((ROOT / "contracts").glob("*.schema.json")):
             schema = json.loads(path.read_text(encoding="utf-8"))

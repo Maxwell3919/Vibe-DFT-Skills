@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/dft-codex-skills/normalized-dataset.schema.json",
+  "title": "Normalized DFT postprocessing dataset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dataset_id",
+    "observable",
+    "code",
+    "maturity",
+    "representation",
+    "source_files",
+    "dimensions",
+    "columns",
+    "data_files",
+    "transformations",
+    "validation",
+    "limitations",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "dataset_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "observable": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "code": {"enum": ["qe", "vasp", "mixed"]},
+    "maturity": {"$ref": "#/$defs/maturity"},
+    "representation": {"enum": ["scalar", "table", "grid", "trajectory", "collection"]},
+    "source_files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/sourceFile"}
+    },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "columns": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/column"}
+    },
+    "data_files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/file"}
+    },
+    "transformations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/transformation"}
+    },
+    "validation": {"$ref": "#/$defs/validation"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "$defs": {
+    "maturity": {
+      "enum": [
+        "design-only",
+        "synthetic-validated",
+        "format-fixture-validated",
+        "real-artifact-validated",
+        "tool-integration-validated"
+      ]
+    },
+    "sourceFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "label", "bytes", "sha256", "hash_status"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "hash_status": {"enum": ["present", "skipped-size", "redacted", "external"]}
+      }
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "dtype", "unit", "role"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
+        "dtype": {"enum": ["float", "integer", "string", "boolean", "complex"]},
+        "unit": {"type": ["string", "null"]},
+        "role": {"type": "string", "minLength": 1},
+        "reference": {"type": ["string", "null"]},
+        "spin": {"type": ["string", "null"]},
+        "channel": {"type": ["string", "null"]}
+      }
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "format", "sha256", "bytes"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "format": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation", "parameters", "input_columns", "output_columns"],
+      "properties": {
+        "operation": {"type": "string", "minLength": 1},
+        "parameters": {"type": "object"},
+        "input_columns": {"type": "array", "items": {"type": "string"}},
+        "output_columns": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "checks"],
+      "properties": {
+        "status": {"enum": ["pass", "warn", "block"]},
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "status", "message"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "status": {"enum": ["pass", "warn", "fail", "not-run"]},
+              "message": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "producer_version", "generated_utc", "tool_execution_ids"],
+      "properties": {
+        "producer": {"type": "string", "minLength": 1},
+        "producer_version": {"type": "string", "minLength": 1},
+        "generated_utc": {"type": "string", "format": "date-time"},
+        "tool_execution_ids": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}
