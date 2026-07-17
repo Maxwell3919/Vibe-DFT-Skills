@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//en">
+
+<!--Converted with LaTeX2HTML 2024 (Released January 1, 2024) -->
+<HTML lang="en">
+<HEAD>
+<TITLE>3.4 Understanding parallel I/O</TITLE>
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2024">
+
+<LINK REL="STYLESHEET" HREF="user_guide.css">
+
+<LINK REL="next" HREF="node22.html">
+<LINK REL="previous" HREF="node20.html">
+<LINK REL="next" HREF="node22.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A
+ HREF="node22.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node17.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node20.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html247"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node22.html">3.5 Tricks and problems</A>
+<B> Up:</B> <A
+ HREF="node17.html">3 Parallelism</A>
+<B> Previous:</B> <A
+ HREF="node20.html">3.3 Parallelization levels</A>
+ &nbsp; <B>  <A ID="tex2html248"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H2><A ID="SECTION00044000000000000000">
+3.4 Understanding parallel I/O</A>
+</H2>
+In parallel execution, each processor has its own slice of data
+(Kohn-Sham orbitals, charge density, etc), that have to be written
+to temporary files during the calculation,
+or to data files at the end of the calculation.
+This can be done in two different ways:
+
+<UL>
+<LI>``collected'': all slices are
+collected by the code to a single processor
+that writes them to disk, in a single file,
+using a format that doesn't depend upon
+the number of processors or their distribution.
+This is the default since v.6.2 for final data.
+</LI>
+<LI>``portable'': as above, but data can be
+copied to and read from a different machines
+(this is not guaranteed with Fortran binary files).
+Requires compilation with <code>-D__HDF5</code>
+preprocessing option and HDF5 libraries.
+</LI>
+</UL>
+There is a third format, no longer used for final
+data but used for scratch and restart files:
+
+<UL>
+<LI>``distributed'': each processor
+writes its own slice to disk in its internal
+format to a different file.
+The ``distributed'' format is fast and simple,
+but the data so produced is readable only by
+a job running on the same number of processors,
+with the same type of parallelization, as the
+job who wrote the data, and if all
+files are on a file system that is visible to all
+processors (i.e., you cannot use local scratch
+directories: there is presently no way to ensure
+that the distribution of processes across
+processors will follow the same pattern
+for different jobs).
+</LI>
+</UL>
+
+<P>
+The directory for data is specified in input variables
+<TT>outdir</TT> and <TT>prefix</TT> (the former can be specified
+as well in environment variable ESPRESSO_TMPDIR):
+<TT>outdir/prefix.save</TT>. A copy of pseudopotential files
+is also written there. If some processor cannot access the
+data directory, the pseudopotential files are read instead
+from the pseudopotential directory specified in input data.
+Unpredictable results may follow if those files
+are not the same as those in the data directory!
+
+<P>
+<EM>IMPORTANT:</EM>
+Avoid I/O to network-mounted disks (via NFS) as much as you can!
+Ideally the scratch directory <TT>outdir</TT> should be a modern
+Parallel File System. If you do not have any, you can use local
+scratch disks (i.e. each node is physically connected to a disk
+and writes to it) but you may run into trouble anyway if you
+need to access your files that are scattered in an unpredictable
+way across disks residing on different nodes.
+
+<P>
+You can use input variable <TT>disk_io</TT> to vary the
+amount of I/O done by <TT>pw.x</TT>. The default value is
+<TT>disk_io='low'</TT>, so the code will store wavefunctions
+into RAM and not on disk during the calculation. Specify
+<TT>disk_io='medium'</TT> only if you have too many k-points
+and you run into trouble with memory; choose <TT>disk_io='none'</TT>
+if you do not need to keep final data files.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A
+ HREF="node22.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node17.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node20.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html247"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node22.html">3.5 Tricks and problems</A>
+<B> Up:</B> <A
+ HREF="node17.html">3 Parallelism</A>
+<B> Previous:</B> <A
+ HREF="node20.html">3.3 Parallelization levels</A>
+ &nbsp; <B>  <A ID="tex2html248"
+  HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+
+</BODY>
+</HTML>

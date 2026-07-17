@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//en">
+
+<!--Converted with LaTeX2HTML 2024 (Released January 1, 2024) -->
+<HTML lang="en">
+<HEAD>
+<TITLE>2.6 Libxc library</TITLE>
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2024">
+
+<LINK REL="STYLESHEET" HREF="user_guide.css">
+
+<LINK REL="next" HREF="node14.html">
+<LINK REL="previous" HREF="node12.html">
+<LINK REL="next" HREF="node14.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A
+ HREF="node14.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node12.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html195"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node14.html">2.7 Compilation</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node12.html">2.5 Libraries</A>
+ &nbsp; <B>  <A ID="tex2html196"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A ID="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A ID="tex2html197"
+  HREF="node13.html#SECTION00036100000000000000">2.6.1 Linking in Q<SMALL>UANTUM </SMALL>ESPRESSO</A>
+<UL>
+<LI><A ID="tex2html198"
+  HREF="node13.html#SECTION00036110000000000000">2.6.1.1 With CMake:</A>
+<LI><A ID="tex2html199"
+  HREF="node13.html#SECTION00036120000000000000">2.6.1.2 Note for versions newer than 5.0.0:</A>
+</UL>
+<BR>
+<LI><A ID="tex2html200"
+  HREF="node13.html#SECTION00036200000000000000">2.6.2 Usage</A>
+<LI><A ID="tex2html201"
+  HREF="node13.html#SECTION00036300000000000000">2.6.3 Differences between Libxc and internal functionals</A>
+<LI><A ID="tex2html202"
+  HREF="node13.html#SECTION00036400000000000000">2.6.4 Special cases</A>
+<UL>
+<LI><A ID="tex2html203"
+  HREF="node13.html#SECTION00036410000000000000">2.6.4.1 External parameters.</A>
+<LI><A ID="tex2html204"
+  HREF="node13.html#SECTION00036420000000000000">2.6.4.2 Functionals with partial output.</A>
+<LI><A ID="tex2html205"
+  HREF="node13.html#SECTION00036430000000000000">2.6.4.3 MGGA Functionals that depend on the Laplacian of the density.</A>
+<LI><A ID="tex2html206"
+  HREF="node13.html#SECTION00036440000000000000">2.6.4.4 Other functionals.</A>
+</UL>
+<BR>
+<LI><A ID="tex2html207"
+  HREF="node13.html#SECTION00036500000000000000">2.6.5 XC test</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H2><A ID="SECTION00036000000000000000">
+2.6 Libxc library</A>
+</H2>
+
+<P>
+Q<SMALL>UANTUM </SMALL>ESPRESSO is compatible with <TT>libxc</TT> version 4.3.0 or later (compatibility with older versions is not guaranteed).
+<BR>
+The <TT>libxc</TT> functionals are available for LDA, GGA and metaGGA, however, not all of them are straightforwardly usable. Some of them may depend on specific external parameters and some others may provide as output the energy or the potential, but not both. Therefore some attention has to be paid when using <TT>libxc</TT>. Warning messages should appear in the output when particular cases whose correct operation in Q<SMALL>UANTUM </SMALL>ESPRESSO is not guaranteed are chosen.
+
+<P>
+
+<H3><A ID="SECTION00036100000000000000">
+2.6.1 Linking in Q<SMALL>UANTUM </SMALL>ESPRESSO</A>
+</H3>
+Once installed <TT>libxc</TT>, the linking with Q<SMALL>UANTUM </SMALL>ESPRESSO can be enabled directly through the configuration script by adding the two switches <TT>&ndash;with-libxc</TT> and <TT>&ndash;with-libxc-prefix</TT>, e.g.:
+<PRE>
+./configure --with-libxc --with-libxc-prefix='/path/to/libxc/'
+</PRE>
+By adding the first switch only an automatic search for the <TT>libxc</TT> folder will be attempted, but its success is not guaranteed. It is always preferable to specify the second switch too. Optionally, a third switch can be added, namely <TT>&ndash;with-libxc-include='/path/to/libxc/include'</TT>, which specifies the path to the Fortran headers (usually it is not necessary).
+
+<P>
+Alternatively, the link to <TT>libxc</TT> can be activated after the configuration of  Q<SMALL>UANTUM </SMALL>ESPRESSO by modifying the <TT>make.inc</TT> file in the main folder in this way:
+
+<UL>
+<LI>add <TT>-D__LIBXC</TT> to <TT>DFLAGS</TT>
+</LI>
+<LI>add <TT>-I/path/to/libxc/include/</TT> to <TT>IFLAGS</TT>
+</LI>
+<LI>set <TT>LD_LIBS=-L/path/to/libxc/lib/ -lxcf03 -lxc</TT>
+</LI>
+</UL>
+Then Q<SMALL>UANTUM </SMALL>ESPRESSO can be compiled as usual.
+<BR>
+Note: if the version of <TT>libxc</TT> is 5.0.0, the last point must be replaced by:
+
+<UL>
+<LI>set <TT>LD_LIBS=-L/path/to/libxc/lib/ -lxcf90 -lxc</TT>
+</LI>
+</UL>
+since the <TT>f03</TT> interfaces are no longer available. They have been restored in following releases. Version 5.0.0 is still usable, but, before compiling Q<SMALL>UANTUM </SMALL>ESPRESSO, a string replacement is necessary, namely `<TT>xc_f03</TT>' must be replaced with `<TT>xc_f90</TT>' everywhere in the <TT>XClib</TT> folder.
+
+<P>
+
+<H4><A ID="SECTION00036110000000000000">
+2.6.1.1 With CMake:</A>
+</H4> when executing <code>cmake</code> in the build folder, add the following flags:
+<PRE>
+cmake [....] -DQE_ENABLE_LIBXC=ON -DLIBXC_INCLUDE_DIR=path/to/libxc/include ..
+</PRE>
+If <code>cmake</code> is not able to find the package you may need to do this: in Q<SMALL>UANTUM </SMALL>ESPRESSO main folder open <TT>CMakeLists.txt</TT> and, inside the block <code>if(QE\_ENABLE\_LIBXC)</code>, near line 583,  add this:
+<PRE>
+set(ENV{PKG_CONFIG_PATH} "$ENV{PKG\_CONFIG\_PATH}:/path/to/libxc/pkgconfig")
+</PRE>
+then execute <code>cmake</code> as above and compile.
+
+<P>
+
+<H4><A ID="SECTION00036120000000000000">
+2.6.1.2 Note for versions newer than 5.0.0:</A>
+</H4> <TT>libxc</TT> enforces the Fermi hole curvature by default, which might lead to inexact results and convergence problems when using some MGGA functionals in Q<SMALL>UANTUM </SMALL>ESPRESSO. This should be switched off by adding the <code>--disable-fhc</code> flag when compiling <TT>libxc</TT>.
+
+<P>
+
+<H3><A ID="SECTION00036200000000000000">
+2.6.2 Usage</A>
+</H3>
+In order to use <TT>libxc</TT> functionals, you can enforce them from input by including the <TT>input_dft</TT> string in the <TT>system</TT> namelist. Starting from v7.0 of Q<SMALL>UANTUM </SMALL>ESPRESSO the only allowed notation for DFTs that include Libxc terms is the index one. For example, to use the <TT>libxc</TT> version of the PBE functional (both exchange and correlation):
+<PRE>
+input_dft = `XC-000I-000I-101L-130L-000I-000I'
+</PRE>
+The letters I or L next to each ID stand for Internal and <TT>libxc</TT>. This is equivalent to the old full-name notation:
+<PRE>
+input_dft = `gga_x_pbe gga_c_pbe'   ***OLD***
+</PRE>
+The order must be the usual one, namely LDA exchange, LDA correlation, GGA exchange, GGA correlation, MGGA exchange, MGGA correlation. <TT>libxc</TT> exchange+correlation functionals can be put in the exchange or in the correlation slot with no difference.
+<BR>
+The reason why the full-name notation has been disabled is to eliminate the risk of overlaps among different names (occurring especially when combinations of internal and <TT>libxc</TT> DFTs are used).
+<BR>
+The complete list of <TT>libxc</TT> functionals and IDs is available at:
+<code>https://libxc.gitlab.io/</code>.
+Combinations of Q<SMALL>UANTUM </SMALL>ESPRESSO and <TT>libxc</TT> functionals are allowed in <TT>PW</TT>, but some attention has to be paid to their reciprocal compatibility (see section below).
+<BR>
+For example, the internal exchange term of PBE together with the correlation term of PBE in <TT>libxc</TT> is obtained by:
+<PRE>
+input_dft = `XC-001I-000I-003I-130L-000I-000I'
+</PRE>
+which corresponds to the old:
+<PRE>
+input_dft = `sla pbx gga_c_pbe'   ***OLD***
+</PRE>
+Note that when using GGA internal functionals you must always specify the LDA term too, while it is not the case for the <TT>libxc</TT> ones.
+<BR>
+Abbreviations are allowed when zero tails are present. The above example is still valid by putting:
+<PRE>
+input_dft = `XC-001I-000I-003L-130L'
+</PRE>
+since no MGGA terms are present.
+<BR>
+Non-local terms can be included by just adding their name after the index notation, for example:
+<PRE>
+input_dft=`XC-001i-004i-013i-vdw2'
+</PRE>
+<H3><A ID="SECTION00036300000000000000">
+2.6.3 Differences between Libxc and internal functionals</A>
+</H3>
+There are some differences between Q<SMALL>UANTUM </SMALL>ESPRESSO functionals and <TT>libxc</TT> ones. In Q<SMALL>UANTUM </SMALL>ESPRESSO the LDA and the GGA terms are separated and must be specified independently. In <TT>libxc</TT> the GGA functionals already include the LDA part (Slater exchange and Perdew&amp;Wang correlation in most of the cases with the exception, for example, of Lee Yang Parr functionals).
+<BR>
+The <TT>libxc</TT> metaGGA functionals may or may not need the LDA and GGA terms, depending on the cases, therefore a good check of the chosen functionals is recommended before doing expensive runs.
+<BR>
+Some functionals in <TT>libxc</TT> incorporate the exchange part and the correlation one into one term only (e.g. the ones that include the `<TT>_xc</TT>' kind label in their name). In these cases the whole functional is formally treated as `correlation only' by Q<SMALL>UANTUM </SMALL>ESPRESSO. This does not imply any loss of information.
+
+<H3><A ID="SECTION00036400000000000000">
+2.6.4 Special cases</A>
+</H3>
+A number of <TT>libxc</TT> functional routines need extra information on input and/or provide only partial information on output (e.g. the energy or the potential only). In these cases the use of such functionals may not be straightforward and, depending on the cases, may require some work on the Q<SMALL>UANTUM </SMALL>ESPRESSO source code.
+
+<H4><A ID="SECTION00036410000000000000">
+2.6.4.1 External parameters.</A>
+</H4>
+Several functionals in <TT>libxc</TT> depend on one or more external parameters. Some of these can be recovered inside Q<SMALL>UANTUM </SMALL>ESPRESSO, some others are not directly available. In all these cases a direct intervention on the Q<SMALL>UANTUM </SMALL>ESPRESSO source code might be necessary in order to be able to properly use such functionals. However two routines have been defined in the XC library of Q<SMALL>UANTUM </SMALL>ESPRESSO that ease the task of setting and recovering the external parameters in <TT>libxc</TT>:
+
+<UL>
+<LI><TT>get_libxc_ext_param</TT>: this function receives as input the ID of the <TT>libxc</TT> functional and the index of the chosen parameter and returns its value. If the parameter has not been set before it returns its default value.
+</LI>
+<LI><TT>set_libxc_ext_param</TT>: this routine receives as input the index of the functional family-type (from 1 to 6: lda-exch, lda-corr, gga-exch, ...), the index of the chosen <TT>libxc</TT> parameter and the value to set it to.
+</LI>
+</UL>
+In order to see the available parameters for a given <TT>libxc</TT> functional and their corresponding indexes, the <TT>xc_infos.x</TT> program is available in <TT>XClib</TT> folder. For more details see Sec. <A HREF="#SubSec:XCtest">2.6.5</A>.
+<BR>
+The two routines can be called almost anywhere in Q<SMALL>UANTUM </SMALL>ESPRESSO, however, as any other <TT>XClib</TT> setting routine, they must be declared through the <TT>xc_lib</TT> module.
+<BR>
+Without setting the external parameters inside the code, their default value will be assumed. This could lead to results different from the expectations.
+<BR>
+In any case, when external parameters are needed by the chosen functionals, a warning message will appear in the output of Q<SMALL>UANTUM </SMALL>ESPRESSO. An example of Libxc parameter setting can be found in the <TT>xclib_test.f90</TT> code (see below).
+
+<H4><A ID="SECTION00036420000000000000">
+2.6.4.2 Functionals with partial output.</A>
+</H4>
+A few <TT>libxc</TT> functional routines provides the potential but not the energy. These functionals are available in Q<SMALL>UANTUM </SMALL>ESPRESSO for all the families and their output energy is set to zero.
+
+<H4><A ID="SECTION00036430000000000000">
+2.6.4.3 MGGA Functionals that depend on the Laplacian of the density.</A>
+</H4> At present such functionals are formally usable in Q<SMALL>UANTUM </SMALL>ESPRESSO , but their dependency on the Laplacian is ignored and the corresponding output term of the potential is set to zero. Since the Laplacian of the density is computable in Q<SMALL>UANTUM </SMALL>ESPRESSO, they might be fully exploited with a limited intervention on the code.
+
+<H4><A ID="SECTION00036440000000000000">
+2.6.4.4 Other functionals.</A>
+</H4> Besides exchange (<TT>_x</TT>), correlation (<TT>_c</TT>) and exchange plus correlation (<TT>_xc</TT>), a fourth kind of functionals is available in <TT>libxc</TT>, the kinetic functionals (<TT>_k</TT>). At present, they are not usable in Q<SMALL>UANTUM </SMALL>ESPRESSO.
+
+<H3><A ID="SECTION00036500000000000000"></A>
+<A ID="SubSec:XCtest"></A>
+<BR>
+2.6.5 XC test
+</H3>
+A testing program, <TT>xclib_test.x</TT>, for the <TT>XClib</TT> library of Q<SMALL>UANTUM </SMALL>ESPRESSO is available. The program is available for LDA, GGA and MGGA functionals (both QE and Libxc). It also tests the potential derivatives for LDA (<TT>dmxc</TT>) and GGA (<TT>dgcxc</TT>).
+<BR>
+Another small program, <TT>xc_infos.x</TT>, is available in the <TT>XClib</TT> folder starting from v6.8. It receives as input the name of any DFT usable in Q<SMALL>UANTUM </SMALL>ESPRESSO (both internal and <TT>libxc</TT>) and provides infos about their family, type, external parameters, limitations, references, etc.
+<BR>
+See XClib/README.TEST file for further details on each of the two programs.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A
+ HREF="node14.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node12.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html195"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node14.html">2.7 Compilation</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node12.html">2.5 Libraries</A>
+ &nbsp; <B>  <A ID="tex2html196"
+  HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+
+</BODY>
+</HTML>

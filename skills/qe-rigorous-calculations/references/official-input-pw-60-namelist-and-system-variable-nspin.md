@@ -1,0 +1,27 @@
+# INPUT_PW — NAMELIST: &SYSTEM — Variable: nspin
+
+- Official source: https://www.quantum-espresso.org/Doc/INPUT_PW.txt
+- Retrieved: 2026-07-17T11:49:47+00:00
+- Official source SHA-256: `344932e399030687217a5a311ab4504a7b21a6a2281680dfa92074aec29c491d`
+- Extracted text SHA-256: `07daa9592019a05caa30e40e9db6790bc51123d7af8bb73b41b966c136a2769d`
+- Official Last-Modified: Tue, 11 Nov 2025 16:27:52 GMT
+- Content status: official TXT text split without substantive additions; wrapper metadata added by the mirror script.
+
+```text
+   +--------------------------------------------------------------------
+   Variable:       nspin
+   
+   Type:           INTEGER
+   Default:        1
+   Description:    nspin = 1 :  non-polarized calculation (default)
+                   
+                   nspin = 2 :  spin-polarized calculation, LSDA
+                                (magnetization along z axis)
+                   
+                   nspin = 4 :  spin-polarized calculation, noncollinear
+                                (magnetization in generic direction)
+                                DO NOT specify "nspin" in this case;
+                                specify "noncolin"=.TRUE. instead
+   +--------------------------------------------------------------------
+   
+```

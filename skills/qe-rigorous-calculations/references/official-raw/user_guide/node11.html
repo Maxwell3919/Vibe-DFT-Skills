@@ -1,0 +1,535 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//en">
+
+<!--Converted with LaTeX2HTML 2024 (Released January 1, 2024) -->
+<HTML lang="en">
+<HEAD>
+<TITLE>2.4 Building with make</TITLE>
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2024">
+
+<LINK REL="STYLESHEET" HREF="user_guide.css">
+
+<LINK REL="next" HREF="node12.html">
+<LINK REL="previous" HREF="node10.html">
+<LINK REL="next" HREF="node12.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A
+ HREF="node12.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node10.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html179"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node12.html">2.5 Libraries</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node10.html">2.3 Building with CMake</A>
+ &nbsp; <B>  <A ID="tex2html180"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A ID="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A ID="tex2html181"
+  HREF="node11.html#SECTION00034100000000000000">2.4.1 Generalities</A>
+<LI><A ID="tex2html182"
+  HREF="node11.html#SECTION00034200000000000000">2.4.2 Environment variables</A>
+<LI><A ID="tex2html183"
+  HREF="node11.html#SECTION00034300000000000000">2.4.3 Supported architectures</A>
+<LI><A ID="tex2html184"
+  HREF="node11.html#SECTION00034400000000000000">2.4.4 Command-line options</A>
+<LI><A ID="tex2html185"
+  HREF="node11.html#SECTION00034500000000000000">2.4.5 <TT>configure</TT> for NVidia GPU's</A>
+<LI><A ID="tex2html186"
+  HREF="node11.html#SECTION00034600000000000000">2.4.6 Manual configuration</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H2><A ID="SECTION00034000000000000000">
+2.4 Building with <TT>make</TT></A>
+</H2>
+
+<P>
+
+<H3><A ID="SECTION00034100000000000000">
+2.4.1 Generalities</A>
+</H3>
+To build the Q<SMALL>UANTUM </SMALL>ESPRESSO source package using <TT>make</TT>, run the <TT>configure</TT> script first. <TT>configure</TT> will (try to) detect available compilers and libraries for
+your machine, and set up things accordingly.
+
+<P>
+IMPORTANT: <TT>configure</TT> will likely work only if your desired Fortran and 
+C compilers are in your execution path, as specified in the PATH environment 
+variable, and if the related system libraries can be reached (again,
+as specified in suitable environment variables). Also, you may need to set 
+environment variable OMPI_FC to the serial compiler you want, if you are
+using <TT>mpif90</TT> from OpenMPI. Most compiler suites come with a script
+or a "module" file that properly defines all the needed environment variables. 
+
+<P>
+<TT>configure</TT> supports out-of-source builds, i.e., it allows to compile the 
+binaries in
+directories other than the one containing the source tree. This is the preferred installation
+method as it allows to build and manage different installations (eg cpu and gpu ones)
+without duplicating the source code.
+
+<P>
+Instructions for the impatient:
+<PRE>
+    cd qe-X.Y.Z/
+    mkdir build &amp;&amp; cd build
+    ../configure
+     make all
+</PRE>
+This will (try to) produce parallel (MPI) executable if a proper parallel
+environment is detected, serial executables otherwise. For OpenMP executables,
+specify <TT>./configure &ndash;enable-openmp</TT>. For  GPUs, see GPU-specific
+instructions. Symlinks to executable programs appear in the <TT>build/bin/</TT> 
+subdirectory.
+<TT>NB:</TT> the usage of a <TT>build</TT> directory, even though advised for, 
+is not mandatory, the traditional build workflow
+<PRE>
+    cd qe-X.Y.Z/
+    ./configure
+     make all
+</PRE>
+is still supported.
+
+<P>
+<TT>configure</TT> generates the following files in the build directory:
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT>make.inc</TT></TD>
+<TD ALIGN="LEFT">compilation rules and flags (used by <TT>Makefile</TT>)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>configure.msg</TT></TD>
+<TD ALIGN="LEFT">a report of the configuration run (not needed for compilation)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>config.log</TT></TD>
+<TD ALIGN="LEFT">detailed log of the configuration run (useful for debugging)</TD>
+</TR>
+</TABLE>
+<BR>
+In addition, <TT>configure</TT> generates (since v.7) files <TT>make.depend</TT>,
+containing dependencies upon modules, in the various subdirectories.
+If you add/remove/move/rename modules, or change the list of objects
+in any of the <TT>Makefile</TT>'s, run <TT>configure</TT> again in
+order to ensure that all <TT>Makefile</TT>'s and <TT>make.depend</TT>
+are aligned to the current state of the distribution.
+
+<P>
+It is convenient to use "parallel make" to speed up compilation:
+<TT>make -j [N]</TT> compiles in parallel on N processors if N is
+specified, on all available processors otherwise.
+
+<P>
+Note that if you interrupt <TT>make</TT> while unpacking and compiling an external 
+library, you may run into trouble the next time you type <TT>make</TT>. 
+If so, run <TT>make veryclean</TT>, or even <TT>make distclean</TT>, 
+from the top directory, before running <TT>make</TT> again.
+
+<P>
+You should always be able to compile the Q<SMALL>UANTUM </SMALL>ESPRESSO suite
+of programs without having to edit any of the generated files. However you
+may have to tune <TT>configure</TT> by specifying appropriate environment variables
+and/or command-line options. Usually the tricky part is to get external
+libraries recognized and used: see Sec.<A HREF="node12.html#Sec:Libraries">2.5</A>
+for details and hints. In many cases, you may simply edit file
+<TT>make.inc</TT>. 
+
+<P>
+
+<H3><A ID="SECTION00034200000000000000">
+2.4.2 Environment variables</A>
+</H3>
+The behavior of <TT>configure</TT> can be changed by defining some environment
+variables. These can be set in any of these ways:
+<PRE>
+     export VARIABLE=value; ./configure             # sh, bash, ksh
+     setenv VARIABLE value; ./configure             # csh, tcsh
+     env VARIABLE=value ./configure                 # any shell
+     ./configure VARIABLE=value                     # any shell
+</PRE>
+Some environment variables that are relevant to <TT>configure</TT> are:
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT>ARCH</TT></TD>
+<TD ALIGN="LEFT">label identifying the machine type (see next section)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>F90, CC</TT></TD>
+<TD ALIGN="LEFT">names of Fortran and C compilers</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>MPIF90</TT></TD>
+<TD ALIGN="LEFT">name of parallel Fortran 90 compiler (using MPI)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>CPP</TT></TD>
+<TD ALIGN="LEFT">source file preprocessor (defaults to $CC -E)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>LD</TT></TD>
+<TD ALIGN="LEFT">linker (defaults to $MPIF90)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>(C,F,F90,CPP,LD)FLAGS</TT></TD>
+<TD ALIGN="LEFT">compilation/preprocessor/loader flags</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>LIBDIRS</TT></TD>
+<TD ALIGN="LEFT">extra directories where to search for libraries</TD>
+</TR>
+</TABLE>
+<BR>
+<P>
+IMPORTANT: as a rule, DO NOT DEFINE environment variables for <TT>configure</TT>,
+except those needed to have your compiler and libraries working.
+Always try <TT>configure</TT> with no further options as a first step,
+unless you have a good reason to specify them.
+
+<P>
+Note that <TT>F90</TT> is an ``historical'' name &ndash; we actually use
+Fortran 2008 &ndash; and that it should be used only together with option
+<TT>&ndash;disable-parallel</TT>. This is because the value of F90 must be
+consistent with the parallel Fortran compiler which is determined by
+<TT>configure</TT> and stored in the <TT>MPIF90</TT> variable.
+
+<P>
+For example, the following command line:
+<PRE>
+     ./configure MPIF90=mpif90 FFLAGS="-O2 -assume byterecl" \
+                  CC=gcc CFLAGS=-O3 LDFLAGS=-static
+</PRE>
+instructs <TT>configure</TT> to use <TT>mpif90</TT> as Fortran compiler
+with flags <TT>-O2 -assume byterecl</TT>, <TT>gcc</TT> as C compiler with
+flags <TT>-O3</TT>, and to link with flag <TT>-static</TT>.
+Note that the value of <TT>FFLAGS</TT> must be quoted, because it contains
+spaces. NOTA BENE: passing the complete path to compilers (e.g.,
+<TT>F90=/path/to/f90xyz</TT>) may lead to obscure errors during
+compilation.
+
+<P>
+
+<H3><A ID="SECTION00034300000000000000">
+2.4.3 Supported architectures</A>
+</H3>
+Presently <TT>configure</TT> supports all "common" computers, that is: based on 
+Intel, AMD, ARM CPUs, NVidia and (in a development branch) AMD GPUs, 
+running Linux and (often but not always) Mac OS X and MS-Windows.
+Q<SMALL>UANTUM </SMALL>ESPRESSO works on many more kinds of machines but may requires some tweaking, 
+especially for the hardware of large HPC centers.
+
+<P>
+If your machine type is unknown to <TT>configure</TT>, you may use the
+<TT>ARCH</TT>
+variable to suggest an architecture among supported ones. Some 
+parallel machines using a front-end may actually
+need it, or else <TT>configure</TT> will correctly recognize the front-end
+but not the specialized compilation environment of those machines.
+In some cases, cross-compilation requires to specify the target machine
+with the <TT>&ndash;host</TT> option. This feature has not been extensively
+tested, but we had at least one successful report (compilation
+for NEC SX6 on a PC). Currently supported architectures are:
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT>x86_64</TT></TD>
+<TD ALIGN="LEFT">Intel and AMD 64-bit running Linux</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>arm</TT></TD>
+<TD ALIGN="LEFT">ARM machines (with gfortran or armflang)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>craype</TT></TD>
+<TD ALIGN="LEFT">Cray machines using Cray PE</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>mac686</TT></TD>
+<TD ALIGN="LEFT">Apple Intel machines running Mac OS X</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>mingw32</TT></TD>
+<TD ALIGN="LEFT">Cross-compilation for MS-Windows, using mingw, 32 bits</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>mingw64</TT></TD>
+<TD ALIGN="LEFT">As above, 64 bits</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>cygwin</TT></TD>
+<TD ALIGN="LEFT">MS-Windows PCs with Cygwin</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>ppc64</TT>*</TD>
+<TD ALIGN="LEFT">Linux PowerPC machines, 64 bits</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>ppc64-le</TT>*</TD>
+<TD ALIGN="LEFT">as above, with IBM xlf compiler</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>ppc64-bg</TT>*</TD>
+<TD ALIGN="LEFT">IBM BlueGene</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>ppc64-bgq</TT>*</TD>
+<TD ALIGN="LEFT">IBM BlueGene Q</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>necsx</TT>*</TD>
+<TD ALIGN="LEFT">NEC SX-6 and SX-8 machines</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>ia32</TT>*</TD>
+<TD ALIGN="LEFT">Intel 32-bit machines (x86) running Linux</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>ia64</TT>*</TD>
+<TD ALIGN="LEFT">Intel 64-bit (Itanium) running Linux</TD>
+</TR>
+</TABLE>
+<BR>
+<P>
+<EM>Note</EM>: all architectures marked with a * are to be considered
+obsolescent or obsolete.
+
+<P>
+
+<H3><A ID="SECTION00034400000000000000">
+2.4.4 Command-line options</A>
+</H3>
+<TT>configure</TT> recognizes the following command-line options.
+Not all of them are implemented for all compilers, though. Default value
+is between bracket:
+<BR><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-parallel</TT></TD>
+<TD ALIGN="LEFT">compile for parallel (MPI) execution if possible (yes)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-openmp</TT></TD>
+<TD ALIGN="LEFT">compile for OpenMP execution if possible (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-static</TT></TD>
+<TD ALIGN="LEFT">produce static executables, arger but more portable (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-shared</TT></TD>
+<TD ALIGN="LEFT">produce objects that are suitable for shared libraries (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-debug</TT></TD>
+<TD ALIGN="LEFT">compile with debug flags (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-pedantic</TT></TD>
+<TD ALIGN="LEFT">compile with gfortran pedantic flags on (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-signals</TT></TD>
+<TD ALIGN="LEFT">enable signal trapping (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-exit-status</TT></TD>
+<TD ALIGN="LEFT">enable returning exit status (no)</TD>
+</TR>
+</TABLE>
+<BR>
+<BR>
+and the following optional packages:
+<BR><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-fox</TT></TD>
+<TD ALIGN="LEFT">Use official FoX library instead of built-in replacement (default:no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-scalapack</TT></TD>
+<TD ALIGN="LEFT">(yes|no|intel) Use scalapack if available (default:yes)</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">Use <TT>intel</TT> to force Intel MPI and BLACS (obsolescent)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-elpa-include</TT></TD>
+<TD ALIGN="LEFT">Specify full path of ELPA include and modules
+  headers (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-elpa-lib</TT></TD>
+<TD ALIGN="LEFT">Specify full path of the ELPA library (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-elpa-version</TT></TD>
+<TD ALIGN="LEFT">Specify ELPA API version: 2015 for ELPA releases 2015.x</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">and 2016.05; 2016 for ELPA releases 2016.11, 2017.x and</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">2018.05; 2018 for ELPA releases 2018.11 and beyond (2018)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-hdf5</TT></TD>
+<TD ALIGN="LEFT">(no | yes | <TT>&lt;path&gt;</TT>)</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">Compile HDF5 support (no). If ``yes'', configure assumes a</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">valid v. &gt; = 1.8.16 HDF5 installation with h5cc and h5fc in the</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">default executable search path. If <TT>&lt;path&gt;</TT> is specified, it must be the</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">root folder of a standalone hdf5 installation.</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-hdf5-libs</TT></TD>
+<TD ALIGN="LEFT">Specify the link options and libraries needed to link HDF5, if configure</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">fails to detect them. These options are usually composed by many</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">substrings and must be enclosed into quotes.</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-hdf5-include</TT></TD>
+<TD ALIGN="LEFT">Specify full path the HDF5 include folder containing module and</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">headers files. Use it if configure fails to find the include folder.</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-libxc</TT></TD>
+<TD ALIGN="LEFT">Enable support for the <TT>libxc</TT> library (no)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-libxc-prefix</TT></TD>
+<TD ALIGN="LEFT">directory where <TT>libxc</TT> is installed</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-libxc-include</TT></TD>
+<TD ALIGN="LEFT">directory where <TT>libxc</TT> Fortran headers reside</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<H3><A ID="SECTION00034500000000000000">
+2.4.5 <TT>configure</TT> for NVidia GPU's</A>
+</H3>
+In order to compile the code for NVidia GPU's you need the NVidia HPC software
+development kit (SDK). Beware: some versions may mis-compile Q<SMALL>UANTUM </SMALL>ESPRESSO.
+Ensure that all needed environmental variables
+are properly defined, e.g. by running the "module" file provided in the HPC SDK with command
+<TT>module</TT>. Specify <TT>&ndash;with-cuda</TT> and <TT>&ndash;with-cuda-cc</TT> as explained 
+below. Other options below
+are optional. Enabling faster communications between GPUs, via NVlink or Infiniband RDMA, 
+is essential for optimal parallel performance. 
+
+<P>
+The following <TT>configure</TT> GPU options are available:
+<BR><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-cuda=value</TT></TD>
+<TD ALIGN="LEFT">enable compilation of GPU-accelerated subroutines.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT"><TT>value</TT> should point the path where the CUDA toolkit</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">is installed, e.g. <TT>$NVHPC_CUDA_HOME</TT></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-cuda-cc=value</TT></TD>
+<TD ALIGN="LEFT">sets the compute capabilities for the compilation</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">of the accelerated subroutines.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT"><TT>value</TT> must be consistent with the hardware and the</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">NVidia driver installed on the workstation or on the</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">compute nodes of the HPC facility (default: 35)</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-cuda-runtime=value</TT></TD>
+<TD ALIGN="LEFT">(optional) sets the version of the CUDA toolkit used</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">for the compilation of the accelerated code.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT"><TT>value</TT> must be consistent with the</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">CUDA Toolkit installed on the workstation</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">or available on the compute nodes of the HPC facility.</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;with-cuda-mpi=value</TT></TD>
+<TD ALIGN="LEFT"><TT>yes</TT> enables the usage of CUDA-aware MPI library.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">Beware: if you have no fast inter-GPU communications, e.g.,</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">NVlink or Infiniband RDMA, you may get a crash at run time.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">Important for optimal parallel performances (default: no).</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&ndash;enable-nvtx=value</TT></TD>
+<TD ALIGN="LEFT">enable NVTX profiling (for developers, default: no).</TD>
+</TR>
+</TABLE>
+
+<P>
+To modify or extend <TT>configure</TT> (advanced users only!), see the Wiki pages
+on GitLab: <TT>https://gitlab.com/QEF/q-e/-/wikis</TT>.
+
+<P>
+
+<H3><A ID="SECTION00034600000000000000"></A>
+<A ID="SubSec:manconf"></A>
+<BR>
+2.4.6 Manual configuration
+</H3>
+If <TT>configure</TT> stops before the end, and you don't find a way to fix
+it, you have to write a working <TT>make.inc</TT> file (optionally,
+<TT>include/qe_cdefs.h</TT>). The template used by <TT>configure</TT> is
+<TT>install/make.inc.in</TT> and contains explanations of the meaning
+of the various variables. Note that you may need
+to select appropriate preprocessing flags
+in conjunction with the desired or available
+libraries (e.g. you need to add <TT>-D__FFTW</TT> to <TT>DFLAGS</TT>
+if you want to link internal FFTW). For a correct choice of preprocessing
+flags, refer to the documentation in <TT>include/defs.h.README</TT>.
+
+<P>
+Even if <TT>configure</TT> works, you may need to tweak the <TT>make.inc</TT>
+file. It is very simple, but please note that a) you must know what you are
+doing, and b) if you change any settings
+(e.g. preprocessing, compilation flags)
+after a previous, successful or failed, compilation, you must run
+<TT>make clean</TT> before recompiling, unless you know exactly which
+routines are affected by the changed settings and how to force their
+recompilation. Running <TT>configure</TT> again cleans objects and executables,
+unless you use option <TT>&ndash;save</TT>.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A
+ HREF="node12.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node10.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html179"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node12.html">2.5 Libraries</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node10.html">2.3 Building with CMake</A>
+ &nbsp; <B>  <A ID="tex2html180"
+  HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+
+</BODY>
+</HTML>

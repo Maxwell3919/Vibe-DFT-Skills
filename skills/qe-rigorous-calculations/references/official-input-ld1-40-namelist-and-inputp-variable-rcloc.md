@@ -1,0 +1,20 @@
+# INPUT_LD1 — NAMELIST: &INPUTP — Variable: rcloc
+
+- Official source: https://www.quantum-espresso.org/Doc/INPUT_LD1.txt
+- Retrieved: 2026-07-17T11:49:17+00:00
+- Official source SHA-256: `dcea0ae3ef68c1cf577f7920bf1572c02f6ccf08a582b6eb8f409150a0572522`
+- Extracted text SHA-256: `411dd22aa1d2202920c466f60ce8d32a1ab3380f2480506ac8c403f1473fae84`
+- Official Last-Modified: Tue, 11 Nov 2025 16:31:46 GMT
+- Content status: official TXT text split without substantive additions; wrapper metadata added by the mirror script.
+
+```text
+   +--------------------------------------------------------------------
+   Variable:       rcloc
+   
+   Type:           REAL
+   Status:         Must be specified only if "lloc"=-1, otherwise the
+                   corresponding value of "rcut" is used.
+   Description:    Matching radius (a.u.) for local pseudo-potential (no default).
+   +--------------------------------------------------------------------
+   
+```

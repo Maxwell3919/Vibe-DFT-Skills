@@ -1,0 +1,449 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//en">
+
+<!--Converted with LaTeX2HTML 2024 (Released January 1, 2024) -->
+<HTML lang="en">
+<HEAD>
+<TITLE>2.9 Installation tricks and problems</TITLE>
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2024">
+
+<LINK REL="STYLESHEET" HREF="user_guide.css">
+
+<LINK REL="previous" HREF="node15.html">
+<LINK REL="next" HREF="node17.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A
+ HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html214"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node17.html">3 Parallelism</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node15.html">2.8 Running tests and examples</A>
+ &nbsp; <B>  <A ID="tex2html215"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A ID="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A ID="tex2html216"
+  HREF="node16.html#SECTION00039100000000000000">2.9.1 All architectures</A>
+<LI><A ID="tex2html217"
+  HREF="node16.html#SECTION00039200000000000000">2.9.2 Linux PC's</A>
+<UL>
+<LI><A ID="tex2html218"
+  HREF="node16.html#SECTION00039210000000000000">2.9.2.1 Linux PCs with Intel compiler (ifx, ifort)</A>
+<LI><A ID="tex2html219"
+  HREF="node16.html#SECTION00039220000000000000">2.9.2.2 Linux PCs with MKL libraries</A>
+<LI><A ID="tex2html220"
+  HREF="node16.html#SECTION00039230000000000000">2.9.2.3 Linux PCs with AMD processors</A>
+</UL>
+<BR>
+<LI><A ID="tex2html221"
+  HREF="node16.html#SECTION00039300000000000000">2.9.3 Linux PC clusters with MPI</A>
+<LI><A ID="tex2html222"
+  HREF="node16.html#SECTION00039400000000000000">2.9.4 Microsoft Windows</A>
+<LI><A ID="tex2html223"
+  HREF="node16.html#SECTION00039500000000000000">2.9.5 Mac OS</A>
+<LI><A ID="tex2html224"
+  HREF="node16.html#SECTION00039600000000000000">2.9.6 Cray machines</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H2><A ID="SECTION00039000000000000000">
+2.9 Installation tricks and problems</A>
+</H2>
+
+<P>
+
+<H3><A ID="SECTION00039100000000000000">
+2.9.1 All architectures</A>
+</H3>
+
+<UL>
+<LI>Working Fortran and C compilers must be present in your PATH.
+If <TT>configure</TT> says that you have no working compiler, well,
+you have no working compiler, at least not in your PATH, and
+not among those recognized by <TT>configure</TT>.
+</LI>
+<LI>If you get <EM>Compiler Internal Error</EM> or similar messages: your
+compiler version is buggy. Try to lower the optimization level, or to
+remove optimization just for the routine that has problems. If it
+doesn't work, or if you experience weird problems at run time, try to
+install patches for your version of the compiler (most vendors release
+at least a few patches for free), or to upgrade to a more recent
+compiler version.
+</LI>
+<LI>If you get error messages at the loading phase that look like
+<EM>file XYZ.o: unknown / not recognized/ invalid / wrong
+file type / file format / module version</EM>,
+one of the following things have happened:
+
+<OL>
+<LI>you have leftover object files from a compilation with another
+  compiler: run <TT>make clean</TT> and recompile.
+</LI>
+<LI><TT>make</TT> did not stop at the first compilation error (it may
+happen in some software configurations). Remove the file *.o
+that triggers the error message, recompile, look for a
+compilation error.
+</LI>
+</OL>
+If many symbols are missing in the loading phase: you did not specify the
+location of all needed libraries (LAPACK, BLAS, FFTW, machine-specific
+optimized libraries), in the needed order. If system libraries are missing, 
+the problem is in your compiler/library combination or in their usage, not 
+in Q<SMALL>UANTUM </SMALL>ESPRESSO.
+</LI>
+<LI>If you get <EM>Segmentation fault</EM> or similar errors
+in the provided tests and examples: your compiler, or
+your mathematical libraries, or MPI libraries,
+or a combination thereof, is buggy, or there is some
+software incompatibility. Although one can never rule out
+the presence of subtle bugs in Q<SMALL>UANTUM </SMALL>ESPRESSO that are not revealed during
+the testing phase, it is very unlikely
+that this happens on the provided tests and examples.
+</LI>
+<LI>If all test fails, look into the output and error files:
+there is some dumb reason for failure.
+</LI>
+<LI>If most test pass but some fail, again: look into the output
+and error files.
+</LI>
+</UL>
+
+<P>
+
+<H3><A ID="SECTION00039200000000000000">
+2.9.2 Linux PC's</A>
+</H3>
+
+<P>
+Both AMD and Intel CPUs, 32-bit and 64-bit, are supported and work,
+either in 32-bit emulation and in 64-bit mode. 64-bit executables
+can address a much larger memory space than 32-bit executable, but
+there is no gain in speed.
+Beware: the default integer type for 64-bit machine is typically
+32-bit long. You should be able to use 64-bit integers as well,
+but it is not guaranteed to work and will not give
+any advantage anyway.
+
+<P>
+It is usually convenient to create semi-statically linked executables (with only
+libc, libm, libpthread dynamically linked). If you want to produce a binary
+that runs on different machines, compile it on the oldest machine you have
+(i.e. the one with the oldest version of the operating system).
+
+<P>
+Currently, configure supports, and Q<SMALL>UANTUM </SMALL>ESPRESSO works with, not-too-old and
+not-too-buggy versions of gfortran, Intel (ifx, ifort), NVidia (nvfortran), 
+AMD (AOCC v.5), ARM (armflang), Cray (ftn) compilers.
+
+<P>
+
+<H4><A ID="SECTION00039210000000000000">
+2.9.2.1 Linux PCs with Intel compiler (ifx, ifort)</A>
+</H4>
+If <TT>configure</TT> doesn't find the compiler, or if you get
+<EM>Error loading shared libraries</EM> at run time, you may have
+forgotten to execute the script that
+sets up the correct PATH and library path. Unless your system manager has
+done this for you, you should execute the appropriate script &ndash; located in
+the directory containing the compiler executable &ndash; in your
+initialization files. Consult the documentation provided by Intel.
+
+<P>
+
+<H4><A ID="SECTION00039220000000000000">
+2.9.2.2 Linux PCs with MKL libraries</A>
+</H4>
+On Intel CPUs it is very convenient to use Intel MKL libraries
+(freely available together with the Intel compiler at
+<TT>https://software.intel.com</TT>). They can be used also 
+with non-Intel compilers. With gfortran, one has to link 
+<TT>-lmkl_gf_lp64</TT> instead of <TT>-lmkl_intel_lp64</TT> 
+(<TT>configure</TT> should take care of it).
+
+<P>
+<TT>configure</TT> properly detects MKL libraries,
+as long as the $MKLROOT environment variable is set in the current shell.
+Normally this environment variable is set by sourcing the environment script
+provided by Intel.
+
+<P>
+By default the non-threaded version of MKL is linked, unless option
+<TT>configure &ndash;with-openmp</TT> is specified. In case of trouble,
+refer to the following web page to find the correct way to link MKL:
+<BR><TT>http://software.intel.com/en-us/articles/intel-mkl-link-line-advisor/</TT>.
+
+<P>
+For parallel (MPI) execution on multiprocessor (SMP) machines, set the
+environment variable OMP_NUM_THREADS to 1 unless you know how to run
+MPI+OpenMP. See Sec.<A HREF="node17.html#Sec:para">3</A> for more info on this
+and on the difference between MPI and OpenMP parallelization.
+
+<P>
+
+<H4><A ID="SECTION00039230000000000000">
+2.9.2.3 Linux PCs with AMD processors</A>
+</H4>
+For AMD CPUs there are optimized libraries called AOCL, AMD Optimizing CPU 
+Libraries, bundled with the AOCC v.5 compiler, freely available from AMD.
+
+<P>
+`` Recently I played around with some AMD EPYC cpus and the bad thing
+is that I also saw some strange numbers when using libflame/aocl 2.1.
+(...) Since version 2020 the MKL performs rather well when using AMD cpus,
+ however, if you want to get the best performance you have to additionally set:
+<PRE>
+export MKL_DEBUG_CPU_TYPE=5
+</PRE>
+which gives an additional 10-20% speedup with MKL 2020,
+while for earlier versions the speedup is greater than 200%.
+[...] Another note, there seem to be problems using FFTW interface
+of MKL with  AMD cpus. To get around this problem, one has to
+additionally set
+<PRE>
+export MKL_CBWR=AUTO
+</PRE>
+`` (Info by Tobias Klöffel, Feb. 2020)
+
+<P>
+
+<H3><A ID="SECTION00039300000000000000"></A>
+<A ID="SubSec:LinuxPCMPI"></A>
+<BR>
+2.9.3 Linux PC clusters with MPI
+</H3>
+PC clusters running some version of MPI are a very popular
+computational platform nowadays. Q<SMALL>UANTUM </SMALL>ESPRESSO is known to work
+with at least the MPICH2 and OpenMPI implementations.
+<TT>configure</TT> should automatically recognize a properly installed
+parallel environment and prepare for parallel compilation.
+Unfortunately this not always happens. In fact:
+
+<UL>
+<LI><TT>configure</TT> tries to locate a parallel compiler in a logical
+  place with a logical name, but if it has a strange names or it is
+  located  in a strange location, you will have to instruct <TT>configure</TT>   to find it. If there is no parallel Fortran compiler (e.g., mpif90),
+  you will have to install one.
+</LI>
+<LI><TT>configure</TT> tries to locate libraries (both mathematical and
+  parallel libraries) in the usual places with usual names, but if
+  they have strange names or strange locations, you will have to
+  rename/move them, or to instruct <TT>configure</TT> to find them. If MPI
+  libraries are not found, parallel compilation is disabled.
+</LI>
+<LI><TT>configure</TT> tests that the compiler and the libraries are
+  compatible (i.e. the compiler may link the libraries without
+  conflicts and without missing symbols). If they aren't and the
+  compilation fails, <TT>configure</TT> will revert to serial compilation.
+</LI>
+</UL>
+
+<P>
+Apart from such problems, Q<SMALL>UANTUM </SMALL>ESPRESSO compiles and works on all non-buggy, properly
+configured hardware and software combinations. In some cases you may have to
+recompile MPI libraries: not all MPI installations contain support for
+the Fortran compiler of your choice (or for any Fortran compiler
+at all).
+
+<P>
+If Q<SMALL>UANTUM </SMALL>ESPRESSO does not work for some reason on a PC cluster,
+try first if it works in serial execution. A frequent problem with parallel
+execution is that Q<SMALL>UANTUM </SMALL>ESPRESSO does not read from standard input,
+due to the configuration of MPI libraries: see Sec.<A HREF="node22.html#SubSec:badpara">3.5</A>.
+If you are dissatisfied with the performances in parallel execution,
+see Sec.<A HREF="node17.html#Sec:para">3</A> and in particular Sec.<A HREF="node22.html#SubSec:badpara">3.5</A>.
+
+<P>
+
+<H3><A ID="SECTION00039400000000000000"></A>
+<A ID="SubSec:Windows"></A>
+<BR>
+2.9.4 Microsoft Windows
+</H3>
+Currently the safest way to build Q<SMALL>UANTUM </SMALL>ESPRESSO on Windows is to enable the
+Windows Subsystem for Linux (WSL) v.2, available on Windows 10 and 11.
+You may install a Linux distribution you like and compile as on Linux. 
+It works very well. See here:
+<TT>https://learn.microsoft.com/en-us/windows/wsl/install</TT>
+
+<P>
+Another option is  Quantum Mobile:
+<TT>https://www.materialscloud.org/work/quantum-mobile</TT>.
+
+<P>
+If you prefere a native Windows build, you are welcome to try 
+the various possibilities listed below and to report details
+in case of success.
+
+<P>
+Since February 2020 Q<SMALL>UANTUM </SMALL>ESPRESSO can be compiled on MS-Windows 10 using PGI 19.10
+Community Edition (freely downloadable). <TT>configure</TT> works with the bash
+script provided by PGI (the <TT>configure</TT> of FoX fails: use script
+<TT>install/build_fox_with_pgi.sh</TT> to manually compile FoX).
+
+<P>
+Another option: use MinGW/MSYS. Download the installer from
+<TT>https://osdn.net/projects/mingw/</TT>, install MinGW, MSYS, gcc and
+gfortran. Start a shell window; run "./configure"; edit <TT>make.inc</TT>;
+uncommenting the second definition of TOPDIR (the first one introduces a
+final "/" that Windows doesn't like); run "make". Note that on some Windows
+the code fails when checking that <TT>tmp_dir</TT> is writable, for unclear
+reasons.
+
+<P>
+Another option is Cygwin, a UNIX environment which runs under Windows: see
+<BR><TT>http://www.cygwin.com/</TT>.
+
+<P>
+
+<H3><A ID="SECTION00039500000000000000">
+2.9.5 Mac OS</A>
+</H3>
+
+<P>
+Mac OS-X machines with gfortran, and possibly other compilers as well,
+should in principle work, but "your mileage may vary", depending upon 
+the specific software stack you are using. Parallel compilation with 
+OpenMPI should also work.
+
+<P>
+Gfortran information and binaries for Mac OS-X here:
+<TT>http://hpc.sourceforge.net/</TT>.
+
+<P>
+If you get an error like
+<PRE>
+  clang: error: no input files
+  make[1]: *** [laxlib.fh] Error 1
+  make: *** [libla] Error 1i
+</PRE>
+redefine <TT>CPP</TT> as <TT>CPP=gcc -E</TT> in <TT>make.inc</TT>.
+
+<P>
+Mysterious crashes in <TT>zdotc</TT> are due to a known incompatibility of
+complex functions with some optimized BLAS. They should no longer be an
+issue, as all <TT>zdotc</TT> have been replaced from the current Q<SMALL>UANTUM </SMALL>ESPRESSO version.
+
+<P>
+"I have had some success compiling pw.x on the newish apple hardware.
+Running run-tests-pw-parallel resulted in all but 3 tests passed (3 unknown).
+QE6.7 works out of the box:
+
+<UL>
+<LI>Install homebrew
+</LI>
+<LI>Using homebrew install gcc (11.2.0), open-mpi (4.1.1_2), 
+fftw3 (3.3.10), and veclibfort (0.4.2_7)
+</LI>
+</UL>
+To configure QE: 
+<PRE>
+./configure FC=mpif90 CC=mpicc CPP=cpp-11 BLAS_LIBS="-L/opt/homebrew/lib
+           -lveclibfort" LIBDIRS=/opt/homebrew/lib
+</PRE>
+Current develop branch needed two changes:
+
+<OL>
+<LI>The script external/devxlib/config/config.sub is outdated, 
+and needs to be adjusted to correctly parse the machine information. 
+I pulled a more up-to-date version from iains/gcc-darwin-arm64 github repo
+<BR></LI>
+<LI>PW/src/efermig.f90 needed to be compiled without optimization -O0. 
+No idea why at the moment."
+</LI>
+</OL>
+(Info by John Vinson, NIST, )
+
+<P>
+
+<H3><A ID="SECTION00039600000000000000">
+2.9.6 Cray machines</A>
+</H3>
+
+<P>
+Cray machines may be tricky:
+''... despite what people can imagine, every CRAY machine deployed can
+have different environment. For example on the machine I usually use
+for tests [...] I do have to unload some modules to make QE running
+properly. On another CRAY [...] there is also Intel compiler as option
+and the system is slightly different compared to the other.'' 
+(info by Filippo Spiga)
+
+<P>
+<TT>./configure ARCH=craype</TT> should work for recent Cray machines.
+This selects the <TT>ftn</TT> compiler, that typically uses
+the <TT>crayftn</TT> compiler but may also use other ones,
+depending upon the site and personal environment. <TT>ftn</TT> v.15.0.1
+and later should compile QE properly. Some compiler versions may however
+run into problems like these for <TT>ftn</TT> v.14.0.3:
+
+<UL>
+<LI>internal compiler error in <code>esm_stres_mod.f90</code>;
+</LI>
+<LI>crashes when writing the final xml data file.
+</LI>
+</UL>
+Workaround: compile codes <code>esm_stres_mod.f90</code>,
+<code>Modules/qexsd*.f90</code>, <code>PW/src/pw_restart_new.f90</code>
+with reduced optimization, using -O0 or -O1 instead of the default
+-O3,fp3 optimization.
+
+<P>
+If you want to use the Intel compiler instead, try something like:
+<PRE>
+$ module swap PrgEnv-cray PrgEnv-intel
+$ ./configure ARCH=craype [--enable-openmp --enable-parallel --with-scalapack]
+</PRE>
+
+<P>
+<P>
+<HR>
+<!--Navigation Panel-->
+<A
+ HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html214"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node17.html">3 Parallelism</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node15.html">2.8 Running tests and examples</A>
+ &nbsp; <B>  <A ID="tex2html215"
+  HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+
+</BODY>
+</HTML>

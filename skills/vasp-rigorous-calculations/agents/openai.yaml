@@ -1,0 +1,4 @@
+interface:
+  display_name: "VASP Rigorous Calculations"
+  short_description: "Design and audit rigorous VASP calculation workflows"
+  default_prompt: "Use $vasp-rigorous-calculations to design or audit this VASP calculation."

@@ -1,0 +1,20 @@
+# INPUT_NEB — NAMELIST: &PATH — Variable: path_thr
+
+- Official source: https://www.quantum-espresso.org/Doc/INPUT_NEB.txt
+- Retrieved: 2026-07-17T11:49:26+00:00
+- Official source SHA-256: `7c9f7e082b4846135e360fb86c0ce8a43f8e63825fa7d7fafcda3836a6088706`
+- Extracted text SHA-256: `a93b75948fefb957c9a6d20cbe5f28ec683c0e8cca437123c69b91a27c050f8e`
+- Official Last-Modified: Tue, 11 Nov 2025 16:32:09 GMT
+- Content status: official TXT text split without substantive additions; wrapper metadata added by the mirror script.
+
+```text
+         +--------------------------------------------------------------------
+         Variable:       path_thr
+         
+         Type:           REAL
+         Default:        0.05D0 eV / Angstrom
+         Description:    The simulation stops when the error ( the norm of the force
+                         orthogonal to the path in eV/A ) is less than path_thr.
+         +--------------------------------------------------------------------
+         
+```

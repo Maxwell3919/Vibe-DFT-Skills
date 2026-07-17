@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/dft-codex-skills/run-manifest.schema.json",
+  "title": "DFT run manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "code",
+    "code_version",
+    "task_type",
+    "case_id",
+    "scientific_protocol_id",
+    "status",
+    "scientific_acceptance",
+    "configuration",
+    "metrics",
+    "evidence",
+    "limitations",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "record_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "code": {"enum": ["qe", "vasp"]},
+    "code_version": {"type": "string", "minLength": 1},
+    "task_type": {"type": "string", "minLength": 1},
+    "case_id": {"type": "string", "minLength": 1},
+    "scientific_protocol_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["planned", "running", "completed", "stopped", "failed", "accepted"]},
+    "scientific_acceptance": {"enum": ["accepted", "rejected", "not_assessed"]},
+    "configuration": {"type": "object"},
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "wall_time_s": {"type": ["number", "null"], "minimum": 0},
+        "core_hours": {"type": ["number", "null"], "minimum": 0},
+        "queue_wait_s": {"type": ["number", "null"], "minimum": 0},
+        "peak_memory_mb": {"type": ["number", "null"], "minimum": 0},
+        "retained_storage_mb": {"type": ["number", "null"], "minimum": 0},
+        "scf_iterations": {"type": ["integer", "null"], "minimum": 0},
+        "ionic_steps": {"type": ["integer", "null"], "minimum": 0},
+        "restarts": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "label", "status"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "label": {"type": "string", "minLength": 1},
+          "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+          "status": {"enum": ["present", "missing", "redacted", "external"]}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collector", "collector_version", "generated_utc"],
+      "properties": {
+        "collector": {"type": "string", "minLength": 1},
+        "collector_version": {"type": "string", "minLength": 1},
+        "generated_utc": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

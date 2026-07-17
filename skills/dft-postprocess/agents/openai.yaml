@@ -1,0 +1,4 @@
+interface:
+  display_name: "DFT Postprocess"
+  short_description: "Extract, validate, analyze, and plot QE or VASP results"
+  default_prompt: "Use $dft-postprocess to extract, validate, and plot these DFT results."

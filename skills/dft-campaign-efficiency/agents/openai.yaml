@@ -1,0 +1,4 @@
+interface:
+  display_name: "DFT Campaign Efficiency"
+  short_description: "Learn safe efficiency rules from calculation campaigns"
+  default_prompt: "Use $dft-campaign-efficiency to record this campaign and assess transferable efficiency lessons."

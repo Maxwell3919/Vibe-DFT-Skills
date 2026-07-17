@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/dft-codex-skills/campaign-record.schema.json",
+  "title": "DFT campaign efficiency record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_id",
+    "run_manifest_id",
+    "code",
+    "code_version",
+    "task_type",
+    "system_class",
+    "atom_count",
+    "scientific_protocol_id",
+    "configuration_id",
+    "configuration",
+    "metrics",
+    "outcome",
+    "recorded_utc"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "record_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "run_manifest_id": {"type": "string", "minLength": 1},
+    "code": {"enum": ["qe", "vasp"]},
+    "code_version": {"type": "string", "minLength": 1},
+    "task_type": {"type": "string", "minLength": 1},
+    "system_class": {"type": "string", "minLength": 1},
+    "atom_count": {"type": "integer", "minimum": 1},
+    "scientific_protocol_id": {"type": "string", "minLength": 1},
+    "configuration_id": {"type": "string", "minLength": 1},
+    "configuration": {"type": "object"},
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["wall_time_s", "core_hours"],
+      "properties": {
+        "wall_time_s": {"type": "number", "minimum": 0},
+        "core_hours": {"type": "number", "minimum": 0},
+        "queue_wait_s": {"type": ["number", "null"], "minimum": 0},
+        "peak_memory_mb": {"type": ["number", "null"], "minimum": 0},
+        "retained_storage_mb": {"type": ["number", "null"], "minimum": 0},
+        "restarts": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scientifically_accepted", "status", "accuracy_metrics"],
+      "properties": {
+        "scientifically_accepted": {"type": "boolean"},
+        "status": {"enum": ["accepted", "rejected", "failed", "stopped"]},
+        "accuracy_metrics": {"type": "object"},
+        "failure_code": {"type": ["string", "null"]}
+      }
+    },
+    "source_manifest_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "recorded_utc": {"type": "string", "format": "date-time"}
+  }
+}

@@ -1,0 +1,52 @@
+# INPUT_PWCOND Official Manual Index
+
+- Official source: https://www.quantum-espresso.org/Doc/INPUT_PWCOND.txt
+- Program: pwcond.x / PWscf / Quantum ESPRESSO (version: 7.5)
+- Manual version: 7.5
+- Source retrieved UTC: 2026-07-17T11:49:48+00:00
+- Sections: 40
+- Official format mirrored: TXT
+- Raw: [official-raw/INPUT_PWCOND.txt](official-raw/INPUT_PWCOND.txt)
+
+## Sections
+
+- [Overview and input structure](official-input-pwcond-00-overview.md)
+- [NAMELIST: &INPUTCOND — overview](official-input-pwcond-01-namelist-and-inputcond-overview.md)
+- [NAMELIST: &INPUTCOND — Variable: outdir](official-input-pwcond-02-namelist-and-inputcond-variable-outdir.md)
+- [NAMELIST: &INPUTCOND — Variable: prefixt](official-input-pwcond-03-namelist-and-inputcond-variable-prefixt.md)
+- [NAMELIST: &INPUTCOND — Variable: prefixl](official-input-pwcond-04-namelist-and-inputcond-variable-prefixl.md)
+- [NAMELIST: &INPUTCOND — Variable: prefixs](official-input-pwcond-05-namelist-and-inputcond-variable-prefixs.md)
+- [NAMELIST: &INPUTCOND — Variable: prefixr](official-input-pwcond-06-namelist-and-inputcond-variable-prefixr.md)
+- [NAMELIST: &INPUTCOND — Variable: tran_prefix](official-input-pwcond-07-namelist-and-inputcond-variable-tran-prefix.md)
+- [NAMELIST: &INPUTCOND — Variable: max_seconds](official-input-pwcond-08-namelist-and-inputcond-variable-max-seconds.md)
+- [NAMELIST: &INPUTCOND — Variable: recover](official-input-pwcond-09-namelist-and-inputcond-variable-recover.md)
+- [NAMELIST: &INPUTCOND — Variable: band_file](official-input-pwcond-10-namelist-and-inputcond-variable-band-file.md)
+- [NAMELIST: &INPUTCOND — Variable: tran_file](official-input-pwcond-11-namelist-and-inputcond-variable-tran-file.md)
+- [NAMELIST: &INPUTCOND — Variable: save_file](official-input-pwcond-12-namelist-and-inputcond-variable-save-file.md)
+- [NAMELIST: &INPUTCOND — Variable: fil_loc](official-input-pwcond-13-namelist-and-inputcond-variable-fil-loc.md)
+- [NAMELIST: &INPUTCOND — Variable: lwrite_cond](official-input-pwcond-14-namelist-and-inputcond-variable-lwrite-cond.md)
+- [NAMELIST: &INPUTCOND — Variable: loop_ek](official-input-pwcond-15-namelist-and-inputcond-variable-loop-ek.md)
+- [NAMELIST: &INPUTCOND — Variable: lread_cond](official-input-pwcond-16-namelist-and-inputcond-variable-lread-cond.md)
+- [NAMELIST: &INPUTCOND — Variable: lwrite_loc](official-input-pwcond-17-namelist-and-inputcond-variable-lwrite-loc.md)
+- [NAMELIST: &INPUTCOND — Variable: lread_loc](official-input-pwcond-18-namelist-and-inputcond-variable-lread-loc.md)
+- [NAMELIST: &INPUTCOND — Variable: ikind](official-input-pwcond-19-namelist-and-inputcond-variable-ikind.md)
+- [NAMELIST: &INPUTCOND — Variable: iofspin](official-input-pwcond-20-namelist-and-inputcond-variable-iofspin.md)
+- [NAMELIST: &INPUTCOND — Variable: tk_plot](official-input-pwcond-21-namelist-and-inputcond-variable-tk-plot.md)
+- [NAMELIST: &INPUTCOND — Variable: llocal](official-input-pwcond-22-namelist-and-inputcond-variable-llocal.md)
+- [NAMELIST: &INPUTCOND — Variable: bdl](official-input-pwcond-23-namelist-and-inputcond-variable-bdl.md)
+- [NAMELIST: &INPUTCOND — Variable: bds](official-input-pwcond-24-namelist-and-inputcond-variable-bds.md)
+- [NAMELIST: &INPUTCOND — Variable: bdr](official-input-pwcond-25-namelist-and-inputcond-variable-bdr.md)
+- [NAMELIST: &INPUTCOND — Variable: nz1](official-input-pwcond-26-namelist-and-inputcond-variable-nz1.md)
+- [NAMELIST: &INPUTCOND — Variable: energy0](official-input-pwcond-27-namelist-and-inputcond-variable-energy0.md)
+- [NAMELIST: &INPUTCOND — Variable: denergy](official-input-pwcond-28-namelist-and-inputcond-variable-denergy.md)
+- [NAMELIST: &INPUTCOND — Variable: nenergy](official-input-pwcond-29-namelist-and-inputcond-variable-nenergy.md)
+- [NAMELIST: &INPUTCOND — Variable: start_e](official-input-pwcond-30-namelist-and-inputcond-variable-start-e.md)
+- [NAMELIST: &INPUTCOND — Variable: last_e](official-input-pwcond-31-namelist-and-inputcond-variable-last-e.md)
+- [NAMELIST: &INPUTCOND — Variable: start_k](official-input-pwcond-32-namelist-and-inputcond-variable-start-k.md)
+- [NAMELIST: &INPUTCOND — Variable: last_k](official-input-pwcond-33-namelist-and-inputcond-variable-last-k.md)
+- [NAMELIST: &INPUTCOND — Variable: ecut2d](official-input-pwcond-34-namelist-and-inputcond-variable-ecut2d.md)
+- [NAMELIST: &INPUTCOND — Variable: ewind](official-input-pwcond-35-namelist-and-inputcond-variable-ewind.md)
+- [NAMELIST: &INPUTCOND — Variable: epsproj](official-input-pwcond-36-namelist-and-inputcond-variable-epsproj.md)
+- [NAMELIST: &INPUTCOND — Variable: orbj_in](official-input-pwcond-37-namelist-and-inputcond-variable-orbj-in.md)
+- [NAMELIST: &INPUTCOND — Variable: orbj_fin](official-input-pwcond-38-namelist-and-inputcond-variable-orbj-fin.md)
+- [CARD: /////////////////////////////////////////](official-input-pwcond-39-card-section.md)

@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//en">
+
+<!--Converted with LaTeX2HTML 2024 (Released January 1, 2024) -->
+<HTML lang="en">
+<HEAD>
+<TITLE>2.7 Compilation</TITLE>
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2024">
+
+<LINK REL="STYLESHEET" HREF="user_guide.css">
+
+<LINK REL="next" HREF="node15.html">
+<LINK REL="previous" HREF="node13.html">
+<LINK REL="next" HREF="node15.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A
+ HREF="node15.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node13.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html208"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node15.html">2.8 Running tests and examples</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node13.html">2.6 Libxc library</A>
+ &nbsp; <B>  <A ID="tex2html209"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H2><A ID="SECTION00037000000000000000"></A>
+<A ID="SubSec:Compilation"></A>
+<BR>
+2.7 Compilation
+</H2>
+
+<P>
+The compiled codes can run with any input: almost all variables are
+dinamically allocated at run time. Only a few variables have fixed
+dimensions, set in file <TT>Modules/parameters.f90</TT>:
+<PRE>
+      ntypx  = 10,     &amp;! max number of different types of atom
+      npsx   = ntypx,  &amp;! max number of different PPs (obsolete)
+      nsx    = ntypx,  &amp;! max number of atomic species (CP)
+      npk    = 40000,  &amp;! max number of k-points
+      lmaxx  = 4,      &amp;! max non local angular momentum (l=0 to lmaxx)
+      lqmax= 2*lmaxx+1  ! max number of angular momenta of Q
+</PRE>
+These values should work for the vast majority of cases. In case you need
+more atomic types or more k-points, edit this file and recompile.
+
+<P>
+At your choice, you may compile the complete Q<SMALL>UANTUM </SMALL>ESPRESSO suite of programs
+(with <TT>make all</TT>), or only some specific programs.
+All executables are linked in main <TT>bin</TT> directory.
+<TT>make</TT> with no arguments yields ain updated list of valid compilation targets.
+
+<P>
+For the setup of the GUI, refer to the <TT>PWgui-X.Y.Z /INSTALL</TT> file, where
+X.Y.Z stands for the version number of the GUI (should be the same as the
+general version number). If you are using sources from the git repository, see
+the <TT>GUI/README</TT> file instead.
+
+<P>
+If <TT>make</TT> refuses for some reason to download additional
+packages, manually download them into subdirectory
+<TT>archive/</TT>, <EM>not</EM> unpacking or uncompressing them,
+and try <TT>make</TT> again. Also see Sec.(<A HREF="node8.html#SubSec:Download">2.1</A>).
+
+<P>
+<BR><HR>
+
+</BODY>
+</HTML>

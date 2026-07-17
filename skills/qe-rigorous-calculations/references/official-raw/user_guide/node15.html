@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//en">
+
+<!--Converted with LaTeX2HTML 2024 (Released January 1, 2024) -->
+<HTML lang="en">
+<HEAD>
+<TITLE>2.8 Running tests and examples</TITLE>
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<META NAME="viewport" CONTENT="width=device-width, initial-scale=1.0">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2024">
+
+<LINK REL="STYLESHEET" HREF="user_guide.css">
+
+<LINK REL="next" HREF="node16.html">
+<LINK REL="previous" HREF="node14.html">
+<LINK REL="next" HREF="node16.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A
+ HREF="node16.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node14.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html210"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node16.html">2.9 Installation tricks and problems</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node14.html">2.7 Compilation</A>
+ &nbsp; <B>  <A ID="tex2html211"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A ID="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A ID="tex2html212"
+  HREF="node15.html#SECTION00038100000000000000">2.8.1 Test-suite</A>
+<LI><A ID="tex2html213"
+  HREF="node15.html#SECTION00038200000000000000">2.8.2 Examples</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H2><A ID="SECTION00038000000000000000"></A>
+<A ID="SubSec:TestsExamples"></A>
+<BR>
+2.8 Running tests and examples
+</H2>
+
+<P>
+As a final check that compilation was successful, you may want to run some or
+all of the tests and examples.
+Notice that most tests and examples are devised to be run serially
+or on a small number of processors; do not use tests and examples
+to benchmark parallelism, do not try to run on too many processors.
+
+<P>
+
+<H3><A ID="SECTION00038100000000000000">
+2.8.1 Test-suite</A>
+</H3>
+Automated tests give a "pass/fail" answer. All tests run quickly
+(less than a minute each at most), but they are not meant to be realistic,
+just to test a specific case. Many features are tested but only for
+the following codes: <TT>pw.x</TT>, <TT>cp.x</TT>, <TT>ph.x</TT>, <TT>epw.x</TT>, <TT>hp.x</TT>.
+Instructions for the impatient:
+<PRE>
+    cd test-suite
+    make [NPROCS=X] run-tests
+</PRE>
+where the square brackets mean that what is inside is optional, <TT>X</TT> 
+is the number of processors (for a parallel build: do not set <TT>X</TT>
+to more than 1 for a serial build!).
+
+<P>
+Instructions for all others: go to the <TT>test-suite/</TT> directory,
+read the <TT>README</TT> file, or at least, type <TT>make</TT>. You may need
+to edit the <TT>run-XX.sh</TT> shells, defining variables
+<TT>PARA_PREFIX</TT> and <TT>PARA_POSTFIX</TT> (see below for their
+meaning).
+
+<P>
+
+<H3><A ID="SECTION00038200000000000000"></A>
+<A ID="SubSec:Examples"></A>
+<BR>
+2.8.2 Examples
+</H3>
+There are many examples and reference data for almost every piece of Q<SMALL>UANTUM </SMALL>ESPRESSO,
+but you have to manually inspect the results.
+
+<P>
+In order to use examples, you should edit file <TT>environment_variables</TT>,
+setting the following variables as needed.
+<BLOCKQUOTE>
+BIN_DIR: directory where executables reside
+<BR>
+PSEUDO_DIR: directory where pseudopotential files reside
+<BR>
+TMP_DIR: directory to be used as temporary storage area
+
+</BLOCKQUOTE>
+The default values of BIN_DIR and PSEUDO_DIR should be fine,
+unless you have installed things in nonstandard places. TMP_DIR
+must be a directory where you have read and write access to, with
+enough available space to host the temporary files produced by the
+example runs, and possibly offering high I/O performance (i.e., don't
+use an NFS-mounted directory). NOTA BENE: do not use a
+directory containing other data: the examples will clean it!
+
+<P>
+If you have compiled the parallel version of Q<SMALL>UANTUM </SMALL>ESPRESSO (this
+is the default if parallel libraries are detected), you will usually
+have to specify a launcher program (such as <TT>mpirun</TT> or
+<TT>mpiexec</TT>) and the number of processors: see Sec.<A HREF="node17.html#Sec:para">3</A> for
+details. In order to do that, edit again the <TT>environment_variables</TT>
+file and set the <TT>PARA_PREFIX</TT> and <TT>PARA_POSTFIX</TT> variables
+as needed. Parallel executables will be run by a command like this:
+<PRE>
+      $PARA_PREFIX pw.x $PARA_POSTFIX -i file.in &gt; file.out
+</PRE>
+For example, if the command line is like this (as for an IBM SP):
+<PRE>
+      mpirun -np 4 pw.x -i file.in &gt; file.out
+</PRE>
+you should set <TT>PARA_PREFIX="mpirun -np 4"</TT>,
+<TT>PARA_POSTFIX=""</TT>.
+Furthermore, if your machine does not support interactive use, you
+must run the commands specified above through the batch queuing
+system installed on that machine. Ask your system administrator for
+instructions. For execution using OpenMP on N threads,
+use <TT>PARA_PREFIX="env OMP_NUM_THREADS=N ... "</TT>.
+
+<P>
+To run an example, go to the corresponding directory (e.g.
+ <TT>PW/examples/example01</TT>) and execute:
+<PRE>
+      ./run_example
+</PRE>
+This will create a subdirectory <TT>results/</TT>, containing the input and
+output files generated by the calculation. Some examples take only a
+few seconds to run, while others may require up to several minutes.
+
+<P>
+In each example's directory, the <TT>reference/</TT> subdirectory contains
+verified output files, that you can check your results against. You may
+get slightly different reesults on different machines, in particular if
+different FFT dimensions are automatically selected. For this reason, a
+plain diff of your results against the reference data doesn't work, or
+at least, it requires human inspection of the results.
+
+<P>
+The example scripts stop if an error is detected. You should look <EM>inside</EM>
+the last written output file to understand why.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A
+ HREF="node16.html">
+<IMG WIDTH="37" HEIGHT="24" ALT="next" SRC="next.png"></A> 
+<A
+ HREF="node7.html">
+<IMG WIDTH="26" HEIGHT="24" ALT="up" SRC="up.png"></A> 
+<A
+ HREF="node14.html">
+<IMG WIDTH="63" HEIGHT="24" ALT="previous" SRC="prev.png"></A> 
+<A ID="tex2html210"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A
+ HREF="node16.html">2.9 Installation tricks and problems</A>
+<B> Up:</B> <A
+ HREF="node7.html">2 Installation</A>
+<B> Previous:</B> <A
+ HREF="node14.html">2.7 Compilation</A>
+ &nbsp; <B>  <A ID="tex2html211"
+  HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+
+</BODY>
+</HTML>
