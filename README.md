@@ -100,7 +100,68 @@ flowchart LR
 
 ### 使用方法
 
-#### 1. 安装
+#### 1. 环境与软件准备
+
+##### 共用基础环境
+
+仓库的 CI 参考环境是 Ubuntu、Python 3.12 和 `poppler-utils`；本地开发建议使用 macOS 或 Linux 等 POSIX 环境，并准备 Git、Codex、Python 3.12、`pip` 和虚拟环境工具。只调用 Skill 阅读官方快照、设计工作流或审计用户已经提供的输入/输出时，不要求本机安装 QE、VASP、CP2K 或 SIESTA 可执行文件。
+
+```bash
+# macOS：完整测试需要 Poppler
+brew install poppler
+
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install --yes poppler-utils
+
+# 仓库 Python 环境；若命令名不是 python3.12，可使用指向 3.12 的 python3
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
+```
+
+`requirements-dev.txt` 是当前完整且经过 CI 验证的 Python 配置，包括 ASE、Gemmi、PyCifRW、NumPy、jsonschema、spglib、Matplotlib、PyYAML、BeautifulSoup、certifi 和 lxml。不要把虚拟环境提交到 Git。
+
+##### CIF Skill 环境
+
+| 功能 | 需要准备的软件 | 降级行为或边界 |
+|---|---|---|
+| 基本结构 artifact | ASE、jsonschema | 两者是成功生成并校验 structure manifest 的核心依赖 |
+| 严格 CIF 1.1 文档/数据块/标签解析 | Gemmi 0.7.5+ | 缺失时可退回 ASE CIF1.1 解析，但结果标为 `WARN` |
+| CIF2 解析 | PyCifRW 5.0.1+ | CIF2 需要该解析器；Gemmi 当前不承担 CIF2 路线 |
+| 晶胞、周期镜像近邻、配位和目标键长匹配 | ASE、NumPy | 输出的是显式距离壳层，不自动推断键级 |
+| 对称性数据与容差扫描 | spglib 2.7+、NumPy | 混合/部分占位不能被普通 species 标签完整表达 |
+| `--views-dir` 静态三轴 PNG | Matplotlib、NumPy、ASE | 图是展示 artifact，不替代数值或晶体学证据 |
+
+完整 CIF 环境已包含在 `requirements-dev.txt` 中；更细的能力降级说明见 [`dependencies-and-capabilities.md`](skills/cif-structure-analysis/references/dependencies-and-capabilities.md)。
+
+##### 实际运行 DFT 时的外部软件
+
+| Calculation Skill | 只做方案/审计 | 真正运行计算时需要额外准备 |
+|---|---|---|
+| QE | Python 环境、输入/输出证据和明确的软件版本即可 | 与任务匹配的 Quantum ESPRESSO 发行版，例如 `pw.x`、`ph.x`、`neb.x`；相应 UPF 赝势；集群任务通常还需要 MPI 和调度器。后处理按需准备 `bands.x`、`dos.x`、`projwfc.x`、`pp.x`、`average.x`、`q2r.x`、`matdyn.x` |
+| VASP | Python 环境、INCAR/POSCAR/KPOINTS、POTCAR 元数据和运行输出即可 | 合法授权的 VASP 与任务对应的 `vasp_std`、`vasp_gam` 或 `vasp_ncl`；匹配的 POTCAR 数据集；MPI/调度器。POTCAR 内容必须保留在仓库之外 |
+| CP2K | Python 环境、输入/输出证据、版本与 build identity 即可 | CP2K 可执行文件及与输入匹配的 BASIS/POTENTIAL 数据；MPI/调度器。可选官方工具包括 `cp2klint`、`fromcp2k`、`cp2kget`、`cp2kparse`、`cp2k_bs2csv` 和 `cp2k_pdos`，但当前后处理 adapter 成熟度仍需逐项检查 |
+| SIESTA | Python 环境、FDF、PSF/PSML/VPS 元数据、输出与明确版本即可 | SIESTA 可执行文件、匹配的 PSF/PSML/VPS 文件和 MPI/调度器；仅在任务确实需要且路线成熟度已核对时准备 TranSIESTA/TBtrans 等任务软件 |
+
+把需要调用的可执行文件放入 `PATH`，或在任务中显式提供可验证路径和版本；不要把私人集群路径写入 Skill、manifest 或 Git。官方资料的离线快照可以不联网使用，只有刷新官方来源或使用数据库/在线 adapter 时才需要网络和相应认证。
+
+##### 后处理与效率 Skill 的可选软件
+
+- `dft-postprocess` 的核心抽取、归一化、验证和绘图使用仓库 Python 环境；按任务可以再准备 VASPKIT、Bader、critic2、phonopy、sumo、pyprocar、Wannier90、VESTA，以及 SciPy、pandas、pymatgen 等包。
+- 外部工具只在计划选择了相应 backend 时安装。Skill 不会自动安装；缺失时应返回 `TOOL_UNAVAILABLE`，而不是切换到未声明算法。
+- “工具可执行”不代表“adapter 已经通过真实产物验证”。每次都要检查 `code × observable × backend` 的成熟度、版本、输入契约、单位和 provenance。
+- `dft-campaign-efficiency` 只处理隐私安全的 manifest/campaign 数据时不需要任何 DFT 可执行文件；其运行数据库必须放在 Git 仓库之外。
+
+可先生成本机后处理能力快照，再决定需要补装哪些工具：
+
+```bash
+python3 skills/dft-postprocess/scripts/dftpost_cli.py \
+  capabilities --out capabilities.json
+```
+
+##### 安装 Skill
 
 从仓库根目录先预览，再把七个 Skill 以符号链接安装到 Codex Skill 目录：
 
@@ -195,12 +256,77 @@ Ownership remains explicit: calculation Skills own calculation integrity, postpr
 
 ### Usage
 
+#### 1. Environment and software prerequisites
+
+##### Shared baseline
+
+The CI reference environment is Ubuntu with Python 3.12 and `poppler-utils`. For local development, use a POSIX environment such as macOS or Linux with Git, Codex, Python 3.12, `pip`, and virtual-environment support. Using a Skill to read the bundled official snapshots, design a workflow, or audit user-supplied inputs and outputs does not require the QE, VASP, CP2K, or SIESTA executable to be installed locally.
+
+```bash
+# macOS: Poppler is required by the complete test suite
+brew install poppler
+
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install --yes poppler-utils
+
+# Repository Python environment; use python3 if it resolves to Python 3.12
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
+```
+
+The CI-validated `requirements-dev.txt` profile includes ASE, Gemmi, PyCifRW, NumPy, jsonschema, spglib, Matplotlib, PyYAML, BeautifulSoup, certifi, and lxml. Do not commit the virtual environment.
+
+##### CIF Skill profile
+
+| Capability | Software to prepare | Degradation or boundary |
+|---|---|---|
+| Core structure artifact | ASE and jsonschema | Both are core requirements for successful structure-manifest generation and validation |
+| Strict CIF 1.1 document/block/tag parsing | Gemmi 0.7.5+ | Missing Gemmi can fall back to ASE CIF1.1 parsing, but the result is `WARN` |
+| CIF2 parsing | PyCifRW 5.0.1+ | CIF2 requires this route; Gemmi does not provide the current CIF2 backend |
+| Cell geometry, periodic-image neighbors, coordination, and target bond matching | ASE and NumPy | Produces explicit distance shells; it does not infer bond order |
+| Symmetry datasets and tolerance sweeps | spglib 2.7+ and NumPy | Ordinary species labels cannot fully represent mixed/partial occupancy |
+| Static a/b/c PNGs through `--views-dir` | Matplotlib, NumPy, and ASE | Figures are presentation artifacts, not numerical or crystallographic proof |
+
+The complete CIF profile is already part of `requirements-dev.txt`; see [`dependencies-and-capabilities.md`](skills/cif-structure-analysis/references/dependencies-and-capabilities.md) for detailed degradation rules.
+
+##### External software for actual DFT runs
+
+| Calculation Skill | Planning/audit only | Additional software for execution |
+|---|---|---|
+| QE | Python environment, supplied input/output evidence, and an explicit software version | A task-matched Quantum ESPRESSO distribution such as `pw.x`, `ph.x`, or `neb.x`; corresponding UPF pseudopotentials; usually MPI and a scheduler on a cluster. Add `bands.x`, `dos.x`, `projwfc.x`, `pp.x`, `average.x`, `q2r.x`, or `matdyn.x` only when the postprocessing route needs them |
+| VASP | Python environment, INCAR/POSCAR/KPOINTS, POTCAR metadata, and outputs | A licensed VASP installation with task-matched `vasp_std`, `vasp_gam`, or `vasp_ncl`; matching POTCAR datasets; MPI/scheduler. Licensed POTCAR contents must remain outside this repository |
+| CP2K | Python environment, supplied evidence, version, and build identity | A CP2K executable and matching BASIS/POTENTIAL data; MPI/scheduler. Optional official utilities include `cp2klint`, `fromcp2k`, `cp2kget`, `cp2kparse`, `cp2k_bs2csv`, and `cp2k_pdos`, subject to the maturity of each adapter |
+| SIESTA | Python environment, FDF and PSF/PSML/VPS metadata, outputs, and an explicit version | A SIESTA executable, matching PSF/PSML/VPS files, and MPI/scheduler; prepare task-specific TranSIESTA/TBtrans software only after confirming that the selected workflow and adapter maturity support it |
+
+Place callable executables on `PATH`, or provide an explicit verifiable path and version for the task. Never record private cluster paths in a Skill, manifest, or Git. The bundled official snapshots work offline; network access and credentials are needed only for source refreshes or selected online/database adapters.
+
+##### Optional postprocessing and efficiency software
+
+- Core `dft-postprocess` extraction, normalization, validation, and plotting use the repository Python profile. Task-specific optional tools include VASPKIT, Bader, critic2, phonopy, sumo, pyprocar, Wannier90, VESTA, and Python packages such as SciPy, pandas, and pymatgen.
+- Install an external tool only when the plan selects its backend. The Skill never auto-installs tools; missing software must produce `TOOL_UNAVAILABLE` rather than an undeclared algorithm substitution.
+- Executable availability does not establish adapter maturity. Check the exact `code × observable × backend`, version, input contract, units, and provenance before use.
+- `dft-campaign-efficiency` needs no DFT executable when it only processes privacy-safe manifests and campaign records. Keep its runtime database outside Git.
+
+Create a local capability snapshot before deciding what else to install:
+
+```bash
+python3 skills/dft-postprocess/scripts/dftpost_cli.py \
+  capabilities --out capabilities.json
+```
+
+#### 2. Install the Skills
+
 Preview and install repository-backed symlinks:
 
 ```bash
 python3 tools/install_skills.py --dry-run
 python3 tools/install_skills.py
 ```
+
+#### 3. Invoke in Codex
 
 Codex can select a Skill from a natural-language request, or you can name one explicitly:
 
@@ -210,6 +336,8 @@ Use $vasp-rigorous-calculations to audit this relaxation and its static parent.
 Use $dft-postprocess to create provenance-bearing bands and PDOS figures from accepted evidence.
 Use $dft-campaign-efficiency to compare two parallel layouts without changing acceptance criteria.
 ```
+
+#### 4. Deterministic CLI and validation
 
 For deterministic CLI use, start with each Skill's `SKILL.md` and its routed `references/`. The CIF and shared validation examples in the Chinese section are directly executable from the repository root. Before publishing any change, run the four validation commands shown under “开发与验收 / Development and acceptance”.
 
