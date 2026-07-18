@@ -87,7 +87,7 @@ def recommendation(
             "limitations": [
                 f"baseline median: {summary[baseline]['core_hours']:.6g} core-hours, {summary[baseline]['wall_time_s']:.6g} s, n={summary[baseline]['count']}",
                 f"recommended median: {summary[recommended]['core_hours']:.6g} core-hours, {summary[recommended]['wall_time_s']:.6g} s, n={summary[recommended]['count']}",
-                "This is project experience, not official QE/VASP guidance.",
+                "This is project experience, not official DFT-code guidance.",
             ],
             "generated_utc": utc_now(),
         }

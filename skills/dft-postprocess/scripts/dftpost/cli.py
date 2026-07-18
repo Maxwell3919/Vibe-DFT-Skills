@@ -5,20 +5,24 @@ import json
 from pathlib import Path
 import sys
 
+from .band_views import plot_band_comparison, plot_projection_panels
 from .capabilities import detect_capabilities
 from .electronic import normalize_qe_bands, normalize_qe_dos, normalize_qe_fatband, plot_bands_dos
 from .inventory import build_inventory
-from .manifests import build_artifact_manifest, validate_manifest
+from .manifests import SCHEMAS, build_artifact_manifest, validate_manifest
 from .neb_optical import normalize_neb_table, normalize_optical_table
 from .parsers import extract_summary
 from .planning import build_postprocess_plan
 from .plotting import plot_table
 from .phonon_epc import normalize_qe_epc, normalize_qe_phonon
-from .realspace import normalize_bader_acf, normalize_grid_field
-from .registry import load_registry, validate_registry
+from .realspace import combine_cube_grids, normalize_bader_acf, normalize_grid_field
+from .registry import load_registry, registered_aggregate_codes, registered_codes, validate_registry
 from .runtrace import normalize_run_trace
+from .structure_views import render_structure_views
 from .utils import write_json_atomic
 from .vasp_electronic import normalize_vasp_bands, normalize_vasp_dos, normalize_vasp_fatband
+from .vaspkit import normalize_vaspkit_bands
+from .vesta import render_vesta_isosurface
 
 
 def _key_value_mapping(specifications: list[str], label: str) -> dict[str, str]:
@@ -46,8 +50,51 @@ def _optical_component_mapping(specifications: list[str]) -> dict[str, tuple[str
     return result
 
 
+def _coefficient_paths(specifications: list[str]) -> list[tuple[float, Path]]:
+    result: list[tuple[float, Path]] = []
+    for specification in specifications:
+        if "=" not in specification:
+            raise ValueError("grid components must use coefficient=path")
+        coefficient_text, path_text = specification.split("=", 1)
+        if not coefficient_text or not path_text:
+            raise ValueError("grid components require a nonempty coefficient and path")
+        try:
+            coefficient = float(coefficient_text)
+        except ValueError as exc:
+            raise ValueError(f"invalid grid coefficient: {coefficient_text}") from exc
+        result.append((coefficient, Path(path_text)))
+    return result
+
+
+def _labeled_paths(specifications: list[str], label: str) -> list[tuple[str, Path]]:
+    return [(key, Path(value)) for key, value in _key_value_mapping(specifications, label).items()]
+
+
+def _float_mapping(specifications: list[str], label: str) -> dict[str, float]:
+    result: dict[str, float] = {}
+    for key, value in _key_value_mapping(specifications, label).items():
+        try:
+            result[key] = float(value)
+        except ValueError as exc:
+            raise ValueError(f"{label} value must be numeric: {key}={value}") from exc
+    return result
+
+
+def _bond_mapping(specifications: list[str]) -> dict[frozenset[str], float]:
+    result: dict[frozenset[str], float] = {}
+    for pair, value in _float_mapping(specifications, "bond").items():
+        symbols = [item.strip() for item in pair.split("-")]
+        if len(symbols) != 2 or not all(symbols):
+            raise ValueError("bond specifications must use Element-Element=maximum_angstrom")
+        key = frozenset(symbols)
+        if key in result:
+            raise ValueError(f"duplicate bond pair: {pair}")
+        result[key] = value
+    return result
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="dftpost", description="Deterministic QE/VASP postprocessing foundation")
+    parser = argparse.ArgumentParser(prog="dftpost", description="Deterministic, maturity-gated DFT postprocessing foundation")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     capabilities = subparsers.add_parser("capabilities")
@@ -59,7 +106,7 @@ def build_parser() -> argparse.ArgumentParser:
     plan = subparsers.add_parser("plan")
     plan.add_argument("--plan-id", required=True)
     plan.add_argument("--observable", required=True)
-    plan.add_argument("--code", choices=("qe", "vasp"), required=True)
+    plan.add_argument("--code", choices=registered_codes(), required=True)
     plan.add_argument("--source-root", type=Path, required=True)
     plan.add_argument("--output-root", type=Path, required=True)
     plan.add_argument("--evidence", action="append", default=[])
@@ -127,8 +174,10 @@ def build_parser() -> argparse.ArgumentParser:
     qe_fatband.add_argument("--select", action="append", required=True)
     qe_fatband.add_argument("--dataset-id", required=True)
     qe_fatband.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
-    qe_fatband.add_argument("--marker-scale", type=float, default=45.0)
+    qe_fatband.add_argument("--marker-scale", type=float, default=8.0)
     qe_fatband.add_argument("--render-mode", choices=("line-width", "bubble"), default="line-width")
+    qe_fatband.add_argument("--projection-label")
+    qe_fatband.add_argument("--bands-label", default="Bands")
     qe_fatband.add_argument("--figure", type=Path)
     qe_fatband.add_argument("--overwrite", action="store_true")
     qe_fatband.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
@@ -168,12 +217,26 @@ def build_parser() -> argparse.ArgumentParser:
     vasp_fatband.add_argument("--select", action="append", required=True)
     vasp_fatband.add_argument("--dataset-id", required=True)
     vasp_fatband.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
-    vasp_fatband.add_argument("--marker-scale", type=float, default=45.0)
+    vasp_fatband.add_argument("--marker-scale", type=float, default=8.0)
     vasp_fatband.add_argument("--render-mode", choices=("line-width", "bubble"), default="line-width")
+    vasp_fatband.add_argument("--projection-label")
+    vasp_fatband.add_argument("--bands-label", default="Bands")
     vasp_fatband.add_argument("--figure", type=Path)
     vasp_fatband.add_argument("--overwrite", action="store_true")
     vasp_fatband.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
     vasp_fatband.add_argument("--out-dir", type=Path, required=True)
+
+    vaspkit_bands = subparsers.add_parser("vaspkit-bands")
+    vaspkit_bands.add_argument("--band-data", type=Path, required=True)
+    vaspkit_bands.add_argument("--klabels", type=Path, required=True)
+    vaspkit_bands.add_argument("--energy-offset-ev", type=float, required=True)
+    vaspkit_bands.add_argument("--energy-reference-description", required=True)
+    vaspkit_bands.add_argument("--dataset-id", required=True)
+    vaspkit_bands.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
+    vaspkit_bands.add_argument("--figure", type=Path)
+    vaspkit_bands.add_argument("--overwrite", action="store_true")
+    vaspkit_bands.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="synthetic-validated")
+    vaspkit_bands.add_argument("--out-dir", type=Path, required=True)
 
     qe_phonon = subparsers.add_parser("qe-phonon")
     qe_phonon.add_argument("frequencies", type=Path)
@@ -201,19 +264,67 @@ def build_parser() -> argparse.ArgumentParser:
     grid_field = subparsers.add_parser("grid-field")
     grid_field.add_argument("grid", type=Path)
     grid_field.add_argument("--code", choices=("qe", "vasp", "mixed"), required=True)
-    grid_field.add_argument("--field-kind", choices=("charge-density", "electron-localization", "electrostatic-potential", "other"), required=True)
+    grid_field.add_argument("--field-kind", choices=("charge-density", "charge-density-difference", "electron-localization", "electrostatic-potential", "other"), required=True)
     grid_field.add_argument("--field-unit", required=True)
     grid_field.add_argument("--axis", type=int, choices=(0, 1, 2), default=2)
     grid_field.add_argument("--slice-index", type=int)
+    grid_field.add_argument("--slice-hkl", type=int, nargs=3, metavar=("H", "K", "L"))
+    grid_field.add_argument("--slice-offset", type=float)
+    grid_field.add_argument("--slice-resolution", type=int, nargs=2, metavar=("NU", "NV"))
+    grid_field.add_argument("--slice-origin", type=float, nargs=2, metavar=("U0", "V0"), default=(0.0, 0.0))
+    grid_field.add_argument("--slice-window", type=float, nargs=4, metavar=("UMIN", "UMAX", "VMIN", "VMAX"))
+    grid_field.add_argument("--atom-overlay", choices=("none", "near-plane", "all-projected"), default="near-plane")
+    grid_field.add_argument("--atom-plane-tolerance", type=float)
+    grid_field.add_argument("--no-atom-labels", action="store_true")
+    grid_field.add_argument("--colormap")
+    grid_field.add_argument("--value-range", type=float, nargs=2, metavar=("VMIN", "VMAX"))
     grid_field.add_argument("--potential-to-ev", type=float)
     grid_field.add_argument("--fermi-energy-ev", type=float)
     grid_field.add_argument("--fermi-energy-file", type=Path)
     grid_field.add_argument("--vacuum-window", type=float, nargs=2, metavar=("MIN_ANGSTROM", "MAX_ANGSTROM"))
     grid_field.add_argument("--dataset-id", required=True)
     grid_field.add_argument("--figure", type=Path)
+    grid_field.add_argument("--slice-figure", type=Path)
     grid_field.add_argument("--overwrite", action="store_true")
     grid_field.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
     grid_field.add_argument("--out-dir", type=Path, required=True)
+
+    grid_combine = subparsers.add_parser("grid-combine")
+    grid_combine.add_argument("--component", action="append", required=True, help="coefficient=path")
+    grid_combine.add_argument("--field-unit", required=True)
+    grid_combine.add_argument("--structure-component-index", type=int, default=0)
+    grid_combine.add_argument("--code", choices=("qe", "vasp", "mixed"), default="mixed")
+    grid_combine.add_argument("--dataset-id", required=True)
+    grid_combine.add_argument("--overwrite", action="store_true")
+    grid_combine.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    grid_combine.add_argument("--out-dir", type=Path, required=True)
+
+    vesta_isosurface = subparsers.add_parser("vesta-isosurface")
+    vesta_isosurface.add_argument("grid", type=Path)
+    vesta_isosurface.add_argument("--code", choices=("qe", "vasp", "mixed"), required=True)
+    vesta_isosurface.add_argument("--field-kind", required=True)
+    vesta_isosurface.add_argument("--field-unit", required=True)
+    vesta_isosurface.add_argument("--isosurface-level", type=float, required=True)
+    vesta_isosurface.add_argument("--level-unit", required=True)
+    vesta_isosurface.add_argument("--surface-mode", choices=("positive", "negative", "positive-negative"), default="positive-negative")
+    vesta_isosurface.add_argument("--positive-color", type=int, nargs=3, metavar=("R", "G", "B"), default=(255, 210, 0))
+    vesta_isosurface.add_argument("--negative-color", type=int, nargs=3, metavar=("R", "G", "B"), default=(0, 200, 255))
+    vesta_isosurface.add_argument("--opacity-parallel", type=int, default=160)
+    vesta_isosurface.add_argument("--opacity-perpendicular", type=int, default=230)
+    vesta_isosurface.add_argument("--export-scale", type=int, default=2)
+    vesta_isosurface.add_argument("--model-scale", type=float, default=2.0)
+    vesta_isosurface.add_argument("--rotate", type=float, nargs=3, metavar=("X_DEG", "Y_DEG", "Z_DEG"), default=(0.0, 0.0, 0.0))
+    vesta_isosurface.add_argument("--vesta-executable", type=Path)
+    vesta_isosurface.add_argument("--timeout-seconds", type=float, default=30.0)
+    vesta_isosurface.add_argument("--dataset-id", required=True)
+    vesta_isosurface.add_argument("--figure", type=Path)
+    vesta_isosurface.add_argument("--overwrite", action="store_true")
+    vesta_isosurface.add_argument(
+        "--maturity",
+        choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated", "tool-integration-validated"),
+        default="tool-integration-validated",
+    )
+    vesta_isosurface.add_argument("--out-dir", type=Path, required=True)
 
     bader_acf = subparsers.add_parser("bader-acf")
     bader_acf.add_argument("acf", type=Path)
@@ -257,20 +368,57 @@ def build_parser() -> argparse.ArgumentParser:
     bands_dos = subparsers.add_parser("bands-dos")
     bands_dos.add_argument("--bands-table", type=Path, required=True)
     bands_dos.add_argument("--dos-table", type=Path, required=True)
-    bands_dos.add_argument("--dos-channel", action="append", default=[])
+    bands_dos.add_argument(
+        "--pdos-channel",
+        action="append",
+        default=[],
+        help="projected DOS channel to include; repeat as needed (default: all projected channels)",
+    )
     bands_dos.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
     bands_dos.add_argument("--out", type=Path, required=True)
     bands_dos.add_argument("--metadata-out", type=Path, required=True)
     bands_dos.add_argument("--overwrite", action="store_true")
 
+    bands_compare = subparsers.add_parser("bands-compare")
+    bands_compare.add_argument("--series", action="append", required=True, help="repeat label=normalized-bands.csv")
+    bands_compare.add_argument("--series-metadata", action="append", default=[], help="optional matching label=bands.plot.json")
+    bands_compare.add_argument("--layout", choices=("row", "column"), default="row")
+    bands_compare.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
+    bands_compare.add_argument("--out", type=Path, required=True)
+    bands_compare.add_argument("--metadata-out", type=Path, required=True)
+    bands_compare.add_argument("--overwrite", action="store_true")
+
+    band_projections = subparsers.add_parser("band-projections")
+    band_projections.add_argument("--bands-table", type=Path, required=True)
+    band_projections.add_argument("--projection", action="append", required=True, help="repeat label=normalized-fatband.csv")
+    band_projections.add_argument("--bands-metadata", type=Path)
+    band_projections.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
+    band_projections.add_argument("--render-mode", choices=("line-width", "bubble"), default="line-width")
+    band_projections.add_argument("--marker-scale", type=float, default=8.0)
+    band_projections.add_argument("--bands-label", default="Bands")
+    band_projections.add_argument("--panels-out", type=Path, required=True)
+    band_projections.add_argument("--overview-out", type=Path)
+    band_projections.add_argument("--metadata-out", type=Path, required=True)
+    band_projections.add_argument("--overwrite", action="store_true")
+
+    structure_views = subparsers.add_parser("structure-views")
+    structure_views.add_argument("structures", nargs="+", type=Path)
+    structure_views.add_argument("--bond-mode", choices=("none", "covalent", "explicit"), default="covalent")
+    structure_views.add_argument("--bond-scale", type=float, default=1.15)
+    structure_views.add_argument("--bond", action="append", default=[], help="explicit Element-Element=maximum_angstrom")
+    structure_views.add_argument("--element-color", action="append", default=[], help="repeat Element=#RRGGBB")
+    structure_views.add_argument("--element-radius", action="append", default=[], help="repeat Element=radius_angstrom")
+    structure_views.add_argument("--overwrite", action="store_true")
+    structure_views.add_argument("--out-dir", type=Path, required=True)
+
     validate = subparsers.add_parser("validate-manifest")
-    validate.add_argument("kind", choices=("run", "artifact", "campaign", "recommendation", "dataset", "plan", "execution"))
+    validate.add_argument("kind", choices=tuple(sorted(SCHEMAS)))
     validate.add_argument("manifest", type=Path)
 
     artifact = subparsers.add_parser("artifact-manifest")
     artifact.add_argument("--artifact-id", required=True)
     artifact.add_argument("--source-run-id", action="append", required=True)
-    artifact.add_argument("--code", choices=("qe", "vasp", "mixed"), required=True)
+    artifact.add_argument("--code", choices=registered_codes() + registered_aggregate_codes(), required=True)
     artifact.add_argument("--artifact-type", required=True)
     artifact.add_argument("--status", choices=("complete", "partial", "failed", "blocked"), required=True)
     artifact.add_argument("--artifact-root", type=Path, required=True)
@@ -370,6 +518,8 @@ def main(argv: list[str] | None = None) -> int:
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
                 marker_scale=args.marker_scale,
                 render_mode=args.render_mode,
+                projection_label=args.projection_label,
+                bands_label=args.bands_label,
                 maturity=args.maturity,
                 overwrite=args.overwrite,
             )
@@ -420,6 +570,23 @@ def main(argv: list[str] | None = None) -> int:
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
                 marker_scale=args.marker_scale,
                 render_mode=args.render_mode,
+                projection_label=args.projection_label,
+                bands_label=args.bands_label,
+                maturity=args.maturity,
+                overwrite=args.overwrite,
+            )
+            print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
+            return 0
+        elif args.command == "vaspkit-bands":
+            outputs = normalize_vaspkit_bands(
+                args.band_data,
+                args.klabels,
+                args.out_dir,
+                args.dataset_id,
+                energy_offset_ev=args.energy_offset_ev,
+                energy_reference_description=args.energy_reference_description,
+                figure_output=args.figure,
+                energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
                 maturity=args.maturity,
                 overwrite=args.overwrite,
             )
@@ -464,10 +631,60 @@ def main(argv: list[str] | None = None) -> int:
                 field_unit=args.field_unit,
                 axis=args.axis,
                 slice_index=args.slice_index,
+                slice_hkl=tuple(args.slice_hkl) if args.slice_hkl else None,
+                slice_offset=args.slice_offset,
+                slice_resolution=tuple(args.slice_resolution) if args.slice_resolution else None,
+                slice_origin=tuple(args.slice_origin),
+                slice_window=tuple(args.slice_window) if args.slice_window else None,
+                atom_overlay=args.atom_overlay,
+                atom_plane_tolerance_angstrom=args.atom_plane_tolerance,
+                atom_labels=not args.no_atom_labels,
+                colormap=args.colormap,
+                value_range=tuple(args.value_range) if args.value_range else None,
                 potential_to_ev=args.potential_to_ev,
                 fermi_energy_ev=args.fermi_energy_ev,
                 fermi_energy_path=args.fermi_energy_file,
                 vacuum_window_angstrom=tuple(args.vacuum_window) if args.vacuum_window else None,
+                figure_output=args.figure,
+                slice_figure_output=args.slice_figure,
+                maturity=args.maturity,
+                overwrite=args.overwrite,
+            )
+            print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
+            return 0
+        elif args.command == "grid-combine":
+            outputs = combine_cube_grids(
+                _coefficient_paths(args.component),
+                args.out_dir,
+                args.dataset_id,
+                field_unit=args.field_unit,
+                structure_component_index=args.structure_component_index,
+                code=args.code,
+                maturity=args.maturity,
+                overwrite=args.overwrite,
+            )
+            print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
+            return 0
+        elif args.command == "vesta-isosurface":
+            outputs = render_vesta_isosurface(
+                args.grid,
+                args.code,
+                args.out_dir,
+                args.dataset_id,
+                field_kind=args.field_kind,
+                field_unit=args.field_unit,
+                level=args.isosurface_level,
+                level_unit=args.level_unit,
+                mode=args.surface_mode,
+                positive_color=tuple(args.positive_color),
+                negative_color=tuple(args.negative_color),
+                opacity_parallel=args.opacity_parallel,
+                opacity_perpendicular=args.opacity_perpendicular,
+                export_scale=args.export_scale,
+                model_scale=args.model_scale,
+                rotations_degrees=tuple(args.rotate),
+                executable=args.vesta_executable,
+                timeout_seconds=args.timeout_seconds,
                 figure_output=args.figure,
                 maturity=args.maturity,
                 overwrite=args.overwrite,
@@ -530,11 +747,60 @@ def main(argv: list[str] | None = None) -> int:
                 args.dos_table,
                 args.out,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
-                dos_channel_labels=args.dos_channel or None,
+                pdos_channel_labels=args.pdos_channel or None,
                 overwrite=args.overwrite,
             )
             metadata["command"] = list(sys.argv if argv is None else ["dftpost", *argv])
             write_json_atomic(args.metadata_out, metadata)
+        elif args.command == "bands-compare":
+            if args.metadata_out.exists() and not args.overwrite:
+                raise ValueError(f"refusing to overwrite output: {args.metadata_out}")
+            metadata = plot_band_comparison(
+                _labeled_paths(args.series, "series"),
+                args.out,
+                metadata_paths={label: path for label, path in _labeled_paths(args.series_metadata, "series metadata")},
+                layout=args.layout,
+                energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
+                overwrite=args.overwrite,
+            )
+            metadata["command"] = list(sys.argv if argv is None else ["dftpost", *argv])
+            write_json_atomic(args.metadata_out, metadata)
+        elif args.command == "band-projections":
+            if args.metadata_out.exists() and not args.overwrite:
+                raise ValueError(f"refusing to overwrite output: {args.metadata_out}")
+            metadata = plot_projection_panels(
+                args.bands_table,
+                _labeled_paths(args.projection, "projection"),
+                args.panels_out,
+                overview_output=args.overview_out,
+                bands_metadata_path=args.bands_metadata,
+                energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
+                render_mode=args.render_mode,
+                marker_scale=args.marker_scale,
+                bands_label=args.bands_label,
+                overwrite=args.overwrite,
+            )
+            metadata["command"] = list(sys.argv if argv is None else ["dftpost", *argv])
+            write_json_atomic(args.metadata_out, metadata)
+            print(args.panels_out)
+            return 0
+        elif args.command == "structure-views":
+            outputs = render_structure_views(
+                args.structures,
+                args.out_dir,
+                bond_mode=args.bond_mode,
+                bond_scale=args.bond_scale,
+                explicit_bond_limits=_bond_mapping(args.bond),
+                element_colors=_key_value_mapping(args.element_color, "element color"),
+                element_radii_angstrom=_float_mapping(args.element_radius, "element radius"),
+                overwrite=args.overwrite,
+            )
+            print(json.dumps({
+                "figures": [str(path) for path in outputs["figures"]],
+                "overview": str(outputs["overview"]),
+                "metadata": str(outputs["metadata"]),
+            }, sort_keys=True))
+            return 0
         elif args.command == "validate-manifest":
             errors = validate_manifest(args.kind, args.manifest)
             if errors:

@@ -717,7 +717,7 @@ def plot_bands_dos(
     output_path: Path,
     *,
     energy_window_ev: tuple[float, float] | None = None,
-    dos_channel_labels: list[str] | None = None,
+    pdos_channel_labels: list[str] | None = None,
     overwrite: bool = False,
 ) -> dict[str, Any]:
     _refuse_existing_outputs((output_path,), overwrite)
@@ -740,32 +740,69 @@ def plot_bands_dos(
     if not band_series:
         raise ValueError("bands table contains no data rows")
 
-    requested = dos_channel_labels or ["total"]
-    dos_series: dict[str, list[tuple[float, float]]] = {label: [] for label in requested}
+    dos_series: dict[str, list[tuple[float, float]]] = {}
+    dos_channel_types: dict[str, str] = {}
     with dos_table_path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        required = {"energy_relative_ev", "channel_label", "dos_states_per_ev"}
+        required = {"energy_relative_ev", "channel_label", "channel_type", "dos_states_per_ev"}
         missing = required.difference(reader.fieldnames or [])
         if missing:
             raise ValueError(f"DOS table is missing columns: {sorted(missing)}")
         for row_number, row in enumerate(reader, start=2):
             label = row["channel_label"]
-            if label not in dos_series:
-                continue
+            channel_type = row["channel_type"]
+            if not label or not channel_type:
+                raise ValueError(f"DOS table row {row_number} has an empty channel label or type")
+            previous_type = dos_channel_types.setdefault(label, channel_type)
+            if previous_type != channel_type:
+                raise ValueError(f"DOS channel {label!r} has inconsistent channel types")
             try:
                 point = (float(row["dos_states_per_ev"]), float(row["energy_relative_ev"]))
             except ValueError as exc:
                 raise ValueError(f"DOS table row {row_number} is malformed") from exc
             if not all(math.isfinite(value) for value in point):
                 raise ValueError(f"DOS table row {row_number} contains non-finite values")
-            dos_series[label].append(point)
-    missing_channels = [label for label, points in dos_series.items() if not points]
-    if missing_channels:
-        raise ValueError(f"requested DOS channels are missing: {missing_channels}")
+            dos_series.setdefault(label, []).append(point)
+    if not dos_series:
+        raise ValueError("DOS table contains no data rows")
+
+    tdos_labels = [label for label in dos_series if dos_channel_types[label] == "total"]
+    available_pdos_labels = [
+        label for label in dos_series if dos_channel_types[label].startswith("projected")
+    ]
+    unsupported_types = sorted(
+        {channel_type for channel_type in dos_channel_types.values()}
+        .difference({"total", "projected", "projected-total"})
+    )
+    if unsupported_types:
+        raise ValueError(f"DOS table contains unsupported channel types: {unsupported_types}")
+    if not tdos_labels:
+        raise ValueError("TDOS + PDOS plot requires at least one channel_type=total channel")
+
+    if pdos_channel_labels is None:
+        selected_pdos_labels = available_pdos_labels
+    else:
+        if len(set(pdos_channel_labels)) != len(pdos_channel_labels):
+            raise ValueError("PDOS channel selection contains duplicate labels")
+        missing_channels = [label for label in pdos_channel_labels if label not in dos_series]
+        if missing_channels:
+            raise ValueError(f"requested PDOS channels are missing: {missing_channels}")
+        non_projected = [
+            label for label in pdos_channel_labels
+            if not dos_channel_types[label].startswith("projected")
+        ]
+        if non_projected:
+            raise ValueError(f"requested PDOS channels are not projected channels: {non_projected}")
+        selected_pdos_labels = list(pdos_channel_labels)
+    if not selected_pdos_labels:
+        raise ValueError("TDOS + PDOS plot requires at least one projected DOS channel")
+
+    selected_labels = [*tdos_labels, *selected_pdos_labels]
+    selected_dos_series = {label: dos_series[label] for label in selected_labels}
 
     all_band_x = [point[0] for points in band_series.values() for point in points]
     visible_dos_points = [
-        point for points in dos_series.values() for point in points
+        point for points in selected_dos_series.values() for point in points
         if energy_window_ev is None or energy_window_ev[0] <= point[1] <= energy_window_ev[1]
     ]
     if not visible_dos_points:
@@ -786,6 +823,13 @@ def plot_bands_dos(
     import matplotlib.pyplot as plt
 
     style = Path(__file__).resolve().parents[2] / "assets" / "dft-publication.mplstyle"
+    tdos_colors = ["#111827", "#4b5563"]
+    pdos_colors = [
+        "#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9",
+        "#D55E00", "#6F4E7C", "#8C564B", "#17BECF", "#7F7F7F",
+    ]
+    line_styles = ["-", "--", ":", "-."]
+    channel_styles: list[dict[str, Any]] = []
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with plt.style.context(str(style)):
         figure, (band_axis, dos_axis) = plt.subplots(
@@ -807,19 +851,56 @@ def plot_bands_dos(
         band_axis.set_xlim(*band_limits)
         band_axis.margins(x=0)
 
-        for label, points in dos_series.items():
+        for index, label in enumerate(tdos_labels):
+            points = selected_dos_series[label]
+            color = tdos_colors[index % len(tdos_colors)]
+            linestyle = line_styles[index // len(tdos_colors) % len(line_styles)]
             dos_axis.plot(
                 [point[0] for point in points],
                 [point[1] for point in points],
                 label=label,
-                linewidth=1.15,
+                color=color,
+                linewidth=1.7,
+                linestyle=linestyle,
+                zorder=3,
             )
+            channel_styles.append({
+                "label": label,
+                "role": "tdos",
+                "color": color,
+                "linewidth": 1.7,
+                "linestyle": linestyle,
+            })
+        for index, label in enumerate(selected_pdos_labels):
+            points = selected_dos_series[label]
+            color = pdos_colors[index % len(pdos_colors)]
+            linestyle = line_styles[index // len(pdos_colors) % len(line_styles)]
+            dos_axis.plot(
+                [point[0] for point in points],
+                [point[1] for point in points],
+                label=label,
+                color=color,
+                linewidth=1.0,
+                linestyle=linestyle,
+                zorder=2,
+            )
+            channel_styles.append({
+                "label": label,
+                "role": "pdos",
+                "color": color,
+                "linewidth": 1.0,
+                "linestyle": linestyle,
+            })
         dos_axis.axhline(0.0, color="black", linewidth=0.8, linestyle="--")
-        dos_axis.set_xlabel("DOS")
+        dos_axis.set_xlabel("DOS (states/eV)")
         dos_axis.set_xlim(*dos_limits)
         dos_axis.margins(x=0)
-        if len(dos_series) > 1:
-            dos_axis.legend(fontsize="small")
+        dos_axis.legend(
+            fontsize="x-small",
+            loc="upper left",
+            bbox_to_anchor=(1.02, 1.0),
+            borderaxespad=0.0,
+        )
         if energy_window_ev is not None:
             band_axis.set_ylim(*energy_window_ev)
         _save_figure_atomic(figure, output_path)
@@ -833,7 +914,14 @@ def plot_bands_dos(
         "band_x_limits": band_limits,
         "dos_x_limits": dos_limits,
         "energy_window_ev": list(energy_window_ev) if energy_window_ev is not None else None,
-        "dos_channel_labels": requested,
+        "dos_content": "tdos+pdos",
+        "tdos_channel_labels": tdos_labels,
+        "pdos_channel_labels": selected_pdos_labels,
+        "dos_channel_labels": selected_labels,
+        "excluded_pdos_channel_labels": [
+            label for label in available_pdos_labels if label not in selected_pdos_labels
+        ],
+        "dos_channel_styles": channel_styles,
         "inputs": [
             {"role": "bands-table", "label": bands_table_path.name, "sha256": sha256_file(bands_table_path)},
             {"role": "dos-table", "label": dos_table_path.name, "sha256": sha256_file(dos_table_path)},
@@ -927,6 +1015,8 @@ def _plot_fatband(
     energy_window_ev: tuple[float, float] | None,
     marker_scale: float,
     render_mode: str,
+    projection_label: str,
+    bands_label: str,
     xlabel: str = "Path coordinate (native QE units)",
     symmetry_points: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
@@ -934,12 +1024,16 @@ def _plot_fatband(
         raise ValueError("fatband marker scale must be positive")
     if render_mode not in {"line-width", "bubble"}:
         raise ValueError(f"unsupported fatband render mode: {render_mode}")
+    bands_label = bands_label.strip()
+    if not bands_label:
+        raise ValueError("bands label must be nonempty")
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib.collections import LineCollection
     from matplotlib.colors import Normalize
+    from matplotlib.lines import Line2D
     import numpy as np
 
     style = Path(__file__).resolve().parents[2] / "assets" / "dft-publication.mplstyle"
@@ -949,11 +1043,20 @@ def _plot_fatband(
         figure, axis = plt.subplots()
         for band_index, band in enumerate(bands):
             shifted = [value - reference for value in band]
-            axis.plot(kpoints, shifted, color="#c8c8c8", linewidth=0.55, zorder=1)
+            axis.plot(kpoints, shifted, color="#aeb3b8", linewidth=0.65, zorder=1)
             band_weights = [weights[kpoint_index][band_index] for kpoint_index in range(len(kpoints))]
             if render_mode == "bubble":
-                sizes = [marker_scale * value for value in band_weights]
-                axis.scatter(kpoints, shifted, s=sizes, color="#8f1d1d", alpha=0.62, linewidths=0.0, zorder=2)
+                sizes = np.asarray(_bubble_marker_areas(band_weights, marker_scale), dtype=float)
+                mask = sizes > 0.0
+                axis.scatter(
+                    np.asarray(kpoints, dtype=float)[mask],
+                    np.asarray(shifted, dtype=float)[mask],
+                    s=sizes[mask],
+                    facecolors=[(0.561, 0.114, 0.114, 0.46)],
+                    edgecolors=[(0.424, 0.082, 0.082, 0.90)],
+                    linewidths=0.55,
+                    zorder=2,
+                )
             else:
                 points = np.column_stack((kpoints, shifted))
                 segments = np.stack((points[:-1], points[1:]), axis=1)
@@ -961,7 +1064,10 @@ def _plot_fatband(
                     [(left + right) * 0.5 for left, right in zip(band_weights, band_weights[1:])]
                 )
                 denominator = maximum_weight if maximum_weight > 0.0 else 1.0
-                widths = 0.45 + marker_scale * 0.075 * segment_weights / denominator
+                widths = np.asarray(
+                    _projection_line_widths(segment_weights.tolist(), marker_scale),
+                    dtype=float,
+                )
                 collection = LineCollection(
                     segments,
                     cmap="Reds",
@@ -988,11 +1094,37 @@ def _plot_fatband(
             if energy_window_ev[0] >= energy_window_ev[1]:
                 raise ValueError("energy window must be increasing")
             axis.set_ylim(*energy_window_ev)
+        background_handle = Line2D(
+            [0],
+            [0],
+            color="#aeb3b8",
+            linewidth=1.2,
+            label=bands_label,
+        )
         if render_mode == "line-width":
             scalar = plt.cm.ScalarMappable(norm=Normalize(vmin=0.0, vmax=maximum_weight or 1.0), cmap="Reds")
             scalar.set_array([])
             colorbar = figure.colorbar(scalar, ax=axis, pad=0.02)
             colorbar.set_label("Selected projection weight")
+            legend_handle = Line2D([0], [0], color="#8f1d1d", linewidth=2.4, label=projection_label)
+        else:
+            legend_handle = Line2D(
+                [0],
+                [0],
+                color="#8f1d1d",
+                marker="o",
+                linestyle="None",
+                markersize=7,
+                label=projection_label,
+            )
+        axis.legend(
+            handles=[background_handle, legend_handle],
+            loc="upper right",
+            frameon=True,
+            fancybox=True,
+            framealpha=0.55,
+            edgecolor="#999999",
+        )
         _save_figure_atomic(figure, output)
         plt.close(figure)
     if not output.is_file() or output.stat().st_size == 0:
@@ -1001,14 +1133,80 @@ def _plot_fatband(
         "schema_version": "1.0",
         "plot_type": "fatband",
         "render_mode": render_mode,
+        "background_label": bands_label,
+        "projection_label": projection_label,
+        "legend_labels": [bands_label, projection_label],
         "weight_encoding": (
             "continuous Reds color and line width" if render_mode == "line-width" else "bubble area"
         ),
         "weight_range": [0.0, maximum_weight],
+        "marker_scale": marker_scale,
+        "bubble_area_mapping": (
+            "marker_area_pt2 = marker_scale^2 * projection_weight"
+            if render_mode == "bubble"
+            else None
+        ),
+        "line_width_mapping": (
+            "line_width_pt = marker_scale * 0.45 * projection_weight"
+            if render_mode == "line-width"
+            else None
+        ),
+        "bubble_style": (
+            {
+                "fill_color": "#8f1d1d",
+                "fill_alpha": 0.46,
+                "edge_color": "#6c1515",
+                "edge_alpha": 0.90,
+                "edge_width_pt": 0.55,
+            }
+            if render_mode == "bubble"
+            else None
+        ),
         "x_limits": [kpoints[0], kpoints[-1]],
         "energy_window_ev": list(energy_window_ev) if energy_window_ev is not None else None,
         "output": _output_record(output, "figure", "image/png"),
     }
+
+
+def _bubble_marker_areas(weights: list[float], marker_scale: float) -> list[float]:
+    if not math.isfinite(marker_scale) or marker_scale <= 0.0:
+        raise ValueError("fatband marker scale must be finite and positive")
+    areas = []
+    for weight in weights:
+        if not math.isfinite(weight) or weight < 0.0:
+            raise ValueError("fatband projection weights must be finite and nonnegative")
+        areas.append(marker_scale**2 * weight)
+    return areas
+
+
+def _projection_line_widths(weights: list[float], marker_scale: float) -> list[float]:
+    if not math.isfinite(marker_scale) or marker_scale <= 0.0:
+        raise ValueError("fatband marker scale must be finite and positive")
+    widths = []
+    for weight in weights:
+        if not math.isfinite(weight) or weight < 0.0:
+            raise ValueError("fatband projection weights must be finite and nonnegative")
+        widths.append(marker_scale * 0.45 * weight)
+    return widths
+
+
+def _selector_projection_label(selector: dict[str, str], explicit: str | None = None) -> str:
+    if explicit is not None:
+        label = explicit.strip()
+        if not label:
+            raise ValueError("projection label must be nonempty")
+        return label
+    prefix = selector.get("species") or (
+        f"atom-{selector['atom_index']}" if "atom_index" in selector else "projection"
+    )
+    orbital = selector.get("orbital")
+    if not orbital and "l" in selector:
+        orbital = {"0": "s", "1": "p", "2": "d", "3": "f"}.get(
+            str(selector["l"]), f"l={selector['l']}"
+        )
+    if orbital:
+        return f"{prefix}-{orbital}"
+    return ", ".join(f"{key}={value}" for key, value in sorted(selector.items()))
 
 
 def normalize_qe_fatband(
@@ -1021,8 +1219,10 @@ def normalize_qe_fatband(
     *,
     figure_output: Path | None = None,
     energy_window_ev: tuple[float, float] | None = None,
-    marker_scale: float = 45.0,
+    marker_scale: float = 8.0,
     render_mode: str = "line-width",
+    projection_label: str | None = None,
+    bands_label: str = "Bands",
     maturity: str = "format-fixture-validated",
     overwrite: bool = False,
 ) -> dict[str, Path]:
@@ -1074,9 +1274,11 @@ def normalize_qe_fatband(
         "energy_reference_ev": reference,
         "limitations": [
             "Projection weights are aggregated only over the explicitly selected filproj states.",
-            "Marker size is a visualization mapping and must not be interpreted as a separately normalized observable.",
+            "Marker area or line width is a visualization mapping and must not be interpreted as a separately normalized observable.",
         ],
     }
+    rendered_projection_label = _selector_projection_label(selector, projection_label)
+    analysis["projection_label"] = rendered_projection_label
     write_json_atomic(analysis_path, analysis)
     plot_metadata = _plot_fatband(
         kpoints,
@@ -1087,6 +1289,8 @@ def normalize_qe_fatband(
         energy_window_ev,
         marker_scale,
         render_mode,
+        rendered_projection_label,
+        bands_label,
     )
     write_json_atomic(plot_metadata_path, plot_metadata)
     dataset = {

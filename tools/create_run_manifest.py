@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a privacy-safe run manifest for QE or VASP campaign handoff."""
+"""Create a privacy-safe run manifest for a supported DFT-code campaign handoff."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ import sys
 import uuid
 
 from validate_contract import validation_errors
+from software_registry import calculation_codes
 
 
 def load_object(path: Path | None) -> dict:
@@ -22,9 +23,18 @@ def load_object(path: Path | None) -> dict:
     return value
 
 
+def load_array(path: Path | None) -> list[object]:
+    if path is None:
+        return []
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, list):
+        raise ValueError(f"{path} must contain a JSON array")
+    return value
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--code", choices=("qe", "vasp"), required=True)
+    parser.add_argument("--code", choices=calculation_codes(), required=True)
     parser.add_argument("--code-version", required=True)
     parser.add_argument("--task-type", required=True)
     parser.add_argument("--case-id", required=True, help="Use an anonymized stable identifier")
@@ -33,6 +43,7 @@ def main() -> int:
     parser.add_argument("--scientific-acceptance", choices=("accepted", "rejected", "not_assessed"), required=True)
     parser.add_argument("--configuration", type=Path)
     parser.add_argument("--metrics", type=Path)
+    parser.add_argument("--evidence", type=Path, help="JSON array of role/label/status/hash evidence records")
     parser.add_argument("--limitation", action="append", default=[])
     parser.add_argument("--record-id")
     parser.add_argument("--out", type=Path, required=True)
@@ -50,11 +61,11 @@ def main() -> int:
         "scientific_acceptance": args.scientific_acceptance,
         "configuration": load_object(args.configuration),
         "metrics": load_object(args.metrics),
-        "evidence": [],
+        "evidence": load_array(args.evidence),
         "limitations": args.limitation,
         "provenance": {
             "collector": "create_run_manifest.py",
-            "collector_version": "1.0.0",
+            "collector_version": "1.1.0",
             "generated_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         },
     }

@@ -1,0 +1,143 @@
+# DFT Skill 联动与扩展规划
+
+## 目标架构
+
+仓库保持四类边界独立：结构事实、计算正确性、后处理正确性、跨任务效率经验。任何下游记录都只能消费上游证据，不能反向改变上游科学判据。
+
+```mermaid
+flowchart LR
+    CIF["CIF document"] --> STRUCT["structure_manifest.json"]
+    STRUCT -.->|future structure reference| RUN
+    QE["QE calculation skill"] --> RUN["run_manifest.json"]
+    VASP["VASP calculation skill"] --> RUN
+    CP2K["CP2K calculation skill"] --> RUN
+    SIESTA["SIESTA calculation skill"] --> RUN
+    RUN --> PLAN["postprocess_plan.json"]
+    PLAN --> DATA["normalized datasets"]
+    PLAN --> EXEC["tool execution records"]
+    DATA --> ART["artifact_manifest.json"]
+    EXEC --> ART
+    RUN --> CAMPAIGN["campaign records"]
+    ART --> CAMPAIGN
+    CAMPAIGN --> REC["advisory recommendations"]
+```
+
+当前已经实现的实线语义不完全等价于强制校验：CIF Skill 已生成严格的 structure manifest，计算 Skill 可生成 run manifest，后处理可生成 plan/dataset/execution/artifact，效率 Skill 可从 run manifest 转换记录；但 structure manifest 尚未绑定到各计算 run，run manifest 到 plan/artifact 的来源绑定也尚未强制校验。
+
+## 稳定接口
+
+### 1. 新计算软件入口
+
+以 [`registry/software-registry.yaml`](../registry/software-registry.yaml) 为唯一软件注册入口。每个计算软件必须声明：
+
+- 稳定的小写 `code`；
+- 计算 Skill 目录；
+- 代码本地 capability catalog；
+- 生命周期；
+- run manifest、postprocess 和 campaign efficiency 三个接口状态。
+
+注册表只负责身份和接口发现，不证明任何解析器或科学流程已经成熟。新增软件后依次执行：
+
+1. 以 `experimental` 生命周期注册软件，并创建对应计算 Skill。
+2. 提供版本匹配的官方来源、输入审计、运行审计、任务证据 profile 和 fail-closed 负例测试。
+3. 运行 `python3 tools/sync_contract_codes.py --write`，审查严格 Schema 的枚举改动。
+4. 在每个 postprocess observable 下显式加入该代码路由；未实现时必须标记 `design-only`，不能省略后由程序猜测。
+5. 运行 `python3 tools/audit_repository.py`。审计器会检查 Skill、Schema、capability catalog 和 observable 覆盖是否同步。
+6. 只有在对应层级测试完成后，才逐级提升输入/运行/后处理成熟度；“软件可执行”或“工具已安装”不提升成熟度。
+
+这套流程刻意让“只改注册表”的提交失败，以暴露尚未完成的契约和路由决策。
+
+### 2. 新计算功能入口
+
+新的计算功能先进入对应软件的 capability catalog，而不是直接塞入通用 CLI。VASP、CP2K、SIESTA 当前使用 `references/task-evidence-profiles.json`；QE 暂时由 `references/fail-closed-contract.md` 承载，后续应迁移为同类机器可读 profile。
+
+每个新功能至少需要以下字段或等价证据：
+
+- 稳定 `task_type` 和支持范围；
+- 必需输入、父任务/重启谱系和输出证据角色；
+- 技术完成条件和阻断标记；
+- 可自动抽取的 observable；
+- 数值收敛维度、物理/模型检查和不可自动化边界；
+- 正例、负例、版本边界和成熟度。
+
+如果新功能产生新的可分析物理量，再按下一节扩展后处理；计算 capability 和 postprocess observable 是两个独立门禁，不能因为其中一侧已实现就声称端到端完成。
+
+### 3. 新后处理 observable 或 backend 入口
+
+以 `skills/dft-postprocess/references/observable-registry.yaml` 为唯一 observable/backend 路由入口：
+
+1. 定义 observable id、规范化 dataset 类型、校验、分析和绘图输出。
+2. 为每个已注册计算代码给出显式 route 和成熟度。
+3. backend 声明实现状态、类型和 capability key；可执行文件存在只表示 available。
+4. 实现 adapter、参数/证据校验、原子写入和拒绝覆盖行为。
+5. 先用 synthetic fixture 验证数学和契约，再用 format fixture 验证格式，最后用可合法使用的 real artifact 做前向测试。
+6. publication figure 必须来自已验证的 normalized dataset，并保留能量零点、单位、归一化、选择器和限制。
+
+中期应把 `planning.py` 的 backend 命令构造从长条件链拆成 adapter registry；每个 adapter 暴露统一的 `plan/execute/normalize/validate` 接口，使新增 backend 不再修改中央分支逻辑。
+
+### 4. 共享契约与版本
+
+`contracts/` 继续使用 `additionalProperties: false`。严格 Schema 是科学门禁，不应为了方便扩展而允许任意字段。扩展规则为：
+
+- 新软件代码：更新注册表，再由同步工具更新现有 `1.0` 代码枚举；
+- 新的可选、非门禁元数据：可以发布向后兼容的 `1.x`，并补默认/迁移测试；
+- 改变必需字段、状态语义、哈希绑定或接受条件：发布 `2.0`，提供迁移器和双版本读取期；
+- extension 字段不得覆盖 `status`、`scientific_acceptance`、maturity、hash、evidence 或 validation gate。
+
+下一版契约应优先增加：
+
+- run manifest 的跨字段语义校验和隐私校验；
+- artifact 对 source run manifest 的路径外标签、记录 ID 和 SHA-256 绑定；
+- plan 对 source run 的 code/version/task/acceptance 一致性检查；
+- dataset、execution、artifact 的链式 ID/hash 关系；
+- run manifest 对 structure manifest ID、源 CIF 哈希、结构指纹和所用变换末端的引用。
+
+### 5. CIF 结构与新结构功能入口
+
+`contracts/structure-manifest.schema.json` 是 CIF/结构事实的共享入口。当前 producer 保留 CIF1/CIF2 data block、原始数值与不确定度、占位/无序警告、ASE 代表结构、周期镜像近邻、spglib 证据、隐私安全 provenance 和有边界的有序结构指纹。
+
+新增结构功能时遵循 `skills/cif-structure-analysis/references/extension-interfaces.md`：局部 adapter 返回 payload 与稳定诊断，不在中央 CLI 堆软件条件链；结构发生变化时必须生成新指纹并追加 transformation/backend/parameters/parent fingerprint/site mapping。未来 QE/VASP/CP2K/SIESTA exporter 只负责结构文件与谱系，计算参数仍由对应计算 Skill 决策。
+
+## 分阶段实施
+
+### P0：交接真实性
+
+- 新建共享 semantic validator，阻止 `status=accepted` 与 `scientific_acceptance=not_assessed` 等矛盾组合。
+- terminal/accepted run 要求符合角色要求的 evidence；`create_run_manifest.py` 已支持导入证据记录，下一步由语义校验器按任务 profile 强制角色完整性。
+- plan 必须接收 run manifest；artifact 必须记录 source run manifest SHA-256，并验证 code 和 source ID。
+- 把隐私检查提升到所有共享契约入口，明确 runtime-only execution record 的存放边界。
+- 迁移已安装 Skill 为仓库符号链接；迁移前逐目录比较，禁止自动覆盖真实目录。
+
+验收：构造矛盾状态、伪造 source ID、修改上游 manifest、写入私有绝对路径时，统一验证器均 fail closed。
+
+### P1：扩展成本与成熟度
+
+- 把后处理 planner、capability detector 和 backend implementation 注册统一到 adapter registry。
+- 为 CP2K、SIESTA 增加合法、版本明确的 real-artifact 前向测试，再按 observable 单独晋级。
+- 把 QE capability catalog 迁移为机器可读 task profile，并建立跨代码的 task alias 映射。
+- 给每个 Skill 提供标准离线测试入口，使 `tools/run_tests.py` 不再维护代码专属命令列表。
+- 把已实现的 CIF structure manifest 接入 run manifest；为标准化、超胞、表面和格式导出增加实际 transformation producer 与 round-trip 测试。
+
+验收：增加一个实验性计算软件或一个新 observable 时，只需注册、实现局部 adapter/profile 和测试；遗漏的共享决策由仓库审计精确列出。
+
+### P2：长期维护与效率闭环
+
+- 建立 contract migration 工具和兼容性测试矩阵。
+- campaign records 同时绑定 run/artifact 证据哈希，区分技术完成、artifact 完成和科学接受。
+- 只从重复、可比、已接受记录晋级效率建议，并记录适用代码版本、任务、系统类别和协议。
+- 为远端 CI 增加 registry drift、隐私样例、安装预演和 fixture provenance 检查。
+
+验收：历史记录可迁移、建议可追溯、版本变化可使旧建议自动降级为待复核，不发生静默参数改写。
+
+## 维护命令
+
+```bash
+python3 tools/software_registry.py
+python3 tools/sync_contract_codes.py
+python3 tools/audit_repository.py
+python3 tools/audit_repository.py --check-installed
+python3 tools/run_tests.py
+python3 tools/validate_all_skills.py
+```
+
+`--check-installed` 是部署审计，不纳入普通离线测试；开发机可以有未迁移的真实目录，但在声明安装一致前必须处理完这些失败项。

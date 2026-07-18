@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "retrieved_utc": "2026-07-18T00:10:00Z",
+  "supported_documentation_line_at_retrieval": "5.4",
+  "sources": [
+    {
+      "key": "documentation",
+      "aliases": ["manual", "version"],
+      "url": "https://siesta-project.org/siesta/Documentation/",
+      "scope": "Supported-version landing page and manual links"
+    },
+    {
+      "key": "fdf",
+      "aliases": ["input", "units", "structure", "basis", "mesh"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html#flexible-data-format-fdf",
+      "scope": "FDF syntax, units, input descriptors, basis and grid controls"
+    },
+    {
+      "key": "output",
+      "aliases": ["execution", "completion", "version-output"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html#program-output",
+      "scope": "Standard output, version header and output files"
+    },
+    {
+      "key": "pseudopotentials",
+      "aliases": ["pseudo", "psf", "psml", "vps"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html#pseudopotentials",
+      "scope": "Pseudopotential formats, discovery, precedence and restrictions"
+    },
+    {
+      "key": "kpoints",
+      "aliases": ["kgrid", "monkhorst-pack", "sampling"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html#k-point-sampling",
+      "scope": "SCF k-point sampling"
+    },
+    {
+      "key": "scf",
+      "aliases": ["convergence", "mixing", "tolerance"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html#the-self-consistent-field-loop",
+      "scope": "SCF criteria, mixing, restart and failure behavior"
+    },
+    {
+      "key": "relaxation",
+      "aliases": ["relax", "md", "forces", "stress"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html#moving-atoms-structural-relaxation-phonons-and-molecular-dynamics",
+      "scope": "Structural relaxation, phonons and molecular dynamics"
+    },
+    {
+      "key": "transport",
+      "aliases": ["transiesta", "tbtrans"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html#transiesta",
+      "scope": "TranSIESTA behavior and transport workflow"
+    },
+    {
+      "key": "performance",
+      "aliases": ["parallel", "efficiency"],
+      "url": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/performance-options/",
+      "scope": "Performance controls that must remain separate from scientific convergence"
+    }
+  ]
+}

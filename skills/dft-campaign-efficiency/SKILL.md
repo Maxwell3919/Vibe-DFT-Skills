@@ -1,31 +1,47 @@
 ---
 name: dft-campaign-efficiency
-description: Record, compare, and maintain privacy-safe QE/VASP campaign experience to reduce avoidable wall time, core-hours, storage, reruns, and workflow delay without weakening scientific acceptance. Use when a calculation campaign completes, stops, fails, is abandoned, or reaches acceptance; when comparing parallel or workflow configurations; when diagnosing cost and critical paths; and when deciding whether an efficiency lesson is anecdotal, campaign-validated, cross-campaign-validated, or superseded.
+description: Record, compare, and maintain privacy-safe QE, VASP, CP2K, and SIESTA campaign experience to reduce avoidable wall time, core-hours, storage, reruns, and workflow delay without weakening scientific acceptance. Use when a calculation campaign completes, stops, fails, is abandoned, reaches acceptance, or faces a costly promotion decision; when comparing parallel or workflow configurations; when diagnosing cost and critical paths; and when deciding whether an efficiency lesson is anecdotal, campaign-validated, cross-campaign-validated, or superseded.
 ---
 
 # DFT Campaign Efficiency
 
-Learn only from measured campaign evidence. Preserve the scientific objective and acceptance criteria. Never present project experience as official QE/VASP behavior.
+Learn only from measured campaign evidence. Preserve the scientific objective and acceptance criteria. Never present project experience as official behavior of any calculation code.
 
-## Trigger on every terminal event
+## Start from the case, not a template
 
-Run this workflow when a QE/VASP chain completes, is intentionally stopped, fails, is abandoned, or reaches scientific acceptance—even when no transferable lesson exists.
+Run this workflow when a QE, VASP, CP2K, or SIESTA chain completes, stops, fails, is abandoned, reaches scientific acceptance, or reaches a costly promotion decision. An active stage may support a provisional scheduling decision, but it cannot support an accepted-result claim.
 
-1. Obtain a valid `run_manifest.json` from the calculation skill.
-2. Read [references/record-schema-and-privacy.md](references/record-schema-and-privacy.md).
-3. Collect observed scheduler/runtime metrics and acceptance evidence; mark unavailable metrics explicitly.
-4. Build a privacy-safe campaign record and validate it against [campaign-record.schema.json](../../contracts/campaign-record.schema.json).
-5. Ingest it into a user-selected private SQLite database outside Git.
-6. Compare only records that pass [references/comparability-and-evidence.md](references/comparability-and-evidence.md).
-7. Emit an advisory recommendation or `insufficient-evidence` record.
+1. Read [references/case-first-learning.md](references/case-first-learning.md).
+2. Inventory actual state from scheduler metadata, output markers, required artifacts, and downstream validation. Do not infer state from a directory name, README, job name, or `JOB DONE` alone.
+3. Write a free-form case narrative in the authorized private project location. Keep only the minimal evidence kernel structured; do not force a chapter layout before repeated cases reveal one.
+4. Separate observed facts, official software behavior, inherited project practice, and current analysis.
+5. Record costs, missing metrics, failures, recoveries, scientific gates, decision lineage, and counterfactual estimates. Label estimates as estimates.
+6. Compare only evidence that passes [references/comparability-and-evidence.md](references/comparability-and-evidence.md).
+7. Emit a bounded lesson, a pilot proposal, or `No new transferable experience`.
+
+Use a valid `run_manifest.json` when one exists, but do not discard older or failed campaigns solely because they predate the manifest contract. Normalize a narrative into the JSON/SQLite store only after its meaning is stable.
+
+## Keep state gates separate
+
+Classify each stage independently:
+
+- `software_finished`: the executable ended normally;
+- `artifact_complete`: every required output exists and is readable;
+- `numerically_valid`: convergence, closure, and consistency checks pass;
+- `physically_valid`: the result passes task-specific physical checks;
+- `postprocess_valid`: parsing, transformations, and derived quantities are valid;
+- `scientifically_accepted`: the declared observable and uncertainty gates pass;
+- `promotion_eligible`: the next stage is justified by the evidence and budget.
+
+Never collapse these states into one completion flag. A stage may be software-finished and still be artifact-incomplete or scientifically rejected.
 
 ## Keep evidence classes isolated
 
-- Official QE/VASP documentation controls syntax, defaults, prerequisites, and program behavior.
+- The corresponding code's official documentation controls syntax, defaults, prerequisites, and program behavior.
 - Campaign records contain measured project evidence only.
 - Recommendations are current analysis derived from cited record ids.
 - If experience conflicts with official behavior, correct or supersede the experience record.
-- Never write campaign records into QE/VASP official-reference directories.
+- Never write campaign records into a calculation skill's official-reference directory.
 
 ## Collect the complete cost path
 
@@ -39,9 +55,11 @@ Record when available:
 
 Do not count relaxed tolerances, omitted q points, incomplete downstream stages, or unconverged outputs as efficiency improvements.
 
-## Use the private store
+For phonon, EPC, or superconducting-Tc campaigns, also read [references/phonon-tc-efficiency.md](references/phonon-tc-efficiency.md). Treat q-grid convergence, electronic k-grid convergence, integration/smearing convergence, Tc-solver convergence, and model uncertainty as independent gates.
 
-Initialize and ingest outside the repository:
+## Normalize only when useful
+
+The private store is an optional normalization layer, not the source narrative. Initialize and ingest it outside the repository when the current schema represents the case without erasing stage lineage or uncertainty:
 
 ```bash
 python3 scripts/dft_efficiency_cli.py from-run run_manifest.json \
@@ -57,6 +75,8 @@ python3 scripts/dft_efficiency_cli.py recommend --db <PRIVATE_DB> \
 
 The tool rejects private identifier keys and nonconforming records. Do not commit the database; `.gitignore` excludes runtime databases and `state/`.
 
+If the schema cannot represent a case faithfully, retain the private narrative, record the schema gap, and propose a versioned migration. Do not distort the case to satisfy the current schema.
+
 ## Grade experience
 
 Use [references/experience-lifecycle.md](references/experience-lifecycle.md):
@@ -71,20 +91,14 @@ Preserve counterexamples and revision history. Never silently rewrite a rule to 
 
 ## Recommend conservatively
 
-- Require scientifically accepted records under the same protocol.
-- Require at least two accepted observations per compared configuration.
+- Require scientifically accepted records under the same protocol for a positive speed/accuracy recommendation.
+- Failed or rejected records may support bounded failure-avoidance gates, but never prove a faster accepted route.
+- Require repeated accepted observations per compared configuration before claiming a stable savings fraction.
 - Compare median core-hours and wall time; disclose both.
 - Recommend one bounded change or pilot test at a time.
 - Cite all evidence record ids, applicability keys, savings estimate, confidence, scientific gate, and limitations.
-- Keep the result advisory; QE/VASP calculation skills decide and validate actual input changes.
+- Keep the result advisory; the corresponding calculation skill decides and validates actual input changes.
 
-## Output format
+## Report without fixing chapters
 
-Return:
-
-1. evidence inventory and missing metrics;
-2. comparability decision;
-3. measured baseline/alternative costs;
-4. recommendation status and record ids;
-5. scientific risk and validation gate;
-6. database update, supersession, or `No new transferable experience`.
+Write the answer in the order that makes the case easiest to understand. It must still make the evidence inventory, missing metrics, comparability decision, measured versus estimated costs, recommendation status, scientific risk, validation gate, and record update discoverable. Do not add empty sections merely to satisfy a template.

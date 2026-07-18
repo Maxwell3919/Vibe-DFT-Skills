@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "profiles": {
+    "quickstep-core": {"sections": ["FORCE_EVAL/DFT"], "maturity": "deterministic-core", "source_topics": ["dft", "qs"]},
+    "ot": {"sections": ["FORCE_EVAL/DFT/SCF/OT"], "maturity": "evidence-profile", "source_topics": ["scf-ot"]},
+    "diagonalization": {"sections": ["FORCE_EVAL/DFT/SCF/DIAGONALIZATION"], "maturity": "evidence-profile", "source_topics": ["scf-diagonalization"]},
+    "smearing": {"sections": ["FORCE_EVAL/DFT/SCF/SMEAR"], "maturity": "evidence-profile", "source_topics": ["scf-smear"]},
+    "kpoints": {"sections": ["FORCE_EVAL/DFT/KPOINTS"], "maturity": "evidence-profile", "source_topics": ["kpoints", "kpoint-methods"]},
+    "hybrid-hfx": {"sections": ["FORCE_EVAL/DFT/XC/HF"], "maturity": "evidence-profile", "source_topics": ["hfx", "hfx-screening", "hartree-fock-methods"]},
+    "admm": {"sections": ["FORCE_EVAL/DFT/AUXILIARY_DENSITY_MATRIX_METHOD"], "maturity": "evidence-profile", "source_topics": ["admm", "admm-methods"]},
+    "dft-plus-u": {"sections": ["FORCE_EVAL/SUBSYS/KIND/DFT_PLUS_U"], "maturity": "evidence-profile", "source_topics": ["dft-plus-u"]},
+    "dispersion": {"sections": ["FORCE_EVAL/DFT/XC/VDW_POTENTIAL"], "maturity": "evidence-profile", "source_topics": ["vdw-potential"]},
+    "sccs": {"sections": ["FORCE_EVAL/DFT/SCCS"], "maturity": "evidence-profile", "source_topics": ["sccs"]},
+    "post-hartree-fock": {"sections": ["FORCE_EVAL/DFT/XC/WF_CORRELATION"], "maturity": "official-routed", "source_topics": ["wf-correlation", "gw-methods"]},
+    "tddfpt": {"sections": ["FORCE_EVAL/PROPERTIES/TDDFPT"], "maturity": "official-routed", "source_topics": ["tddfpt", "tddft-methods"]},
+    "real-time-propagation": {"sections": ["FORCE_EVAL/DFT/REAL_TIME_PROPAGATION"], "maturity": "design-only", "source_topics": ["real-time-propagation"]},
+    "qmmm": {"sections": ["FORCE_EVAL/QMMM"], "maturity": "design-only", "source_topics": ["qmmm"]}
+  }
+}

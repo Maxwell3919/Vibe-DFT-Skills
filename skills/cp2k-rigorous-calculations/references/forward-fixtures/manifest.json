@@ -1,0 +1,29 @@
+{
+  "fixtures": [
+    {
+      "bytes": 27410,
+      "classification": "real-artifact-derived-privacy-sanitized",
+      "cp2k_version": "9.0-development",
+      "file": "cp2k-9.0-energy-force.sanitized.out",
+      "maturity_ceiling": "format-fixture-validated",
+      "normalization": "trailing-whitespace-removed",
+      "redaction_count": 17,
+      "sanitized_sha256": "333a1dc41451bc9b0fa319ad5ab19c33ce2361c195037d49d22f0a2095b4ee45",
+      "source_path": "tests/outputs/Si_bulk8.out",
+      "source_sha256": "6cd1b325cf89fb925af3eaf62580e42a95c1c4f1b5a6e70b8e00b517c0296ed2",
+      "source_url": "https://raw.githubusercontent.com/cp2k/cp2k-output-tools/403cc70966d7284d9f71f56b8cd2ae08f969fa62/tests/outputs/Si_bulk8.out"
+    }
+  ],
+  "license": "MIT",
+  "license_file": "LICENSE.cp2k-output-tools.txt",
+  "license_sha256": "47c5c0ca362b57827c349a3ddde7acb8d0a5a83df22179711e2d984177e1625b",
+  "limitations": [
+    "The fixture is from CP2K 9.0 development output and does not validate CP2K 2026.2 behavior.",
+    "Privacy sanitization preserves tested markers but prevents treating the file as an untouched real artifact.",
+    "The source run contains runtime/MPI warning text and is a negative forward fixture, not accepted scientific evidence."
+  ],
+  "retrieved_utc": "2026-07-18T06:32:15+00:00",
+  "schema_version": "1.0",
+  "source_commit": "403cc70966d7284d9f71f56b8cd2ae08f969fa62",
+  "source_repository": "https://github.com/cp2k/cp2k-output-tools"
+}

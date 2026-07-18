@@ -23,7 +23,7 @@
     "schema_version": {"const": "1.0"},
     "plan_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
     "observable": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
-    "code": {"enum": ["qe", "vasp", "mixed"]},
+    "code": {"enum": ["qe", "vasp", "cp2k", "siesta", "mixed"]},
     "status": {"enum": ["planned", "blocked"]},
     "source_root_label": {"type": "string", "minLength": 1},
     "output_root_label": {"type": "string", "minLength": 1},

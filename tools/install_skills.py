@@ -8,13 +8,10 @@ import os
 from pathlib import Path
 import sys
 
+from software_registry import all_skill_names
 
-SKILLS = (
-    "qe-rigorous-calculations",
-    "vasp-rigorous-calculations",
-    "dft-postprocess",
-    "dft-campaign-efficiency",
-)
+
+SKILLS = all_skill_names()
 
 
 def main() -> int:

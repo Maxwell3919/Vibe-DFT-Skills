@@ -1,0 +1,4 @@
+interface:
+  display_name: "CIF Structure Analysis"
+  short_description: "Parse CIFs with periodic neighbors and symmetry evidence"
+  default_prompt: "Use $cif-structure-analysis to inspect this CIF and produce a traceable structure manifest with periodic-neighbor and symmetry evidence."

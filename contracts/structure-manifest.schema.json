@@ -1,0 +1,991 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/dft-codex-skills/structure-manifest.schema.json",
+  "title": "Traceable crystal structure manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "status",
+    "source",
+    "parser",
+    "document",
+    "structure_identity",
+    "transformations",
+    "validation",
+    "provenance",
+    "input",
+    "execution",
+    "structure",
+    "flags",
+    "views",
+    "limitations",
+    "not_assessed"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "manifest_id": {"type": "string", "pattern": "^structure-[a-f0-9]{16}-b[0-9]+$"},
+    "status": {"enum": ["PASS", "WARN", "BLOCK"]},
+    "source": {"$ref": "#/$defs/source"},
+    "parser": {"$ref": "#/$defs/parser"},
+    "document": {"$ref": "#/$defs/document"},
+    "structure_identity": {"$ref": "#/$defs/structureIdentity"},
+    "transformations": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/transformation"}
+    },
+    "validation": {"$ref": "#/$defs/validation"},
+    "provenance": {"$ref": "#/$defs/provenance"},
+    "input": {"$ref": "#/$defs/input"},
+    "execution": {"$ref": "#/$defs/execution"},
+    "structure": {"$ref": "#/$defs/structure"},
+    "flags": {"$ref": "#/$defs/flags"},
+    "views": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/view"}
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "not_assessed": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "PASS"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "validation": {"properties": {"status": {"const": "pass"}}}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "WARN"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "validation": {"properties": {"status": {"const": "warn"}}}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "BLOCK"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "validation": {"properties": {"status": {"const": "block"}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nullableNumber": {"type": ["number", "null"]},
+    "elementSymbol": {"type": "string", "pattern": "^[A-Z][a-z]?$"},
+    "vector2": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"type": "number"}
+    },
+    "vector3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "number"}
+    },
+    "integerVector3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "integer"}
+    },
+    "matrix3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/vector3"}
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!~)(?![A-Za-z]:[\\\\/]).+"
+    },
+    "blockIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "name"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "name": {"type": "string"}
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "name", "tag_count", "pair_count", "loop_count", "tags"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "name": {"type": "string"},
+        "tag_count": {"type": "integer", "minimum": 0},
+        "pair_count": {"type": ["integer", "null"], "minimum": 0},
+        "loop_count": {"type": ["integer", "null"], "minimum": 0},
+        "tags": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "label", "format", "sha256", "bytes", "data_block"],
+      "properties": {
+        "role": {"const": "source-cif"},
+        "label": {"type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$"},
+        "format": {"enum": ["cif1.1", "cif2.0"]},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "bytes": {"type": "integer", "minimum": 0},
+        "data_block": {"$ref": "#/$defs/blockIdentity"}
+      }
+    },
+    "parser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "mode", "status"],
+      "properties": {
+        "name": {"enum": ["gemmi", "PyCifRW", "ase.io.cif"]},
+        "version": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "status": {"enum": ["used", "degraded"]}
+      }
+    },
+    "stringRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tag", "raw", "value"],
+      "properties": {
+        "tag": {"type": ["string", "null"]},
+        "raw": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]}
+      }
+    },
+    "numericRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tag", "raw", "value", "standard_uncertainty"],
+      "properties": {
+        "tag": {"type": ["string", "null"]},
+        "raw": {"type": ["string", "null"]},
+        "value": {"$ref": "#/$defs/nullableNumber"},
+        "standard_uncertainty": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "atomSiteMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "row",
+        "label",
+        "type_symbol",
+        "fract_x",
+        "fract_y",
+        "fract_z",
+        "cartn_x",
+        "cartn_y",
+        "cartn_z",
+        "occupancy",
+        "wyckoff_symbol",
+        "site_symmetry_multiplicity",
+        "site_symmetry_order",
+        "disorder_assembly",
+        "disorder_group",
+        "adp_type",
+        "calc_flag",
+        "u_iso",
+        "b_iso"
+      ],
+      "properties": {
+        "row": {"type": "integer", "minimum": 0},
+        "label": {"$ref": "#/$defs/stringRecord"},
+        "type_symbol": {"$ref": "#/$defs/stringRecord"},
+        "fract_x": {"$ref": "#/$defs/numericRecord"},
+        "fract_y": {"$ref": "#/$defs/numericRecord"},
+        "fract_z": {"$ref": "#/$defs/numericRecord"},
+        "cartn_x": {"$ref": "#/$defs/numericRecord"},
+        "cartn_y": {"$ref": "#/$defs/numericRecord"},
+        "cartn_z": {"$ref": "#/$defs/numericRecord"},
+        "occupancy": {"$ref": "#/$defs/numericRecord"},
+        "wyckoff_symbol": {"$ref": "#/$defs/stringRecord"},
+        "site_symmetry_multiplicity": {"$ref": "#/$defs/numericRecord"},
+        "site_symmetry_order": {"$ref": "#/$defs/numericRecord"},
+        "disorder_assembly": {"$ref": "#/$defs/stringRecord"},
+        "disorder_group": {"$ref": "#/$defs/stringRecord"},
+        "adp_type": {"$ref": "#/$defs/stringRecord"},
+        "calc_flag": {"$ref": "#/$defs/stringRecord"},
+        "u_iso": {"$ref": "#/$defs/numericRecord"},
+        "b_iso": {"$ref": "#/$defs/numericRecord"}
+      }
+    },
+    "documentMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cell",
+        "declared_formula",
+        "declared_symmetry",
+        "atom_site_count",
+        "atom_sites",
+        "partial_occupancy_rows",
+        "disorder_rows",
+        "audit"
+      ],
+      "properties": {
+        "cell": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["a", "b", "c", "alpha", "beta", "gamma"],
+          "properties": {
+            "a": {"$ref": "#/$defs/numericRecord"},
+            "b": {"$ref": "#/$defs/numericRecord"},
+            "c": {"$ref": "#/$defs/numericRecord"},
+            "alpha": {"$ref": "#/$defs/numericRecord"},
+            "beta": {"$ref": "#/$defs/numericRecord"},
+            "gamma": {"$ref": "#/$defs/numericRecord"}
+          }
+        },
+        "declared_formula": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sum", "structural", "formula_units_z"],
+          "properties": {
+            "sum": {"$ref": "#/$defs/stringRecord"},
+            "structural": {"$ref": "#/$defs/stringRecord"},
+            "formula_units_z": {"$ref": "#/$defs/numericRecord"}
+          }
+        },
+        "declared_symmetry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hermann_mauguin",
+            "international_tables_number",
+            "hall",
+            "operation_tag",
+            "operation_count",
+            "operations"
+          ],
+          "properties": {
+            "hermann_mauguin": {"$ref": "#/$defs/stringRecord"},
+            "international_tables_number": {"$ref": "#/$defs/numericRecord"},
+            "hall": {"$ref": "#/$defs/stringRecord"},
+            "operation_tag": {"type": ["string", "null"]},
+            "operation_count": {"type": "integer", "minimum": 0},
+            "operations": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "atom_site_count": {"type": "integer", "minimum": 0},
+        "atom_sites": {"type": "array", "items": {"$ref": "#/$defs/atomSiteMetadata"}},
+        "partial_occupancy_rows": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0},
+          "uniqueItems": true
+        },
+        "disorder_rows": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0},
+          "uniqueItems": true
+        },
+        "audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["creation_method", "creation_date", "database_code_cod", "doi"],
+          "properties": {
+            "creation_method": {"$ref": "#/$defs/stringRecord"},
+            "creation_date": {"$ref": "#/$defs/stringRecord"},
+            "database_code_cod": {"$ref": "#/$defs/stringRecord"},
+            "doi": {"$ref": "#/$defs/stringRecord"}
+          }
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocks", "selected_block", "metadata"],
+      "properties": {
+        "blocks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/block"}},
+        "selected_block": {"$ref": "#/$defs/blockIdentity"},
+        "metadata": {"$ref": "#/$defs/documentMetadata"}
+      }
+    },
+    "structureIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value", "equivalence_scope"],
+      "properties": {
+        "algorithm": {"const": "sha256-ordered-cell-sites-v1"},
+        "value": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "equivalence_scope": {"type": "string", "minLength": 1}
+      }
+    },
+    "transformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation",
+        "backend",
+        "backend_version",
+        "parameters",
+        "parent_fingerprint",
+        "site_mapping"
+      ],
+      "properties": {
+        "operation": {"type": "string", "minLength": 1},
+        "backend": {"type": "string", "minLength": 1},
+        "backend_version": {"type": "string", "minLength": 1},
+        "parameters": {"type": "object"},
+        "parent_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "site_mapping": {
+          "type": "array",
+          "items": {"type": ["integer", "null"], "minimum": 0}
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "checks"],
+      "properties": {
+        "status": {"enum": ["pass", "warn", "block"]},
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "status", "message"],
+            "properties": {
+              "id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+              "status": {"enum": ["pass", "warn", "fail", "not-run"]},
+              "message": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "bondMatchOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["element_pair", "target_distance_ang", "tolerance_ang"],
+      "properties": {
+        "element_pair": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {"$ref": "#/$defs/elementSymbol"}
+            }
+          ]
+        },
+        "target_distance_ang": {"$ref": "#/$defs/nullableNumber"},
+        "tolerance_ang": {"type": "number", "minimum": 0}
+      }
+    },
+    "analysisOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data_block",
+        "short_distance_threshold_ang",
+        "neighbor_cutoff_ang",
+        "maximum_neighbor_cutoff_ang",
+        "symprec",
+        "angle_tolerance",
+        "bond_match"
+      ],
+      "properties": {
+        "data_block": {"$ref": "#/$defs/blockIdentity"},
+        "short_distance_threshold_ang": {"type": "number", "exclusiveMinimum": 0},
+        "neighbor_cutoff_ang": {"$ref": "#/$defs/nullableNumber"},
+        "maximum_neighbor_cutoff_ang": {"$ref": "#/$defs/nullableNumber"},
+        "symprec": {"type": "number", "exclusiveMinimum": 0},
+        "angle_tolerance": {"type": "number", "minimum": -1},
+        "bond_match": {"$ref": "#/$defs/bondMatchOptions"}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "producer",
+        "producer_version",
+        "generated_utc",
+        "command",
+        "command_options",
+        "dependency_versions"
+      ],
+      "properties": {
+        "producer": {"const": "cif-structure-analysis"},
+        "producer_version": {"type": "string", "minLength": 1},
+        "generated_utc": {"type": "string", "format": "date-time"},
+        "command": {"type": "array", "items": {"type": "string"}},
+        "command_options": {"$ref": "#/$defs/analysisOptions"},
+        "dependency_versions": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "size_bytes", "mtime", "sha256", "data_block"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "mtime": {"type": "number"},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "data_block": {"$ref": "#/$defs/blockIdentity"}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "script",
+        "ase_version",
+        "data_block",
+        "short_distance_threshold_ang",
+        "neighbor_cutoff_ang",
+        "maximum_neighbor_cutoff_ang",
+        "symprec",
+        "angle_tolerance",
+        "bond_match"
+      ],
+      "properties": {
+        "script": {"const": "analyze_cif.py"},
+        "ase_version": {"type": "string", "minLength": 1},
+        "data_block": {"$ref": "#/$defs/blockIdentity"},
+        "short_distance_threshold_ang": {"type": "number", "exclusiveMinimum": 0},
+        "neighbor_cutoff_ang": {"$ref": "#/$defs/nullableNumber"},
+        "maximum_neighbor_cutoff_ang": {"$ref": "#/$defs/nullableNumber"},
+        "symprec": {"type": "number", "exclusiveMinimum": 0},
+        "angle_tolerance": {"type": "number", "minimum": -1},
+        "bond_match": {"$ref": "#/$defs/bondMatchOptions"}
+      }
+    },
+    "elementStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "atomic_number",
+        "color_hex",
+        "covalent_radius_ang",
+        "display_radius_ang",
+        "style_source"
+      ],
+      "properties": {
+        "atomic_number": {"type": "integer", "minimum": 0},
+        "color_hex": {"type": "string", "pattern": "^#[A-F0-9]{6}$"},
+        "covalent_radius_ang": {"type": "number", "exclusiveMinimum": 0},
+        "display_radius_ang": {"type": "number", "exclusiveMinimum": 0},
+        "style_source": {"type": "string", "minLength": 1}
+      }
+    },
+    "axisSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max", "span"],
+      "properties": {
+        "min": {"$ref": "#/$defs/nullableNumber"},
+        "max": {"$ref": "#/$defs/nullableNumber"},
+        "span": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "axisRanges": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": {"$ref": "#/$defs/axisSummary"},
+        "y": {"$ref": "#/$defs/axisSummary"},
+        "z": {"$ref": "#/$defs/axisSummary"}
+      }
+    },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "symbol", "atomic_number", "cartesian_ang", "fractional"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "symbol": {"$ref": "#/$defs/elementSymbol"},
+        "atomic_number": {"type": "integer", "minimum": 0},
+        "cartesian_ang": {"$ref": "#/$defs/vector3"},
+        "fractional": {"$ref": "#/$defs/vector3"}
+      }
+    },
+    "coordinateSample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "symbol", "cartesian_ang", "fractional"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "symbol": {"$ref": "#/$defs/elementSymbol"},
+        "cartesian_ang": {"$ref": "#/$defs/vector3"},
+        "fractional": {"$ref": "#/$defs/vector3"}
+      }
+    },
+    "coordinates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cartesian_ang", "fractional", "coordinate_sample", "coordinate_sample_limit"],
+      "properties": {
+        "cartesian_ang": {"$ref": "#/$defs/axisRanges"},
+        "fractional": {"$ref": "#/$defs/axisRanges"},
+        "coordinate_sample": {"type": "array", "items": {"$ref": "#/$defs/coordinateSample"}},
+        "coordinate_sample_limit": {"type": "integer", "minimum": 0, "maximum": 10}
+      }
+    },
+    "neighborEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "i",
+        "j",
+        "symbols",
+        "shift",
+        "vector_ang",
+        "distance_ang",
+        "directed_multiplicity",
+        "periodic_edge_key"
+      ],
+      "properties": {
+        "i": {"type": "integer", "minimum": 0},
+        "j": {"type": "integer", "minimum": 0},
+        "symbols": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {"$ref": "#/$defs/elementSymbol"}
+        },
+        "shift": {"$ref": "#/$defs/integerVector3"},
+        "vector_ang": {"$ref": "#/$defs/vector3"},
+        "distance_ang": {"type": "number", "exclusiveMinimum": 0},
+        "directed_multiplicity": {"type": "integer", "minimum": 1},
+        "periodic_edge_key": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {"type": "integer"}
+        }
+      }
+    },
+    "bondCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "i",
+        "j",
+        "symbols",
+        "shift",
+        "vector_ang",
+        "distance_ang",
+        "directed_multiplicity",
+        "periodic_edge_key",
+        "absolute_delta_ang"
+      ],
+      "properties": {
+        "i": {"type": "integer", "minimum": 0},
+        "j": {"type": "integer", "minimum": 0},
+        "symbols": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {"$ref": "#/$defs/elementSymbol"}
+        },
+        "shift": {"$ref": "#/$defs/integerVector3"},
+        "vector_ang": {"$ref": "#/$defs/vector3"},
+        "distance_ang": {"type": "number", "exclusiveMinimum": 0},
+        "directed_multiplicity": {"type": "integer", "minimum": 1},
+        "periodic_edge_key": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {"type": "integer"}
+        },
+        "absolute_delta_ang": {"$ref": "#/$defs/nullableNumber"}
+      }
+    },
+    "coordination": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "symbol", "nearest_distance_ang", "nearest_shell_coordination"],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "symbol": {"$ref": "#/$defs/elementSymbol"},
+        "nearest_distance_ang": {"$ref": "#/$defs/nullableNumber"},
+        "nearest_shell_coordination": {"type": "integer", "minimum": 0}
+      }
+    },
+    "bondMatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "query",
+        "scope",
+        "matching_rule",
+        "periodic_scope",
+        "candidate_count",
+        "match_count",
+        "matches",
+        "closest_candidate"
+      ],
+      "properties": {
+        "status": {"enum": ["NOT_REQUESTED", "MATCHED", "NO_MATCH"]},
+        "query": {"$ref": "#/$defs/bondMatchOptions"},
+        "scope": {"const": "periodic_nearest_neighbor_bond_pairs"},
+        "matching_rule": {"type": "string", "minLength": 1},
+        "periodic_scope": {"type": "string", "minLength": 1},
+        "candidate_count": {"type": "integer", "minimum": 0},
+        "match_count": {"type": "integer", "minimum": 0},
+        "matches": {"type": "array", "items": {"$ref": "#/$defs/bondCandidate"}},
+        "closest_candidate": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/bondCandidate"}
+          ]
+        }
+      }
+    },
+    "nearestDistances": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "method_version",
+        "neighbor_cutoff_ang",
+        "maximum_neighbor_cutoff_ang",
+        "cutoff_was_user_supplied",
+        "neighbor_search_complete",
+        "atoms_without_neighbors",
+        "min_distance_ang",
+        "max_distance_within_cutoff_ang",
+        "pair_count",
+        "directed_neighbor_count",
+        "periodic_edge_count",
+        "nearest_pairs_sample",
+        "nearest_pairs_sample_limit",
+        "nearest_neighbor_bond_pairs",
+        "nearest_neighbor_bond_count",
+        "nearest_neighbor_bond_tolerance_ang",
+        "nearest_neighbor_bond_rule",
+        "coordination_by_atom",
+        "uses_minimum_image",
+        "periodic_images_enumerated",
+        "self_image_neighbors_enumerated",
+        "canonicalization",
+        "bond_length_match"
+      ],
+      "properties": {
+        "method": {"const": "ase.neighborlist.neighbor_list"},
+        "method_version": {"const": "periodic-images-v1"},
+        "neighbor_cutoff_ang": {"type": "number", "exclusiveMinimum": 0},
+        "maximum_neighbor_cutoff_ang": {"type": "number", "exclusiveMinimum": 0},
+        "cutoff_was_user_supplied": {"type": "boolean"},
+        "neighbor_search_complete": {"type": "boolean"},
+        "atoms_without_neighbors": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0},
+          "uniqueItems": true
+        },
+        "min_distance_ang": {"$ref": "#/$defs/nullableNumber"},
+        "max_distance_within_cutoff_ang": {"$ref": "#/$defs/nullableNumber"},
+        "pair_count": {"type": "integer", "minimum": 0},
+        "directed_neighbor_count": {"type": "integer", "minimum": 0},
+        "periodic_edge_count": {"type": "integer", "minimum": 0},
+        "nearest_pairs_sample": {"type": "array", "items": {"$ref": "#/$defs/neighborEdge"}},
+        "nearest_pairs_sample_limit": {"const": 50},
+        "nearest_neighbor_bond_pairs": {"type": "array", "items": {"$ref": "#/$defs/neighborEdge"}},
+        "nearest_neighbor_bond_count": {"type": "integer", "minimum": 0},
+        "nearest_neighbor_bond_tolerance_ang": {"type": "number", "minimum": 0},
+        "nearest_neighbor_bond_rule": {"type": "string", "minLength": 1},
+        "coordination_by_atom": {"type": "array", "items": {"$ref": "#/$defs/coordination"}},
+        "uses_minimum_image": {"const": false},
+        "periodic_images_enumerated": {"const": true},
+        "self_image_neighbors_enumerated": {"const": true},
+        "canonicalization": {"type": "string", "minLength": 1},
+        "bond_length_match": {"$ref": "#/$defs/bondMatch"}
+      }
+    },
+    "standardizedCell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["GENERATED", "FAILED"]},
+        "reason": {"type": "string"},
+        "atom_count": {"type": "integer", "minimum": 0},
+        "volume_ang3": {"type": "number", "minimum": 0},
+        "lattice_vectors_ang": {"$ref": "#/$defs/matrix3"},
+        "fractional_positions": {"type": "array", "items": {"$ref": "#/$defs/vector3"}},
+        "atomic_numbers": {"type": "array", "items": {"type": "integer", "minimum": 0}}
+      }
+    },
+    "declaredComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "declared_number",
+        "detected_number",
+        "number_match",
+        "declared_hermann_mauguin",
+        "detected_hermann_mauguin",
+        "symbol_match"
+      ],
+      "properties": {
+        "status": {"enum": ["MATCH", "MISMATCH", "NOT_COMPARABLE"]},
+        "declared_number": {"type": ["integer", "null"]},
+        "detected_number": {"type": ["integer", "null"]},
+        "number_match": {"type": ["boolean", "null"]},
+        "declared_hermann_mauguin": {"type": ["string", "null"]},
+        "detected_hermann_mauguin": {"type": ["string", "null"]},
+        "symbol_match": {"type": ["boolean", "null"]}
+      }
+    },
+    "symmetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "status", "symprec", "angle_tolerance"],
+      "properties": {
+        "available": {"type": "boolean"},
+        "backend": {"const": "spglib"},
+        "backend_version": {"type": "string", "minLength": 1},
+        "status": {"enum": ["DETECTED", "FAILED", "SKIPPED"]},
+        "reason": {"type": "string"},
+        "symprec": {"type": "number", "exclusiveMinimum": 0},
+        "angle_tolerance": {"type": "number", "minimum": -1},
+        "number": {"type": "integer", "minimum": 1, "maximum": 230},
+        "international": {"type": "string"},
+        "hall": {"type": "string"},
+        "choice": {"type": "string"},
+        "pointgroup": {"type": "string"},
+        "wyckoffs": {"type": "array", "items": {"type": "string"}},
+        "site_symmetry_symbols": {"type": "array", "items": {"type": "string"}},
+        "equivalent_atoms": {"type": "array", "items": {"type": "integer", "minimum": 0}},
+        "mapping_to_primitive": {"type": "array", "items": {"type": "integer", "minimum": 0}},
+        "transformation_matrix": {"$ref": "#/$defs/matrix3"},
+        "origin_shift": {"$ref": "#/$defs/vector3"},
+        "operation_count": {"type": "integer", "minimum": 0},
+        "declared_comparison": {"$ref": "#/$defs/declaredComparison"},
+        "tolerance_sweep": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["symprec", "status", "number", "international"],
+            "properties": {
+              "symprec": {"type": "number", "exclusiveMinimum": 0},
+              "status": {"enum": ["DETECTED", "FAILED"]},
+              "number": {"type": ["integer", "null"]},
+              "international": {"type": ["string", "null"]}
+            }
+          }
+        },
+        "tolerance_sensitive": {"type": "boolean"},
+        "standardized_cells": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primitive", "conventional"],
+          "properties": {
+            "primitive": {"$ref": "#/$defs/standardizedCell"},
+            "conventional": {"$ref": "#/$defs/standardizedCell"}
+          }
+        },
+        "partial_occupancy_supported": {"type": "boolean"}
+      }
+    },
+    "axisGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "axis",
+        "cell_length_ang",
+        "largest_fractional_gap",
+        "largest_gap_ang",
+        "occupied_span_estimate_ang",
+        "note"
+      ],
+      "properties": {
+        "axis": {"enum": ["a", "b", "c"]},
+        "cell_length_ang": {"type": "number", "minimum": 0},
+        "largest_fractional_gap": {"type": "number", "minimum": 0, "maximum": 1},
+        "largest_gap_ang": {"type": "number", "minimum": 0},
+        "occupied_span_estimate_ang": {"type": "number", "minimum": 0},
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formula",
+        "atom_count",
+        "source_atom_site_count",
+        "element_counts",
+        "element_styles",
+        "pbc",
+        "cell",
+        "volume_ang3",
+        "total_mass_amu",
+        "density_g_cm3",
+        "density_occupancy_weighted",
+        "coordinates",
+        "sites",
+        "nearest_distances",
+        "axis_gap_estimates",
+        "symmetry_attempt"
+      ],
+      "properties": {
+        "formula": {"type": "string", "minLength": 1},
+        "atom_count": {"type": "integer", "minimum": 1},
+        "source_atom_site_count": {"type": ["integer", "null"], "minimum": 0},
+        "element_counts": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z][a-z]?$": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": false
+        },
+        "element_styles": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z][a-z]?$": {"$ref": "#/$defs/elementStyle"}
+          },
+          "additionalProperties": false
+        },
+        "pbc": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "boolean"}
+        },
+        "cell": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["a", "b", "c", "alpha", "beta", "gamma", "rank", "vectors_ang"],
+          "properties": {
+            "a": {"type": "number", "minimum": 0},
+            "b": {"type": "number", "minimum": 0},
+            "c": {"type": "number", "minimum": 0},
+            "alpha": {"type": "number", "minimum": 0, "maximum": 180},
+            "beta": {"type": "number", "minimum": 0, "maximum": 180},
+            "gamma": {"type": "number", "minimum": 0, "maximum": 180},
+            "rank": {"type": "integer", "minimum": 0, "maximum": 3},
+            "vectors_ang": {"$ref": "#/$defs/matrix3"}
+          }
+        },
+        "volume_ang3": {"$ref": "#/$defs/nullableNumber"},
+        "total_mass_amu": {"type": "number", "minimum": 0},
+        "density_g_cm3": {"$ref": "#/$defs/nullableNumber"},
+        "density_occupancy_weighted": {"type": "boolean"},
+        "coordinates": {"$ref": "#/$defs/coordinates"},
+        "sites": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/site"}},
+        "nearest_distances": {"$ref": "#/$defs/nearestDistances"},
+        "axis_gap_estimates": {"type": "array", "items": {"$ref": "#/$defs/axisGap"}},
+        "symmetry_attempt": {"$ref": "#/$defs/symmetry"}
+      }
+    },
+    "shortDistance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["i", "j", "symbols", "shift", "distance_ang", "threshold_ang"],
+      "properties": {
+        "i": {"type": "integer", "minimum": 0},
+        "j": {"type": "integer", "minimum": 0},
+        "symbols": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {"$ref": "#/$defs/elementSymbol"}
+        },
+        "shift": {"$ref": "#/$defs/integerVector3"},
+        "distance_ang": {"type": "number", "exclusiveMinimum": 0},
+        "threshold_ang": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["short_distances", "partial_occupancy_rows"],
+      "properties": {
+        "short_distances": {"type": "array", "items": {"$ref": "#/$defs/shortDistance"}},
+        "partial_occupancy_rows": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0},
+          "uniqueItems": true
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "axis",
+        "path",
+        "markdown_path",
+        "x_axis",
+        "y_axis",
+        "projection",
+        "view_window_mode",
+        "view_window_2d",
+        "cell_polygon_2d",
+        "atom_positions_2d"
+      ],
+      "properties": {
+        "axis": {"enum": ["a", "b", "c"]},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "markdown_path": {"$ref": "#/$defs/relativePath"},
+        "x_axis": {"enum": ["a", "b", "c"]},
+        "y_axis": {"enum": ["a", "b", "c"]},
+        "projection": {"type": "string", "minLength": 1},
+        "view_window_mode": {"const": "atom_extent"},
+        "view_window_2d": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x_min_ang",
+            "x_max_ang",
+            "x_span_ang",
+            "y_min_ang",
+            "y_max_ang",
+            "y_span_ang",
+            "cell_x_span_ang",
+            "cell_y_span_ang",
+            "padding_ang"
+          ],
+          "properties": {
+            "x_min_ang": {"type": "number"},
+            "x_max_ang": {"type": "number"},
+            "x_span_ang": {"type": "number", "minimum": 0},
+            "y_min_ang": {"type": "number"},
+            "y_max_ang": {"type": "number"},
+            "y_span_ang": {"type": "number", "minimum": 0},
+            "cell_x_span_ang": {"type": "number", "minimum": 0},
+            "cell_y_span_ang": {"type": "number", "minimum": 0},
+            "padding_ang": {"type": "number", "minimum": 0}
+          }
+        },
+        "cell_polygon_2d": {"type": "array", "items": {"$ref": "#/$defs/vector2"}},
+        "atom_positions_2d": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["index", "symbol", "xy_ang"],
+            "properties": {
+              "index": {"type": "integer", "minimum": 0},
+              "symbol": {"$ref": "#/$defs/elementSymbol"},
+              "xy_ang": {"$ref": "#/$defs/vector2"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

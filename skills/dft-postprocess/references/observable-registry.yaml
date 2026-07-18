@@ -15,6 +15,26 @@ backends:
     kind: builtin-python
     capability_key: null
     implemented: true
+  python.cp2k-text:
+    kind: builtin-python
+    capability_key: null
+    implemented: false
+  cp2k.output-parse:
+    kind: external-executable
+    capability_key: cp2k.output_parse
+    implemented: false
+  cp2k.bands-convert:
+    kind: external-executable
+    capability_key: cp2k.bands_convert
+    implemented: false
+  cp2k.pdos-convolve:
+    kind: external-executable
+    capability_key: cp2k.pdos_convolve
+    implemented: false
+  python.siesta-text:
+    kind: builtin-python
+    capability_key: null
+    implemented: false
   python.qe-bands:
     kind: builtin-python
     capability_key: null
@@ -30,6 +50,18 @@ backends:
   python.vasp-dos:
     kind: builtin-python
     capability_key: null
+    implemented: true
+  python.band-views:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.vaspkit-table:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.structure-views:
+    kind: python-package
+    capability_key: ase
     implemented: true
   python.qe-phonon:
     kind: builtin-python
@@ -102,6 +134,10 @@ backends:
   vasp.vaspkit:
     kind: external-executable
     capability_key: vasp.vaspkit
+  visualization.vesta:
+    kind: external-executable
+    capability_key: visualization.vesta
+    implemented: true
 
 observables:
   run-trace:
@@ -120,22 +156,38 @@ observables:
         maturity: real-artifact-validated
         required_evidence: [main-output]
         backends: [python.vasp-text]
+      cp2k:
+        maturity: design-only
+        required_evidence: [main-output]
+        backends: [python.cp2k-text, cp2k.output-parse]
+      siesta:
+        maturity: design-only
+        required_evidence: [main-output]
+        backends: [python.siesta-text]
   bands:
     title: Electronic bands and projected bands
     scope: Normalize eigenvalues, path coordinates, labels, spin channels, and projection weights.
     dataset_kind: electronic-bands-v1
     validators: [finite-values, band-kpoint-dimensions, energy-reference, path-mapping]
     analyses: [band-edges, fermi-crossings, projection-sums]
-    plots: [band-structure, fatband]
+    plots: [band-structure, fatband, bands-comparison, projection-overview, projection-panels]
     codes:
       qe:
         maturity: real-artifact-validated
         required_evidence: [eigenvalues, energy-reference]
-        backends: [python.qe-bands, qe.bands]
+        backends: [python.qe-bands, python.band-views, qe.bands]
       vasp:
         maturity: real-artifact-validated
         required_evidence: [eigenvalues, k-path, structure, energy-reference]
-        backends: [python.vasp-bands, python.py4vasp, python.pymatgen]
+        backends: [python.vasp-bands, python.vaspkit-table, python.band-views, python.py4vasp, python.pymatgen]
+      cp2k:
+        maturity: design-only
+        required_evidence: [band-data, energy-reference]
+        backends: [python.cp2k-text, cp2k.bands-convert]
+      siesta:
+        maturity: design-only
+        required_evidence: [band-data, energy-reference]
+        backends: [python.siesta-text]
   dos-pdos:
     title: Total and projected density of states
     scope: Normalize energy grids, total channels, projected channels, spin conventions, and aggregation metadata.
@@ -152,6 +204,14 @@ observables:
         maturity: real-artifact-validated
         required_evidence: [dos-data, structure, energy-reference]
         backends: [python.vasp-dos, python.py4vasp, python.pymatgen]
+      cp2k:
+        maturity: design-only
+        required_evidence: [dos-data, energy-reference]
+        backends: [python.cp2k-text, cp2k.pdos-convolve]
+      siesta:
+        maturity: design-only
+        required_evidence: [dos-data, energy-reference]
+        backends: [python.siesta-text]
   phonon:
     title: Phonon dispersion and density of states
     scope: Normalize q paths or meshes, frequencies, modes, interpolation provenance, and imaginary-frequency signs.
@@ -169,6 +229,14 @@ observables:
         maturity: design-only
         required_evidence: [force-constants-or-phonon-data, q-path-or-mesh]
         backends: [phonon.phonopy, python.pymatgen]
+      cp2k:
+        maturity: design-only
+        required_evidence: [force-constants-or-phonon-data, q-path-or-mesh]
+        backends: [python.cp2k-text]
+      siesta:
+        maturity: design-only
+        required_evidence: [force-constants-or-phonon-data, q-path-or-mesh]
+        backends: [python.siesta-text]
   epc:
     title: Electron-phonon coupling
     scope: Normalize smearing, q and mode contributions, lambda, alpha2F, logarithmic frequencies, and reported transition-temperature tables.
@@ -185,24 +253,42 @@ observables:
         maturity: design-only
         required_evidence: [epc-table, phonon-frequencies, smearing-definition]
         backends: [python.pymatgen]
+      cp2k:
+        maturity: design-only
+        required_evidence: [epc-table, phonon-frequencies, smearing-definition]
+        backends: [python.cp2k-text]
+      siesta:
+        maturity: design-only
+        required_evidence: [epc-table, phonon-frequencies, smearing-definition]
+        backends: [python.siesta-text]
   real-space:
     title: Real-space fields, charge partitioning, and work function
     scope: Normalize cells, grids, scalar fields, planar averages, atomic partitions, vacuum windows, and energy references.
     dataset_kind: real-space-v1
     validators: [finite-values, cell-grid-alignment, integral-check, coordinate-unit, energy-reference]
     analyses: [field-difference, planar-average, cumulative-integral, region-sum, vacuum-plateau]
-    plots: [planar-profile, cumulative-profile, field-slice]
+    plots: [planar-profile, cumulative-profile, crystallographic-field-section, structure-isosurface, structure-top-side-views]
     codes:
       qe:
         maturity: real-artifact-validated
         required_evidence: [grid-field]
         required_parameters: [field-kind, field-unit]
-        backends: [python.grid, qe.pp, qe.average, charge.bader, charge.critic2]
+        backends: [python.grid, python.structure-views, visualization.vesta, qe.pp, qe.average, charge.bader, charge.critic2]
       vasp:
         maturity: real-artifact-validated
         required_evidence: [grid-field]
         required_parameters: [field-kind, field-unit]
-        backends: [python.grid, python.py4vasp, python.pymatgen, charge.bader, charge.critic2]
+        backends: [python.grid, python.structure-views, visualization.vesta, python.py4vasp, python.pymatgen, charge.bader, charge.critic2]
+      cp2k:
+        maturity: design-only
+        required_evidence: [grid-field]
+        required_parameters: [field-kind, field-unit]
+        backends: [python.cp2k-text]
+      siesta:
+        maturity: design-only
+        required_evidence: [grid-field]
+        required_parameters: [field-kind, field-unit]
+        backends: [python.siesta-text]
   neb:
     title: Minimum-energy path and barrier
     scope: Normalize image order, reaction coordinate, energies, forces, convergence, and reference-energy transformations.
@@ -221,6 +307,16 @@ observables:
         required_evidence: [neb-table]
         required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
         backends: [python.neb, python.pymatgen]
+      cp2k:
+        maturity: design-only
+        required_evidence: [neb-table]
+        required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
+        backends: [python.cp2k-text]
+      siesta:
+        maturity: design-only
+        required_evidence: [neb-table]
+        required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
+        backends: [python.siesta-text]
   optical:
     title: Dielectric and optical spectra
     scope: Normalize frequency or energy grids, complex dielectric components, tensor channels, and broadening metadata.
@@ -239,3 +335,13 @@ observables:
         required_evidence: [dielectric-data]
         required_parameters: [energy-column, components, broadening]
         backends: [python.optical, python.py4vasp, python.pymatgen]
+      cp2k:
+        maturity: design-only
+        required_evidence: [dielectric-data]
+        required_parameters: [energy-column, components, broadening]
+        backends: [python.cp2k-text]
+      siesta:
+        maturity: design-only
+        required_evidence: [dielectric-data]
+        required_parameters: [energy-column, components, broadening]
+        backends: [python.siesta-text]

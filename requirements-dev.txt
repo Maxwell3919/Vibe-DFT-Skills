@@ -1,6 +1,11 @@
+ase>=3.22
+gemmi>=0.7.5
 jsonschema>=4.0
 matplotlib>=3.7
 numpy>=1.24
+PyCifRW>=5.0.1
 PyYAML>=6.0
+spglib>=2.7
 beautifulsoup4>=4.12
+certifi>=2024.0
 lxml>=4.9

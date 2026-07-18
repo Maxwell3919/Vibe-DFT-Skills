@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "code": "siesta",
+  "code_version": "5.4.2",
+  "source_commit": "e486d12067b96ff688179f0496d0ec21b6fae0ab",
+  "records": [
+    {
+      "kind": "fdf-source-definition",
+      "label": "GeometryMustConverge",
+      "lookup_key": "geometrymustconverge",
+      "value_type": "logical",
+      "observed_default": "false",
+      "source_file": "Src/read_options.F90",
+      "source_line": 1348,
+      "source_sha256": "952e3dc3d385f1399f024f332ec22d5dee962efc62280937833471deba1769c8",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fae0ab/Src/read_options.F90#L1348",
+      "limitation": "Observed in the released source but not indexed by the 5.4.2 manual's fdfentry macros."
+    },
+    {
+      "kind": "output-marker",
+      "label": "SCF cycle converged after",
+      "source_file": "Src/scfconvergence_test.F",
+      "source_line": 191,
+      "source_sha256": "fcbad9bdf07b752705581baf3c38bb17b6fa93bd9b45ddff1528378f6aff1c3e",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/scfconvergence_test.F#L191"
+    },
+    {
+      "kind": "output-marker",
+      "label": "SCF_NOT_CONV",
+      "source_file": "Src/siesta_forces.F90",
+      "source_line": 623,
+      "source_sha256": "e2ddc6f7ff80fd258461fcc800b9db9809c9e4d3f54efd55d4a41fbc6d53259e",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/siesta_forces.F90#L623"
+    },
+    {
+      "kind": "output-marker",
+      "label": "GEOM_NOT_CONV",
+      "source_file": "Src/siesta_analysis.F90",
+      "source_line": 113,
+      "source_sha256": "f8364cca6d5ca8e38c683662b06bdbf85716546339855f088844257b7cc6b9d4",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/siesta_analysis.F90#L113"
+    },
+    {
+      "kind": "output-marker",
+      "label": "outcoor: Relaxed atomic coordinates",
+      "source_file": "Src/siesta_analysis.F90",
+      "source_line": 189,
+      "source_sha256": "f8364cca6d5ca8e38c683662b06bdbf85716546339855f088844257b7cc6b9d4",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/siesta_analysis.F90#L189"
+    },
+    {
+      "kind": "output-marker",
+      "label": "outcoor: Final (unrelaxed)",
+      "source_file": "Src/siesta_analysis.F90",
+      "source_line": 193,
+      "source_sha256": "f8364cca6d5ca8e38c683662b06bdbf85716546339855f088844257b7cc6b9d4",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/siesta_analysis.F90#L193"
+    },
+    {
+      "kind": "output-marker",
+      "label": "siesta: Final energy (eV)",
+      "source_file": "Src/write_subs.F",
+      "source_line": 611,
+      "source_sha256": "e118667400fdf67379244a60e24d9e722aaa61c8327cf2ddc4dde0ca70e9cfcd",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/write_subs.F#L611"
+    },
+    {
+      "kind": "output-marker",
+      "label": "siesta: Atomic forces (eV/Ang)",
+      "source_file": "Src/write_subs.F",
+      "source_line": 781,
+      "source_sha256": "e118667400fdf67379244a60e24d9e722aaa61c8327cf2ddc4dde0ca70e9cfcd",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/write_subs.F#L781"
+    },
+    {
+      "kind": "output-marker",
+      "label": "Job completed",
+      "source_file": "Src/siesta_end.F",
+      "source_line": 258,
+      "source_sha256": "5fccce5af9e538f80da3094df0f1016e03fc45f3c0878000ab42dc7036e5989f",
+      "source_url": "https://gitlab.com/siesta-project/siesta/-/blob/e486d12067b96ff688179f0496d0ec21b6fa93bd9b45ddff1528378f6aff1c3e/Src/siesta_end.F#L258"
+    }
+  ],
+  "limitations": [
+    "Source-level records supplement missing manual entries; they do not silently become manual-documented defaults.",
+    "Output strings establish parser anchors only. They do not by themselves establish successful execution or scientific validity."
+  ]
+}

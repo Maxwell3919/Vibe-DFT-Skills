@@ -1,6 +1,6 @@
 ---
 name: dft-postprocess
-description: Inventory, extract, normalize, validate, analyze, and plot Quantum ESPRESSO or VASP results with deterministic Python tools and optional external DFT-tool adapters. Use for run-output inspection, energy/force/SCF traces, bands, DOS/PDOS, phonon, EPC, work-function and other derived data, tool availability checks, provenance, publication figures, artifact manifests, and deciding whether a postprocessed result is complete and traceable.
+description: Inventory, extract, normalize, validate, analyze, and plot DFT results with deterministic Python tools, native QE/VASP routes, explicit CP2K/SIESTA maturity gates, and optional external adapters. Use for run-output inspection, energy/force/SCF traces, bands, DOS/PDOS, phonon, EPC, work-function and other derived data, tool availability checks, provenance, publication figures, artifact manifests, and deciding whether a postprocessed result is complete and traceable.
 ---
 
 # DFT Postprocess
@@ -13,7 +13,7 @@ Produce structured data before figures. Treat parsing, numerical analysis, visua
 2. Run `python3 scripts/dftpost_cli.py inventory <RUN_DIR> --out inventory.json`.
 3. Run `python3 scripts/dftpost_cli.py capabilities --out capabilities.json` before selecting external tools.
 4. Read [references/observable-registry.yaml](references/observable-registry.yaml) for the machine-tracked route and maturity, then [references/observable-matrix.md](references/observable-matrix.md) for the compact human overview.
-5. Read [references/tool-registry.md](references/tool-registry.md) before invoking a QE/VASP ecosystem tool.
+5. Read [references/tool-registry.md](references/tool-registry.md) before invoking a code-specific DFT ecosystem tool.
 6. Read [references/validation-data-policy.md](references/validation-data-policy.md) before using real local or remote calculation artifacts for validation.
 
 Do not install tools automatically. Return `TOOL_UNAVAILABLE` with the missing executable/package, intended operation, and fallback boundary.
@@ -25,6 +25,8 @@ Do not install tools automatically. Return `TOOL_UNAVAILABLE` with the missing e
 - Do not encode a material name, project directory, campaign layout, selected case, hand-picked index, project-specific threshold, or case-specific physical conclusion in the skill library.
 - Keep one-off physical interpretation and material-specific analysis in the project processing area. Promote it only after separating the general algorithm from case configuration and adding transferable tests.
 - Report generic computed facts separately from material-specific scientific interpretation; do not add the latter to bundled scripts.
+- Real-space scripts may expose generic plane, crop, color, isovalue, opacity, structure, and view parameters. Do not bundle case-specific arrows, panel letters, charge-transfer narratives, selected material labels, hand-tuned project thresholds, or paper-figure assembly.
+- Treat structure-view connections, atom radii, colors, boundary images, and camera directions as recorded display mappings. Do not present a drawn connection as a calculated bond order or bonding conclusion.
 
 ## Execute the evidence pipeline
 
@@ -53,9 +55,15 @@ The bundled CLI routes all implemented workflows through normalized CSV/JSON, se
 | SCF/relax trace | `run-trace` | code and main output |
 | QE bands/DOS/fatband | `qe-bands`, `qe-dos`, `qe-fatband` | energy reference; projection selector for fatband |
 | VASP bands/DOS/fatband | `vasp-bands`, `vasp-dos`, `vasp-fatband` | EIGENVAL/DOSCAR/PROCAR plus structure, path, and reference files as applicable |
-| Combined bands + DOS | `bands-dos` | normalized bands/DOS tables and optional channels/window |
+| VASPKIT band-table import | `vaspkit-bands` | `BAND.dat`/`REFORMATTED_BAND.dat`, `KLABELS`, explicit additive energy offset, and a reference description |
+| Multi-system band comparison | `bands-compare` | two or more labeled normalized bands tables; optional matching plot metadata for path labels |
+| Multi-channel projected bands | `band-projections` | one normalized bands table plus labeled, grid-aligned normalized fatband tables; separated panels are primary and an overlap overview is optional |
+| Combined bands + TDOS/PDOS | `bands-dos` | normalized bands/DOS tables with typed total and projected channels; optional PDOS filters/window |
+| Crystal top/side views | `structure-views` | one or more ASE-readable structures; explicit or recorded covalent graphical-connectivity mode and optional element display overrides |
 | QE phonon/EPC | `qe-phonon`, `qe-epc` | frequency unit; alpha2F/lambda inputs and explicit smearing selections |
-| Grid/ELF/potential | `grid-field` | code, field kind, field unit, averaging axis; work function additionally needs conversion, Fermi reference, and vacuum window |
+| Grid/ELF/potential/2D section | `grid-field` | code, field kind/unit, averaging axis; optional explicit `(hkl)`, offset, in-plane origin/window, atom overlay, colormap/range; work function additionally needs conversion, Fermi reference, and vacuum window |
+| Linear grid combination | `grid-combine` | at least two explicit `coefficient=path` Cube components, common geometry, field unit, and structure-source component |
+| Structure + 3D isosurfaces | `vesta-isosurface` | VESTA CLI, grid, field and isovalue units, positive/negative mode, explicit isovalue, colors/opacity, scale, and view rotation |
 | Bader ACF | `bader-acf` | code and ACF; optional per-atom reference electron values |
 | Generic NEB/optical | `neb-table`, `optical-table` | caller-mapped columns, units/reference or component/broadening declarations |
 
@@ -63,7 +71,9 @@ Use `--overwrite` only for an intentional atomic replacement of derived files. R
 
 For a machine-generated plan, supply file evidence with `--evidence role=relative/path` and non-file semantics with `--parameter name=value`. Missing required parameters block the plan; the planner must not emit placeholders that look executable.
 
-Treat maturity in the observable registry literally. `synthetic-validated` proves internal contracts and arithmetic, not native QE/VASP format compatibility. Only `real-artifact-validated` routes have passed a real-artifact forward test.
+Treat maturity in the observable registry literally. `synthetic-validated` proves internal contracts and arithmetic, not native calculation-code format compatibility. Only `real-artifact-validated` routes have passed a real-artifact forward test. A contract accepting `cp2k` or `siesta` is not evidence that a native parser exists.
+
+For VASP non-self-consistent bands, use the energy reference from the scientifically matched parent calculation when that relationship is explicit in the evidence. Do not infer a parent SCF run from directory names or impose SCF `E-fermi` as an unconditional rule for every reference convention. `vaspkit-bands` never guesses what VASPKIT subtracted: require `energy_relative_ev = energy_input_ev + energy_offset_ev` and record the caller's reference description.
 
 For a normalized table:
 
@@ -83,7 +93,7 @@ python3 scripts/dftpost_cli.py validate-manifest artifact artifact_manifest.json
 
 - Preserve source labels, checksums, code/tool versions, command arguments, units, reference energies, spin/channel mapping, and transformations.
 - Write artifact paths relative to the artifact root.
-- Never copy POTCAR contents, raw private calculation trees, credentials, hosts/accounts, or project identifiers into this skill.
+- Never copy POTCAR or other restricted potential contents, raw private calculation trees, credentials, hosts/accounts, or project identifiers into this skill.
 - Do not overwrite raw outputs. Write derived data and figures to a separate processing directory.
 - Mark missing, partial, failed, redacted, and external evidence explicitly.
 - Use user-authorized remote calculation artifacts read-only. Read the applicable host and project rules first, copy only the minimum evidence needed, and keep real host names, paths, values, and raw artifacts outside the committed skill repository.
@@ -99,12 +109,18 @@ Follow [references/plotting-and-evidence-standard.md](references/plotting-and-ev
 - Do not hide warnings, imaginary modes, missing channels, incomplete ranges, or failed calculations.
 - Display every completed validation figure directly to the user after visual QA; do not merely report that a file was written.
 - Give line plots exact horizontal data limits and zero horizontal margin. Use deep red `#7f1d1d` for primary band/path curves unless another mapping is required.
+- Define the `bands-dos` DOS panel as TDOS plus at least one PDOS channel. Select TDOS from `channel_type=total`, retain it when PDOS is filtered with `--pdos-channel`, and fail closed when typed total or projected evidence is absent.
+- Use separate projection panels as the primary view for multiple fatband selectors. Support both `bubble` area encoding and continuous `line-width` encoding; keep the overlap view optional, use a light neutral band background, assign channel colors deterministically, and record weight encoding and input hashes. In `bubble` mode use the explicit linear-area contract `marker_area_pt2 = marker_scale^2 * projection_weight`, with a translucent face and visible same-channel edge; never square the weight itself. In `line-width` mode start at zero width and use `line_width_pt = marker_scale * 0.45 * projection_weight`, so zero projection leaves only the neutral background band. Put both the caller-defined background-bands label and the caller label or selector-derived species/orbital label in every projected-band legend. Do not infer orbital dominance from visual overlap.
+- For comparison figures, keep each dataset on its own axes, use the declared energy reference and path labels, lock each horizontal range to its own data endpoints, and state that visual panels alone do not establish cross-dataset comparability.
+- For structure views, duplicate only crystallographically equivalent 0/1 boundary sites, depth-sort atoms and graphical connections, clip connections at display-sphere surfaces, and record whether connectivity was `none`, covalent-radius heuristic, or caller-explicit.
+- For ELF sections, use the declared `electron-localization` field kind to default to a 0–1 `turbo` map; for declared charge-density differences, use a zero-centered diverging map. Treat `(hkl)`, offset, interpolation, atom-plane tolerance, crop window, and display range as recorded visualization inputs.
+- For VESTA CLI output, require a stable valid PNG and a parseable `.vesta` project. Record the raw conversion/export exit behavior, density import path, project format version, isovalue unit, and VESTA's inverse-color convention for paired positive/negative surfaces.
 
 ## Route interpretation
 
 - Report direct computed facts only when structured data and validation support them.
 - Label current analysis and scientific interpretation separately.
-- Route calculation-integrity questions to `$qe-rigorous-calculations` or `$vasp-rigorous-calculations`.
+- Route calculation-integrity questions to `$qe-rigorous-calculations`, `$vasp-rigorous-calculations`, `$cp2k-rigorous-calculations`, or `$siesta-rigorous-calculations`.
 - Route accepted terminal metrics to `$dft-campaign-efficiency`.
 - Use `BLOCK` when required source evidence, units, mapping, or provenance is absent.
 
