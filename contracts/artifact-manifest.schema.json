@@ -21,7 +21,7 @@
     "schema_version": {"const": "1.0"},
     "artifact_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
     "source_run_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-    "code": {"enum": ["qe", "vasp", "mixed"]},
+    "code": {"enum": ["qe", "vasp", "cp2k", "siesta", "mixed"]},
     "artifact_type": {"type": "string", "minLength": 1},
     "status": {"enum": ["complete", "partial", "failed", "blocked"]},
     "data_files": {"type": "array", "items": {"$ref": "#/$defs/file"}},

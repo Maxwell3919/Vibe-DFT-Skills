@@ -23,6 +23,31 @@ def registry_path() -> Path:
     return Path(__file__).resolve().parents[2] / "references" / "observable-registry.yaml"
 
 
+def software_registry_path() -> Path:
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        candidate = parent / "registry" / "software-registry.yaml"
+        if candidate.is_file() and parent.joinpath("skills").is_dir():
+            return candidate
+    raise RuntimeError("cannot locate registry/software-registry.yaml")
+
+
+def registered_codes() -> tuple[str, ...]:
+    data = yaml.safe_load(software_registry_path().read_text(encoding="utf-8"))
+    software = data.get("software") if isinstance(data, dict) else None
+    if not isinstance(software, dict) or not software:
+        raise ValueError("software registry must contain a nonempty software mapping")
+    return tuple(software)
+
+
+def registered_aggregate_codes() -> tuple[str, ...]:
+    data = yaml.safe_load(software_registry_path().read_text(encoding="utf-8"))
+    aggregate = data.get("aggregate_codes") if isinstance(data, dict) else None
+    if not isinstance(aggregate, list) or not all(isinstance(item, str) for item in aggregate):
+        raise ValueError("software registry must contain an aggregate_codes string list")
+    return tuple(aggregate)
+
+
 def load_registry(path: Path | None = None) -> dict[str, Any]:
     selected = path or registry_path()
     data = yaml.safe_load(selected.read_text(encoding="utf-8"))
@@ -70,6 +95,12 @@ def validate_registry(data: object) -> list[str]:
             if capability is not None and not isinstance(capability, str):
                 failures.append(f"backends/{backend_id}/capability_key: expected string or null")
 
+    try:
+        supported_codes = set(registered_codes())
+    except (OSError, RuntimeError, ValueError, yaml.YAMLError) as exc:
+        failures.append(f"software-registry: {exc}")
+        supported_codes = set()
+
     observables = data.get("observables")
     if not isinstance(observables, dict) or not observables:
         failures.append("observables: expected a nonempty mapping")
@@ -95,7 +126,7 @@ def validate_registry(data: object) -> list[str]:
             continue
         for code, route in sorted(codes.items()):
             route_location = f"{location}/codes/{code}"
-            if code not in {"qe", "vasp"}:
+            if code not in supported_codes:
                 failures.append(f"{route_location}: unsupported DFT code")
             if not isinstance(route, dict):
                 failures.append(f"{route_location}: expected a mapping")

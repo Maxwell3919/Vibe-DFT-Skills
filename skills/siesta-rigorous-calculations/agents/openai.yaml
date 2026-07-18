@@ -1,0 +1,4 @@
+interface:
+  display_name: "SIESTA Rigorous Calculations"
+  short_description: "Plan and audit evidence-bound SIESTA work"
+  default_prompt: "Use $siesta-rigorous-calculations to plan or audit this SIESTA calculation with version-pinned official FDF evidence, input/output identity, ancestry, extracted observables, and separate scientific gates."

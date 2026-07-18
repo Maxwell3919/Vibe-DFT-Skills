@@ -1,0 +1,61 @@
+schema_version: "1.0"
+
+# Aggregate identifiers may appear only in contracts that combine outputs from
+# more than one calculation code. They are never valid calculation executables.
+aggregate_codes:
+  - mixed
+
+# Service skills do not own a DFT executable code but participate in the shared
+# calculation -> postprocess -> learning workflow.
+service_skills:
+  - dft-postprocess
+  - dft-campaign-efficiency
+  - cif-structure-analysis
+
+# Add a future calculation code here first. Repository audit then reports every
+# contract and postprocessing route that still needs an explicit decision.
+software:
+  qe:
+    display_name: Quantum ESPRESSO
+    calculation_skill: qe-rigorous-calculations
+    capability_catalog:
+      path: references/fail-closed-contract.md
+      format: markdown
+    lifecycle: active
+    interfaces:
+      run_manifest: required
+      postprocess: maturity-gated
+      campaign_efficiency: enabled
+  vasp:
+    display_name: VASP
+    calculation_skill: vasp-rigorous-calculations
+    capability_catalog:
+      path: references/task-evidence-profiles.json
+      format: json
+    lifecycle: active
+    interfaces:
+      run_manifest: required
+      postprocess: maturity-gated
+      campaign_efficiency: enabled
+  cp2k:
+    display_name: CP2K
+    calculation_skill: cp2k-rigorous-calculations
+    capability_catalog:
+      path: references/task-evidence-profiles.json
+      format: json
+    lifecycle: active
+    interfaces:
+      run_manifest: required
+      postprocess: maturity-gated
+      campaign_efficiency: enabled
+  siesta:
+    display_name: SIESTA
+    calculation_skill: siesta-rigorous-calculations
+    capability_catalog:
+      path: references/task-evidence-profiles.json
+      format: json
+    lifecycle: active
+    interfaces:
+      run_manifest: required
+      postprocess: maturity-gated
+      campaign_efficiency: enabled

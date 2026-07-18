@@ -1,6 +1,8 @@
+ase>=3.22
 jsonschema>=4.0
 matplotlib>=3.7
 numpy>=1.24
 PyYAML>=6.0
 beautifulsoup4>=4.12
+certifi>=2024.0
 lxml>=4.9

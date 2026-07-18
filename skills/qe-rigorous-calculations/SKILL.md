@@ -1,11 +1,24 @@
 ---
 name: qe-rigorous-calculations
-description: Design, explain, audit, troubleshoot, and validate rigorous Quantum ESPRESSO calculations using official documentation discovered under quantum-espresso.org/Doc/ and observable-specific numerical evidence. Use for QE input parameters, defaults, units, prerequisites, pw.x/ph.x/neb.x/postprocessing workflows, convergence studies, relax/static/bands/DOS/phonon/EPC/NEB calculations, run completion, reproducibility, and deciding whether a QE result is documented, comparable, and scientifically supportable.
+description: Design, explain, audit, troubleshoot, and validate rigorous Quantum ESPRESSO calculations with fail-closed deterministic gates, official documentation discovered under quantum-espresso.org/Doc/, and observable-specific numerical evidence. Use for QE input parameters, defaults, units, prerequisites, pw.x/ph.x/neb.x workflows, convergence studies, relax/static/bands/DOS/phonon/EPC/NEB calculations, pseudopotential provenance, run completion, restart ancestry, reproducibility, and deciding whether a QE result is documented, comparable, and scientifically supportable.
 ---
 
 # QE Rigorous Calculations
 
-Separate official software behavior, input integrity, execution completion, numerical convergence, and physical validity. Never treat a QE default, a common recipe, or one completed run as scientific adequacy.
+Separate objective definition, official behavior, input integrity, pseudopotential provenance, execution completion, numerical convergence, and physical validity. Never treat a QE default, a common recipe, one completed run, or one stable scalar as scientific adequacy.
+
+## Run deterministic gates first
+
+- Read [references/fail-closed-contract.md](references/fail-closed-contract.md) for every calculation design, input/output audit, or convergence task.
+- Resolve the bundled `scripts/qe_guard.py` from this skill directory; never assume the user's calculation directory is the skill directory.
+- Create `qe_plan.json` before scientific calculation design. Do not invent an observable, tolerance, version, or protocol id.
+- Run `reference` for every decisive official parameter. Use `--live-check` when network access is available; use `--offline` only with an explicit cached-source limitation.
+- Run `audit` before calling a `pw.x` input ready and again with `--output` before calling its execution complete.
+- Run `convergence` only on fixed-protocol tables whose rows bind the unchanged plan, distinct audit reports, and matching input/output content hashes; keep every untested convergence dimension explicit.
+- Treat any nonzero exit, `decision != pass`, `fail`, `incomplete`, `not_assessed`, or `scientific_claim_decision: blocked` as a hard stop for the corresponding positive claim.
+- Never edit a generated report or omit adverse evidence to make a gate pass.
+
+The guard intentionally automates only a conservative, allowlisted `pw.x` core. Any unrecognized namelist, field, card, duplicate assignment, or arithmetic coordinate expression blocks an automated pass. For advanced `pw.x` features and for `ph.x`, `neb.x`, and other executables, retrieve the official entry, perform the manual workflow audit, and label the deterministic status `not automated`. A manual review may document the unsupported surface but cannot turn a failed guard into `input_ready` or a tool pass; extend and test the guard or retain the blocking status.
 
 ## Enforce the source boundary
 
@@ -27,12 +40,13 @@ Separate official software behavior, input integrity, execution completion, nume
 
 ## Choose the workflow
 
-1. For a parameter question, identify executable, version, namelist/card, task stage, and interacting fields; read the exact official entry.
-2. For calculation design, define the target observable and tolerance first; read [references/calculation-workflow.md](references/calculation-workflow.md).
-3. For input audit, check syntax and cross-stage prerequisites against the matching official manuals.
-4. For output audit, inspect completion, warnings, convergence, actual echoed settings, forces/stress, and downstream ancestry.
-5. For numerical convergence, vary controlled inputs against the quantity used in the scientific claim; require a stable tail or justified multidimensional study.
-6. At completion, stop, failure, or scientific acceptance, emit a run manifest and hand it to `$dft-campaign-efficiency`; do not maintain experience here.
+1. For a parameter question, identify executable, version, namelist/card, task stage, and interacting fields; run the official reference lookup before answering.
+2. For calculation design, define the target observable and tolerance in the plan, then read [references/calculation-workflow.md](references/calculation-workflow.md).
+3. For input audit, run the supported guard and check unsupported syntax/cross-stage prerequisites manually against matching official manuals.
+4. Before execution, obtain explicit user authorization. Do not launch QE or submit a scheduler job merely because an input was requested.
+5. For output audit, inspect completion, warnings, convergence, actual echoed settings, forces/stress, and downstream ancestry.
+6. For numerical convergence, vary controlled inputs against the quantity used in the scientific claim; require a stable tail or justified multidimensional study, and reject manually entered values that are not bound to audited input/output files.
+7. At completion, stop, failure, or scientific acceptance, emit a run manifest and hand it to `$dft-campaign-efficiency`; do not maintain experience here.
 
 ## Establish provenance
 
@@ -40,7 +54,7 @@ Record or mark missing:
 
 - QE executable versions and build identity;
 - scientific objective, task type, observable, tolerance, and acceptance/stop criteria;
-- structure source, pseudopotential filenames plus non-sensitive hashes/metadata, XC treatment, spin/SOC/Hubbard/dispersion settings, constraints, and boundary conditions;
+- structure source, pseudopotential filenames plus independently declared source URLs/expected hashes/metadata, XC treatment, spin/SOC/Hubbard/dispersion settings, constraints, and boundary conditions;
 - exact inputs, k/q meshes, workflow stage, prefix/outdir ancestry, and restart lineage;
 - scheduler/runtime metrics when available.
 
@@ -64,6 +78,7 @@ For every decisive field:
 - Keep Gamma-only, line-path, regular q-mesh, Fourier interpolation, and direct checkpoint evidence distinct.
 - Keep syntax validity, completed execution, numerical convergence, and physical validation as separate statuses.
 - Never call a result `converged` without naming observable, tolerance, series, and fixed protocol.
+- Never call a result scientifically accepted while the guard reports `scientific_claim_decision: blocked`; resolve the remaining observable-specific and physical/model gates first.
 
 ## Produce the run handoff
 

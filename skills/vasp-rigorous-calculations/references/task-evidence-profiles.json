@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0",
+  "common_checks": [
+    "observable-definition",
+    "official-source-review",
+    "potcar-identity-and-comparability",
+    "technical-warning-review",
+    "declared-comparability-review",
+    "state-continuity-review",
+    "numerical-convergence-evidence",
+    "physical-model-review"
+  ],
+  "profiles": {
+    "generic": {
+      "claim_supported": false,
+      "required_checks": []
+    },
+    "static": {
+      "claim_supported": true,
+      "required_checks": [
+        "reference-normalization-and-sign",
+        "final-energy-quantity",
+        "finite-representation-review"
+      ]
+    },
+    "relax": {
+      "claim_supported": true,
+      "required_checks": [
+        "relaxed-degrees-of-freedom",
+        "stop-reason",
+        "final-force",
+        "final-stress",
+        "pulay-basis-and-kpoint-sensitivity",
+        "accepted-structure-static-lineage"
+      ]
+    },
+    "bands": {
+      "claim_supported": true,
+      "required_checks": [
+        "parent-density-wavefunction-lineage",
+        "kpath-convention-and-coordinates",
+        "unoccupied-band-window",
+        "energy-zero-and-spin-convention",
+        "crossing-gap-and-projection-robustness"
+      ]
+    },
+    "dos": {
+      "claim_supported": true,
+      "required_checks": [
+        "parent-density-wavefunction-lineage",
+        "dos-sampling-and-broadening",
+        "energy-zero-and-spin-convention",
+        "projection-definition-and-leakage"
+      ]
+    },
+    "phonon": {
+      "claim_supported": true,
+      "required_checks": [
+        "force-accuracy",
+        "displacement-amplitude",
+        "supercell-and-q-sampling",
+        "symmetry-and-acoustic-behavior",
+        "imaginary-mode-diagnosis",
+        "nonanalytic-correction-if-relevant"
+      ]
+    },
+    "neb": {
+      "claim_supported": true,
+      "required_checks": [
+        "endpoint-convergence-and-comparability",
+        "atom-mapping-and-initial-path",
+        "all-image-technical-integrity",
+        "all-image-force-convergence",
+        "image-count-and-path-resolution",
+        "saddle-candidate-validation"
+      ]
+    },
+    "md": {
+      "claim_supported": true,
+      "required_checks": [
+        "ensemble-and-coupling-definition",
+        "time-step-and-energy-drift",
+        "equilibration-and-sampling-length",
+        "independent-sampling-if-required",
+        "statistical-uncertainty"
+      ]
+    },
+    "optics": {
+      "claim_supported": true,
+      "required_checks": [
+        "parent-wavefunction-lineage",
+        "empty-band-convergence",
+        "frequency-grid-and-broadening",
+        "kpoint-convergence",
+        "response-internal-consistency"
+      ]
+    },
+    "response": {
+      "claim_supported": true,
+      "required_checks": [
+        "method-prerequisites",
+        "parent-wavefunction-lineage",
+        "empty-band-and-response-cutoff",
+        "sampling-grid-and-broadening",
+        "response-internal-consistency"
+      ]
+    },
+    "hybrid": {
+      "claim_supported": true,
+      "required_checks": [
+        "hybrid-definition-and-version",
+        "parent-restart-lineage",
+        "sampling-workflow",
+        "exact-exchange-numerical-controls",
+        "empty-band-window-if-relevant"
+      ]
+    },
+    "gw": {
+      "claim_supported": true,
+      "required_checks": [
+        "gw-stage-lineage",
+        "empty-band-convergence",
+        "response-cutoff-convergence",
+        "frequency-time-grid",
+        "kpoint-convergence",
+        "self-consistency-definition"
+      ]
+    },
+    "defect": {
+      "claim_supported": true,
+      "required_checks": [
+        "stoichiometry-charge-and-electron-count",
+        "chemical-potential-reference",
+        "supercell-and-kpoint-finite-size",
+        "alignment-and-charge-correction",
+        "spin-localization-and-competing-geometries",
+        "band-edge-and-functional-dependence"
+      ]
+    },
+    "surface": {
+      "claim_supported": true,
+      "required_checks": [
+        "slab-construction-and-relaxation-depth",
+        "vacuum-slab-and-lateral-convergence",
+        "electrostatic-and-dipole-treatment",
+        "adsorption-reference-comparability",
+        "dispersion-model-review",
+        "configuration-and-magnetic-search"
+      ]
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0",
+  "common_claim_checks": [
+    "observable-definition",
+    "official-source-review",
+    "basis-potential-identity-and-comparability",
+    "technical-warning-review",
+    "declared-protocol-comparability-and-state-review",
+    "numerical-convergence-evidence",
+    "physical-model-review"
+  ],
+  "profiles": {
+    "static": {
+      "claim_supported": true,
+      "required_claim_checks": [
+        "energy-quantity-normalization-and-reference",
+        "finite-representation-review",
+        "boundary-and-kpoint-review"
+      ],
+      "run_audit_maturity": "deterministic-core",
+      "run_types": ["ENERGY", "ENERGY_FORCE"],
+      "required_sections": ["GLOBAL", "FORCE_EVAL", "FORCE_EVAL/DFT", "FORCE_EVAL/SUBSYS"],
+      "required_run_evidence_roles": ["main-output"],
+      "required_source_topics": ["global", "force-eval", "dft", "scf", "mgrid", "xc", "subsys"],
+      "scientific_dimensions": ["basis", "grid", "scf", "kpoint-or-cell", "state", "claimed-observable"]
+    },
+    "relax": {
+      "claim_supported": true,
+      "required_claim_checks": [
+        "relaxed-degrees-of-freedom",
+        "stop-reason-and-final-force",
+        "final-stress-if-cell-relaxed",
+        "pulay-basis-grid-and-kpoint-sensitivity",
+        "accepted-structure-static-lineage"
+      ],
+      "run_audit_maturity": "deterministic-core",
+      "run_types": ["GEO_OPT", "CELL_OPT"],
+      "required_sections_any": ["MOTION/GEO_OPT", "MOTION/CELL_OPT"],
+      "run_type_sections": {"GEO_OPT": "MOTION/GEO_OPT", "CELL_OPT": "MOTION/CELL_OPT"},
+      "required_run_evidence_roles": ["main-output", "final-structure", "force-history"],
+      "required_source_topics": ["geo-opt", "cell-opt", "motion-constraint"],
+      "scientific_dimensions": ["basis", "grid", "scf", "force", "stress-if-cell", "state", "final-static-parent"]
+    },
+    "md": {
+      "claim_supported": true,
+      "required_claim_checks": [
+        "ensemble-and-coupling-definition",
+        "time-step-and-energy-drift",
+        "equilibration-and-sampling-length",
+        "independent-sampling-if-required",
+        "statistical-uncertainty"
+      ],
+      "run_audit_maturity": "evidence-profile",
+      "run_types": ["MD"],
+      "required_sections": ["MOTION/MD"],
+      "required_keywords": ["MOTION/MD:ENSEMBLE", "MOTION/MD:STEPS", "MOTION/MD:TIMESTEP"],
+      "required_run_evidence_roles": ["main-output", "trajectory", "energy-history", "restart-lineage"],
+      "required_source_topics": ["md", "md-thermostat", "md-barostat", "md-methods"],
+      "scientific_dimensions": ["force-accuracy", "timestep", "ensemble", "equilibration", "sampling", "uncertainty"]
+    },
+    "bands": {
+      "claim_supported": true,
+      "required_claim_checks": [
+        "parent-density-wavefunction-lineage",
+        "kpath-convention-and-coordinates",
+        "unoccupied-state-window",
+        "energy-zero-spin-and-occupation-convention",
+        "crossing-gap-and-projection-robustness"
+      ],
+      "run_audit_maturity": "evidence-profile",
+      "run_types": ["ENERGY", "ENERGY_FORCE"],
+      "required_sections": ["FORCE_EVAL/DFT/PRINT/BAND_STRUCTURE"],
+      "required_run_evidence_roles": ["main-output", "band-structure", "parent-run-audit"],
+      "required_source_topics": ["band-structure", "kpoints", "electronic-structure-methods"],
+      "scientific_dimensions": ["parent-binding", "kpath", "kpoint-density", "states", "energy-reference", "state"]
+    },
+    "dos": {
+      "claim_supported": true,
+      "required_claim_checks": [
+        "parent-density-wavefunction-lineage",
+        "dos-sampling-and-broadening",
+        "energy-zero-spin-and-occupation-convention",
+        "projection-definition-and-closure"
+      ],
+      "run_audit_maturity": "evidence-profile",
+      "run_types": ["ENERGY", "ENERGY_FORCE"],
+      "required_sections_any": ["FORCE_EVAL/DFT/PRINT/DOS", "FORCE_EVAL/DFT/PRINT/PDOS"],
+      "required_run_evidence_roles": ["main-output", "dos-or-pdos", "parent-run-audit", "energy-reference"],
+      "required_source_topics": ["dos", "pdos", "dos-methods"],
+      "scientific_dimensions": ["parent-binding", "kpoint-density", "states", "occupation", "broadening", "projection-closure", "energy-reference"]
+    },
+    "phonon": {
+      "claim_supported": true,
+      "required_claim_checks": [
+        "force-accuracy-and-displacement-amplitude",
+        "supercell-boundary-and-sampling",
+        "child-calculation-completeness",
+        "symmetry-acoustic-and-imaginary-mode-review",
+        "nonanalytic-correction-if-relevant"
+      ],
+      "run_audit_maturity": "evidence-profile",
+      "run_types": ["VIBRATIONAL_ANALYSIS"],
+      "required_sections": ["VIBRATIONAL_ANALYSIS"],
+      "required_run_evidence_roles": ["main-output", "frequency-modes", "child-force-inventory"],
+      "required_source_topics": ["vibrational-analysis", "infrared-methods", "raman-methods"],
+      "scientific_dimensions": ["force-accuracy", "displacement", "symmetry", "supercell-or-boundary", "child-completeness", "asr-policy"]
+    },
+    "neb": {
+      "claim_supported": true,
+      "required_claim_checks": [
+        "endpoint-convergence-and-comparability",
+        "atom-mapping-and-initial-path",
+        "all-image-technical-integrity",
+        "all-image-force-convergence",
+        "image-count-path-resolution-and-saddle-validation"
+      ],
+      "run_audit_maturity": "evidence-profile",
+      "run_types": ["BAND"],
+      "required_sections": ["MOTION/BAND"],
+      "required_run_evidence_roles": ["main-output", "replica-inventory", "image-energy-history", "image-force-history"],
+      "required_source_topics": ["band-neb", "band-optimizer"],
+      "scientific_dimensions": ["endpoint-binding", "atom-mapping", "image-count", "all-image-forces", "saddle-validation"]
+    },
+    "generic": {
+      "claim_supported": false,
+      "required_claim_checks": [],
+      "run_audit_maturity": "blocked",
+      "run_types": [],
+      "required_run_evidence_roles": ["main-output"],
+      "required_source_topics": ["input-reference"],
+      "scientific_dimensions": ["unresolved-task-profile"]
+    }
+  }
+}

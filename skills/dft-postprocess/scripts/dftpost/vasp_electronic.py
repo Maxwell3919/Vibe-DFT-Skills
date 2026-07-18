@@ -16,6 +16,7 @@ from .electronic import (
     _plot_fatband,
     _refuse_existing_outputs,
     _sampled_band_analysis,
+    _selector_projection_label,
     _source_record,
     _validated_dataset,
     _window_integral,
@@ -839,8 +840,10 @@ def normalize_vasp_fatband(
     *,
     figure_output: Path | None = None,
     energy_window_ev: tuple[float, float] | None = None,
-    marker_scale: float = 45.0,
+    marker_scale: float = 8.0,
     render_mode: str = "line-width",
+    projection_label: str | None = None,
+    bands_label: str = "Bands",
     maturity: str = "format-fixture-validated",
     overwrite: bool = False,
 ) -> dict[str, Path]:
@@ -896,9 +899,11 @@ def normalize_vasp_fatband(
         "high_symmetry_points": labels,
         "limitations": [
             "Projection weights are aggregated only over the explicitly selected PROCAR atoms and orbitals.",
-            "Color and line width are visualization mappings, not separately normalized observables.",
+            "Marker area, color, and line width are visualization mappings, not separately normalized observables.",
         ],
     }
+    rendered_projection_label = _selector_projection_label(selector, projection_label)
+    analysis["projection_label"] = rendered_projection_label
     write_json_atomic(analysis_path, analysis)
     plot_metadata = _plot_fatband(
         distances,
@@ -909,6 +914,8 @@ def normalize_vasp_fatband(
         energy_window_ev,
         marker_scale,
         render_mode,
+        rendered_projection_label,
+        bands_label,
         xlabel=r"Path distance ($\mathrm{\AA}^{-1}$)",
         symmetry_points=labels,
     )

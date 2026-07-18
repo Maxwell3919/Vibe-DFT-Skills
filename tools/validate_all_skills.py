@@ -9,6 +9,8 @@ import sys
 
 import yaml
 
+from software_registry import all_skill_names
+
 
 LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 
@@ -61,12 +63,7 @@ def validate_skill(path: Path) -> list[str]:
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     skills = sorted(path for path in (root / "skills").iterdir() if path.is_dir())
-    expected = {
-        "qe-rigorous-calculations",
-        "vasp-rigorous-calculations",
-        "dft-postprocess",
-        "dft-campaign-efficiency",
-    }
+    expected = set(all_skill_names())
     failures = []
     if {path.name for path in skills} != expected:
         failures.append(f"skill set mismatch: {sorted(path.name for path in skills)}")

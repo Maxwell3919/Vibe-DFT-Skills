@@ -1,0 +1,4 @@
+interface:
+  display_name: "CIF Structure Analysis"
+  short_description: "Analyze CIF structures and match neighbor bonds"
+  default_prompt: "Use $cif-structure-analysis to analyze this CIF and match nearest-neighbor bond lengths with traceable artifacts."

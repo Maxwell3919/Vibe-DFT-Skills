@@ -86,6 +86,39 @@ class EfficiencyTests(unittest.TestCase):
             self.assertTrue(result["outcome"]["scientifically_accepted"])
             self.assertEqual(validate_record(result), [])
 
+    def test_convert_terminal_cp2k_manifest_without_promoting_acceptance(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            run_path = Path(directory) / "cp2k-run.json"
+            run_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "record_id": "run-cp2k-anon-001",
+                        "code": "cp2k",
+                        "code_version": "2026.2",
+                        "task_type": "static",
+                        "case_id": "case-cp2k-anon-001",
+                        "scientific_protocol_id": "protocol-cp2k-001",
+                        "status": "failed",
+                        "scientific_acceptance": "not_assessed",
+                        "configuration": {"parallel_layout": "layout-a"},
+                        "metrics": {"wall_time_s": 40.0, "core_hours": 2.0},
+                        "evidence": [],
+                        "limitations": ["technical run failed before scientific assessment"],
+                        "provenance": {
+                            "collector": "test",
+                            "collector_version": "1.0",
+                            "generated_utc": "2026-07-18T00:00:00+00:00",
+                        },
+                    }
+                )
+            )
+            result = campaign_from_run(run_path, "anon-bulk-small", 8, "layout-a")
+            self.assertEqual(result["code"], "cp2k")
+            self.assertEqual(result["outcome"]["status"], "failed")
+            self.assertFalse(result["outcome"]["scientifically_accepted"])
+            self.assertEqual(validate_record(result), [])
+
     def test_privacy_field_rejected(self) -> None:
         value = record("rec-private", "A", 10, 100)
         value["configuration"]["project_name"] = "secret"

@@ -1,0 +1,872 @@
+{
+  "index_page_count": 2946,
+  "index_sha256": "3174a6e0dfebef503f61a7bade252be3e9684a8e1cf3ec5ba3c8ecda200e6a53",
+  "manual_branch": "cp2k-2026_2-branch",
+  "manual_version": "2026.2",
+  "mirrored_topic_count": 86,
+  "pages": {
+    "accelerators": {
+      "indexed": true,
+      "path": "accelerators.md",
+      "raw_bytes": 67168,
+      "raw_sha256": "5eca6264f1020e1f522a4c10206a211f30f1ae174441b5eb710233e9883282ee",
+      "snapshot_bytes": 359,
+      "snapshot_sha256": "1e1ef9093be16ef942d5f2743159b69e88feaffa46e4176c5af8a7209cf5ba2b",
+      "source_path": "technologies/accelerators/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/technologies/accelerators/index.html"
+    },
+    "admm": {
+      "indexed": true,
+      "path": "admm.md",
+      "raw_bytes": 80830,
+      "raw_sha256": "218089ffef6ff1fabac7d76e4a4fd61be6d79262a7889107f5011b771b1220f3",
+      "snapshot_bytes": 4375,
+      "snapshot_sha256": "dfe602882739bc5ca6cd5fed23e1ce06c98730a1b08df078e07afd49003d7262",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/AUXILIARY_DENSITY_MATRIX_METHOD.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/AUXILIARY_DENSITY_MATRIX_METHOD.html"
+    },
+    "admm-methods": {
+      "indexed": true,
+      "path": "admm-methods.md",
+      "raw_bytes": 74598,
+      "raw_sha256": "5eec0614fc0880a3223962cbf52c35137d7e7739072f1c4e1467e22508735a1a",
+      "snapshot_bytes": 3637,
+      "snapshot_sha256": "a7e1c43743b93dc5df05b43b28e1377e16d56b5faf92452a46b51f7ba23cd86c",
+      "source_path": "methods/dft/hartree-fock/admm.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/hartree-fock/admm.html"
+    },
+    "band-neb": {
+      "indexed": true,
+      "path": "band-neb.md",
+      "raw_bytes": 76318,
+      "raw_sha256": "1efc9c5f25da266f97cd04fc08c8ac454c89d45bea66b7a2d4d34c0ee4e97657",
+      "snapshot_bytes": 3379,
+      "snapshot_sha256": "410716732f6093342804b8bdf277c2b9d9d74f00300efe148999b8e7b33e787b",
+      "source_path": "CP2K_INPUT/MOTION/BAND.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/BAND.html"
+    },
+    "band-optimizer": {
+      "indexed": true,
+      "path": "band-optimizer.md",
+      "raw_bytes": 67062,
+      "raw_sha256": "cf8ac3605c671b35bbd72bd385f17ee22626779d431be6973d4c4430f43150c8",
+      "snapshot_bytes": 1374,
+      "snapshot_sha256": "fe3e88a790879f169d9dc18a82d743a36a082dad285c4b28d8c3b8fc5d1736be",
+      "source_path": "CP2K_INPUT/MOTION/BAND/OPTIMIZE_BAND.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/BAND/OPTIMIZE_BAND.html"
+    },
+    "band-structure": {
+      "indexed": true,
+      "path": "band-structure.md",
+      "raw_bytes": 66553,
+      "raw_sha256": "5fc5b1e6d467c8106a6572da0e86db44f5b0ca0bd8f87dda23c41ff1d69bcb34",
+      "snapshot_bytes": 767,
+      "snapshot_sha256": "5e3c28807b7701112e00ff0d30928c89107e32a563f66f4006ebd5a5f3de6579",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/BAND_STRUCTURE.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/BAND_STRUCTURE.html"
+    },
+    "basis-methods": {
+      "indexed": true,
+      "path": "basis-methods.md",
+      "raw_bytes": 74896,
+      "raw_sha256": "df2caa078b8e153a594aca99d2724374b987a391a5092b2cde2a295672996c25",
+      "snapshot_bytes": 4389,
+      "snapshot_sha256": "96efb32345a98dfd4780adee551ebce1c88d9388088ca64970188d530a787b17",
+      "source_path": "methods/dft/basis_sets.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/basis_sets.html"
+    },
+    "cell": {
+      "indexed": true,
+      "path": "cell.md",
+      "raw_bytes": 85465,
+      "raw_sha256": "1407ebd96546241b3e9a339c1429e7d880785adebdd2f3bbd35c32e7391f1f3a",
+      "snapshot_bytes": 7042,
+      "snapshot_sha256": "908ad006fb0b3719f50f838f860eaca07470daab6404c9259624112bb93fe1d4",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html"
+    },
+    "cell-opt": {
+      "indexed": true,
+      "path": "cell-opt.md",
+      "raw_bytes": 91893,
+      "raw_sha256": "d1e0a0b3d2e46b929b4fae44d6e9fbfcef6e065180fe56b8a9d291ef704c25d0",
+      "snapshot_bytes": 7331,
+      "snapshot_sha256": "d99673a90c65656c1cd5b5f25ab53e98bc3a24f5770f532cd51beca6eb46fbaf",
+      "source_path": "CP2K_INPUT/MOTION/CELL_OPT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/CELL_OPT.html"
+    },
+    "changelog": {
+      "indexed": true,
+      "path": "changelog.md",
+      "raw_bytes": 130699,
+      "raw_sha256": "f0c9f2f7da19302fda628ea291b918ba13ca6b9437f28f760425b76938e186b4",
+      "snapshot_bytes": 24171,
+      "snapshot_sha256": "77a0b491d5580c8842521de95e37a51db0ccc9d7c43f7d7c1360bcb4a3b76313",
+      "source_path": "changelog.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/changelog.html"
+    },
+    "convergence-methods": {
+      "indexed": true,
+      "path": "convergence-methods.md",
+      "raw_bytes": 88148,
+      "raw_sha256": "381d458ec2cdbdc8faa547c1235bb4ba23d7620256f4702a1ec37e23168225fa",
+      "snapshot_bytes": 10098,
+      "snapshot_sha256": "e9f336e849eace0693fb2825dfa11cbeecda07bcd26df4afad1fa86d7bde9ec3",
+      "source_path": "methods/dft/convergence.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html"
+    },
+    "coord": {
+      "indexed": true,
+      "path": "coord.md",
+      "raw_bytes": 66942,
+      "raw_sha256": "31e8b272ac02b3589e9c049c4836adebfcaa320cdfe5fecef2ed49a89cc24962",
+      "snapshot_bytes": 1490,
+      "snapshot_sha256": "66a64e1b29c299821f3c6fe3d77f5792c10ff8ebf2b0266192a524ed551a344f",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/SUBSYS/COORD.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/COORD.html"
+    },
+    "cutoff-convergence": {
+      "indexed": true,
+      "path": "cutoff-convergence.md",
+      "raw_bytes": 126348,
+      "raw_sha256": "878d03ce569574161894cba0e1299f21ba5325a308676ec34f363e62448b5e6a",
+      "snapshot_bytes": 22446,
+      "snapshot_sha256": "e75dba50db2616fa0b93b9e2259ebae03baf60cb7b3e79a239cf247762a1a623",
+      "source_path": "methods/dft/cutoff.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/cutoff.html"
+    },
+    "density-cube": {
+      "indexed": true,
+      "path": "density-cube.md",
+      "raw_bytes": 81919,
+      "raw_sha256": "14be00741ca24e39694caa174c9d862cdf1c744c2af14c89eaaa34409281f88a",
+      "snapshot_bytes": 4768,
+      "snapshot_sha256": "584d0a4960004b7f4fb3572ced127ed826d0d1d823ff4a8252a2a92f7bc6303f",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/E_DENSITY_CUBE.html"
+    },
+    "dft": {
+      "indexed": true,
+      "path": "dft.md",
+      "raw_bytes": 92337,
+      "raw_sha256": "3b882b74509d0ba7dd7984bebbe2ceef3d00bc24d42460727842c25c466824fb",
+      "snapshot_bytes": 7298,
+      "snapshot_sha256": "dd3c50926c4438bebcfda4fcba47a6a4943df0e9b440017f13b23ebcba6787ef",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html"
+    },
+    "dft-methods": {
+      "indexed": true,
+      "path": "dft-methods.md",
+      "raw_bytes": 69685,
+      "raw_sha256": "4e8db05ef1fa7ef41f476bbb7fe0a38b4feee025566d787e1770fb664788d559",
+      "snapshot_bytes": 1485,
+      "snapshot_sha256": "0685fa963ee2fc908279cf0ce03a7385fa251298b09b81bb2e7789c1cd2e6508",
+      "source_path": "methods/dft/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/index.html"
+    },
+    "dft-plus-u": {
+      "indexed": true,
+      "path": "dft-plus-u.md",
+      "raw_bytes": 80683,
+      "raw_sha256": "a4c4ae9012870180fea370d0218d02bdff755e2ba614f79e94855bf7e7b3d5ff",
+      "snapshot_bytes": 2977,
+      "snapshot_sha256": "abca0675ed522a7da9fc667c16fae333bd7eb6f99b7234c21bddbc0f8902f4be",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/SUBSYS/KIND/DFT_PLUS_U.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/KIND/DFT_PLUS_U.html"
+    },
+    "dos": {
+      "indexed": true,
+      "path": "dos.md",
+      "raw_bytes": 81822,
+      "raw_sha256": "80df0e382ec8485e420117a2fe8227b3c5e660d4e8c87d1a070c1f023d484c55",
+      "snapshot_bytes": 3912,
+      "snapshot_sha256": "7ee50f64426fcacbc5994ee475b535b60c04c535071f6b90cf7a6ace7f25cbbd",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/DOS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/DOS.html"
+    },
+    "dos-methods": {
+      "indexed": true,
+      "path": "dos-methods.md",
+      "raw_bytes": 93463,
+      "raw_sha256": "a579d2ac7906fc855d29e6b2ec780f0931f61156ee1350265fe43774c14d8f57",
+      "snapshot_bytes": 13556,
+      "snapshot_sha256": "ea4d9414fcbf8f7862cf7c8f977027dfd0f4030d196920965becbe91a7c1a8f2",
+      "source_path": "methods/electronic_structure/dos.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/electronic_structure/dos.html"
+    },
+    "eigensolvers": {
+      "indexed": true,
+      "path": "eigensolvers.md",
+      "raw_bytes": 67434,
+      "raw_sha256": "ce26ad20ae8ea928612d7a480f636f7db2f07a63ab860db966c6ec838e6c1c39",
+      "snapshot_bytes": 549,
+      "snapshot_sha256": "e033d2d351c7ecfa2ff6969f83d06b4921ac98a8b6e9984ca4cea43b99a43598",
+      "source_path": "technologies/eigensolvers/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/technologies/eigensolvers/index.html"
+    },
+    "electronic-structure-methods": {
+      "indexed": true,
+      "path": "electronic-structure-methods.md",
+      "raw_bytes": 67733,
+      "raw_sha256": "7f96e35da1e44b159db2e118b188c50de8b9e31cd0f57c503c3f0d706fe8facb",
+      "snapshot_bytes": 924,
+      "snapshot_sha256": "c61333b9301e33d1e95a936a24ddc8808cb3fc243ecaec517a280fc92adef375",
+      "source_path": "methods/electronic_structure/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/electronic_structure/index.html"
+    },
+    "elf-cube": {
+      "indexed": true,
+      "path": "elf-cube.md",
+      "raw_bytes": 77652,
+      "raw_sha256": "d23c739afbd98a25058ee9c2f0689ea85de3038963f9f7d910f8f51fb98dcad0",
+      "snapshot_bytes": 3189,
+      "snapshot_sha256": "8a2bab8ad3e14a829ab382e71c3028879754a37c8e3487a373bb16da76bb6104",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/ELF_CUBE.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/ELF_CUBE.html"
+    },
+    "ext-restart": {
+      "indexed": true,
+      "path": "ext-restart.md",
+      "raw_bytes": 103636,
+      "raw_sha256": "791a924502301466166227e3c90cb33e497727d6e6dbfbd873e544a7676301d2",
+      "snapshot_bytes": 7020,
+      "snapshot_sha256": "e9559b15e24463fb01bad4932a1d620004a0251a5923376ed7faf035ba43256a",
+      "source_path": "CP2K_INPUT/EXT_RESTART.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/EXT_RESTART.html"
+    },
+    "first-calculation": {
+      "indexed": true,
+      "path": "first-calculation.md",
+      "raw_bytes": 76809,
+      "raw_sha256": "783ff8a75952a268a1bbd56562fdf4ed00a7842ed7b055d72ff34b8a707859ae",
+      "snapshot_bytes": 4477,
+      "snapshot_sha256": "d1de65b3a627aa8f03675efc390a3bcc32ef631f66312bd07f9ca86218d5bda7",
+      "source_path": "getting-started/first-calculation.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/getting-started/first-calculation.html"
+    },
+    "force-eval": {
+      "indexed": true,
+      "path": "force-eval.md",
+      "raw_bytes": 68164,
+      "raw_sha256": "13342298309800dffc41de24bad9bdf810d1d931cc072eb3ad556069f65bcd58",
+      "snapshot_bytes": 1959,
+      "snapshot_sha256": "0fce01758c5c713e1ec973d9f345c89053110939885cfebcba9ab4d330287bd8",
+      "source_path": "CP2K_INPUT/FORCE_EVAL.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL.html"
+    },
+    "foreword-faq": {
+      "indexed": true,
+      "path": "foreword-faq.md",
+      "raw_bytes": 88917,
+      "raw_sha256": "75d1a4ad66152c88b43f539bf2c2ecfc2886e1e43f7b9c17b1f115349739cb0d",
+      "snapshot_bytes": 17962,
+      "snapshot_sha256": "d1b6188f6df512469cbea4186c26532f79b99bdc7a8c3134485755b21b4da571",
+      "source_path": "getting-started/foreword-and-faq.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/getting-started/foreword-and-faq.html"
+    },
+    "gapw-method": {
+      "indexed": true,
+      "path": "gapw-method.md",
+      "raw_bytes": 72925,
+      "raw_sha256": "4fc6069a0f5ab929e2278b30da8df418e82700a12b56cbdef571cea268ff0f7b",
+      "snapshot_bytes": 2957,
+      "snapshot_sha256": "c6b8ba0c13ad4554ffe262e411d62cc4419c9122744f8fde38d55c8b92c6467f",
+      "source_path": "methods/dft/gapw.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/gapw.html"
+    },
+    "genindex": {
+      "indexed": true,
+      "path": "genindex.md",
+      "raw_bytes": 6564736,
+      "raw_sha256": "1d17041a8c06f9201efc1584e8f240aadb0591a0ac581a6e65460aa9ebf72ead",
+      "snapshot_bytes": 1989543,
+      "snapshot_sha256": "54a6c6d2fe8b1aaa04d3c0e7a1a722a0f7cd8de4c16696f79c8db6cf91721e07",
+      "source_path": "genindex.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/genindex.html"
+    },
+    "geo-opt": {
+      "indexed": true,
+      "path": "geo-opt.md",
+      "raw_bytes": 83053,
+      "raw_sha256": "70c0ee49a151de7bd6bd03d647cbaf2968a3981adb701f7c10d300d932712434",
+      "snapshot_bytes": 4791,
+      "snapshot_sha256": "a10148da1a8116cf8d7d9dccc639cd933cfcb450a25c3233dff581d89cabbc1c",
+      "source_path": "CP2K_INPUT/MOTION/GEO_OPT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html"
+    },
+    "global": {
+      "indexed": true,
+      "path": "global.md",
+      "raw_bytes": 127692,
+      "raw_sha256": "fd18212f47cd8857a993458fe152494e91ebba947f4017c2f6d27369416ae1e5",
+      "snapshot_bytes": 16621,
+      "snapshot_sha256": "162a0fd15b3d9745d16f40d9ceb6e3f420795a0b1992e8530d2bdf1c83998b6b",
+      "source_path": "CP2K_INPUT/GLOBAL.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/GLOBAL.html"
+    },
+    "global-print": {
+      "indexed": true,
+      "path": "global-print.md",
+      "raw_bytes": 79340,
+      "raw_sha256": "2bfc8e53be5f601dca3b4248c76b3efd98ff779201dfd48f9cb13a4f4a3dcda2",
+      "snapshot_bytes": 3526,
+      "snapshot_sha256": "e3469fdeb5d44a85b7acc58ef4457aaf47d88135160bbde275d5bbf9cfa0c6bf",
+      "source_path": "CP2K_INPUT/GLOBAL/PRINT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/GLOBAL/PRINT.html"
+    },
+    "gpw-method": {
+      "indexed": true,
+      "path": "gpw-method.md",
+      "raw_bytes": 69357,
+      "raw_sha256": "7ac248ce6abf1011f955bf92c1e24eaf2af7d3d9be132a94fe50943d5744a001",
+      "snapshot_bytes": 1517,
+      "snapshot_sha256": "19a746d8be1e7e9028d0193306084574260947b4da3a82309db4e5a235137de2",
+      "source_path": "methods/dft/gpw.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/gpw.html"
+    },
+    "gw-methods": {
+      "indexed": true,
+      "path": "gw-methods.md",
+      "raw_bytes": 95632,
+      "raw_sha256": "c19bad92362a423cfd866f6d17a93666290b56210641fa3a8c3abd4d03b0639f",
+      "snapshot_bytes": 14690,
+      "snapshot_sha256": "7da873dcf11759763023500306945b9e4e89c3dfbbe330b35e0f7f256168c5ec",
+      "source_path": "methods/electronic_structure/band/gw.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/electronic_structure/band/gw.html"
+    },
+    "hartree-fock-methods": {
+      "indexed": true,
+      "path": "hartree-fock-methods.md",
+      "raw_bytes": 68532,
+      "raw_sha256": "12e2000692002618b4371785771320eb9af3deeb196c494355c7542d33299aba",
+      "snapshot_bytes": 422,
+      "snapshot_sha256": "b766360e116a32554dc06759618a6d31a1cb57634efb0112a23dc388f983a2c3",
+      "source_path": "methods/dft/hartree-fock/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/hartree-fock/index.html"
+    },
+    "hartree-potential-cube": {
+      "indexed": true,
+      "path": "hartree-potential-cube.md",
+      "raw_bytes": 77962,
+      "raw_sha256": "1b0f1099b18fa5805b0338111c4e7ed4303c387e444314d784772215bfa4c691",
+      "snapshot_bytes": 3318,
+      "snapshot_sha256": "e9ae9b39ab17ada3aa50bc729db062ccfc86c28b8dccf08063dab7d4c526bc97",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/V_HARTREE_CUBE.html"
+    },
+    "hfx": {
+      "indexed": true,
+      "path": "hfx.md",
+      "raw_bytes": 72552,
+      "raw_sha256": "1c5bbbff7aa7d8305e2c92f7a8be3b02825e754c9c0a22cb371de9b2ac3d878e",
+      "snapshot_bytes": 2320,
+      "snapshot_sha256": "81d9616e0b3bc2d420147c56c5de4e1f7fb864d171d78fb77f7db08c620bbf7b",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/XC/HF.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XC/HF.html"
+    },
+    "hfx-screening": {
+      "indexed": true,
+      "path": "hfx-screening.md",
+      "raw_bytes": 72996,
+      "raw_sha256": "40d9c50f2a0f63a43f4b907280f6bc0eaf970c6ad10371d94fecff2dd2140434",
+      "snapshot_bytes": 2068,
+      "snapshot_sha256": "337e327de9f88991b63db81bcfeef9d2793c4cf754b02becaa33f270629848e3",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/XC/HF/SCREENING.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XC/HF/SCREENING.html"
+    },
+    "hirshfeld": {
+      "indexed": true,
+      "path": "hirshfeld.md",
+      "raw_bytes": 81140,
+      "raw_sha256": "bfc28ed4f064c51177b9a88fcf329823057af48dc6a34451e0547cdfb01cfef4",
+      "snapshot_bytes": 3795,
+      "snapshot_sha256": "51b66c9958e3f9f3ebb5019bc5b2b394921f88e13aba3c7d732d04c66b23e23b",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html"
+    },
+    "infrared-methods": {
+      "indexed": true,
+      "path": "infrared-methods.md",
+      "raw_bytes": 66731,
+      "raw_sha256": "cb3c761af5e960064819fea1c84199bad6c4d8d5044d2abf9ff0db215b321e99",
+      "snapshot_bytes": 567,
+      "snapshot_sha256": "e3eaca3cf6c32f759767ed297b1b3aafa005084e3242e08982cb160f8181de41",
+      "source_path": "methods/properties/infrared.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/infrared.html"
+    },
+    "input-reference": {
+      "indexed": true,
+      "path": "input-reference.md",
+      "raw_bytes": 66387,
+      "raw_sha256": "1ae5fc4e3a3e76e03fd494a5d2e0c8ac23eacb6a5ed1d8648be02e13672a708f",
+      "snapshot_bytes": 603,
+      "snapshot_sha256": "98a70f2d0cdc376920c24de892d0253fb85f5b454c653767a2cba022958479dc",
+      "source_path": "CP2K_INPUT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT.html"
+    },
+    "kind": {
+      "indexed": true,
+      "path": "kind.md",
+      "raw_bytes": 106642,
+      "raw_sha256": "213be6984fa2ce2cee4701b5c86a80e10f1efba526074e3cfb4d06f5df93e16e",
+      "snapshot_bytes": 9141,
+      "snapshot_sha256": "0ded5efe75f237e47e18a85e11d2a461219efcc103fd1634ec557cd6eddacd4f",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/SUBSYS/KIND.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/KIND.html"
+    },
+    "kpoint-methods": {
+      "indexed": true,
+      "path": "kpoint-methods.md",
+      "raw_bytes": 98002,
+      "raw_sha256": "2df743589e9a58d37f4abe7ef7679c66dbec288f4ff0a93cc1ed86258bb05ce8",
+      "snapshot_bytes": 15191,
+      "snapshot_sha256": "46f0605797ef12bf1772c7b76550a7f27ee103cfb86fbfeb0fac868bff5452e7",
+      "source_path": "methods/dft/k-points.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/k-points.html"
+    },
+    "kpoints": {
+      "indexed": true,
+      "path": "kpoints.md",
+      "raw_bytes": 86835,
+      "raw_sha256": "d51fff85ac2d146cdc4d656682781a955e661b7e9278085dba2d207409091be2",
+      "snapshot_bytes": 5914,
+      "snapshot_sha256": "d3dcf3a6de0e6655d7bd07235f50dbd2589b1667392b5b13919d6810fad7c273",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/KPOINTS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/KPOINTS.html"
+    },
+    "libraries": {
+      "indexed": true,
+      "path": "libraries.md",
+      "raw_bytes": 98764,
+      "raw_sha256": "97d9597c8aa46a62619755adf7e6a0295056951d98388f6c9dac45b565f186c2",
+      "snapshot_bytes": 17617,
+      "snapshot_sha256": "a6c0ad7a6fe3348c2fab7f78e0ec5852d8eae48ec9d6370eefe7730d6e744942",
+      "source_path": "technologies/libraries.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/technologies/libraries.html"
+    },
+    "md": {
+      "indexed": true,
+      "path": "md.md",
+      "raw_bytes": 92811,
+      "raw_sha256": "8011288b61146f408ba50c18b1923c3717bd15a64300e760e9baf0c9dc2ff2c2",
+      "snapshot_bytes": 7453,
+      "snapshot_sha256": "964feeed5b624e888f75271636b21636b6bd22277caa8b0024539907bce05274",
+      "source_path": "CP2K_INPUT/MOTION/MD.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html"
+    },
+    "md-barostat": {
+      "indexed": true,
+      "path": "md-barostat.md",
+      "raw_bytes": 71016,
+      "raw_sha256": "d5439ccd02799cb75b43895eda8ed36b95aebbdf2eec2629b8151117ee4cdc83",
+      "snapshot_bytes": 1466,
+      "snapshot_sha256": "de7f9f0e93e1aabaaa83272775cdd08880f7d991167300864cf91e5e72e907ab",
+      "source_path": "CP2K_INPUT/MOTION/MD/BAROSTAT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/BAROSTAT.html"
+    },
+    "md-methods": {
+      "indexed": true,
+      "path": "md-methods.md",
+      "raw_bytes": 101508,
+      "raw_sha256": "c9f813a450cd4f06e479ca95716631f02bf3a23db2e91402c98c555fad414b94",
+      "snapshot_bytes": 20577,
+      "snapshot_sha256": "fe9241226a4acf00fd4a8fb3038a1f5f131290069d84049d8c1e6179b49127ea",
+      "source_path": "methods/sampling/molecular_dynamics.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html"
+    },
+    "md-thermostat": {
+      "indexed": true,
+      "path": "md-thermostat.md",
+      "raw_bytes": 68123,
+      "raw_sha256": "64bf18c2ecdfb98ac34bc2082c01e823350bc6c5e1cc5a76c1a76d5f9cca6688",
+      "snapshot_bytes": 1473,
+      "snapshot_sha256": "c733056c23b8940775c6551dd5b6a88d111bfd97bbd075bf52a54443708cf8cc",
+      "source_path": "CP2K_INPUT/MOTION/MD/THERMOSTAT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/THERMOSTAT.html"
+    },
+    "metadynamics-methods": {
+      "indexed": true,
+      "path": "metadynamics-methods.md",
+      "raw_bytes": 83574,
+      "raw_sha256": "591e511aa8cf51f30dbd98de2f810837815618594729ae86d0b2df9fc93d20b8",
+      "snapshot_bytes": 10181,
+      "snapshot_sha256": "dba50df413c2b419ab21bb4b99f60652b8f159ec1d6665e0d8ad693e4f095f90",
+      "source_path": "methods/sampling/metadynamics.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/metadynamics.html"
+    },
+    "mgrid": {
+      "indexed": true,
+      "path": "mgrid.md",
+      "raw_bytes": 77048,
+      "raw_sha256": "e4780f367dd1716fd4645893695016e14fe539b826ba7b4168d0941e8ce4b578",
+      "snapshot_bytes": 3317,
+      "snapshot_sha256": "1d422bb37ec68290153f896b989bcdf7f97a91234e837b31ae4d21a39c0a88c4",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/MGRID.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/MGRID.html"
+    },
+    "mo-cubes": {
+      "indexed": true,
+      "path": "mo-cubes.md",
+      "raw_bytes": 83836,
+      "raw_sha256": "474a5074befe69d53a7d245866f31555374de802e8869d00e9fe6f19882ebbd6",
+      "snapshot_bytes": 4392,
+      "snapshot_sha256": "b3b6666acad23d92f9de3b4339fbeeb9a353ed41adad0bc589e2a91ae91a0330",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/MO_CUBES.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/MO_CUBES.html"
+    },
+    "motion": {
+      "indexed": true,
+      "path": "motion.md",
+      "raw_bytes": 62625,
+      "raw_sha256": "58857ceb1f52d9faf56d5cef6ae64151a81f48566820cff31f7ec8921a2bdc53",
+      "snapshot_bytes": 537,
+      "snapshot_sha256": "1cfce8dc4e17b0e7eaa7a53c5788dd94b978eb6019aae8172ccf50ffbf0f6619",
+      "source_path": "CP2K_INPUT/MOTION.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION.html"
+    },
+    "motion-constraint": {
+      "indexed": true,
+      "path": "motion-constraint.md",
+      "raw_bytes": 68460,
+      "raw_sha256": "9b4559470ae890642b072e8b49f40f876e52d3d3a536c0c1f8115cf8b14be30b",
+      "snapshot_bytes": 1485,
+      "snapshot_sha256": "161f3e8674c4f49ab8bfd794dfa53aabb123ee486b1689757c3bd3fe08a48407",
+      "source_path": "CP2K_INPUT/MOTION/CONSTRAINT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/CONSTRAINT.html"
+    },
+    "mulliken": {
+      "indexed": true,
+      "path": "mulliken.md",
+      "raw_bytes": 76506,
+      "raw_sha256": "4ce30f5f82d0e6097dfe56488ec9d469e487d24ca3ccd3b471a873aea913b745",
+      "snapshot_bytes": 2942,
+      "snapshot_sha256": "30891216197933495093d05430f948eba9459c466abc0a02c4dbf35b0bd5c313",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/MULLIKEN.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/MULLIKEN.html"
+    },
+    "nmr-methods": {
+      "indexed": true,
+      "path": "nmr-methods.md",
+      "raw_bytes": 66287,
+      "raw_sha256": "22bda32f213d6d45c22164b782a5169680d8fa33152421e017adac166d724f0a",
+      "snapshot_bytes": 407,
+      "snapshot_sha256": "c528b8baaced616c9e61b996275a627b16d574522c21fbdea251fded1940b0f4",
+      "source_path": "methods/properties/nmr.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/nmr.html"
+    },
+    "optical-methods": {
+      "indexed": true,
+      "path": "optical-methods.md",
+      "raw_bytes": 72936,
+      "raw_sha256": "4c1f2b841be242aa8a5d72b8622d9575f04cd0f09d9efd7fda05199b58b7f6e6",
+      "snapshot_bytes": 4317,
+      "snapshot_sha256": "0ad3d97317f09a23871d00f89a16c7d0aeb3080a08d4abc903a16cbab8ae52e7",
+      "source_path": "methods/properties/optical/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/index.html"
+    },
+    "outer-scf": {
+      "indexed": true,
+      "path": "outer-scf.md",
+      "raw_bytes": 78574,
+      "raw_sha256": "b54632d02f2a1290cff9f07157ca744d99cf5217910f71a8d472e1fb0e4f5711",
+      "snapshot_bytes": 3986,
+      "snapshot_sha256": "fc7efbc989d12d59b4502b2edf967999a7550c6b6aa791c0166448bff3e42f78",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/SCF/OUTER_SCF.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OUTER_SCF.html"
+    },
+    "path-integral-methods": {
+      "indexed": true,
+      "path": "path-integral-methods.md",
+      "raw_bytes": 66361,
+      "raw_sha256": "99ebff69b12f8bfb3696ebf0e2a96a73b7ef717b0ba1993083ca01e8cb90800a",
+      "snapshot_bytes": 414,
+      "snapshot_sha256": "51f4114825f339ab40d430dc192fdfaecf27f18df86394df81d2deebd9435374",
+      "source_path": "methods/sampling/path_integrals.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/path_integrals.html"
+    },
+    "pdos": {
+      "indexed": true,
+      "path": "pdos.md",
+      "raw_bytes": 66961,
+      "raw_sha256": "9ef030bba5ca6d652297ab78c805feba49dfa0fabf21afe04158c36a79826705",
+      "snapshot_bytes": 651,
+      "snapshot_sha256": "9f3884cba9f9e27c0a71b9020e51d8c11023d0115d0d2e109772f71602739013",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/PRINT/DOS/PDOS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/DOS/PDOS.html"
+    },
+    "poisson": {
+      "indexed": true,
+      "path": "poisson.md",
+      "raw_bytes": 68558,
+      "raw_sha256": "859bf837154f3bd382984e7fbc4aa73665b0f59991f1bfc611b3456de67de401",
+      "snapshot_bytes": 2083,
+      "snapshot_sha256": "f1b7d44a9e4767fe1c7769861a1072d8288c909e8301a05e97a3c71b9148bd37",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/POISSON.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON.html"
+    },
+    "properties": {
+      "indexed": true,
+      "path": "properties.md",
+      "raw_bytes": 62296,
+      "raw_sha256": "9da1a86a29f7ec0fe65d2321f6cdbab2eb3b3647d9ca922b9d07cb7c815cb49d",
+      "snapshot_bytes": 527,
+      "snapshot_sha256": "aba04b906c0f363126829e485e6f674b265211ab8a791523378cbac836dcd0be",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/PROPERTIES.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES.html"
+    },
+    "properties-methods": {
+      "indexed": true,
+      "path": "properties-methods.md",
+      "raw_bytes": 68117,
+      "raw_sha256": "178f573219d4c3c1ed8d2334441f2d779093633e304a571ef68cd6ce457c0b10",
+      "snapshot_bytes": 748,
+      "snapshot_sha256": "e96c96e088bce56a85f5d130b681122fb48322a0618d8ca67fc0b3739bbac333",
+      "source_path": "methods/properties/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/index.html"
+    },
+    "pseudopotential-methods": {
+      "indexed": true,
+      "path": "pseudopotential-methods.md",
+      "raw_bytes": 72871,
+      "raw_sha256": "2826d3f74fdbae757593442368122d1543a56275520a5ed8d07fb4adb1062ac6",
+      "snapshot_bytes": 3406,
+      "snapshot_sha256": "4810dba5aa643444d5822bf0b89fc1a2dd8f0b16755b9519424ac5364ef2ba78",
+      "source_path": "methods/dft/pseudopotentials.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/pseudopotentials.html"
+    },
+    "qmmm": {
+      "indexed": true,
+      "path": "qmmm.md",
+      "raw_bytes": 80921,
+      "raw_sha256": "88e6bcdbca17648050d81004bc3fd773f06eafe8d4c17173704140e4d036848f",
+      "snapshot_bytes": 4953,
+      "snapshot_sha256": "4b579382f6dd234aa3f8768183384cb3a61ca57cc419c4fab25980009b5b1e5b",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/QMMM.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/QMMM.html"
+    },
+    "qs": {
+      "indexed": true,
+      "path": "qs.md",
+      "raw_bytes": 132540,
+      "raw_sha256": "94d335636fd90dd85be5360505eb6cd126f4435236d05a62381a53682b1da346",
+      "snapshot_bytes": 14582,
+      "snapshot_sha256": "cf20d473ca578fbcac21237b4c9f316c958fd81f39f014c3021d54b3a5188012",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/QS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/QS.html"
+    },
+    "raman-methods": {
+      "indexed": true,
+      "path": "raman-methods.md",
+      "raw_bytes": 66277,
+      "raw_sha256": "2b172b0140de5127ab44da78d5673931da937fc1f9da1c219c130b4bb87637af",
+      "snapshot_bytes": 403,
+      "snapshot_sha256": "55673280a0e1fa98790bf86f7b519511baab837a7a81134d16e366d6caaa4721",
+      "source_path": "methods/properties/raman.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/raman.html"
+    },
+    "real-time-propagation": {
+      "indexed": true,
+      "path": "real-time-propagation.md",
+      "raw_bytes": 105717,
+      "raw_sha256": "19c42ffd401ce0de2b765f95124eaf86fd5cf18b5be75a777b9362c54aca2a32",
+      "snapshot_bytes": 9826,
+      "snapshot_sha256": "bf0765a7f921da6504465d7f7be7cdf30c84cc50be75e3b9f5638f2e14ae56e6",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/REAL_TIME_PROPAGATION.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/REAL_TIME_PROPAGATION.html"
+    },
+    "sampling-methods": {
+      "indexed": true,
+      "path": "sampling-methods.md",
+      "raw_bytes": 67309,
+      "raw_sha256": "9696858d40e08d71b75611644a71d9b21531507f46697caf0c33741eab60f35a",
+      "snapshot_bytes": 483,
+      "snapshot_sha256": "9919e481716e433a3b3cb55df5ec31a125519b5ff1ff17b48124cf0d9dc42089",
+      "source_path": "methods/sampling/index.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/index.html"
+    },
+    "sccs": {
+      "indexed": true,
+      "path": "sccs.md",
+      "raw_bytes": 79418,
+      "raw_sha256": "44d4e91caee4e40ab46396d57544f0a25f80c9e75232da73f17191a55ccf5c6b",
+      "snapshot_bytes": 3463,
+      "snapshot_sha256": "40ca2b93bd1f16b7833ccad2e98c2a55fbff3d2bc4472eda6dc129b0f96a5c85",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/SCCS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCCS.html"
+    },
+    "scf": {
+      "indexed": true,
+      "path": "scf.md",
+      "raw_bytes": 92560,
+      "raw_sha256": "f7bfeb7d25276eb167788547f679bd593f78352b744bd59fe351999367349ad6",
+      "snapshot_bytes": 6054,
+      "snapshot_sha256": "4290c7249538c0da0f7bb44c9631af31919af8843e444c9dcb83127e0b3f222a",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/SCF.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html"
+    },
+    "scf-diagonalization": {
+      "indexed": true,
+      "path": "scf-diagonalization.md",
+      "raw_bytes": 74998,
+      "raw_sha256": "ce2e520745231e2561e831a52100cad1798e40f0e20de00a40db1cdf7cf204b4",
+      "snapshot_bytes": 2563,
+      "snapshot_sha256": "c7436381f0e5471aaa14b6c542b0a01835d18167a852b5beb0a540af228ac5c1",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION.html"
+    },
+    "scf-mixing": {
+      "indexed": true,
+      "path": "scf-mixing.md",
+      "raw_bytes": 95141,
+      "raw_sha256": "18b2772c8d76564fa4ace05fa597455a3643cfaabd80ed972543012b793ac3f0",
+      "snapshot_bytes": 7226,
+      "snapshot_sha256": "007dc4e913cae20a8048674819928823b5e1c28fc133fa65c24ebe31ea6bcc3e",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/SCF/MIXING.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/MIXING.html"
+    },
+    "scf-ot": {
+      "indexed": true,
+      "path": "scf-ot.md",
+      "raw_bytes": 119554,
+      "raw_sha256": "7cbb09ce82c7db6537f4c7b4fbdbcd6e057fb675fe99ffb9c221682d6777d869",
+      "snapshot_bytes": 11894,
+      "snapshot_sha256": "3b11ff36e0f1074dea64ab822a9cf284e13f44a708f23e85d4db19a30ba66a7b",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html"
+    },
+    "scf-smear": {
+      "indexed": true,
+      "path": "scf-smear.md",
+      "raw_bytes": 76448,
+      "raw_sha256": "7d20eb39a1bcc0d41ad7ee8fdc0f4832f017e2961f956c20596d891fa94775f3",
+      "snapshot_bytes": 3600,
+      "snapshot_sha256": "d00f72bea629770fc8d6e0c29f5613671586e02f72ba11700a91f29dbdfe88a9",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/SCF/SMEAR.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/SMEAR.html"
+    },
+    "subsys": {
+      "indexed": true,
+      "path": "subsys.md",
+      "raw_bytes": 64127,
+      "raw_sha256": "d4fb86bcbf43e2ce2b9046800fa01ea01869f99b866a96654478a61144a62278",
+      "snapshot_bytes": 926,
+      "snapshot_sha256": "1f6cddfd2d264cda3724530be70f48601fcdc9fb3898c02aa67faa1d48dc32f9",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/SUBSYS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS.html"
+    },
+    "tddfpt": {
+      "indexed": true,
+      "path": "tddfpt.md",
+      "raw_bytes": 101309,
+      "raw_sha256": "318c22758b42349f3cd6737d5a6c5ec9432335542bec2959e5bcd6d326efa174",
+      "snapshot_bytes": 6148,
+      "snapshot_sha256": "ed0ee52933a3a2524ddee86aeaa0c5b01fa4144741b3955ac3d9d671b7f0e084",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html"
+    },
+    "tddft-methods": {
+      "indexed": true,
+      "path": "tddft-methods.md",
+      "raw_bytes": 108081,
+      "raw_sha256": "19bbc2288b41e8f71561715d648213db228bc1076995f3754e553995b0d53d65",
+      "snapshot_bytes": 22354,
+      "snapshot_sha256": "ea304d35992ae8beee052124c39aa0445c3ac8e951cfb4a6e13df83e1d070d0a",
+      "source_path": "methods/properties/optical/tddft.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html"
+    },
+    "topology": {
+      "indexed": true,
+      "path": "topology.md",
+      "raw_bytes": 92394,
+      "raw_sha256": "fc94acc8e2b30700568629fa68037989e86e0138a5929cc454a806393c1bc481",
+      "snapshot_bytes": 6793,
+      "snapshot_sha256": "881c602f786925945bd05189458c9798972654def16fcadbcbf593c11bef4568",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html"
+    },
+    "transport": {
+      "indexed": true,
+      "path": "transport.md",
+      "raw_bytes": 102334,
+      "raw_sha256": "96865ca920fb063a1a96358fdd7fd7a07d50f069326b23aa391b59ec216ff573",
+      "snapshot_bytes": 6489,
+      "snapshot_sha256": "1802533e80dfaac0e13be995bfc743e4c0aaa52578dbceef1350473548015d31",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html"
+    },
+    "troubleshooting": {
+      "indexed": true,
+      "path": "troubleshooting.md",
+      "raw_bytes": 92389,
+      "raw_sha256": "9db180ba92651709b1a69aac2f8dce9918fd8fe0c3217f120c1a5935df86dc91",
+      "snapshot_bytes": 12637,
+      "snapshot_sha256": "64907b73ac2250a0628e85b49b246f36f1372ac142b6041c5bdfcf485fcf0f2f",
+      "source_path": "getting-started/troubleshooting.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/getting-started/troubleshooting.html"
+    },
+    "vdw-potential": {
+      "indexed": true,
+      "path": "vdw-potential.md",
+      "raw_bytes": 66719,
+      "raw_sha256": "589c30fe8a9e7ecbc858d26ca95f5979063adca22f4813a9fc88b6748f3fe64d",
+      "snapshot_bytes": 1171,
+      "snapshot_sha256": "95edcf5ee9e2466d3ffe60dd87e14fd5257d9d76b389b4efa845193e15c22892",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/XC/VDW_POTENTIAL.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XC/VDW_POTENTIAL.html"
+    },
+    "versions": {
+      "indexed": true,
+      "path": "versions.md",
+      "raw_bytes": 66802,
+      "raw_sha256": "51fce8037174561a4ca59ecb99f6116f5b0d2a89dd9643858048688fbbef3bb2",
+      "snapshot_bytes": 452,
+      "snapshot_sha256": "90751966757b317be9bbd84eaf0ab06564198059487eb34891f7b66fac12aec5",
+      "source_path": "versions.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/versions.html"
+    },
+    "vibrational-analysis": {
+      "indexed": true,
+      "path": "vibrational-analysis.md",
+      "raw_bytes": 72740,
+      "raw_sha256": "74344c15ab1a3e19785a7a5bc86aebd05622fda8412c4bb9b389424c4dcbd442",
+      "snapshot_bytes": 2776,
+      "snapshot_sha256": "afe6f07889c36436b134cca99a983d86839377fee00ffe5a98d30ebf6c815d63",
+      "source_path": "CP2K_INPUT/VIBRATIONAL_ANALYSIS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/VIBRATIONAL_ANALYSIS.html"
+    },
+    "wf-correlation": {
+      "indexed": true,
+      "path": "wf-correlation.md",
+      "raw_bytes": 76145,
+      "raw_sha256": "864fa16348adb1b1736c97314dda8da37071bfd68e5c356c31b4b0395b567f46",
+      "snapshot_bytes": 3118,
+      "snapshot_sha256": "56fa9309709a5dfe413134b106527bae5d643257420f81b09349e90fc4715feb",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/XC/WF_CORRELATION.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XC/WF_CORRELATION.html"
+    },
+    "xas": {
+      "indexed": true,
+      "path": "xas.md",
+      "raw_bytes": 88623,
+      "raw_sha256": "c253095cab627a11b9ad3dbc8e5c74e0ce53ee0bfb4d8183bc2697b38f107843",
+      "snapshot_bytes": 5221,
+      "snapshot_sha256": "5d1056a0fe90159e5cf1016bdf0081f9e65e99550dc837dd47222c593b1f3ccf",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/XAS.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html"
+    },
+    "xc": {
+      "indexed": true,
+      "path": "xc.md",
+      "raw_bytes": 73793,
+      "raw_sha256": "6dd62cbe5e1a2ec40ee81f90c55c2811f005999cea906d3f9b72c4bbba486d47",
+      "snapshot_bytes": 2185,
+      "snapshot_sha256": "9bbfacf07efc8af45c979e01f98e156350a564a67cdfeaf073cdcc2dd7fc2fb0",
+      "source_path": "CP2K_INPUT/FORCE_EVAL/DFT/XC.html",
+      "source_url": "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XC.html"
+    }
+  },
+  "registry_sha256": "c8983b8b231abd1c3ebbf1d1d6222af5a75ff338ffa1d58683dcbb7c0c365e44",
+  "retrieved_utc": "2026-07-18T05:59:15+00:00",
+  "schema_version": "1.0"
+}

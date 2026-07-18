@@ -19,6 +19,11 @@ EXTERNAL_TOOLS = {
     "qe.lambda": "lambda.x",
     "qe.alpha2f": "alpha2f.x",
     "qe.epsilon": "epsilon.x",
+    "cp2k.input_lint": "cp2klint",
+    "cp2k.output_parse": "cp2kparse",
+    "cp2k.bands_convert": "cp2k_bs2csv",
+    "cp2k.pdos_convolve": "cp2k_pdos",
+    "cp2k.restart_trajectory_clean": "xyz_restart_cleaner",
     "vasp.vaspkit": "vaspkit",
     "charge.bader": "bader",
     "charge.critic2": "critic2",
@@ -48,6 +53,14 @@ def detect_capabilities() -> dict[str, Any]:
     for role, command in EXTERNAL_TOOLS.items():
         path = shutil.which(command)
         external[role] = {"command": command, "available": path is not None, "path": path}
+    from .vesta import resolve_vesta_executable
+
+    vesta_path = resolve_vesta_executable()
+    external["visualization.vesta"] = {
+        "command": "VESTA",
+        "available": vesta_path is not None,
+        "path": str(vesta_path) if vesta_path is not None else None,
+    }
     python = {}
     for package in PYTHON_PACKAGES:
         try:

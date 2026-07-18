@@ -1,4 +1,4 @@
 interface:
   display_name: "DFT Campaign Efficiency"
-  short_description: "Learn safe efficiency rules from calculation campaigns"
-  default_prompt: "Use $dft-campaign-efficiency to record this campaign and assess transferable efficiency lessons."
+  short_description: "Learn safe efficiency rules from real DFT campaigns"
+  default_prompt: "Use $dft-campaign-efficiency to reconstruct this campaign, write a case-first record, and assess safe promotion, stopping, reuse, and scheduling lessons without weakening scientific gates."

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import sys
 
+from .contracts import calculation_codes
 from .convert import campaign_from_run
 from .recommend import recommendation
 from .store import all_records, ingest, initialize
@@ -37,7 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     recommend = subparsers.add_parser("recommend")
     recommend.add_argument("--db", type=Path, required=True)
-    recommend.add_argument("--code", choices=("qe", "vasp"), required=True)
+    recommend.add_argument("--code", choices=calculation_codes(), required=True)
     recommend.add_argument("--code-version", required=True)
     recommend.add_argument("--task-type", required=True)
     recommend.add_argument("--system-class", required=True)

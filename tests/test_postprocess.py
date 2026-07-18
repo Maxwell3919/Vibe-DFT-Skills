@@ -32,6 +32,8 @@ class PostprocessTests(unittest.TestCase):
         )
         self.assertEqual(registry["observables"]["run-trace"]["codes"]["qe"]["maturity"], "real-artifact-validated")
         self.assertEqual(registry["observables"]["bands"]["codes"]["vasp"]["maturity"], "real-artifact-validated")
+        self.assertEqual(registry["observables"]["run-trace"]["codes"]["cp2k"]["maturity"], "design-only")
+        self.assertEqual(registry["observables"]["run-trace"]["codes"]["siesta"]["maturity"], "design-only")
 
     def test_registry_rejects_unknown_maturity_and_special_case_content(self) -> None:
         from copy import deepcopy
@@ -62,6 +64,16 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(supported["status"], "planned")
             self.assertEqual(supported["backend"]["id"], "python.qe-text")
             self.assertEqual(validation_errors("plan", supported), [])
+
+            for code in ("cp2k", "siesta"):
+                blocked_new_code = build_postprocess_plan(
+                    f"plan-{code}-run-001", "run-trace", code, source, output,
+                    {"main-output": "main.out"}, capabilities,
+                )
+                self.assertEqual(blocked_new_code["status"], "blocked")
+                self.assertIn(f"workflow maturity is design-only: run-trace/{code}", blocked_new_code["blockers"])
+                self.assertIn(f"no implemented available backend: run-trace/{code}", blocked_new_code["blockers"])
+                self.assertEqual(validation_errors("plan", blocked_new_code), [])
 
             electronic = build_postprocess_plan(
                 "plan-band-001", "bands", "qe", source, output,
@@ -247,6 +259,7 @@ class PostprocessTests(unittest.TestCase):
     def test_capability_shape(self) -> None:
         result = detect_capabilities()
         self.assertIn("qe.bands", result["external_tools"])
+        self.assertIn("cp2k.output_parse", result["external_tools"])
         self.assertIn("matplotlib", result["python_packages"])
 
     def test_inventory_redacts_potcar_hash(self) -> None:
@@ -395,6 +408,26 @@ class PostprocessTests(unittest.TestCase):
             )
             self.assertEqual(dos_result.returncode, 0, dos_result.stderr)
 
+            combined_result = subprocess.run(
+                [
+                    sys.executable, str(POST_SCRIPTS / "dftpost_cli.py"), "bands-dos",
+                    "--bands-table", str(root / "bands-out" / "bands.csv"),
+                    "--dos-table", str(root / "dos-out" / "dos.csv"),
+                    "--pdos-channel", "projected-total",
+                    "--out", str(root / "bands-tdos-pdos.png"),
+                    "--metadata-out", str(root / "bands-tdos-pdos.plot.json"),
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(combined_result.returncode, 0, combined_result.stderr)
+            combined_metadata = json.loads(
+                (root / "bands-tdos-pdos.plot.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(combined_metadata["dos_content"], "tdos+pdos")
+            self.assertEqual(combined_metadata["tdos_channel_labels"], ["total"])
+            self.assertEqual(combined_metadata["pdos_channel_labels"], ["projected-total"])
+
     def test_qe_dos_normalizer_aggregates_standard_projected_files(self) -> None:
         from dftpost.electronic import normalize_qe_dos
 
@@ -430,7 +463,20 @@ class PostprocessTests(unittest.TestCase):
             self.assertGreater(result["figure"].stat().st_size, 0)
 
     def test_qe_filproj_fatband_requires_and_applies_selector(self) -> None:
-        from dftpost.electronic import normalize_qe_fatband
+        from dftpost.electronic import (
+            _bubble_marker_areas,
+            _projection_line_widths,
+            normalize_qe_fatband,
+        )
+
+        self.assertEqual(
+            _bubble_marker_areas([0.0, 0.25, 1.0], marker_scale=8.0),
+            [0.0, 16.0, 64.0],
+        )
+        self.assertEqual(
+            _projection_line_widths([0.0, 0.25, 1.0], marker_scale=8.0),
+            [0.0, 0.9, 3.6],
+        )
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -459,13 +505,25 @@ class PostprocessTests(unittest.TestCase):
                 "dataset-fat-001",
                 {"species": "B", "l": "2"},
                 energy_window_ev=(-2.0, 2.0),
+                marker_scale=8.0,
+                render_mode="bubble",
+                projection_label="B-d channel",
+                bands_label="Reference bands",
                 maturity="format-fixture-validated",
             )
             analysis = json.loads(result["analysis"].read_text(encoding="utf-8"))
             plot_metadata = json.loads(result["plot_metadata"].read_text(encoding="utf-8"))
             self.assertEqual(analysis["selected_state_count"], 1)
             self.assertAlmostEqual(analysis["weight_sum"], 2.6)
-            self.assertEqual(plot_metadata["render_mode"], "line-width")
+            self.assertEqual(plot_metadata["render_mode"], "bubble")
+            self.assertEqual(plot_metadata["projection_label"], "B-d channel")
+            self.assertEqual(plot_metadata["background_label"], "Reference bands")
+            self.assertEqual(plot_metadata["legend_labels"], ["Reference bands", "B-d channel"])
+            self.assertEqual(
+                plot_metadata["bubble_area_mapping"],
+                "marker_area_pt2 = marker_scale^2 * projection_weight",
+            )
+            self.assertEqual(plot_metadata["marker_scale"], 8.0)
             self.assertEqual(plot_metadata["x_limits"], [0.0, 1.0])
             self.assertGreater(result["figure"].stat().st_size, 0)
 
@@ -483,23 +541,70 @@ class PostprocessTests(unittest.TestCase):
                 "# E (eV) dos(E) Int dos(E) EFermi = 0.0 eV\n"
                 "-10 1000 0\n-1 0.5 0\n0 2.0 1\n1 0.5 2\n"
             )
+            pdos_source = root / "sample.pdos_atm#1(A)_wfc#1(s)"
+            pdos_source.write_text(
+                "# E (eV) ldos(E) pdos(E)\n"
+                "-10 500 500\n-1 0.25 0.25\n0 1.0 1.0\n1 0.25 0.25\n"
+            )
             bands_result = normalize_qe_bands(
                 bands_source, reference, root / "bands-out", "dataset-combined-bands-001"
             )
             dos_result = normalize_qe_dos(
-                dos_source, [], root / "dos-out", "dataset-combined-dos-001"
+                dos_source, [pdos_source], root / "dos-out", "dataset-combined-dos-001"
             )
             metadata = plot_bands_dos(
                 bands_result["table"],
                 dos_result["table"],
                 root / "bands-dos.png",
                 energy_window_ev=(-1.5, 1.5),
-                dos_channel_labels=["total"],
             )
             self.assertEqual(metadata["band_x_limits"], [0.0, 2.0])
             self.assertEqual(metadata["dos_x_limits"], [0.0, 2.0])
             self.assertEqual(metadata["band_color"], "#7f1d1d")
+            self.assertEqual(metadata["dos_content"], "tdos+pdos")
+            self.assertEqual(metadata["tdos_channel_labels"], ["total"])
+            self.assertEqual(metadata["pdos_channel_labels"], ["A:s"])
+            self.assertEqual(metadata["dos_channel_labels"], ["total", "A:s"])
             self.assertGreater((root / "bands-dos.png").stat().st_size, 0)
+
+    def test_combined_bands_dos_keeps_tdos_when_pdos_is_filtered(self) -> None:
+        from dftpost.electronic import normalize_qe_bands, plot_bands_dos
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bands_source = root / "bands.gnu"
+            bands_source.write_text("0 -1\n1 -0.5\n\n0 1\n1 0.5\n")
+            reference = root / "nscf.out"
+            reference.write_text("the Fermi energy is 0.0 ev\n")
+            bands_result = normalize_qe_bands(
+                bands_source, reference, root / "bands-out", "dataset-filtered-bands-001"
+            )
+            dos_table = root / "dos.csv"
+            dos_table.write_text(
+                "energy_relative_ev,channel_label,channel_type,dos_states_per_ev\n"
+                "-1,total,total,0.5\n0,total,total,2.0\n1,total,total,0.5\n"
+                "-1,A:s,projected,0.2\n0,A:s,projected,0.8\n1,A:s,projected,0.2\n"
+                "-1,B:p,projected,0.3\n0,B:p,projected,1.1\n1,B:p,projected,0.3\n"
+            )
+            metadata = plot_bands_dos(
+                bands_result["table"],
+                dos_table,
+                root / "filtered.png",
+                pdos_channel_labels=["B:p"],
+            )
+            self.assertEqual(metadata["tdos_channel_labels"], ["total"])
+            self.assertEqual(metadata["pdos_channel_labels"], ["B:p"])
+            self.assertEqual(metadata["dos_channel_labels"], ["total", "B:p"])
+
+            missing_pdos = root / "total-only.csv"
+            missing_pdos.write_text(
+                "energy_relative_ev,channel_label,channel_type,dos_states_per_ev\n"
+                "-1,total,total,0.5\n0,total,total,2.0\n1,total,total,0.5\n"
+            )
+            with self.assertRaisesRegex(ValueError, "TDOS \\+ PDOS"):
+                plot_bands_dos(
+                    bands_result["table"], missing_pdos, root / "must-fail.png"
+                )
 
     def test_qe_electronic_outputs_require_explicit_atomic_overwrite(self) -> None:
         from dftpost.electronic import normalize_qe_bands, plot_bands_dos
@@ -530,8 +635,9 @@ class PostprocessTests(unittest.TestCase):
 
             dos_table = root / "dos.csv"
             dos_table.write_text(
-                "energy_relative_ev,channel_label,dos_states_per_ev\n"
-                "-1,total,0.5\n0,total,2.0\n1,total,0.5\n"
+                "energy_relative_ev,channel_label,channel_type,dos_states_per_ev\n"
+                "-1,total,total,0.5\n0,total,total,2.0\n1,total,total,0.5\n"
+                "-1,A:s,projected,0.2\n0,A:s,projected,0.8\n1,A:s,projected,0.2\n"
             )
             combined = root / "bands-dos.png"
             plot_bands_dos(second["table"], dos_table, combined)
@@ -658,6 +764,9 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(fat_analysis["selected_atom_count"], 1)
             self.assertAlmostEqual(fat_analysis["weight_sum"], 1.9)
             self.assertEqual(fat_plot["render_mode"], "line-width")
+            self.assertEqual(fat_plot["projection_label"], "B-p")
+            self.assertEqual(fat_plot["background_label"], "Bands")
+            self.assertEqual(fat_plot["legend_labels"], ["Bands", "B-p"])
 
     def test_run_trace_normalizes_qe_and_vasp_without_equating_completion_with_geometry_convergence(self) -> None:
         from dftpost.runtrace import normalize_run_trace
@@ -833,6 +942,330 @@ class PostprocessTests(unittest.TestCase):
                     "dataset-real-space-bader-002",
                     reference_electrons=[2.0],
                 )
+
+    def test_real_space_slice_style_atoms_and_miller_plane_are_explicit(self) -> None:
+        from dftpost.realspace import normalize_grid_field
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cube = root / "elf.cube"
+            cube.write_text(
+                "synthetic ELF\n"
+                "dimensionless field with atoms on the periodic (110) plane\n"
+                "2 0 0 0\n"
+                "-2 1 0 0\n"
+                "-2 0 1 0\n"
+                "-3 0 0 1\n"
+                "1 1.0 0 0 0\n"
+                "8 8.0 0.5 0.5 1.0\n"
+                "0.0 0.2 0.4 0.6 0.8 1.0 0.9 0.7 0.5 0.3 0.1 0.0\n"
+            )
+            result = normalize_grid_field(
+                cube,
+                "qe",
+                root / "elf-out",
+                "dataset-real-space-elf-slice-001",
+                field_kind="electron-localization",
+                field_unit="dimensionless",
+                slice_hkl=(1, 1, 0),
+                slice_offset=0.0,
+                atom_overlay="near-plane",
+            )
+            plot = json.loads(result["plot_metadata"].read_text())
+            analysis = json.loads(result["analysis"].read_text())
+            self.assertTrue(result["slice_figure"].is_file())
+            self.assertEqual(plot["slice"]["plane_hkl"], [1, 1, 0])
+            self.assertEqual(plot["slice"]["colormap"], "turbo")
+            self.assertEqual(plot["slice"]["value_limits"], [0.0, 1.0])
+            self.assertEqual(plot["slice"]["atom_overlay"], "near-plane")
+            self.assertEqual(plot["slice"]["displayed_atom_count"], 2)
+            self.assertEqual(analysis["slice_plane"]["interpolation"], "periodic-linear")
+
+            signed_cube = root / "difference.cube"
+            signed_cube.write_text(
+                cube.read_text().replace("synthetic ELF", "synthetic difference").replace(
+                    "0.0 0.2 0.4 0.6 0.8 1.0 0.9 0.7 0.5 0.3 0.1 0.0",
+                    "-0.6 -0.4 -0.2 0.0 0.2 0.4 0.6 0.4 0.2 0.0 -0.2 -0.4",
+                )
+            )
+            signed = normalize_grid_field(
+                signed_cube,
+                "qe",
+                root / "difference-out",
+                "dataset-real-space-difference-slice-001",
+                field_kind="charge-density-difference",
+                field_unit="caller-native",
+            )
+            signed_plot = json.loads(signed["plot_metadata"].read_text())
+            self.assertEqual(signed_plot["slice"]["colormap"], "RdBu_r")
+            self.assertLess(signed_plot["slice"]["value_limits"][0], 0.0)
+            self.assertEqual(
+                signed_plot["slice"]["value_limits"][0],
+                -signed_plot["slice"]["value_limits"][1],
+            )
+
+    def test_cube_grid_combination_checks_alignment_and_records_coefficients(self) -> None:
+        from dftpost.realspace import _read_cube, combine_cube_grids
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            header = (
+                "synthetic density\n"
+                "aligned component\n"
+                "1 0 0 0\n"
+                "-2 1 0 0\n"
+                "-2 0 1 0\n"
+                "-2 0 0 1\n"
+                "1 1.0 0 0 0\n"
+            )
+            hetero = root / "hetero.cube"
+            host = root / "host.cube"
+            partner = root / "partner.cube"
+            hetero.write_text(header + "3 3 3 3 3 3 3 3\n")
+            host.write_text(header + "1 1 1 1 1 1 1 1\n")
+            partner.write_text(header + "0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5\n")
+            result = combine_cube_grids(
+                [(1.0, hetero), (-1.0, host), (-1.0, partner)],
+                root / "combine-out",
+                "dataset-grid-combination-001",
+                field_unit="caller-native",
+            )
+            values, _, _ = _read_cube(result["grid"])
+            self.assertTrue((values == 1.5).all())
+            analysis = json.loads(result["analysis"].read_text())
+            dataset = json.loads(result["dataset"].read_text())
+            self.assertEqual(analysis["coefficients"], [1.0, -1.0, -1.0])
+            self.assertEqual(validation_errors("dataset", dataset), [])
+
+            misaligned = root / "misaligned.cube"
+            misaligned.write_text(header.replace("-2 0 0 1", "-2 0 0 2") + "1 1 1 1 1 1 1 1\n")
+            with self.assertRaisesRegex(ValueError, "grid geometry does not align"):
+                combine_cube_grids(
+                    [(1.0, hetero), (-1.0, misaligned)],
+                    root / "misaligned-out",
+                    "dataset-grid-combination-002",
+                    field_unit="caller-native",
+                )
+
+    def test_vesta_project_surfaces_and_nonzero_success_quirk_are_fail_closed(self) -> None:
+        from dftpost.vesta import classify_conversion_result, configure_density_path, configure_isosurfaces
+
+        project = (
+            "#VESTA_FORMAT_VERSION 3.5.4\n"
+            "IMPORT_DENSITY 1\n+1.000000 relative.cube\nSTYLE\nSURFS   0  1  1\nISURF\n  0   0   0   0\nTEX3P\nCOMPS 1\n"
+        )
+        configured = configure_isosurfaces(
+            project,
+            level=0.01,
+            mode="positive-negative",
+            positive_color=(255, 210, 0),
+            negative_color=(0, 200, 255),
+            opacity_parallel=160,
+            opacity_perpendicular=230,
+        )
+        self.assertIn("  1   0", configured)
+        self.assertNotIn("  2   2", configured)
+        self.assertIn("255 210   0", configured)
+        configured_path = configure_density_path(configured, Path("/tmp/signed-grid.cube"))
+        self.assertIn(f"+1.000000 {Path('/tmp/signed-grid.cube').resolve()}", configured_path)
+        self.assertTrue(classify_conversion_result(0, "", "", configured))
+        self.assertTrue(classify_conversion_result(255, "Saved data to: probe.vesta", "", configured))
+        self.assertFalse(classify_conversion_result(255, "", "", configured))
+        self.assertFalse(classify_conversion_result(7, "Saved data to: probe.vesta", "", configured))
+
+    def test_band_comparison_and_projection_panels_consume_normalized_tables(self) -> None:
+        from dftpost.band_views import plot_band_comparison, plot_projection_panels
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            header = "k_index,k_distance,band_index,energy_relative_ev\n"
+            rows_a = (
+                "1,0.0,1,-1.0\n2,0.5,1,-0.5\n3,1.0,1,-1.0\n"
+                "1,0.0,2,1.0\n2,0.5,2,0.4\n3,1.0,2,1.0\n"
+            )
+            rows_b = (
+                "1,0.0,1,-0.8\n2,0.5,1,-0.3\n3,1.0,1,-0.8\n"
+                "1,0.0,2,1.2\n2,0.5,2,0.6\n3,1.0,2,1.2\n"
+            )
+            bands_a = root / "bands-a.csv"
+            bands_b = root / "bands-b.csv"
+            bands_a.write_text(header + rows_a)
+            bands_b.write_text(header + rows_b)
+            meta_a = root / "bands-a.plot.json"
+            meta_a.write_text(json.dumps({
+                "high_symmetry_points": [
+                    {"label": "GAMMA", "k_distance": 0.0},
+                    {"label": "X", "k_distance": 1.0},
+                ]
+            }))
+
+            comparison = plot_band_comparison(
+                [("case A", bands_a), ("case B", bands_b)],
+                root / "compare.png",
+                metadata_paths={"case A": meta_a},
+                layout="row",
+                energy_window_ev=(-2.0, 2.0),
+            )
+            self.assertEqual(comparison["plot_type"], "bands-comparison")
+            self.assertEqual(comparison["band_color"], "#7f1d1d")
+            self.assertEqual(comparison["layout"], "row")
+            self.assertEqual(comparison["series"][0]["x_limits"], [0.0, 1.0])
+            self.assertGreater((root / "compare.png").stat().st_size, 0)
+
+            projection_header = (
+                "k_index,k_distance,band_index,energy_relative_ev,projection_weight\n"
+            )
+            projection_one = root / "projection-one.csv"
+            projection_two = root / "projection-two.csv"
+            projection_one.write_text(
+                projection_header
+                + rows_a.replace("\n", ",0.2\n").replace("energy_relative_ev,0.2", "energy_relative_ev")
+            )
+            projection_two.write_text(
+                projection_header
+                + rows_a.replace("\n", ",0.7\n").replace("energy_relative_ev,0.7", "energy_relative_ev")
+            )
+            panels = plot_projection_panels(
+                bands_a,
+                [("channel 1", projection_one), ("channel 2", projection_two)],
+                root / "projection-panels.png",
+                overview_output=root / "projection-overview.png",
+                bands_metadata_path=meta_a,
+                energy_window_ev=(-2.0, 2.0),
+                render_mode="bubble",
+                bands_label="Reference bands",
+            )
+            self.assertEqual(panels["plot_type"], "projected-bands-panels")
+            self.assertEqual(panels["primary_representation"], "separated-projection-panels")
+            self.assertEqual(panels["render_mode"], "bubble")
+            self.assertEqual([item["label"] for item in panels["projections"]], ["channel 1", "channel 2"])
+            self.assertEqual(
+                panels["legend_labels"],
+                ["Reference bands", "channel 1", "channel 2"],
+            )
+            self.assertEqual(
+                panels["panel_legend_labels"],
+                {
+                    "channel 1": ["Reference bands", "channel 1"],
+                    "channel 2": ["Reference bands", "channel 2"],
+                },
+            )
+            self.assertEqual(
+                panels["bubble_area_mapping"],
+                "marker_area_pt2 = marker_scale^2 * projection_weight",
+            )
+            self.assertGreater((root / "projection-panels.png").stat().st_size, 0)
+            self.assertGreater((root / "projection-overview.png").stat().st_size, 0)
+
+            cli_result = subprocess.run(
+                [
+                    sys.executable,
+                    str(POST_SCRIPTS / "dftpost_cli.py"),
+                    "band-projections",
+                    "--bands-table",
+                    str(bands_a),
+                    "--projection",
+                    f"channel 1={projection_one}",
+                    "--bands-label",
+                    "Reference bands",
+                    "--panels-out",
+                    str(root / "cli-projection-panels.png"),
+                    "--metadata-out",
+                    str(root / "cli-projection-panels.plot.json"),
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(cli_result.returncode, 0, cli_result.stderr)
+
+            misaligned = root / "misaligned.csv"
+            misaligned.write_text(projection_one.read_text().replace("2,0.5,1", "2,0.6,1", 1))
+            with self.assertRaisesRegex(ValueError, "align"):
+                plot_projection_panels(
+                    bands_a,
+                    [("bad", misaligned)],
+                    root / "must-fail.png",
+                )
+
+    def test_vaspkit_band_adapter_requires_explicit_energy_transform(self) -> None:
+        from dftpost.vaspkit import normalize_vaspkit_bands
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            band_data = root / "BAND.dat"
+            band_data.write_text("0.0 -1.0 1.0\n0.5 -0.5 0.4\n1.0 -1.0 1.0\n")
+            labels = root / "KLABELS"
+            labels.write_text(
+                "K-Label    Coordinate in line-mode\n"
+                "GAMMA 0.0\nX 0.5\nM 1.0\n"
+            )
+            result = normalize_vaspkit_bands(
+                band_data,
+                labels,
+                root / "derived",
+                "dataset-vaspkit-bands-001",
+                energy_offset_ev=-0.25,
+                energy_reference_description="caller-declared offset to the selected reference",
+            )
+            with result["table"].open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            dataset = json.loads(result["dataset"].read_text())
+            analysis = json.loads(result["analysis"].read_text())
+            self.assertEqual(validation_errors("dataset", dataset), [])
+            self.assertEqual(dataset["maturity"], "synthetic-validated")
+            self.assertAlmostEqual(float(rows[0]["energy_relative_ev"]), -1.25)
+            self.assertEqual(analysis["energy_transform"], "energy_relative_ev = energy_input_ev + energy_offset_ev")
+            self.assertEqual(analysis["high_symmetry_points"][0]["label"], "GAMMA")
+            self.assertGreater(result["figure"].stat().st_size, 0)
+
+            with self.assertRaisesRegex(ValueError, "description"):
+                normalize_vaspkit_bands(
+                    band_data,
+                    labels,
+                    root / "blocked",
+                    "dataset-vaspkit-bands-002",
+                    energy_offset_ev=0.0,
+                    energy_reference_description="",
+                )
+
+    def test_structure_views_parameterize_graphical_connectivity(self) -> None:
+        from dftpost.structure_views import render_structure_views
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            poscar = root / "POSCAR"
+            poscar.write_text(
+                "synthetic two-element cell\n"
+                "1.0\n"
+                "3.0 0.0 0.0\n0.0 3.0 0.0\n0.0 0.0 5.0\n"
+                "C O\n1 1\nDirect\n"
+                "0.0 0.0 0.0\n0.5 0.5 0.0\n"
+            )
+            result = render_structure_views(
+                [poscar],
+                root / "views",
+                bond_mode="explicit",
+                explicit_bond_limits={frozenset(("C", "O")): 2.3},
+                element_colors={"C": "#555555", "O": "#ff0d0d"},
+                element_radii_angstrom={"C": 0.70, "O": 0.60},
+            )
+            metadata = json.loads(result["metadata"].read_text())
+            self.assertEqual(metadata["bond_mode"], "explicit")
+            self.assertEqual(metadata["structures"][0]["source_atom_count"], 2)
+            self.assertGreater(metadata["structures"][0]["displayed_site_count"], 2)
+            self.assertEqual(metadata["views"], ["top-[001]", "side-[010]"])
+            self.assertGreater(result["figures"][0].stat().st_size, 0)
+            self.assertGreater(result["overview"].stat().st_size, 0)
+
+            default_result = render_structure_views(
+                [poscar],
+                root / "default-views",
+                bond_mode="covalent",
+            )
+            default_metadata = json.loads(default_result["metadata"].read_text())
+            self.assertEqual(default_metadata["display_radius_source"], "0.55 * ASE covalent radius")
+            self.assertLess(default_metadata["element_radii_angstrom"]["C"], 0.5)
+            self.assertLess(default_metadata["element_radii_angstrom"]["O"], 0.5)
 
     def test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit(self) -> None:
         from dftpost.neb_optical import normalize_neb_table, normalize_optical_table

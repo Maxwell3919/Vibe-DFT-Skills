@@ -1,0 +1,4 @@
+interface:
+  display_name: "CP2K Rigorous Calculations"
+  short_description: "Fail-closed CP2K design, audit, and convergence"
+  default_prompt: "Use $cp2k-rigorous-calculations to audit this CP2K calculation with official sources and explicit evidence gates."

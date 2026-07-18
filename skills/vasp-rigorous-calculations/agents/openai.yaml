@@ -1,4 +1,4 @@
 interface:
   display_name: "VASP Rigorous Calculations"
-  short_description: "Design and audit rigorous VASP calculation workflows"
-  default_prompt: "Use $vasp-rigorous-calculations to design or audit this VASP calculation."
+  short_description: "Fail-closed VASP design, audit, and evidence gates"
+  default_prompt: "Use $vasp-rigorous-calculations to audit this VASP case with fail-closed evidence gates."

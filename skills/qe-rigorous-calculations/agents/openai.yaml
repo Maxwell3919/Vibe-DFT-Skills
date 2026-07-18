@@ -1,4 +1,4 @@
 interface:
   display_name: "QE Rigorous Calculations"
-  short_description: "Design and audit rigorous QE calculation workflows"
-  default_prompt: "Use $qe-rigorous-calculations to design or audit this Quantum ESPRESSO calculation."
+  short_description: "Fail-closed QE design and audit workflows"
+  default_prompt: "Use $qe-rigorous-calculations to plan or audit this Quantum ESPRESSO task with fail-closed evidence gates."

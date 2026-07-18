@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
+import yaml
 
 
 SCHEMAS = {
@@ -19,6 +20,15 @@ def repo_root() -> Path:
         if parent.joinpath("contracts").is_dir() and parent.joinpath("skills").is_dir():
             return parent
     raise RuntimeError("cannot locate DFT-Codex-Skills repository root")
+
+
+def calculation_codes() -> tuple[str, ...]:
+    path = repo_root() / "registry" / "software-registry.yaml"
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    software = data.get("software") if isinstance(data, dict) else None
+    if not isinstance(software, dict) or not software:
+        raise ValueError("software registry must contain a nonempty software mapping")
+    return tuple(software)
 
 
 def errors(kind: str, value: object) -> list[str]:

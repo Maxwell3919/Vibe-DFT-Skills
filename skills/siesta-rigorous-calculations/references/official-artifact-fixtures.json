@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "source_project": "https://gitlab.com/siesta-project/siesta",
+  "source_tag": "5.4.2",
+  "source_commit": "e486d12067b96ff688179f0496d0ec21b6fae0ab",
+  "artifact_runtime_version": "5.0.0-alpha-123-gfb8fd7d02",
+  "validation_scope": "official-reference-output-parser-grammar-only",
+  "artifacts": [
+    {
+      "path": "Tests/00.BasisSets/Reference/default_basis.out",
+      "sha256": "fce95ac3f030cec0ca42779d68c36d3ca436e1964d1c32b8b533ecd020e08f79",
+      "expected_total_energy_ev": -466.114067,
+      "expected_wall_time_s": 1.145,
+      "expected_relaxed": false,
+      "expected_fatal_markers": ["SCF_NOT_CONV"]
+    },
+    {
+      "path": "Tests/08.GeometryOptimization/Reference/broyden.out",
+      "sha256": "50897307f427609f388aadd29fa0ac6140fc4614a9351264f15dd37931d3bdc1",
+      "expected_total_energy_ev": -2964.261158,
+      "expected_wall_time_s": 1.451,
+      "expected_relaxed": true,
+      "expected_fatal_markers": []
+    },
+    {
+      "path": "Tests/08.GeometryOptimization/Reference/fire.out",
+      "sha256": "e73d7612686c4be2bb7642c7b5874d1a8417abf57e20c631dc51625bb8b38676",
+      "expected_total_energy_ev": -2964.261099,
+      "expected_wall_time_s": 1.716,
+      "expected_relaxed": true,
+      "expected_fatal_markers": []
+    },
+    {
+      "path": "Tests/09.MolecularDynamics/Reference/verlet.out",
+      "sha256": "9c9bda66ee74e546661af5e29da7eb3329a08b01cae094edaa68a3e78294cdf7",
+      "expected_total_energy_ev": -923.982724,
+      "expected_wall_time_s": 2.13,
+      "expected_relaxed": false,
+      "expected_fatal_markers": []
+    }
+  ],
+  "limitations": [
+    "These are official SIESTA repository reference outputs, but the embedded runtime version predates the 5.4.2 tag containing them.",
+    "They validate stable output grammar and negative-marker precedence only; they do not validate a 5.4.2 executable or scientific reference values.",
+    "No pseudopotential, unpublished input, or full output is copied into this skill."
+  ]
+}
