@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/dft-codex-skills/normalized-dataset.schema.json",
+  "$id": "https://example.invalid/vibe-dft-skills/normalized-dataset.schema.json",
   "title": "Normalized DFT postprocessing dataset",
   "type": "object",
   "additionalProperties": false,

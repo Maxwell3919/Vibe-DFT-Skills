@@ -1,4 +1,4 @@
-# DFT-Codex-Skills 全库审计 — 2026-07-18
+# Vibe-DFT-Skills 全库审计 — 2026-07-18
 
 ## 结论
 
@@ -40,7 +40,7 @@
 ### C. 部署、隐私和仓库卫生
 
 1. 当前本地工作区有大量未提交更新，`HEAD` 与 `origin/main` 都停在 `17e475e`。因此远端 CI 只代表旧提交，不代表本次本地状态。
-2. 常规 `~/.codex/skills` 中只有 `dft-postprocess` 指向本仓库；VASP/CIF 是真实目录，QE/CP2K/SIESTA/efficiency 在该位置缺失。另有旧名 QE 目录位于 `~/.agents/skills/qe-official-params`。安装版本存在漂移风险。
+2. 审计时的 Codex 安装目录中只有 `dft-postprocess` 指向本仓库；VASP/CIF 是真实目录，QE/CP2K/SIESTA/efficiency 在该位置缺失。另一个 agent 目录中存在旧名 QE 副本。安装版本当时存在漂移风险；当前安装器已改为接受任意显式目标目录。
 3. tool execution record 会记录解析后的绝对工作目录、输入/输出和日志路径。文档要求这类记录留在 runtime 外部区域，但 Schema/validator 未自动阻止误提交或进一步匿名化。
 4. 工作区有被 `.gitignore` 正确排除的 `.DS_Store`、`__pycache__` 和 `.pyc`。它们未污染 Git，但可在无并行进程使用时定期清理。
 

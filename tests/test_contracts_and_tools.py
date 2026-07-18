@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -161,6 +162,43 @@ class ContractTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("link", result.stdout)
             self.assertIn("cif-structure-analysis", result.stdout)
+
+    def test_install_accepts_tool_agnostic_target_environment(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            environment = os.environ.copy()
+            environment["VIBE_DFT_SKILLS_TARGET"] = directory
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools" / "install_skills.py"),
+                    "--skill",
+                    "cif-structure-analysis",
+                    "--dry-run",
+                ],
+                capture_output=True,
+                text=True,
+                env=environment,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(directory, result.stdout)
+
+    def test_install_requires_an_explicit_target(self) -> None:
+        environment = os.environ.copy()
+        environment.pop("VIBE_DFT_SKILLS_TARGET", None)
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tools" / "install_skills.py"),
+                "--skill",
+                "cif-structure-analysis",
+                "--dry-run",
+            ],
+            capture_output=True,
+            text=True,
+            env=environment,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("--target is required", result.stderr)
 
 
 if __name__ == "__main__":

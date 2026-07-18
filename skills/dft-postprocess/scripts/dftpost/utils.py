@@ -47,4 +47,4 @@ def find_repo_root(start: Path) -> Path:
     for parent in (start.resolve(), *start.resolve().parents):
         if parent.joinpath("contracts").is_dir() and parent.joinpath("skills").is_dir():
             return parent
-    raise RuntimeError("cannot locate DFT-Codex-Skills repository root")
+    raise RuntimeError("cannot locate Vibe-DFT-Skills repository root")

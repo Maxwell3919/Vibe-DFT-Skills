@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install repository skills as symlinks without overwriting real directories."""
+"""Install repository skills into an explicit agent or tool skill directory."""
 
 from __future__ import annotations
 
@@ -12,21 +12,32 @@ from software_registry import all_skill_names
 
 
 SKILLS = all_skill_names()
+TARGET_ENV = "VIBE_DFT_SKILLS_TARGET"
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--target", type=Path, default=Path.home() / ".codex" / "skills")
+    parser.add_argument(
+        "--target",
+        type=Path,
+        help=f"destination skill directory (or set {TARGET_ENV})",
+    )
     parser.add_argument("--skill", action="append", choices=SKILLS)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
+    target_root = args.target
+    if target_root is None:
+        configured = os.environ.get(TARGET_ENV)
+        if not configured:
+            parser.error(f"--target is required unless {TARGET_ENV} is set")
+        target_root = Path(configured).expanduser()
     selected = tuple(args.skill or SKILLS)
     source_root = Path(__file__).resolve().parents[1] / "skills"
     failures = []
     actions = []
     for name in selected:
         source = source_root / name
-        target = args.target / name
+        target = target_root / name
         if not source.joinpath("SKILL.md").is_file():
             failures.append(f"missing source skill: {source}")
             continue

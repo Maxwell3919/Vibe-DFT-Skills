@@ -1,8 +1,8 @@
-# AGENTS.md — DFT Codex Skills
+# AGENTS.md — Vibe DFT Skills
 
 ## Scope
 
-This private repository is the single source of truth for maintainable DFT calculation, postprocessing, campaign-efficiency, and structure-analysis skills.
+This private repository is the single source of truth for portable, maintainable DFT calculation, postprocessing, campaign-efficiency, and structure-analysis skills.
 
 ## Boundaries
 
@@ -15,7 +15,9 @@ This private repository is the single source of truth for maintainable DFT calcu
 
 ## Skill maintenance
 
-- Edit the source under `skills/`; installed skills must be symlinks to this repository after migration.
+- Edit the source under `skills/`; installed skills should be symlinks to this repository after migration.
+- Keep the core `SKILL.md`, references, contracts, and deterministic CLIs independent of any single agent or tool vendor. Vendor-specific metadata such as `agents/openai.yaml` is an optional integration layer.
+- Permit external tools through explicit adapters and registry entries; require version, provenance, input/output contracts, failure semantics, and maturity evidence instead of relying on a vendor allowlist.
 - Keep every `SKILL.md` concise, imperative, and below 500 lines.
 - Put detailed contracts and workflows in one-level `references/` files.
 - Put deterministic behavior in tested scripts rather than prose.

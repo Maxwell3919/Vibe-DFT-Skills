@@ -125,7 +125,7 @@ def fetch_url(url: str, timeout: float = 20.0, attempts: int = 3) -> dict[str, A
         context = ssl.create_default_context()
     else:
         context = ssl.create_default_context(cafile=certifi.where())
-    request = urllib.request.Request(url, headers={"User-Agent": "dft-codex-skills-cp2k-source-check/1.0"})
+    request = urllib.request.Request(url, headers={"User-Agent": "vibe-dft-skills-cp2k-source-check/1.0"})
     for attempt in range(attempts):
         try:
             with urllib.request.urlopen(request, timeout=timeout, context=context) as response:

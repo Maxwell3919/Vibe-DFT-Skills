@@ -1,8 +1,8 @@
-# DFT Codex Skills
+# Vibe-DFT-Skills
 
 <p align="center">
-  <strong>Traceable calculation, structure analysis, postprocessing, and campaign learning for DFT workflows</strong><br>
-  <strong>面向 DFT 工作流的可追溯计算、结构分析、后处理与计算经验学习</strong>
+  <strong>Portable, traceable calculation, structure analysis, postprocessing, and campaign learning for DFT workflows</strong><br>
+  <strong>面向多种 Agent 与工具链的可移植、可追溯 DFT 计算、结构分析、后处理与经验学习</strong>
 </p>
 
 <p align="center">
@@ -11,11 +11,11 @@
 
 > **最后更新 / Last updated:** 2026-07-18 (Asia/Shanghai)
 >
-> **当前组成 / Current scope:** 7 Codex Skills · 4 DFT engines · 8 shared JSON contracts
+> **当前组成 / Current scope:** 7 portable Skills · 4 DFT engines · 8 shared JSON contracts
 
-This private repository is the single source of truth for the installed DFT Codex Skills. It keeps official software evidence, deterministic gates, shared contracts, synthetic fixtures, and maintainable Python tooling together without committing private calculation trees, licensed potentials, credentials, or unpublished results.
+This private repository is the single source of truth for Vibe-DFT-Skills. Its portable `SKILL.md` packages and deterministic CLIs can be used by Codex, other agents, CI pipelines, or directly from a shell. It keeps official software evidence, deterministic gates, shared contracts, synthetic fixtures, and maintainable Python tooling together without committing private calculation trees, licensed potentials, credentials, or unpublished results.
 
-本私有仓库是本机 DFT Codex Skills 的唯一源码真源。仓库统一维护官方资料证据、确定性门禁、共享契约、合成测试夹具和可维护的 Python 工具，但不提交私人计算目录、受许可限制的势文件、凭据或未发表结果。
+本私有仓库是 Vibe-DFT-Skills 的唯一源码真源。仓库内可移植的 `SKILL.md` 包和确定性 CLI 可由 Codex、其他 Agent、CI 流水线或 shell 直接使用。仓库统一维护官方资料证据、确定性门禁、共享契约、合成测试夹具和可维护的 Python 工具，但不提交私人计算目录、受许可限制的势文件、凭据或未发表结果。
 
 ## 展示 / Showcase
 
@@ -58,6 +58,13 @@ This private repository is the single source of truth for the installed DFT Code
 - `contracts/`：`structure`、`run`、`postprocess plan`、`tool execution`、`normalized dataset`、`artifact`、`campaign` 和 `recommendation` 八类版本化 JSON Schema。
 - `tools/`：全库测试、Skill 校验、注册表/Schema 同步审计、安全安装和仓库卫生检查。
 - `docs/`：总体联动与扩展规划、日期化审计报告和可复现展示资产。
+
+### 可移植性与工具接口
+
+- 核心接口是 `skills/<name>/SKILL.md`、一层 `references/`、确定性 `scripts/`、共享契约和注册表，不依赖单一 Agent 厂商。
+- `agents/openai.yaml` 只提供可选的 OpenAI/Codex 展示与路由元数据；没有它也可以阅读 Skill、调用 Python CLI 或接入其他 Agent。
+- 仓库不设外部工具厂商白名单。新工具可通过 adapter、软件注册表和 observable registry 接入，但必须声明版本、输入输出契约、单位、provenance、失败语义和真实产物成熟度。
+- “允许调用任意工具”不等于允许静默替换算法：工具缺失或 adapter 未验证时必须显式返回不可用、`design-only` 或阻断状态，计算收敛和科学验收门禁保持不变。
 
 ### 调用逻辑
 
@@ -104,7 +111,7 @@ flowchart LR
 
 ##### 共用基础环境
 
-仓库的 CI 参考环境是 Ubuntu、Python 3.12 和 `poppler-utils`；本地开发建议使用 macOS 或 Linux 等 POSIX 环境，并准备 Git、Codex、Python 3.12、`pip` 和虚拟环境工具。只调用 Skill 阅读官方快照、设计工作流或审计用户已经提供的输入/输出时，不要求本机安装 QE、VASP、CP2K 或 SIESTA 可执行文件。
+仓库的 CI 参考环境是 Ubuntu、Python 3.12 和 `poppler-utils`；本地开发建议使用 macOS 或 Linux 等 POSIX 环境，并准备 Git、Python 3.12、`pip` 和虚拟环境工具。Agent 运行时是可选集成项，不是仓库的硬依赖。只调用 Skill 阅读官方快照、设计工作流或审计用户已经提供的输入/输出时，不要求本机安装 QE、VASP、CP2K 或 SIESTA 可执行文件。
 
 ```bash
 # macOS：完整测试需要 Poppler
@@ -163,18 +170,23 @@ python3 skills/dft-postprocess/scripts/dftpost_cli.py \
 
 ##### 安装 Skill
 
-从仓库根目录先预览，再把七个 Skill 以符号链接安装到 Codex Skill 目录：
+安装器接受任意 Agent 或工具链的 Skill 目录，不再隐式绑定某个产品。通过 `--target` 或 `VIBE_DFT_SKILLS_TARGET` 明确目标位置，先预览再安装七个符号链接：
 
 ```bash
+export VIBE_DFT_SKILLS_TARGET=/path/to/your/agent/skills
 python3 tools/install_skills.py --dry-run
 python3 tools/install_skills.py
+
+# 等价的显式形式
+python3 tools/install_skills.py --target /path/to/your/agent/skills --dry-run
+python3 tools/install_skills.py --target /path/to/your/agent/skills
 ```
 
-安装器不会覆盖已有真实目录。若目标位置已有旧副本，应先比较并备份，再显式迁移；符号链接安装后，本地检出分支就是本机 Skill 的实际源码版本。
+Codex 用户可以把目标设为 `${CODEX_HOME:-$HOME/.codex}/skills`；其他 Agent 按其 Skill 搜索目录配置。安装器不会覆盖已有真实目录。若目标位置已有旧副本，应先比较并备份，再显式迁移；符号链接安装后，本地检出分支就是本机 Skill 的实际源码版本。
 
-#### 2. 在 Codex 中调用
+#### 2. 在 Agent 或工作流中调用
 
-可以直接描述任务，让 Codex 根据 Skill 描述路由；需要强制指定时可显式点名：
+支持 Skill 路由的 Agent 可以根据自然语言和 `description` 自动选择；支持 `$skill-name` 语法的运行时也可显式点名。其他系统可以把对应 `SKILL.md` 作为工作流指令载入，或直接调用下一节的确定性 CLI：
 
 ```text
 使用 $cif-structure-analysis 检查 sample.cif，并寻找 2.41 ± 0.05 Å 的 Mo-S 近邻键。
@@ -248,6 +260,13 @@ git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/offi
 
 The shared layer contains the canonical software registry, eight versioned JSON contracts, repository-wide validation and installation tools, integration plans, audit reports, and reproducible showcase assets.
 
+### Portability and tool interfaces
+
+- The core interface is `skills/<name>/SKILL.md`, one-level `references/`, deterministic `scripts/`, shared contracts, and registries; it is not tied to a single agent vendor.
+- `agents/openai.yaml` is optional OpenAI/Codex presentation and routing metadata. The Skills and Python CLIs remain usable without it.
+- There is no vendor allowlist for external tools. New tools may be integrated through adapters and registries when their version, input/output contract, units, provenance, failure semantics, and real-artifact maturity are explicit.
+- Tool freedom does not permit silent algorithm substitution. Missing or unvalidated routes must remain unavailable, `design-only`, or blocked, while convergence and scientific acceptance gates remain intact.
+
 ### Invocation logic
 
 Use the structure Skill for CIF-backed facts; use the matching calculation Skill for inputs, completion, restarts, parameter provenance, and convergence; use postprocessing for extraction, normalization, observables, figures, and artifact provenance; and use campaign efficiency for cost and workflow learning after scientific gates are preserved. Composite requests follow the same structure → calculation → postprocess → learning sequence shown in the diagram above.
@@ -260,7 +279,7 @@ Ownership remains explicit: calculation Skills own calculation integrity, postpr
 
 ##### Shared baseline
 
-The CI reference environment is Ubuntu with Python 3.12 and `poppler-utils`. For local development, use a POSIX environment such as macOS or Linux with Git, Codex, Python 3.12, `pip`, and virtual-environment support. Using a Skill to read the bundled official snapshots, design a workflow, or audit user-supplied inputs and outputs does not require the QE, VASP, CP2K, or SIESTA executable to be installed locally.
+The CI reference environment is Ubuntu with Python 3.12 and `poppler-utils`. For local development, use a POSIX environment such as macOS or Linux with Git, Python 3.12, `pip`, and virtual-environment support. An agent runtime is an optional integration, not a repository dependency. Using a Skill to read the bundled official snapshots, design a workflow, or audit user-supplied inputs and outputs does not require the QE, VASP, CP2K, or SIESTA executable to be installed locally.
 
 ```bash
 # macOS: Poppler is required by the complete test suite
@@ -319,16 +338,19 @@ python3 skills/dft-postprocess/scripts/dftpost_cli.py \
 
 #### 2. Install the Skills
 
-Preview and install repository-backed symlinks:
+Choose any agent or tool skill directory with `--target` or `VIBE_DFT_SKILLS_TARGET`, then preview and install repository-backed symlinks:
 
 ```bash
+export VIBE_DFT_SKILLS_TARGET=/path/to/your/agent/skills
 python3 tools/install_skills.py --dry-run
 python3 tools/install_skills.py
 ```
 
-#### 3. Invoke in Codex
+For Codex, a typical target is `${CODEX_HOME:-$HOME/.codex}/skills`; other agents should use their own discovery directory. The installer refuses to replace existing real directories.
 
-Codex can select a Skill from a natural-language request, or you can name one explicitly:
+#### 3. Invoke from an agent or workflow
+
+An agent may select a Skill from its description, a compatible runtime may name one explicitly, and any workflow can load the corresponding `SKILL.md` or invoke the deterministic CLI directly:
 
 ```text
 Use $cif-structure-analysis to inspect sample.cif and match Mo-S neighbors at 2.41 ± 0.05 Å.

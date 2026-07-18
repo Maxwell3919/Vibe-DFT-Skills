@@ -50,7 +50,7 @@ def sha256_bytes(value: bytes) -> str:
 
 
 def fetch(url: str) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": "DFT-Codex-Skills/CP2K-fixture-sync"})
+    request = urllib.request.Request(url, headers={"User-Agent": "Vibe-DFT-Skills/CP2K-fixture-sync"})
     context = ssl.create_default_context(cafile=certifi.where())
     with urllib.request.urlopen(request, timeout=30, context=context) as response:
         final_url = response.geturl()

@@ -19,7 +19,7 @@ def repo_root() -> Path:
     for parent in current.parents:
         if parent.joinpath("contracts").is_dir() and parent.joinpath("skills").is_dir():
             return parent
-    raise RuntimeError("cannot locate DFT-Codex-Skills repository root")
+    raise RuntimeError("cannot locate Vibe-DFT-Skills repository root")
 
 
 def calculation_codes() -> tuple[str, ...]:
