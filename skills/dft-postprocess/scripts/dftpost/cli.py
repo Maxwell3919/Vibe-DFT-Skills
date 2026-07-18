@@ -9,7 +9,7 @@ from .band_views import plot_band_comparison, plot_projection_panels
 from .capabilities import detect_capabilities
 from .electronic import normalize_qe_bands, normalize_qe_dos, normalize_qe_fatband, plot_bands_dos
 from .inventory import build_inventory
-from .manifests import build_artifact_manifest, validate_manifest
+from .manifests import SCHEMAS, build_artifact_manifest, validate_manifest
 from .neb_optical import normalize_neb_table, normalize_optical_table
 from .parsers import extract_summary
 from .planning import build_postprocess_plan
@@ -412,7 +412,7 @@ def build_parser() -> argparse.ArgumentParser:
     structure_views.add_argument("--out-dir", type=Path, required=True)
 
     validate = subparsers.add_parser("validate-manifest")
-    validate.add_argument("kind", choices=("run", "artifact", "campaign", "recommendation", "dataset", "plan", "execution"))
+    validate.add_argument("kind", choices=tuple(sorted(SCHEMAS)))
     validate.add_argument("manifest", type=Path)
 
     artifact = subparsers.add_parser("artifact-manifest")

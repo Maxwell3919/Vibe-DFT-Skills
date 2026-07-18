@@ -2,30 +2,34 @@
 from __future__ import annotations
 
 import argparse
+import importlib.metadata
 import json
 import math
+import os
 import re
-import shlex
 import sys
+import tempfile
 from collections import Counter
-from itertools import combinations
 from pathlib import Path
 from typing import Any
+
+from ciftool.document import inspect_cif_document
+from ciftool.manifest import (
+    element_styles,
+    manifest_identity,
+    provenance,
+    relative_artifact_path,
+    schema_errors,
+    validation_from_diagnostics,
+)
+from ciftool.neighbors import analyze_periodic_neighbors
+from ciftool.neighbors import match_neighbor_bonds as match_periodic_neighbor_bonds
+from ciftool.symmetry import analyze_symmetry
 
 AMU_PER_ANG3_TO_G_CM3 = 1.66053906660
 ROUND_DIGITS = 6
 NEAREST_BOND_TOLERANCE_ANG = 0.05
 DEFAULT_BOND_MATCH_TOLERANCE_ANG = 0.05
-
-ELEMENT_COLORS = {
-    "Br": "#8B4513",
-    "Cl": "#2CA02C",
-    "Hf": "#6A5ACD",
-    "Na": "#1F77B4",
-    "Se": "#FF7F0E",
-    "Ti": "#7F7F7F",
-}
-
 
 def rounded(value: Any) -> Any:
     if value is None:
@@ -93,74 +97,35 @@ def coordinate_summary(atoms: Any) -> dict[str, Any]:
     }
 
 
-def nearest_distances(atoms: Any, short_threshold: float) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+def site_records(atoms: Any) -> list[dict[str, Any]]:
+    positions = atoms.get_positions()
+    scaled = atoms.get_scaled_positions(wrap=False)
     symbols = atoms.get_chemical_symbols()
-    use_mic = bool(any(atoms.get_pbc()))
-    pair_records = []
-    short_flags = []
-    distances = []
-
-    for i, j in combinations(range(len(atoms)), 2):
-        distance = float(atoms.get_distance(i, j, mic=use_mic))
-        record = {
-            "i": i,
-            "j": j,
-            "symbols": [symbols[i], symbols[j]],
-            "distance_ang": rounded(distance),
+    return [
+        {
+            "index": index,
+            "symbol": symbols[index],
+            "atomic_number": int(atoms.numbers[index]),
+            "cartesian_ang": [rounded(value) for value in positions[index]],
+            "fractional": [rounded(value) for value in scaled[index]],
         }
-        distances.append(distance)
-        pair_records.append(record)
-        if distance < short_threshold:
-            short_flags.append(
-                {
-                    "i": i,
-                    "j": j,
-                    "symbols": [symbols[i], symbols[j]],
-                    "distance_ang": rounded(distance),
-                    "threshold_ang": rounded(short_threshold),
-                }
-            )
-
-    pair_records.sort(key=lambda item: item["distance_ang"])
-    nearest_by_atom: dict[int, float] = {}
-    for record in pair_records:
-        distance = float(record["distance_ang"])
-        for atom_index in (int(record["i"]), int(record["j"])):
-            if atom_index not in nearest_by_atom or distance < nearest_by_atom[atom_index]:
-                nearest_by_atom[atom_index] = distance
-    nearest_bond_pairs = [
-        record
-        for record in pair_records
-        if (
-            float(record["distance_ang"]) <= nearest_by_atom[int(record["i"])] + NEAREST_BOND_TOLERANCE_ANG
-            or float(record["distance_ang"]) <= nearest_by_atom[int(record["j"])] + NEAREST_BOND_TOLERANCE_ANG
-        )
+        for index in range(len(atoms))
     ]
-    if distances:
-        summary = {
-            "min_distance_ang": rounded(min(distances)),
-            "max_distance_ang": rounded(max(distances)),
-            "pair_count": len(distances),
-            "nearest_pairs_sample": pair_records[:20],
-            "nearest_neighbor_bond_pairs": nearest_bond_pairs,
-            "nearest_neighbor_bond_count": len(nearest_bond_pairs),
-            "nearest_neighbor_bond_tolerance_ang": rounded(NEAREST_BOND_TOLERANCE_ANG),
-            "nearest_neighbor_bond_rule": "per-atom nearest-neighbor shell within tolerance",
-            "uses_minimum_image": use_mic,
-        }
-    else:
-        summary = {
-            "min_distance_ang": None,
-            "max_distance_ang": None,
-            "pair_count": 0,
-            "nearest_pairs_sample": [],
-            "nearest_neighbor_bond_pairs": [],
-            "nearest_neighbor_bond_count": 0,
-            "nearest_neighbor_bond_tolerance_ang": rounded(NEAREST_BOND_TOLERANCE_ANG),
-            "nearest_neighbor_bond_rule": "per-atom nearest-neighbor shell within tolerance",
-            "uses_minimum_image": use_mic,
-        }
-    return summary, short_flags
+
+
+def nearest_distances(
+    atoms: Any,
+    short_threshold: float,
+    neighbor_cutoff: float | None = None,
+    maximum_neighbor_cutoff: float | None = None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    return analyze_periodic_neighbors(
+        atoms,
+        short_threshold,
+        requested_cutoff=neighbor_cutoff,
+        maximum_cutoff=maximum_neighbor_cutoff,
+        shell_tolerance=NEAREST_BOND_TOLERANCE_ANG,
+    )
 
 
 def parse_element_pair(value: str) -> tuple[str, str]:
@@ -190,65 +155,12 @@ def match_neighbor_bonds(
     target_distance: float | None,
     tolerance: float,
 ) -> dict[str, Any]:
-    requested = element_pair is not None or target_distance is not None
-    query = {
-        "element_pair": list(element_pair) if element_pair else None,
-        "target_distance_ang": rounded(target_distance),
-        "tolerance_ang": rounded(tolerance),
-    }
-    common = {
-        "query": query,
-        "scope": "nearest_neighbor_bond_pairs",
-        "matching_rule": (
-            "unordered element-pair equality and absolute distance difference within tolerance; "
-            "when target distance is omitted, match only by element pair"
-        ),
-        "periodic_scope": (
-            "unique atom-index pairs using ASE minimum-image distances; periodic-image multiplicity "
-            "and self-image neighbors are not enumerated"
-        ),
-    }
-    if not requested:
-        return {
-            "status": "NOT_REQUESTED",
-            **common,
-            "candidate_count": 0,
-            "match_count": 0,
-            "matches": [],
-            "closest_candidate": None,
-        }
-
-    candidates = []
-    for record in nearest_neighbor_pairs:
-        if element_pair and tuple(sorted(str(symbol) for symbol in record["symbols"])) != element_pair:
-            continue
-        distance = float(record["distance_ang"])
-        delta = abs(distance - target_distance) if target_distance is not None else None
-        candidates.append({**record, "absolute_delta_ang": delta})
-
-    if target_distance is None:
-        matches = list(candidates)
-        closest = None
-    else:
-        candidates.sort(
-            key=lambda item: (
-                float(item["absolute_delta_ang"]),
-                float(item["distance_ang"]),
-                int(item["i"]),
-                int(item["j"]),
-            )
-        )
-        matches = [item for item in candidates if float(item["absolute_delta_ang"]) <= tolerance]
-        closest = candidates[0] if candidates else None
-
-    return {
-        "status": "MATCHED" if matches else "NO_MATCH",
-        **common,
-        "candidate_count": len(candidates),
-        "match_count": len(matches),
-        "matches": matches,
-        "closest_candidate": closest,
-    }
+    return match_periodic_neighbor_bonds(
+        nearest_neighbor_pairs,
+        element_pair,
+        target_distance,
+        tolerance,
+    )
 
 
 def axis_gap_estimates(atoms: Any) -> list[dict[str, Any]]:
@@ -279,40 +191,20 @@ def axis_gap_estimates(atoms: Any) -> list[dict[str, Any]]:
     return estimates
 
 
-def symmetry_attempt(atoms: Any, symprec: float, limitations: list[str]) -> dict[str, Any]:
-    try:
-        import spglib  # type: ignore
-    except Exception as exc:
-        limitations.append(f"optional spglib symmetry detection unavailable: {exc}")
-        return {"available": False, "status": "SKIPPED", "reason": "spglib unavailable"}
-
-    try:
-        dataset = spglib.get_symmetry_dataset(
-            (atoms.cell.array, atoms.get_scaled_positions(wrap=True), atoms.get_atomic_numbers()),
-            symprec=symprec,
-        )
-    except Exception as exc:
-        limitations.append(f"spglib symmetry detection failed: {exc}")
-        return {"available": True, "status": "FAILED", "reason": str(exc), "symprec": symprec}
-
-    if dataset is None:
-        limitations.append("spglib returned no symmetry dataset")
-        return {"available": True, "status": "FAILED", "reason": "no dataset", "symprec": symprec}
-
-    def get_field(name: str) -> Any:
-        if isinstance(dataset, dict):
-            return dataset.get(name)
-        return getattr(dataset, name, None)
-
-    return {
-        "available": True,
-        "status": "DETECTED",
-        "symprec": symprec,
-        "number": plain(get_field("number")),
-        "international": plain(get_field("international")),
-        "hall": plain(get_field("hall")),
-        "choice": plain(get_field("choice")),
-    }
+def symmetry_attempt(
+    atoms: Any,
+    symprec: float,
+    angle_tolerance: float,
+    declared: dict[str, Any] | None,
+    has_partial_occupancy: bool,
+) -> tuple[dict[str, Any], list[dict[str, str]]]:
+    return analyze_symmetry(
+        atoms,
+        symprec,
+        angle_tolerance,
+        declared,
+        has_partial_occupancy=has_partial_occupancy,
+    )
 
 
 def render_projection_views(atoms: Any, views_dir: Path, stem: str) -> list[dict[str, Any]]:
@@ -328,6 +220,7 @@ def render_projection_views(atoms: Any, views_dir: Path, stem: str) -> list[dict
     views_dir.mkdir(parents=True, exist_ok=True)
     scaled = atoms.get_scaled_positions(wrap=True)
     symbols = atoms.get_chemical_symbols()
+    styles = element_styles(atoms)
     cell = np.asarray(atoms.cell.array, dtype=float)
     projections = [
         {"axis": "a", "view_index": 0, "x_index": 1, "y_index": 2, "x_label": "b", "y_label": "c"},
@@ -420,7 +313,7 @@ def render_projection_views(atoms: Any, views_dir: Path, stem: str) -> list[dict
         )
 
         for symbol, x, y in zip(symbols, x_values, y_values):
-            color = ELEMENT_COLORS.get(symbol, "#D62728")
+            color = styles.get(symbol, {}).get("color_hex", "#D62728")
             ax.scatter(x, y, s=360, c=color, edgecolors="#111111", linewidths=0.8, alpha=0.9)
 
         output_path = views_dir / f"view_along_{axis}.png"
@@ -464,24 +357,146 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
     except Exception as exc:
         raise RuntimeError(f"failed to import ASE: {exc}") from exc
 
+    document = inspect_cif_document(
+        input_path,
+        block_name=args.block_name,
+        block_index=args.block_index,
+    )
+    selected_block = document["selected_block"]
     try:
-        atoms = read(str(input_path), index=0)
+        atoms = read(
+            str(input_path),
+            index=int(selected_block["index"]),
+            store_tags=True,
+            fractional_occupancies=True,
+        )
     except Exception as exc:
-        raise RuntimeError(f"failed to read CIF: {exc}") from exc
+        raise RuntimeError(
+            f"failed to construct ASE structure from CIF data block "
+            f"{selected_block['name']!r}: {exc}"
+        ) from exc
 
+    diagnostics: list[dict[str, str]] = list(document["diagnostics"])
+    diagnostics.extend(
+        [
+            {
+                "id": "cif-document-parse",
+                "status": "pass",
+                "message": (
+                    f"parsed {len(document['blocks'])} CIF data block(s) with "
+                    f"{document['parser']['name']} {document['parser']['version']}"
+                ),
+            },
+            {
+                "id": "structure-adapter",
+                "status": "pass",
+                "message": (
+                    f"constructed an ASE structure from data block "
+                    f"{selected_block['name']!r} at index {selected_block['index']}"
+                ),
+            },
+        ]
+    )
     limitations: list[str] = []
     symbols = atoms.get_chemical_symbols()
     counts = dict(sorted(Counter(symbols).items()))
     cellpar = atoms.cell.cellpar()
+    raw_cell = document["metadata"]["cell"]
+    cell_fields = ("a", "b", "c", "alpha", "beta", "gamma")
+    missing_cell_fields = [
+        field for field in cell_fields if raw_cell[field]["value"] is None
+    ]
+    cell_mismatches = []
+    for index, field in enumerate(cell_fields):
+        raw_value = raw_cell[field]["value"]
+        if raw_value is None:
+            continue
+        parsed_value = float(cellpar[index])
+        if not math.isclose(float(raw_value), parsed_value, rel_tol=1e-8, abs_tol=1e-6):
+            cell_mismatches.append(
+                f"{field}: raw={raw_value}, structure={rounded(parsed_value)}"
+            )
+    if cell_mismatches:
+        diagnostics.append(
+            {
+                "id": "cell-parameter-adapter-mismatch",
+                "status": "fail",
+                "message": "raw CIF and ASE cell parameters disagree: " + "; ".join(cell_mismatches),
+            }
+        )
+    elif missing_cell_fields:
+        diagnostics.append(
+            {
+                "id": "cell-parameter-source-incomplete",
+                "status": "warn",
+                "message": f"raw CIF cell metadata is incomplete for fields {missing_cell_fields}",
+            }
+        )
+    else:
+        diagnostics.append(
+            {
+                "id": "cell-parameter-adapter-consistency",
+                "status": "pass",
+                "message": "raw CIF and ASE cell parameters agree within numeric tolerance",
+            }
+        )
     volume = float(atoms.get_volume()) if atoms.cell.rank == 3 else None
     total_mass = float(sum(atoms.get_masses())) if len(atoms) else 0.0
     density = None
     if volume and volume > 0:
         density = total_mass / volume * AMU_PER_ANG3_TO_G_CM3
     else:
-        limitations.append("density unavailable because cell volume is zero or undefined")
+        diagnostics.append(
+            {
+                "id": "density-unavailable",
+                "status": "warn",
+                "message": "density is unavailable because cell volume is zero or undefined",
+            }
+        )
 
-    nearest, short_flags = nearest_distances(atoms, args.short_distance_threshold)
+    partial_occupancy_rows = document["metadata"].get("partial_occupancy_rows", [])
+    disorder_rows = document["metadata"].get("disorder_rows", [])
+    if partial_occupancy_rows:
+        diagnostics.append(
+            {
+                "id": "density-partial-occupancy-limitation",
+                "status": "warn",
+                "message": (
+                    "reported ASE mass density is not accepted as occupancy-weighted evidence "
+                    "for a partially occupied/disordered CIF"
+                ),
+            }
+        )
+    if partial_occupancy_rows or disorder_rows:
+        diagnostics.append(
+            {
+                "id": "representative-structure-disorder-limitation",
+                "status": "warn",
+                "message": (
+                    "neighbor, symmetry, formula, mass, and density results use the ASE-materialized "
+                    "representative structure and do not resolve correlated disorder ensembles"
+                ),
+            }
+        )
+
+    nearest, short_flags = nearest_distances(
+        atoms,
+        args.short_distance_threshold,
+        neighbor_cutoff=args.neighbor_cutoff,
+        maximum_neighbor_cutoff=args.maximum_neighbor_cutoff,
+    )
+    diagnostics.append(
+        {
+            "id": "periodic-neighbor-search",
+            "status": "pass" if nearest["neighbor_search_complete"] else "warn",
+            "message": (
+                "periodic-image neighbor search found at least one neighbor for every site"
+                if nearest["neighbor_search_complete"]
+                else f"neighbor search has no candidate for sites {nearest['atoms_without_neighbors']} "
+                f"within {nearest['neighbor_cutoff_ang']} Ang"
+            ),
+        }
+    )
     if args.match_elements:
         try:
             from ase.data import atomic_numbers
@@ -497,41 +512,106 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
         args.match_bond_tolerance,
     )
     if short_flags:
-        limitations.append("short-distance flags require human review and are not physics conclusions")
+        diagnostics.append(
+            {
+                "id": "short-distance-flags",
+                "status": "warn",
+                "message": (
+                    f"{len(short_flags)} periodic edge(s) are shorter than "
+                    f"{args.short_distance_threshold} Ang; flags require human review"
+                ),
+            }
+        )
 
-    symmetry = symmetry_attempt(atoms, args.symprec, limitations)
+    symmetry, symmetry_diagnostics = symmetry_attempt(
+        atoms,
+        args.symprec,
+        args.angle_tolerance,
+        document["metadata"].get("declared_symmetry"),
+        bool(partial_occupancy_rows),
+    )
+    diagnostics.extend(symmetry_diagnostics)
+    if symmetry.get("status") == "DETECTED":
+        diagnostics.append(
+            {
+                "id": "symmetry-dataset",
+                "status": "pass",
+                "message": (
+                    f"spglib detected {symmetry.get('international')} "
+                    f"(number {symmetry.get('number')}) at symprec={args.symprec}"
+                ),
+            }
+        )
     views = []
     if args.views_dir:
         views = render_projection_views(atoms, Path(args.views_dir).expanduser().resolve(), input_path.stem)
+        json_root = Path(args.json).expanduser().resolve().parent
+        markdown_root = Path(args.markdown).expanduser().resolve().parent
+        for view in views:
+            absolute = Path(view["path"]).resolve()
+            view["path"] = relative_artifact_path(absolute, json_root)
+            view["markdown_path"] = relative_artifact_path(absolute, markdown_root)
 
-    status = "WARN" if short_flags else "PASS"
+    validation = validation_from_diagnostics(diagnostics)
+    status = {"pass": "PASS", "warn": "WARN", "block": "BLOCK"}[validation["status"]]
+    limitations.extend(
+        item["message"]
+        for item in validation["checks"]
+        if item["status"] in {"warn", "fail", "not-run"}
+    )
+    limitations.append(
+        "axis_gap_estimates are cell-axis coordinate gaps, not physical layer or vacuum thickness"
+    )
     info = {
-        "path": str(input_path),
         "name": input_path.name,
         "size_bytes": input_path.stat().st_size,
         "mtime": round(input_path.stat().st_mtime, 3),
+        "sha256": document["sha256"],
+        "data_block": selected_block,
     }
-
-    return plain(
+    dependency_versions = {}
+    for distribution in ("ase", "gemmi", "PyCifRW", "spglib", "matplotlib", "numpy"):
+        try:
+            dependency_versions[distribution] = importlib.metadata.version(distribution)
+        except importlib.metadata.PackageNotFoundError:
+            dependency_versions[distribution] = "unavailable"
+    options = {
+        "data_block": selected_block,
+        "short_distance_threshold_ang": args.short_distance_threshold,
+        "neighbor_cutoff_ang": args.neighbor_cutoff,
+        "maximum_neighbor_cutoff_ang": args.maximum_neighbor_cutoff,
+        "symprec": args.symprec,
+        "angle_tolerance": args.angle_tolerance,
+        "bond_match": {
+            "element_pair": list(args.match_elements) if args.match_elements else None,
+            "target_distance_ang": args.match_bond_length,
+            "tolerance_ang": args.match_bond_tolerance,
+        },
+    }
+    identity = manifest_identity(document, atoms, input_path.name)
+    report = plain(
         {
+            **identity,
             "status": status,
+            "document": {
+                "blocks": document["blocks"],
+                "selected_block": selected_block,
+                "metadata": document["metadata"],
+            },
+            "validation": validation,
+            "provenance": provenance(options, dependency_versions),
             "input": info,
             "execution": {
-                "script": str(Path(__file__).resolve()),
-                "command": shlex.join(sys.argv),
+                "script": "analyze_cif.py",
                 "ase_version": getattr(ase, "__version__", "unknown"),
-                "short_distance_threshold_ang": args.short_distance_threshold,
-                "symprec": args.symprec,
-                "bond_match": {
-                    "element_pair": list(args.match_elements) if args.match_elements else None,
-                    "target_distance_ang": args.match_bond_length,
-                    "tolerance_ang": args.match_bond_tolerance,
-                },
+                **options,
             },
             "structure": {
                 "formula": atoms.get_chemical_formula(),
                 "atom_count": len(atoms),
+                "source_atom_site_count": document["metadata"].get("atom_site_count"),
                 "element_counts": counts,
+                "element_styles": element_styles(atoms),
                 "pbc": [bool(v) for v in atoms.get_pbc()],
                 "cell": {
                     "a": cellpar[0],
@@ -541,16 +621,22 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
                     "beta": cellpar[4],
                     "gamma": cellpar[5],
                     "rank": atoms.cell.rank,
+                    "vectors_ang": atoms.cell.array,
                 },
                 "volume_ang3": volume,
                 "total_mass_amu": total_mass,
                 "density_g_cm3": density,
+                "density_occupancy_weighted": False if partial_occupancy_rows else True,
                 "coordinates": coordinate_summary(atoms),
+                "sites": site_records(atoms),
                 "nearest_distances": nearest,
                 "axis_gap_estimates": axis_gap_estimates(atoms),
                 "symmetry_attempt": symmetry,
             },
-            "flags": {"short_distances": short_flags},
+            "flags": {
+                "short_distances": short_flags,
+                "partial_occupancy_rows": partial_occupancy_rows,
+            },
             "views": views,
             "limitations": limitations,
             "not_assessed": [
@@ -558,20 +644,34 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
                 "pseudopotential choice",
                 "k-point or cutoff settings",
                 "magnetic initialization",
-                "physics credibility",
-                "stability or synthesis feasibility",
+                "physical credibility or stability",
+                "synthesis feasibility",
+                "strict layer dimensionality or physical vacuum thickness",
             ],
         }
     )
+    failures = schema_errors(report, Path(__file__))
+    if failures:
+        raise RuntimeError("generated structure manifest is invalid: " + "; ".join(failures))
+    return report
 
 
 def markdown_table(rows: list[list[Any]], headers: list[str]) -> str:
+    def cell(value: Any) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, (dict, list, tuple)):
+            rendered = json.dumps(value, ensure_ascii=False, sort_keys=True)
+        else:
+            rendered = str(value)
+        return rendered.replace("|", "\\|").replace("\n", "<br>")
+
     lines = [
         "| " + " | ".join(headers) + " |",
         "| " + " | ".join("---" for _ in headers) + " |",
     ]
     for row in rows:
-        lines.append("| " + " | ".join("" if value is None else str(value) for value in row) + " |")
+        lines.append("| " + " | ".join(cell(value) for value in row) + " |")
     return "\n".join(lines)
 
 
@@ -582,18 +682,39 @@ def render_markdown(report: dict[str, Any]) -> str:
     nearest = structure["nearest_distances"]
     bond_match = nearest["bond_length_match"]
     symmetry = structure["symmetry_attempt"]
+    document = report["document"]
+    selected_block = document["selected_block"]
+
     facts = [
         ["formula", structure["formula"], "JSON: structure.formula"],
         ["atom_count", structure["atom_count"], "JSON: structure.atom_count"],
-        ["element_counts", json.dumps(structure["element_counts"], sort_keys=True), "JSON: structure.element_counts"],
+        ["element_counts", structure["element_counts"], "JSON: structure.element_counts"],
         ["cell_a_b_c_ang", f'{cell["a"]}, {cell["b"]}, {cell["c"]}', "JSON: structure.cell"],
         ["cell_angles_deg", f'{cell["alpha"]}, {cell["beta"]}, {cell["gamma"]}', "JSON: structure.cell"],
         ["volume_ang3", structure["volume_ang3"], "JSON: structure.volume_ang3"],
         ["density_g_cm3", structure["density_g_cm3"], "JSON: structure.density_g_cm3"],
+        ["density_occupancy_weighted", structure["density_occupancy_weighted"], "JSON: structure.density_occupancy_weighted"],
         ["min_distance_ang", nearest["min_distance_ang"], "JSON: structure.nearest_distances.min_distance_ang"],
+        ["periodic_edge_count", nearest["periodic_edge_count"], "JSON: structure.nearest_distances.periodic_edge_count"],
         ["bond_match_status", bond_match["status"], "JSON: structure.nearest_distances.bond_length_match"],
         ["symmetry_status", symmetry["status"], "JSON: structure.symmetry_attempt"],
     ]
+
+    validation_rows = [
+        [item["id"], item["status"], item["message"]]
+        for item in report["validation"]["checks"]
+    ]
+
+    block_rows = [
+        [item["index"], item["name"], item["tag_count"], item["pair_count"], item["loop_count"]]
+        for item in document["blocks"]
+    ]
+
+    raw_cell_rows = []
+    for field, record in document["metadata"]["cell"].items():
+        raw_cell_rows.append(
+            [field, record["tag"], record["raw"], record["value"], record["standard_uncertainty"]]
+        )
 
     cell_rows = [
         ["a", cell["a"], "Ang"],
@@ -631,9 +752,22 @@ def render_markdown(report: dict[str, Any]) -> str:
             [
                 f'{item["i"]}-{item["j"]}',
                 "-".join(item["symbols"]),
+                item["shift"],
                 item["distance_ang"],
             ]
         )
+    if not nearest_rows:
+        nearest_rows.append(["none", "", "", ""])
+
+    coordination_rows = [
+        [
+            item["index"],
+            item["symbol"],
+            item["nearest_distance_ang"],
+            item["nearest_shell_coordination"],
+        ]
+        for item in nearest["coordination_by_atom"]
+    ]
 
     match_query_rows = [
         ["status", bond_match["status"]],
@@ -650,12 +784,13 @@ def render_markdown(report: dict[str, Any]) -> str:
             [
                 f'{item["i"]}-{item["j"]}',
                 "-".join(item["symbols"]),
+                item["shift"],
                 item["distance_ang"],
                 item["absolute_delta_ang"],
             ]
         )
     if not match_rows:
-        match_rows.append(["none", "", "", ""])
+        match_rows.append(["none", "", "", "", ""])
     closest = bond_match["closest_candidate"]
     closest_rows = []
     if closest:
@@ -663,12 +798,13 @@ def render_markdown(report: dict[str, Any]) -> str:
             [
                 f'{closest["i"]}-{closest["j"]}',
                 "-".join(closest["symbols"]),
+                closest["shift"],
                 closest["distance_ang"],
                 closest["absolute_delta_ang"],
             ]
         )
     else:
-        closest_rows.append(["none", "", "", ""])
+        closest_rows.append(["none", "", "", "", ""])
 
     flag_rows = []
     for flag in report["flags"]["short_distances"]:
@@ -676,12 +812,13 @@ def render_markdown(report: dict[str, Any]) -> str:
             [
                 f'{flag["i"]}-{flag["j"]}',
                 "-".join(flag["symbols"]),
+                flag["shift"],
                 flag["distance_ang"],
                 flag["threshold_ang"],
             ]
         )
     if not flag_rows:
-        flag_rows.append(["none", "", "", ""])
+        flag_rows.append(["none", "", "", "", ""])
 
     gap_rows = []
     for item in structure["axis_gap_estimates"]:
@@ -701,15 +838,21 @@ def render_markdown(report: dict[str, Any]) -> str:
         ["number", symmetry.get("number")],
         ["hall", symmetry.get("hall")],
         ["choice", symmetry.get("choice")],
+        ["pointgroup", symmetry.get("pointgroup")],
+        ["operation_count", symmetry.get("operation_count")],
         ["symprec", symmetry.get("symprec")],
+        ["angle_tolerance", symmetry.get("angle_tolerance")],
+        ["declared_comparison", (symmetry.get("declared_comparison") or {}).get("status")],
+        ["tolerance_sensitive", symmetry.get("tolerance_sensitive")],
         ["reason", symmetry.get("reason")],
     ]
 
     view_rows = []
     view_images = []
     for view in report.get("views", []):
-        view_rows.append([view["axis"], view["x_axis"], view["y_axis"], view["path"], view["projection"]])
-        view_images.extend([f'### View along {view["axis"]}', "", f'![view along {view["axis"]}]({view["path"]})', ""])
+        markdown_path = view.get("markdown_path", view["path"])
+        view_rows.append([view["axis"], view["x_axis"], view["y_axis"], markdown_path, view["projection"]])
+        view_images.extend([f'### View along {view["axis"]}', "", f'![view along {view["axis"]}]({markdown_path})', ""])
     if not view_rows:
         view_rows.append(["none", "", "", "", "run with --views-dir to export PNG views"])
 
@@ -721,10 +864,26 @@ def render_markdown(report: dict[str, Any]) -> str:
             "",
             "## Execution",
             f'- Status: `{report["status"]}`',
-            f'- Input CIF: `{report["input"]["path"]}`',
+            f'- Manifest ID: `{report["manifest_id"]}`',
+            f'- Schema version: `{report["schema_version"]}`',
+            f'- Input CIF label: `{report["source"]["label"]}`',
+            f'- Input SHA-256: `{report["source"]["sha256"]}`',
+            f'- CIF syntax: `{report["source"]["format"]}`',
+            f'- Parser: `{report["parser"]["name"]} {report["parser"]["version"]}` ({report["parser"]["mode"]})',
+            f'- Selected data block: `{selected_block["name"]}` (index {selected_block["index"]})',
             f'- Script: `{report["execution"]["script"]}`',
-            f'- Command: `{report["execution"]["command"]}`',
             f'- ASE version: `{report["execution"]["ase_version"]}`',
+            "",
+            "## Validation",
+            f'- Overall validation: `{report["validation"]["status"]}`',
+            "",
+            markdown_table(validation_rows, ["Check", "Status", "Message"]),
+            "",
+            "## CIF Data Blocks",
+            markdown_table(block_rows, ["Index", "Name", "Tags", "Pairs", "Loops"]),
+            "",
+            "## Raw Cell Metadata",
+            markdown_table(raw_cell_rows, ["Field", "Tag", "Raw", "Value", "Standard uncertainty"]),
             "",
             "## Computed Structure Facts",
             markdown_table(facts, ["Fact", "Value", "Artifact reference"]),
@@ -739,21 +898,24 @@ def render_markdown(report: dict[str, Any]) -> str:
             markdown_table(coordinate_sample_rows, ["Index", "Element", "Cartesian Ang", "Fractional"]),
             "",
             "## Nearest Pair Sample",
-            markdown_table(nearest_rows, ["Pair", "Symbols", "Distance Ang"]),
+            markdown_table(nearest_rows, ["Pair", "Symbols", "Cell shift", "Distance Ang"]),
+            "",
+            "## Per-Site Nearest-Shell Coordination",
+            markdown_table(coordination_rows, ["Index", "Element", "Nearest distance Ang", "Coordination"]),
             "",
             "## Nearest-Neighbor Bond-Length Match",
             markdown_table(match_query_rows, ["Field", "Value"]),
             "",
-            markdown_table(match_rows, ["Matched pair", "Symbols", "Distance Ang", "Absolute delta Ang"]),
+            markdown_table(match_rows, ["Matched pair", "Symbols", "Cell shift", "Distance Ang", "Absolute delta Ang"]),
             "",
             "### Closest Candidate",
-            markdown_table(closest_rows, ["Pair", "Symbols", "Distance Ang", "Absolute delta Ang"]),
+            markdown_table(closest_rows, ["Pair", "Symbols", "Cell shift", "Distance Ang", "Absolute delta Ang"]),
             "",
             f'- Matching rule: {bond_match["matching_rule"]}',
             f'- Periodic scope: {bond_match["periodic_scope"]}',
             "",
             "## Short-Distance Flags",
-            markdown_table(flag_rows, ["Pair", "Symbols", "Distance ang", "Threshold ang"]),
+            markdown_table(flag_rows, ["Pair", "Symbols", "Cell shift", "Distance ang", "Threshold ang"]),
             "",
             "## Axis Gap Estimates",
             markdown_table(gap_rows, ["Axis", "Largest fractional gap", "Largest gap ang", "Occupied span estimate ang"]),
@@ -776,13 +938,52 @@ def render_markdown(report: dict[str, Any]) -> str:
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Analyze CIF structure facts with ASE.")
+    parser = argparse.ArgumentParser(
+        description=(
+            "Parse a selected CIF data block and emit versioned JSON plus Markdown "
+            "structure-analysis artifacts."
+        )
+    )
     parser.add_argument("--input", required=True, help="Input CIF file path.")
     parser.add_argument("--json", required=True, help="Output JSON artifact path.")
     parser.add_argument("--markdown", required=True, help="Output Markdown artifact path.")
     parser.add_argument("--views-dir", help="Optional directory for PNG views along a, b, and c.")
-    parser.add_argument("--short-distance-threshold", type=float, default=0.6, help="Flag interatomic distances below this Angstrom threshold.")
-    parser.add_argument("--symprec", type=float, default=1e-3, help="spglib symmetry precision when spglib is installed.")
+    block_group = parser.add_mutually_exclusive_group()
+    block_group.add_argument("--block-name", help="Select a CIF data block by case-insensitive name.")
+    block_group.add_argument(
+        "--block-index",
+        type=int,
+        default=0,
+        help="Select a CIF data block by zero-based index (default: 0).",
+    )
+    parser.add_argument(
+        "--short-distance-threshold",
+        type=positive_float,
+        default=0.6,
+        help="Flag periodic-image distances below this Angstrom threshold.",
+    )
+    parser.add_argument(
+        "--neighbor-cutoff",
+        type=positive_float,
+        help="Optional fixed periodic-neighbor cutoff in Angstrom; disables adaptive expansion.",
+    )
+    parser.add_argument(
+        "--maximum-neighbor-cutoff",
+        type=positive_float,
+        help="Maximum adaptive periodic-neighbor cutoff in Angstrom.",
+    )
+    parser.add_argument(
+        "--symprec",
+        type=positive_float,
+        default=1e-3,
+        help="spglib Cartesian symmetry precision in Angstrom (default: 1e-3).",
+    )
+    parser.add_argument(
+        "--angle-tolerance",
+        type=float,
+        default=-1.0,
+        help="spglib angle tolerance in degrees; -1 uses the backend default.",
+    )
     parser.add_argument(
         "--match-elements",
         type=parse_element_pair,
@@ -799,7 +1000,50 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         default=DEFAULT_BOND_MATCH_TOLERANCE_ANG,
         help="Absolute target-length tolerance in Angstrom (default: 0.05).",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.block_index is not None and args.block_index < 0:
+        parser.error("--block-index must be greater than or equal to zero")
+    if not math.isfinite(args.angle_tolerance) or (
+        args.angle_tolerance < 0 and args.angle_tolerance != -1.0
+    ):
+        parser.error("--angle-tolerance must be -1 or a finite nonnegative number")
+    if (
+        args.neighbor_cutoff is not None
+        and args.maximum_neighbor_cutoff is not None
+        and args.maximum_neighbor_cutoff < args.neighbor_cutoff
+    ):
+        parser.error("--maximum-neighbor-cutoff must be greater than or equal to --neighbor-cutoff")
+    return args
+
+
+def write_artifacts(
+    report: dict[str, Any], json_path: Path, markdown_path: Path
+) -> None:
+    payloads = [
+        (json_path, json.dumps(report, indent=2, sort_keys=True) + "\n"),
+        (markdown_path, render_markdown(report)),
+    ]
+    staged: list[tuple[Path, Path]] = []
+    try:
+        for target, payload in payloads:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=target.parent,
+                prefix=f".{target.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as handle:
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+                staged.append((Path(handle.name), target))
+        for temporary, target in staged:
+            os.replace(temporary, target)
+    finally:
+        for temporary, _ in staged:
+            temporary.unlink(missing_ok=True)
 
 
 def main(argv: list[str]) -> int:
@@ -814,6 +1058,12 @@ def main(argv: list[str]) -> int:
     if not input_path.is_file():
         print(f"failed: input path is not a file: {input_path}", file=sys.stderr)
         return 2
+    if json_path == markdown_path:
+        print("failed: --json and --markdown must use different paths", file=sys.stderr)
+        return 2
+    if input_path in {json_path, markdown_path}:
+        print("failed: output paths must not overwrite the input CIF", file=sys.stderr)
+        return 2
 
     try:
         report = build_report(input_path, args)
@@ -822,10 +1072,7 @@ def main(argv: list[str]) -> int:
         return 1
 
     try:
-        json_path.parent.mkdir(parents=True, exist_ok=True)
-        markdown_path.parent.mkdir(parents=True, exist_ok=True)
-        json_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        markdown_path.write_text(render_markdown(report), encoding="utf-8")
+        write_artifacts(report, json_path, markdown_path)
     except Exception as exc:
         print(f"failed to write artifacts: {exc}", file=sys.stderr)
         return 1

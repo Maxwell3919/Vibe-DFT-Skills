@@ -6,7 +6,8 @@
 
 ```mermaid
 flowchart LR
-    CIF["CIF structure facts"] -->|future structure identity| RUN
+    CIF["CIF document"] --> STRUCT["structure_manifest.json"]
+    STRUCT -.->|future structure reference| RUN
     QE["QE calculation skill"] --> RUN["run_manifest.json"]
     VASP["VASP calculation skill"] --> RUN
     CP2K["CP2K calculation skill"] --> RUN
@@ -21,7 +22,7 @@ flowchart LR
     CAMPAIGN --> REC["advisory recommendations"]
 ```
 
-当前已经实现的实线语义不完全等价于强制校验：计算 Skill 可生成 run manifest，后处理可生成 plan/dataset/execution/artifact，效率 Skill 可从 run manifest 转换记录；但 run manifest 到 plan/artifact 的来源绑定尚未强制校验，CIF 到计算结构身份也尚未建立共享契约。
+当前已经实现的实线语义不完全等价于强制校验：CIF Skill 已生成严格的 structure manifest，计算 Skill 可生成 run manifest，后处理可生成 plan/dataset/execution/artifact，效率 Skill 可从 run manifest 转换记录；但 structure manifest 尚未绑定到各计算 run，run manifest 到 plan/artifact 的来源绑定也尚未强制校验。
 
 ## 稳定接口
 
@@ -89,7 +90,13 @@ flowchart LR
 - artifact 对 source run manifest 的路径外标签、记录 ID 和 SHA-256 绑定；
 - plan 对 source run 的 code/version/task/acceptance 一致性检查；
 - dataset、execution、artifact 的链式 ID/hash 关系；
-- CIF 结构摘要的规范化结构指纹与结构变换谱系。
+- run manifest 对 structure manifest ID、源 CIF 哈希、结构指纹和所用变换末端的引用。
+
+### 5. CIF 结构与新结构功能入口
+
+`contracts/structure-manifest.schema.json` 是 CIF/结构事实的共享入口。当前 producer 保留 CIF1/CIF2 data block、原始数值与不确定度、占位/无序警告、ASE 代表结构、周期镜像近邻、spglib 证据、隐私安全 provenance 和有边界的有序结构指纹。
+
+新增结构功能时遵循 `skills/cif-structure-analysis/references/extension-interfaces.md`：局部 adapter 返回 payload 与稳定诊断，不在中央 CLI 堆软件条件链；结构发生变化时必须生成新指纹并追加 transformation/backend/parameters/parent fingerprint/site mapping。未来 QE/VASP/CP2K/SIESTA exporter 只负责结构文件与谱系，计算参数仍由对应计算 Skill 决策。
 
 ## 分阶段实施
 
@@ -109,7 +116,7 @@ flowchart LR
 - 为 CP2K、SIESTA 增加合法、版本明确的 real-artifact 前向测试，再按 observable 单独晋级。
 - 把 QE capability catalog 迁移为机器可读 task profile，并建立跨代码的 task alias 映射。
 - 给每个 Skill 提供标准离线测试入口，使 `tools/run_tests.py` 不再维护代码专属命令列表。
-- 建立 CIF `structure_manifest`，记录结构指纹、原始 CIF 哈希、标准化/超胞/表面变换谱系和近邻匹配摘要。
+- 把已实现的 CIF structure manifest 接入 run manifest；为标准化、超胞、表面和格式导出增加实际 transformation producer 与 round-trip 测试。
 
 验收：增加一个实验性计算软件或一个新 observable 时，只需注册、实现局部 adapter/profile 和测试；遗漏的共享决策由仓库审计精确列出。
 

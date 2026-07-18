@@ -4,7 +4,7 @@
 
 七个 Skill 的当前本地源码没有发现会阻断基本使用的结构或测试失败；主要欠缺集中在跨 Skill 数据谱系、共享语义/隐私校验、安装副本一致性和扩展成本，而不是 QE、VASP、CP2K、SIESTA 某一个 Skill 的单点失效。
 
-审计期间先执行原有基线：220 项测试通过。补充软件注册、联动审计和两项根级回归后，fresh 全库回归共 222 项测试通过；七个 Skill 结构有效，所有 JSON Schema 和 agent YAML 可解析，Python 可编译，未发现大于 5 MiB 的仓库文件、已跟踪计算输出或明显敏感标记。
+审计期间先执行原有基线：220 项测试通过。补充软件注册、联动审计和两项根级回归后，fresh 全库回归共 222 项测试通过；随后合入 CIF structure manifest 与模块化解析器后，fresh 全库回归增至 226 项测试通过。七个 Skill 结构有效，所有 JSON Schema 和 agent YAML 可解析，Python 可编译，未发现大于 5 MiB 的仓库文件、已跟踪计算输出或明显敏感标记。
 
 ## 当前能力边界
 
@@ -16,7 +16,7 @@
 | SIESTA | 版本化官方来源、FDF/赝势/谱系/收敛 gate、任务 profile | 后处理各 observable 仍为 `design-only`；版本精确的运行 artifact 仍需补齐 |
 | dft-postprocess | QE/VASP run trace、bands、DOS 和 real-space 等真实 artifact 路由；规范化数据、绘图、工具执行记录 | planner/backend 仍有中央条件链；run→plan→artifact 绑定不强制 |
 | dft-campaign-efficiency | 隐私安全记录、run 转换、可比性和推荐门禁 | artifact 证据尚未形成强哈希闭环；共享验证入口未统一隐私规则 |
-| CIF | 结构事实、对称性尝试、近邻距离和指定键长匹配 | 尚无跨计算代码共享的 structure manifest/结构谱系契约 |
+| CIF | CIF1/CIF2 多块与原始元数据、版本化 structure manifest、周期镜像近邻/配位、指定键长匹配、spglib 证据、静态投影 | structure manifest 尚未绑定到计算 run；层/拓扑/比较/变换/exporter 仍为预留接口 |
 
 后处理成熟度必须按 observable 阅读：QE 的 run trace、bands、DOS/PDOS、phonon、EPC、real-space 为 `real-artifact-validated`；VASP 的 run trace、bands、DOS/PDOS、real-space 为该级别；两者 NEB/optical 目前为 `synthetic-validated`；VASP phonon/EPC 及 CP2K/SIESTA 所有已登记 route 仍为 `design-only`。
 
@@ -57,7 +57,7 @@
 ## 优先级
 
 - P0：共享 semantic/privacy validator；run→plan→artifact 哈希绑定；安装副本迁移。
-- P1：postprocess adapter plugin 接口；CP2K/SIESTA real-artifact 前向验证；QE 机器 capability profile；CIF structure manifest；标准 Skill test hook。
+- P1：postprocess adapter plugin 接口；CP2K/SIESTA real-artifact 前向验证；QE 机器 capability profile；structure manifest→run 绑定及 CIF transformation/exporter producer；标准 Skill test hook。
 - P2：契约迁移、artifact 驱动的效率闭环、版本变化后的建议降级和更完整 CI。
 
 具体接口、步骤和验收条件见 [`integration-and-extension-plan.md`](integration-and-extension-plan.md)。

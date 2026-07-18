@@ -1,3 +1,0 @@
-# Preserve the upstream Three.js r160 asset byte-for-byte while retaining
-# normal Git whitespace checks for the rest of the repository.
-skills/cif-structure-analysis/assets/three.module.js whitespace=-space-before-tab

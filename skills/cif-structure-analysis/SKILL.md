@@ -1,36 +1,26 @@
 ---
 name: cif-structure-analysis
-description: Use when analyzing CIF files for code-backed structure facts such as formula, atom counts, cell parameters, volume, density, coordinates, nearest distances, nearest-neighbor element-pair or target bond-length matches, short-distance flags, layer/vacuum estimates, or symmetry attempts.
+description: Use when parsing or analyzing CIF files for traceable structure facts, data-block and raw-tag metadata, standard uncertainties, occupancy/disorder warnings, periodic-image neighbors and coordination, target element-pair or bond-length matching, short-distance flags, symmetry evidence, structure identity, axis-gap estimates, or static structure projections.
 ---
 
 # CIF Structure Analysis
 
-## Overview
+## Purpose
 
-Use this skill to analyze CIF files with deterministic Python tooling before making structure claims. The default local helper uses ASE, optional spglib, and Matplotlib to produce JSON, Markdown, and reproducible a/b/c projection artifacts.
+Run the helper before making numeric structure claims. It emits a schema-validated JSON manifest and Markdown summary; optional PNGs are presentation artifacts. This Skill does not choose DFT parameters or judge stability.
 
-## Workflow
-
-1. Identify the input `.cif` path and an output directory.
-2. Run the helper before reporting any numeric structure facts:
+## Analyze
 
 ```bash
 python3 ~/.codex/skills/cif-structure-analysis/scripts/analyze_cif.py \
   --input path/to/structure.cif \
   --json path/to/structure.analysis.json \
-  --markdown path/to/structure.analysis.md \
-  --views-dir path/to/views
+  --markdown path/to/structure.analysis.md
 ```
 
-When the skill is used directly from the source repository rather than an installed symlink, invoke the same bundled script under this skill directory.
+Add `--views-dir path/to/views` for static a/b/c PNGs. For a multi-block CIF, use `--block-name NAME` or `--block-index N`; default index is `0`, and the manifest inventories all blocks. Invalid selection fails without JSON/Markdown output.
 
-3. Read the JSON artifact for exact values, the Markdown artifact for a report-ready summary, and the optional PNG files for a/b/c direction structure views.
-4. State limitations from the artifact, including parser warnings, missing optional symmetry support, short-distance flags, or ambiguous layer/vacuum estimates.
-5. If the helper exits nonzero or artifacts are missing, return `BLOCK` and do not report numeric structure conclusions.
-
-## Nearest-Neighbor Bond-Length Matching
-
-Filter the computed nearest-neighbor shell by an unordered element pair, a target distance, or both:
+## Match near-neighbor lengths
 
 ```bash
 python3 ~/.codex/skills/cif-structure-analysis/scripts/analyze_cif.py \
@@ -42,72 +32,35 @@ python3 ~/.codex/skills/cif-structure-analysis/scripts/analyze_cif.py \
   --match-bond-tolerance 0.03
 ```
 
-- Treat `Na-Cl` and `Cl-Na` as the same element pair.
-- Omit `--match-bond-length` to return all nearest-shell bonds for the requested element pair.
-- Omit `--match-elements` to search all nearest-shell element pairs around the target distance.
-- Read the result at `structure.nearest_distances.bond_length_match`. Report its query, `MATCHED` or `NO_MATCH` status, match count, matching pairs, distances, absolute deltas, and closest candidate when present.
-- Do not interpret `NO_MATCH` as an invalid structure. It only means that the defined nearest-neighbor scope contains no bond satisfying the query and tolerance.
-- Preserve the reported scope limitation: matching uses unique atom-index pairs and ASE minimum-image distances; it does not enumerate periodic-image multiplicity or self-image neighbors and therefore is not a coordination-number calculation.
+- Element pairs are unordered. Omit target length to return the requested pair; omit elements to search all species near the target.
+- Read `structure.nearest_distances.bond_length_match`. `NO_MATCH` only describes this query and tolerance.
+- Edges explicitly enumerate periodic and self images. `(i,j,S)` and `(j,i,-S)` are one undirected edge; distinct shifts remain distinct.
+- Coordination counts directed neighbors in each site's nearest-distance shell. It is geometric coordination, not bond order.
+- Use `--neighbor-cutoff` only for an intentional fixed cutoff; otherwise search expands to `--maximum-neighbor-cutoff`. Incomplete search gives `WARN`.
 
-To create a compact PPT-style one-page HTML brief after analysis:
+## Evidence workflow
 
-```bash
-python3 ~/.codex/skills/cif-structure-analysis/scripts/make_structure_deck.py \
-  --analysis-json path/to/structure.analysis.json \
-  --output path/to/structure.deck.html \
-  --title "Structure Analysis"
-```
+1. Check top-level `status` and every `validation.checks` entry.
+2. Confirm source SHA-256, selected block, parser, dependency versions, and options.
+3. Separate raw `document.metadata` from the ASE-materialized `structure`.
+4. For occupancy/disorder warnings, state that formula, density, neighbors, and symmetry describe a representative model, not a resolved ensemble.
+5. Report spglib version, tolerances, declared comparison, and tolerance sensitivity with symmetry claims.
+6. Cite the JSON or Markdown artifact for each numeric claim. Return `BLOCK` when the helper fails, output is missing, or artifact status is `BLOCK`.
 
-The HTML output is a single 16:9 page containing an interactive rotatable 3D structure, embedded static a/b/c views, and compact report tables. The 3D scene keeps the structure center fixed as the rotation/camera target, provides `a`/`b`/`c` view buttons that reset the camera to the matching projection, draws only the per-atom nearest-neighbor bond shell from `nearest_neighbor_bond_pairs`, and shows bond length on click/tap. It embeds the local Three.js module by default for offline use; pass `--no-inline-three --three-url ...` only when a CDN/module URL is preferred. Verify WebGL rendering with a normal browser or headless Chrome without disabling GPU/WebGL.
+Read [structure-manifest.md](references/structure-manifest.md) for field and lineage semantics, [dependencies-and-capabilities.md](references/dependencies-and-capabilities.md) for library boundaries, and [extension-interfaces.md](references/extension-interfaces.md) before adding modules.
 
-## Projection Convention
+## Static projection convention
 
-Use the same convention for script-generated and VESTA-generated three views:
+| View | Plane | Horizontal | Vertical |
+| --- | --- | --- | --- |
+| along `a` | `b-c` | `b` | `c` |
+| along `b` | `c-a` | `c` | `a` |
+| along `c` | `a-b` | `a` | `b` |
 
-| View | Plane shown | Horizontal axis | Vertical axis | Purpose |
-| --- | --- | --- | --- | --- |
-| along `a` | `b-c` | `b` | `c` | Side view through the `a` direction. |
-| along `b` | `c-a` | `c` | `a` | Side view through the `b` direction. |
-| along `c` | `a-b` | `a` | `b` | Top view through the `c` direction. |
+Non-orthogonal projections use actual cell vectors. PNGs crop to atom extent; full cell facts remain in JSON/Markdown.
 
-For non-orthogonal cells, draw the actual projected cell-vector polygon. Do not replace the `a-b` plane with a rectangular box when `gamma` is not 90 degrees.
+## Claim boundaries
 
-Static PNG views should use an atom-extent viewport by default: crop to the projected atom coordinates plus padding so vacuum spacing does not dominate the image. Keep the full cell and vacuum values in JSON/Markdown facts rather than forcing them into the image viewport.
+Only claim fields present in a non-`BLOCK` artifact.
 
-## VESTA Export Option
-
-Use VESTA when the user wants publication-style or manually inspected images. On this machine VESTA is installed at `/Applications/VESTA/VESTA.app`, but no stable `vesta` command-line exporter was found, so treat VESTA output as a manual or GUI-assisted companion artifact rather than the default automated evidence backend.
-
-When using VESTA, export three images with the projection convention above and record:
-
-- VESTA app path and version if visible.
-- input CIF path.
-- exported image paths.
-- view direction for each image.
-- any manual style changes such as atom radii, colors, cell display, labels, or background.
-
-Keep the deterministic JSON/Markdown output as the source for numeric structure facts even when VESTA images are present.
-
-## Allowed Claims
-
-- Formula, atom count, and element counts.
-- Cell lengths, angles, volume, density, and periodic boundary conditions.
-- Coordinate summaries in Cartesian and fractional coordinates.
-- Nearest-neighbor distance summaries and suspicious short-distance flags.
-- Nearest-neighbor element-pair and target bond-length matches, including explicit tolerance, absolute delta, and closest candidate.
-- Axis gap estimates that can help inspect layer/vacuum geometry.
-- Symmetry attempt results when optional symmetry support is available.
-- Generated PNG projections along a, b, and c when `--views-dir` is supplied.
-- VESTA-rendered a/b/c images when their provenance and view convention are recorded.
-- PPT-style one-page HTML brief with interactive 3D view when generated from the analysis JSON artifact.
-
-## Forbidden Claims
-
-- Do not provide DFT setup advice, pseudopotential choices, k-point settings, cutoff settings, magnetic initialization, or supercell recommendations.
-- Do not judge physical credibility, stability, synthesis feasibility, or calculation readiness.
-- Do not treat short-distance flags or layer/vacuum estimates as physics conclusions.
-- Do not report values that are not present in the generated artifacts.
-
-## Output Discipline
-
-For every numeric statement, cite the JSON or Markdown artifact path and the command used to generate it. Separate computed facts from interpretations and keep the interpretation bounded to structure inspection only.
+Do not treat axis gaps as rigorous layer/vacuum thickness; treat flags, coordination, detected symmetry, or `NO_MATCH` as stability conclusions; claim dictionary validation, magnetic/modulated support, equivalence, topology, XRD, or database identity without a validated extension; or provide pseudopotential, cutoff, k-point, magnetic, convergence, supercell, or other DFT setup advice.

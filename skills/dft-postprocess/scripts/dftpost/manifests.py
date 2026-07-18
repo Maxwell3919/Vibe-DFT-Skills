@@ -18,6 +18,7 @@ SCHEMAS = {
     "dataset": "normalized-dataset.schema.json",
     "plan": "postprocess-plan.schema.json",
     "execution": "tool-execution.schema.json",
+    "structure": "structure-manifest.schema.json",
 }
 
 
