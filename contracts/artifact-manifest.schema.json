@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/dft-codex-skills/artifact-manifest.schema.json",
+  "$id": "https://example.invalid/vibe-dft-skills/artifact-manifest.schema.json",
   "title": "DFT postprocessing artifact manifest",
   "type": "object",
   "additionalProperties": false,

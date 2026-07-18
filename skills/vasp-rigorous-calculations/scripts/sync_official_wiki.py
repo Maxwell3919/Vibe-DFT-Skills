@@ -134,7 +134,7 @@ def request_json(params: dict[str, Any], attempts: int = 5) -> dict[str, Any]:
     query = urllib.parse.urlencode({**params, "format": "json", "formatversion": "2"})
     request = urllib.request.Request(
         f"{API_URL}?{query}",
-        headers={"User-Agent": "Codex-VASP-rigorous-skill/1.0 (official documentation mirror)"},
+        headers={"User-Agent": "Vibe-DFT-Skills-VASP-mirror/1.0 (official documentation mirror)"},
     )
     transient = (urllib.error.URLError, TimeoutError, ConnectionError, ssl.SSLError)
     for attempt in range(1, attempts + 1):

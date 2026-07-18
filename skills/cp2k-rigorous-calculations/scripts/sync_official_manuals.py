@@ -73,7 +73,7 @@ def verified_context() -> ssl.SSLContext:
 def fetch(url: str, *, timeout: float = 30.0, attempts: int = 3) -> bytes:
     if urlsplit(url).hostname != ALLOWED_HOST or urlsplit(url).scheme != "https":
         raise ValueError("only HTTPS sources from manual.cp2k.org are allowed")
-    request = urllib.request.Request(url, headers={"User-Agent": "dft-codex-skills-cp2k-mirror/1.0"})
+    request = urllib.request.Request(url, headers={"User-Agent": "vibe-dft-skills-cp2k-mirror/1.0"})
     context = verified_context()
     for attempt in range(attempts):
         try:

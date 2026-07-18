@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.invalid/dft-codex-skills/postprocess-plan.schema.json",
+  "$id": "https://example.invalid/vibe-dft-skills/postprocess-plan.schema.json",
   "title": "DFT postprocessing execution plan",
   "type": "object",
   "additionalProperties": false,

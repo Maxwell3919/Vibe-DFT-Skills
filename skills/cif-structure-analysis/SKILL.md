@@ -12,7 +12,7 @@ Run the helper before making numeric structure claims. It emits a schema-validat
 ## Analyze
 
 ```bash
-python3 ~/.codex/skills/cif-structure-analysis/scripts/analyze_cif.py \
+python3 scripts/analyze_cif.py \
   --input path/to/structure.cif \
   --json path/to/structure.analysis.json \
   --markdown path/to/structure.analysis.md
@@ -23,7 +23,7 @@ Add `--views-dir path/to/views` for static a/b/c PNGs. For a multi-block CIF, us
 ## Match near-neighbor lengths
 
 ```bash
-python3 ~/.codex/skills/cif-structure-analysis/scripts/analyze_cif.py \
+python3 scripts/analyze_cif.py \
   --input path/to/structure.cif \
   --json path/to/structure.analysis.json \
   --markdown path/to/structure.analysis.md \

@@ -46,7 +46,7 @@ def synthetic_layered_cif() -> str:
         [
             "# Synthetic visualization fixture; not a research structure.",
             "data_showcase_layer",
-            "_audit_creation_method 'DFT-Codex-Skills synthetic README showcase'",
+            "_audit_creation_method 'Vibe-DFT-Skills synthetic README showcase'",
             "_cell_length_a 9.540000",
             "_cell_length_b 9.540000",
             "_cell_length_c 12.000000",
@@ -120,7 +120,7 @@ def write_synthetic_electronic_tables(directory: Path) -> tuple[Path, Path]:
 def generate() -> dict[str, object]:
     IMAGES.mkdir(parents=True, exist_ok=True)
     outputs: list[str] = []
-    with tempfile.TemporaryDirectory(prefix="dft-codex-showcase-") as temporary_name:
+    with tempfile.TemporaryDirectory(prefix="vibe-dft-showcase-") as temporary_name:
         temporary = Path(temporary_name)
         cif_path = temporary / "synthetic-layer.cif"
         cif_path.write_text(synthetic_layered_cif(), encoding="utf-8")

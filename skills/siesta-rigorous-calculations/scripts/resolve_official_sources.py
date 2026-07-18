@@ -60,7 +60,7 @@ def verified_fetch(url: str, expected_sha256: str | None = None) -> dict:
         context = ssl.create_default_context()
     else:
         context = ssl.create_default_context(cafile=certifi.where())
-    request = Request(url, headers={"User-Agent": "dft-codex-skills/siesta-source-check/2.0"})
+    request = Request(url, headers={"User-Agent": "vibe-dft-skills/siesta-source-check/2.0"})
     try:
         with urlopen(request, timeout=20, context=context) as response:
             body = response.read()

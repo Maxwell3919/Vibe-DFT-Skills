@@ -5,11 +5,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
 
 from software_registry import all_skill_names, calculation_codes, load_registry, repo_root, validation_errors
 from sync_contract_codes import contract_drift
+
+
+TARGET_ENV = "VIBE_DFT_SKILLS_TARGET"
 
 
 def repository_errors(root: Path | None = None) -> list[str]:
@@ -81,7 +85,12 @@ def repository_errors(root: Path | None = None) -> list[str]:
 
 def installed_errors(root: Path | None = None, target: Path | None = None) -> list[str]:
     selected_root = root or repo_root()
-    selected_target = target or Path.home() / ".codex" / "skills"
+    selected_target = target
+    if selected_target is None:
+        configured = os.environ.get(TARGET_ENV)
+        if not configured:
+            return [f"installed: pass --installed-root or set {TARGET_ENV}"]
+        selected_target = Path(configured).expanduser()
     failures: list[str] = []
     for name in all_skill_names(selected_root / "registry" / "software-registry.yaml"):
         expected = selected_root / "skills" / name
