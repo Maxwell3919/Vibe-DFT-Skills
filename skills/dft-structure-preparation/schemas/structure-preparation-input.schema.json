@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:candidate:structure-preparation-input:1.0",
+  "title": "Candidate-local normalized structure input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name", "schema_version", "structure_id", "structure_kind", "pbc",
+    "cell_ang", "sites", "symmetry", "charge_state", "spin_state"
+  ],
+  "properties": {
+    "contract_name": {"const": "structure-preparation-input"},
+    "schema_version": {"const": "1.0"},
+    "structure_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "structure_kind": {
+      "enum": ["periodic-crystal", "periodic-slab", "periodic-wire", "isolated-molecule", "isolated-cluster"]
+    },
+    "pbc": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "prefixItems": [{"type": "boolean"}, {"type": "boolean"}, {"type": "boolean"}]
+    },
+    "cell_ang": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "array", "minItems": 3, "maxItems": 3,
+          "items": {
+            "type": "array", "minItems": 3, "maxItems": 3,
+            "items": {"type": "number"}
+          }
+        }
+      ]
+    },
+    "sites": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["site_id", "species", "fractional", "cartesian_ang"],
+        "properties": {
+          "site_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+          "species": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["element", "occupancy"],
+              "properties": {
+                "element": {"type": "string", "pattern": "^[A-Z][a-z]?$"},
+                "occupancy": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}
+              }
+            }
+          },
+          "fractional": {
+            "oneOf": [
+              {"type": "null"},
+              {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}
+            ]
+          },
+          "cartesian_ang": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}
+        }
+      }
+    },
+    "symmetry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "number", "symbol", "tolerance_ang", "backend", "backend_version"],
+      "properties": {
+        "status": {"enum": ["not-applicable", "unresolved", "declared", "verified"]},
+        "number": {"type": ["integer", "null"], "minimum": 1, "maximum": 230},
+        "symbol": {"type": ["string", "null"]},
+        "tolerance_ang": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "backend": {"type": ["string", "null"]},
+        "backend_version": {"type": ["string", "null"]}
+      }
+    },
+    "charge_state": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "net_charge_e"],
+      "properties": {
+        "status": {"enum": ["known", "unknown"]},
+        "net_charge_e": {"type": ["integer", "null"]}
+      }
+    },
+    "spin_state": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "multiplicity"],
+      "properties": {
+        "status": {"enum": ["known", "not-assessed"]},
+        "multiplicity": {"type": ["integer", "null"], "minimum": 1}
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {
+      "path": "examples/synthetic-workflow.json",
+      "kind": "constructed-lineage",
+      "maturity": "synthetic-validated",
+      "scientific_use": false
+    },
+    {
+      "path": "examples/synthetic-band.txt",
+      "kind": "constructed-frequency-table",
+      "maturity": "synthetic-validated",
+      "scientific_use": false
+    },
+    {
+      "path": "references/weak-model-decision-table.json",
+      "kind": "machine-decision-contract",
+      "contract_name": "candidate-decision-table",
+      "schema_version": "1.0",
+      "scientific_use": false
+    }
+  ],
+  "assertion": "All structures, forces, tensors, frequencies, identities, and hashes are constructed for software testing only."
+}

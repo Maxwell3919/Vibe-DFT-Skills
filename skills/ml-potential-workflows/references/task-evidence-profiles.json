@@ -1,0 +1,65 @@
+{
+  "schema_version": "candidate-1.0",
+  "candidate_lifecycle": "development",
+  "claim_ceiling": "no_positive_claim",
+  "profiles": {
+    "dataset": {
+      "all_of": [
+        "dataset-identity",
+        "reference-protocol",
+        "units",
+        "species",
+        "label-coverage",
+        "group-disjoint-splits",
+        "source-lineage",
+        "license-inventory"
+      ],
+      "future_maximum_claim": "input_gates_only"
+    },
+    "training-plan": {
+      "all_of": [
+        "dataset-audit-binding",
+        "provider-version-mode",
+        "seeds-and-determinism",
+        "loss-and-targets",
+        "stopping-and-checkpoints",
+        "evaluation-thresholds",
+        "environment-identity"
+      ],
+      "future_maximum_claim": "input_gates_only"
+    },
+    "model": {
+      "all_of": [
+        "artifact-identity",
+        "dataset-plan-run-lineage",
+        "species-units-cutoff-precision",
+        "energy-reference-convention",
+        "license-separation"
+      ],
+      "future_maximum_claim": "technical_run_gates_only"
+    },
+    "evaluation": {
+      "all_of": [
+        "independent-test",
+        "metric-units",
+        "predeclared-thresholds",
+        "slice-coverage",
+        "ood-evaluation",
+        "worst-case-evidence"
+      ],
+      "future_maximum_claim": "numerical_candidate_only"
+    },
+    "deployment": {
+      "all_of": [
+        "model-evaluation-binding",
+        "engine-adapter-identity",
+        "domain-envelope",
+        "extrapolation-monitor",
+        "fail-action-and-rollback",
+        "bounded-pilot",
+        "external-authorization"
+      ],
+      "future_maximum_claim": "eligible_for_expert_review"
+    }
+  }
+}

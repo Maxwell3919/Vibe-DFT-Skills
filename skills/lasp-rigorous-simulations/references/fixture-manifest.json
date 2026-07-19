@@ -1,0 +1,19 @@
+{
+  "license": "CC0-1.0",
+  "contains_lasp_syntax": false,
+  "contains_lasp_generated_output": false,
+  "contains_third_party_model": false,
+  "decision_table": {
+    "path": "references/weak-model-decision-table.json",
+    "contract": "candidate-decision-table@1.0",
+    "origin": "project-authored deterministic routing fixture",
+    "redistributable": true,
+    "scientific_meaning": "none"
+  },
+  "artifacts": [
+    {"path": "examples/opaque-input.txt", "meaning": "explicit non-syntax documentary placeholder", "redistributable": true},
+    {"path": "examples/opaque-model.extxyz", "meaning": "project-authored generic structure", "redistributable": true},
+    {"path": "examples/synthetic-output.txt", "meaning": "explicit non-LASP synthetic text", "redistributable": true},
+    {"path": "examples/trajectory.extxyz", "meaning": "project-authored generic trajectory", "redistributable": true}
+  ]
+}

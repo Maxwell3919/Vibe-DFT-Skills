@@ -1,0 +1,13 @@
+{
+  "command": "audit-plan",
+  "expected_exit_code": 0,
+  "expected_status": "pass",
+  "expected_claim_ceiling": "no_positive_claim",
+  "expected_minimum_next_action": "prepare-immutable-execution-request-for-synthetic-step-001",
+  "dry_run": true,
+  "side_effect_performed": false,
+  "lease_issued": false,
+  "workflow_event_emitted": false,
+  "execution_authorized": false,
+  "scientific_acceptance": "not_assessed"
+}

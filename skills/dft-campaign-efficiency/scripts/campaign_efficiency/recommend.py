@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import datetime, timezone
 import hashlib
 import json
-from statistics import median
+from pathlib import Path
 from typing import Any
 
 from .contracts import errors as contract_errors
 from .store import comparable_records
-from datetime import datetime, timezone
-from pathlib import Path
 
 
 def utc_now() -> str:
@@ -52,6 +51,7 @@ def recommendation(
             "baseline_configuration_id": None,
             "recommended_configuration_id": None,
             "evidence_record_ids": sorted(record["record_id"] for record in records),
+            "evidence_record_refs": [],
             "estimated_savings_fraction": None,
             "confidence": "none",
             "scientific_gate": "Collect at least two scientifically accepted observations for each of two controlled configurations under this exact protocol.",
@@ -59,38 +59,10 @@ def recommendation(
             "generated_utc": utc_now(),
         }
     else:
-        summary = {
-            key: {
-                "core_hours": median(record["metrics"]["core_hours"] for record in values),
-                "wall_time_s": median(record["metrics"]["wall_time_s"] for record in values),
-                "count": len(values),
-            }
-            for key, values in eligible.items()
-        }
-        recommended = min(summary, key=lambda key: (summary[key]["core_hours"], summary[key]["wall_time_s"], key))
-        baseline = max(summary, key=lambda key: (summary[key]["core_hours"], summary[key]["wall_time_s"], key))
-        baseline_cost = summary[baseline]["core_hours"]
-        savings = (baseline_cost - summary[recommended]["core_hours"]) / baseline_cost if baseline_cost else 0.0
-        selected = eligible[baseline] + eligible[recommended]
-        evidence = sorted(record["record_id"] for record in selected)
-        result = {
-            "schema_version": "1.0",
-            "recommendation_id": _identifier(applicability, evidence),
-            "status": "validated-for-this-campaign" if savings > 0 else "insufficient-evidence",
-            "applicability": applicability,
-            "baseline_configuration_id": baseline,
-            "recommended_configuration_id": recommended,
-            "evidence_record_ids": evidence,
-            "estimated_savings_fraction": max(0.0, min(1.0, savings)),
-            "confidence": "campaign" if savings > 0 else "none",
-            "scientific_gate": "Reproduce the recommended configuration in a controlled pilot and reapply the unchanged scientific acceptance criteria before adoption.",
-            "limitations": [
-                f"baseline median: {summary[baseline]['core_hours']:.6g} core-hours, {summary[baseline]['wall_time_s']:.6g} s, n={summary[baseline]['count']}",
-                f"recommended median: {summary[recommended]['core_hours']:.6g} core-hours, {summary[recommended]['wall_time_s']:.6g} s, n={summary[recommended]['count']}",
-                "This is project experience, not official DFT-code guidance.",
-            ],
-            "generated_utc": utc_now(),
-        }
+        raise ValueError(
+            "positive recommendation is blocked: the v2 private store has no "
+            "platform-authenticated content-addressed campaign recordRefs"
+        )
     failures = contract_errors("recommendation", result)
     if failures:
         raise ValueError("generated recommendation is invalid: " + "; ".join(failures))

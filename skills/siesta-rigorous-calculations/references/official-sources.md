@@ -5,6 +5,11 @@
 The automated parameter/source set is pinned to official SIESTA tag `5.4.2`, commit `e486d12067b96ff688179f0496d0ec21b6fae0ab`.
 
 - Versioned 5.4 manual: `https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html`
+- Official first-encounter tutorial: `https://docs.siesta-project.org/projects/siesta/en/latest/tutorials/basic/first-encounter/index.html`
+- Official utility manual index: `https://docs.siesta-project.org/projects/siesta/en/latest/reference/`
+- Official band tutorial: `https://docs.siesta-project.org/projects/siesta/en/latest/tutorials/basic/electronic-structure-analysis/bands/index.html`
+- Official DOS tutorial: `https://docs.siesta-project.org/projects/siesta/en/latest/tutorials/basic/electronic-structure-analysis/dos/index.html`
+- Official phonon tutorial index: `https://docs.siesta-project.org/projects/siesta/en/latest/tutorials/basic/vibrational-properties/index.html`
 - Documentation landing page: `https://siesta-project.org/siesta/Documentation/`
 - Official repository/tags: `https://gitlab.com/siesta-project/siesta`
 - Pseudopotential landing page: `https://siesta-project.org/siesta/Documentation/Pseudopotentials/`

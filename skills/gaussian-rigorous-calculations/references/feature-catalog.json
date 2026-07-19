@@ -1,0 +1,227 @@
+{
+  "catalog_contract": "provider-feature-catalog@1.0",
+  "retrieved_on": "2026-07-19",
+  "product": {
+    "provider": "Gaussian, Inc.",
+    "product_name": "Gaussian 16",
+    "registered_revision": "C.02",
+    "license_class": "restricted-proprietary"
+  },
+  "state_definitions": {
+    "official-documented-native-not-run": "A public first-party source documents the feature, but no matching local executable was found and no native command was run.",
+    "guard-supported-synthetic-only": "The offline guard implements only the narrow synthetic parser/evidence profile stated in SKILL.md; this is not native provider support.",
+    "guard-not-supported": "The feature is discoverable for planning, but the offline guard must block it."
+  },
+  "native_validation": {
+    "state": "native-not-run",
+    "host": "Darwin arm64; macOS 26.5.2; Python 3.14.0",
+    "executables_found": [],
+    "probes_attempted": [],
+    "reason": "g16, g09, formchk, and cubegen were not found; licensed execution and installation were not authorized."
+  },
+  "sources": [
+    {
+      "source_id": "g16-input",
+      "url": "https://gaussian.com/input/",
+      "version_scope": "public Gaussian 16 input specification"
+    },
+    {
+      "source_id": "g16-route",
+      "url": "https://gaussian.com/route/",
+      "version_scope": "public Gaussian 16 route-section specification"
+    },
+    {
+      "source_id": "g16-link0",
+      "url": "https://gaussian.com/link0/",
+      "version_scope": "Gaussian 16 Rev. C.01 public page; C.02 revision boundary is separate"
+    },
+    {
+      "source_id": "g16-running",
+      "url": "https://gaussian.com/running/",
+      "version_scope": "public Gaussian 16 Unix running instructions"
+    },
+    {
+      "source_id": "g16-options",
+      "url": "https://gaussian.com/options/",
+      "version_scope": "public Gaussian 16 options index"
+    },
+    {
+      "source_id": "g16-sp",
+      "url": "https://gaussian.com/sp/",
+      "version_scope": "public Gaussian 16 job-type page"
+    },
+    {
+      "source_id": "g16-opt",
+      "url": "https://gaussian.com/opt/",
+      "version_scope": "public Gaussian 16 optimization page"
+    },
+    {
+      "source_id": "g16-freq",
+      "url": "https://gaussian.com/freq/",
+      "version_scope": "public Gaussian 16 frequency page"
+    },
+    {
+      "source_id": "g16-irc",
+      "url": "https://gaussian.com/irc/",
+      "version_scope": "public Gaussian 16 IRC page"
+    },
+    {
+      "source_id": "g16-formchk",
+      "url": "https://gaussian.com/formchk/",
+      "version_scope": "Gaussian 16 Rev. C.01 public utility page; output-format option includes Gaussian 16"
+    },
+    {
+      "source_id": "g16-cubegen",
+      "url": "https://gaussian.com/cubegen/",
+      "version_scope": "Gaussian 16 public utility page, updated 2023"
+    },
+    {
+      "source_id": "g16-release-notes",
+      "url": "https://gaussian.com/relnotes/",
+      "version_scope": "Gaussian 16 revision notes including C.02"
+    },
+    {
+      "source_id": "g16-platforms",
+      "url": "https://gaussian.com/g16/g16_plat.pdf",
+      "version_scope": "Gaussian 16 Rev. C.02 platform list, dated 2025-03-18"
+    },
+    {
+      "source_id": "g16-test-jobs",
+      "url": "https://gaussian.com/testjobs/",
+      "version_scope": "public Gaussian 16 test-job guidance"
+    },
+    {
+      "source_id": "g16-license",
+      "url": "https://gaussian.com/wp-content/uploads/dl/us_com.pdf",
+      "version_scope": "public commercial license/order information"
+    }
+  ],
+  "features": [
+    {
+      "feature_id": "input.section-order",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "Link 0, route, title, molecule specification, and optional sections have ordered blank-line boundaries.",
+      "failure_semantics": "A missing required blank-line terminator or malformed section prevents a trustworthy parse.",
+      "scientific_gate": "Syntax acceptance alone establishes no method adequacy or molecular identity.",
+      "source_ids": ["g16-input", "g16-route"]
+    },
+    {
+      "feature_id": "input.link0-resources-and-checkpoints",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "%Mem, %Chk, %OldChk, %CPU, %NProcShared, and related Link 0 commands precede the route.",
+      "failure_semantics": "Resource and checkpoint directives are not scientific defaults and checkpoint paths require explicit lineage.",
+      "scientific_gate": "A checkpoint name is not checkpoint identity; bind its bytes and ancestry separately.",
+      "source_ids": ["g16-link0"]
+    },
+    {
+      "feature_id": "cli.g16-job-name",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "On a configured Unix installation, g16 job-name reads job-name.gjf and writes job-name.log.",
+      "failure_semantics": "Missing setup, scratch policy, entitlement, executable, input, or writable output blocks execution.",
+      "scientific_gate": "Capture exact input/output hashes, exit status, revision text, and checkpoint identity.",
+      "source_ids": ["g16-running"]
+    },
+    {
+      "feature_id": "cli.g16-stdin-stdout",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "The documented Unix redirection form is g16 < input-file > output-file.",
+      "failure_semantics": "Shell redirection may create a partial log even when Gaussian fails; file existence is not completion.",
+      "scientific_gate": "Require provider termination evidence and task-specific completion evidence, not only process exit or a log file.",
+      "source_ids": ["g16-running"]
+    },
+    {
+      "feature_id": "job.single-point",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "SP requests a single-point energy calculation for the supplied geometry.",
+      "failure_semantics": "SCF failure, error termination, revision mismatch, or missing final energy blocks technical acceptance.",
+      "scientific_gate": "Converge method, basis, integration, SCF, and geometry choices for the intended observable.",
+      "source_ids": ["g16-sp", "g16-route"]
+    },
+    {
+      "feature_id": "job.optimization-minimum",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "Opt searches for a stationary point and defaults to a local minimum search unless another target is requested.",
+      "failure_semantics": "Normal termination without the optimization-completed condition is not an accepted optimization.",
+      "scientific_gate": "A converged local structure is not a global minimum; follow with a same-level frequency calculation.",
+      "source_ids": ["g16-opt"]
+    },
+    {
+      "feature_id": "job.frequency",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "Freq computes vibrational frequencies and related properties from the Hessian.",
+      "failure_semantics": "A frequency job at a nonstationary or different-level geometry cannot establish the intended stationary-point type.",
+      "scientific_gate": "Minimum candidates require zero meaningful imaginary modes; transition-state candidates require one intended mode, with near-zero modes examined.",
+      "source_ids": ["g16-freq"]
+    },
+    {
+      "feature_id": "job.optimization-frequency",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "Opt Freq is a documented combined workflow for optimizing and then computing frequencies.",
+      "failure_semantics": "Both optimization and frequency evidence must belong to the same bound job or explicit checkpoint/geometry lineage.",
+      "scientific_gate": "Thermochemistry also requires appropriate model chemistry, standard-state, temperature, scaling, and mode treatment.",
+      "source_ids": ["g16-opt", "g16-freq"]
+    },
+    {
+      "feature_id": "job.transition-state-qst2-qst3",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "Opt=QST2/QST3 and Opt=TS are documented transition-structure search routes with strict structure/atom-order requirements.",
+      "failure_semantics": "Wrong atom ordering, wrong stationary point, or more/less than one intended imaginary mode blocks a transition-state claim.",
+      "scientific_gate": "Verify the imaginary eigenvector and connect both intended endpoints with IRC evidence.",
+      "source_ids": ["g16-opt", "g16-freq"]
+    },
+    {
+      "feature_id": "job.irc",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "IRC follows the reaction path from a transition structure and requires force constants through ReadFC or CalcFC.",
+      "failure_semantics": "A missing Hessian, unconverged path, one-sided path, or wrong endpoints blocks connectivity evidence.",
+      "scientific_gate": "Endpoint structures must be optimized/identified independently and the path must correspond to the intended mode.",
+      "source_ids": ["g16-irc", "g16-freq"]
+    },
+    {
+      "feature_id": "restart.opt",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "Opt=Restart continues an interrupted optimization from checkpoint data.",
+      "failure_semantics": "Restart without the exact parent checkpoint and compatible route/environment breaks ancestry.",
+      "scientific_gate": "Bind parent and child input, log, and checkpoint hashes; rerun final acceptance gates after completion.",
+      "source_ids": ["g16-opt", "g16-link0"]
+    },
+    {
+      "feature_id": "utility.formchk",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "formchk converts a binary checkpoint to a formatted checkpoint using formchk [options] chkpt-file [formatted-file].",
+      "failure_semantics": "Conversion failure, wrong checkpoint identity, or an unbound output prevents downstream use.",
+      "scientific_gate": "Formatted output is a representation change, not independent validation; protect proprietary/private contents.",
+      "source_ids": ["g16-formchk"]
+    },
+    {
+      "feature_id": "utility.cubegen",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "cubegen produces cube data such as Density=type or MO=n from a formatted checkpoint.",
+      "failure_semantics": "Wrong density/MO selector, grid, units, format, or parent formatted-checkpoint identity invalidates the artifact.",
+      "scientific_gate": "Record grid origin/axes/counts, quantity, orbital/state, units, and parent hash before analysis or plotting.",
+      "source_ids": ["g16-cubegen", "g16-formchk"]
+    },
+    {
+      "feature_id": "environment.revision-and-platform",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "Gaussian revision text in a bound output and the C.02 platform list are separate identity/compatibility evidence.",
+      "failure_semantics": "A revision claim, filename, or unsupported host cannot substitute for a trusted environment record.",
+      "scientific_gate": "Current macOS 26.5.2 is outside the public C.02 Apple M-series matrix (macOS 12-15), so native execution remains blocked here.",
+      "source_ids": ["g16-release-notes", "g16-platforms", "g16-license"]
+    }
+  ]
+}

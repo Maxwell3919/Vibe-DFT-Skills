@@ -42,11 +42,12 @@ The guard intentionally automates only a conservative, allowlisted `pw.x` core. 
 
 1. For a parameter question, identify executable, version, namelist/card, task stage, and interacting fields; run the official reference lookup before answering.
 2. For calculation design, define the target observable and tolerance in the plan, then read [references/calculation-workflow.md](references/calculation-workflow.md).
-3. For input audit, run the supported guard and check unsupported syntax/cross-stage prerequisites manually against matching official manuals.
-4. Before execution, obtain explicit user authorization. Do not launch QE or submit a scheduler job merely because an input was requested.
-5. For output audit, inspect completion, warnings, convergence, actual echoed settings, forces/stress, and downstream ancestry.
-6. For numerical convergence, vary controlled inputs against the quantity used in the scientific claim; require a stable tail or justified multidimensional study, and reject manually entered values that are not bound to audited input/output files.
-7. At completion, stop, failure, or scientific acceptance, emit a run manifest and hand it to `$dft-campaign-efficiency`; do not maintain experience here.
+3. Before writing or launching a command, read [references/execution-and-program-map.md](references/execution-and-program-map.md) for the real `pw.x`/`ph.x`/`neb.x` and postprocessing program ownership, input-file syntax, parent chain, and native-validation boundary.
+4. For input audit, run the supported guard and check unsupported syntax/cross-stage prerequisites manually against matching official manuals.
+5. Before execution, obtain explicit user authorization. Do not launch QE or submit a scheduler job merely because an input was requested.
+6. For output audit, inspect completion, warnings, convergence, actual echoed settings, forces/stress, and downstream ancestry.
+7. For numerical convergence, vary controlled inputs against the quantity used in the scientific claim; require a stable tail or justified multidimensional study, and reject manually entered values that are not bound to audited input/output files.
+8. At each terminal technical event, emit an immutable pre-decision run manifest and hand privacy-safe cost evidence to `$dft-campaign-efficiency`; record later human acceptance or rejection only in a separate decision record and post-decision claim map.
 
 ## Establish provenance
 
@@ -82,7 +83,7 @@ For every decisive field:
 
 ## Produce the run handoff
 
-After a terminal calculation event, create `run_manifest.json` with the canonical [run manifest contract](../../contracts/run-manifest.schema.json):
+After a terminal calculation event, create `run_manifest.json` against the registered canonical `run-manifest@1.0` interface:
 
 ```bash
 python3 ../../tools/create_run_manifest.py \
@@ -92,7 +93,7 @@ python3 ../../tools/create_run_manifest.py \
   --out run_manifest.json
 ```
 
-Use an anonymized case id. Record unavailable metrics as null or omit optional properties; do not fabricate them. Send accepted or terminal records to `$dft-campaign-efficiency`. Send outputs requiring extraction or figures to `$dft-postprocess`.
+Use an anonymized case id. Use `status=completed` with `scientific_acceptance=not_assessed` or `requires_human_review`; planned, running, stopped, and failed records must remain `not_assessed`. Never rewrite this manifest to `accepted` or `rejected`. Those outcomes require the downstream `calculation-record-envelope → human decision-record → postdecision claim-evidence-map` chain and production bundle verification. Record unavailable metrics as null or omit optional properties; do not fabricate them. Send terminal cost records to `$dft-campaign-efficiency`, and send outputs requiring extraction or figures to `$dft-postprocess`.
 
 ## Maintain the official mirror
 

@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "lifecycle_notice": "Every claim_ceiling below is post-promotion potential only; current candidate reports must remain no_positive_claim and authorize neither promotion nor execution.",
+  "current_candidate_claim_ceiling": "no_positive_claim",
+  "candidate_promotion_authorized": false,
+  "candidate_execution_authorized": false,
+  "post_promotion_potential_claim_ceiling_field_scope": "future-only",
+  "profiles": {
+    "wavefunction-inventory": {
+      "maturity": "synthetic-validated",
+      "required_source_fields": [
+        "format",
+        "file.label",
+        "file.sha256",
+        "file.bytes",
+        "producer.software",
+        "producer.version",
+        "structure.fingerprint",
+        "structure.elements",
+        "electronic_state.charge",
+        "electronic_state.multiplicity",
+        "basis.representation",
+        "parent_calculation.record_id",
+        "parent_calculation.code",
+        "parent_calculation.code_version",
+        "parent_calculation.record_sha256",
+        "parent_calculation.evidence_projection_sha256",
+        "parent_calculation.acceptance"
+      ],
+      "required_transcript_events": [
+        "exact-banner",
+        "exact-update-date",
+        "load-success",
+        "main-menu",
+        "graceful-exit"
+      ],
+      "post_promotion_potential_claim_ceiling": "technical-source-load-and-menu-completion"
+    },
+    "atomic-charge-table": {
+      "maturity": "synthetic-validated",
+      "required_artifacts": ["electronic-wavefunction-source", "verified-wavefunction-bytes", "multiwfn_atomic_charges_v1"],
+      "required_checks": ["parent-projection", "wavefunction-hash-and-bytes", "atom-order", "finite-values", "declared-unit", "charge-closure"],
+      "post_promotion_potential_claim_ceiling": "technical-table-normalization-and-charge-closure"
+    },
+    "orbital-grid": {
+      "maturity": "design-only",
+      "blocker": "No exact menu transcript, grid-definition contract, real artifact, or GUI/noGUI compatibility regression is bundled.",
+      "post_promotion_potential_claim_ceiling": "none"
+    }
+  }
+}

@@ -1,0 +1,407 @@
+{
+  "schema_version": "1.0",
+  "software": "VASPKIT",
+  "documentation_series": "1.5",
+  "checked_date": "2026-07-18",
+  "scope": "Paraphrased task index from the official VASPKIT feature page; a listed task is not automatically recipe-verified or native-executed.",
+  "source_snapshot": {
+    "html_url": "https://vaspkit.com/features.html",
+    "raw_url": "https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/master/_sources/features.rst.txt",
+    "documentation_repository": "https://github.com/vaspkit/vaspkit.github.io",
+    "documentation_commit": "383a7103505b5b9436dedbf04df42ebb6e248638",
+    "raw_sha256": "454271ce1eab377a1a5539dab52e16b8aaec8e1413d0f739fa12840608772ccd"
+  },
+  "evidence_states": {
+    "official-feature-listed": "The task id and purpose were checked against the official feature page.",
+    "official-tutorial-recipe": "A concrete workflow is also summarized in calling-and-recipes.md.",
+    "documentation-conflict": "Two official pages disagree; inspect the exact binary menu before use.",
+    "native-not-run": "This repository has not executed the VASPKIT binary for the task."
+  },
+  "statistics": {
+    "feature_page_categories": 25,
+    "feature_page_tasks": 174,
+    "top_level_only_categories": 4
+  },
+  "categories": [
+    {
+      "id": "01",
+      "name": "VASP input preparation",
+      "tasks": {
+        "101": "Create or customize an INCAR template",
+        "102": "Generate an SCF KPOINTS mesh",
+        "103": "Assemble POTCAR with configured defaults",
+        "104": "Assemble POTCAR with user-selected potentials",
+        "105": "Convert CIF to POSCAR when fractional occupancy is absent",
+        "106": "Convert Materials Studio XSD to POSCAR while retaining fixed atoms",
+        "107": "Reorder species in POSCAR",
+        "108": "Run the sequential VASP-input generation and checking workflow",
+        "109": "Submit a job queue according to the feature page"
+      }
+    },
+    {
+      "id": "02",
+      "name": "Mechanical properties",
+      "tasks": {
+        "200": "Obtain elastic constants with stress-strain calculations",
+        "201": "Obtain elastic constants with energy-strain calculations",
+        "202": "Derive mechanical properties from ELASTIC_TENSOR or ELASTIC_TENSOR_2D input",
+        "203": "Derive elastic constants and mechanical properties from OUTCAR",
+        "204": "Evaluate direction-dependent mechanical properties from an elastic tensor",
+        "205": "Fit an equation of state"
+      }
+    },
+    {
+      "id": "03",
+      "name": "Band-structure k paths",
+      "tasks": {
+        "301": "Generate a path for a one-dimensional structure",
+        "302": "Generate a path for a two-dimensional structure",
+        "303": "Generate a path for a bulk structure",
+        "304": "Generate a Wannier90 k path",
+        "305": "Generate a Phonopy k path",
+        "306": "Generate a CP2K k path",
+        "309": "Visualize a k path in the first Brillouin zone"
+      }
+    },
+    {
+      "id": "04",
+      "name": "Structure editing",
+      "tasks": {
+        "400": "Redefine the lattice with a transformation matrix",
+        "401": "Build a supercell",
+        "402": "Mark selected atoms as fixed",
+        "403": "Move selected atoms",
+        "404": "Delete selected atoms",
+        "405": "Swap lattice-vector axes",
+        "406": "Sort coordinates along a selected direction",
+        "407": "Apply random displacements to selected atoms",
+        "408": "Rotate selected atoms around an axis",
+        "409": "Insert an atom at a specified position",
+        "410": "Substitute selected atoms",
+        "411": "Copy selected atoms from another structure",
+        "412": "Convert fractional and Cartesian coordinates",
+        "416": "Export CIF",
+        "417": "Export PDB",
+        "418": "Export XSF",
+        "419": "Export XYZ"
+      }
+    },
+    {
+      "id": "05",
+      "name": "Catalysis and electrochemistry",
+      "tasks": {
+        "501": "Evaluate thermal corrections for an adsorbate",
+        "502": "Evaluate thermal corrections for a gas molecule",
+        "503": "Evaluate a band center using the documented experimental routine",
+        "504": "Convert an NEB path to PDB for animation",
+        "505": "Linearly interpolate NEB images",
+        "507": "Apply the documented imaginary-frequency correction",
+        "508": "Convert Bader charges to PQR for VMD display",
+        "509": "Evaluate the half-life of a first-order reaction"
+      }
+    },
+    {
+      "id": "06",
+      "name": "Symmetry",
+      "tasks": {
+        "601": "Determine crystal symmetry",
+        "602": "Find a primitive cell",
+        "603": "Find a standard conventional cell",
+        "604": "Find symmetrically equivalent atoms according to the feature page",
+        "608": "Summarize symmetry of a relaxed structure",
+        "609": "Determine molecular or cluster symmetry"
+      }
+    },
+    {
+      "id": "07",
+      "name": "Materials databases",
+      "tasks": {
+        "702": "Access the documented 2D monolayer semiconductor data",
+        "705": "Access the documented 2D semiconductor heterostructure data"
+      }
+    },
+    {
+      "id": "08",
+      "name": "Advanced structure models",
+      "tasks": {
+        "800": "Build an orthogonal supercell",
+        "801": "Add vacuum along a selected direction",
+        "802": "Build a random substitutional alloy",
+        "803": "Build a surface from Miller indices",
+        "804": "Build a heterostructure from two slabs",
+        "808": "Build a nanotube from an orthogonal slab",
+        "821": "Build symmetry-distinct vacancy defects",
+        "822": "Build symmetry-distinct substitution defects",
+        "825": "Build a hexagonal moire superlattice",
+        "826": "Build a nanoribbon from a chiral vector",
+        "827": "Build a nanotube from a chiral vector"
+      }
+    },
+    {
+      "id": "11",
+      "name": "Density of states",
+      "tasks": {
+        "111": "Extract total and integrated DOS",
+        "112": "Extract atom-resolved PDOS for selected atoms",
+        "113": "Extract element-resolved PDOS",
+        "114": "Sum PDOS over selected atoms",
+        "115": "Sum PDOS over selected atoms and orbitals",
+        "116": "Extract element-resolved local DOS",
+        "117": "Derive total DOS from EIGENVAL",
+        "118": "Derive projected DOS from EIGENVAL and PROCAR",
+        "119": "Select projected DOS by k-point indices",
+        "120": "Select projected DOS by band indices",
+        "123": "Create a 3D spatially resolved DOS over an energy window",
+        "124": "Create a 3D spatially resolved magnetic DOS over an energy window",
+        "125": "Create a plane-averaged spatial DOS",
+        "126": "Create a plane-averaged spatial magnetic DOS"
+      }
+    },
+    {
+      "id": "21",
+      "name": "Band structure",
+      "tasks": {
+        "211": "Extract a conventional band structure",
+        "212": "Extract projected bands for one selected atom",
+        "213": "Extract projected bands for each element",
+        "214": "Sum projected bands over selected atoms",
+        "215": "Express projected bands as element weights",
+        "216": "Sum projected bands over selected atoms and orbitals"
+      }
+    },
+    {
+      "id": "23",
+      "name": "Three-dimensional band structure",
+      "tasks": {
+        "231": "Generate KPOINTS for a 3D band surface",
+        "232": "Extract a 3D band surface for a two-dimensional material",
+        "233": "Extract HOMO and LUMO 3D band surfaces for ISPIN=1"
+      }
+    },
+    {
+      "id": "25",
+      "name": "Hybrid-functional band structure",
+      "tasks": {
+        "250": "Generate KPOINTS containing an irreducible mesh and band-edge points",
+        "251": "Generate KPOINTS for a hybrid-functional band calculation",
+        "252": "Extract a hybrid-functional band structure",
+        "253": "Extract a hybrid projected band for one atom",
+        "254": "Extract hybrid projected bands by element",
+        "255": "Sum hybrid projected bands over selected atoms",
+        "256": "Express hybrid projected bands as element weights",
+        "257": "Sum hybrid projected bands over selected atoms and orbitals"
+      }
+    },
+    {
+      "id": "26",
+      "name": "Fermi surfaces",
+      "tasks": {
+        "261": "Generate KPOINTS for a Fermi-surface calculation",
+        "262": "Export a Fermi surface for XCrySDen",
+        "263": "Export a Fermi surface for FermiSurfer",
+        "264": "Export a projected Fermi surface for FermiSurfer",
+        "265": "Sum projected Fermi-surface weights over atoms and orbitals",
+        "266": "Create a Fermi surface for a two-dimensional material",
+        "267": "Create a projected Fermi surface for a two-dimensional material"
+      }
+    },
+    {
+      "id": "28",
+      "name": "Band unfolding",
+      "tasks": {
+        "281": "Generate KPOINTS for band unfolding",
+        "282": "Extract an effective band structure",
+        "283": "Extract an atom-selected orbital-projected effective band structure",
+        "284": "Extract an element-resolved orbital-projected effective band structure",
+        "285": "Sum orbital-projected effective bands over selected atoms and orbitals"
+      }
+    },
+    {
+      "id": "31",
+      "name": "Charge-density analysis",
+      "tasks": {
+        "310": "Create a two-dimensional charge-density slice",
+        "311": "Export charge density",
+        "312": "Export spin density",
+        "313": "Separate spin-up and spin-down density",
+        "314": "Compute a charge-density difference",
+        "315": "Compute a two-dimensional line average of charge density",
+        "316": "Compute a one-dimensional planar average of charge density",
+        "317": "Compute a one-dimensional macroscopic average of charge density",
+        "318": "Sample charge density along a path",
+        "320": "Build a charge-density supercell with a transformation matrix",
+        "325": "Prepare a scanning-tunneling-microscopy simulation",
+        "328": "Export CHGCAR or PARCHG to XSF",
+        "329": "Export CHGCAR or PARCHG to Gaussian cube"
+      }
+    },
+    {
+      "id": "42",
+      "name": "Potential analysis",
+      "tasks": {
+        "420": "Create a two-dimensional potential slice",
+        "422": "Compute a two-dimensional line average of potential",
+        "425": "Sample potential along a path",
+        "426": "Compute a one-dimensional planar average of potential",
+        "427": "Compute a one-dimensional macroscopic average of potential",
+        "428": "Export LOCPOT or ELFCAR to XSF",
+        "429": "Export LOCPOT or ELFCAR to Gaussian cube",
+        "430": "Build a potential supercell with a transformation matrix"
+      }
+    },
+    {
+      "id": "51",
+      "name": "Wave-function analysis",
+      "tasks": {
+        "511": "Export a real-space wave function in CHGCAR format",
+        "512": "Export a real-space wave function in cube format",
+        "513": "Evaluate wave-function parity with the documented experimental routine",
+        "515": "Export squared wave function in CHGCAR format",
+        "516": "Export squared wave function in cube format"
+      }
+    },
+    {
+      "id": "62",
+      "name": "Magnetic properties",
+      "tasks": {
+        "621": "Evaluate magnetic anisotropy energy"
+      }
+    },
+    {
+      "id": "65",
+      "name": "Spin texture",
+      "tasks": {
+        "651": "Generate KPOINTS for spin texture",
+        "652": "Extract a selected-band spin texture for a 2D SOC calculation",
+        "653": "Extract a selected-band spin texture for a bulk SOC calculation"
+      }
+    },
+    {
+      "id": "68",
+      "name": "Transport",
+      "tasks": {
+        "681": "Generate KPOINTS for a transport calculation",
+        "682": "Evaluate transport properties with the documented Boltzmann route"
+      }
+    },
+    {
+      "id": "71",
+      "name": "Optical properties",
+      "tasks": {
+        "710": "Extract linear optical spectra for a two-dimensional semiconductor",
+        "711": "Extract linear optical spectra for a bulk semiconductor",
+        "713": "Evaluate a transition dipole moment from WAVECAR",
+        "714": "Evaluate dipole-moment elements from WAVEDER",
+        "716": "Evaluate total joint density of states",
+        "717": "Evaluate partial joint density of states",
+        "719": "Evaluate spectroscopic limited maximum efficiency"
+      }
+    },
+    {
+      "id": "72",
+      "name": "Molecular-dynamics analysis",
+      "tasks": {
+        "721": "Compute mean-squared displacement",
+        "722": "Compute mean-squared displacement with the documented FFT route",
+        "723": "Derive diffusion coefficient and ionic mobility from MSD data",
+        "725": "Compute a pair-correlation function from PCDAT",
+        "726": "Compute a radial-distribution function for selected elements",
+        "727": "Compute a velocity autocorrelation function",
+        "728": "Derive vibrational DOS from a velocity autocorrelation function",
+        "730": "Compute a bond-length distribution for selected elements",
+        "731": "Compute a bond-angle distribution for selected elements",
+        "736": "Export selected-atom MD frames as POSCAR files",
+        "737": "Export selected-atom MD frames as PDB"
+      }
+    },
+    {
+      "id": "78",
+      "name": "VASP interfaces",
+      "tasks": {
+        "781": "Prepare the documented VASP-to-BoltzTraP interface",
+        "788": "Normalize traces of interatomic force-constant tensors",
+        "789": "Sort a Phonopy band structure"
+      }
+    },
+    {
+      "id": "91",
+      "name": "Semiconductor analysis",
+      "tasks": {
+        "911": "Extract a band gap",
+        "912": "Evaluate carrier effective mass with the documented experimental workflow",
+        "913": "Evaluate HOMO and LUMO effective masses for ISPIN=1",
+        "914": "Evaluate direction-dependent effective mass and Fermi velocity",
+        "917": "Evaluate Fermi velocity"
+      }
+    },
+    {
+      "id": "92",
+      "name": "Two-dimensional materials",
+      "tasks": {
+        "920": "Move an atomic layer to the bottom along z",
+        "921": "Center an atomic layer along z",
+        "922": "Resize vacuum thickness",
+        "923": "Standardize a 2D crystal cell",
+        "926": "Evaluate stacking-dependent potential energy",
+        "927": "Reference 2D band edges to the vacuum level",
+        "929": "Summarize a relaxed 2D structure"
+      }
+    }
+  ],
+  "top_level_only_categories": [
+    {
+      "id": "44",
+      "name": "Piezoelectric properties",
+      "status": "Listed in the official 1.5 top-level menu, but the feature page used for this snapshot does not enumerate child tasks."
+    },
+    {
+      "id": "74",
+      "name": "User interface",
+      "status": "Listed in the official 1.5 top-level menu, but the feature page used for this snapshot does not enumerate child tasks."
+    },
+    {
+      "id": "84",
+      "name": "ABACUS interface",
+      "status": "Listed in the official 1.5 top-level menu, but the feature page used for this snapshot does not enumerate child tasks."
+    },
+    {
+      "id": "95",
+      "name": "Phonon analysis",
+      "status": "Listed in the official 1.5 top-level menu, but the feature page used for this snapshot does not enumerate child tasks."
+    }
+  ],
+  "supplemental_tutorial_tasks": {
+    "712": "The official tutorial shows a single-k-point transition-dipole task, but task 712 is absent from the official feature-page catalog snapshot."
+  },
+  "documentation_conflicts": [
+    {
+      "task": "109",
+      "feature_page": "Submit a job queue",
+      "tutorial_page": "Check all VASP files",
+      "required_action": "Inspect the exact binary menu and help output; do not automate this task from the documentation label alone."
+    },
+    {
+      "task": "604",
+      "feature_page": "Find symmetrically equivalent atoms",
+      "tutorial_page": "Standardize a crystal cell",
+      "required_action": "Inspect the exact binary menu and transcript before choosing 604."
+    },
+    {
+      "task": "710-713",
+      "feature_page": "Separates 2D/bulk spectra and assigns 713 to a WAVECAR transition-dipole route",
+      "tutorial_page": "Shows 711 as linear spectra, 712 as single-k-point transition dipole, and 713 as band-path transition dipole",
+      "required_action": "Treat optical task numbers as version-sensitive and confirm against the installed binary."
+    },
+    {
+      "task": "926",
+      "feature_page": "Stacking-dependent potential energy",
+      "tutorial_page": "Elastic constants for 2D materials",
+      "required_action": "Inspect the exact binary menu and transcript before choosing task 926."
+    }
+  ],
+  "native_validation": {
+    "state": "not_run",
+    "checked_environment_date": "2026-07-18",
+    "reason": "No vaspkit executable was found in the maintainer machine PATH. Catalog and recipes are documentation-grounded only until a licensed, compatible binary is explicitly supplied and exercised."
+  }
+}

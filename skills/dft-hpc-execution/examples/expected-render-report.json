@@ -1,0 +1,14 @@
+{
+  "command": "render-dry-run",
+  "expected_exit_code": 0,
+  "expected_status": "pass",
+  "dry_run": true,
+  "side_effect_performed": false,
+  "external_execution_performed": false,
+  "lease_consumed": false,
+  "workflow_event_emitted": false,
+  "scheduler_job_id": null,
+  "expected_submission_argv": ["sbatch", "synthetic-job.sh"],
+  "expected_claim_ceiling": "no_positive_claim",
+  "scientific_acceptance": "not_assessed"
+}

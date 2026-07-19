@@ -1,0 +1,64 @@
+schema_version: "1.0"
+profiles:
+  multiwfn-2026.7.15-linux-full:
+    version: "2026.7.15"
+    manual_version: "2026.7.10"
+    update_date_banner: "2026-Jul-15"
+    platform: linux-x86_64
+    distribution: official-full-binary
+    official_source: official-download
+    execution_supported: false
+    planning_supported: true
+    gui_capability: distribution-available-but-native-not-run
+    transcript_audit_maturity: design-only
+    blocker: "No authorized exact-binary full-build regression or redistributable real fixture has been validated."
+  multiwfn-2026.7.15-linux-nogui:
+    version: "2026.7.15"
+    manual_version: "2026.7.10"
+    update_date_banner: "2026-Jul-15"
+    platform: "linux-x86_64"
+    distribution: "official-noGUI-binary"
+    official_source: official-download
+    execution_supported: false
+    planning_supported: true
+    transcript_audit_maturity: synthetic-validated
+    required_banner_sentinels:
+      - "Multiwfn -- A Multifunctional Wavefunction Analyzer"
+      - "update date: 2026-Jul-15"
+    notes:
+      - "The candidate never launches the binary; execution remains blocked pending an authorized real noGUI regression."
+      - "noGUI omits graph-related functionality and cannot be treated as the full GUI distribution."
+  multiwfn-2026.7.15-windows:
+    version: "2026.7.15"
+    manual_version: "2026.7.10"
+    update_date_banner: "2026-Jul-15"
+    platform: windows-x86_64
+    distribution: official-windows-binary
+    official_source: official-download
+    execution_supported: false
+    planning_supported: true
+    transcript_audit_maturity: design-only
+    blocker: "No authorized exact-binary Windows regression or redistributable real fixture has been validated."
+  multiwfn-community-macos:
+    version: unverified
+    platform: macos
+    distribution: community-build
+    official_source: official-download
+    execution_supported: false
+    planning_supported: false
+    transcript_audit_maturity: design-only
+    blocker: "The official site states that the macOS build is community maintained and may not match the current version."
+compatibility_policy:
+  exact_profile_only: true
+  reject_unknown_or_development_banner: true
+  reject_cross_platform_substitution: true
+  profile_selection_never_inferred_from_filename: true
+  program_manual_pair:
+    program: "2026.7.15"
+    manual: "2026.7.10"
+  native_validation:
+    checked_date: "2026-07-19"
+    platform: Darwin-arm64
+    state: not-run
+    executable_names_resolved: []
+    banner_help_examples_executed: false

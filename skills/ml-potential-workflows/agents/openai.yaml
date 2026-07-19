@@ -1,0 +1,4 @@
+interface:
+  display_name: "Machine-Learned Potential Workflows"
+  short_description: "Audit ML potential datasets, models, and deployment"
+  default_prompt: "Use $ml-potential-workflows to audit this ML-potential dataset, training plan, model, evaluation, or deployment evidence without running a provider."

@@ -1,0 +1,47 @@
+{
+  "engine": "gpumd",
+  "pin": {
+    "commit": "f2b46c5d528e985a5bf68becd442b18c0e04396c",
+    "release_date": "2026-05-15",
+    "version": "5.3"
+  },
+  "reviewed_on": "2026-07-19",
+  "sources": [
+    {
+      "authority": "GPUMD official versioned repository",
+      "purpose": "exact source, bundled manual, build/run instructions, version banner, completion markers, restart writer, and license",
+      "url": "https://github.com/brucefan1983/GPUMD/tree/f2b46c5d528e985a5bf68becd442b18c0e04396c"
+    },
+    {
+      "authority": "GPUMD official v5.3 release",
+      "purpose": "tag, release date, and compute_phonon correction notice",
+      "url": "https://github.com/brucefan1983/GPUMD/releases/tag/v5.3"
+    },
+    {
+      "authority": "GPUMD v5.3 README",
+      "purpose": "make in src; generated gpumd/nep executables; no-argument path/to/gpumd invocation from an example directory",
+      "url": "https://github.com/brucefan1983/GPUMD/blob/f2b46c5d528e985a5bf68becd442b18c0e04396c/README.md"
+    },
+    {
+      "authority": "GPUMD v5.3 executable source",
+      "purpose": "normal-run version 5.3, start, timing, and finish markers; no documented side-effect-free version CLI",
+      "url": "https://github.com/brucefan1983/GPUMD/blob/f2b46c5d528e985a5bf68becd442b18c0e04396c/src/main_gpumd/main.cu"
+    },
+    {
+      "authority": "GPUMD v5.3 bundled documentation",
+      "purpose": "model.xyz, run.in, units, velocity, timestep, ensemble, dump_thermo, dump_restart, dump_xyz, LJ, output, and restart semantics",
+      "url": "https://github.com/brucefan1983/GPUMD/tree/f2b46c5d528e985a5bf68becd442b18c0e04396c/doc"
+    },
+    {
+      "authority": "GPUMD official rolling installation documentation",
+      "purpose": "current CUDA and ROCm/HIP environment discovery and the make -f makefile.hip command; rolling content cannot by itself prove v5.3 behavior, while the exact v5.3 tag confirms that the referenced makefile exists",
+      "url": "https://gpumd.org/installation.html"
+    }
+  ],
+  "native_validation": {
+    "gpumd_executable_available": false,
+    "host": "Darwin arm64",
+    "supported_gpu_stack_available": false
+  },
+  "trust_policy": "Exact tag/commit source and bundled documentation take precedence over rolling website pages; a documented command is not a native execution claim."
+}

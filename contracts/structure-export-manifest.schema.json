@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:structure-export-manifest:1.0",
+  "title": "Traceable structure format export and round-trip evidence",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "export_id",
+  "$comment": "Draft validation establishes structural conformance only. Every x-vibe-semantic-obligations entry must be evaluated externally; a failed or unresolved obligation blocks the listed calculation use and positive claims.",
+  "x-vibe-semantic-obligations": [
+    {
+      "finding_id": "structure-export-source-hash-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "The source snapshot and every transformation reference resolve to content matching the declared record hash and form a valid ancestry chain.",
+      "evidence_required": ["resolved-source-snapshot", "resolved-transformations", "resolved-record-sha256", "ancestry-chain"]
+    },
+    {
+      "finding_id": "structure-export-file-hash-mismatch",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Every export file exists and its observed byte count and SHA-256 match the manifest before parsing or downstream use.",
+      "evidence_required": ["observed-file-bytes", "observed-file-sha256"]
+    },
+    {
+      "finding_id": "structure-export-output-index-not-unique",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "output_index values are unique and contiguous from zero through exported atom count minus one.",
+      "evidence_required": ["declared-output-index-sequence", "parsed-output-atom-count"]
+    },
+    {
+      "finding_id": "structure-export-atom-map-incomplete",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Atom order mapping covers every parsed output atom exactly once, every source_site_id exists, and omissions or duplications are explicitly supported by transformation lineage and loss codes.",
+      "evidence_required": ["source-site-id-set", "parsed-output-atom-order", "atom-order-bijection", "declared-loss-codes"]
+    },
+    {
+      "finding_id": "structure-export-unit-map-inconsistent",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "The parsed target representation uses the declared unit and the conversion factor reproduces exported coordinates and cell values within an explicit tolerance.",
+      "evidence_required": ["parsed-target-unit", "source-coordinates", "exported-coordinates", "conversion-factor", "unit-conversion-residuals"]
+    },
+    {
+      "finding_id": "structure-export-target-profile-mismatch",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Parsed format, code identity, coordinate representation, cell representation, and atom labels conform to the registered code profile.",
+      "evidence_required": ["parsed-format-identity", "registered-code-profile", "profile-conformance-report"]
+    },
+    {
+      "finding_id": "structure-export-roundtrip-fingerprint-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Re-imported structure fingerprints and coordinate, cell, occupancy, constraint, and ordering diffs support the declared roundtrip classification and tolerance.",
+      "evidence_required": ["source-structure-fingerprint", "reconstructed-structure-fingerprint", "roundtrip-diff", "comparison-tolerance"]
+    },
+    {
+      "finding_id": "structure-export-loss-undisclosed",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Every target-format loss of occupancy, disorder, constraints, labels, precision, cell, or site identity is represented by a stable loss code and prevents an exact classification.",
+      "evidence_required": ["source-target-capability-diff", "roundtrip-diff", "declared-loss-codes"]
+    },
+    {
+      "finding_id": "record-reference-dag-invalid",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Every recordRef resolves to an already existing bundle-local UTF-8 JSON target by exact raw-byte SHA-256; self-reference, forward or back edges outside the declared topological order, cycles, and upstream references to post-record validation, claim, or decision records are forbidden.",
+      "evidence_required": ["bundle-record-index", "raw-byte-sha256-check", "record-reference-dag-topological-order"]
+    }
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "export_id",
+    "snapshot_ref",
+    "transformation_refs",
+    "target",
+    "export_files",
+    "atom_order_mapping",
+    "unit_mapping",
+    "code_profile_id",
+    "roundtrip_validation",
+    "calculation_use",
+    "validation",
+    "maturity",
+    "provenance",
+    "limitations",
+    "extension_refs"
+  ],
+  "properties": {
+    "contract_name": {"const": "structure-export-manifest"},
+    "schema_version": {"const": "1.0"},
+    "export_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "snapshot_ref": {"$ref": "#/$defs/snapshotRef"},
+    "transformation_refs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/transformationRef"}
+    },
+    "target": {"$ref": "#/$defs/target"},
+    "export_files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"
+          },
+          {"properties": {"availability": {"const": "present"}}}
+        ]
+      }
+    },
+    "atom_order_mapping": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/atomOrder"}
+    },
+    "unit_mapping": {"$ref": "#/$defs/unitMapping"},
+    "code_profile_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "roundtrip_validation": {"$ref": "#/$defs/roundtrip"},
+    "calculation_use": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/readiness"
+    },
+    "validation": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"
+    },
+    "maturity": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/maturity"
+    },
+    "provenance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "extension_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "roundtrip_validation": {
+            "properties": {
+              "classification": {"enum": ["lossy", "not-assessed", "failed"]}
+            },
+            "required": ["classification"]
+          }
+        },
+        "required": ["roundtrip_validation"]
+      },
+      "then": {
+        "properties": {
+          "calculation_use": {
+            "properties": {
+              "status": {"enum": ["blocked", "not-assessed", "requires-decision"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculation_use": {
+            "properties": {"status": {"const": "ready"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["calculation_use"]
+      },
+      "then": {
+        "properties": {
+          "roundtrip_validation": {
+            "properties": {
+              "classification": {"enum": ["exact", "equivalent-with-tolerance"]}
+            }
+          },
+          "validation": {"properties": {"status": {"const": "pass"}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "snapshotRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {"properties": {"contract_name": {"const": "structure-snapshot"}}}
+      ]
+    },
+    "transformationRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {
+          "properties": {
+            "contract_name": {"const": "structure-transformation-manifest"}
+          }
+        }
+      ]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "format_version",
+        "target_code",
+        "coordinate_representation",
+        "cell_representation"
+      ],
+      "properties": {
+        "format": {
+          "enum": [
+            "cif",
+            "xyz",
+            "extxyz",
+            "poscar",
+            "qe-input-fragment",
+            "cp2k-coordinate-fragment",
+            "siesta-structure-fragment",
+            "gaussian-geometry",
+            "gromacs-gro",
+            "lammps-data",
+            "other-registered"
+          ]
+        },
+        "format_version": {"type": ["string", "null"], "minLength": 1},
+        "target_code": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        },
+        "coordinate_representation": {"enum": ["cartesian", "fractional", "mixed"]},
+        "cell_representation": {"enum": ["explicit", "implicit", "not-applicable"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"format": {"const": "poscar"}}, "required": ["format"]},
+          "then": {"properties": {"target_code": {"const": "vasp"}}}
+        },
+        {
+          "if": {"properties": {"format": {"const": "qe-input-fragment"}}, "required": ["format"]},
+          "then": {"properties": {"target_code": {"const": "qe"}}}
+        },
+        {
+          "if": {"properties": {"format": {"const": "cp2k-coordinate-fragment"}}, "required": ["format"]},
+          "then": {"properties": {"target_code": {"const": "cp2k"}}}
+        },
+        {
+          "if": {"properties": {"format": {"const": "siesta-structure-fragment"}}, "required": ["format"]},
+          "then": {"properties": {"target_code": {"const": "siesta"}}}
+        },
+        {
+          "if": {"properties": {"format": {"const": "gaussian-geometry"}}, "required": ["format"]},
+          "then": {"properties": {"target_code": {"const": "gaussian"}}}
+        },
+        {
+          "if": {"properties": {"format": {"const": "gromacs-gro"}}, "required": ["format"]},
+          "then": {"properties": {"target_code": {"const": "gromacs"}}}
+        },
+        {
+          "if": {"properties": {"format": {"const": "lammps-data"}}, "required": ["format"]},
+          "then": {"properties": {"target_code": {"const": "lammps"}}}
+        }
+      ]
+    },
+    "atomOrder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["output_index", "output_label", "source_site_id"],
+      "properties": {
+        "output_index": {"type": "integer", "minimum": 0},
+        "output_label": {"type": "string", "minLength": 1, "maxLength": 128},
+        "source_site_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        }
+      }
+    },
+    "unitMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_length_unit", "output_length_unit", "conversion_factor"],
+      "properties": {
+        "input_length_unit": {"const": "angstrom"},
+        "output_length_unit": {"type": "string", "minLength": 1},
+        "conversion_factor": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "roundtrip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "reconstructed_snapshot_ref",
+        "tolerance_ang",
+        "evidence_refs",
+        "loss_codes"
+      ],
+      "properties": {
+        "classification": {
+          "enum": ["exact", "equivalent-with-tolerance", "lossy", "not-assessed", "failed"]
+        },
+        "reconstructed_snapshot_ref": {
+          "oneOf": [{"$ref": "#/$defs/snapshotRef"}, {"type": "null"}]
+        },
+        "tolerance_ang": {"type": ["number", "null"], "minimum": 0},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        },
+        "loss_codes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"classification": {"const": "exact"}}, "required": ["classification"]},
+          "then": {
+            "properties": {
+              "reconstructed_snapshot_ref": {"$ref": "#/$defs/snapshotRef"},
+              "tolerance_ang": {"const": 0},
+              "evidence_refs": {"minItems": 1},
+              "loss_codes": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"classification": {"const": "equivalent-with-tolerance"}}, "required": ["classification"]},
+          "then": {
+            "properties": {
+              "reconstructed_snapshot_ref": {"$ref": "#/$defs/snapshotRef"},
+              "tolerance_ang": {"type": "number", "exclusiveMinimum": 0},
+              "evidence_refs": {"minItems": 1},
+              "loss_codes": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"classification": {"enum": ["lossy", "not-assessed", "failed"]}},
+            "required": ["classification"]
+          },
+          "then": {"properties": {"loss_codes": {"minItems": 1}}}
+        }
+      ]
+    }
+  }
+}

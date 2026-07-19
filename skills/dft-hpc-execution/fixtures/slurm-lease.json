@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "execution-lease",
+  "lease_id": "synthetic-lease-001",
+  "request_ref": {
+    "contract_name": "execution-request",
+    "schema_version": "1.0",
+    "record_id": "synthetic-request-001",
+    "sha256": "2f3b097946996c5483dec801b00a11d115fae62979a0ebfd2633d637ead18034",
+    "role": "execution-request"
+  },
+  "authorization_decision_ref": {
+    "contract_name": "decision-record",
+    "schema_version": "1.0",
+    "record_id": "synthetic-decision-001",
+    "sha256": "c234776a4dfa92eac9522b49c5fdb7b61e4668ab70b86d3795240e84f676ea3a",
+    "role": "execution-authorization"
+  },
+  "issued_by": {
+    "actor_type": "deterministic-tool",
+    "actor_id": "synthetic-lease-issuer",
+    "role": "lease-issuer"
+  },
+  "issued_utc": "2026-07-18T23:00:00Z",
+  "expires_utc": "2026-07-19T12:00:00Z",
+  "lease_duration_s": 46800,
+  "status": "active",
+  "single_use": true,
+  "grant": {
+    "side_effects": ["scheduler-submit"],
+    "environment_profile_ids": ["synthetic-qe-env-001"],
+    "scheduler_profile_ids": ["synthetic-slurm-001"],
+    "argv_sha256": "1997d88a6f1e3cc71dcce9c203fea6d5c2293379fb613d10f9740c5d2e52a9ce",
+    "input_sha256": ["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],
+    "output_labels": ["qe-output.log"],
+    "resource_ceiling": {
+      "nodes": 1,
+      "mpi_ranks": 1,
+      "threads_per_rank": 1,
+      "gpus": 0,
+      "memory_mb": 4096,
+      "walltime_s": 900
+    },
+    "maximum_executions": 1
+  },
+  "constraints": ["Synthetic candidate fixture; no submission or execution is permitted."],
+  "producer": {
+    "skill_id": "dft-hpc-execution",
+    "skill_version": "0.1.0-candidate",
+    "tool_id": "synthetic-lease-issuer",
+    "tool_version": "1.0",
+    "generated_utc": "2026-07-18T23:00:00Z"
+  }
+}

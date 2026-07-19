@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "engine": "gromacs",
+  "findings": {
+    "GROMACS.PLAN.MISSING_FIELD": {"gate": "claim_definition", "severity": "critical"},
+    "GROMACS.VERSION.UNSUPPORTED": {"gate": "official_version_match", "severity": "critical"},
+    "GROMACS.UNITS.MISMATCH": {"gate": "units_boundary_and_pbc", "severity": "critical"},
+    "GROMACS.INPUT.DUPLICATE_MDP_KEY": {"gate": "input_integrity", "severity": "critical"},
+    "GROMACS.INPUT.UNSUPPORTED_MDP_KEY": {"gate": "input_integrity", "severity": "critical"},
+    "GROMACS.TOPOLOGY.INCLUDE_ESCAPE": {"gate": "system_topology_integrity", "severity": "critical"},
+    "GROMACS.TOPOLOGY.INCLUDE_CYCLE": {"gate": "system_topology_integrity", "severity": "critical"},
+    "GROMACS.TOPOLOGY.INCLUDE_UNRESOLVED": {"gate": "system_topology_integrity", "severity": "critical"},
+    "GROMACS.PROVENANCE.HASH_MISMATCH": {"gate": "model_forcefield_provenance", "severity": "critical"},
+    "GROMACS.PROVENANCE.LICENSE_UNRESOLVED": {"gate": "model_forcefield_provenance", "severity": "critical"},
+    "GROMACS.INPUT.ATOM_COUNT_MISMATCH": {"gate": "system_topology_integrity", "severity": "critical"},
+    "GROMACS.INPUT.ENSEMBLE_MISMATCH": {"gate": "integrator_and_coupling_definition", "severity": "critical"},
+    "GROMACS.INPUT.SEED_POLICY": {"gate": "initial_state_and_seed", "severity": "critical"},
+    "GROMACS.RESTART.LINEAGE_MISSING": {"gate": "restart_lineage", "severity": "critical"},
+    "GROMACS.OUTPUT.VERSION_MISMATCH": {"gate": "execution_completion", "severity": "critical"},
+    "GROMACS.OUTPUT.TRUNCATED_OR_CONCATENATED": {"gate": "execution_completion", "severity": "critical"},
+    "GROMACS.OUTPUT.ADVERSE_MARKER": {"gate": "output_warnings", "severity": "critical"},
+    "GROMACS.OUTPUT.STEP_MISMATCH": {"gate": "execution_completion", "severity": "critical"},
+    "GROMACS.SAMPLING.INSUFFICIENT_ESS": {"gate": "sampling_sufficiency", "severity": "critical"},
+    "GROMACS.SAMPLING.UNCERTAINTY_EXCEEDED": {"gate": "statistical_convergence", "severity": "critical"},
+    "GROMACS.TRAJECTORY.UNSUPPORTED_FORMAT": {"gate": "trajectory_integrity", "severity": "critical"},
+    "GROMACS.TRAJECTORY.FRAME_INVALID": {"gate": "trajectory_integrity", "severity": "critical"},
+    "GROMACS.TRAJECTORY.TIME_NONMONOTONIC": {"gate": "trajectory_integrity", "severity": "critical"},
+    "GROMACS.TRAJECTORY.SITE_ORDER_MISMATCH": {"gate": "trajectory_integrity", "severity": "critical"},
+    "GROMACS.CLAIM.PHYSICAL_VALIDITY_UNASSESSED": {"gate": "model_physical_validity", "severity": "critical"}
+  }
+}

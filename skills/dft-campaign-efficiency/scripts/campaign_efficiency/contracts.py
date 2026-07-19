@@ -1,10 +1,20 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
+import sys
 
-from jsonschema import Draft202012Validator, FormatChecker
-import yaml
+
+for _parent in Path(__file__).resolve().parents:
+    if _parent.joinpath("tools", "registry_snapshot.py").is_file():
+        _tools = str(_parent / "tools")
+        if _tools not in sys.path:
+            sys.path.insert(0, _tools)
+        break
+else:  # pragma: no cover - installation layout is checked by the caller
+    raise RuntimeError("cannot locate shared registry snapshot loader")
+
+from registry_snapshot import RegistrySnapshot, load_registry_snapshot  # noqa: E402
+from validate_contract import validation_errors as catalog_validation_errors  # noqa: E402
 
 
 SCHEMAS = {
@@ -22,20 +32,16 @@ def repo_root() -> Path:
     raise RuntimeError("cannot locate Vibe-DFT-Skills repository root")
 
 
-def calculation_codes() -> tuple[str, ...]:
-    path = repo_root() / "registry" / "software-registry.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    software = data.get("software") if isinstance(data, dict) else None
-    if not isinstance(software, dict) or not software:
-        raise ValueError("software registry must contain a nonempty software mapping")
-    return tuple(software)
+def calculation_codes(snapshot: RegistrySnapshot | None = None) -> tuple[str, ...]:
+    selected = snapshot or load_registry_snapshot(repo_root())
+    return selected.calculation_codes()
 
 
 def errors(kind: str, value: object) -> list[str]:
-    schema = json.loads((repo_root() / "contracts" / SCHEMAS[kind]).read_text(encoding="utf-8"))
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
-    failures = []
-    for error in sorted(validator.iter_errors(value), key=lambda item: list(item.absolute_path)):
-        location = "/".join(str(part) for part in error.absolute_path) or "<root>"
-        failures.append(f"{location}: {error.message}")
-    return failures
+    if kind not in SCHEMAS:
+        return [f"<selector>: unknown campaign contract kind {kind!r}"]
+    return catalog_validation_errors(
+        kind,
+        value,
+        repo_root() / "contracts",
+    )

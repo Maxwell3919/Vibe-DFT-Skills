@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "findings": [
+    {"code": "HPC.JSON.INVALID", "severity": "critical", "meaning": "Input is not one bounded stable strict JSON object.", "next_action": "Replace the first malformed input."},
+    {"code": "HPC.REQUEST.INVALID", "severity": "critical", "meaning": "Execution request identity or required field is invalid.", "next_action": "Regenerate the immutable request."},
+    {"code": "HPC.COMMAND.UNSAFE", "severity": "critical", "meaning": "Command is shell-based, malformed, contains controls, or resembles a secret.", "next_action": "Use a direct secret-free executable argv."},
+    {"code": "HPC.ARTIFACT.INVALID", "severity": "critical", "meaning": "Input or expected-output metadata is unbound or inconsistent.", "next_action": "Restage and rehash the first invalid artifact."},
+    {"code": "HPC.PROFILE.UNRESOLVED", "severity": "blocking", "meaning": "Environment or scheduler profile is missing, mismatched, or unreviewed.", "next_action": "Select a reviewed compatible profile."},
+    {"code": "HPC.AUTH.NOT_GRANTED", "severity": "blocking", "meaning": "Human authorization is missing, invalid, expired, denied, or scope-mismatched.", "next_action": "Obtain a new exact-request human authorization."},
+    {"code": "HPC.AUTH.HASH_MISMATCH", "severity": "critical", "meaning": "Authorization does not bind exact request bytes.", "next_action": "Reissue authorization for the exact request digest."},
+    {"code": "HPC.LEASE.INVALID", "severity": "blocking", "meaning": "Lease is missing, expired, consumed, broadened, or hash-mismatched.", "next_action": "Issue a fresh non-broadening single-use lease."},
+    {"code": "HPC.IDEMPOTENCY.BLOCKED", "severity": "blocking", "meaning": "A prior matching attempt is consumed or has an uncertain outcome.", "next_action": "Reconcile the prior attempt before another side effect."},
+    {"code": "HPC.SCHEDULER.UNSUPPORTED", "severity": "blocking", "meaning": "Scheduler family, version, profile, or resource arithmetic is unsupported.", "next_action": "Use a reviewed supported scheduler profile."},
+    {"code": "HPC.STATUS.UNKNOWN", "severity": "blocking", "meaning": "Native scheduler observation cannot be normalized authoritatively.", "next_action": "Collect authoritative scheduler/accounting evidence."},
+    {"code": "HPC.PROCESS.UNKNOWN", "severity": "blocking", "meaning": "Terminal process evidence is absent.", "next_action": "Collect launcher or exit evidence."},
+    {"code": "HPC.APPLICATION.UNKNOWN", "severity": "blocking", "meaning": "Application completion/failure evidence is absent or conflicting.", "next_action": "Run the engine-specific completion gate."},
+    {"code": "HPC.RUNTIME.FAILED", "severity": "blocking", "meaning": "Authoritative scheduler, process, or application evidence records a terminal failure.", "next_action": "Preserve the exact failed artifacts and diagnose the first engine-specific failure."},
+    {"code": "HPC.SCIENCE.NOT_ASSESSED", "severity": "informational", "meaning": "Execution evidence does not assess numerical or scientific validity.", "next_action": "Hand off to the rigorous calculation and postprocess Skills."},
+    {"code": "HPC.EVIDENCE.INSUFFICIENT", "severity": "blocking", "meaning": "Exact evidence is insufficient to select any earlier decision-table case.", "next_action": "Collect the minimum exact evidence for the first applicable HPC gate."}
+  ]
+}

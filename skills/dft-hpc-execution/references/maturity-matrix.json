@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "candidate": "dft-hpc-execution",
+  "overall_maturity": "synthetic-validated",
+  "axes": {
+    "invocation": "synthetic-validated",
+    "request_parser": "format-fixture-validated",
+    "authorization_and_lease_semantics": "synthetic-validated",
+    "slurm_renderer": "format-fixture-validated",
+    "openpbs_renderer": "synthetic-validated",
+    "local_renderer": "synthetic-validated",
+    "status_classifier": "synthetic-validated",
+    "real_scheduler_adapter": "design-only",
+    "idempotent_recovery_and_cancel": "design-only",
+    "real_artifact_collection": "design-only"
+  },
+  "claim_ceiling": "no_positive_claim",
+  "activation_blockers": [
+    "Pin and validate supported Slurm and OpenPBS versions plus site profile schemas.",
+    "Add a privileged external executor with argv-only invocation, bounded output, no-overwrite staging, credentials outside records, and a durable idempotency journal.",
+    "Validate lease issuance, consumption, uncertain submission recovery, retry, cancellation, accounting, and output collection with disposable test clusters.",
+    "Bind exact unsigned candidate-report bytes in a trusted manifest or signed evidence envelope and validate anti-substitution semantics.",
+    "Validate full execution-request, decision, lease, record, and workflow-event bundles with repository schema and semantic validators.",
+    "Add real redistributable QE and VASP success/failure/restart fixtures from at least two scheduler families.",
+    "Pass injection, credential, path, version drift, scheduler ambiguity, and blind weak-model forward tests.",
+    "Complete atomic promotion of source, registry, route, authority, documentation, installer, and CI changes."
+  ]
+}

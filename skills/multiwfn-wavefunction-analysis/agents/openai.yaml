@@ -1,0 +1,4 @@
+interface:
+  display_name: "Multiwfn Wavefunction Analysis"
+  short_description: "Audit provenance and version-bound Multiwfn workflows"
+  default_prompt: "Use $multiwfn-wavefunction-analysis to plan or audit this Multiwfn workflow with exact provenance, menu-version, and evidence boundaries."

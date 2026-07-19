@@ -1,0 +1,4 @@
+interface:
+  display_name: "Literature to DFT Plan"
+  short_description: "Separate literature evidence from DFT assumptions"
+  default_prompt: "Use $literature-to-dft-plan to turn supplied literature records into a no-positive local DFT plan while separating source assertions, structured numerical facts, inferences, project choices, and new-claim proposals."

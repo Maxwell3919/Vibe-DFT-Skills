@@ -1,0 +1,72 @@
+{
+  "case_id": "case-band-vasp-001",
+  "code": "vasp",
+  "code_version": "6.4.3",
+  "configuration": {
+    "vaspkit_band_parent": {
+      "adapter_task": "211",
+      "path_role": "KPOINTS",
+      "spin_channels": 1,
+      "structure_fingerprint": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+    }
+  },
+  "evidence": [
+    {
+      "label": "vasp-band-parent-audit.json",
+      "role": "vasp_audit_report",
+      "sha256": "08d8f5643311269d2ccd682f6efa657fe0d263c26da5d5971e4e4b205798761e",
+      "status": "present"
+    },
+    {
+      "label": "OUTCAR",
+      "role": "OUTCAR",
+      "sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+      "status": "present"
+    },
+    {
+      "label": "INCAR",
+      "role": "INCAR",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "status": "present"
+    },
+    {
+      "label": "DOSCAR",
+      "role": "DOSCAR",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "status": "present"
+    },
+    {
+      "label": "EIGENVAL",
+      "role": "EIGENVAL",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "status": "present"
+    },
+    {
+      "label": "POSCAR",
+      "role": "POSCAR",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "status": "present"
+    },
+    {
+      "label": "KPOINTS",
+      "role": "KPOINTS",
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Synthetic parent record; schema-2.0 task-specific band validation remains not_evaluated."
+  ],
+  "metrics": {},
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-07-19T00:00:00+00:00"
+  },
+  "record_id": "run-band-vasp-001",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "protocol-band-vasp-001",
+  "status": "completed",
+  "task_type": "bands"
+}

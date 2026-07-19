@@ -58,7 +58,7 @@ CELL_PARAMETERS angstrom
 class QeGuardTests(unittest.TestCase):
     def run_cli(self, *args: str, expected: int = 0) -> subprocess.CompletedProcess[str]:
         result = subprocess.run(
-            [sys.executable, str(MODULE_PATH), *args],
+            [sys.executable, "-B", str(MODULE_PATH), *args],
             text=True,
             capture_output=True,
             check=False,
@@ -228,7 +228,7 @@ class QeGuardTests(unittest.TestCase):
         _, findings = qe_guard.validate_pw_input(broken)
         self.assertIn("QE.PW.FORBIDDEN.CELL_PARAMETERS", {item.code for item in findings})
 
-    def test_bands_requires_accepted_parent_manifest(self) -> None:
+    def test_bands_requires_parent_manifest_before_decision_bundle(self) -> None:
         bands = VALID_INPUT.replace("calculation = 'scf'", "calculation = 'bands'")
         with tempfile.TemporaryDirectory() as tempdir:
             root = Path(tempdir)
@@ -260,7 +260,7 @@ class QeGuardTests(unittest.TestCase):
             self.assertEqual(payload["gates"]["parent_ancestry"], "fail")
             self.assertIn("QE.ANCESTRY.MISSING", {item["code"] for item in payload["findings"]})
 
-    def test_bands_parent_binds_case_protocol_prefix_and_density(self) -> None:
+    def test_bands_parent_requires_external_decision_bundle_verification(self) -> None:
         plan = {"case_id": "anon-case", "scientific_protocol_id": "protocol-001"}
         parent = {
             "schema_version": "1.0",
@@ -270,8 +270,8 @@ class QeGuardTests(unittest.TestCase):
             "task_type": "scf",
             "case_id": "anon-case",
             "scientific_protocol_id": "protocol-001",
-            "status": "accepted",
-            "scientific_acceptance": "accepted",
+            "status": "completed",
+            "scientific_acceptance": "requires_human_review",
             "configuration": {"prefix": "anon"},
             "metrics": {},
             "evidence": [
@@ -292,7 +292,11 @@ class QeGuardTests(unittest.TestCase):
         findings: list[qe_guard.Finding] = []
         self.assertEqual(
             qe_guard.validate_parent_manifest(parent, "bands", "from_scratch", "7.5", plan, "anon", findings),
-            "pass",
+            "fail",
+        )
+        self.assertIn(
+            "QE.ANCESTRY.DECISION_BUNDLE_REQUIRED",
+            {item.code for item in findings},
         )
         parent["scientific_protocol_id"] = "other"
         parent["evidence"] = []
@@ -304,6 +308,56 @@ class QeGuardTests(unittest.TestCase):
         codes = {item.code for item in findings}
         self.assertIn("QE.ANCESTRY.PROTOCOL", codes)
         self.assertIn("QE.ANCESTRY.DENSITY_EVIDENCE", codes)
+
+    def test_restart_requires_completed_parent_and_hash_bound_checkpoint(self) -> None:
+        plan = {"case_id": "anon-case", "scientific_protocol_id": "protocol-001"}
+        parent = {
+            "schema_version": "1.0",
+            "record_id": "run-restart-parent",
+            "code": "qe",
+            "code_version": "7.5",
+            "task_type": "scf",
+            "case_id": "anon-case",
+            "scientific_protocol_id": "protocol-001",
+            "status": "completed",
+            "scientific_acceptance": "not_assessed",
+            "configuration": {"prefix": "anon"},
+            "metrics": {},
+            "evidence": [
+                {
+                    "role": "restart_checkpoint",
+                    "label": "restart-data",
+                    "status": "present",
+                    "sha256": "a" * 64,
+                }
+            ],
+            "limitations": ["Scientific review is not required for restart reuse."],
+            "provenance": {
+                "collector": "test",
+                "collector_version": "1.0",
+                "generated_utc": "2026-07-18T00:00:00+00:00",
+            },
+        }
+        findings: list[qe_guard.Finding] = []
+        self.assertEqual(
+            qe_guard.validate_parent_manifest(
+                parent, "scf", "restart", "7.5", plan, "anon", findings
+            ),
+            "pass",
+        )
+
+        parent["status"] = "failed"
+        findings = []
+        self.assertEqual(
+            qe_guard.validate_parent_manifest(
+                parent, "scf", "restart", "7.5", plan, "anon", findings
+            ),
+            "fail",
+        )
+        self.assertIn(
+            "QE.ANCESTRY.RESTART_PARENT_NOT_COMPLETED",
+            {item.code for item in findings},
+        )
 
     def test_unrecognized_pseudopotential_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir:

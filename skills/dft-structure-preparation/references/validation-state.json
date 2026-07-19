@@ -1,0 +1,73 @@
+{
+  "contract_name": "candidate-validation-state",
+  "schema_version": "1.0",
+  "skill_id": "dft-structure-preparation",
+  "validated_date": "2026-07-19",
+  "quick_validate": {"status": "pass"},
+  "standalone_tests": {
+    "status": "pass",
+    "interpreter": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+    "test_count": 28,
+    "environment": "standard-library-only candidate suite"
+  },
+  "red_to_green": {
+    "reproduced_red_findings": 19,
+    "final_boundary_test_methods": 15,
+    "final_green_tests": 28,
+    "weak_model_decision_cases": 12,
+    "mutation_domains": [
+      "identity-hash-decoupling",
+      "roundtrip-monotonicity",
+      "periodic-axis-boundaries",
+      "occupancy-symmetry-charge-spin",
+      "supercell-budget",
+      "export-authority",
+      "candidate-lifecycle",
+      "canonical-weak-model-decision-table",
+      "schema-shaped-error-envelopes",
+      "privacy-labels",
+      "single-fd-input-identity",
+      "atomic-no-overwrite-output"
+    ]
+  },
+  "candidate_validator": {
+    "L0": {
+      "status": "fail",
+      "passed": 38,
+      "failed": 1,
+      "not_run": 2,
+      "failed_check_ids": ["CANDIDATE.ROUTING.INSTALL"]
+    },
+    "L1": {
+      "status": "fail",
+      "passed": 38,
+      "failed": 1,
+      "not_run": 2,
+      "failed_check_ids": ["CANDIDATE.ROUTING.INSTALL"],
+      "candidate_tests": "not-run-by-validator-because-pre-execution-repository-gates-failed"
+    }
+  },
+  "provider_probe": {
+    "status": "unavailable",
+    "exit": 3,
+    "ase": "3.29.0-match",
+    "pymatgen": "2026.5.4-match",
+    "pymatgen-core": "2026.5.18-match",
+    "rdkit": "not-installed",
+    "imports_performed": false
+  },
+  "native_api_validation": {
+    "status": "partial",
+    "evidence_scope": "direct temporary-directory API smoke checks; not a routed backend integration or scientific validation",
+    "catalog": "references/provider-capabilities.json",
+    "ase": "3.29.0-native-api-tested",
+    "pymatgen-core": "2026.5.18-native-api-tested",
+    "pymatgen-analysis-defects": "package-absent-native-not-run",
+    "rdkit": "package-absent-native-not-run"
+  },
+  "claim_ceiling": "no_positive_claim",
+  "future_gate_ceiling": "input_gates_only",
+  "promotion_authorized": false,
+  "execution_authorized": false,
+  "claim_boundary": "Standalone candidate tests passed; the shared active installer hash gate still fails, promotion remains unauthorized, and L1 isolation did not start."
+}

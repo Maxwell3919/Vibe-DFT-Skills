@@ -2,6 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/run-manifest.schema.json",
   "title": "DFT run manifest",
+  "description": "Immutable pre-decision technical run evidence. Scientific acceptance or rejection is recorded only by a later human decision-record and post-decision claim-evidence-map; it is never written back into this record.",
+  "x-vibe-semantic-obligations": [
+    "LEGACY_RUN_PREDECISION_SCIENTIFIC_STATE",
+    "LEGACY_RUN_EVIDENCE_HASH_STATUS_MATCH"
+  ],
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -28,8 +33,8 @@
     "task_type": {"type": "string", "minLength": 1},
     "case_id": {"type": "string", "minLength": 1},
     "scientific_protocol_id": {"type": "string", "minLength": 1},
-    "status": {"enum": ["planned", "running", "completed", "stopped", "failed", "accepted"]},
-    "scientific_acceptance": {"enum": ["accepted", "rejected", "not_assessed"]},
+    "status": {"enum": ["planned", "running", "completed", "stopped", "failed"]},
+    "scientific_acceptance": {"enum": ["not_assessed", "requires_human_review"]},
     "configuration": {"type": "object"},
     "metrics": {
       "type": "object",
@@ -56,12 +61,53 @@
           "label": {"type": "string", "minLength": 1},
           "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
           "status": {"enum": ["present", "missing", "redacted", "external"]}
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {"status": {"const": "present"}},
+              "required": ["status"]
+            },
+            "then": {
+              "required": ["sha256"],
+              "properties": {
+                "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {"status": {"const": "missing"}},
+              "required": ["status"]
+            },
+            "then": {
+              "properties": {"sha256": {"type": "null"}}
+            }
+          }
+        ]
       }
     },
     "limitations": {"type": "array", "items": {"type": "string"}},
     "provenance": {"$ref": "#/$defs/provenance"}
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"status": {"const": "completed"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "scientific_acceptance": {
+            "enum": ["not_assessed", "requires_human_review"]
+          }
+        }
+      },
+      "else": {
+        "properties": {"scientific_acceptance": {"const": "not_assessed"}}
+      }
+    }
+  ],
   "$defs": {
     "provenance": {
       "type": "object",

@@ -1,0 +1,14 @@
+{
+  "discovery_url": "http://www.lasphub.com/#/lasp/download",
+  "engine_version": "3.7.3",
+  "input_syntax_verified": false,
+  "license_status": "restricted-unverified-terms",
+  "manual_advertised": true,
+  "manual_available": false,
+  "official_download_page_reviewed": true,
+  "output_markers_verified": false,
+  "public_environment_baseline_verified": true,
+  "public_executable_entry_verified": true,
+  "restart_semantics_verified": false,
+  "scope": "candidate evidence-gap attestation"
+}

@@ -33,6 +33,13 @@ python3 scripts/resolve_official_sources.py Mesh.Cutoff --live-check --pretty
 
 The bundled 5.4.2 index contains official FDF entry headers, types, documented defaults, source lines, file hashes, and commit provenance. It does not replace surrounding explanations or establish scientific sufficiency. Keep `official manual`, `released-source supplement`, `observed input/output`, `numerical candidate`, `physical validation`, `assumption`, and `unresolved` distinct.
 
+Before constructing or launching any native command, read
+[references/execution-and-program-map.md](references/execution-and-program-map.md).
+It defines the real SIESTA 4.1+ positional and legacy stdin launch forms,
+MPI/OpenMP execution, command-line overrides, task ownership, utility programs,
+working-directory artifacts, high-use recipes, and the current
+`native_execution_state: not_run` boundary.
+
 ## Create a scientific plan first
 
 Read [references/scientific-plan-contract.md](references/scientific-plan-contract.md). Create one immutable plan for the case/protocol/state and intended observable:
@@ -56,7 +63,7 @@ If the observable, normalization/reference, or tolerance is unresolved, produce 
 
 Create `pseudopotential-manifest.json` beside the direct FDF using [references/pseudopotential-manifest.md](references/pseudopotential-manifest.md). Schema 2.0 binds each species to exact file hash/format plus source, source version, XC family, relativistic treatment, valence configuration, and validation identity.
 
-For a downstream or restart run, provide a shared `run_manifest.json` parent. The auditor checks code/version, case/protocol, parent task/status, and hashed evidence roles. `UseSaveData`, `DM.UseSaveDM`, `MD.UseSaveCG`, or `MD.UseSaveXV` cannot pass on an unproven checkpoint.
+For a restart, provide a technically completed shared `run_manifest.json` parent with the required hashed checkpoint role. For a downstream scientific task, a run manifest alone is insufficient: acceptance must be proved by a bundle-verified calculation record, human decision, and post-decision claim map. The current auditor has no platform human-trust resolver and therefore blocks that scientific-parent path explicitly. `UseSaveData`, `DM.UseSaveDM`, `MD.UseSaveCG`, or `MD.UseSaveXV` cannot pass on an unproven checkpoint.
 
 ## Audit deterministically
 
@@ -102,7 +109,7 @@ Read only the relevant section of [references/task-checklists.md](references/tas
 
 - Relaxation: distinguish fixed/variable cell, constraints, force/stress criteria, final structure, and production-static lineage.
 - MD: validate ensemble, time step/drift, equilibration, sampling uncertainty, and restart continuity.
-- Bands/DOS: require an accepted parent density/Hamiltonian, k-path/mesh, energy zero, projections, and empty-state/window convergence.
+- Bands/DOS: require a bundle-verified human-accepted parent density/Hamiltonian, k-path/mesh, energy zero, projections, and empty-state/window convergence.
 - Phonons: validate parent structure, forces, displacement/supercell, symmetry/acoustic treatment, and imaginary modes.
 - Optics/RT-TDDFT: validate empty states or propagation step/length, perturbation, drift, spectral window, and broadening.
 - TranSIESTA/TBtrans: validate electrodes/device, Hamiltonian ancestry, bias/chemical potentials, contour and transverse-k convergence.
@@ -130,7 +137,7 @@ Use only the emitted `allowed_evidence_label`. Test basis construction, mesh/egg
 
 ## Produce terminal handoffs
 
-At completion, stop, failure, abandonment, or scientific acceptance, follow [references/run-manifest-handoff.md](references/run-manifest-handoff.md). Use the shared run contract with `code=siesta`, privacy-safe identifiers, hashed evidence roles, and explicit limitations. Send artifacts/figures to `$dft-postprocess` and terminal metrics/lessons to `$dft-campaign-efficiency`; store no project experience in this skill.
+At each terminal technical event—completion, intentional stop, failure, or abandonment—follow [references/run-manifest-handoff.md](references/run-manifest-handoff.md). Use the shared immutable pre-decision run contract with `code=siesta`, privacy-safe identifiers, hashed evidence roles, and explicit limitations. Record a later human scientific verdict only in the separate decision and post-decision claim chain. Send artifacts/figures to `$dft-postprocess` and terminal metrics/lessons to `$dft-campaign-efficiency`; store no project experience in this skill.
 
 ## Maintain and validate
 

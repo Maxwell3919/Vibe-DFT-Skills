@@ -1,0 +1,62 @@
+{
+  "schema_version": "vaspkit-band-source@0.2-candidate",
+  "source_id": "synthetic-vaspkit-band-001",
+  "calculation": {
+    "record_id": "synthetic-vasp-run-001",
+    "record_sha256": "8888888888888888888888888888888888888888888888888888888888888888",
+    "evidence_projection_sha256": "5d3e60ed502b0d7fefcabe1728f188e17321645fd86e591c201c63568e1708b6",
+    "code": "vasp",
+    "code_version": "synthetic-version",
+    "structure_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "completion": "complete",
+    "spin_channels": 1,
+    "acceptance_gates": {
+      "input": "pass",
+      "output": "pass",
+      "electronic": "pass",
+      "band_task": "pass"
+    },
+    "files": [
+      {"role": "INCAR", "label": "INCAR", "sha256": "2222222222222222222222222222222222222222222222222222222222222222", "bytes": 128},
+      {"role": "DOSCAR", "label": "DOSCAR", "sha256": "3333333333333333333333333333333333333333333333333333333333333333", "bytes": 1024},
+      {"role": "EIGENVAL", "label": "EIGENVAL", "sha256": "4444444444444444444444444444444444444444444444444444444444444444", "bytes": 2048},
+      {"role": "POSCAR", "label": "POSCAR", "sha256": "5555555555555555555555555555555555555555555555555555555555555555", "bytes": 256},
+      {"role": "KPOINTS", "label": "KPOINTS", "sha256": "6666666666666666666666666666666666666666666666666666666666666666", "bytes": 256}
+    ]
+  },
+  "energy_reference": {
+    "input_table_reference": "vaspkit-default-fermi-zeroed",
+    "additive_offset_ev": 0.0,
+    "unit": "eV",
+    "sign_convention": "additive",
+    "target_reference": "fermi-equals-zero-ev",
+    "provenance": "synthetic-DOSCAR-fermi-reference-test-only",
+    "source_role": "DOSCAR",
+    "source_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "adapter_request": {
+    "profile": "vaspkit-1.5.0-macos-intel",
+    "task": "211"
+  },
+  "adapter_evidence": {
+    "binary_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+    "stdin_tokens": ["211", "0"],
+    "transcript": {
+      "label": "synthetic-211-transcript.txt",
+      "sha256": "fefcd62e8c8ed3b6e79a2e2cd863459aa16e107400bdd7b9334b34bd06baaf65",
+      "bytes": 551
+    },
+    "outputs": {
+      "band": {
+        "label": "synthetic-BAND.dat",
+        "sha256": "b80d8d6302dea37b834e9e3eac33849e876514a281214f013d7afeb77ce3259c",
+        "bytes": 139
+      },
+      "klabels": {
+        "label": "synthetic-KLABELS",
+        "sha256": "c0f40c3c1b619c89bee3cfa6d004b64c2aad6a0934f7b814f5a4639730b8add5",
+        "bytes": 75
+      }
+    }
+  }
+}

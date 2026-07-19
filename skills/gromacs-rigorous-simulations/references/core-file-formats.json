@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "software": "GROMACS",
+  "pinned_version": "2026.3",
+  "official_source": "https://manual.gromacs.org/documentation/2026.3/reference-manual/file-formats.html",
+  "checked_date": "2026-07-19",
+  "formats": [
+    {"extension": ".mdp", "role": "run-parameter input", "encoding": "text", "primary_consumer": "gmx grompp", "lineage_rule": "Hash the authored file and provider-rendered mdout.mdp separately; mdout.mdp does not replace the authored plan."},
+    {"extension": ".top", "role": "root system topology", "encoding": "text/preprocessed", "primary_consumer": "gmx grompp", "lineage_rule": "Hash the root, every include, force-field directory identity, and processed topology."},
+    {"extension": ".itp", "role": "included molecule/parameter topology", "encoding": "text/preprocessed", "primary_consumer": "gmx grompp", "lineage_rule": "Treat all transitive includes and conditional definitions as one closure."},
+    {"extension": ".gro", "role": "structure or text trajectory", "encoding": "fixed-column text", "primary_consumer": "gmx tools and grompp", "units": {"position": "nm", "velocity": "nm/ps"}, "lineage_rule": "Record atom/site order, optional velocities, box and numeric precision."},
+    {"extension": ".pdb", "role": "structure interchange", "encoding": "text", "primary_consumer": "gmx pdb2gmx and analysis tools", "lineage_rule": "PDB chemistry/protonation/bonding is not a complete GROMACS force-field topology."},
+    {"extension": ".ndx", "role": "index groups", "encoding": "text", "primary_consumer": "grompp and interactive analysis", "lineage_rule": "Hash exact group membership and record every selected name/number."},
+    {"extension": ".tpr", "role": "portable binary run input", "encoding": "binary", "primary_consumer": "gmx mdrun and analysis tools", "lineage_rule": "Bind exact grompp version, mdp, coordinates, topology closure, index, checkpoint input and transcript."},
+    {"extension": ".cpt", "role": "portable checkpoint", "encoding": "binary", "primary_consumer": "gmx mdrun -cpi and gmx grompp -t", "lineage_rule": "Bind parent run, step/time, TPR, output checksums, executable/build and known algorithm-specific limitations; portability does not guarantee bitwise continuation."},
+    {"extension": ".log", "role": "run log", "encoding": "text", "primary_consumer": "human/guard", "lineage_rule": "Require a matching version banner, one logical segment, final step/terminal semantics, and no adverse marker."},
+    {"extension": ".edr", "role": "portable energy file", "encoding": "XDR binary", "primary_consumer": "gmx energy/check/eneconv", "lineage_rule": "Bind to TPR/run segment; preserve native precision and term names."},
+    {"extension": ".xtc", "role": "compressed position trajectory", "encoding": "portable lossy binary", "primary_consumer": "analysis tools", "lineage_rule": "Positions only; record frame cadence, precision, atom selection, PBC and segment continuity."},
+    {"extension": ".trr", "role": "full-precision trajectory", "encoding": "portable binary", "primary_consumer": "analysis tools", "lineage_rule": "May contain positions, velocities and forces; prove actual fields rather than infer them from the extension."},
+    {"extension": ".tng", "role": "portable trajectory container", "encoding": "binary", "primary_consumer": "mdrun and analysis tools", "lineage_rule": "Record contained data, compression and producer version."},
+    {"extension": ".h5", "role": "H5MD trajectory", "encoding": "HDF5 binary", "primary_consumer": "2026.3 mdrun/analysis tools", "lineage_rule": "2026.3 support is experimental; record exact producer/consumer and do not assume trjconv/trjcat output support."},
+    {"extension": ".xvg", "role": "analysis series", "encoding": "text with optional Grace metadata", "primary_consumer": "plot/statistics tools", "lineage_rule": "Bind command, selections, time window, units and raw native source; an XVG alone is not provenance."}
+  ],
+  "fail_closed_rules": [
+    "Never load an untrusted binary artifact with an unpinned provider.",
+    "A filename or extension does not prove fields, units, completeness, or lineage.",
+    "Preserve raw run artifacts before any conversion, concatenation, centering, or PBC transform.",
+    "H5MD support newly added in 2026.3 remains experimental and must be labeled accordingly."
+  ]
+}

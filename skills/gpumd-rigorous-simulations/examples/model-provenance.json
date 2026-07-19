@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    {
+      "label": "run.in",
+      "license_status": "verified",
+      "sha256": "2e00709cdc8524db70e8a5f874269e41cee62b556e4a82da4bf14a71c2f9d95f",
+      "source_url": "https://example.invalid/vibe-dft-skills/gpumd-fixture/run"
+    },
+    {
+      "label": "model.xyz",
+      "license_status": "verified",
+      "sha256": "19c40b8de98822cd43a835823d166281461823cfb16f9b8e45cf7868b4a2e48c",
+      "source_url": "https://example.invalid/vibe-dft-skills/gpumd-fixture/model"
+    },
+    {
+      "label": "lj.txt",
+      "license_status": "verified",
+      "sha256": "199bfbf49406910649707cde0e9960b5a7cdea72ac88bc13c92846b865566cc9",
+      "source_url": "https://example.invalid/vibe-dft-skills/gpumd-fixture/potential"
+    }
+  ],
+  "fixture_license": "CC0-1.0",
+  "provenance_scope": "project-authored synthetic fixture only"
+}

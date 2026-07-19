@@ -1,0 +1,4 @@
+interface:
+  display_name: "VASPKIT Postprocess"
+  short_description: "Find and plan manual-grounded VASPKIT tasks"
+  default_prompt: "Use $vaspkit-postprocess to identify the official VASPKIT task, show its real invocation and input/output recipe, check the exact local version and VASP parent evidence, and state clearly whether this is documentation-only or a natively executed result."

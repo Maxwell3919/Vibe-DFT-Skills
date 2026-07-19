@@ -1,0 +1,4 @@
+interface:
+  display_name: "GROMACS Rigorous Simulations"
+  short_description: "Manual-first GROMACS 2026.3 workflows and gates"
+  default_prompt: "Use $gromacs-rigorous-simulations to resolve the exact GROMACS 2026.3 workflow, audit its evidence, and route any requested run through explicit execution authorization."

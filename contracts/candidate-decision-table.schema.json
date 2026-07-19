@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:candidate-decision-table:1.0",
+  "title": "Vibe-DFT non-active weak-model decision table",
+  "description": "A deterministic, first-match decision table for a development or planned Skill. The table is routing guidance only: it cannot authorize execution or promotion and cannot support a positive scientific claim.",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "skill_id",
+    "lifecycle",
+    "selection_policy",
+    "default_case_id",
+    "current_claim",
+    "execution_authorized",
+    "promotion_authorized",
+    "cases"
+  ],
+  "properties": {
+    "contract_name": {"const": "candidate-decision-table"},
+    "schema_version": {"const": "1.0"},
+    "skill_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "lifecycle": {"enum": ["development", "planned"]},
+    "selection_policy": {"const": "first-match-by-ascending-priority"},
+    "default_case_id": {"$ref": "#/$defs/caseId"},
+    "current_claim": {"const": "no_positive_claim"},
+    "execution_authorized": {"const": false},
+    "promotion_authorized": {"const": false},
+    "cases": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 100,
+      "items": {"$ref": "#/$defs/case"}
+    }
+  },
+  "$defs": {
+    "caseId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "findingCode": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_.-]{2,127}$"
+    },
+    "safeLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\r\\n]+$"
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "priority",
+        "severity",
+        "condition",
+        "required_evidence",
+        "finding_codes",
+        "action_state",
+        "expected_exit_codes",
+        "current_claim",
+        "execution_authorized",
+        "promotion_authorized",
+        "minimum_next_action"
+      ],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/caseId"},
+        "priority": {"type": "integer", "minimum": 1, "maximum": 100},
+        "severity": {"enum": ["P0", "P1", "P2"]},
+        "condition": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "required_evidence": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/safeLabel"}
+        },
+        "finding_codes": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/findingCode"}
+        },
+        "action_state": {
+          "enum": [
+            "needs_evidence",
+            "needs_authorization",
+            "ready_for_deterministic_check",
+            "local_gate_blocked",
+            "local_gate_passed_limited"
+          ]
+        },
+        "expected_exit_codes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 0, "maximum": 255}
+        },
+        "current_claim": {"const": "no_positive_claim"},
+        "execution_authorized": {"const": false},
+        "promotion_authorized": {"const": false},
+        "minimum_next_action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    }
+  }
+}

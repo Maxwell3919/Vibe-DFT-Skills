@@ -1,0 +1,29 @@
+schema_version: "1.0"
+levels: [design-only, synthetic-validated, format-fixture-validated, real-artifact-validated, tool-integration-validated]
+routes:
+  manifest-lineage-audit:
+    maturity: synthetic-validated
+    fixture: examples/synthetic-workflow.json
+  version-4.3.1-stage-planner:
+    maturity: synthetic-validated
+    limitation: "No command is executed."
+  frequency-interchange-parser:
+    maturity: synthetic-validated
+    fixture: examples/synthetic-band.txt
+  native-phonopy-yaml-hdf5-parser:
+    maturity: design-only
+    blocker: "No versioned parser or legal format/real fixture is bundled."
+  real-force-calculator-integration:
+    maturity: design-only
+    blocker: "No authorized displacement-to-force calculation lineage is bundled."
+promotion_requirements:
+  real-artifact-validated:
+    - authorized-external-fixture-record
+    - at-least-two-calculator-or-version-boundary-cases
+    - private-raw-artifact-hashes
+    - negative-real-artifact
+  tool-integration-validated:
+    - exact-environment-lock
+    - package-and-executable-digests
+    - isolated-displacement-to-product-regression
+    - overwrite-and-restart-semantics

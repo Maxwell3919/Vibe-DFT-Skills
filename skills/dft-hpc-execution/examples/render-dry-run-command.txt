@@ -1,0 +1,1 @@
+PYTHONDONTWRITEBYTECODE=1 python3 -B skills/dft-hpc-execution/scripts/hpc_execution_cli.py render-dry-run --request skills/dft-hpc-execution/fixtures/slurm-request.json --decision skills/dft-hpc-execution/fixtures/slurm-decision.json --lease skills/dft-hpc-execution/fixtures/slurm-lease.json --scheduler slurm --at-utc 2026-07-19T00:00:00Z

@@ -1,0 +1,80 @@
+{
+  "artifact_class": "synthetic",
+  "atom_style": "atomic",
+  "authorization": {"execute_external_software": false},
+  "boundary": ["p", "p", "p"],
+  "build_requirements": {
+    "atom_styles": ["atomic"],
+    "dump_styles": ["custom"],
+    "fix_styles": ["nve"],
+    "pair_styles": ["lj/cut"]
+  },
+  "case_id": "lammps-fixture-001",
+  "claim_target": "Offline technical integrity of one project-authored reduced-unit NVE fixture",
+  "ensemble": "nve",
+  "equilibration": {
+    "acceptance_checks": ["predeclared prefix excluded", "finite thermo values"],
+    "steps": 4
+  },
+  "interaction_model": {
+    "identity": "project-authored-single-type-lj-v1",
+    "license_status": "verified",
+    "mixing_rule": "not-applicable-single-type",
+    "pair_style": "lj/cut",
+    "shifted": false,
+    "source_url": "https://example.invalid/vibe-dft-skills/lammps-fixture/model",
+    "tail_correction": false
+  },
+  "lammps_version": "4Jul2026",
+  "objective": "Exercise the deterministic LAMMPS input, output, and trajectory audit path",
+  "observables": [
+    {
+      "estimator": "mean",
+      "max_standard_error": 0.1,
+      "minimum_effective_samples": 2,
+      "name": "temperature",
+      "uncertainty_method": "block-mean",
+      "unit": "epsilon/k_B"
+    },
+    {
+      "estimator": "mean",
+      "max_standard_error": 0.2,
+      "minimum_effective_samples": 2,
+      "name": "total_energy",
+      "uncertainty_method": "block-mean",
+      "unit": "epsilon"
+    }
+  ],
+  "output": {
+    "dump_interval_steps": 4,
+    "expected_trajectory_frames": 4,
+    "restart_interval_steps": 4,
+    "thermo_columns": ["Step", "Temp", "PotEng", "KinEng", "TotEng", "Press"],
+    "thermo_interval_steps": 2,
+    "trajectory_filename": "trajectory.lammpstrj"
+  },
+  "production": {
+    "acceptance_checks": ["effective sample minimum", "block-mean uncertainty bound"],
+    "steps": 8
+  },
+  "protocol_id": "lammps-nve-protocol-001",
+  "restart": {"mode": "new"},
+  "seeds": [{"role": "velocity_create", "value": 20260719}],
+  "task": "nve",
+  "timestep": 0.005,
+  "topology": {
+    "identity": "project-authored-two-site-atomic-data-v1",
+    "license_status": "verified",
+    "source_url": "https://example.invalid/vibe-dft-skills/lammps-fixture/topology"
+  },
+  "unit_map": {
+    "charge": "reduced",
+    "energy": "epsilon",
+    "length": "sigma",
+    "mass": "reference_mass",
+    "pressure": "epsilon/sigma^3",
+    "temperature": "epsilon/k_B",
+    "time": "tau"
+  },
+  "units_style": "lj"
+}

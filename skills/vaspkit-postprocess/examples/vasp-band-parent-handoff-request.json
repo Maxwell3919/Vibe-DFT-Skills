@@ -1,0 +1,64 @@
+{
+  "artifacts": {
+    "DOSCAR": {
+      "bytes": 1024,
+      "label": "DOSCAR",
+      "role": "DOSCAR",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "EIGENVAL": {
+      "bytes": 2048,
+      "label": "EIGENVAL",
+      "role": "EIGENVAL",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "INCAR": {
+      "bytes": 128,
+      "label": "INCAR",
+      "role": "INCAR",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "OUTCAR": {
+      "bytes": 4096,
+      "label": "OUTCAR",
+      "role": "OUTCAR",
+      "sha256": "6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "POSCAR": {
+      "bytes": 256,
+      "label": "POSCAR",
+      "role": "POSCAR",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "audit_report": {
+      "bytes": 2927,
+      "label": "vasp-band-parent-audit.json",
+      "role": "vasp_audit_report",
+      "sha256": "08d8f5643311269d2ccd682f6efa657fe0d263c26da5d5971e4e4b205798761e"
+    },
+    "path": {
+      "bytes": 256,
+      "label": "KPOINTS",
+      "role": "KPOINTS",
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555"
+    }
+  },
+  "band_context": {
+    "adapter_task": "211",
+    "path_role": "KPOINTS",
+    "spin_channels": 1,
+    "structure_fingerprint": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+  },
+  "expected_parent": {
+    "audit_report_sha256": "08d8f5643311269d2ccd682f6efa657fe0d263c26da5d5971e4e4b205798761e",
+    "case_id": "case-band-vasp-001",
+    "code": "vasp",
+    "code_version": "6.4.3",
+    "record_id": "run-band-vasp-001",
+    "run_manifest_sha256": "84113738971f3bfbcbc28f2840e4e09325cb9652348fe12dc6a4c2d4604a8206",
+    "scientific_protocol_id": "protocol-band-vasp-001",
+    "task_type": "bands"
+  },
+  "request_id": "handoff-band-vasp-001",
+  "schema_version": "vaspkit-parent-handoff-request@1.0-candidate"
+}

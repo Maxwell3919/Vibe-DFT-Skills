@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "profiles": {
+    "vaspkit-1.5.0-macos-intel": {
+      "banner": "VASPKIT Standard Edition 1.5.0",
+      "tasks": {
+        "211": {
+          "title": "basic-band-structure",
+          "stdin_tokens": ["211", "0"],
+          "default_token_energy_reference": "vaspkit-default-fermi-zeroed",
+          "required_inputs": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPOINTS"],
+          "expected_outputs": ["BAND.dat", "BAND_REFORMATTED.dat", "KLINES.dat", "KLABELS", "BAND_GAP"],
+          "ordered_sentinels": ["Reading Input Parameters From INCAR File", "Reading Fermi-Energy from DOSCAR File", "Reading Energy-Levels From EIGENVAL File", "Reading Structural Parameters from POSCAR File", "Reading K-Paths From KPOINTS File", "Written BAND.dat File", "Written KLABELS File", "Written BAND_GAP File", "If you want use the default setting"]
+        },
+        "252": {
+          "title": "hybrid-dft-band-structure",
+          "stdin_tokens": ["252", "0"],
+          "default_token_energy_reference": "vaspkit-default-fermi-zeroed",
+          "required_inputs": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPATH.in"],
+          "expected_outputs": ["BAND.dat", "BAND_REFORMATTED.dat", "KLINES.dat", "KLABELS", "BAND_GAP"],
+          "ordered_sentinels": ["Reading Input Parameters From INCAR File", "Reading Fermi-Energy from DOSCAR File", "Reading Energy-Levels From EIGENVAL File", "Reading Structural Parameters from POSCAR File", "Reading K-Paths From KPATH.in File", "Written BAND.dat File", "Written KLABELS File", "Written BAND_GAP File", "If you want use the default setting"]
+        }
+      }
+    },
+    "vaspkit-1.5.1-linux-x64": {
+      "banner": "VASPKIT Standard Edition 1.5.1",
+      "tasks": {
+        "211": {"inherits_protocol_from": "vaspkit-1.5.0-macos-intel:211", "maturity": "design-only"},
+        "252": {"inherits_protocol_from": "vaspkit-1.5.0-macos-intel:252", "maturity": "design-only"}
+      }
+    }
+  },
+  "capture_requirement": "Capture stdin echo and merged terminal output so the task and default-setting tokens are auditable."
+}

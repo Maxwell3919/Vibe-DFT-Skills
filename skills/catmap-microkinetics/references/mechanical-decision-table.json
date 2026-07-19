@@ -1,0 +1,129 @@
+{
+  "schema_version": "candidate-1.0",
+  "candidate_lifecycle": "development",
+  "claim_ceiling": "no_positive_claim",
+  "execution_authorization": "forbidden",
+  "promotion_authorization": false,
+  "cases": [
+    {
+      "case_id": "CAT-MECH-01",
+      "priority": 1,
+      "evidence_condition": "Exact v0.4.1 synthetic profile; immutable declarative artifacts and every selected local technical gate pass.",
+      "action_state": "local_gate_passed_limited",
+      "required_finding": null,
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Retain the synthetic package and obtain external provider and real-artifact evidence before promotion review.",
+      "maximum_action": "local_gate_passed_limited"
+    },
+    {
+      "case_id": "CAT-MECH-02",
+      "priority": 2,
+      "evidence_condition": "Provider tag, source revision, Python identity, dependency lock, or environment profile is unpinned or drifted.",
+      "action_state": "needs_evidence",
+      "required_finding": "CAT.PROVIDER.VERSION_UNSUPPORTED",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Create and forward-validate an exact provider/environment profile.",
+      "maximum_action": "needs_evidence"
+    },
+    {
+      "case_id": "CAT-MECH-03",
+      "priority": 3,
+      "evidence_condition": "Artifact bytes disagree with the request hash, or result model hashes detach from network/thermochemistry bytes.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "CAT.LINEAGE.HASH_MISMATCH",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Restore immutable bytes or issue one reviewed lineage replacement.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "CAT-MECH-04",
+      "priority": 4,
+      "evidence_condition": "An elementary reaction has undefined species or violates elemental/site balance.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "CAT.NETWORK.ELEMENT_IMBALANCE",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Correct the declarative network before adding kinetic evidence.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "CAT-MECH-05",
+      "priority": 5,
+      "evidence_condition": "Energy, pressure, temperature, coverage, rate unit, or active-site normalization is missing or unsupported.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "CAT.RATE.NORMALIZATION_INVALID",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Normalize units and bind rate values to one declared active-site basis.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "CAT-MECH-06",
+      "priority": 6,
+      "evidence_condition": "Species energy/provenance is incomplete or forward/reverse barriers violate thermodynamic cycle closure.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "CAT.THERMO.BARRIER_INCONSISTENT",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Resolve references, energy components, provenance, and barriers before solving.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "CAT-MECH-07",
+      "priority": 7,
+      "evidence_condition": "Solver self-reports convergence but residual, predeclared tolerance, multi-initial-state count, fingerprints, or final coverages disagree.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "CAT.SOLVER.MULTISTART_INCONSISTENT",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Preserve every branch and rerun the predeclared initialization set with stored residuals and final states.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "CAT-MECH-08",
+      "priority": 8,
+      "evidence_condition": "Coverage bounds/site closure or stoichiometrically derived surface-species production residuals fail.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "CAT.RATE.SPECIES_RESIDUAL_FAILED",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Resolve site accounting, rate mapping, and the selected steady-state branch.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "CAT-MECH-09",
+      "priority": 9,
+      "evidence_condition": "Calibration and evaluation IDs overlap, sensitivity branch/scales are incomplete, or uncertainty sampling/provenance/intervals are incomplete.",
+      "action_state": "needs_evidence",
+      "required_finding": "CAT.DATA.PARTITION_LEAKAGE",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Separate data partitions and complete branch-bound sensitivity and uncertainty evidence.",
+      "maximum_action": "needs_evidence"
+    },
+    {
+      "case_id": "CAT-MECH-10",
+      "priority": 10,
+      "evidence_condition": "Automation is asked to assert a true or unique mechanism, unique steady state, RDS, causal ranking, or experiment agreement.",
+      "action_state": "needs_expert_review",
+      "required_finding": "CAT.CLAIM.MECHANISM_AUTOMATION_FORBIDDEN",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Limit output to conditional technical evidence and obtain an independent scientific decision.",
+      "maximum_action": "needs_expert_review"
+    }
+  ]
+}

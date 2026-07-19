@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:execution-lease:1.0",
+  "title": "Vibe DFT Skills bounded execution lease",
+  "description": "A single-use, hash-bound grant derived from a separate human authorization decision. It cannot change the request it authorizes.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "lease_id",
+  "x-vibe-semantic-obligations": [
+    "LEASE_TIME_ORDER",
+    "LEASE_AUTHORIZATION_TIME_CHAIN",
+    "LEASE_REQUEST_REF_HASH_MATCH",
+    "LEASE_AUTHORIZATION_DECISION_REF_HASH_MATCH",
+    "LEASE_AUTHORIZATION_DECISION_APPROVED_REQUEST_MATCH",
+    "LEASE_ARGV_HASH_MATCH",
+    "LEASE_INPUT_HASH_SET_SUBSET",
+    "LEASE_ENVIRONMENT_PROFILE_SUBSET",
+    "LEASE_SCHEDULER_PROFILE_SUBSET",
+    "LEASE_RESOURCE_CEILING_SUBSET",
+    "LEASE_SIDE_EFFECT_SUBSET",
+    "LEASE_OUTPUT_LABEL_SET_SUBSET",
+    "LEASE_SINGLE_USE_CONSUMPTION",
+    "LEASE_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "lease_id",
+    "request_ref",
+    "authorization_decision_ref",
+    "issued_by",
+    "issued_utc",
+    "expires_utc",
+    "lease_duration_s",
+    "status",
+    "single_use",
+    "grant",
+    "constraints",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "execution-lease"},
+    "lease_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "request_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "execution-request"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "execution-request"}
+          }
+        }
+      ]
+    },
+    "authorization_decision_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "decision-record"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "execution-authorization"}
+          }
+        }
+      ]
+    },
+    "issued_by": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+        {
+          "properties": {
+            "actor_type": {"const": "deterministic-tool"},
+            "role": {"const": "lease-issuer"}
+          }
+        }
+      ]
+    },
+    "issued_utc": {"type": "string", "format": "date-time"},
+    "expires_utc": {"type": "string", "format": "date-time"},
+    "lease_duration_s": {"type": "integer", "minimum": 1, "maximum": 604800},
+    "status": {"enum": ["active", "expired", "revoked", "consumed"]},
+    "single_use": {"const": true},
+    "grant": {"$ref": "#/$defs/grant"},
+    "constraints": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "uniqueItems": true
+    },
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "$defs": {
+    "safeLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^(?![/\\\\])(?![A-Za-z]:[\\\\/])(?!.*\\s[/\\\\])(?!.*[=:][/\\\\])(?!.*\\s[A-Za-z]:[\\\\/])(?!.*\\\\\\\\)(?!.*(?:^|[\\s=,:;()\\[\\]{}\"'])[/\\\\](?:Users|home|private|tmp|var|Volumes|scratch|gpfs|lustre|mnt|work|project)(?:[/\\\\]|$))(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))[^\\u0000\\r\\n]+$"
+    },
+    "resourceCeiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodes", "mpi_ranks", "threads_per_rank", "gpus", "memory_mb", "walltime_s"],
+      "properties": {
+        "nodes": {"type": "integer", "minimum": 1},
+        "mpi_ranks": {"type": "integer", "minimum": 1},
+        "threads_per_rank": {"type": "integer", "minimum": 1},
+        "gpus": {"type": "integer", "minimum": 0},
+        "memory_mb": {"type": "integer", "minimum": 1},
+        "walltime_s": {"type": "integer", "minimum": 1}
+      }
+    },
+    "grant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "side_effects",
+        "environment_profile_ids",
+        "scheduler_profile_ids",
+        "argv_sha256",
+        "input_sha256",
+        "output_labels",
+        "resource_ceiling",
+        "maximum_executions"
+      ],
+      "properties": {
+        "side_effects": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sideEffectSet"
+        },
+        "environment_profile_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "scheduler_profile_ids": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "argv_sha256": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"},
+        "input_sha256": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"},
+          "uniqueItems": true
+        },
+        "output_labels": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/safeLabel"},
+          "uniqueItems": true
+        },
+        "resource_ceiling": {"$ref": "#/$defs/resourceCeiling"},
+        "maximum_executions": {"const": 1}
+      }
+    }
+  }
+}

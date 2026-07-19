@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "candidate": "literature-to-dft-plan",
+  "tasks": [
+    {"task_id": "plan", "inputs": ["literature-dft-request exact bytes"], "outputs": ["literature-evidence-plan-candidate"], "maximum_action": "local-draft-plan", "maximum_claim": "no_positive_claim"},
+    {"task_id": "audit", "inputs": ["candidate plan exact bytes"], "outputs": ["literature-plan-candidate-audit"], "maximum_action": "local-audit", "maximum_claim": "no_positive_claim"},
+    {"task_id": "render-package", "inputs": ["passing plan", "exact-plan audit"], "outputs": ["literature-dft-candidate-package"], "maximum_action": "local-json-draft", "maximum_claim": "no_positive_claim"},
+    {"task_id": "retrieve-source", "inputs": [], "outputs": [], "maximum_action": "blocked-external-adapter", "maximum_claim": "no_positive_claim"},
+    {"task_id": "execute-calculation", "inputs": [], "outputs": [], "maximum_action": "blocked-separate-authorization", "maximum_claim": "no_positive_claim"}
+  ]
+}

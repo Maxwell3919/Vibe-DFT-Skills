@@ -1,0 +1,166 @@
+{
+  "schema_version": "phonon-workflow-manifest@0.1-candidate",
+  "workflow_id": "synthetic-phonon-001",
+  "phonopy": {
+    "version": "4.3.1",
+    "package_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "structure": {
+    "fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "unitcell_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "atom_count": 1,
+    "primitive_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "primitive_atom_count": 1,
+    "primitive_matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+  },
+  "displacement_set": {
+    "id": "synthetic-displacements",
+    "sha256": "a29eec1130f3e2cbb211cecd72a3e0a515999c42cd22571438c6a8f3cb8f0ac8",
+    "supercell_matrix": [[2, 0, 0], [0, 1, 0], [0, 0, 1]],
+    "supercell_atom_count": 2,
+    "displacement_distance_angstrom": 0.01,
+    "displacements": [
+      {
+        "id": "disp-001",
+        "atom_index": 1,
+        "vector_angstrom": [0.01, 0.0, 0.0],
+        "supercell_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      {
+        "id": "disp-002",
+        "atom_index": 1,
+        "vector_angstrom": [-0.01, 0.0, 0.0],
+        "supercell_sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+      }
+    ]
+  },
+  "forces": {
+    "unit": "eV/angstrom",
+    "source_force_records_sha256": "7bae0188f97d507cc7d01262fa99aebe6087130d88355615a5a3673464f0f6fb",
+    "records": [
+      {
+        "displacement_id": "disp-001",
+        "file": {
+          "label": "force-001.dat",
+          "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+          "bytes": 128
+        },
+        "shape": [2, 3],
+        "parent_calculation": {
+          "record_id": "synthetic-force-run-001",
+          "record_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "evidence_projection_sha256": "da7cd647fc14aa2cb77fc84ccb4df0c1c21577895f0bd66eedfa354d0e44a0eb",
+          "code": "vasp",
+          "code_version": "synthetic-version",
+          "structure_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "input_hash": "7777777777777777777777777777777777777777777777777777777777777777",
+          "output_hash": "9999999999999999999999999999999999999999999999999999999999999999",
+          "completion": "complete",
+          "input_validation": "pass",
+          "output_validation": "pass",
+          "electronic_convergence": "pass",
+          "force_acceptance": "pass"
+        }
+      },
+      {
+        "displacement_id": "disp-002",
+        "file": {
+          "label": "force-002.dat",
+          "sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+          "bytes": 128
+        },
+        "shape": [2, 3],
+        "parent_calculation": {
+          "record_id": "synthetic-force-run-002",
+          "record_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+          "evidence_projection_sha256": "63924f1247addfc5b1f3155c041db589d37601c54f199e2512f8a9793bf13c40",
+          "code": "vasp",
+          "code_version": "synthetic-version",
+          "structure_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "input_hash": "8888888888888888888888888888888888888888888888888888888888888888",
+          "output_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "completion": "complete",
+          "input_validation": "pass",
+          "output_validation": "pass",
+          "electronic_convergence": "pass",
+          "force_acceptance": "pass"
+        }
+      }
+    ]
+  },
+  "force_constants": {
+    "file": {
+      "label": "force_constants.hdf5",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bytes": 2048
+    },
+    "shape": [2, 2, 3, 3],
+    "source_displacement_set_sha256": "a29eec1130f3e2cbb211cecd72a3e0a515999c42cd22571438c6a8f3cb8f0ac8",
+    "source_force_records_sha256": "7bae0188f97d507cc7d01262fa99aebe6087130d88355615a5a3673464f0f6fb",
+    "calculator": "phonopy-finite-difference",
+    "symmetrization": "symfc-projector",
+    "acoustic_sum_rule": "declared-not-scientifically-accepted"
+  },
+  "requested_products": ["mesh", "band", "dos", "nac"],
+  "products": {
+    "mesh": {
+      "parent_force_constants_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "parameters": {"mesh": [8, 8, 8], "gamma_centered": true, "frequency_unit": "THz"},
+      "dimensions": {"qpoints": 512, "branches": 3},
+      "artifact": {
+        "label": "mesh.yaml",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "bytes": 4096
+      }
+    },
+    "band": {
+      "parent_force_constants_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "parameters": {
+        "segments": [[[0.0, 0.0, 0.0], [0.5, 0.0, 0.0]]],
+        "points_per_segment": 2,
+        "frequency_unit": "THz"
+      },
+      "dimensions": {"points": 2, "branches": 3},
+      "artifact": {
+        "label": "band.yaml",
+        "sha256": "6768a6706eb8de4f7512eff9c1b7e9ba10285a50433d228f4d976790d14b9ca3",
+        "bytes": 318
+      }
+    },
+    "dos": {
+      "parent_force_constants_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "parent_mesh_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "parameters": {"method": "tetrahedron", "frequency_unit": "THz"},
+      "dimensions": {"bins": 201},
+      "artifact": {
+        "label": "total_dos.dat",
+        "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "bytes": 2048
+      }
+    },
+    "nac": {
+      "parent_force_constants_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "parameters": {
+        "born_effective_charges": [[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]],
+        "dielectric_tensor": [[2.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 2.0]],
+        "method": "gonze",
+        "factor": 14.399652,
+        "factor_unit_convention": "synthetic-explicit-test-convention"
+      },
+      "source": {
+        "record_id": "synthetic-born-run-001",
+        "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "structure_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "primitive_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "completion": "complete",
+        "response_acceptance": "pass",
+        "evidence_projection_sha256": "5e64f4216edda191f02efa84f304c1a91cbd7fa638ec78b0c38634b342812a7c"
+      },
+      "artifact": {
+        "label": "nac-parameters.json",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "bytes": 512
+      }
+    }
+  }
+}

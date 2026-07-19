@@ -1,0 +1,19 @@
+{
+  "license": "CC0-1.0",
+  "contains_copied_lammps_output": false,
+  "contains_third_party_potential": false,
+  "artifacts": [
+    {"path": "examples/in.lammps", "origin": "project-authored", "redistributable": true},
+    {"path": "examples/system.data", "origin": "project-authored", "redistributable": true},
+    {"path": "examples/build-manifest.json", "origin": "project-authored fictional build declaration", "redistributable": true},
+    {"path": "examples/synthetic-log.lammps", "origin": "project-authored synthetic output", "redistributable": true},
+    {"path": "examples/trajectory.lammpstrj", "origin": "project-authored synthetic trajectory", "redistributable": true}
+  ],
+  "decision_table": {
+    "path": "references/weak-model-decision-table.json",
+    "contract": "candidate-decision-table@1.0",
+    "origin": "project-authored deterministic routing fixture",
+    "redistributable": true,
+    "scientific_meaning": "none"
+  }
+}

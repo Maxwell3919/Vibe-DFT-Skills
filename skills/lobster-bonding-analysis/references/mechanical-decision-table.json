@@ -1,0 +1,129 @@
+{
+  "schema_version": "candidate-1.0",
+  "candidate_lifecycle": "development",
+  "claim_ceiling": "no_positive_claim",
+  "execution_authorization": "forbidden",
+  "promotion_authorization": false,
+  "cases": [
+    {
+      "case_id": "LOB-MECH-01",
+      "priority": 1,
+      "evidence_condition": "Exact 5.1.1 synthetic profile; independent parent receipt and all selected task artifacts are hash-bound; every local gate passes.",
+      "action_state": "local_gate_passed_limited",
+      "required_finding": null,
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Retain the synthetic report and obtain external real-artifact evidence before any promotion review.",
+      "maximum_action": "local_gate_passed_limited"
+    },
+    {
+      "case_id": "LOB-MECH-02",
+      "priority": 2,
+      "evidence_condition": "Provider version or environment profile differs from the only pinned profile.",
+      "action_state": "needs_evidence",
+      "required_finding": "LOB.PROVIDER.VERSION_UNSUPPORTED",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Create and forward-validate a separate exact-version profile.",
+      "maximum_action": "needs_evidence"
+    },
+    {
+      "case_id": "LOB-MECH-03",
+      "priority": 3,
+      "evidence_condition": "Declared parent SHA-256 differs from the bytes read by the auditor.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "LOB.PARENT.HASH_MISMATCH",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Restore the immutable record or issue a reviewed lineage replacement.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "LOB-MECH-04",
+      "priority": 4,
+      "evidence_condition": "Parent gates self-report pass but no independently hash-bound validation receipt matches the current parent bytes.",
+      "action_state": "needs_evidence",
+      "required_finding": "LOB.PARENT.VALIDATION_DETACHED",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Produce an independent validation receipt bound to gate evidence hashes.",
+      "maximum_action": "needs_evidence"
+    },
+    {
+      "case_id": "LOB-MECH-05",
+      "priority": 5,
+      "evidence_condition": "Structure, k-point, potential-metadata, settings, protocol, or wavefunction identity differs across parent, declaration, and execution.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "LOB.PARENT.IDENTITY_MISMATCH",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Regenerate one atomic handoff from the exact DFT parent and execution records.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "LOB-MECH-06",
+      "priority": 6,
+      "evidence_condition": "A fatal marker is present or the exact-profile completion marker is absent.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "LOB.COMPLETION.MARKER_MISSING",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Preserve the failed run, diagnose it, and provide a new complete artifact.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "LOB-MECH-07",
+      "priority": 7,
+      "evidence_condition": "Absolute charge or total spilling is absent, invalid, or exceeds the predeclared threshold.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "LOB.PROJECTION.SPILLING_MISSING",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Reassess parent quality and basis choice without post-hoc threshold relaxation.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "LOB-MECH-08",
+      "priority": 8,
+      "evidence_condition": "Projected-band fraction, projection energy window, or projection Fermi evidence is incomplete.",
+      "action_state": "needs_evidence",
+      "required_finding": "LOB.PROJECTION.INCOMPLETE",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Supply projection-population and reference-window evidence before curve analysis.",
+      "maximum_action": "needs_evidence"
+    },
+    {
+      "case_id": "LOB-MECH-09",
+      "priority": 9,
+      "evidence_condition": "Curve sign, integral semantics, Fermi reference, or energy window is absent or detached from lobsterout evidence.",
+      "action_state": "local_gate_blocked",
+      "required_finding": "LOB.CURVE.FERMI_ALIGNMENT_FAILED",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Re-export the curve with explicit unshifted convention and matching projection reference.",
+      "maximum_action": "local_gate_blocked"
+    },
+    {
+      "case_id": "LOB-MECH-10",
+      "priority": 10,
+      "evidence_condition": "The request asks automation to conclude bond existence, order, strength, oxidation state, stability, or causality.",
+      "action_state": "needs_expert_review",
+      "required_finding": "LOB.CLAIM.AUTOMATIC_CHEMICAL_INTERPRETATION_FORBIDDEN",
+      "claim_ceiling": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Limit automation to technical evidence and obtain an independent expert decision.",
+      "maximum_action": "needs_expert_review"
+    }
+  ]
+}

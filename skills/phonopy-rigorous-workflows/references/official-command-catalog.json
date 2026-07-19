@@ -1,0 +1,235 @@
+{
+  "schema_version": "1.0",
+  "software": "phonopy",
+  "documentation_version": "4.3.1",
+  "checked_date": "2026-07-19",
+  "source_snapshot": {
+    "official_tag": "v4.3.1",
+    "tag_commit": "baf530aed09071e1221b3c191918a168fc5f1d9b",
+    "release_date": "2026-07-01",
+    "documentation_root": "https://phonopy.github.io/phonopy/",
+    "source_tree": "https://github.com/phonopy/phonopy/tree/v4.3.1",
+    "entrypoint_source": "https://github.com/phonopy/phonopy/blob/v4.3.1/pyproject.toml"
+  },
+  "evidence_layers": [
+    "official-source-listed",
+    "official-documentation-described",
+    "official-example-sequence",
+    "native-execution-verified"
+  ],
+  "native_validation": {
+    "state": "not_run",
+    "checked_date": "2026-07-19",
+    "platform": "Darwin arm64",
+    "reason": "No Phonopy console script or Python distribution was present in the maintainer environment.",
+    "help_or_version_executed": false,
+    "scientific_example_executed": false
+  },
+  "entrypoints": [
+    {"id": "phonopy", "family": "core", "purpose": "Calculate phonon properties from a phonopy YAML-like input.", "status": "official-source-listed"},
+    {"id": "phonopy-init", "family": "core", "purpose": "Generate displacements, collect calculator forces, import force constants, and inspect symmetry.", "status": "official-source-listed"},
+    {"id": "phonopy-load", "family": "core", "purpose": "Deprecated alias of phonopy.", "status": "deprecated-alias"},
+    {"id": "phonopy-bandplot", "family": "plot", "purpose": "Plot or convert band.yaml data.", "status": "official-source-listed"},
+    {"id": "phonopy-calc-convert", "family": "converter", "purpose": "Calculator-format conversion helper.", "status": "official-source-listed-no-recipe"},
+    {"id": "phonopy-crystal-born", "family": "born", "purpose": "CRYSTAL Born-charge conversion helper.", "status": "official-source-listed-no-recipe"},
+    {"id": "phonopy-gruneisen", "family": "volume-series", "purpose": "Calculate mode Gruneisen parameters from volume-varied phonon calculations.", "status": "official-documentation-described"},
+    {"id": "phonopy-gruneisenplot", "family": "plot", "purpose": "Plot Gruneisen results.", "status": "official-source-listed-no-recipe"},
+    {"id": "phonopy-pdosplot", "family": "plot", "purpose": "Plot projected DOS tables.", "status": "official-documentation-described"},
+    {"id": "phonopy-propplot", "family": "plot", "purpose": "Plot thermal_properties.yaml data.", "status": "official-documentation-described"},
+    {"id": "phonopy-qha", "family": "volume-series", "purpose": "Fit quasi-harmonic thermodynamic properties from volume-energy and thermal-property series.", "status": "official-documentation-described"},
+    {"id": "phonopy-tdplot", "family": "plot", "purpose": "Plot thermal-displacement data.", "status": "official-source-listed-no-recipe"},
+    {"id": "phonopy-vasp-born", "family": "born", "purpose": "Create BORN-style data from VASP vasprun.xml or OUTCAR/POSCAR.", "status": "official-documentation-described"},
+    {"id": "phonopy-vasp-efe", "family": "volume-series", "purpose": "Collect VASP electronic-state/free-energy data for QHA workflows.", "status": "official-documentation-described"},
+    {"id": "phonopy-qe-born", "family": "born", "purpose": "Quantum ESPRESSO Born-charge conversion helper.", "status": "official-source-listed-no-recipe"}
+  ],
+  "capabilities": [
+    {"id": "init.displacements", "entrypoint": "phonopy-init", "options": ["-d", "--dim", "--pa", "-c"], "outputs": ["phonopy_disp.yaml", "calculator-specific displaced supercells"], "status": "official-example-sequence"},
+    {"id": "init.random-displacements", "entrypoint": "phonopy-init", "options": ["--rd", "--dim", "--pa", "-c"], "outputs": ["phonopy_disp.yaml", "randomly displaced supercells"], "status": "official-example-sequence"},
+    {"id": "init.collect-forces", "entrypoint": "phonopy-init", "options": ["-f", "--force-sets", "--sp"], "outputs": ["FORCE_SETS or phonopy_params.yaml"], "status": "official-documentation-described"},
+    {"id": "init.subtract-residual-forces", "entrypoint": "phonopy-init", "options": ["--fz", "--force-sets-zero"], "outputs": ["FORCE_SETS or phonopy_params.yaml"], "status": "official-documentation-described"},
+    {"id": "init.import-vasp-force-constants", "entrypoint": "phonopy-init", "options": ["--fc", "--force-constants"], "outputs": ["FORCE_CONSTANTS"], "status": "official-example-sequence"},
+    {"id": "init.symmetry", "entrypoint": "phonopy-init", "options": ["--symmetry", "-c"], "outputs": ["BPOSCAR", "PPOSCAR", "stdout symmetry report"], "status": "official-example-sequence"},
+    {"id": "calc.band", "entrypoint": "phonopy", "options": ["--band", "--band-points", "--band-labels"], "outputs": ["band.yaml"], "status": "official-example-sequence"},
+    {"id": "calc.mesh", "entrypoint": "phonopy", "options": ["--mesh", "--mp"], "outputs": ["mesh.yaml or mesh.hdf5"], "status": "official-example-sequence"},
+    {"id": "calc.dos", "entrypoint": "phonopy", "options": ["--mesh", "--dos"], "outputs": ["total_dos.dat"], "status": "official-example-sequence"},
+    {"id": "calc.pdos", "entrypoint": "phonopy", "options": ["--mesh", "--pdos", "--xyz-projection"], "outputs": ["projected_dos.dat"], "status": "official-example-sequence"},
+    {"id": "calc.thermal-properties", "entrypoint": "phonopy", "options": ["--mesh", "-t", "--tmin", "--tmax", "--tstep"], "outputs": ["thermal_properties.yaml"], "status": "official-example-sequence"},
+    {"id": "calc.thermal-displacements", "entrypoint": "phonopy", "options": ["--mesh", "--thermal-displacements", "--thermal-displacement-matrices"], "outputs": ["thermal_displacements.yaml", "thermal_displacement_matrices.yaml"], "status": "official-documentation-described"},
+    {"id": "calc.irreps", "entrypoint": "phonopy", "options": ["--irreps", "--show-irreps"], "outputs": ["stdout irreducible-representation report"], "status": "official-example-sequence"},
+    {"id": "calc.modulation", "entrypoint": "phonopy", "options": ["--modulation"], "outputs": ["modulation.yaml", "modulated structures"], "status": "official-documentation-described"},
+    {"id": "calc.nac", "entrypoint": "phonopy", "options": ["--nonac", "--nac-method", "--q-direction"], "outputs": ["NAC-adjusted requested property"], "status": "v4-auto-enabled-when-data-present"},
+    {"id": "volume.gruneisen", "entrypoint": "phonopy-gruneisen", "options": ["--band", "--mesh", "--readfc"], "outputs": ["gruneisen.yaml"], "status": "official-example-sequence"},
+    {"id": "volume.qha", "entrypoint": "phonopy-qha", "options": ["--eos", "--pressure", "--tmax", "--efe", "-b", "-p", "-s", "--sparse"], "outputs": ["QHA text/plot products"], "status": "official-example-sequence"},
+    {"id": "plot.band", "entrypoint": "phonopy-bandplot", "options": ["--gnuplot", "-o"], "outputs": ["plot or gnuplot-style stdout"], "status": "official-example-sequence"},
+    {"id": "plot.pdos", "entrypoint": "phonopy-pdosplot", "options": ["-i", "-o"], "outputs": ["PDOS plot"], "status": "official-example-sequence"},
+    {"id": "born.vasp", "entrypoint": "phonopy-vasp-born", "options": ["--nost", "--outcar", "--pa", "--dim"], "outputs": ["BORN-style stdout"], "status": "official-example-sequence"}
+  ],
+  "option_groups": [
+    {
+      "id": "calculator-selection",
+      "scope": "tag-pinned v4.3.1 parser",
+      "options": ["--abacus", "--abinit", "--aims", "--castep", "--cp2k", "--crystal", "--dftb+", "--elk", "--fleur", "--lammps", "--pwmat", "--qlm", "--qe", "--siesta", "--turbomole", "--vasp", "--wien2k"]
+    },
+    {
+      "id": "setup-and-collection",
+      "scope": "phonopy-init in v4",
+      "options": ["-c", "--cell", "-d", "--dim", "--rd", "--rd-auto-factor", "-f", "--force-sets", "--fz", "--force-sets-zero", "--fc", "--force-constants", "--sp", "--save-params", "--symmetry", "--amplitude", "--amin", "--amax", "--random-seed", "--pm", "--nodiag", "--trigonal", "--pa", "--primitive-axes", "--tolerance", "--nosym", "--magmom"]
+    },
+    {
+      "id": "property-selection",
+      "scope": "phonopy calculation command",
+      "options": ["--anime", "--band", "--band-connection", "--band-const-interval", "--band-format", "--band-labels", "--band-points", "--dos", "--eigvecs", "--eigenvectors", "--irreps", "--show-irreps", "--modulation", "--moment", "--moment-order", "--mp", "--mesh", "--mesh-format", "--pdos", "--qpoints", "--qpoints-format", "--read-qpoints", "-t", "--classical", "--projected-thermal-property", "--thermal-displacements", "--thermal-displacement-matrices", "--writedm"]
+    },
+    {
+      "id": "force-constants",
+      "scope": "phonopy calculation and compatible setup paths",
+      "options": ["--fc-calculator", "--fc-calculator-options", "--fc-format", "--fc-symmetry", "--full-fc", "--cutoff-radius", "--include-fc", "--include-fs", "--include-disp", "--include-all", "--readfc", "--writefc", "--no-sym-fc"]
+    },
+    {
+      "id": "sampling-projection-and-nac",
+      "scope": "phonopy calculation command",
+      "options": ["--gc", "--gamma-center", "--gv", "--group-velocity", "--gv-delta-q", "--lcg", "--little-cogroup", "--nac-method", "--nonac", "--nomeshsym", "--nowritemesh", "--pd", "--projection-direction", "--q-direction", "--xyz-projection"]
+    },
+    {
+      "id": "frequency-temperature-and-output",
+      "scope": "phonopy calculation command",
+      "options": ["--cutoff-freq", "--fits-debye-model", "--fmax", "--fmin", "--fpitch", "--hdf5", "--pr", "--pretend-real", "--sigma", "--tmin", "--tmax", "--tstep", "--rd-temperature", "--pypolymlp", "--mlp-params", "--sscha", "--relax-atomic-positions", "-p", "-s", "-v", "--verbose", "-q", "--quiet", "--config", "--legacy-backend"]
+    },
+    {
+      "id": "deprecated-or-removed",
+      "scope": "version-sensitive",
+      "options": ["--factor", "--nac", "--rust", "--symfc", "--br", "--st"]
+    }
+  ],
+  "calculator_interfaces": [
+    {"id": "VASP", "selection_option": "--vasp (default when omitted)", "unit_cell": "POSCAR", "force_unit": "eV/Angstrom", "status": "built-in"},
+    {"id": "WIEN2k", "selection_option": "--wien2k", "unit_cell": "case.struct", "force_unit": "mRy/bohr", "status": "built-in-limited"},
+    {"id": "QE", "selection_option": "--qe", "unit_cell": "unitcell.in", "force_unit": "Ry/bohr", "status": "built-in"},
+    {"id": "ABINIT", "selection_option": "--abinit", "unit_cell": "unitcell.in", "force_unit": "eV/Angstrom", "status": "built-in"},
+    {"id": "SIESTA", "selection_option": "--siesta", "unit_cell": "input.fdf", "force_unit": "eV/Angstrom", "status": "built-in"},
+    {"id": "Elk", "selection_option": "--elk", "unit_cell": "elk.in", "force_unit": "hartree/bohr", "status": "built-in"},
+    {"id": "CRYSTAL", "selection_option": "--crystal", "unit_cell": "crystal.o", "force_unit": "eV/Angstrom", "status": "built-in"},
+    {"id": "DFTB+", "selection_option": "--dftb+", "unit_cell": "geo.gen", "force_unit": "hartree/bohr", "status": "tag-pinned-parser-listed"},
+    {"id": "TURBOMOLE", "selection_option": "--turbomole", "unit_cell": "control", "force_unit": "hartree/bohr", "status": "built-in"},
+    {"id": "CP2K", "selection_option": "--cp2k", "unit_cell": "unitcell.inp", "force_unit": "hartree/bohr", "status": "built-in-optional-parser-dependency"},
+    {"id": "FHI-AIMS", "selection_option": "--aims", "unit_cell": "geometry.in", "force_unit": "eV/Angstrom", "status": "tag-pinned-parser-listed"},
+    {"id": "Fleur", "selection_option": "--fleur", "unit_cell": "fleur.in", "force_unit": "hartree/bohr", "status": "built-in"},
+    {"id": "CASTEP", "selection_option": "--castep", "unit_cell": "unitcell.cell", "force_unit": "eV/Angstrom", "status": "tag-pinned-parser-listed"},
+    {"id": "ABACUS", "selection_option": "--abacus", "unit_cell": "STRU", "force_unit": "eV/Angstrom", "status": "tag-pinned-parser-listed"},
+    {"id": "LAMMPS", "selection_option": "--lammps", "unit_cell": "unitcell", "force_unit": "eV/Angstrom", "status": "parser-listed-external-force-route"},
+    {"id": "Questaal", "selection_option": "--qlm", "unit_cell": "site.lm", "force_unit": "Ry/bohr", "status": "built-in"},
+    {"id": "PWmat", "selection_option": "--pwmat", "unit_cell": null, "force_unit": null, "status": "tag-pinned-parser-listed-doc-index-lag"}
+  ],
+  "documentation_conflicts": [
+    {
+      "id": "main-cli-nac",
+      "severity": "blocking-for-command-generation",
+      "conflict": "The generic command-options and some interface pages still list --nac, while the v4 migration page says it was removed from the main phonopy CLI; NAC is automatic and --nonac is the opt-out.",
+      "resolution": "Never generate phonopy --nac for v4.3.1. Inspect exact help before using --nac on a separate helper such as phonopy-gruneisen.",
+      "sources": ["https://phonopy.github.io/phonopy/command-options.html", "https://phonopy.github.io/phonopy/migration-v4.html"]
+    },
+    {
+      "id": "force-collection-command",
+      "severity": "blocking-for-stale-example",
+      "conflict": "Interface subsections on the command-options page retain phonopy -f examples, but v4 rejects setup flags on phonopy.",
+      "resolution": "Use phonopy-init -f or phonopy-init --sp -f in v4.3.1.",
+      "sources": ["https://phonopy.github.io/phonopy/command-options.html", "https://phonopy.github.io/phonopy/phonopy-init.html", "https://phonopy.github.io/phonopy/migration-v4.html"]
+    },
+    {
+      "id": "example-output-version",
+      "severity": "nonblocking-with-disclosure",
+      "conflict": "The current 4.3.1 Examples page embeds output banners from 2.26.6 and warns that website examples can lag package examples.",
+      "resolution": "Treat the command as documentation evidence only and never treat embedded output as 4.3.1 native validation.",
+      "sources": ["https://phonopy.github.io/phonopy/examples.html"]
+    },
+    {
+      "id": "propplot-spelling",
+      "severity": "nonblocking-typo",
+      "conflict": "The auxiliary-tools page heading and source entrypoint say phonopy-propplot, while its example says phonopy-proplot.",
+      "resolution": "Use the v4.3.1 pyproject entrypoint spelling phonopy-propplot and inspect native help.",
+      "sources": ["https://phonopy.github.io/phonopy/auxiliary-tools.html", "https://github.com/phonopy/phonopy/blob/v4.3.1/pyproject.toml"]
+    },
+    {
+      "id": "pypolymlp-version-and-options",
+      "severity": "blocking-for-mlp-recipe",
+      "conflict": "A temperature-dependent-force-constants page contains dependency and option text that does not match the v4.3.1 pyproject/parser baseline.",
+      "resolution": "No pypolymlp recipe is established here; inspect the exact v4.3.1 package and current official page before planning.",
+      "sources": ["https://phonopy.github.io/phonopy/pypolymlp.html", "https://github.com/phonopy/phonopy/blob/v4.3.1/pyproject.toml"]
+    },
+    {
+      "id": "random-displacement-legacy-cli",
+      "severity": "blocking-for-stale-example",
+      "conflict": "The random-displacement page retains setup examples with phonopy --rd ... -c --dim even though v4 moved initial setup to phonopy-init.",
+      "resolution": "Use phonopy-init for initial finite-count snapshots; use phonopy only for finite-temperature sampling from an existing phonon YAML.",
+      "sources": ["https://phonopy.github.io/phonopy/random-displacements.html", "https://phonopy.github.io/phonopy/phonopy-init.html"]
+    },
+    {
+      "id": "qe-born-nac",
+      "severity": "blocking-for-stale-example",
+      "conflict": "QE/BORN prose retains phonopy --nac examples although the v4 main parser removed --nac.",
+      "resolution": "Create a compatible BORN file, let v4 enable NAC automatically, and check the runtime log; use --nonac only to opt out.",
+      "sources": ["https://phonopy.github.io/phonopy/qe.html", "https://phonopy.github.io/phonopy/migration-v4.html"]
+    },
+    {
+      "id": "vasp-born-st",
+      "severity": "blocking-for-option-generation",
+      "conflict": "VASP prose refers to phonopy-vasp-born --st, but the pinned helper defaults to symmetrization and exposes --nost instead.",
+      "resolution": "Do not generate --st; use the default or --nost after reviewing exact help.",
+      "sources": ["https://phonopy.github.io/phonopy/vasp.html", "https://phonopy.github.io/phonopy/auxiliary-tools.html"]
+    },
+    {
+      "id": "pdos-filename",
+      "severity": "nonblocking-with-explicit-input",
+      "conflict": "Output documentation names projected_dos.dat while helper source/help may use partial_dos.dat as a default.",
+      "resolution": "Pass the actual existing data filename explicitly and bind it by hash; never rely on a default name.",
+      "sources": ["https://phonopy.github.io/phonopy/output-files.html", "https://github.com/phonopy/phonopy/tree/v4.3.1"]
+    },
+    {
+      "id": "qha-exclude-imaginary",
+      "severity": "blocking-without-volume-accounting",
+      "conflict": "The pinned QHA parser contains --exclude-imaginary but the official QHA prose does not fully document its scientific consequences.",
+      "resolution": "If used, record every excluded volume, retain enough valid points, and revalidate volume bracketing and fit stability.",
+      "sources": ["https://phonopy.github.io/phonopy/qha.html", "https://github.com/phonopy/phonopy/tree/v4.3.1"]
+    },
+    {
+      "id": "calculator-index-lag",
+      "severity": "nonblocking-discovery-drift",
+      "conflict": "The official interface navigation does not match all 17 calculator selectors in the pinned parser, including PWmat.",
+      "resolution": "Use the tag-pinned calculator registry for existence, then require a same-version official interface recipe before execution planning.",
+      "sources": ["https://phonopy.github.io/phonopy/interfaces.html", "https://github.com/phonopy/phonopy/blob/v4.3.1/phonopy/interface/calculator.py"]
+    },
+    {
+      "id": "bandplot-gnuplot-exit",
+      "severity": "adapter-special-case",
+      "conflict": "The pinned phonopy-bandplot --gnuplot path can emit requested data and then exit with status 1.",
+      "resolution": "A version-pinned adapter must validate stdout content and expected sentinels together with exit status.",
+      "sources": ["https://github.com/phonopy/phonopy/blob/v4.3.1/phonopy/scripts/phonopy_bandplot.py"]
+    },
+    {
+      "id": "installation-scipy",
+      "severity": "nonblocking-environment-drift",
+      "conflict": "The install page lists SciPy, but the v4.3.1 core dependency manifest does not.",
+      "resolution": "Record actual installed metadata and the workflow-specific reason for SciPy rather than silently changing the core lock.",
+      "sources": ["https://phonopy.github.io/phonopy/install.html", "https://github.com/phonopy/phonopy/blob/v4.3.1/pyproject.toml"]
+    },
+    {
+      "id": "no-console-version-flag",
+      "severity": "blocking-for-version-probe",
+      "conflict": "The pinned console parsers do not register --version, and phonopy -v means verbose.",
+      "resolution": "Use python -c 'import phonopy; print(phonopy.__version__)' and hash the resolved distribution/executables.",
+      "sources": ["https://github.com/phonopy/phonopy/tree/v4.3.1"]
+    },
+    {
+      "id": "removed-shortcuts",
+      "severity": "blocking-for-option-generation",
+      "conflict": "Common tutorial-era shortcuts --symfc and --br are absent from the v4.3.1 parser.",
+      "resolution": "Use --fc-calculator symfc for the former and establish a current parser-backed replacement before using any bulk-relaxation shortcut.",
+      "sources": ["https://phonopy.github.io/phonopy/mlp-sscha.html", "https://github.com/phonopy/phonopy/tree/v4.3.1"]
+    }
+  ],
+  "statistics": {
+    "entrypoints": 15,
+    "capabilities": 20,
+    "calculator_interfaces": 17
+  }
+}

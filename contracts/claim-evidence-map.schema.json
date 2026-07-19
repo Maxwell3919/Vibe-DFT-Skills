@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:claim-evidence-map:1.0",
+  "title": "Vibe DFT Skills claim-to-evidence map",
+  "description": "A fail-closed map from bounded claims to stable evidence IDs, hashed evidence references, gates, blockers, and any separate human scientific decision. A post-decision map points to both a pre-decision candidate and its later decision; the decision never points back to the post-decision map.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "map_id",
+  "x-vibe-semantic-obligations": [
+    "CLAIM_EVIDENCE_IDS_UNIQUE",
+    "CLAIM_SUPPORTED_EVIDENCE_IDS_RESOLVE_PRESENT_HASHED",
+    "CLAIM_GATE_IDS_UNIQUE",
+    "CLAIM_SUPPORTED_GATE_IDS_RESOLVE_PASSING",
+    "CLAIM_SCIENTIFIC_DECISION_CANDIDATE_HASH_OUTCOME_MATCH",
+    "CLAIM_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "map_id",
+    "subject_records",
+    "status",
+    "claim_ceiling",
+    "scientific_acceptance",
+    "scientific_decision_ref",
+    "evidence",
+    "gates",
+    "claims",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "claim-evidence-map"},
+    "map_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "subject_records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "status": {"enum": ["complete", "partial", "blocked"]},
+    "claim_ceiling": {"$ref": "#/$defs/claimCeiling"},
+    "scientific_acceptance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/scientificAcceptance"
+    },
+    "scientific_decision_ref": {
+      "oneOf": [
+        {
+          "allOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+            {
+              "properties": {
+                "contract_name": {"const": "decision-record"},
+                "schema_version": {"const": "1.0"},
+                "role": {"const": "scientific-acceptance"}
+              }
+            }
+          ]
+        },
+        {"type": "null"}
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/evidenceItem"},
+      "uniqueItems": true
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateRecord"},
+      "uniqueItems": true
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/claim"}
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "uniqueItems": true
+    },
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"scientific_acceptance": {"const": "requires_human_review"}},
+        "required": ["scientific_acceptance"]
+      },
+      "then": {
+        "properties": {
+          "status": {"const": "complete"},
+          "claim_ceiling": {"const": "eligible_for_expert_review"},
+          "scientific_decision_ref": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"scientific_acceptance": {"enum": ["accepted", "rejected"]}},
+        "required": ["scientific_acceptance"]
+      },
+      "then": {
+        "properties": {
+          "status": {"const": "complete"},
+          "scientific_decision_ref": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+              {
+                "properties": {
+                  "contract_name": {"const": "decision-record"},
+                  "schema_version": {"const": "1.0"},
+                  "role": {"const": "scientific-acceptance"}
+                }
+              }
+            ]
+          },
+          "claim_ceiling": {"const": "eligible_for_expert_review"}
+        }
+      },
+      "else": {
+        "properties": {"scientific_decision_ref": {"type": "null"}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"scientific_acceptance": {"const": "accepted"}},
+        "required": ["scientific_acceptance"]
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "contains": {
+              "allOf": [
+                {"$ref": "#/$defs/claim"},
+                {
+                  "properties": {
+                    "claim_level": {"const": "eligible_for_expert_review"},
+                    "status": {"const": "supported"}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"scientific_acceptance": {"const": "rejected"}},
+        "required": ["scientific_acceptance"]
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "contains": {
+              "allOf": [
+                {"$ref": "#/$defs/claim"},
+                {
+                  "properties": {
+                    "claim_level": {"const": "eligible_for_expert_review"},
+                    "status": {"const": "rejected"}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "blocked"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "claims": {
+            "contains": {
+              "allOf": [
+                {"$ref": "#/$defs/claim"},
+                {"properties": {"status": {"const": "blocked"}}}
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "no_positive_claim"}}, "required": ["claim_ceiling"]},
+      "then": {"properties": {"claims": {"items": {"$ref": "#/$defs/claimAtNoPositive"}}}}
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "documented_behavior_only"}}, "required": ["claim_ceiling"]},
+      "then": {"properties": {"claims": {"items": {"$ref": "#/$defs/claimAtDocumented"}}}}
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "input_gates_only"}}, "required": ["claim_ceiling"]},
+      "then": {"properties": {"claims": {"items": {"$ref": "#/$defs/claimAtInput"}}}}
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "technical_run_gates_only"}}, "required": ["claim_ceiling"]},
+      "then": {"properties": {"claims": {"items": {"$ref": "#/$defs/claimAtTechnical"}}}}
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "numerical_candidate_only"}}, "required": ["claim_ceiling"]},
+      "then": {"properties": {"claims": {"items": {"$ref": "#/$defs/claimAtConvergence"}}}}
+    }
+  ],
+  "$defs": {
+    "claimCeiling": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/claimCeiling"
+    },
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "kind", "record_ref", "file_ref", "status", "limitations"],
+      "properties": {
+        "evidence_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+        "kind": {"enum": ["record", "file"]},
+        "record_ref": {
+          "oneOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+            {"type": "null"}
+          ]
+        },
+        "file_ref": {
+          "oneOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+            {"type": "null"}
+          ]
+        },
+        "status": {"enum": ["present", "external", "redacted", "missing", "conflict"]},
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"const": "record"}}, "required": ["kind"]},
+          "then": {
+            "properties": {
+              "record_ref": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+              "file_ref": {"type": "null"}
+            }
+          },
+          "else": {
+            "properties": {
+              "record_ref": {"type": "null"},
+              "file_ref": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {"const": "file"},
+              "status": {"const": "present"}
+            },
+            "required": ["kind", "status"]
+          },
+          "then": {
+            "properties": {
+              "file_ref": {
+                "allOf": [
+                  {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                  {"properties": {"availability": {"const": "present"}}}
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "statement", "claim_level", "status", "evidence_ids", "gate_ids", "blocker_codes"],
+      "properties": {
+        "claim_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+        "statement": {"type": "string", "minLength": 1, "maxLength": 4000},
+        "claim_level": {"$ref": "#/$defs/claimCeiling"},
+        "status": {"enum": ["supported", "blocked", "not-assessed", "rejected"]},
+        "evidence_ids": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "gate_ids": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "blocker_codes": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "supported"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "evidence_ids": {"minItems": 1},
+              "gate_ids": {"minItems": 1},
+              "blocker_codes": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "blocked"}}, "required": ["status"]},
+          "then": {"properties": {"blocker_codes": {"minItems": 1}}}
+        }
+      ]
+    },
+    "claimAtNoPositive": {
+      "allOf": [
+        {"$ref": "#/$defs/claim"},
+        {"properties": {"claim_level": {"const": "no_positive_claim"}}}
+      ]
+    },
+    "claimAtDocumented": {
+      "allOf": [
+        {"$ref": "#/$defs/claim"},
+        {"properties": {"claim_level": {"enum": ["no_positive_claim", "documented_behavior_only"]}}}
+      ]
+    },
+    "claimAtInput": {
+      "allOf": [
+        {"$ref": "#/$defs/claim"},
+        {"properties": {"claim_level": {"enum": ["no_positive_claim", "documented_behavior_only", "input_gates_only"]}}}
+      ]
+    },
+    "claimAtTechnical": {
+      "allOf": [
+        {"$ref": "#/$defs/claim"},
+        {"properties": {"claim_level": {"enum": ["no_positive_claim", "documented_behavior_only", "input_gates_only", "technical_run_gates_only"]}}}
+      ]
+    },
+    "claimAtConvergence": {
+      "allOf": [
+        {"$ref": "#/$defs/claim"},
+        {"properties": {"claim_level": {"enum": ["no_positive_claim", "documented_behavior_only", "input_gates_only", "technical_run_gates_only", "numerical_candidate_only"]}}}
+      ]
+    }
+  }
+}

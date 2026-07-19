@@ -1,0 +1,399 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:execution-record:1.0",
+  "title": "Vibe DFT Skills execution record",
+  "description": "A privacy-safe technical record of a dry-run or authorized execution. Scheduler and process success are observations, not proof of application completion or scientific acceptance.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "execution_id",
+  "x-vibe-semantic-obligations": [
+    "EXEC_REQUEST_REF_HASH_MATCH",
+    "EXEC_WORKFLOW_PLAN_REF_HASH_MATCH",
+    "EXEC_LEASE_ACTIVE_REQUEST_MATCH",
+    "EXEC_GRANTED_SCOPE_SUBSET",
+    "EXEC_WORKFLOW_STEP_MATCH",
+    "EXEC_REQUEST_CONTENT_MATCH",
+    "EXEC_ARGV_HASH_MATCH",
+    "EXEC_TIME_ORDER_AND_TIMINGS_MATCH",
+    "EXEC_REQUEST_LEASE_EXECUTION_TIME_CHAIN",
+    "EXEC_INPUT_OUTPUT_HASH_CONTENT_MATCH",
+    "EXEC_NATIVE_STATUS_EVIDENCE_MATCH",
+    "EXEC_PARENT_LINEAGE_RESOLVES",
+    "EXEC_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "execution_id",
+    "request_ref",
+    "lease_ref",
+    "workflow_plan_ref",
+    "workflow_step_id",
+    "parent_records",
+    "dry_run",
+    "executor",
+    "engine",
+    "environment_profile_id",
+    "command_kind",
+    "shell",
+    "argv",
+    "argv_sha256",
+    "working_directory_label",
+    "resources",
+    "inputs",
+    "outputs",
+    "started_utc",
+    "finished_utc",
+    "timings",
+    "status",
+    "return_code",
+    "tool_failure",
+    "scientific_acceptance",
+    "claim_ceiling",
+    "gates",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "execution-record"},
+    "execution_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "request_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "execution-request"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "execution-request"}
+          }
+        }
+      ]
+    },
+    "lease_ref": {
+      "oneOf": [
+        {
+          "allOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+            {
+              "properties": {
+                "contract_name": {"const": "execution-lease"},
+                "schema_version": {"const": "1.0"},
+                "role": {"const": "execution-lease"}
+              }
+            }
+          ]
+        },
+        {"type": "null"}
+      ]
+    },
+    "workflow_plan_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "workflow-plan"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "workflow-plan"}
+          }
+        }
+      ]
+    },
+    "workflow_step_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "parent_records": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "dry_run": {"type": "boolean"},
+    "executor": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+    "engine": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/softwareIdentity"},
+    "environment_profile_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "command_kind": {"const": "argv"},
+    "shell": {"const": false},
+    "argv": {"$ref": "urn:vibe-dft-skills:contract:execution-request:1.0#/$defs/argv"},
+    "argv_sha256": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"},
+    "working_directory_label": {"$ref": "urn:vibe-dft-skills:contract:execution-request:1.0#/$defs/pathLabel"},
+    "resources": {"$ref": "urn:vibe-dft-skills:contract:execution-request:1.0#/$defs/resources"},
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"}
+    },
+    "outputs": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"}
+    },
+    "started_utc": {"type": ["string", "null"], "format": "date-time"},
+    "finished_utc": {"type": ["string", "null"], "format": "date-time"},
+    "timings": {"$ref": "#/$defs/timings"},
+    "status": {"$ref": "#/$defs/status"},
+    "return_code": {"type": ["integer", "null"]},
+    "tool_failure": {"$ref": "#/$defs/toolFailure"},
+    "scientific_acceptance": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/scientificAcceptance"},
+        {"const": "not_assessed"}
+      ]
+    },
+    "claim_ceiling": {
+      "enum": [
+        "no_positive_claim",
+        "documented_behavior_only",
+        "input_gates_only",
+        "technical_run_gates_only"
+      ]
+    },
+    "gates": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "uniqueItems": true
+    },
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"dry_run": {"const": true}}, "required": ["dry_run"]},
+      "then": {
+        "properties": {
+          "lease_ref": {"type": "null"},
+          "started_utc": {"type": "null"},
+          "finished_utc": {"type": "null"},
+          "return_code": {"type": "null"},
+          "status": {
+            "allOf": [
+              {"$ref": "#/$defs/status"},
+              {
+                "properties": {
+                  "normalized_status": {"const": "dry-run"},
+                  "scheduler_status": {"const": "not-submitted"},
+                  "process_status": {"const": "not-started"},
+                  "application_status": {"const": "not-started"}
+                }
+              }
+            ]
+          },
+          "outputs": {
+            "items": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "missing"}}}
+              ]
+            }
+          },
+          "tool_failure": {
+            "allOf": [
+              {"$ref": "#/$defs/toolFailure"},
+              {"properties": {"occurred": {"const": false}}}
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "lease_ref": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+              {
+                "properties": {
+                  "contract_name": {"const": "execution-lease"},
+                  "schema_version": {"const": "1.0"},
+                  "role": {"const": "execution-lease"}
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"properties": {"normalized_status": {"const": "succeeded"}}, "required": ["normalized_status"]}
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "finished_utc": {"type": "string", "format": "date-time"},
+          "return_code": {"const": 0},
+          "status": {
+            "allOf": [
+              {"$ref": "#/$defs/status"},
+              {
+                "properties": {
+                  "scheduler_status": {"enum": ["succeeded", "not-applicable"]},
+                  "process_status": {"const": "exited-zero"},
+                  "application_status": {"const": "completed"}
+                }
+              }
+            ]
+          },
+          "tool_failure": {
+            "allOf": [
+              {"$ref": "#/$defs/toolFailure"},
+              {"properties": {"occurred": {"const": false}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "properties": {
+              "normalized_status": {"enum": ["failed", "timed-out", "cancelled"]}
+            },
+            "required": ["normalized_status"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "finished_utc": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "no_positive_claim"}}, "required": ["claim_ceiling"]},
+      "then": {
+        "properties": {
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"claim_ceiling": {"const": "no_positive_claim"}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "documented_behavior_only"}}, "required": ["claim_ceiling"]},
+      "then": {
+        "properties": {
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"claim_ceiling": {"const": "documented_behavior_only"}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "input_gates_only"}}, "required": ["claim_ceiling"]},
+      "then": {
+        "properties": {
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"claim_ceiling": {"const": "input_gates_only"}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"claim_ceiling": {"const": "technical_run_gates_only"}}, "required": ["claim_ceiling"]},
+      "then": {
+        "properties": {
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"claim_ceiling": {"const": "technical_run_gates_only"}}}
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_scheduler_status",
+        "scheduler_status",
+        "native_process_status",
+        "process_status",
+        "native_application_status",
+        "application_status",
+        "normalized_status"
+      ],
+      "properties": {
+        "native_scheduler_status": {"type": ["string", "null"], "minLength": 1, "maxLength": 256},
+        "scheduler_status": {
+          "enum": ["not-submitted", "submitted", "queued", "running", "succeeded", "failed", "cancelled", "unknown", "not-applicable"]
+        },
+        "native_process_status": {"type": ["string", "null"], "minLength": 1, "maxLength": 256},
+        "process_status": {
+          "enum": ["not-started", "running", "exited-zero", "exited-nonzero", "signalled", "timed-out", "unknown", "not-applicable"]
+        },
+        "native_application_status": {"type": ["string", "null"], "minLength": 1, "maxLength": 256},
+        "application_status": {
+          "enum": ["not-started", "running", "completed", "incomplete", "failed", "unknown", "not-applicable"]
+        },
+        "normalized_status": {
+          "enum": ["dry-run", "queued", "running", "succeeded", "failed", "timed-out", "cancelled", "blocked"]
+        }
+      }
+    },
+    "timings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queue_wait_s", "wall_time_s", "cpu_time_s", "gpu_time_s"],
+      "properties": {
+        "queue_wait_s": {"type": ["number", "null"], "minimum": 0},
+        "wall_time_s": {"type": ["number", "null"], "minimum": 0},
+        "cpu_time_s": {"type": ["number", "null"], "minimum": 0},
+        "gpu_time_s": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "toolFailure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["occurred", "phase", "finding_code", "detail", "evidence_refs"],
+      "properties": {
+        "occurred": {"type": "boolean"},
+        "phase": {"enum": ["none", "staging", "submission", "monitoring", "collection", "validation"]},
+        "finding_code": {
+          "oneOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+            {"type": "null"}
+          ]
+        },
+        "detail": {"type": ["string", "null"], "minLength": 1, "maxLength": 1000},
+        "evidence_refs": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"occurred": {"const": true}}, "required": ["occurred"]},
+          "then": {
+            "properties": {
+              "phase": {"not": {"const": "none"}},
+              "finding_code": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+              "detail": {"type": "string", "minLength": 1, "maxLength": 1000},
+              "evidence_refs": {"minItems": 1}
+            }
+          },
+          "else": {
+            "properties": {
+              "phase": {"const": "none"},
+              "finding_code": {"type": "null"},
+              "detail": {"type": "null"},
+              "evidence_refs": {"maxItems": 0}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

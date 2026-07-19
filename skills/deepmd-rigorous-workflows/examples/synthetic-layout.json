@@ -1,0 +1,202 @@
+{
+  "backend": "pytorch",
+  "dataset_id": "synthetic-hydrogen",
+  "deepmd_version": "3.1.3",
+  "licenses": {
+    "backend": "synthetic-test-license",
+    "dataset": "synthetic-test-data",
+    "framework": "synthetic-test-license",
+    "reference_data": "synthetic-test-data"
+  },
+  "reference_protocol_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "source_dataset_audit_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "schema_version": "candidate-1.0",
+  "systems": [
+    {
+      "arrays": [
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "coord.npy",
+          "sha256": "0101010101010101010101010101010101010101010101010101010101010101",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        },
+        {
+          "bytes": 8,
+          "dtype": "float64",
+          "name": "energy.npy",
+          "sha256": "0202020202020202020202020202020202020202020202020202020202020202",
+          "shape": [
+            1
+          ]
+        },
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "force.npy",
+          "sha256": "0303030303030303030303030303030303030303030303030303030303030303",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        }
+      ],
+      "group_id": "synthetic-train-group",
+      "natoms": 1,
+      "nframes": 1,
+      "periodic": false,
+      "split": "train",
+      "source_frame_index_sha256": "5151515151515151515151515151515151515151515151515151515151515151",
+      "system_id": "synthetic-train",
+      "type_map_raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type_raw_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "arrays": [
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "coord.npy",
+          "sha256": "0404040404040404040404040404040404040404040404040404040404040404",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        },
+        {
+          "bytes": 8,
+          "dtype": "float64",
+          "name": "energy.npy",
+          "sha256": "0505050505050505050505050505050505050505050505050505050505050505",
+          "shape": [
+            1
+          ]
+        },
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "force.npy",
+          "sha256": "0606060606060606060606060606060606060606060606060606060606060606",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        }
+      ],
+      "group_id": "synthetic-validation-group",
+      "natoms": 1,
+      "nframes": 1,
+      "periodic": false,
+      "split": "validation",
+      "source_frame_index_sha256": "5252525252525252525252525252525252525252525252525252525252525252",
+      "system_id": "synthetic-validation",
+      "type_map_raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type_raw_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "arrays": [
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "coord.npy",
+          "sha256": "0707070707070707070707070707070707070707070707070707070707070707",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        },
+        {
+          "bytes": 8,
+          "dtype": "float64",
+          "name": "energy.npy",
+          "sha256": "0808080808080808080808080808080808080808080808080808080808080808",
+          "shape": [
+            1
+          ]
+        },
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "force.npy",
+          "sha256": "0909090909090909090909090909090909090909090909090909090909090909",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        }
+      ],
+      "group_id": "synthetic-test-group",
+      "natoms": 1,
+      "nframes": 1,
+      "periodic": false,
+      "split": "test",
+      "source_frame_index_sha256": "5353535353535353535353535353535353535353535353535353535353535353",
+      "system_id": "synthetic-test",
+      "type_map_raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type_raw_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "arrays": [
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "coord.npy",
+          "sha256": "1010101010101010101010101010101010101010101010101010101010101010",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        },
+        {
+          "bytes": 8,
+          "dtype": "float64",
+          "name": "energy.npy",
+          "sha256": "1212121212121212121212121212121212121212121212121212121212121212",
+          "shape": [
+            1
+          ]
+        },
+        {
+          "bytes": 24,
+          "dtype": "float64",
+          "name": "force.npy",
+          "sha256": "1313131313131313131313131313131313131313131313131313131313131313",
+          "shape": [
+            1,
+            1,
+            3
+          ]
+        }
+      ],
+      "group_id": "synthetic-ood-group",
+      "natoms": 1,
+      "nframes": 1,
+      "periodic": false,
+      "split": "ood",
+      "source_frame_index_sha256": "5454545454545454545454545454545454545454545454545454545454545454",
+      "system_id": "synthetic-ood",
+      "type_map_raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "type_raw_sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  ],
+  "type_map": [
+    "H"
+  ],
+  "type_map_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "units": {
+    "energy": "eV",
+    "forces": "eV/angstrom",
+    "virial": "eV"
+  },
+  "virial_policy": "absent"
+}

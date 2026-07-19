@@ -2,6 +2,27 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/tool-execution.schema.json",
   "title": "Postprocessing tool execution record",
+  "$comment": "Schema validation establishes shape only. Succeeded means a hash-bound tool step completed exactly as planned; it does not establish parser correctness, numerical validity, or scientific acceptance.",
+  "x-vibe-semantic-obligations": [
+    "LEGACY_TOOL_EXECUTION_PLAN_LINEAGE_PREEXISTS",
+    "LEGACY_TOOL_EXECUTION_STATUS_RUNTIME_CONSISTENT",
+    "LEGACY_TOOL_EXECUTION_FILE_ARTIFACT_HASH_RESOLVES",
+    "LEGACY_TOOL_EXECUTION_PLAN_STEP_CONSISTENT",
+    "LEGACY_TOOL_EXECUTION_TECHNICAL_CLAIM_CEILING",
+    "LEGACY_TOOL_EXECUTION_PRIVACY_SAFE"
+  ],
+  "x-vibe-authority-boundary": {
+    "may_authorize_execution": false,
+    "may_accept_scientific_claim": false,
+    "maximum_claim_ceiling": "technical_run_gates_only"
+  },
+  "x-vibe-artifact-hash-semantics": {
+    "algorithm": "sha256",
+    "byte_basis": "exact-raw-file-bytes",
+    "canonicalization": "none",
+    "bundle_artifact_resolution_required": true,
+    "placeholder_hash_counts_as_evidence": false
+  },
   "type": "object",
   "additionalProperties": false,
   "required": [

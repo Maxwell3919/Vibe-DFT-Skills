@@ -1,0 +1,16 @@
+{
+  "contract_name": "catmap-fixture-manifest",
+  "schema_version": "1.0",
+  "fixtures": [
+    {"file": "fixtures/audit-request-pass.json", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "hash-bound integration request"},
+    {"file": "fixtures/network.json", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "balanced reaction network"},
+    {"file": "fixtures/result.json", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "multi-start steady-state, normalized rates, leakage-free data partition, sensitivity, and uncertainty evidence"},
+    {"file": "fixtures/thermochemistry.json", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "unit/reference and barrier evidence"}
+  ],
+  "excluded_material": [
+    "CatMAP source-code excerpts",
+    "native .mkm, log, Python, pickle, or binary artifacts",
+    "real DFT energetics or unpublished kinetic results",
+    "private paths, hosts, accounts, job identifiers, credentials, or proprietary data"
+  ]
+}

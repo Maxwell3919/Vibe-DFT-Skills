@@ -19,7 +19,7 @@ Run this workflow when a QE, VASP, CP2K, or SIESTA chain completes, stops, fails
 6. Compare only evidence that passes [references/comparability-and-evidence.md](references/comparability-and-evidence.md).
 7. Emit a bounded lesson, a pilot proposal, or `No new transferable experience`.
 
-Use a valid `run_manifest.json` when one exists, but do not discard older or failed campaigns solely because they predate the manifest contract. Normalize a narrative into the JSON/SQLite store only after its meaning is stable.
+Use a valid immutable pre-decision `run_manifest.json` when one exists, but do not discard older or failed campaigns solely because they predate the manifest contract. A completed unreviewed run may preserve measured cost, but it cannot validate a recommendation. Normalize a narrative into the JSON/SQLite store only after its meaning is stable.
 
 ## Keep state gates separate
 
@@ -73,7 +73,7 @@ python3 scripts/dft_efficiency_cli.py recommend --db <PRIVATE_DB> \
   --protocol-id <PROTOCOL_ID> --out recommendation_record.json
 ```
 
-The tool rejects private identifier keys and nonconforming records. Do not commit the database; `.gitignore` excludes runtime databases and `state/`.
+The tool rejects private identifier keys and nonconforming records. It records completed-unreviewed, failed, and stopped costs. Accepted/rejected ingestion and positive recommendations remain fail-closed until a platform trust resolver authenticates the hash-linked calculation → human decision → post-decision claim chain; a self-filled hash or boolean is never sufficient. Do not commit the database; `.gitignore` excludes runtime databases and `state/`.
 
 If the schema cannot represent a case faithfully, retain the private narrative, record the schema gap, and propose a versioned migration. Do not distort the case to satisfy the current schema.
 

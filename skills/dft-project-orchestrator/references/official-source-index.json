@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "retrieved_utc": "2026-07-19T00:00:00Z",
+  "policy": "Use repository contracts as normative project interfaces and external primary sources only for their stated scope. Recheck version-sensitive sources before activation.",
+  "sources": [
+    {
+      "source_id": "repo-workflow-plan-1-0",
+      "authority": "Vibe-DFT-Skills repository",
+      "kind": "normative-project-contract",
+      "locator": "contracts/workflow-plan.schema.json",
+      "version": "1.0",
+      "scope": ["plan shape", "step states", "authorization policy", "claim ceiling"],
+      "redistribution": "repository-controlled"
+    },
+    {
+      "source_id": "repo-decision-record-1-0",
+      "authority": "Vibe-DFT-Skills repository",
+      "kind": "normative-project-contract",
+      "locator": "contracts/decision-record.schema.json",
+      "version": "1.0",
+      "scope": ["execution authorization", "scientific acceptance", "human actor", "validity interval"],
+      "redistribution": "repository-controlled"
+    },
+    {
+      "source_id": "repo-execution-request-1-0",
+      "authority": "Vibe-DFT-Skills repository",
+      "kind": "normative-project-contract",
+      "locator": "contracts/execution-request.schema.json",
+      "version": "1.0",
+      "scope": ["immutable request", "argv boundary", "resources", "side effects", "retry policy"],
+      "redistribution": "repository-controlled"
+    },
+    {
+      "source_id": "json-schema-2020-12",
+      "authority": "JSON Schema organization",
+      "kind": "primary-specification-index",
+      "locator": "https://json-schema.org/specification",
+      "version": "2020-12",
+      "scope": ["schema dialect identity", "validation vocabulary"],
+      "redistribution": "link-only"
+    }
+  ]
+}

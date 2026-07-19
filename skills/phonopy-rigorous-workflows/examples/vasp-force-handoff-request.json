@@ -1,0 +1,54 @@
+{
+  "artifacts": {
+    "audit_report": {
+      "label": "vasp-force-audit.json",
+      "role": "vasp_audit_report",
+      "sha256": "1e441f09b6383a510e72b906f40a30ced330d21364c4bc88b0046138a3f84087"
+    },
+    "displaced_structure": {
+      "label": "POSCAR",
+      "role": "displaced_structure",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    "forces": {
+      "bytes": 128,
+      "label": "force-002.dat",
+      "role": "force_table",
+      "sha256": "abababababababababababababababababababababababababababababababab",
+      "shape": [2, 3],
+      "source_output_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "unit": "eV/angstrom"
+    },
+    "input": {
+      "label": "INCAR",
+      "role": "INCAR",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "output": {
+      "label": "OUTCAR",
+      "role": "OUTCAR",
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  },
+  "expected_parent": {
+    "audit_report_sha256": "1e441f09b6383a510e72b906f40a30ced330d21364c4bc88b0046138a3f84087",
+    "case_id": "case-force-vasp-001",
+    "code": "vasp",
+    "code_version": "6.4.3",
+    "record_id": "run-force-vasp-001",
+    "run_manifest_sha256": "71404eb92e1637c228b34275a5a489e6834c4cf0f1e63288aa840553e4a2d725",
+    "scientific_protocol_id": "protocol-force-vasp-001",
+    "task_type": "static"
+  },
+  "request_id": "handoff-force-vasp-001",
+  "schema_version": "phonopy-parent-handoff-request@1.0-candidate",
+  "workflow": {
+    "displaced_supercell_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "displacement_id": "disp-002",
+    "displacement_set_id": "synthetic-displacements",
+    "displacement_set_sha256": "a29eec1130f3e2cbb211cecd72a3e0a515999c42cd22571438c6a8f3cb8f0ac8",
+    "structure_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "supercell_atom_count": 2,
+    "workflow_id": "synthetic-phonon-001"
+  }
+}

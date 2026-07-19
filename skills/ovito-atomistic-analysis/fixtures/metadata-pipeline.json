@@ -1,0 +1,26 @@
+{
+  "contract_name": "ovito-pipeline-spec-candidate",
+  "schema_version": "0.1",
+  "pipeline_id": "metadata-pipeline-fixture",
+  "provider": {"profile": "ovito-basic", "version": "3.15.5"},
+  "source": {
+    "sha256": "17429ccbba90bf3c464087b7d7d7dfa39d74ffd9e9a7cae75ff2306744b1fcbc",
+    "format": "extxyz"
+  },
+  "frame_selection": {"mode": "indices", "indices": [0, 1]},
+  "operations": [
+    {
+      "operation_id": "frame-metadata-0",
+      "kind": "compute-frame-metadata",
+      "parameters": {},
+      "evidence_role": "technical-metadata"
+    }
+  ],
+  "outputs": [
+    {"output_id": "metadata-json-0", "kind": "json-data", "label": "frame-metadata.json"}
+  ],
+  "periodic_policy": "require-cell",
+  "mapping_policy": "ordinal-only-for-metadata",
+  "source_length_unit": "undeclared",
+  "claim_boundary": "technical-only"
+}

@@ -23,7 +23,10 @@ This private repository is the single source of truth for portable, maintainable
 - Put deterministic behavior in tested scripts rather than prose.
 - Do not add README files inside individual skill directories.
 - Preserve official mirror provenance and refresh transactionally.
-- Register calculation codes, calculation Skill locations, capability catalogs, and service interfaces in `registry/software-registry.yaml`; do not add an independent software list.
+- Register active calculation codes, capability catalogs, and planned software in `registry/software-registry.yaml`; do not add an independent software list.
+- Register every active, development, or planned Skill lifecycle, path, interface role, and side-effect class in `registry/skill-registry.yaml`.
+- Keep roadmap placeholders fail closed: a planned software or Skill is not supported, installed, routable, schema-enumerated, or maturity-bearing. Planned Skills use `path: null` and have no source directory. Source-backed but unfinished Skills use `lifecycle: development`, live under `skills/`, and remain non-routable and non-installable until explicit promotion.
+- Promote a placeholder only after its registered activation profile, deterministic fixtures, contracts, provenance, and repository audit pass; promotion must be an explicit reviewed change rather than a side effect of installing an executable.
 - Register every postprocessing observable/code/backend route in `skills/dft-postprocess/references/observable-registry.yaml`, including explicit `design-only` routes.
 
 ## Validation

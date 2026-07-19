@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "status-observation",
+  "scheduler_family": "slurm",
+  "native_scheduler_status": "COMPLETED",
+  "scheduler_status": "succeeded",
+  "native_process_status": "exit 0",
+  "process_status": "exited-zero",
+  "native_application_status": "completion marker absent",
+  "application_status": "incomplete",
+  "return_code": 0,
+  "evidence_labels": ["synthetic-accounting-record", "synthetic-output-gate"]
+}

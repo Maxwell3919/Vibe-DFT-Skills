@@ -1,0 +1,12 @@
+# VIBE_DFT_SYNTHETIC_LOBSTER_CURVE_V1
+# kind=DOS
+# energy_unit=eV
+# energy_reference=fermi
+# fermi_energy_eV=0.0
+# spin_mode=total
+# sign_convention=density_of_states
+# columns=energy_eV,total_dos,projected_sum_dos
+-2.0 1.0 0.98
+-1.0 2.0 1.95
+0.0 1.0 0.99
+1.0 0.5 0.49

@@ -1,0 +1,100 @@
+{
+  "catalog_contract": "ml-provider-workflow-catalog@1.0",
+  "retrieved_on": "2026-07-19",
+  "scope": "MACE, NequIP, and FairChem provider interfaces beneath the generic evidence guard",
+  "state_definitions": {
+    "official-recipe-native-not-run": "Exact provider/version sources support a recipe, but the provider was absent locally and nothing native ran.",
+    "official-listed-gap-blocked": "A first-party source or registered profile names the capability, but no safe exact recipe is established; block it.",
+    "removed-in-version": "The exact provider version removed the legacy interface; never route to it.",
+    "generic-evidence-only": "The generic guard can audit manifests and lineage only; it does not validate or execute the provider interface."
+  },
+  "native_validation": {
+    "state": "native-not-run",
+    "host": "Darwin arm64; macOS 26.5.2; Python 3.14.0",
+    "executables_found": [],
+    "distributions_found": [],
+    "probes_attempted": [],
+    "reason": "mace-torch, nequip, fairchem-core, and e3nn distributions and the registered MACE/NequIP/FairChem CLIs were absent. No install, import, model load, train, evaluation, compilation, download, or inference was attempted."
+  },
+  "providers": [
+    {
+      "provider_id": "mace",
+      "name": "MACE",
+      "version": "0.3.16",
+      "python_requires": ">=3.9",
+      "sources": [
+        {"source_id": "mace-release", "url": "https://github.com/ACEsuit/mace/releases/tag/v0.3.16", "version_scope": "exact-release"},
+        {"source_id": "mace-packaging", "url": "https://raw.githubusercontent.com/ACEsuit/mace/v0.3.16/setup.cfg", "version_scope": "exact-tag-source"},
+        {"source_id": "mace-args", "url": "https://raw.githubusercontent.com/ACEsuit/mace/v0.3.16/mace/tools/arg_parser.py", "version_scope": "exact-tag-source"},
+        {"source_id": "mace-train-source", "url": "https://raw.githubusercontent.com/ACEsuit/mace/v0.3.16/mace/cli/run_train.py", "version_scope": "exact-tag-source"},
+        {"source_id": "mace-eval-source", "url": "https://raw.githubusercontent.com/ACEsuit/mace/v0.3.16/mace/cli/eval_configs.py", "version_scope": "exact-tag-source"},
+        {"source_id": "mace-training-doc", "url": "https://mace-docs.readthedocs.io/en/latest/guide/training.html", "version_scope": "rolling-docs-cross-checked-to-exact-tag"},
+        {"source_id": "mace-ase-doc", "url": "https://mace-docs.readthedocs.io/en/latest/guide/ase.html", "version_scope": "rolling-docs-cross-checked-to-exact-tag"}
+      ]
+    },
+    {
+      "provider_id": "nequip",
+      "name": "NequIP",
+      "version": "0.19.0",
+      "python_requires": ">=3.10",
+      "sources": [
+        {"source_id": "nequip-release", "url": "https://github.com/mir-group/nequip/releases/tag/v0.19.0", "version_scope": "exact-release"},
+        {"source_id": "nequip-packaging", "url": "https://raw.githubusercontent.com/mir-group/nequip/v0.19.0/pyproject.toml", "version_scope": "exact-tag-source"},
+        {"source_id": "nequip-workflow", "url": "https://nequip.readthedocs.io/en/latest/guide/getting-started/workflow.html", "version_scope": "rolling-docs-reviewed-with-exact-0.19.0-entry-points"},
+        {"source_id": "nequip-files", "url": "https://nequip.readthedocs.io/en/latest/guide/getting-started/files.html", "version_scope": "rolling-docs-reviewed-with-exact-0.19.0-entry-points"},
+        {"source_id": "nequip-save-model", "url": "https://nequip.readthedocs.io/en/latest/api/save_model.html", "version_scope": "rolling-docs-reviewed-with-exact-0.19.0-entry-points"},
+        {"source_id": "nequip-faq", "url": "https://nequip.readthedocs.io/en/latest/guide/reference/faq.html", "version_scope": "rolling-docs-reviewed-with-exact-0.19.0-entry-points"}
+      ]
+    },
+    {
+      "provider_id": "fairchem-v1",
+      "name": "FairChem v1",
+      "version": "1.10.0",
+      "python_requires": ">=3.9,<3.13",
+      "sources": [
+        {"source_id": "fairchem-v1-tag", "url": "https://github.com/facebookresearch/fairchem/tree/fairchem_core-1.10.0", "version_scope": "exact-tag"},
+        {"source_id": "fairchem-v1-readme", "url": "https://raw.githubusercontent.com/facebookresearch/fairchem/fairchem_core-1.10.0/README.md", "version_scope": "exact-tag-source"},
+        {"source_id": "fairchem-v1-packaging", "url": "https://raw.githubusercontent.com/facebookresearch/fairchem/fairchem_core-1.10.0/packages/fairchem-core/pyproject.toml", "version_scope": "exact-tag-source"},
+        {"source_id": "fairchem-v1-pypi", "url": "https://pypi.org/project/fairchem-core/1.10.0/", "version_scope": "exact-release"}
+      ]
+    },
+    {
+      "provider_id": "fairchem-v2",
+      "name": "FairChem v2",
+      "version": "2.21.0",
+      "python_requires": ">=3.11,<3.14",
+      "sources": [
+        {"source_id": "fairchem-v2-tag", "url": "https://github.com/facebookresearch/fairchem/tree/fairchem_core-2.21.0", "version_scope": "exact-tag"},
+        {"source_id": "fairchem-v2-readme", "url": "https://raw.githubusercontent.com/facebookresearch/fairchem/fairchem_core-2.21.0/README.md", "version_scope": "exact-tag-source"},
+        {"source_id": "fairchem-v2-packaging", "url": "https://raw.githubusercontent.com/facebookresearch/fairchem/fairchem_core-2.21.0/packages/fairchem-core/pyproject.toml", "version_scope": "exact-tag-source"},
+        {"source_id": "fairchem-v2-pypi", "url": "https://pypi.org/project/fairchem-core/2.21.0/", "version_scope": "exact-release"},
+        {"source_id": "fairchem-v1-v2", "url": "https://fair-chem.github.io/fairchemv1-v2/", "version_scope": "official-migration-boundary"},
+        {"source_id": "fairchem-uma", "url": "https://fair-chem.github.io/uma/", "version_scope": "rolling-official-model-task-boundary"},
+        {"source_id": "fairchem-uma-tutorial", "url": "https://fair-chem.github.io/uma-tutorial/", "version_scope": "rolling-official-tutorial-cross-checked-to-exact-tag-readme"},
+        {"source_id": "fairchem-models", "url": "https://fair-chem.github.io/models/", "version_scope": "rolling-official-model-index"}
+      ]
+    }
+  ],
+  "entries": [
+    {"entry_id": "mace.install-and-probe", "provider_id": "mace", "operation": "install-probe", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "mace.install-and-probe@0.3.16", "summary": "Pin mace-torch and capture distribution plus registered CLI help.", "source_ids": ["mace-release", "mace-packaging"]},
+    {"entry_id": "mace.train.yaml", "provider_id": "mace", "operation": "train", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "mace.train.yaml@0.3.16", "summary": "Train with mace_run_train and an immutable YAML configuration.", "source_ids": ["mace-args", "mace-train-source", "mace-training-doc"]},
+    {"entry_id": "mace.restart-latest", "provider_id": "mace", "operation": "restart", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "mace.restart-latest@0.3.16", "summary": "Resume the same lineage with restart_latest after checkpoint/config review.", "source_ids": ["mace-args", "mace-training-doc"]},
+    {"entry_id": "mace.evaluate-configs", "provider_id": "mace", "operation": "evaluate", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "mace.evaluate-configs@0.3.16", "summary": "Evaluate explicit configurations and write provider predictions.", "source_ids": ["mace-eval-source"]},
+    {"entry_id": "mace.infer.ase", "provider_id": "mace", "operation": "inference", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "mace.infer.ase@0.3.16", "summary": "Attach MACECalculator to an audited ASE Atoms object.", "source_ids": ["mace-ase-doc"]},
+    {"entry_id": "mace.create-lammps-model", "provider_id": "mace", "operation": "package-lammps", "state": "official-listed-gap-blocked", "guard_support": "generic-evidence-only", "recipe_id": null, "gap": "The exact tag registers mace_create_lammps_model, but a version-bound argument/deployment contract was not validated here.", "source_ids": ["mace-packaging"]},
+    {"entry_id": "nequip.install-and-probe", "provider_id": "nequip", "operation": "install-probe", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "nequip.install-and-probe@0.19.0", "summary": "Pin NequIP and capture exact registered CLI surfaces.", "source_ids": ["nequip-release", "nequip-packaging"]},
+    {"entry_id": "nequip.train", "provider_id": "nequip", "operation": "train", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "nequip.train@0.19.0", "summary": "Run the Hydra config-path/config-name training entry point.", "source_ids": ["nequip-workflow", "nequip-files"]},
+    {"entry_id": "nequip.test-in-workflow", "provider_id": "nequip", "operation": "test", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "nequip.test-in-workflow@0.19.0", "summary": "Run the provider's configured test stage rather than removed legacy evaluate commands.", "source_ids": ["nequip-workflow", "nequip-faq"]},
+    {"entry_id": "nequip.restart", "provider_id": "nequip", "operation": "restart", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "nequip.restart@0.19.0", "summary": "Resume exact checkpoint lineage with ++ckpt_path.", "source_ids": ["nequip-workflow"]},
+    {"entry_id": "nequip.package", "provider_id": "nequip", "operation": "package", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "nequip.package@0.19.0", "summary": "Build and inspect a portable .nequip.zip package from an accepted checkpoint.", "source_ids": ["nequip-workflow", "nequip-save-model"]},
+    {"entry_id": "nequip.compile.aoti-ase", "provider_id": "nequip", "operation": "compile", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "nequip.compile.aoti-ase@0.19.0", "summary": "Compile a package for ASE with AOTInductor on the deployment-like device.", "source_ids": ["nequip-workflow"]},
+    {"entry_id": "nequip.evaluate-legacy", "provider_id": "nequip", "operation": "legacy-evaluate", "state": "removed-in-version", "guard_support": "generic-evidence-only", "recipe_id": null, "gap": "nequip-evaluate and earlier deployment commands were removed; use configured test, package, and compile workflows.", "source_ids": ["nequip-faq", "nequip-workflow"]},
+    {"entry_id": "fairchem-v1.install-and-probe", "provider_id": "fairchem-v1", "operation": "install-probe", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "fairchem-v1.install-and-probe@1.10.0", "summary": "Pin the legacy package in Python >=3.9,<3.13 and capture identity.", "source_ids": ["fairchem-v1-packaging", "fairchem-v1-pypi"]},
+    {"entry_id": "fairchem-v1.equiformer-v2-ase", "provider_id": "fairchem-v1", "operation": "pretrained-inference", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "fairchem-v1.equiformer-v2-ase@1.10.0", "summary": "Use the exact tagged OCPCalculator example and model identifier.", "source_ids": ["fairchem-v1-readme"]},
+    {"entry_id": "fairchem-v1.gemnet-oc-ase", "provider_id": "fairchem-v1", "operation": "pretrained-inference", "state": "official-listed-gap-blocked", "guard_support": "generic-evidence-only", "recipe_id": null, "gap": "The generic profile exists, but an exact 1.10.0 GemNet-OC model identifier/card/license and regression were not resolved in this review.", "source_ids": ["fairchem-v1-tag"]},
+    {"entry_id": "fairchem-v2.install-and-probe", "provider_id": "fairchem-v2", "operation": "install-probe", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "fairchem-v2.install-and-probe@2.21.0", "summary": "Pin FairChem v2 in Python >=3.11,<3.14 and capture identity.", "source_ids": ["fairchem-v2-packaging", "fairchem-v2-pypi"]},
+    {"entry_id": "fairchem-v2.uma-1p2-ase", "provider_id": "fairchem-v2", "operation": "pretrained-inference", "state": "official-recipe-native-not-run", "guard_support": "generic-evidence-only", "recipe_id": "fairchem-v2.uma-1p2-ase@2.21.0", "summary": "Load the gated UMA 1.2 predictor and bind an explicit task name to FAIRChemCalculator.", "source_ids": ["fairchem-v2-readme", "fairchem-uma", "fairchem-uma-tutorial"]},
+    {"entry_id": "fairchem.version-boundary", "provider_id": "fairchem-v2", "operation": "compatibility", "state": "official-listed-gap-blocked", "guard_support": "generic-evidence-only", "recipe_id": null, "gap": "FairChem v2 is a breaking change and cannot consume v1 pretrained models/code through an inferred conversion.", "source_ids": ["fairchem-v1-v2", "fairchem-v2-readme"]},
+    {"entry_id": "fairchem.uma-task-and-reference-boundary", "provider_id": "fairchem-v2", "operation": "scientific-routing", "state": "official-listed-gap-blocked", "guard_support": "generic-evidence-only", "recipe_id": null, "gap": "Task name, charge/spin conventions, DFT reference-energy conventions, model access and model license must be resolved per application.", "source_ids": ["fairchem-v2-readme", "fairchem-uma", "fairchem-models"]}
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "workflow-plan",
+  "plan_id": "synthetic-cycle-plan",
+  "title": "Synthetic cyclic plan",
+  "objective": "Confirm deterministic rejection of a cyclic dependency graph.",
+  "case_id": "synthetic-cycle-case",
+  "scientific_protocol_id": "synthetic-cycle-protocol",
+  "status": "blocked",
+  "domains": ["periodic-dft", "postprocessing"],
+  "source_records": [],
+  "steps": [
+    {
+      "step_id": "cycle-step-a",
+      "skill_id": "qe-rigorous-calculations",
+      "operation_id": "audit-and-run-scf",
+      "route_lifecycle": "active",
+      "state": "blocked",
+      "execution_class": "scheduler",
+      "dependencies": ["cycle-step-b"],
+      "input_records": [],
+      "output_contracts": [{"contract_name": "calculation-record-envelope", "schema_version": "1.0", "role": "calculation-record", "required": true}],
+      "calculation_envelope_ref": null,
+      "execution_request_ref": null,
+      "maturity": {"implementation": "implemented", "validation": "synthetic-validated", "claim_ceiling": "input_gates_only"},
+      "gates": {
+        "status": "blocked",
+        "maximum_action": "plan-only",
+        "claim_ceiling": "no_positive_claim",
+        "checks": [{"check_id": "dag-gate-a", "status": "blocked", "decisive": true, "finding_codes": ["dag-cycle"], "evidence_refs": [], "validated_by": {"actor_type": "deterministic-tool", "actor_id": "synthetic-validator", "role": "validator"}, "validated_utc": "2026-07-19T00:00:00Z", "limitations": ["Adversarial synthetic fixture."]}]
+      },
+      "blocker_codes": ["dag-cycle"]
+    },
+    {
+      "step_id": "cycle-step-b",
+      "skill_id": "dft-postprocess",
+      "operation_id": "inventory-results",
+      "route_lifecycle": "active",
+      "state": "blocked",
+      "execution_class": "local-deterministic",
+      "dependencies": ["cycle-step-a"],
+      "input_records": [],
+      "output_contracts": [{"contract_name": "artifact-manifest", "schema_version": "1.0", "role": "artifact-manifest", "required": true}],
+      "calculation_envelope_ref": null,
+      "execution_request_ref": null,
+      "maturity": {"implementation": "implemented", "validation": "synthetic-validated", "claim_ceiling": "input_gates_only"},
+      "gates": {
+        "status": "blocked",
+        "maximum_action": "plan-only",
+        "claim_ceiling": "no_positive_claim",
+        "checks": [{"check_id": "dag-gate-b", "status": "blocked", "decisive": true, "finding_codes": ["dag-cycle"], "evidence_refs": [], "validated_by": {"actor_type": "deterministic-tool", "actor_id": "synthetic-validator", "role": "validator"}, "validated_utc": "2026-07-19T00:00:00Z", "limitations": ["Adversarial synthetic fixture."]}]
+      },
+      "blocker_codes": ["dag-cycle"]
+    }
+  ],
+  "authorization_policy": {"human_decision_required": true, "lease_required": true, "side_effects": ["scheduler-submit"], "scope_labels": ["synthetic-cycle/run"]},
+  "required_decisions": [],
+  "scientific_acceptance": "not_assessed",
+  "scientific_decision_ref": null,
+  "claim_ceiling": "no_positive_claim",
+  "gates": {
+    "status": "blocked",
+    "maximum_action": "plan-only",
+    "claim_ceiling": "no_positive_claim",
+    "checks": [{"check_id": "synthetic-cycle-gate", "status": "blocked", "decisive": true, "finding_codes": ["dag-cycle"], "evidence_refs": [], "validated_by": {"actor_type": "deterministic-tool", "actor_id": "synthetic-validator", "role": "validator"}, "validated_utc": "2026-07-19T00:00:00Z", "limitations": ["Adversarial synthetic fixture."]}]
+  },
+  "blocker_codes": ["dag-cycle"],
+  "limitations": ["This plan is intentionally invalid because its dependency graph is cyclic."],
+  "producer": {"skill_id": "dft-project-orchestrator", "skill_version": "0.1.0-candidate", "tool_id": "synthetic-fixture-builder", "tool_version": "1.0", "generated_utc": "2026-07-19T00:00:00Z"}
+}

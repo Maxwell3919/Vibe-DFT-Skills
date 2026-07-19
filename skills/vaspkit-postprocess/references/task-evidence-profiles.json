@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.1",
+  "candidate_lifecycle": {
+    "claim_ceiling": "no_positive_claim",
+    "promotion_authorized": false,
+    "execution_authorized": false,
+    "route_claim_fields_are": "post-promotion-potential-only"
+  },
+  "profiles": {
+    "211": {
+      "title": "basic-band-structure",
+      "maturity": "synthetic-validated",
+      "required_parent_roles": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPOINTS"],
+      "required_menu_inputs": ["211", "0"],
+      "required_outputs": ["BAND.dat", "KLABELS"],
+      "supported_spin_channels": [1],
+      "required_parent_acceptance_gates": ["input", "output", "electronic", "band_task"],
+      "required_energy_lineage": {"source_role": "DOSCAR", "input_table_reference_for_default_token_0": "vaspkit-default-fermi-zeroed", "unit": "eV", "sign_convention": "additive"},
+      "post_promotion_potential_claim_ceiling": "technical-band-table-and-menu-lineage"
+    },
+    "252": {
+      "title": "hybrid-dft-band-structure",
+      "maturity": "synthetic-validated",
+      "required_parent_roles": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPATH.in"],
+      "required_menu_inputs": ["252", "0"],
+      "required_outputs": ["BAND.dat", "KLABELS"],
+      "supported_spin_channels": [1],
+      "required_parent_acceptance_gates": ["input", "output", "electronic", "band_task"],
+      "required_energy_lineage": {"source_role": "DOSCAR", "input_table_reference_for_default_token_0": "vaspkit-default-fermi-zeroed", "unit": "eV", "sign_convention": "additive"},
+      "post_promotion_potential_claim_ceiling": "technical-hybrid-band-table-and-menu-lineage"
+    },
+    "projected-bands": {
+      "maturity": "design-only",
+      "blocker": "Projection selectors, PROCAR semantics, table layout, and version-specific menus are not validated.",
+      "post_promotion_potential_claim_ceiling": "none"
+    }
+  }
+}

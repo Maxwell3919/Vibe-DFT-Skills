@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "engine": "gromacs",
+  "fixtures": [
+    {
+      "set_id": "gromacs-project-authored-synthetic-core-v1",
+      "paths": [
+        "examples/plan-request.json",
+        "examples/production.mdp",
+        "examples/start.gro",
+        "examples/topol.top",
+        "examples/params.itp",
+        "examples/model-provenance.json",
+        "examples/synthetic-md.log",
+        "examples/thermo.csv",
+        "examples/trajectory.gro"
+      ],
+      "origin": "project-authored",
+      "license": "CC0-1.0",
+      "redistribution": "allowed",
+      "software_generated": false,
+      "contains_gromacs_copyright_text": false,
+      "contains_restricted_force_field": false,
+      "scientific_meaning": "none",
+      "maturity_ceiling": "synthetic-validated"
+    }
+  ],
+  "decision_table": {
+    "path": "references/weak-model-decision-table.json",
+    "contract": "candidate-decision-table@1.0",
+    "origin": "project-authored deterministic routing fixture",
+    "redistributable": true,
+    "scientific_meaning": "none"
+  },
+  "negative_fixture_policy": "Tests create adversarial variants in temporary directories and never commit real user artifacts."
+}

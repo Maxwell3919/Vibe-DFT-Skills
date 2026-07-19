@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "candidate": "dft-reporting",
+  "overall_maturity": "synthetic-validated",
+  "axes": {
+    "invocation": "synthetic-validated",
+    "strict_json_and_privacy": "synthetic-validated",
+    "fd_identity_and_output_alias_gates": "synthetic-validated",
+    "dirfd_race_and_durable_publication_gates": "synthetic-validated",
+    "mechanical_decision_table": "synthetic-validated",
+    "positive_claim_redaction": "synthetic-validated",
+    "claim_gate_linkage": "format-fixture-validated",
+    "citation_locator_linkage": "synthetic-validated",
+    "decision_authentication": "design-only",
+    "production_bundle_integration": "design-only",
+    "bilingual_document_rendering": "design-only",
+    "external_release": "human-only"
+  },
+  "claim_ceiling": "no_positive_claim",
+  "activation_blockers": [
+    "Activate and validate scientific-report@1.0 plus review-evidence-map@1.0 interfaces.",
+    "Bind complete claim, source, artifact, campaign, and decision records through production bundle semantics.",
+    "Add redistributable real DFT report bundles for QE and VASP with positive, adverse, and superseded claims.",
+    "Implement versioned bilingual document adapters and visual render QA without weakening JSON provenance.",
+    "Add externally authenticated human scientific and release decisions.",
+    "Pass two rounds of blind weak-model safety and usability evaluation.",
+    "Complete reviewed atomic promotion, registry routing, installer, documentation, and CI changes."
+  ]
+}

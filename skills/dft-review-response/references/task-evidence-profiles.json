@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "profiles": [
+    {
+      "task_id": "point-by-point-plan",
+      "required": ["pseudonymous comment IDs", "exactly one response per comment", "response position and kind", "exactly one change ID or one no-change reason", "exactly one present hashed evidence ID for scientific/method responses", "exactly one bounded no-positive claim ID for scientific/method responses", "matching comment-response-change-evidence-claim lineage", "reviewer content hashes with raw text redacted", "explicit limitations"],
+      "blocked_when": ["comment is skipped or duplicated", "evidence is absent", "claim is unsupported or positive", "gate is non-passing", "change or no-change lineage is missing", "response and change evidence/claim links differ"]
+    },
+    {
+      "task_id": "implemented-change-or-submission",
+      "required": ["immutable changed-artifact ref", "production bundle validation", "human author/scientific decision", "privacy and license review", "release decision", "authorized external adapter"],
+      "blocked_when": ["candidate asserts implemented or completed change", "audit is stale or forged", "human trust is unresolved", "release is not explicit"]
+    }
+  ]
+}

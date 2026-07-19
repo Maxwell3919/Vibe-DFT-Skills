@@ -1,0 +1,121 @@
+{
+  "contract_name": "lobster-task-evidence-profiles",
+  "schema_version": "1.0",
+  "profiles": {
+    "bonding-package-audit": {
+      "claims_allowed_for_expert_review": [
+        "cohp-curve",
+        "coop-curve",
+        "dos-projection-closure",
+        "projection-quality"
+      ],
+      "required_artifacts": [
+        "lobsterout",
+        "cohp",
+        "coop",
+        "dos"
+      ],
+      "required_gates": [
+        "provider",
+        "parent",
+        "execution_binding",
+        "artifact",
+        "completion",
+        "basis",
+        "projection",
+        "curve",
+        "consistency",
+        "task",
+        "claim"
+      ]
+    },
+    "cohp-audit": {
+      "claims_allowed_for_expert_review": [
+        "cohp-curve",
+        "projection-quality"
+      ],
+      "required_artifacts": [
+        "lobsterout",
+        "cohp"
+      ],
+      "required_gates": [
+        "provider",
+        "parent",
+        "execution_binding",
+        "artifact",
+        "completion",
+        "basis",
+        "projection",
+        "curve",
+        "consistency",
+        "task",
+        "claim"
+      ]
+    },
+    "coop-audit": {
+      "claims_allowed_for_expert_review": [
+        "coop-curve",
+        "projection-quality"
+      ],
+      "required_artifacts": [
+        "lobsterout",
+        "coop"
+      ],
+      "required_gates": [
+        "provider",
+        "parent",
+        "execution_binding",
+        "artifact",
+        "completion",
+        "basis",
+        "projection",
+        "curve",
+        "consistency",
+        "task",
+        "claim"
+      ]
+    },
+    "dos-audit": {
+      "claims_allowed_for_expert_review": [
+        "dos-projection-closure",
+        "projection-quality"
+      ],
+      "required_artifacts": [
+        "lobsterout",
+        "dos"
+      ],
+      "required_gates": [
+        "provider",
+        "parent",
+        "execution_binding",
+        "artifact",
+        "completion",
+        "basis",
+        "projection",
+        "curve",
+        "consistency",
+        "task",
+        "claim"
+      ]
+    },
+    "projection-audit": {
+      "claims_allowed_for_expert_review": [
+        "projection-quality"
+      ],
+      "required_artifacts": [
+        "lobsterout"
+      ],
+      "required_gates": [
+        "provider",
+        "parent",
+        "execution_binding",
+        "artifact",
+        "completion",
+        "basis",
+        "projection",
+        "task",
+        "claim"
+      ]
+    }
+  }
+}

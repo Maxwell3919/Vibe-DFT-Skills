@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.1",
+  "fixtures": [
+    {"path": "examples/synthetic-source.json", "kind": "constructed-adapter-record", "maturity": "synthetic-validated", "calculation_evidence_projection_sha256": "5d3e60ed502b0d7fefcabe1728f188e17321645fd86e591c201c63568e1708b6", "scientific_use": false},
+    {"path": "examples/synthetic-211-transcript.txt", "kind": "constructed-terminal-transcript", "maturity": "synthetic-validated", "scientific_use": false},
+    {"path": "examples/synthetic-BAND.dat", "kind": "constructed-band-table", "maturity": "synthetic-validated", "scientific_use": false},
+    {"path": "examples/synthetic-KLABELS", "kind": "constructed-label-table", "maturity": "synthetic-validated", "scientific_use": false},
+    {"path": "references/weak-model-decision-table.json", "kind": "machine-decision-contract", "contract_name": "candidate-decision-table", "schema_version": "1.0", "scientific_use": false}
+  ],
+  "assertion": "All records, terminal text, and numerical fixtures are synthetic; they establish no VASPKIT execution, promotion, scientific, or materials claim."
+}

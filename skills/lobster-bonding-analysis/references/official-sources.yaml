@@ -1,0 +1,111 @@
+{
+  "catalog_name": "lobster-official-sources",
+  "schema_version": "1.0",
+  "checked_on": "2026-07-19",
+  "sources": [
+    {
+      "id": "LOB-DOWNLOAD-511",
+      "kind": "release-and-download-page",
+      "version_scope": "5.1.1",
+      "title": "LOBSTER download and current version",
+      "url": "https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6",
+      "authority": "first-party provider page"
+    },
+    {
+      "id": "LOB-LICENSE-511",
+      "kind": "license",
+      "version_scope": "current download",
+      "title": "LOBSTER registration and license agreement",
+      "url": "https://schmeling.ac.rwth-aachen.de/cohp/index.php?fileID=18&menuID=603",
+      "authority": "first-party provider page"
+    },
+    {
+      "id": "LOB-COHP-OVERVIEW",
+      "kind": "official-method-overview",
+      "version_scope": "method",
+      "title": "Crystal Orbital Hamilton Populations",
+      "url": "https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=1",
+      "authority": "first-party project page"
+    },
+    {
+      "id": "LOB-PROJECTION-OVERVIEW",
+      "kind": "official-method-overview",
+      "version_scope": "method",
+      "title": "The Present: COHPs from Plane-Wave Output",
+      "url": "https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=202",
+      "authority": "first-party project page"
+    },
+    {
+      "id": "LOB-FAQ",
+      "kind": "official-faq",
+      "version_scope": "method",
+      "title": "Frequently Asked Questions",
+      "url": "https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=3",
+      "authority": "first-party project page"
+    },
+    {
+      "id": "LOB-PUBLICATIONS",
+      "kind": "official-bibliography",
+      "version_scope": "method",
+      "title": "LOBSTER/COHP publications",
+      "url": "https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=4",
+      "authority": "first-party project page"
+    },
+    {
+      "id": "LOB-PAPER-1993",
+      "kind": "method-paper",
+      "version_scope": "COHP definition",
+      "title": "Crystal orbital Hamilton-populations (COHP): energy-resolved visualization of chemical bonding in solids",
+      "url": "https://doi.org/10.1021/j100135a014",
+      "authority": "provider-required primary paper"
+    },
+    {
+      "id": "LOB-PAPER-2011",
+      "kind": "method-paper",
+      "version_scope": "projected COHP definition",
+      "title": "Crystal orbital Hamilton population (COHP) analysis as projected from plane-wave basis sets",
+      "url": "https://doi.org/10.1021/jp202489s",
+      "authority": "provider-required primary paper"
+    },
+    {
+      "id": "LOB-PAPER-2013",
+      "kind": "method-paper",
+      "version_scope": "LOBSTER framework",
+      "title": "Analytic projection from plane-wave and PAW wavefunctions and application to chemical-bonding analysis in solids",
+      "url": "https://doi.org/10.1002/jcc.23424",
+      "authority": "provider-required primary paper"
+    },
+    {
+      "id": "LOB-PAPER-2016",
+      "kind": "method-paper",
+      "version_scope": "LOBSTER 2.0 projection quality",
+      "title": "LOBSTER: A tool to extract chemical bonding from plane-wave based DFT",
+      "url": "https://doi.org/10.1002/jcc.24300",
+      "authority": "provider-required primary paper"
+    },
+    {
+      "id": "LOB-PAPER-2020",
+      "kind": "method-paper",
+      "version_scope": "time reversal, population analysis, k-dependent COHP",
+      "title": "LOBSTER: Local orbital projections, atomic charges, and chemical-bonding analysis from projector-augmented-wave-based DFT",
+      "url": "https://doi.org/10.1002/jcc.26353",
+      "authority": "provider-required primary paper"
+    },
+    {
+      "id": "LOB-LOBSTERPY-GETTING-STARTED",
+      "kind": "developer-companion-documentation",
+      "version_scope": "online documentation checked 2026-07-19",
+      "title": "LobsterPy getting started",
+      "url": "https://jageo.github.io/LobsterPy/installation/index.html",
+      "authority": "developer-authored companion project; not LOBSTER native syntax authority"
+    },
+    {
+      "id": "LOB-LOBSTERPY-CLI",
+      "kind": "developer-companion-documentation",
+      "version_scope": "online documentation checked 2026-07-19",
+      "title": "LobsterPy description CLI reference",
+      "url": "https://jageo.github.io/LobsterPy/reference/cli_subcommands/description.html",
+      "authority": "developer-authored companion project; postprocessing call authority only"
+    }
+  ]
+}

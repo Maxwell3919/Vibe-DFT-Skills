@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0",
+  "software": "phonopy",
+  "documentation_version": "4.3.1",
+  "execution_validation": "not_run",
+  "checked_date": "2026-07-19",
+  "recipes": {
+    "symmetry-inspection": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy-init", "--symmetry", "-c", "<unit-cell>"], "required_files": ["<unit-cell>"], "expected_outputs": ["stdout symmetry report", "BPOSCAR", "PPOSCAR"]}],
+      "source": "https://phonopy.github.io/phonopy/phonopy-init.html",
+      "checks": ["Confirm exact input cell and symmetry tolerance.", "Compare atom/site mapping before using BPOSCAR or PPOSCAR."],
+      "caution": "Detected symmetry is tolerance-dependent and is not proof that a structure should be standardized for a scientific workflow."
+    },
+    "vasp-finite-displacement": {
+      "status": "official-example-sequence",
+      "commands": [
+        {"argv": ["phonopy-init", "-d", "--dim", "2", "2", "2", "--pa", "auto", "-c", "POSCAR-unitcell"], "required_files": ["POSCAR-unitcell"], "expected_outputs": ["phonopy_disp.yaml", "SPOSCAR", "POSCAR-001..."]},
+        {"external_step": "Run one accepted VASP force calculation for every displaced supercell.", "delegate": "vasp-rigorous-calculations", "expected_outputs": ["ordered vasprun.xml series"]},
+        {"argv": ["phonopy-init", "--sp", "-f", "vasprun.xml-001", "vasprun.xml-002", "..."], "required_files": ["phonopy_disp.yaml", "ordered vasprun.xml series"], "expected_outputs": ["phonopy_params.yaml"]}
+      ],
+      "source": "https://phonopy.github.io/phonopy/phonopy.html",
+      "checks": ["Converge the supercell, displacement amplitude, electronic settings, k mesh, and force precision.", "Preserve displacement order and require one completed force result per displacement.", "Inspect residual forces and force-constant drift."],
+      "caution": "The documented 2x2x2 cell and auto primitive matrix are examples, not convergence evidence."
+    },
+    "qe-finite-displacement": {
+      "status": "official-example-sequence",
+      "commands": [
+        {"argv": ["phonopy-init", "--qe", "-d", "--dim", "2", "2", "2", "--pa", "auto", "-c", "NaCl.in"], "required_files": ["NaCl.in"], "expected_outputs": ["phonopy_disp.yaml", "supercell inputs"]},
+        {"external_step": "Run one accepted QE pw.x force calculation for every displaced supercell.", "delegate": "qe-rigorous-calculations", "expected_outputs": ["ordered QE stdout series"]},
+        {"argv": ["phonopy-init", "--sp", "-f", "NaCl-001.out", "NaCl-002.out", "..."], "required_files": ["phonopy_disp.yaml", "ordered QE stdout series"], "expected_outputs": ["phonopy_params.yaml"]}
+      ],
+      "source": "https://phonopy.github.io/phonopy/phonopy.html",
+      "checks": ["Retain QE force units and exact structure/order identity.", "Validate every pw.x parent with the QE calculation skill.", "Converge supercell, displacement, k mesh, cutoffs, SCF, and force thresholds."],
+      "caution": "Do not use stale current-page examples that call setup flags on phonopy rather than phonopy-init."
+    },
+    "random-displacements": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy-init", "--rd", "100", "--dim", "2", "2", "2", "--pa", "auto", "-c", "POSCAR-unitcell"], "required_files": ["POSCAR-unitcell"], "expected_outputs": ["phonopy_disp.yaml", "100 displaced supercells"]}],
+      "source": "https://phonopy.github.io/phonopy/phonopy-init.html",
+      "checks": ["Record random-displacement settings and output hashes.", "Choose snapshot count and amplitude from an explicit fitting/validation plan."],
+      "caution": "This finite-count initialization example is not the finite-temperature random-displacement workflow."
+    },
+    "vasp-dfpt-force-constants": {
+      "status": "official-example-sequence",
+      "commands": [
+        {"external_step": "Run and validate a VASP DFPT force-constant calculation.", "delegate": "vasp-rigorous-calculations", "expected_outputs": ["vasprun.xml"]},
+        {"argv": ["phonopy-init", "--fc", "vasprun.xml"], "required_files": ["vasprun.xml"], "expected_outputs": ["FORCE_CONSTANTS"]}
+      ],
+      "source": "https://phonopy.github.io/phonopy/command-options.html",
+      "checks": ["Confirm VASP DFPT prerequisites, structure, atom order, units, and completion.", "Check the force-constant shape and drift before properties."],
+      "caution": "The documented --fc import is VASP-only."
+    },
+    "band-auto": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy", "--band", "auto", "-p", "phonopy_params.yaml"], "required_files": ["phonopy_params.yaml"], "expected_outputs": ["band.yaml", "interactive plot"]}],
+      "source": "https://phonopy.github.io/phonopy/phonopy.html",
+      "checks": ["Install and record seekpath when using auto paths.", "Verify primitive matrix, reciprocal convention, labels, endpoints, and path density.", "Preserve signed frequencies and inspect eigenvectors for questionable modes."],
+      "caution": "An automatic path is a convention choice, not universal scientific ground truth."
+    },
+    "band-explicit-with-nac": {
+      "status": "official-example-sequence-with-v4-migration",
+      "commands": [{"argv": ["phonopy", "--band", "0.0 0.0 0.0  0.5 0.0 0.0  0.5 0.5 0.0  0.0 0.0 0.0  0.5 0.5 0.5", "-p", "phonopy_params.yaml"], "required_files": ["phonopy_params.yaml containing nac_params, or a compatible BORN file"], "expected_outputs": ["band.yaml", "interactive plot"]}],
+      "source": "https://phonopy.github.io/phonopy/examples.html",
+      "checks": ["Verify the BORN/dielectric provenance, primitive-cell atom order, units, q direction near Gamma, and path convention.", "Confirm logs show NAC was actually enabled."],
+      "caution": "In v4, do not add phonopy --nac; NAC is automatic when data are present and --nonac is the explicit opt-out."
+    },
+    "total-dos": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy", "--mesh", "31", "31", "31", "--dos", "phonopy_params.yaml"], "required_files": ["phonopy_params.yaml"], "expected_outputs": ["total_dos.dat"]}],
+      "source": "https://phonopy.github.io/phonopy/examples.html",
+      "checks": ["Converge the q mesh and broadening/range controls for the target DOS feature.", "Check normalization, units, primitive cell, and imaginary-frequency handling."],
+      "caution": "The official page's 31x31x31 value is an example and its embedded output banner is older than 4.3.1."
+    },
+    "projected-dos": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy", "--mesh", "41", "41", "41", "--pdos", "1, 2", "phonopy_params.yaml"], "required_files": ["phonopy_params.yaml"], "expected_outputs": ["projected_dos.dat"]}],
+      "source": "https://phonopy.github.io/phonopy/examples.html",
+      "checks": ["Use phonopy -v to confirm primitive-cell atom order behind projection indices.", "Check whether Cartesian projection is needed and converge q mesh/broadening.", "Check sum of projections against total DOS under the selected convention."],
+      "caution": "Projection indices refer to atoms in the primitive cell; they must not be inferred from the original input order."
+    },
+    "thermal-properties": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy", "--mesh", "31", "31", "31", "-t", "phonopy_params.yaml"], "required_files": ["phonopy_params.yaml"], "expected_outputs": ["thermal_properties.yaml"]}],
+      "source": "https://phonopy.github.io/phonopy/examples.html",
+      "checks": ["Converge q mesh and temperature grid.", "Check the unit block in thermal_properties.yaml and treatment of imaginary modes.", "Do not interpret harmonic constant-volume results as QHA constant-pressure results."],
+      "caution": "Default temperature settings and example mesh are not campaign acceptance criteria."
+    },
+    "irreducible-representations": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy", "--irreps", "0", "0", "0", "phonopy_params.yaml"], "required_files": ["phonopy_params.yaml"], "expected_outputs": ["stdout irreducible-representation report"]}],
+      "source": "https://phonopy.github.io/phonopy/examples.html",
+      "checks": ["Verify q point, primitive cell, symmetry tolerance, and degeneracy handling.", "Do not assign spectroscopy activity without the required selection-rule evidence."],
+      "caution": "A symmetry label alone does not establish mode stability or experimental observability."
+    },
+    "bandplot-text": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy-bandplot", "--gnuplot", "band.yaml"], "required_files": ["band.yaml"], "expected_outputs": ["gnuplot-style table on stdout"]}],
+      "source": "https://phonopy.github.io/phonopy/auxiliary-tools.html",
+      "checks": ["Retain source band.yaml hash, units, segment boundaries, and labels."],
+      "caution": "Conversion does not validate the underlying band calculation."
+    },
+    "pdos-plot": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy-pdosplot", "-i", "1 2 4 5, 3 6", "-o", "pdos.pdf", "projected_dos.dat"], "required_files": ["projected_dos.dat"], "expected_outputs": ["pdos.pdf"]}],
+      "source": "https://phonopy.github.io/phonopy/auxiliary-tools.html",
+      "checks": ["Document grouping, primitive-cell atom mapping, units, and source-data hash."],
+      "caution": "A visually plausible plot does not check projection completeness or DOS convergence."
+    },
+    "vasp-born": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy-vasp-born", "vasprun.xml"], "required_files": ["vasprun.xml"], "expected_outputs": ["BORN-style text on stdout"]}],
+      "source": "https://phonopy.github.io/phonopy/auxiliary-tools.html",
+      "checks": ["Validate the dielectric/Born parent calculation, primitive axes, atom mapping, acoustic charge sum, and tensor symmetrization choice.", "Retain stdout in a reviewed BORN file and hash it."],
+      "caution": "The helper symmetrizes by default; use --nost only with a documented reason and compare tensors."
+    },
+    "qha": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy-qha", "e-v.dat", "<thermal-properties-in-exact-volume-order...>", "-p"], "required_files": ["e-v.dat", "at least five ordered thermal_properties.yaml files"], "expected_outputs": ["QHA plots and/or text products"]}],
+      "source": "https://phonopy.github.io/phonopy/qha.html",
+      "checks": ["Require at least five volume points and exact volume/file ordering.", "Use matching temperature ranges and steps with one extra high-temperature point for numerical differentiation.", "Converge electronic energies and every volume's phonons; inspect EOS fit stability and imaginary modes."],
+      "caution": "The shell-brace filename example is represented as an ordered placeholder here; expand and inspect the actual file list before running. QHA does not provide a full anisotropic free-energy minimization."
+    },
+    "mode-gruneisen-mesh": {
+      "status": "official-example-sequence",
+      "commands": [{"argv": ["phonopy-gruneisen", "orig", "plus", "minus", "--dim=2 2 2", "--pa=0 1/2 1/2 1/2 0 1/2 1/2 1/2 0", "--mesh=20 20 20", "-p", "-c", "POSCAR-unitcell", "--color=RB"], "required_files": ["orig/POSCAR-unitcell", "orig/FORCE_SETS or FORCE_CONSTANTS", "plus/...", "minus/..."], "expected_outputs": ["gruneisen.yaml", "interactive plot"]}],
+      "source": "https://phonopy.github.io/phonopy/gruneisen.html",
+      "checks": ["Fully relax each cell at its constrained volume and preserve one-to-one atom/cell correspondence.", "Check central volume and symmetric volume increments, mode connection, and divergence near Gamma.", "Converge each underlying phonon calculation."],
+      "caution": "Do not transfer the removed main-phonopy --nac rule to phonopy-gruneisen without inspecting exact helper help; official pages are inconsistent."
+    }
+  }
+}

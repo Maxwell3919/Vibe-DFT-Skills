@@ -1,0 +1,44 @@
+{
+  "contract_name": "candidate-fixture-manifest",
+  "schema_version": "1.0",
+  "skill_id": "dft-structure-preparation",
+  "fixtures": [
+    {
+      "path": "references/weak-model-decision-table.json",
+      "sha256": "4df97fa69a36e7b04e1af9c91ae74244a5ee41abe571e53814ca07c864c6fe8c",
+      "kind": "canonical-weak-model-decision-table",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/coordinate-mismatch.json",
+      "sha256": "5e66731583ea417258ec2fd4bd71209680c4c7fec385f60deb50f1760aeee0dc",
+      "kind": "adversarial-coordinate-representation",
+      "expected_exit": 2
+    },
+    {
+      "path": "fixtures/disordered-site.json",
+      "sha256": "cf771165bc12e544def633bb68b081d28c60c2b952c484afece7d202ca598479",
+      "kind": "synthetic-occupancy-disorder",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/si-periodic.json",
+      "sha256": "91fada42513af3f1808250ca35775af2c95b5f91b6832ba9b7371e1f2bab0f48",
+      "kind": "synthetic-periodic-unwrapped",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/si-wrapped-reordered.json",
+      "sha256": "b0cc7772946572292ef99c3a4ab4303342092a5e9998f688e5d6cc16dce37865",
+      "kind": "synthetic-periodic-equivalent",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/water-molecule.json",
+      "sha256": "e4d0c7914b68365cdfee4d1e488fca89f8c28175a7442986940f0d4df4832f93",
+      "kind": "synthetic-isolated-molecule",
+      "expected_exit": 0
+    }
+  ],
+  "claim_boundary": "All fixtures are synthetic and carry no scientific-validation authority."
+}

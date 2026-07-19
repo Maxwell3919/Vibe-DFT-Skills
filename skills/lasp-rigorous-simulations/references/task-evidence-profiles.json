@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "nve": {"literature_capability_context": true, "parser_supported": false, "required_gates": ["manual", "units", "integrator", "timestep", "model", "seed", "completion", "drift", "uncertainty"]},
+    "nvt": {"literature_capability_context": true, "parser_supported": false, "required_gates": ["manual", "thermostat", "timestep", "model", "seed", "completion", "distribution", "uncertainty"]},
+    "npt": {"literature_capability_context": true, "parser_supported": false, "required_gates": ["manual", "barostat", "boundary", "cell_trajectory", "completion", "uncertainty"]},
+    "global-structure-search": {"literature_capability_context": true, "parser_supported": false, "required_gates": ["manual", "search_algorithm", "model", "termination", "duplicate_handling", "sampling_coverage"]},
+    "reaction-search": {"literature_capability_context": true, "parser_supported": false, "required_gates": ["manual", "reaction_search_method", "model", "termination", "network_completeness", "validation"]}
+  }
+}

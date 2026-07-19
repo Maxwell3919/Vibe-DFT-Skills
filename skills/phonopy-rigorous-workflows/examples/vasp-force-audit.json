@@ -1,0 +1,101 @@
+{
+  "audit_schema_version": "2.0",
+  "auditor": "audit_vasp_case.py",
+  "case_id": "case-force-vasp-001",
+  "files": {
+    "INCAR": {
+      "duplicate_tags": [],
+      "malformed": [],
+      "selected_values": {
+        "EDIFF": "1E-8",
+        "ENCUT": "520",
+        "IBRION": "-1",
+        "ISMEAR": "0",
+        "NSW": "0",
+        "SIGMA": "0.05"
+      },
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "tag_names": ["EDIFF", "ENCUT", "IBRION", "ISMEAR", "NSW", "SIGMA"]
+    },
+    "KPOINTS": {
+      "declared_count": 0,
+      "mesh": [1, 1, 1],
+      "mode": "automatic_mesh",
+      "scheme": "gamma",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "shift": [0.0, 0.0, 0.0]
+    },
+    "OUTCAR": {
+      "completed": true,
+      "ediff": 1e-08,
+      "electronic_converged": true,
+      "electronic_convergence_basis": "explicit-ediff-marker",
+      "encut_ev": 520.0,
+      "fatal_markers": [],
+      "ionic_converged": false,
+      "ionic_steps": 1,
+      "nelm": 60,
+      "nkpts": 1,
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "stop_markers": [],
+      "version": "vasp.6.4.3",
+      "warnings": []
+    },
+    "POSCAR": {
+      "atom_count": 2,
+      "coordinate_mode": "direct",
+      "coordinate_rows": 2,
+      "counts": [2],
+      "exact_duplicate_coordinate_rows": 0,
+      "raw_lattice_determinant": 1.0,
+      "scale": [1.0],
+      "selective_dynamics": false,
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "symbols": ["Si"]
+    },
+    "POTCAR": {
+      "dataset_labels": ["Si"],
+      "datasets": 1,
+      "elements": ["Si"],
+      "end_markers": 1,
+      "enmax_ev": [245.0],
+      "lexch": ["PE"],
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "titles": ["PAW_PBE Si"]
+    }
+  },
+  "findings": [
+    {
+      "basis": "scientific validation",
+      "code": "convergence-series-required",
+      "gate": "numerical_convergence",
+      "message": "A single case cannot demonstrate numerical convergence or physical validity",
+      "severity": "info"
+    }
+  ],
+  "gates": {
+    "electronic_convergence": "pass",
+    "execution_completion": "pass",
+    "input_integrity": "pass",
+    "input_reproducibility": "pass",
+    "ionic_convergence": "not_applicable",
+    "local_official_source_coverage": "partial",
+    "numerical_convergence": "not_evaluated_by_single_case",
+    "output_warnings": "pass",
+    "physical_validity": "not_evaluated_by_single_case",
+    "scientific_claim": "blocked",
+    "task_specific_validation": "not_evaluated",
+    "version_identity": "pass"
+  },
+  "mode": "run",
+  "official_source_coverage": {
+    "status": "partial"
+  },
+  "summary": {
+    "error": 0,
+    "info": 1,
+    "warning": 0
+  },
+  "task_type": "static",
+  "verdict": "technical_run_gates_passed_scientific_claim_blocked"
+}

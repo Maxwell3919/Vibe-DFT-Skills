@@ -1,0 +1,4 @@
+interface:
+  display_name: "GPUMD Rigorous Simulations"
+  short_description: "Plan and audit GPUMD MD evidence offline"
+  default_prompt: "Use $gpumd-rigorous-simulations to plan or fail-closed audit this GPUMD workflow and resolve the documented native execution boundary."

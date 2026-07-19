@@ -1,0 +1,57 @@
+{
+  "engine": "lasp",
+  "distribution_version_context": "3.7.3",
+  "literature_version_context": "3.7",
+  "reviewed_on": "2026-07-19",
+  "sources": [
+    {
+      "authority": "LASP authors' peer-reviewed review",
+      "purpose": "LASP 3.7 architecture, MD/search capability context, commercial availability, and official download route",
+      "url": "https://doi.org/10.1021/prechem.4c00060"
+    },
+    {
+      "authority": "LASP authors' open article copy",
+      "purpose": "independently accessible full-text capability and data-availability context",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11672538/"
+    },
+    {
+      "authority": "LASP official public download page",
+      "purpose": "LASP 3.7.3 academic/professional editions, Linux and Intel MPI/Compiler 2017+ baseline, Src/lasp executable, direct and mpirun examples, manual/example discovery, edition/expiry summary, and GPUNN separation",
+      "url": "http://www.lasphub.com/#/lasp/download"
+    },
+    {
+      "authority": "LASP official hub",
+      "purpose": "software access and account route; not a retained syntax or license snapshot",
+      "url": "http://www.lasphub.com/"
+    }
+  ],
+  "verified_public_operational_facts": {
+    "academic_distribution_label": "LASP 3.7.3-ac",
+    "academic_expiry_summary": "one month",
+    "direct_command": "[LASP Installation DIR]/Src/lasp",
+    "environment_summary": "Linux; Intel MPI and Compiler (intel2017 or above)",
+    "executable_basename": "lasp",
+    "mpi_example": "mpirun -np 4 [LASP Installation DIR]/Src/lasp",
+    "professional_distribution_label": "LASP 3.7.3-pro",
+    "professional_expiry_summary": "no expiration time limit"
+  },
+  "not_verified": [
+    "authorized retained complete 3.7.3 manual and examples",
+    "input grammar and defaults",
+    "keyword-specific units",
+    "side-effect-free version option",
+    "completion and fatal markers",
+    "output/observable grammar",
+    "restart state and exactness semantics",
+    "complete binary/runtime compatibility matrix",
+    "resource model",
+    "complete software license terms",
+    "native execution"
+  ],
+  "native_validation": {
+    "host": "Darwin arm64",
+    "lasp_executable_available": false,
+    "mpi_available": false
+  },
+  "trust_policy": "The public page can establish its explicit executable and environment facts, but capability literature and download UI cannot substitute for an authorized version-matched operational manual."
+}

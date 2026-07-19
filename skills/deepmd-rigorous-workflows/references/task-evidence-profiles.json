@@ -1,0 +1,51 @@
+{
+  "schema_version": "candidate-1.0",
+  "candidate_lifecycle": "development",
+  "claim_ceiling": "no_positive_claim",
+  "profiles": {
+    "layout": {
+      "all_of": [
+        "version-backend-type-map",
+        "array-identity-shape-dtype",
+        "group-disjoint-splits",
+        "reference-protocol-units",
+        "source-license-inventory"
+      ],
+      "future_maximum_claim": "input_gates_only"
+    },
+    "config": {
+      "all_of": [
+        "layout-audit-binding",
+        "descriptor-fitting-explicit",
+        "learning-rate-loss-explicit",
+        "seeds-steps-cadence-batches",
+        "provider-schema-environment",
+        "restart-lineage",
+        "evaluation-thresholds"
+      ],
+      "future_maximum_claim": "input_gates_only"
+    },
+    "run": {
+      "all_of": [
+        "layout-config-environment-binding",
+        "external-authorization",
+        "zero-exit-completed-final-step",
+        "no-nonfinite",
+        "checkpoint-learning-curve",
+        "restart-lineage"
+      ],
+      "future_maximum_claim": "technical_run_gates_only"
+    },
+    "model": {
+      "all_of": [
+        "run-config-binding",
+        "artifact-identity",
+        "version-backend-type-map-cutoff-units",
+        "energy-convention",
+        "provider-schema-config",
+        "license-separation"
+      ],
+      "future_maximum_claim": "technical_run_gates_only"
+    }
+  }
+}

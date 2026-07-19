@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "engine": "gromacs",
+  "profiles": {
+    "energy-minimization": {
+      "input": ["topology-closure", "force-field-provenance", "integrator-em", "emtol-emstep-nsteps", "PBC"],
+      "output": ["single-version-banner", "terminal-marker", "converged-or-explicit-stop", "finite-energy-force"],
+      "scientific": ["force-threshold-suitability", "model-validity", "structure-sanity"]
+    },
+    "nve": {
+      "input": ["explicit-md-integrator", "dt", "nsteps", "tcoupl-no", "pcoupl-no", "seed-or-checkpoint-lineage"],
+      "output": ["terminal-step", "no-constraint-warning", "energy-series", "trajectory-integrity"],
+      "scientific": ["time-step-study", "drift-protocol", "finite-size", "replicas-when-stochastic-origin"]
+    },
+    "nvt": {
+      "input": ["explicit-thermostat", "tc-grps", "tau-t", "ref-t", "pcoupl-no", "seed-or-checkpoint-lineage"],
+      "output": ["temperature-and-energy-series", "equilibration-window", "ESS-and-uncertainty", "trajectory-integrity"],
+      "scientific": ["ensemble-method-suitability", "thermostat-sensitivity", "replicas", "model-domain"]
+    },
+    "npt": {
+      "input": ["explicit-thermostat", "explicit-production-capable-barostat", "tau-p", "ref-p", "compressibility", "PBC-cell-compatibility"],
+      "output": ["temperature-pressure-volume-series", "equilibration-window", "ESS-and-uncertainty", "variable-cell-trajectory"],
+      "scientific": ["barostat-sensitivity", "finite-size", "phase-stability", "replicas", "model-domain"]
+    },
+    "free-energy-or-enhanced-sampling": {
+      "input": ["version-matched-special-method-manual", "collective-variable-definition", "bias-and-restart-state"],
+      "output": ["method-specific-state-and-convergence"],
+      "scientific": ["overlap", "hysteresis", "independent-paths", "estimator-validation"],
+      "automated_status": "unsupported"
+    }
+  }
+}

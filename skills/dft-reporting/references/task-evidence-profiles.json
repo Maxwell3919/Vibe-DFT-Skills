@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "profiles": [
+    {
+      "task_id": "plan-report",
+      "required": [
+        "explicit request and report IDs",
+        "exact claim-map ID and raw-byte SHA-256",
+        "selected claim IDs",
+        "section-to-claim mapping",
+        "present hashed evidence",
+        "passing claim gates",
+        "official-source locators when used",
+        "no-positive claim ceiling or externally validated production bundle",
+        "explicit limitations"
+      ],
+      "blocked_when": [
+        "claim is not supported",
+        "evidence is missing, external, redacted, or unhashed",
+        "gate is unresolved or non-passing",
+        "source locator is absent",
+        "claim or artifact is not section-bound",
+        "self-declared upstream positive claim is selected"
+      ]
+    },
+    {
+      "task_id": "render-package",
+      "required": [
+        "unchanged passing plan bytes",
+        "passing canonical audit recomputed from the exact plan",
+        "draft-only authority flags"
+      ],
+      "blocked_when": [
+        "audit is forged, stale, blocked, or for different bytes",
+        "plan contains unresolved findings",
+        "publication or message state is asserted"
+      ]
+    }
+  ]
+}

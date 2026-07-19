@@ -1,0 +1,515 @@
+{
+  "contract_name": "candidate-decision-table",
+  "schema_version": "1.0",
+  "skill_id": "vaspkit-postprocess",
+  "lifecycle": "development",
+  "selection_policy": "first-match-by-ascending-priority",
+  "default_case_id": "vk-default-fail-closed",
+  "current_claim": "no_positive_claim",
+  "execution_authorized": false,
+  "promotion_authorized": false,
+  "cases": [
+    {
+      "case_id": "vk-dt-001",
+      "priority": 1,
+      "severity": "P0",
+      "condition": "record_sha256 or evidence_projection_sha256 is absent or malformed",
+      "required_evidence": [
+        "source-record"
+      ],
+      "finding_codes": [
+        "VK_SOURCE_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Export both lowercase SHA-256 fields from the accepted VASP record."
+    },
+    {
+      "case_id": "vk-dt-002",
+      "priority": 2,
+      "severity": "P0",
+      "condition": "raw parent record hash changes while the stored evidence projection does not",
+      "required_evidence": [
+        "source-record",
+        "raw-parent-record"
+      ],
+      "finding_codes": [
+        "VK_PARENT_EVIDENCE_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Rebuild the projection from the same accepted raw record."
+    },
+    {
+      "case_id": "vk-dt-003",
+      "priority": 3,
+      "severity": "P0",
+      "condition": "a projected parent semantic changes while evidence_projection_sha256 stays fixed",
+      "required_evidence": [
+        "source-record",
+        "raw-parent-record"
+      ],
+      "finding_codes": [
+        "VK_PARENT_EVIDENCE_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Regenerate the canonical projection and independently review the changed parent."
+    },
+    {
+      "case_id": "vk-dt-004",
+      "priority": 4,
+      "severity": "P0",
+      "condition": "one or more input, output, electronic, or band_task acceptance gates are not pass",
+      "required_evidence": [
+        "source-record",
+        "parent-acceptance-record"
+      ],
+      "finding_codes": [
+        "VK_PARENT_ACCEPTANCE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Repair and re-audit only the failed VASP acceptance gate."
+    },
+    {
+      "case_id": "vk-dt-005",
+      "priority": 5,
+      "severity": "P0",
+      "condition": "the selected task lacks a required parent file role",
+      "required_evidence": [
+        "source-record",
+        "parent-artifact-inventory"
+      ],
+      "finding_codes": [
+        "VK_REQUIRED_INPUT_MISSING"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Supply the missing role with exact label, hash, and byte count."
+    },
+    {
+      "case_id": "vk-dt-006",
+      "priority": 6,
+      "severity": "P0",
+      "condition": "energy source_role is not DOSCAR or source_sha256 differs from the projected DOSCAR",
+      "required_evidence": [
+        "source-record",
+        "doscar-identity"
+      ],
+      "finding_codes": [
+        "VK_ENERGY_REFERENCE_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Bind the energy reference to the accepted DOSCAR role and SHA-256."
+    },
+    {
+      "case_id": "vk-dt-007",
+      "priority": 7,
+      "severity": "P0",
+      "condition": "energy unit or sign convention differs from eV and additive",
+      "required_evidence": [
+        "source-record",
+        "energy-transform-record"
+      ],
+      "finding_codes": [
+        "VK_ENERGY_REFERENCE_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Declare an additive eV offset with the versioned field names."
+    },
+    {
+      "case_id": "vk-dt-008",
+      "priority": 8,
+      "severity": "P0",
+      "condition": "stdin default token 0 is paired with a non-default input table reference",
+      "required_evidence": [
+        "source-record",
+        "menu-plan"
+      ],
+      "finding_codes": [
+        "VK_ENERGY_REFERENCE_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Use input_table_reference vaspkit-default-fermi-zeroed."
+    },
+    {
+      "case_id": "vk-dt-009",
+      "priority": 9,
+      "severity": "P1",
+      "condition": "a validly reprojected parent declares spin_channels equal to 2",
+      "required_evidence": [
+        "source-record",
+        "spin-layout-profile"
+      ],
+      "finding_codes": [
+        "VK_SPIN_LAYOUT_UNSUPPORTED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Add a versioned two-channel fixture and parser contract before use."
+    },
+    {
+      "case_id": "vk-dt-010",
+      "priority": 10,
+      "severity": "P0",
+      "condition": "the requested exact VASPKIT profile is not registered",
+      "required_evidence": [
+        "requested-profile",
+        "version-matrix"
+      ],
+      "finding_codes": [
+        "VK_PROFILE_UNKNOWN"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Select or define one exact version and platform profile."
+    },
+    {
+      "case_id": "vk-dt-011",
+      "priority": 11,
+      "severity": "P1",
+      "condition": "the exact profile exists but remains design-only",
+      "required_evidence": [
+        "requested-profile",
+        "version-specific-regression"
+      ],
+      "finding_codes": [
+        "VK_PROFILE_BLOCKED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Add a private exact-version transcript and package and binary digests."
+    },
+    {
+      "case_id": "vk-catalog-documentation-conflict",
+      "priority": 12,
+      "severity": "P1",
+      "condition": "official feature, tutorial, and task-number evidence conflict for the requested VASPKIT task",
+      "required_evidence": [
+        "official-task-catalog",
+        "documentation-conflict-records"
+      ],
+      "finding_codes": [
+        "VK_DOCUMENTATION_CONFLICT"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Capture the exact installed banner, help, menu label, prompts, and outputs before selecting the disputed task number."
+    },
+    {
+      "case_id": "vk-catalog-recipe-missing",
+      "priority": 13,
+      "severity": "P1",
+      "condition": "the requested task is feature-listed but has no established recipe or is marked official-feature-only",
+      "required_evidence": [
+        "official-task-catalog",
+        "task-recipe-catalog"
+      ],
+      "finding_codes": [
+        "VK_RECIPE_NOT_ESTABLISHED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Run the exact binary interactively only after authorization, then record required files, every prompt token, outputs, and failure semantics."
+    },
+    {
+      "case_id": "vk-catalog-noninteractive-unestablished",
+      "priority": 14,
+      "severity": "P1",
+      "condition": "noninteractive execution is requested but the recipe is interactive, contains unresolved placeholders, or lacks a complete exact-version prompt sequence",
+      "required_evidence": [
+        "task-recipe",
+        "exact-version-transcript"
+      ],
+      "finding_codes": [
+        "VK_NONINTERACTIVE_NOT_ESTABLISHED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Resolve every placeholder and validate the complete stdin and output contract in a scratch copy before unattended use."
+    },
+    {
+      "case_id": "vk-dt-012",
+      "priority": 15,
+      "severity": "P1",
+      "condition": "the requested task is outside menu ids 211 and 252",
+      "required_evidence": [
+        "requested-task",
+        "menu-profile"
+      ],
+      "finding_codes": [
+        "VK_TASK_UNSUPPORTED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Add a separate task profile, fixtures, and negative tests."
+    },
+    {
+      "case_id": "vk-dt-013",
+      "priority": 16,
+      "severity": "P0",
+      "condition": "the transcript banner differs, repeats, or identifies another version",
+      "required_evidence": [
+        "transcript",
+        "exact-version-profile"
+      ],
+      "finding_codes": [
+        "VK_VERSION_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Capture one clean invocation from the exact binary."
+    },
+    {
+      "case_id": "vk-dt-014",
+      "priority": 17,
+      "severity": "P0",
+      "condition": "a task token, default token, or ordered prompt sentinel is missing or reordered",
+      "required_evidence": [
+        "transcript",
+        "exact-menu-profile"
+      ],
+      "finding_codes": [
+        "VK_PROMPT_DRIFT"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Recapture stdin echo plus merged terminal output."
+    },
+    {
+      "case_id": "vk-dt-015",
+      "priority": 18,
+      "severity": "P0",
+      "condition": "the transcript contains a fatal or error sentinel",
+      "required_evidence": [
+        "transcript"
+      ],
+      "finding_codes": [
+        "VK_FATAL_SENTINEL"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Fix the first runtime or input failure and rerun privately."
+    },
+    {
+      "case_id": "vk-dt-016",
+      "priority": 19,
+      "severity": "P0",
+      "condition": "transcript, BAND.dat, or KLABELS bytes differ from the declared hash or byte count",
+      "required_evidence": [
+        "source-record",
+        "transcript",
+        "band-table",
+        "klabels-table"
+      ],
+      "finding_codes": [
+        "VK_ARTIFACT_HASH_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Re-hash the exact immutable artifacts and rebuild the source record."
+    },
+    {
+      "case_id": "vk-dt-017",
+      "priority": 20,
+      "severity": "P0",
+      "condition": "a band or label table is nonnumeric, nonfinite, ragged, unordered, or out of range",
+      "required_evidence": [
+        "band-table",
+        "klabels-table"
+      ],
+      "finding_codes": [
+        "VK_BAND_TABLE_INVALID",
+        "VK_KLABELS_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Correct or recapture only the smallest invalid artifact."
+    },
+    {
+      "case_id": "vk-dt-018",
+      "priority": 21,
+      "severity": "P0",
+      "condition": "the report target exists, is a broken symlink, raced into existence, or identifies an input",
+      "required_evidence": [
+        "output-target-identity",
+        "input-identities"
+      ],
+      "finding_codes": [
+        "VK_OUTPUT_EXISTS",
+        "VK_OUTPUT_INPUT_ALIAS"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Choose a new absent output basename outside all input identities."
+    },
+    {
+      "case_id": "vk-dt-019",
+      "priority": 22,
+      "severity": "P0",
+      "condition": "temporary write, file sync, atomic link, cleanup, or directory sync fails",
+      "required_evidence": [
+        "report-publication-record"
+      ],
+      "finding_codes": [
+        "VK_OUTPUT_WRITE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Fix storage and publish to a new absent target."
+    },
+    {
+      "case_id": "vk-dt-020",
+      "priority": 23,
+      "severity": "P2",
+      "condition": "all requested candidate gates pass",
+      "required_evidence": [
+        "source-record",
+        "transcript",
+        "band-table",
+        "klabels-table"
+      ],
+      "finding_codes": [],
+      "action_state": "local_gate_passed_limited",
+      "expected_exit_codes": [
+        0
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Preserve the report and seek explicit reviewed promotion before any positive route claim."
+    },
+    {
+      "case_id": "vk-default-fail-closed",
+      "priority": 24,
+      "severity": "P0",
+      "condition": "No earlier case can be established from the available exact evidence.",
+      "required_evidence": [],
+      "finding_codes": [
+        "VK_DECISION_NO_MATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Stop and obtain the exact evidence needed to select one earlier VASPKIT case."
+    }
+  ]
+}

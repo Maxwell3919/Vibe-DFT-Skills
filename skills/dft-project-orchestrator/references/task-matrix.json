@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "tasks": [
+    {
+      "task_id": "decompose-objective",
+      "inputs": ["scientific objective", "observable list", "protocol ID", "resource and side-effect limits"],
+      "outputs": ["draft workflow-plan@1.0"],
+      "decisive_gates": ["objective", "active routes", "DAG", "handoff contracts"],
+      "maximum_action": "plan-only",
+      "maximum_claim": "no_positive_claim"
+    },
+    {
+      "task_id": "audit-plan",
+      "inputs": ["workflow-plan@1.0 exact bytes"],
+      "outputs": ["candidate-orchestrator-report@1.0"],
+      "decisive_gates": ["strict JSON", "identity", "DAG", "route lifecycle", "readiness"],
+      "maximum_action": "inspect-only",
+      "maximum_claim": "no_positive_claim"
+    },
+    {
+      "task_id": "resume-workflow",
+      "inputs": ["workflow-plan@1.0", "ordered workflow-event@1.0 records", "resolved referenced records"],
+      "outputs": ["state reconciliation report", "minimum next action"],
+      "decisive_gates": ["event identity", "sequence", "hash resolution", "terminal-state consistency"],
+      "maximum_action": "plan-only",
+      "maximum_claim": "no_positive_claim"
+    },
+    {
+      "task_id": "audit-execution-authorization",
+      "inputs": ["execution-request@1.0 exact bytes", "decision-record@1.0", "evaluation time"],
+      "outputs": ["lease-request eligibility report"],
+      "decisive_gates": ["request shape", "human actor", "exact subject hash", "scope", "expiry", "evidence hash"],
+      "maximum_action": "request-execution-authorization",
+      "maximum_claim": "no_positive_claim"
+    },
+    {
+      "task_id": "scientific-review-routing",
+      "inputs": ["technical records", "observable-specific convergence evidence", "claim-evidence map"],
+      "outputs": ["expert-review request"],
+      "decisive_gates": ["technical completion", "numerical evidence", "limitations", "human authority"],
+      "maximum_action": "eligible-for-expert-review",
+      "maximum_claim": "no_positive_claim"
+    }
+  ]
+}

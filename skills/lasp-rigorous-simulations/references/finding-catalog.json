@@ -1,0 +1,6 @@
+{
+  "namespace": "LASP",
+  "stable_exit_codes": {"pass": 0, "blocked": 2, "incomplete": 3, "internal_error": 4},
+  "families": ["PLAN", "DOCS", "INPUT", "MODEL", "UNITS", "BOUNDARY", "ENSEMBLE", "SEED", "RESTART", "OUTPUT", "TRAJECTORY", "STATISTICS", "ENVIRONMENT", "LICENSE", "EXECUTION", "PRIVACY", "UPSTREAM", "IO", "JSON", "INTERNAL"],
+  "policy": "Current non-plan audits must retain at least one documentary incompleteness finding."
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "findings": [
+    {"code": "ORCH.JSON.INVALID", "severity": "critical", "meaning": "Input is not one bounded strict UTF-8 JSON object.", "next_action": "Replace it with one strict JSON object."},
+    {"code": "ORCH.CONTRACT.INVALID", "severity": "critical", "meaning": "Required contract identity, type, enum, or field is invalid.", "next_action": "Repair the first reported field."},
+    {"code": "ORCH.IDENTITY.MISMATCH", "severity": "critical", "meaning": "An ID or exact-byte digest does not resolve to the claimed record.", "next_action": "Recompute the reference from unchanged target bytes."},
+    {"code": "ORCH.DAG.DUPLICATE_STEP", "severity": "critical", "meaning": "A workflow step ID is repeated.", "next_action": "Assign unique stable step IDs."},
+    {"code": "ORCH.DAG.UNKNOWN_DEPENDENCY", "severity": "critical", "meaning": "A dependency does not resolve to a step.", "next_action": "Add or remove the unresolved dependency."},
+    {"code": "ORCH.DAG.CYCLE", "severity": "critical", "meaning": "The workflow dependency graph is cyclic.", "next_action": "Break the reported cycle."},
+    {"code": "ORCH.ROUTE.NOT_ACTIVE", "severity": "critical", "meaning": "A step uses a development, planned, or unsupported route.", "next_action": "Promote the route through governance or replace the step."},
+    {"code": "ORCH.STEP.NOT_READY", "severity": "blocking", "meaning": "A step state conflicts with dependencies, gates, or blockers.", "next_action": "Resolve the first reported readiness blocker."},
+    {"code": "ORCH.AUTH.POLICY_MISSING", "severity": "blocking", "meaning": "A side-effecting step lacks human-decision or lease policy.", "next_action": "Add a bounded authorization policy."},
+    {"code": "ORCH.REQUEST.INVALID", "severity": "critical", "meaning": "Execution request is not immutable argv-only or lacks bounded resources, hashes, outputs, or scope.", "next_action": "Regenerate the request from the immutable plan."},
+    {"code": "ORCH.AUTH.SUBJECT_MISMATCH", "severity": "critical", "meaning": "The decision does not bind the exact request bytes and ID.", "next_action": "Obtain a decision for the exact request."},
+    {"code": "ORCH.AUTH.NOT_GRANTED", "severity": "blocking", "meaning": "Authorization is denied, deferred, non-human, expired, unscoped, or missing evidence.", "next_action": "Obtain a valid bounded human authorization."},
+    {"code": "ORCH.STATE.CONFLATED", "severity": "critical", "meaning": "Scheduler, process, application, or scientific state was inferred from another layer.", "next_action": "Collect the missing independent observation."},
+    {"code": "ORCH.SCIENCE.NOT_REVIEW_READY", "severity": "blocking", "meaning": "Technical evidence lacks observable-specific numerical or claim evidence.", "next_action": "Produce the first missing observable-specific evidence."},
+    {"code": "ORCH.SCIENCE.HUMAN_DECISION_MISSING", "severity": "blocking", "meaning": "No separate expert decision resolves the review-ready claim.", "next_action": "Request expert review without self-accepting."},
+    {"code": "ORCH.EVIDENCE.INSUFFICIENT", "severity": "blocking", "meaning": "Exact evidence is insufficient to select any earlier decision-table case.", "next_action": "Collect the minimum exact evidence for the first applicable orchestration gate."}
+  ]
+}

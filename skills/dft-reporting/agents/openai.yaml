@@ -1,0 +1,4 @@
+interface:
+  display_name: "DFT Reporting"
+  short_description: "Build evidence-bound DFT report drafts"
+  default_prompt: "Use $dft-reporting to plan, audit, and render an evidence-bound local DFT report package without unsupported scientific claims."

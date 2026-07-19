@@ -1,0 +1,24 @@
+schema_version: "1.1"
+findings:
+  VK_JSON_INVALID: {severity: error, disposition: fail}
+  VK_SOURCE_INVALID: {severity: error, disposition: fail}
+  VK_PARENT_EVIDENCE_MISMATCH: {severity: error, disposition: fail}
+  VK_PARENT_INCOMPLETE: {severity: error, disposition: fail}
+  VK_PARENT_ACCEPTANCE_FAILED: {severity: error, disposition: fail}
+  VK_PROFILE_UNKNOWN: {severity: error, disposition: fail}
+  VK_PROFILE_BLOCKED: {severity: blocker, disposition: blocked}
+  VK_TASK_UNSUPPORTED: {severity: blocker, disposition: blocked}
+  VK_REQUIRED_INPUT_MISSING: {severity: error, disposition: fail}
+  VK_TRANSCRIPT_INVALID: {severity: error, disposition: fail}
+  VK_VERSION_MISMATCH: {severity: error, disposition: fail}
+  VK_PROMPT_DRIFT: {severity: error, disposition: fail}
+  VK_FATAL_SENTINEL: {severity: error, disposition: fail}
+  VK_ARTIFACT_HASH_MISMATCH: {severity: error, disposition: fail}
+  VK_SPIN_LAYOUT_UNSUPPORTED: {severity: blocker, disposition: blocked}
+  VK_BAND_TABLE_INVALID: {severity: error, disposition: fail}
+  VK_KLABELS_INVALID: {severity: error, disposition: fail}
+  VK_ENERGY_REFERENCE_INVALID: {severity: error, disposition: fail}
+  VK_OUTPUT_INPUT_ALIAS: {severity: error, disposition: fail}
+  VK_OUTPUT_EXISTS: {severity: error, disposition: fail}
+  VK_OUTPUT_WRITE_FAILED: {severity: error, disposition: fail}
+  VK_DECISION_NO_MATCH: {severity: error, disposition: fail}

@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0",
+  "engine": "gromacs",
+  "retrieved_utc": "2026-07-19T00:00:00Z",
+  "version_policy": "Match the executable banner to exact-version documentation. The rolling current alias is discovery-only and cannot support an exact-version assertion.",
+  "supported_documentary_version": "2026.3",
+  "rolling_discovery_url": "https://manual.gromacs.org/current/index.html",
+  "sources": [
+    {
+      "id": "gromacs-download",
+      "kind": "official-download-record",
+      "url": "https://manual.gromacs.org/documentation/2026.3/download.html",
+      "supports": ["source archive", "release checksum", "regression-test archive"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-install",
+      "kind": "official-install-guide",
+      "url": "https://manual.gromacs.org/documentation/2026.3/install-guide/index.html",
+      "supports": ["CMake build", "regression tests", "version/build diagnostics"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-2026.3-release",
+      "kind": "official-release-notes",
+      "url": "https://manual.gromacs.org/documentation/2026.3/release-notes/2026/2026.3.html",
+      "supports": ["release identity", "version-specific changes"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-units",
+      "kind": "official-manual",
+      "url": "https://manual.gromacs.org/documentation/2026.3/reference-manual/definitions.html",
+      "supports": ["nm", "ps", "K", "electron charge", "u", "kJ/mol", "bar"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-mdp",
+      "kind": "official-manual",
+      "url": "https://manual.gromacs.org/documentation/2026.3/user-guide/mdp-options.html",
+      "supports": ["integrator", "dt", "nsteps", "continuation", "gen-vel", "gen-seed", "thermostats", "barostats", "constraints", "PBC"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-grompp",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-grompp.html",
+      "supports": ["preprocessor inputs", "processed topology", "mdout.mdp", "warning policy", "maxwarn limitation"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-wrapper",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx.html",
+      "supports": ["gmx wrapper", "version probe", "global command dispatch"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-command-index",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-help.html",
+      "supports": ["complete command discovery", "gmx help commands"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-mdrun",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-mdrun.html",
+      "supports": ["run inputs and outputs", "checkpoint options", "append semantics", "runtime controls"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-check",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-check.html",
+      "supports": ["native artifact integrity inspection"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-convert-tpr",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-convert-tpr.html",
+      "supports": ["TPR extension and run-length changes"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-restarts",
+      "kind": "official-user-guide",
+      "url": "https://manual.gromacs.org/documentation/2026.3/user-guide/managing-simulations.html",
+      "supports": ["checkpoint continuation", "append behavior", "continuation exactness", "reproducibility boundaries"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-formats",
+      "kind": "official-reference-manual",
+      "url": "https://manual.gromacs.org/documentation/2026.3/reference-manual/file-formats.html",
+      "supports": ["mdp", "topology", "TPR", "CPT", "GRO", "XTC", "TRR", "TNG", "H5MD"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-known-issues",
+      "kind": "official-user-guide",
+      "url": "https://manual.gromacs.org/documentation/2026.3/user-guide/known-issues.html",
+      "supports": ["version-specific checkpoint and hardware/compiler limitations"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-energy",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-energy.html",
+      "supports": ["energy-term extraction", "native summary statistics", "interactive selection"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-trajectory-analysis",
+      "kind": "official-command-reference",
+      "url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-trjconv.html",
+      "supports": ["trajectory conversion", "PBC and centering transforms", "interactive groups"],
+      "redistribution": "link-only"
+    },
+    {
+      "id": "gromacs-license",
+      "kind": "official-preface",
+      "url": "https://manual.gromacs.org/documentation/2026.3/reference-manual/preface.html",
+      "supports": ["software license and disclaimer"],
+      "redistribution": "link-only"
+    }
+  ],
+  "unverified_boundaries": [
+    "The rolling current alias can change after retrieval and is not exact-version evidence.",
+    "This candidate has no local exact-version manual snapshot.",
+    "No legal real GROMACS output artifact has been validated.",
+    "Binary trajectory and checkpoint internals are not parsed offline.",
+    "No native GROMACS version/help command ran because no common executable resolved on 2026-07-19.",
+    "H5MD support is new and experimental in 2026.3; it is not treated as mature trajectory interoperability."
+  ]
+}

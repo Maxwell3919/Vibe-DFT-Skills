@@ -1,0 +1,411 @@
+schema_version: "1.0"
+
+# This is the canonical registry for versioned cross-Skill handoff interfaces.
+# Active entries point to a strict JSON Schema whose content hash is verified.
+# Planned entries reserve a stable name only and are never routable. A draft schema
+# may exist elsewhere in the repository for review, but it is not a usable interface
+# contract until an atomic promotion records its canonical path and verified hash.
+interfaces:
+  structure-manifest@1.0:
+    display_name: Traceable crystal structure manifest
+    lifecycle: active
+    domain: periodic-structure
+    schema_path: contracts/structure-manifest.schema.json
+    schema_sha256: 959f34423fa5c855974cf992e48ac79d9ca71831402402ab15394b938253255f
+    producer_policy: skill
+  run-manifest@1.0:
+    display_name: Periodic DFT run manifest
+    lifecycle: active
+    domain: periodic-dft-run
+    schema_path: contracts/run-manifest.schema.json
+    schema_sha256: 097fe102cc591ae7129cfe41f5a76aa428a94567f8360d39a913bf45b05b280c
+    producer_policy: skill
+  postprocess-plan@1.0:
+    display_name: DFT postprocess plan
+    lifecycle: active
+    domain: postprocess
+    schema_path: contracts/postprocess-plan.schema.json
+    schema_sha256: 9131934190641cfc5e249c10fa144b5703a2618c08c688648cfb614ec7f16c67
+    producer_policy: skill
+  tool-execution@1.0:
+    display_name: Postprocess tool execution record
+    lifecycle: active
+    domain: local-tool-execution
+    schema_path: contracts/tool-execution.schema.json
+    schema_sha256: 86b2c6f34a364880f050bcf07e68eb6e707de0fe2210549c6ff04c70a4827bd7
+    producer_policy: skill
+  normalized-dataset@1.0:
+    display_name: Normalized DFT dataset
+    lifecycle: active
+    domain: postprocess
+    schema_path: contracts/normalized-dataset.schema.json
+    schema_sha256: 61b6473806ec65e88c9622d3cfda8de7bdbc1ec7e92edbf3fcac7bd4ba3b8cc6
+    producer_policy: skill
+  artifact-manifest@1.0:
+    display_name: DFT derived artifact manifest
+    lifecycle: active
+    domain: postprocess
+    schema_path: contracts/artifact-manifest.schema.json
+    schema_sha256: 7ee6f33a773f2e178efd643eb79de31a110b890c847379b06b8526739ff4f3ec
+    producer_policy: skill
+  campaign-record@1.0:
+    display_name: DFT campaign efficiency record
+    lifecycle: active
+    domain: campaign-efficiency
+    schema_path: contracts/campaign-record.schema.json
+    schema_sha256: 0e0a08fcf94b29a4559d9481595f5cd2d417be4711d149d968b700ca7b1a2daa
+    producer_policy: skill
+  recommendation-record@1.0:
+    display_name: DFT efficiency recommendation record
+    lifecycle: active
+    domain: campaign-efficiency
+    schema_path: contracts/recommendation-record.schema.json
+    schema_sha256: 2c6ca73bcd0725b0ca2392900ac5c5f5aefdd1fc2db52295e585eecf8833be99
+    producer_policy: skill
+
+  structure-snapshot@1.0:
+    display_name: General atomistic structure snapshot
+    lifecycle: active
+    domain: atomistic-structure
+    schema_path: contracts/structure-snapshot.schema.json
+    schema_sha256: 96df1a2394a02f402217d7b7c75f31b7003e1b667d2d28036aa64e37d792a70b
+    producer_policy: mixed
+  molecular-structure-manifest@1.0:
+    display_name: Molecular structure manifest
+    lifecycle: active
+    domain: molecular-structure
+    schema_path: contracts/molecular-structure-manifest.schema.json
+    schema_sha256: 91706bbbf03301b10a4fd55f1703da4124d11de3f55e10d76385dde51f3dac60
+    producer_policy: mixed
+  structure-transformation-manifest@1.0:
+    display_name: Structure transformation manifest
+    lifecycle: active
+    domain: atomistic-structure
+    schema_path: contracts/structure-transformation-manifest.schema.json
+    schema_sha256: b7a36f8e249ef49c7e15bcd4c0f7411ad53fd205a887872b7caeedf8abaf22de
+    producer_policy: skill
+  structure-export-manifest@1.0:
+    display_name: Structure export manifest
+    lifecycle: active
+    domain: atomistic-structure
+    schema_path: contracts/structure-export-manifest.schema.json
+    schema_sha256: eb0811840bdd59292030cd93f71a4da11364253f25d731eab887196cdd52e6ba
+    producer_policy: skill
+  atomistic-trajectory-manifest@1.0:
+    display_name: Atomistic trajectory manifest
+    lifecycle: active
+    domain: atomistic-trajectory
+    schema_path: contracts/atomistic-trajectory-manifest.schema.json
+    schema_sha256: cebf7e401435a0fab0a5e2077093621395d0e92a6b5bae060208b49d1633f566
+    producer_policy: mixed
+  ovito-pipeline-spec@1.0:
+    display_name: OVITO analysis and rendering pipeline specification
+    lifecycle: planned
+    domain: atomistic-visualization
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  quantum-chemistry-run-manifest@1.0:
+    display_name: Molecular quantum chemistry run manifest
+    lifecycle: planned
+    domain: quantum-chemistry-run
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  calculation-record-envelope@1.0:
+    display_name: Cross-domain calculation record envelope
+    lifecycle: active
+    domain: calculation-record
+    schema_path: contracts/calculation-record-envelope.schema.json
+    schema_sha256: 1bbaee6873b1be9ad256a3da295622b482495e2e2483f3080e2e2c602d8d8ac8
+    producer_policy: mixed
+  simulation-system-manifest@1.0:
+    display_name: Molecular and atomistic simulation system manifest
+    lifecycle: planned
+    domain: atomistic-simulation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  simulation-manifest@1.0:
+    display_name: General atomistic simulation manifest
+    lifecycle: planned
+    domain: atomistic-simulation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  md-run-manifest@1.0:
+    display_name: Molecular dynamics run manifest
+    lifecycle: planned
+    domain: molecular-dynamics
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  model-manifest@1.0:
+    display_name: Atomistic model manifest
+    lifecycle: planned
+    domain: atomistic-model
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  ml-dataset-manifest@1.0:
+    display_name: Machine-learned potential dataset manifest
+    lifecycle: planned
+    domain: ml-potential
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  ml-training-plan@1.0:
+    display_name: Machine-learned potential training plan
+    lifecycle: planned
+    domain: ml-potential
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  ml-training-run@1.0:
+    display_name: Machine-learned potential training run
+    lifecycle: planned
+    domain: ml-potential
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  ml-evaluation-manifest@1.0:
+    display_name: Machine-learned potential evaluation manifest
+    lifecycle: planned
+    domain: ml-potential
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  ml-model-manifest@1.0:
+    display_name: Machine-learned potential model manifest
+    lifecycle: planned
+    domain: ml-potential
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  ml-deployment-manifest@1.0:
+    display_name: Machine-learned potential deployment manifest
+    lifecycle: planned
+    domain: ml-potential
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  ml-inference-run@1.0:
+    display_name: Machine-learned potential inference run
+    lifecycle: planned
+    domain: ml-potential
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  electronic-wavefunction-source@1.0:
+    display_name: Electronic wavefunction source manifest
+    lifecycle: planned
+    domain: electronic-wavefunction
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  phonon-workflow-manifest@1.0:
+    display_name: Multi-run phonon workflow manifest
+    lifecycle: planned
+    domain: phonon-workflow
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  reaction-network-manifest@1.0:
+    display_name: Reaction network manifest
+    lifecycle: planned
+    domain: microkinetics
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  thermochemistry-dataset@1.0:
+    display_name: Thermochemistry dataset
+    lifecycle: planned
+    domain: thermochemistry
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  microkinetic-model-manifest@1.0:
+    display_name: Microkinetic model manifest
+    lifecycle: planned
+    domain: microkinetics
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  workflow-plan@1.0:
+    display_name: Project workflow plan
+    lifecycle: active
+    domain: orchestration
+    schema_path: contracts/workflow-plan.schema.json
+    schema_sha256: 387bad134b80564db910b16d7d8c8dbd6ed9062d47ded428e412728f747c553c
+    producer_policy: skill
+  workflow-event@1.0:
+    display_name: Project workflow event
+    lifecycle: active
+    domain: orchestration
+    schema_path: contracts/workflow-event.schema.json
+    schema_sha256: d50589177bcf6e714c920564ea6a520bdb4d3c62c58e8d4662986f8ce3a03ced
+    producer_policy: skill
+  decision-record@1.0:
+    display_name: Evidence-bound decision record
+    lifecycle: active
+    domain: orchestration
+    schema_path: contracts/decision-record.schema.json
+    schema_sha256: 67c4ff21453c6756830c6852a5f1e2ec8223fdb18bec39d85c1392d897816ceb
+    producer_policy: skill
+  execution-request@1.0:
+    display_name: Approved immutable execution request
+    lifecycle: active
+    domain: execution
+    schema_path: contracts/execution-request.schema.json
+    schema_sha256: 55f3788b0fa44d55f59d17ed2b7edda02dca07e80d4af2c7254b4a038ef9b2b4
+    producer_policy: skill
+  execution-record@1.0:
+    display_name: Scheduler-neutral execution record
+    lifecycle: active
+    domain: execution
+    schema_path: contracts/execution-record.schema.json
+    schema_sha256: ae67060d49711370b74a9525eea429cf5f09331a7ecbc8bd8191be6848ab5090
+    producer_policy: skill
+  execution-lease@1.0:
+    display_name: Single-owner execution lease
+    lifecycle: active
+    domain: execution
+    schema_path: contracts/execution-lease.schema.json
+    schema_sha256: 9d0cd12730b0428656e1acd181a872f2b02294c7b7bc30625591f8c3bf4fc912
+    producer_policy: skill
+  claim-evidence-map@1.0:
+    display_name: Scientific claim to evidence map
+    lifecycle: active
+    domain: scientific-claims
+    schema_path: contracts/claim-evidence-map.schema.json
+    schema_sha256: 449007e5e8056d75445949e87f9a9f0f5e23fb32607e123be7e454981d4c368d
+    producer_policy: skill
+  literature-evidence-plan@1.0:
+    display_name: Literature evidence to calculation plan
+    lifecycle: planned
+    domain: scientific-planning
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  review-comment-set@1.0:
+    display_name: Reviewer comment and acceptance-criterion set
+    lifecycle: planned
+    domain: review-response
+    schema_path: null
+    schema_sha256: null
+    producer_policy: external-input
+  review-evidence-map@1.0:
+    display_name: Reviewer comment to evidence map
+    lifecycle: planned
+    domain: review-response
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  scientific-report@1.0:
+    display_name: Evidence-bound scientific report
+    lifecycle: planned
+    domain: scientific-reporting
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  agent-action-envelope@1.0:
+    display_name: Weak-model agent action envelope
+    lifecycle: active
+    domain: agent-control
+    schema_path: contracts/agent-action-envelope.schema.json
+    schema_sha256: b7b95568ba8d290429544346c285139a864368f6f4ed55460a48ad425ad98b72
+    producer_policy: skill
+    classification:
+      document_kind: projection
+      routing_scope: governance-only
+  environment-profile@1.0:
+    display_name: Reproducible execution environment profile
+    lifecycle: planned
+    domain: environment
+    schema_path: null
+    schema_sha256: null
+    producer_policy: registry
+  official-source-record@1.0:
+    display_name: Official source metadata record
+    lifecycle: active
+    domain: provenance-evidence
+    schema_path: contracts/official-source-record.schema.json
+    schema_sha256: c0963e4e6e734563fa850356d300db14785c0e3c8e66072ed52f21558b675b95
+    producer_policy: mixed
+  evidence-record@1.0:
+    display_name: Generic non-human evidence record
+    lifecycle: active
+    domain: provenance-evidence
+    schema_path: contracts/evidence-record.schema.json
+    schema_sha256: f39f36e9c581dd0f45ba9875cc8e8958294a11c44f6f12a87fc4eda483ebe92b
+    producer_policy: mixed
+  bundle-manifest@1.0:
+    display_name: Immutable validation bundle manifest
+    lifecycle: active
+    domain: bundle-governance
+    schema_path: contracts/bundle-manifest.schema.json
+    schema_sha256: f5baf50c32ad50f6ff0317ce1e4f3e45f3860bb274c2ca4727aa0d6c7bc01f38
+    producer_policy: mixed
+    classification:
+      document_kind: content-addressed-record
+      routing_scope: governance-only
+  bundle-validation-report@1.0:
+    display_name: Content-addressed bundle validation report
+    lifecycle: active
+    domain: bundle-governance
+    schema_path: contracts/bundle-validation-report.schema.json
+    schema_sha256: e9d161d142629054cc19f04c9b02a8f80098f66822d1619156cc47591075bf6e
+    producer_policy: mixed
+    classification:
+      document_kind: content-addressed-record
+      routing_scope: governance-only
+  activation-checklist@1.0:
+    display_name: Skill activation checklist evidence
+    lifecycle: planned
+    domain: skill-governance
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+    classification:
+      document_kind: content-addressed-record
+      routing_scope: governance-only
+  promotion-delta@1.0:
+    display_name: Atomic Skill promotion delta
+    lifecycle: planned
+    domain: skill-governance
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+    classification:
+      document_kind: content-addressed-record
+      routing_scope: governance-only
+  task-maturity@1.0:
+    display_name: Task and provider maturity catalog
+    lifecycle: planned
+    domain: skill-governance
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+    classification:
+      document_kind: content-addressed-record
+      routing_scope: governance-only
+  candidate-decision-table@1.0:
+    display_name: Development or planned Skill weak-model decision table
+    lifecycle: planned
+    domain: skill-governance
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+    classification:
+      document_kind: projection
+      routing_scope: governance-only
+  validation-report@1.0:
+    display_name: Candidate validation report projection
+    lifecycle: planned
+    domain: skill-governance
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+    classification:
+      document_kind: projection
+      routing_scope: governance-only

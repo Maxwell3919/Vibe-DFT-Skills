@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:workflow-event:1.0",
+  "title": "Vibe DFT Skills append-only workflow event",
+  "description": "An append-only, evidence-linked observation. Scheduler and process events remain technical facts and never carry scientific acceptance.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "event_id",
+  "x-vibe-semantic-obligations": [
+    "EVENT_PLAN_STEP_REF_RESOLVES",
+    "EVENT_SEQUENCE_MONOTONIC",
+    "EVENT_EVIDENCE_IDS_RESOLVE",
+    "EVENT_TYPE_RELATED_RECORD_STATUS_MATCH",
+    "EVENT_RELATED_RECORD_HASH_RESOLVES",
+    "EVENT_NATIVE_STATUS_EVIDENCE_MATCH",
+    "EVENT_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "event_id",
+    "plan_ref",
+    "step_id",
+    "sequence",
+    "event_type",
+    "occurred_utc",
+    "emitted_by",
+    "observed_status",
+    "related_records",
+    "evidence_ids",
+    "evidence_refs",
+    "finding_codes",
+    "message",
+    "claim_ceiling",
+    "scientific_acceptance",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "workflow-event"},
+    "event_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "plan_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "workflow-plan"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "workflow-plan"}
+          }
+        }
+      ]
+    },
+    "step_id": {
+      "oneOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+        {"type": "null"}
+      ]
+    },
+    "sequence": {"type": "integer", "minimum": 0},
+    "event_type": {
+      "enum": [
+        "plan-created",
+        "plan-blocked",
+        "step-ready",
+        "execution-requested",
+        "lease-issued",
+        "scheduler-submitted",
+        "scheduler-state-observed",
+        "process-state-observed",
+        "application-state-observed",
+        "gate-evaluated",
+        "decision-recorded",
+        "artifact-produced",
+        "step-blocked",
+        "step-completed",
+        "workflow-completed",
+        "workflow-failed"
+      ]
+    },
+    "occurred_utc": {"type": "string", "format": "date-time"},
+    "emitted_by": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+    "observed_status": {"$ref": "#/$defs/observedStatus"},
+    "related_records": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+      "uniqueItems": true
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "finding_codes": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+      "uniqueItems": true
+    },
+    "message": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "claim_ceiling": {"$ref": "#/$defs/claimCeiling"},
+    "scientific_acceptance": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/scientificAcceptance"},
+        {"const": "not_assessed"}
+      ]
+    },
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"event_type": {"enum": ["scheduler-submitted", "scheduler-state-observed"]}},
+        "required": ["event_type"]
+      },
+      "then": {
+        "properties": {
+          "observed_status": {
+            "allOf": [
+              {"$ref": "#/$defs/observedStatus"},
+              {"properties": {"layer": {"const": "scheduler"}}}
+            ]
+          },
+          "claim_ceiling": {
+            "enum": [
+              "no_positive_claim",
+              "documented_behavior_only",
+              "input_gates_only",
+              "technical_run_gates_only"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_type": {"const": "process-state-observed"}},
+        "required": ["event_type"]
+      },
+      "then": {
+        "properties": {
+          "observed_status": {
+            "allOf": [
+              {"$ref": "#/$defs/observedStatus"},
+              {"properties": {"layer": {"const": "process"}}}
+            ]
+          },
+          "claim_ceiling": {
+            "enum": [
+              "no_positive_claim",
+              "documented_behavior_only",
+              "input_gates_only",
+              "technical_run_gates_only"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_type": {"const": "application-state-observed"}},
+        "required": ["event_type"]
+      },
+      "then": {
+        "properties": {
+          "observed_status": {
+            "allOf": [
+              {"$ref": "#/$defs/observedStatus"},
+              {"properties": {"layer": {"const": "application"}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "enum": [
+              "execution-requested",
+              "lease-issued",
+              "scheduler-submitted",
+              "scheduler-state-observed",
+              "process-state-observed",
+              "application-state-observed",
+              "gate-evaluated",
+              "decision-recorded",
+              "artifact-produced",
+              "step-blocked",
+              "step-completed"
+            ]
+          }
+        },
+        "required": ["event_type"]
+      },
+      "then": {"properties": {"step_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"}}}
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {"enum": ["workflow-completed", "workflow-failed"]}
+        },
+        "required": ["event_type"]
+      },
+      "then": {
+        "properties": {
+          "step_id": {"type": "null"},
+          "observed_status": {
+            "allOf": [
+              {"$ref": "#/$defs/observedStatus"},
+              {"properties": {"layer": {"const": "workflow"}}}
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "claimCeiling": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/claimCeiling"
+    },
+    "observedStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["layer", "native_status", "normalized_status"],
+      "properties": {
+        "layer": {"enum": ["plan", "step", "scheduler", "process", "application", "gate", "decision", "artifact", "workflow"]},
+        "native_status": {"type": ["string", "null"], "minLength": 1, "maxLength": 256},
+        "normalized_status": {
+          "enum": [
+            "created",
+            "ready",
+            "submitted",
+            "queued",
+            "running",
+            "succeeded",
+            "completed",
+            "incomplete",
+            "failed",
+            "cancelled",
+            "timed-out",
+            "blocked",
+            "approved",
+            "denied",
+            "produced",
+            "unknown"
+          ]
+        }
+      }
+    }
+  }
+}

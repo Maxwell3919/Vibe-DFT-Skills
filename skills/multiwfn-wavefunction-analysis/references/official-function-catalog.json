@@ -1,0 +1,205 @@
+{
+  "schema_version": "1.0",
+  "software": "Multiwfn",
+  "program_version": "2026.7.15",
+  "manual_version": "2026.7.10",
+  "checked_date": "2026-07-19",
+  "official_sources": {
+    "download": "http://sobereva.com/multiwfn/download.html",
+    "update_history": "http://sobereva.com/multiwfn/update.html",
+    "manual": "http://sobereva.com/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf",
+    "quick_start": "http://sobereva.com/multiwfn/misc/Multiwfn%20quick%20start.pdf"
+  },
+  "native_validation": {
+    "state": "not_run",
+    "checked_date": "2026-07-19",
+    "platform": "Darwin arm64",
+    "reason": "Neither Multiwfn nor multiwfn resolved in PATH and no Python distribution named multiwfn was present.",
+    "banner_or_help_executed": false,
+    "example_executed": false
+  },
+  "invocation": {
+    "interactive": ["Multiwfn"],
+    "file_argument": ["Multiwfn", "<input-file>"],
+    "documented_arguments": ["-nt", "-uf", "-silent", "-set"],
+    "documented_example": ["Multiwfn", "COCl2.fch", "-nt", "36", "-set", "/sob/tmp/settings.ini", "-silent"],
+    "stdin_redirection": "Multiwfn <input-file> -silent < commands.in > multiwfn.stdout 2> multiwfn.stderr",
+    "graceful_main_menu_exit": "q"
+  },
+  "input_families": [
+    {"id": "full-wavefunction-and-basis", "formats": [".mwfn", ".fch", ".fchk", ".molden", ".molden.input", "molden.inp", ".gbw", ".gms"], "provides": ["basis functions", "GTFs", "atomic coordinates"], "limits": "Direct .chk and .gbw loading require configured external converters; Molden compatibility and ECP nuclear charges must be checked."},
+    {"id": "gtf-wavefunction", "formats": [".wfn", ".wfx", ".31-.40 NBO plot set"], "provides": ["GTFs", "atomic coordinates"], "limits": ".wfn/.wfx do not provide basis-function identity or virtual orbitals; NBO plot files are a coordinated set."},
+    {"id": "structure-only", "formats": [".pdb", ".xyz", ".mol", ".sdf", ".mol2", ".gro", ".cif", ".mop", "Gaussian input/output", "ORCA input/output", "CP2K input/restart", "POSCAR", "QE input", "Turbomole coord"], "provides": ["atomic coordinates"], "limits": "No wavefunction is available; only coordinate-dependent functions are eligible."},
+    {"id": "coordinates-and-charges", "formats": [".chg", ".pqr"], "provides": ["atomic coordinates", "atomic charges"], "limits": "No orbital or electron-density wavefunction is present."},
+    {"id": "grid-with-structure", "formats": [".cub", ".cube", "CHGCAR", "CHG", "ELFCAR", "LOCPOT"], "provides": ["grid data", "atomic coordinates"], "limits": "Grid provenance, cell, units, ordering, and periodic interpretation remain mandatory."},
+    {"id": "grid-only", "formats": [".vti", ".grd", ".dx"], "provides": ["grid data"], "limits": "No atom or wavefunction identity is implied."},
+    {"id": "special-text", "formats": ["plain text", "program-specific output"], "provides": ["task-specific data"], "limits": "Eligibility depends on the selected module, such as spectra or DOS."}
+  ],
+  "main_functions": [
+    {"id": "0", "title": "Show molecular structure and view orbitals or isosurfaces", "manual_section": "3.2", "subfunctions": []},
+    {"id": "1", "title": "Output all supported properties at a point", "manual_section": "3.3", "subfunctions": []},
+    {"id": "2", "title": "Topology analysis", "manual_section": "3.14", "subfunctions": []},
+    {"id": "3", "title": "Output and plot a selected property along a line", "manual_section": "3.4", "subfunctions": []},
+    {"id": "4", "title": "Output and plot a selected property in a plane", "manual_section": "3.5", "subfunctions": []},
+    {"id": "5", "title": "Output and plot a selected property in a spatial region", "manual_section": "3.6", "subfunctions": []},
+    {"id": "6", "title": "Check and modify wavefunction", "manual_section": "3.8", "subfunctions": []},
+    {
+      "id": "7", "title": "Population analysis and atomic charges", "manual_section": "3.9",
+      "subfunctions": [
+        {"id": "1", "title": "Hirshfeld charge"}, {"id": "2", "title": "Voronoi deformation density population"},
+        {"id": "5", "title": "Mulliken population"}, {"id": "6", "title": "Lowdin population"},
+        {"id": "7", "title": "Ros-Schuit modified Mulliken"}, {"id": "8", "title": "Stout-Politzer modified Mulliken"},
+        {"id": "9", "title": "Bickelhaupt modified Mulliken"}, {"id": "10", "title": "Becke charge with atomic dipole correction"},
+        {"id": "11", "title": "ADCH charge"}, {"id": "12", "title": "CHELPG charge"},
+        {"id": "13", "title": "Merz-Kollmann charge"}, {"id": "14", "title": "AIM charge"},
+        {"id": "15", "title": "Hirshfeld-I charge"}, {"id": "16", "title": "CM5 charge"},
+        {"id": "-16", "title": "1.2 times CM5 charge"}, {"id": "17", "title": "EEM charge"},
+        {"id": "18", "title": "RESP charge"}, {"id": "19", "title": "PEOE or Gasteiger charge"},
+        {"id": "20", "title": "MBIS charge"}
+      ]
+    },
+    {
+      "id": "8", "title": "Orbital composition analysis", "manual_section": "3.10",
+      "subfunctions": [
+        {"id": "1", "title": "Mulliken orbital composition"}, {"id": "2", "title": "Stout-Politzer orbital composition"},
+        {"id": "3", "title": "SCPA orbital composition"}, {"id": "-1", "title": "Define fragment 1"},
+        {"id": "-2", "title": "Define fragment 2"}, {"id": "4", "title": "Mulliken fragment composition"},
+        {"id": "5", "title": "Stout-Politzer fragment composition"}, {"id": "6", "title": "SCPA fragment composition"},
+        {"id": "7", "title": "Natural atomic orbital composition"}, {"id": "8", "title": "Hirshfeld atom or fragment composition"},
+        {"id": "9", "title": "Becke atom or fragment composition"}, {"id": "10", "title": "Hirshfeld-I atom or fragment composition"},
+        {"id": "11", "title": "AIM atom or fragment composition"}, {"id": "100", "title": "LOBA or modified LOBA oxidation state"}
+      ]
+    },
+    {
+      "id": "9", "title": "Bond-order analysis", "manual_section": "3.11",
+      "subfunctions": [
+        {"id": "1", "title": "Mayer bond order"}, {"id": "2", "title": "Multi-center bond order"},
+        {"id": "-2", "title": "Multi-center bond-order variant"}, {"id": "-3", "title": "Multi-center bond-order variant"},
+        {"id": "3", "title": "Wiberg bond order in Lowdin-orthogonalized basis"}, {"id": "4", "title": "Mulliken bond order"},
+        {"id": "5", "title": "Mulliken bond-order decomposition"}, {"id": "6", "title": "Orbital-occupancy-perturbed Mayer bond order"},
+        {"id": "7", "title": "Fuzzy bond order"}, {"id": "8", "title": "Laplacian bond order"},
+        {"id": "9", "title": "Wiberg decomposition in NAO basis"}, {"id": "10", "title": "Intrinsic bond strength index"},
+        {"id": "11", "title": "AV1245 and AVmin"}
+      ]
+    },
+    {"id": "10", "title": "Plot DOS, photoelectron spectrum, and COHP", "manual_section": "3.12", "features": ["TDOS", "PDOS", "OPDOS", "LDOS", "PES", "d-band center", "p-band center", "COHP"], "subfunctions": []},
+    {"id": "11", "title": "Plot IR, Raman, UV-Vis, ECD, VCD, ROA, and NMR spectra", "manual_section": "3.13", "features": ["IR", "Raman", "UV-Vis", "ECD", "VCD", "ROA", "NMR", "PVS", "PVDOS"], "subfunctions": []},
+    {"id": "12", "title": "Quantitative molecular-surface analysis", "manual_section": "3.15", "subfunctions": []},
+    {
+      "id": "13", "title": "Process grid data", "manual_section": "3.16",
+      "subfunctions": [
+        {"id": "-2", "title": "Visualize isosurface"}, {"id": "0", "title": "Export Gaussian cube"},
+        {"id": "1", "title": "Output all grid points"}, {"id": "2", "title": "Output XY plane"},
+        {"id": "3", "title": "Output YZ plane"}, {"id": "4", "title": "Output XZ plane"},
+        {"id": "5", "title": "Average XY planes over Z range"}, {"id": "6", "title": "Average YZ planes over X range"},
+        {"id": "7", "title": "Average XZ planes over Y range"}, {"id": "8", "title": "Plane from three atoms"},
+        {"id": "9", "title": "Plane from three points"}, {"id": "10", "title": "Output points in a value range"},
+        {"id": "11", "title": "Grid-data calculation"}, {"id": "12", "title": "Map cube values to an isosurface"},
+        {"id": "13", "title": "Set values by distance from atoms"}, {"id": "14", "title": "Set values outside fragment-overlap region"},
+        {"id": "15", "title": "Conditionally replace values"}, {"id": "16", "title": "Scale data range"},
+        {"id": "17", "title": "Grid statistics in spatial and value ranges"}, {"id": "18", "title": "Integral and plane-average curves"},
+        {"id": "19", "title": "Translate grid data"}, {"id": "20", "title": "Periodically duplicate grid data"}
+      ]
+    },
+    {"id": "14", "title": "Adaptive natural density partitioning analysis", "manual_section": "3.17", "subfunctions": []},
+    {
+      "id": "15", "title": "Fuzzy atomic-space analysis", "manual_section": "3.18",
+      "subfunctions": [
+        {"id": "1", "title": "Integrate in atomic spaces"}, {"id": "8", "title": "Integrate in overlap spaces"},
+        {"id": "2", "title": "Atomic and molecular multipoles"}, {"id": "3", "title": "Atomic overlap matrix"},
+        {"id": "33", "title": "Fragment overlap matrix"}, {"id": "4", "title": "Localization and delocalization indices"},
+        {"id": "44", "title": "Interfragment delocalization index"}, {"id": "5", "title": "Para-delocalization index"},
+        {"id": "6", "title": "Aromatic fluctuation index"}, {"id": "7", "title": "FLU-pi"},
+        {"id": "9", "title": "Condensed linear-response kernel"}, {"id": "10", "title": "Para linear-response index"},
+        {"id": "11", "title": "Multi-center delocalization index"}, {"id": "12", "title": "Information-theoretic aromaticity"},
+        {"id": "13", "title": "Atomic effective/free volume, polarizability, and C6"}
+      ]
+    },
+    {"id": "16", "title": "Charge-decomposition analysis and orbital-interaction diagram", "manual_section": "3.19", "subfunctions": []},
+    {"id": "17", "title": "Basin analysis", "manual_section": "3.20", "subfunctions": []},
+    {
+      "id": "18", "title": "Electron-excitation analysis", "manual_section": "3.21",
+      "subfunctions": [
+        {"id": "-1", "title": "Check, modify, and export excitation coefficients"},
+        {"id": "1", "title": "Hole/electron, transition density, and transition-dipole-density analysis"},
+        {"id": "2", "title": "Atom/fragment transition-matrix heat maps"}, {"id": "3", "title": "Charge transfer from density-difference grid"},
+        {"id": "4", "title": "Delta-r charge-transfer length"}, {"id": "5", "title": "Transition electric/magnetic dipoles between states"},
+        {"id": "6", "title": "Natural transition orbitals"}, {"id": "7", "title": "Ghost-hunter index"},
+        {"id": "8", "title": "Interfragment charge transfer"}, {"id": "9", "title": "Transition-density matrix"},
+        {"id": "10", "title": "Transition-dipole MO-pair decomposition"}, {"id": "11", "title": "Transition-dipole basis/atom decomposition"},
+        {"id": "12", "title": "Mulliken atomic transition charges"}, {"id": "13", "title": "Natural orbitals of excited states"},
+        {"id": "14", "title": "Lambda excitation index"}, {"id": "15", "title": "Major MO transitions in all states"},
+        {"id": "16", "title": "Charge-transfer spectrum"}, {"id": "17", "title": "Excitation-based electron-density polarization"},
+        {"id": "18", "title": "ECD/CPL dissymmetry factor"}
+      ]
+    },
+    {"id": "19", "title": "Orbital-localization analysis", "manual_section": "3.22", "subfunctions": []},
+    {
+      "id": "20", "title": "Visual study of weak interactions", "manual_section": "3.23",
+      "subfunctions": [
+        {"id": "1", "title": "NCI analysis"}, {"id": "2", "title": "Promolecular NCI"},
+        {"id": "3", "title": "Averaged NCI"}, {"id": "4", "title": "IRI and IRI-pi"},
+        {"id": "5", "title": "DORI"}, {"id": "6", "title": "van der Waals potential"},
+        {"id": "10", "title": "IGM"}, {"id": "11", "title": "IGMH"},
+        {"id": "12", "title": "Averaged IGM"}, {"id": "-10", "title": "Modified IGM"},
+        {"id": "-12", "title": "Averaged modified IGM"}
+      ]
+    },
+    {"id": "21", "title": "Energy-decomposition analysis", "manual_section": "3.24", "features": ["EDA-FF", "Shubin Liu EDA", "sobEDA", "sobEDAw", "atomic dispersion contribution"], "subfunctions": []},
+    {"id": "22", "title": "Conceptual DFT analysis", "manual_section": "3.25", "features": ["Fukui", "dual descriptor", "condensed descriptors", "superdelocalizability", "bond dual descriptor"], "subfunctions": []},
+    {"id": "23", "title": "ETS-NOCV analysis", "manual_section": "3.26", "subfunctions": []},
+    {
+      "id": "24", "title": "Hyperpolarizability analysis", "manual_section": "3.27",
+      "subfunctions": [{"id": "1", "title": "Parse Gaussian polarizability output"}, {"id": "2", "title": "Sum-over-states and two/three-level models"}, {"id": "3", "title": "Polarizability density"}, {"id": "5", "title": "Unit-sphere and vector visualization"}]
+    },
+    {
+      "id": "25", "title": "Electron-delocalization and aromaticity analysis", "manual_section": "3.28",
+      "subfunctions": [{"id": "3", "title": "ICSS"}, {"id": "4", "title": "NICSzz for nonplanar systems"}, {"id": "6", "title": "HOMA and Bird"}, {"id": "7", "title": "HOMAc and HOMER"}, {"id": "13", "title": "NICS-1D, INICS, and FiPC-NICS"}, {"id": "14", "title": "NICS-2D"}]
+    },
+    {
+      "id": "100", "title": "Other functions, part 1", "manual_section": "3.100",
+      "subfunctions": [
+        {"id": "1", "title": "Scatter graph between functions and cubes"}, {"id": "2", "title": "Export files or generate program inputs"},
+        {"id": "3", "title": "Molecular van der Waals volume"}, {"id": "4", "title": "Whole-space integration"},
+        {"id": "5", "title": "Alpha/beta orbital overlap"}, {"id": "6", "title": "Monitor Gaussian SCF"},
+        {"id": "8", "title": "Combined-fragment Gaussian initial guess"}, {"id": "9", "title": "Connectivity and coordination number"},
+        {"id": "11", "title": "Orbital overlap and centroid distance"}, {"id": "12", "title": "Alpha/beta biorthogonalization"},
+        {"id": "14", "title": "LOLIPOP"}, {"id": "15", "title": "Intermolecular orbital overlap"},
+        {"id": "17", "title": "Fock/KS matrix from orbitals"}, {"id": "18", "title": "Yoshizawa transport route"},
+        {"id": "19", "title": "Combine fragment wavefunctions"}, {"id": "20", "title": "Hellmann-Feynman forces"},
+        {"id": "21", "title": "Geometry properties"}, {"id": "22", "title": "Detect pi orbitals and composition"},
+        {"id": "23", "title": "Fit spatial distribution to atomic values"}
+      ]
+    },
+    {
+      "id": "200", "title": "Other functions, part 2", "manual_section": "3.200",
+      "subfunctions": [
+        {"id": "1", "title": "Core-valence bifurcation index"}, {"id": "2", "title": "Atomic and bond dipoles in Hilbert space"},
+        {"id": "3", "title": "Cube for multiple orbitals"}, {"id": "5", "title": "Radial distribution of a real-space function"},
+        {"id": "6", "title": "Orbital correspondence between wavefunctions"}, {"id": "9", "title": "Average bond length and coordination"},
+        {"id": "10", "title": "Orbital integrals"}, {"id": "11", "title": "Function center, moments, gyration radius, and r-squared"},
+        {"id": "12", "title": "Energy index or bond-polarity index"}, {"id": "13", "title": "Orbital contributions to grid differences"},
+        {"id": "14", "title": "Domain analysis"}, {"id": "15", "title": "Electron-correlation index"},
+        {"id": "16", "title": "Natural, spin-natural, and spin orbitals"}, {"id": "17", "title": "Coulomb and exchange integrals"},
+        {"id": "18", "title": "Bond length/order and angle/dihedral alternation"}, {"id": "19", "title": "Spatial delocalization index"},
+        {"id": "20", "title": "Bond-order density and natural adaptive orbitals"}, {"id": "21", "title": "Lowdin orthogonalization of occupied orbitals"}
+      ]
+    },
+    {
+      "id": "300", "title": "Other functions, part 3", "manual_section": "3.300",
+      "subfunctions": [
+        {"id": "1", "title": "Free regions and free volume in a cell"}, {"id": "2", "title": "Fit atomic radial density to STOs or GTFs"},
+        {"id": "4", "title": "Simulate STM image"}, {"id": "5", "title": "Dipole/multipole moments and spatial extent"},
+        {"id": "6", "title": "Orbital energies from Fock matrix"}, {"id": "7", "title": "Geometry operations"},
+        {"id": "8", "title": "Surface-distance projection map"}, {"id": "9", "title": "Determine Fermi level"}
+      ]
+    }
+  ],
+  "catalog_semantics": {
+    "main_function_listing": "The function is indexed by the official 2026.7.10 manual.",
+    "subfunction_listing": "The token and title appear in the official manual contents or an official tutorial; this is not a live menu transcript.",
+    "recipe": "A separate official tutorial supplies an actual sequence and prerequisites.",
+    "native_execution": "An exact binary/banner accepted the sequence and produced checked outputs. No such evidence is bundled."
+  },
+  "statistics": {"main_functions": 29}
+}

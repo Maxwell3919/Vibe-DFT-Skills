@@ -1,0 +1,34 @@
+schema_version: "1.0"
+levels:
+  - design-only
+  - synthetic-validated
+  - format-fixture-validated
+  - real-artifact-validated
+  - tool-integration-validated
+routes:
+  source-manifest-audit:
+    maturity: synthetic-validated
+    positive_fixture: examples/synthetic-wavefunction-source.json
+    bound_wavefunction_fixture: examples/synthetic.wfx
+  official-linux-nogui-inventory-plan:
+    maturity: synthetic-validated
+    limitation: "No executable is launched and no private real transcript is bundled."
+  official-linux-nogui-transcript-audit:
+    maturity: synthetic-validated
+    positive_fixture: examples/synthetic-inventory-transcript.txt
+  atomic-charge-table:
+    maturity: synthetic-validated
+    positive_fixture: examples/synthetic-charges.txt
+  community-macos:
+    maturity: design-only
+    blocker: "Version/source/build parity is not official or verified."
+promotion_requirements:
+  real-artifact-validated:
+    - authorized-unpublished-safe-external-fixture-record
+    - exact-input-and-output-digests
+    - independent-negative-real-artifact
+  tool-integration-validated:
+    - accepted-current-terms
+    - exact-package-and-executable-digests
+    - isolated-real-nogui-transcript
+    - output-side-effect-and-overwrite-regression

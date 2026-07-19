@@ -1,0 +1,673 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:agent-action-envelope:1.0",
+  "title": "Vibe-DFT weak-model agent action envelope",
+  "x-vibe-document-kind": "projection",
+  "x-vibe-semantic-obligations": [
+    "EVIDENCE_RECORD_CONTENT_HASH_RESOLVES",
+    "SCIENTIFIC_DECISION_SUBJECT_OUTCOME_HUMAN_MATCH",
+    "AUTHORIZATION_DECISION_SCOPE_HUMAN_MATCH",
+    "OFFICIAL_SOURCE_AUTHORITY_REGISTRY_MATCH",
+    "TOOL_RECORD_ACTION_EXIT_GATE_MATCH",
+    "HANDOFF_RECORD_CONTRACT_ID_HASH_MATCH",
+    "UNRESOLVED_BUNDLE_LIMITS_STATUS_TO_INTERNALLY_CONSISTENT"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "request",
+    "route",
+    "action_state",
+    "claim_ceiling",
+    "claim_scope",
+    "scientific_acceptance",
+    "scientific_decision_ref",
+    "authorization",
+    "evidence",
+    "tool_runs",
+    "gates",
+    "supported_facts",
+    "blocked_claims",
+    "smallest_next_action",
+    "handoffs",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "agent-action-envelope"},
+    "request": {"$ref": "#/$defs/request"},
+    "route": {"$ref": "#/$defs/route"},
+    "action_state": {
+      "enum": [
+        "needs_evidence",
+        "ready_for_deterministic_check",
+        "deterministic_check_running",
+        "local_gate_blocked",
+        "local_gate_passed_limited",
+        "needs_authorization",
+        "ready_for_authorized_execution",
+        "execution_in_progress",
+        "handoff_ready",
+        "complete",
+        "failed_recoverable",
+        "failed_terminal"
+      ]
+    },
+    "claim_ceiling": {"$ref": "#/$defs/claim_ceiling"},
+    "claim_scope": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/claim_scope"}
+      ]
+    },
+    "scientific_acceptance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/scientificAcceptance"
+    },
+    "scientific_decision_ref": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/record_ref"}
+      ]
+    },
+    "authorization": {"$ref": "#/$defs/authorization"},
+    "evidence": {"$ref": "#/$defs/evidence_inventory"},
+    "tool_runs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/tool_run"}
+    },
+    "gates": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/gate"}
+    },
+    "supported_facts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/supported_fact"}
+    },
+    "blocked_claims": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/blocked_claim"}
+    },
+    "smallest_next_action": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/next_action"}
+      ]
+    },
+    "handoffs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/handoff"}
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"scientific_acceptance": {"enum": ["accepted", "rejected"]}},
+        "required": ["scientific_acceptance"]
+      },
+      "then": {
+        "properties": {
+          "scientific_decision_ref": {
+            "allOf": [
+              {"$ref": "#/$defs/record_ref"},
+              {
+                "properties": {
+                  "contract_name": {"const": "decision-record"},
+                  "schema_version": {"const": "1.0"},
+                  "role": {"const": "scientific-acceptance"}
+                }
+              }
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "scientific_decision_ref": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "route": {
+            "properties": {"lifecycle": {"enum": ["development", "planned"]}},
+            "required": ["lifecycle"]
+          }
+        },
+        "required": ["route"]
+      },
+      "then": {
+        "properties": {
+          "action_state": {"enum": ["needs_evidence", "local_gate_blocked"]},
+          "authorization": {
+            "properties": {
+              "state": {"enum": ["not_required", "not_requested"]},
+              "decision_ref": {"type": "null"}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "skill_identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "record_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_name", "schema_version", "record_id", "sha256", "role"],
+      "properties": {
+        "contract_name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "schema_version": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*\\.[0-9]+$"
+        },
+        "record_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "claim_ceiling": {
+      "enum": [
+        "no_positive_claim",
+        "documented_behavior_only",
+        "input_gates_only",
+        "technical_run_gates_only",
+        "numerical_candidate_only",
+        "eligible_for_expert_review"
+      ]
+    },
+    "claim_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "scope_kind",
+        "statement",
+        "observable",
+        "unit",
+        "absolute_tolerance",
+        "relative_tolerance",
+        "evidence_ids",
+        "limitations"
+      ],
+      "properties": {
+        "claim_id": {"$ref": "#/$defs/identifier"},
+        "scope_kind": {
+          "enum": ["documented-behavior", "computed-fact", "numerical-convergence", "scientific-claim"]
+        },
+        "statement": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "observable": {"type": ["string", "null"], "minLength": 1, "maxLength": 200},
+        "unit": {"type": ["string", "null"], "minLength": 1, "maxLength": 100},
+        "absolute_tolerance": {"type": ["number", "null"], "minimum": 0},
+        "relative_tolerance": {"type": ["number", "null"], "minimum": 0},
+        "evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 500},
+          "uniqueItems": true
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request_id", "mode"],
+      "properties": {
+        "request_id": {"$ref": "#/$defs/identifier"},
+        "mode": {
+          "enum": [
+            "explain",
+            "structure_analysis",
+            "design",
+            "audit_input",
+            "audit_run",
+            "convergence",
+            "postprocess",
+            "figure",
+            "efficiency",
+            "execute",
+            "handoff"
+          ]
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "skill", "lifecycle", "software", "task"],
+      "properties": {
+        "state": {
+          "enum": ["selected_active", "ambiguous", "inactive_development", "inactive_planned", "unsupported"]
+        },
+        "skill": {
+          "oneOf": [
+            {"$ref": "#/$defs/skill_identifier"},
+            {"type": "null"}
+          ]
+        },
+        "lifecycle": {"enum": ["active", "development", "planned", "unknown"]},
+        "software": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        "task": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "side_effects", "scope", "evidence_ids", "decision_ref"],
+      "properties": {
+        "state": {
+          "enum": ["not_required", "not_requested", "requested", "granted", "denied", "expired"]
+        },
+        "side_effects": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sideEffectSet"
+        },
+        "scope": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 300},
+          "uniqueItems": true
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "decision_ref": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/record_ref"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"state": {"const": "granted"}},
+            "required": ["state"]
+          },
+          "then": {
+            "properties": {
+              "decision_ref": {
+                "allOf": [
+                  {"$ref": "#/$defs/record_ref"},
+                  {
+                    "properties": {
+                      "contract_name": {"const": "decision-record"},
+                      "schema_version": {"const": "1.0"},
+                      "role": {"const": "execution-authorization"}
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {"decision_ref": {"type": "null"}}
+          }
+        }
+      ]
+    },
+    "evidence_inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items", "missing", "conflicts"],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidence_item"}
+        },
+        "missing": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 500},
+          "uniqueItems": true
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 500},
+          "uniqueItems": true
+        }
+      }
+    },
+    "evidence_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "status", "sha256", "record_ref", "source_label", "limitations"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "role": {"type": "string", "minLength": 1, "maxLength": 128},
+        "status": {"enum": ["present", "missing", "redacted", "external", "conflict"]},
+        "sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "record_ref": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/record_ref"}
+          ]
+        },
+        "source_label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[^/\\\\\\r\\n]+$"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 500},
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "enum": ["human-expert-decision-record", "human-scientific-review-record"]
+              }
+            },
+            "required": ["role"]
+          },
+          "then": {
+            "properties": {
+              "record_ref": {
+                "allOf": [
+                  {"$ref": "#/$defs/record_ref"},
+                  {
+                    "properties": {
+                      "contract_name": {"const": "decision-record"},
+                      "schema_version": {"const": "1.0"},
+                      "role": {"const": "scientific-acceptance"}
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "enum": [
+                  "official-source-report",
+                  "official-document",
+                  "official-manual-entry",
+                  "official-source-snapshot"
+                ]
+              }
+            },
+            "required": ["role"]
+          },
+          "then": {
+            "properties": {
+              "record_ref": {
+                "allOf": [
+                  {"$ref": "#/$defs/record_ref"},
+                  {
+                    "properties": {
+                      "contract_name": {"const": "official-source-record"},
+                      "schema_version": {"const": "1.0"},
+                      "role": {"const": "official-source"}
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {"const": "human-execution-authorization-record"}
+            },
+            "required": ["role"]
+          },
+          "then": {
+            "properties": {
+              "record_ref": {
+                "allOf": [
+                  {"$ref": "#/$defs/record_ref"},
+                  {
+                    "properties": {
+                      "contract_name": {"const": "decision-record"},
+                      "schema_version": {"const": "1.0"},
+                      "role": {"const": "execution-authorization"}
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"role": {"const": "handoff-manifest"}},
+            "required": ["role"]
+          },
+          "then": {
+            "properties": {
+              "record_ref": {
+                "allOf": [
+                  {"$ref": "#/$defs/record_ref"},
+                  {"properties": {"role": {"const": "handoff-manifest"}}}
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tool_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "action_id",
+        "tool",
+        "required",
+        "status",
+        "exit_code",
+        "report_sha256",
+        "gate_ids",
+        "finding_codes"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "action_id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"},
+        "tool": {"type": "string", "minLength": 1, "maxLength": 300},
+        "required": {"type": "boolean"},
+        "status": {
+          "enum": [
+            "required",
+            "not_run",
+            "succeeded",
+            "failed",
+            "blocked",
+            "cached_only",
+            "unavailable",
+            "timed_out"
+          ]
+        },
+        "exit_code": {"type": ["integer", "null"]},
+        "report_sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "gate_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "finding_codes": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,95}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "native_status", "status", "evidence_ids", "finding_codes"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "native_status": {"type": "string", "minLength": 1, "maxLength": 128},
+        "status": {
+          "enum": ["pass", "warn", "fail", "unresolved", "not_applicable", "not_evaluated", "blocked"]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "finding_codes": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,95}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "supported_fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "claim_level", "evidence_ids"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "statement": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "claim_level": {"$ref": "#/$defs/claim_ceiling"},
+        "evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "blocked_claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "gate_ids", "finding_codes"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "statement": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "gate_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "finding_codes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,95}$"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "next_action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate_id",
+        "finding_code",
+        "action",
+        "required_inputs",
+        "requires_authorization",
+        "why_minimal"
+      ],
+      "properties": {
+        "gate_id": {"$ref": "#/$defs/identifier"},
+        "finding_code": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,95}$"},
+        "action": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "required_inputs": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 300},
+          "uniqueItems": true
+        },
+        "requires_authorization": {"type": "boolean"},
+        "why_minimal": {"type": "string", "minLength": 1, "maxLength": 1000}
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "producer_skill",
+        "consumer_skill",
+        "contract",
+        "manifest_ref",
+        "status",
+        "source_evidence_ids",
+        "claim_ceiling",
+        "limitations"
+      ],
+      "properties": {
+        "producer_skill": {"$ref": "#/$defs/skill_identifier"},
+        "consumer_skill": {"$ref": "#/$defs/skill_identifier"},
+        "contract": {"type": "string", "pattern": "^[a-z][a-z0-9-]*@[1-9][0-9]*\\.[0-9]+$"},
+        "manifest_ref": {
+          "allOf": [
+            {"$ref": "#/$defs/record_ref"},
+            {"properties": {"role": {"const": "handoff-manifest"}}}
+          ]
+        },
+        "status": {"enum": ["ready", "accepted", "rejected", "needs_evidence", "blocked"]},
+        "source_evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/identifier"},
+          "uniqueItems": true
+        },
+        "claim_ceiling": {"$ref": "#/$defs/claim_ceiling"},
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 500},
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

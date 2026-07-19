@@ -1,0 +1,4 @@
+interface:
+  display_name: "LASP Rigorous Simulations"
+  short_description: "Route and audit LASP 3.7.3 evidence"
+  default_prompt: "Use $lasp-rigorous-simulations to route the verified LASP 3.7.3 executable entry or inventory this workflow without inventing unreviewed syntax."

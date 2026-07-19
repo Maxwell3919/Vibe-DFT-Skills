@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "nve": {"supported_core": true, "required_gates": ["script_safety", "version_build", "units", "boundary", "topology", "pair_model", "single_integrator", "seed", "timestep", "completion", "trajectory", "drift", "uncertainty"]},
+    "nvt": {"supported_core": false, "required_gates": ["thermostat_style", "single_integrator", "damping", "distribution", "completion", "uncertainty"]},
+    "npt": {"supported_core": false, "required_gates": ["barostat_style", "boundary_compatibility", "damping", "cell_trajectory", "completion", "uncertainty"]},
+    "reactive_or_ml": {"supported_core": false, "required_gates": ["package_style", "model_files", "element_mapping", "units_metadata", "domain_validation", "license"]}
+  }
+}

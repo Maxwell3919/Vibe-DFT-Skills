@@ -3,12 +3,14 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import sqlite3
 import sys
 
 from .contracts import calculation_codes
 from .convert import campaign_from_run
 from .recommend import recommendation
 from .store import all_records, ingest, initialize
+from strict_json import StrictJSONError, load_object
 
 
 def write_json(path: Path, value: object) -> None:
@@ -53,22 +55,25 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    try:
+        args = build_parser().parse_args(argv)
+    except (OSError, ValueError, StrictJSONError, sqlite3.Error) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
     try:
         if args.command == "init":
             initialize(args.db)
             print(args.db)
         elif args.command == "ingest":
-            record = json.loads(args.record.read_text(encoding="utf-8"))
-            if not isinstance(record, dict):
-                raise ValueError("campaign record must be a JSON object")
+            record = load_object(args.record, args.record.name)
             print(ingest(args.db, record))
         elif args.command == "from-run":
             accuracy = None
             if args.accuracy_metrics:
-                accuracy = json.loads(args.accuracy_metrics.read_text(encoding="utf-8"))
-                if not isinstance(accuracy, dict):
-                    raise ValueError("accuracy metrics must be a JSON object")
+                accuracy = load_object(
+                    args.accuracy_metrics,
+                    args.accuracy_metrics.name,
+                )
             result = campaign_from_run(
                 args.run_manifest,
                 args.system_class,
@@ -91,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
             print(args.out)
         else:
             raise AssertionError(args.command)
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError, StrictJSONError, sqlite3.Error) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
     return 0

@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:validation-report:1.0",
+  "title": "Vibe-DFT candidate validation report",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "tool",
+    "subject",
+    "source",
+    "requested_level",
+    "generated_utc",
+    "status",
+    "routing_state",
+    "promotion_authorized",
+    "execution_boundary",
+    "summary",
+    "checks",
+    "limitations"
+  ],
+  "properties": {
+    "contract_name": {"const": "validation-report"},
+    "schema_version": {"const": "1.0"},
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"const": "validate_candidate"},
+        "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"}
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "skill_id", "candidate_label"],
+      "properties": {
+        "kind": {"const": "candidate-skill"},
+        "skill_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "candidate_label": {
+          "type": "string",
+          "pattern": "^candidates/[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["base_ref", "head_commit", "changed_files_mode"],
+      "properties": {
+        "base_ref": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._/@+~-]{0,127}$"
+        },
+        "head_commit": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{40,64}$"
+        },
+        "changed_files_mode": {
+          "enum": ["not-requested", "fixture", "git"]
+        }
+      }
+    },
+    "requested_level": {"enum": ["L0", "L1"]},
+    "generated_utc": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["pass", "fail", "blocked"]},
+    "routing_state": {"const": "planned-not-routable"},
+    "promotion_authorized": {"const": false},
+    "execution_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "report_is_complete_security_sandbox",
+        "backend_status",
+        "backend_id",
+        "backend_version",
+        "backend_sha256",
+        "profile_sha256",
+        "source_tree_sha256",
+        "isolated_copy_sha256",
+        "enforcement_probe_status",
+        "enforcement_probe_sha256",
+        "workspace_io_enforcement",
+        "host_read_enforcement",
+        "host_write_enforcement",
+        "network_enforcement",
+        "subprocess_inheritance_enforcement",
+        "process_resource_limits_status",
+        "process_resource_limits_sha256",
+        "process_new_session_status",
+        "candidate_test_execution"
+      ],
+      "properties": {
+        "report_is_complete_security_sandbox": {"const": false},
+        "backend_status": {
+          "enum": ["not-required", "not-run", "unavailable", "setup-failed", "probe-failed", "enforced"]
+        },
+        "backend_id": {
+          "enum": [null, "macos-seatbelt-sandbox-exec"]
+        },
+        "backend_version": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,127}$"
+        },
+        "backend_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "profile_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "source_tree_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "isolated_copy_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "enforcement_probe_status": {"enum": ["not-run", "pass", "fail"]},
+        "enforcement_probe_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "workspace_io_enforcement": {"enum": ["not-run", "pass", "fail"]},
+        "host_read_enforcement": {"enum": ["not-run", "pass", "fail"]},
+        "host_write_enforcement": {"enum": ["not-run", "pass", "fail"]},
+        "network_enforcement": {"enum": ["not-run", "pass", "fail"]},
+        "subprocess_inheritance_enforcement": {"enum": ["not-run", "pass", "fail"]},
+        "process_resource_limits_status": {"enum": ["not-run", "applied"]},
+        "process_resource_limits_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "process_new_session_status": {"enum": ["not-run", "applied"]},
+        "candidate_test_execution": {
+          "enum": ["not-run", "attempted-under-enforced-backend"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"backend_status": {"const": "enforced"}},
+            "required": ["backend_status"]
+          },
+          "then": {
+            "properties": {
+              "backend_id": {"const": "macos-seatbelt-sandbox-exec"},
+              "backend_version": {"type": "string"},
+              "backend_sha256": {"type": "string"},
+              "profile_sha256": {"type": "string"},
+              "source_tree_sha256": {"type": "string"},
+              "isolated_copy_sha256": {"type": "string"},
+              "enforcement_probe_status": {"const": "pass"},
+              "enforcement_probe_sha256": {"type": "string"},
+              "workspace_io_enforcement": {"const": "pass"},
+              "host_read_enforcement": {"const": "pass"},
+              "host_write_enforcement": {"const": "pass"},
+              "network_enforcement": {"const": "pass"},
+              "subprocess_inheritance_enforcement": {"const": "pass"},
+              "process_resource_limits_status": {"const": "applied"},
+              "process_resource_limits_sha256": {"type": "string"},
+              "process_new_session_status": {"const": "applied"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "backend_status": {
+                "enum": ["not-required", "not-run", "unavailable", "setup-failed"]
+              }
+            },
+            "required": ["backend_status"]
+          },
+          "then": {
+            "properties": {
+              "workspace_io_enforcement": {"const": "not-run"},
+              "host_read_enforcement": {"const": "not-run"},
+              "host_write_enforcement": {"const": "not-run"},
+              "network_enforcement": {"const": "not-run"},
+              "subprocess_inheritance_enforcement": {"const": "not-run"},
+              "process_resource_limits_status": {"const": "not-run"},
+              "process_resource_limits_sha256": {"const": null},
+              "process_new_session_status": {"const": "not-run"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "candidate_test_execution": {"const": "attempted-under-enforced-backend"}
+            },
+            "required": ["candidate_test_execution"]
+          },
+          "then": {"properties": {"backend_status": {"const": "enforced"}}}
+        }
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "failed", "blocked", "not_run"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 1},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "blocked": {"type": "integer", "minimum": 0},
+        "not_run": {"type": "integer", "minimum": 0}
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/check"}
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "severity",
+        "status",
+        "message",
+        "next_action",
+        "evidence"
+      ],
+      "properties": {
+        "check_id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]+(?:[._-][A-Z0-9]+)*$"
+        },
+        "severity": {"enum": ["critical", "error", "info"]},
+        "status": {"enum": ["pass", "fail", "blocked", "not-run"]},
+        "message": {"type": "string", "minLength": 1},
+        "next_action": {"type": ["string", "null"], "minLength": 1},
+        "evidence": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/evidence"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"status": {"const": "pass"}},
+            "required": ["status"]
+          },
+          "then": {"properties": {"next_action": {"const": null}}},
+          "else": {"properties": {"next_action": {"type": "string", "minLength": 1}}}
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "sha256"],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?![A-Za-z]:)[^\\r\\n]+$"
+        },
+        "sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    }
+  }
+}

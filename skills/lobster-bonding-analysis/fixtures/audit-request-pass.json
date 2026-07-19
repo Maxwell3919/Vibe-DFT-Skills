@@ -1,0 +1,98 @@
+{
+  "artifacts": [
+    {
+      "file": "lobsterout.synthetic",
+      "role": "lobsterout",
+      "sha256": "1a51a5ef51d54421ca644e47f29f207592de44170d27e94195bfccb96495b4dd"
+    },
+    {
+      "file": "cohp.synthetic",
+      "role": "cohp",
+      "sha256": "2c2e5ff2cc2c79427f8866cbb9cce3cc7d6ea842bc33d7139a0f843ec7e337c6"
+    },
+    {
+      "file": "coop.synthetic",
+      "role": "coop",
+      "sha256": "0ff5c441c9664435f068d86174036f6743f9653772983c1440b68ba5927bbc67"
+    },
+    {
+      "file": "dos.synthetic",
+      "role": "dos",
+      "sha256": "3b4c5ee5be0588ef06cdd90d1709a249ac12bed84cad2127e1ba2e96b791934c"
+    }
+  ],
+  "basis": {
+    "basis_by_element": {
+      "X": [
+        "1s"
+      ],
+      "Y": [
+        "2s",
+        "2p"
+      ]
+    },
+    "family": "synthetic-local-orbital-basis-v1",
+    "selection_rationale": "Synthetic fixture exercises exact per-element orbital identity without encoding provider basis data.",
+    "source": "original-synthetic-fixture"
+  },
+  "contract_name": "lobster-audit-request",
+  "evidence_class": "synthetic-fixture",
+  "parent": {
+    "dft_code": "vasp",
+    "dft_input_hashes": {
+      "kpoints_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "potential_metadata_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "settings_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+      "structure_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "dft_protocol_id": "vasp-static-wavefunction-synthetic-v1",
+    "dft_protocol_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "dft_version": "6.4.3",
+    "record_file": "parent-wavefunction.json",
+    "record_id": "parent-synthetic-001",
+    "record_sha256": "44f259277b546bf5ce1d2b01846b99097b0f6eb17dfa928e80738989ff24fe89",
+    "structure_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "task_id": "static-wavefunction",
+    "validation_file": "parent-validation.json",
+    "validation_sha256": "df2f515714d20d75b12cc4d5d4b34a99d3e8c6a2530fa94f9f325bf59ee9203b",
+    "wavefunction_artifact_label": "synthetic-wavefunction-001",
+    "wavefunction_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "provider": {
+    "environment_profile_id": "lobster-5",
+    "execution_identity": {
+      "dft_input_hashes": {
+        "kpoints_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "potential_metadata_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+        "settings_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+        "structure_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      "dft_protocol_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "execution_record_id": "lobster-synthetic-execution-001",
+      "input_wavefunction_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "lobsterin_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+      "parent_record_sha256": "44f259277b546bf5ce1d2b01846b99097b0f6eb17dfa928e80738989ff24fe89",
+      "parent_validation_sha256": "df2f515714d20d75b12cc4d5d4b34a99d3e8c6a2530fa94f9f325bf59ee9203b",
+      "structure_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "license_authorization": "not-applicable-synthetic",
+    "software": "LOBSTER",
+    "version": "5.1.1"
+  },
+  "requested_claims": [
+    "projection-quality",
+    "cohp-curve",
+    "coop-curve",
+    "dos-projection-closure"
+  ],
+  "schema_version": "1.0",
+  "task_id": "bonding-package-audit",
+  "thresholds": {
+    "curve_integral_abs_tolerance": 1e-09,
+    "dos_closure_relative_tolerance": 0.05,
+    "fermi_alignment_abs_tolerance_eV": 1e-09,
+    "max_absolute_charge_spilling_percent": 3.0,
+    "max_absolute_total_spilling_percent": 5.0,
+    "min_projected_band_fraction": 0.99
+  }
+}

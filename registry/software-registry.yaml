@@ -1,16 +1,13 @@
 schema_version: "1.0"
 
+# A planned entry is a fail-closed roadmap placeholder, not an implemented code,
+# executable, adapter, or scientific capability. Planned identifiers are excluded
+# from shared contract enums, observable coverage, installation, and routing until
+# their activation profile has been satisfied and the entry is promoted explicitly.
 # Aggregate identifiers may appear only in contracts that combine outputs from
 # more than one calculation code. They are never valid calculation executables.
 aggregate_codes:
   - mixed
-
-# Service skills do not own a DFT executable code but participate in the shared
-# calculation -> postprocess -> learning workflow.
-service_skills:
-  - dft-postprocess
-  - dft-campaign-efficiency
-  - cif-structure-analysis
 
 # Add a future calculation code here first. Repository audit then reports every
 # contract and postprocessing route that still needs an explicit decision.
@@ -59,3 +56,247 @@ software:
       run_manifest: required
       postprocess: maturity-gated
       campaign_efficiency: enabled
+
+planned_software:
+  gaussian:
+    display_name: Gaussian
+    role: calculation-engine
+    scope: extended-chemistry
+    intended_integration: calculation-skill
+    intended_skill: gaussian-rigorous-calculations
+    activation_profile: calculation-engine
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [gaussian-g16-c02]
+    required_check_ids: &planned_activation_checks
+      - identity-and-routing
+      - primary-source-provenance
+      - capability-boundary
+      - deterministic-gates
+      - lineage-and-hashes
+      - scientific-gate-separation
+      - shared-interfaces
+      - side-effect-boundary
+      - idempotency-recovery-cancel
+      - validation-evidence
+      - privacy-and-license
+      - portability-and-environment
+      - maintenance-and-forward-test
+    lifecycle: planned
+  gromacs:
+    display_name: GROMACS
+    role: calculation-engine
+    scope: extended-chemistry
+    intended_integration: calculation-skill
+    intended_skill: gromacs-rigorous-simulations
+    activation_profile: calculation-engine
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [gromacs-cpu]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  lammps:
+    display_name: LAMMPS
+    role: calculation-engine
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: lammps-rigorous-simulations
+    activation_profile: calculation-engine
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [lammps-cpu]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  deepmd:
+    display_name: DeePMD-kit
+    role: ml-potential-framework
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: deepmd-rigorous-workflows
+    activation_profile: ml-potential-framework
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [deepmd-cpu-macos]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  multiwfn:
+    display_name: Multiwfn
+    role: postprocess-tool
+    scope: dft-adjacent
+    intended_integration: postprocess-adapter
+    intended_skill: multiwfn-wavefunction-analysis
+    activation_profile: postprocess-tool
+    environment_profiles:
+      selection_policy: platform_variant
+      profile_ids: [multiwfn-official-linux-x64, multiwfn-community-macos]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  phonopy:
+    display_name: Phonopy
+    role: postprocess-tool
+    scope: dft-core
+    intended_integration: postprocess-adapter
+    intended_skill: phonopy-rigorous-workflows
+    activation_profile: postprocess-tool
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [phonopy-pypi]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  vaspkit:
+    display_name: VASPKIT
+    role: postprocess-tool
+    scope: dft-core
+    intended_integration: postprocess-adapter
+    intended_skill: vaspkit-postprocess
+    activation_profile: postprocess-tool
+    environment_profiles:
+      selection_policy: platform_variant
+      profile_ids: [vaspkit-linux-x64, vaspkit-macos-intel]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  catmap:
+    display_name: CatMAP
+    role: scientific-workflow-tool
+    scope: dft-adjacent
+    intended_integration: postprocess-adapter
+    intended_skill: catmap-microkinetics
+    activation_profile: scientific-workflow-tool
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [catmap-v041]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  lobster:
+    display_name: LOBSTER
+    role: postprocess-tool
+    scope: dft-core
+    intended_integration: postprocess-adapter
+    intended_skill: lobster-bonding-analysis
+    activation_profile: postprocess-tool
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [lobster-5]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  ovito:
+    display_name: OVITO
+    role: visualization-tool
+    scope: dft-adjacent
+    intended_integration: postprocess-adapter
+    intended_skill: ovito-atomistic-analysis
+    activation_profile: visualization-tool
+    environment_profiles:
+      selection_policy: edition_variant
+      profile_ids: [ovito-basic, ovito-pro]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  pymatgen:
+    display_name: pymatgen
+    role: structure-library
+    scope: dft-core
+    intended_integration: structure-adapter
+    intended_skill: dft-structure-preparation
+    activation_profile: structure-library
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [pymatgen-wrapper, pymatgen-core]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  rdkit:
+    display_name: RDKit
+    role: structure-library
+    scope: extended-chemistry
+    intended_integration: structure-adapter
+    intended_skill: dft-structure-preparation
+    activation_profile: structure-library
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [rdkit-pypi]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  mace:
+    display_name: MACE
+    role: ml-potential-framework
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: ml-potential-workflows
+    activation_profile: ml-potential-framework
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [mace-python]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  nequip:
+    display_name: NequIP
+    role: ml-potential-framework
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: ml-potential-workflows
+    activation_profile: ml-potential-framework
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [nequip-python]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  gpumd:
+    display_name: GPUMD
+    role: calculation-engine
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: gpumd-rigorous-simulations
+    activation_profile: calculation-engine
+    environment_profiles:
+      selection_policy: any_of
+      profile_ids: [gpumd-cuda, gpumd-rocm]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  lasp:
+    display_name: LASP
+    role: calculation-engine
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: lasp-rigorous-simulations
+    activation_profile: calculation-engine
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [lasp-commercial]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  gemnet-oc:
+    display_name: GemNet-OC
+    role: ml-potential-framework
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: ml-potential-workflows
+    activation_profile: ml-potential-framework
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [fairchem-v1-gemnet-oc]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+  equiformer-v2:
+    display_name: EquiformerV2
+    role: ml-potential-framework
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: ml-potential-workflows
+    activation_profile: ml-potential-framework
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [fairchem-v1-equiformer-v2]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned
+
+  fairchem-uma:
+    display_name: FairChem UMA
+    role: ml-potential-framework
+    scope: dft-adjacent
+    intended_integration: calculation-skill
+    intended_skill: ml-potential-workflows
+    activation_profile: ml-potential-framework
+    environment_profiles:
+      selection_policy: all_of
+      profile_ids: [fairchem-v2-uma]
+    required_check_ids: *planned_activation_checks
+    lifecycle: planned

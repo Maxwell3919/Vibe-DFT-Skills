@@ -2,6 +2,26 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/artifact-manifest.schema.json",
   "title": "DFT postprocessing artifact manifest",
+  "$comment": "Schema validation establishes shape only. Every advertised semantic obligation must be evaluated against the complete immutable bundle; complete/pass is technical artifact integrity, never scientific acceptance.",
+  "x-vibe-semantic-obligations": [
+    "LEGACY_ARTIFACT_STATUS_CHECK_CONSISTENT",
+    "LEGACY_ARTIFACT_OUTPUT_ARTIFACT_HASH_RESOLVES",
+    "LEGACY_ARTIFACT_SOURCE_LINEAGE_PREEXISTS",
+    "LEGACY_ARTIFACT_TECHNICAL_CLAIM_CEILING",
+    "LEGACY_ARTIFACT_PRIVACY_SAFE"
+  ],
+  "x-vibe-authority-boundary": {
+    "may_authorize_execution": false,
+    "may_accept_scientific_claim": false,
+    "maximum_claim_ceiling": "numerical_candidate_only"
+  },
+  "x-vibe-artifact-hash-semantics": {
+    "algorithm": "sha256",
+    "byte_basis": "exact-raw-file-bytes",
+    "canonicalization": "none",
+    "bundle_artifact_resolution_required": true,
+    "placeholder_hash_counts_as_evidence": false
+  },
   "type": "object",
   "additionalProperties": false,
   "required": [

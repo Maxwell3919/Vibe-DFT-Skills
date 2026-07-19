@@ -1,0 +1,373 @@
+{
+  "contract_name": "candidate-decision-table",
+  "schema_version": "1.0",
+  "skill_id": "multiwfn-wavefunction-analysis",
+  "lifecycle": "development",
+  "selection_policy": "first-match-by-ascending-priority",
+  "default_case_id": "mw-default-fail-closed",
+  "current_claim": "no_positive_claim",
+  "execution_authorized": false,
+  "promotion_authorized": false,
+  "cases": [
+    {
+      "case_id": "mw-d001",
+      "priority": 1,
+      "severity": "P0",
+      "condition": "source is not one bounded strict UTF-8 JSON object",
+      "required_evidence": [
+        "source-record"
+      ],
+      "finding_codes": [
+        "MW_SOURCE_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Export one bounded strict JSON record without duplicate keys, BOM, or nonfinite constants."
+    },
+    {
+      "case_id": "mw-d002",
+      "priority": 2,
+      "severity": "P0",
+      "condition": "wavefunction format, safe basename, or filename suffix is inconsistent",
+      "required_evidence": [
+        "source-record"
+      ],
+      "finding_codes": [
+        "MW_SOURCE_PROVENANCE_INCOMPLETE"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Correct the explicit format and label from producer evidence without inferring content from a renamed file."
+    },
+    {
+      "case_id": "mw-d003",
+      "priority": 3,
+      "severity": "P0",
+      "condition": "actual wavefunction basename, SHA-256, or byte count differs or the path is not a single-link regular file",
+      "required_evidence": [
+        "source-record",
+        "wavefunction-artifact"
+      ],
+      "finding_codes": [
+        "MW_WAVEFUNCTION_HASH_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Supply the exact original wavefunction bytes or rebuild the complete source evidence for new bytes."
+    },
+    {
+      "case_id": "mw-d004",
+      "priority": 4,
+      "severity": "P0",
+      "condition": "element, charge sign, electron count, multiplicity parity, or ECP electron closure is inconsistent",
+      "required_evidence": [
+        "source-record",
+        "electronic-state-record",
+        "basis-ecp-record"
+      ],
+      "finding_codes": [
+        "MW_SOURCE_PROVENANCE_INCOMPLETE"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Repair the electronic-state and ECP metadata from the upstream producer record."
+    },
+    {
+      "case_id": "mw-d005",
+      "priority": 5,
+      "severity": "P0",
+      "condition": "any parent input, output, electronic, or wavefunction-export acceptance gate is not exact pass",
+      "required_evidence": [
+        "source-record",
+        "parent-calculation-record"
+      ],
+      "finding_codes": [
+        "MW_PARENT_ACCEPTANCE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Return to the upstream calculation Skill and complete all four independent acceptance gates."
+    },
+    {
+      "case_id": "mw-d006",
+      "priority": 6,
+      "severity": "P0",
+      "condition": "raw parent hash and producer, structure, spin, electronic, basis, input, or output semantics detach from the projection",
+      "required_evidence": [
+        "source-record",
+        "parent-calculation-record"
+      ],
+      "finding_codes": [
+        "MW_PARENT_PROJECTION_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Rebuild the semantic projection from the same raw parent record and current source semantics."
+    },
+    {
+      "case_id": "mw-d007",
+      "priority": 7,
+      "severity": "P0",
+      "condition": "profile is unknown",
+      "required_evidence": [
+        "requested-profile",
+        "version-matrix"
+      ],
+      "finding_codes": [
+        "MW_PROFILE_UNKNOWN"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Select an exact profile already defined in the candidate version matrix."
+    },
+    {
+      "case_id": "mw-d008",
+      "priority": 8,
+      "severity": "P1",
+      "condition": "profile is a community build or lacks exact version and platform regression evidence",
+      "required_evidence": [
+        "requested-profile",
+        "version-specific-regression"
+      ],
+      "finding_codes": [
+        "MW_PROFILE_BLOCKED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Add official or source-build parity, exact banner, versioned transcript, and legal fixtures."
+    },
+    {
+      "case_id": "mw-catalog-native-unavailable",
+      "priority": 9,
+      "severity": "P1",
+      "condition": "native execution is requested but neither exact Multiwfn executable identity nor an available matching binary is established",
+      "required_evidence": [
+        "catalog-probe",
+        "exact-executable-identity"
+      ],
+      "finding_codes": [
+        "MW_NATIVE_UNAVAILABLE"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Keep the request documentation-only until an exact legal binary, digest, banner, settings, and platform profile are available."
+    },
+    {
+      "case_id": "mw-catalog-recipe-missing",
+      "priority": 10,
+      "severity": "P1",
+      "condition": "the requested main function or subfunction is listed in the manual catalog but no exact recipe is established",
+      "required_evidence": [
+        "official-function-catalog",
+        "task-recipe-catalog"
+      ],
+      "finding_codes": [
+        "MW_RECIPE_NOT_ESTABLISHED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Capture the complete exact-version prompts, stdin, outputs, return tokens, and failure behavior before creating a recipe."
+    },
+    {
+      "case_id": "mw-catalog-mode-or-input-ineligible",
+      "priority": 11,
+      "severity": "P0",
+      "condition": "the selected noGUI/full mode cannot provide a required GUI step or the input family lacks data required by the analysis",
+      "required_evidence": [
+        "distribution-profile",
+        "input-family",
+        "recipe-prerequisites"
+      ],
+      "finding_codes": [
+        "MW_EXECUTION_MODE_INCOMPATIBLE",
+        "MW_INPUT_INELIGIBLE"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Choose a compatible distribution and semantically complete producer artifact; never infer missing basis, orbital, grid, atom, or GUI capability."
+    },
+    {
+      "case_id": "mw-d009",
+      "priority": 12,
+      "severity": "P1",
+      "condition": "requested menu task is not the exact wavefunction-inventory route",
+      "required_evidence": [
+        "requested-task",
+        "menu-profile"
+      ],
+      "finding_codes": [
+        "MW_TASK_UNSUPPORTED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Create an independent exact-version menu contract and fixtures for the requested task."
+    },
+    {
+      "case_id": "mw-d010",
+      "priority": 13,
+      "severity": "P0",
+      "condition": "transcript version repeats or drifts, protocol sentinels reorder, or fatal text appears",
+      "required_evidence": [
+        "transcript",
+        "exact-version-profile"
+      ],
+      "finding_codes": [
+        "MW_VERSION_MISMATCH",
+        "MW_PROMPT_DRIFT",
+        "MW_FATAL_SENTINEL"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Capture one complete stdin and stdout or stderr record from the exact profile after fixing the run."
+    },
+    {
+      "case_id": "mw-d011",
+      "priority": 14,
+      "severity": "P0",
+      "condition": "charge table unit, indices, atom order, finite values, declared total, or charge conservation fails",
+      "required_evidence": [
+        "source-record",
+        "wavefunction-artifact",
+        "charge-table"
+      ],
+      "finding_codes": [
+        "MW_TABLE_INVALID",
+        "MW_ATOM_MAPPING_MISMATCH",
+        "MW_CHARGE_CLOSURE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Regenerate the controlled charge interchange table while preserving source atom order and charge state."
+    },
+    {
+      "case_id": "mw-d012",
+      "priority": 15,
+      "severity": "P0",
+      "condition": "output exists, aliases an input, or durable temporary write and atomic publish fails",
+      "required_evidence": [
+        "candidate-report",
+        "output-target-identity"
+      ],
+      "finding_codes": [
+        "MW_OUTPUT_EXISTS",
+        "MW_OUTPUT_WRITE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Preserve all inputs and old targets, repair storage, and rerun with a new absent output path."
+    },
+    {
+      "case_id": "mw-d013",
+      "priority": 16,
+      "severity": "P2",
+      "condition": "all requested candidate source, wavefunction, profile, transcript, and table gates pass",
+      "required_evidence": [
+        "source-record",
+        "wavefunction-artifact",
+        "requested-artifacts"
+      ],
+      "finding_codes": [],
+      "action_state": "local_gate_passed_limited",
+      "expected_exit_codes": [
+        0
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Retain the candidate report without authorizing execution or promotion and perform scientific suitability review separately."
+    },
+    {
+      "case_id": "mw-default-fail-closed",
+      "priority": 17,
+      "severity": "P0",
+      "condition": "No earlier case can be established from the available exact evidence.",
+      "required_evidence": [],
+      "finding_codes": [
+        "MW_DECISION_NO_MATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Stop and obtain the exact evidence needed to select one earlier Multiwfn case."
+    }
+  ]
+}

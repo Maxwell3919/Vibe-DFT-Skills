@@ -356,7 +356,13 @@ def validate_parent_manifest(
     allowed_tasks = set(profile.get("allowed_parent_tasks", []))
     if allowed_tasks and parent.get("task_type") not in allowed_tasks:
         add("PARENT_TASK_INVALID", "Parent task type is incompatible with this task profile.")
-    if parent.get("status") not in {"planned", "running", "completed", "stopped", "failed", "accepted"} or parent.get("scientific_acceptance") not in {"accepted", "rejected", "not_assessed"}:
+    parent_status = parent.get("status")
+    parent_acceptance = parent.get("scientific_acceptance")
+    if (
+        parent_status not in {"planned", "running", "completed", "stopped", "failed"}
+        or parent_acceptance not in {"not_assessed", "requires_human_review"}
+        or (parent_status != "completed" and parent_acceptance != "not_assessed")
+    ):
         add("PARENT_STATE_INVALID", "Parent terminal and scientific-acceptance states are invalid.")
     if not isinstance(parent.get("configuration"), dict) or not isinstance(parent.get("metrics"), dict):
         add("PARENT_STRUCTURE_INVALID", "Parent configuration and metrics must be JSON objects.")
@@ -369,10 +375,18 @@ def validate_parent_manifest(
         or any(not resolved_string(provenance.get(field)) for field in ("collector", "collector_version", "generated_utc"))
     ):
         add("PARENT_PROVENANCE_INVALID", "Parent provenance is incomplete or unresolved.")
-    if profile.get("requires_parent") and (parent.get("status") not in {"accepted"} or parent.get("scientific_acceptance") != "accepted"):
-        add("PARENT_NOT_SCIENTIFICALLY_ACCEPTED", "This downstream task requires a scientifically accepted parent.")
-    if restart_requested and parent.get("status") not in {"completed", "accepted"}:
-        add("RESTART_PARENT_NOT_COMPLETED", "A restart requires a completed or accepted parent run.")
+    if profile.get("requires_parent"):
+        if parent_status != "completed":
+            add(
+                "PARENT_SCIENTIFIC_RUN_NOT_COMPLETED",
+                "A downstream scientific task requires a technically completed parent run.",
+            )
+        add(
+            "PARENT_SCIENTIFIC_DECISION_BUNDLE_REQUIRED",
+            "Downstream scientific ancestry requires an externally trusted bundle containing the calculation record, human scientific decision, and post-decision claim map; this CLI has no platform human-trust resolver.",
+        )
+    if restart_requested and parent_status != "completed":
+        add("RESTART_PARENT_NOT_COMPLETED", "A restart requires a technically completed parent run.")
     evidence = parent.get("evidence")
     if not isinstance(evidence, list) or any(
         not isinstance(item, dict)
@@ -381,6 +395,7 @@ def validate_parent_manifest(
         or not resolved_string(item.get("label"))
         or item.get("status") not in {"present", "missing", "redacted", "external"}
         or (item.get("status") == "present" and not SHA256_RE.fullmatch(str(item.get("sha256", ""))))
+        or (item.get("status") == "missing" and item.get("sha256") is not None)
         for item in (evidence if isinstance(evidence, list) else [])
     ):
         add("PARENT_EVIDENCE_INVALID", "Parent evidence records are invalid or present records lack hashes.")

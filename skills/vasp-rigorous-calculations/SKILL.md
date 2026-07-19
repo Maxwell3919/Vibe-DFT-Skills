@@ -57,6 +57,13 @@ Label every statement as one of:
 
 ### 3. Audit with an explicit mode and task
 
+Before constructing or launching the native command, read
+[references/execution-and-executable-map.md](references/execution-and-executable-map.md).
+It defines the actual fixed-file working directory, `vasp_std`/`vasp_gam`/`vasp_ncl`
+selection, MPI/OpenMP invocation shape, high-use parent chains, expected
+side effects, and the current `native-not-run` boundary. Do not infer an
+executable from INCAR alone.
+
 For planned inputs:
 
 ```bash
@@ -146,9 +153,9 @@ The auditor's `scientific_claim` gate is always blocked for one case. The conver
 
 ## Produce a terminal handoff
 
-At completion, intentional stop, failure, abandonment, or scientific acceptance, read [references/run-manifest-handoff.md](references/run-manifest-handoff.md) and emit the canonical [run manifest](../../contracts/run-manifest.schema.json). Use an anonymized case ID and preserve limitations.
+At a technical completion, intentional stop, failure, or abandonment, read [references/run-manifest-handoff.md](references/run-manifest-handoff.md) and emit the canonical immutable pre-decision `run-manifest@1.0`. Use an anonymized case ID and preserve limitations.
 
-Do not set `scientific_acceptance=accepted` from an input audit, technical run verdict, or convergence candidate alone. Route outputs to `$dft-postprocess` and terminal metrics to `$dft-campaign-efficiency`; store no project experience here.
+Never set the run manifest to accepted/rejected or rewrite it after review. Record later scientific acceptance only through a hash-linked human decision and post-decision claim map validated as a bundle. Route outputs to `$dft-postprocess` and terminal metrics to `$dft-campaign-efficiency`; store no project experience here.
 
 ## Maintain the official mirror
 

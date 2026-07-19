@@ -1,0 +1,45 @@
+{
+  "schema_version": "electronic-wavefunction-source@0.1-candidate",
+  "source_id": "synthetic-water-source",
+  "format": "wfx",
+  "file": {
+    "label": "synthetic.wfx",
+    "sha256": "d67014a373f34e20131d90ea5d63058d2b0bf9e08389e779ec1551db56ffba9b",
+    "bytes": 468
+  },
+  "producer": {
+    "software": "synthetic-qc",
+    "version": "1.0",
+    "method": "constructed-test-only"
+  },
+  "structure": {
+    "fingerprint": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "elements": ["O", "H", "H"]
+  },
+  "electronic_state": {
+    "charge": 0,
+    "multiplicity": 1,
+    "spin_treatment": "restricted",
+    "electron_count": 10
+  },
+  "basis": {
+    "description": "synthetic-minimal",
+    "representation": "spherical",
+    "ecp_core_electrons": 0
+  },
+  "parent_calculation": {
+    "record_id": "synthetic-run-001",
+    "code": "synthetic-qc",
+    "code_version": "1.0",
+    "record_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "input_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "output_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "acceptance": {
+      "input_validation": "pass",
+      "output_completion": "pass",
+      "electronic_convergence": "pass",
+      "wavefunction_export": "pass"
+    },
+    "evidence_projection_sha256": "050febe1cab5512c466728b01dcab846f4fec1fee744476b040c954e4c36b759"
+  }
+}

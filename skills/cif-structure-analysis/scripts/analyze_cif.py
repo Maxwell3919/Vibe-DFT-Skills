@@ -650,6 +650,10 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
             ],
         }
     )
+    # ``plain`` intentionally rounds presentation/numerical fields to six
+    # decimals.  The v1 identity preimage is a separate exact contract at ten
+    # decimals and must not be silently presentation-rounded after hashing.
+    report["structure_identity"] = identity["structure_identity"]
     failures = schema_errors(report, Path(__file__))
     if failures:
         raise RuntimeError("generated structure manifest is invalid: " + "; ".join(failures))

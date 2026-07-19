@@ -1,0 +1,1474 @@
+schema_version: "1.0"
+as_of: "2026-07-18"
+snapshot:
+  kind: fixed-current-machine-observation
+  observed_on: "2026-07-18"
+  machine_class: apple-silicon-macos
+  dynamic_detection: false
+
+# These profiles document exact provider boundaries. They do not install, activate,
+# route, or execute any software. A profile stays planned until its blockers are
+# resolved by deterministic, legally reusable evidence. current_machine values are
+# the fixed 2026-07-18 Apple Silicon observation above, not CI or runtime detection.
+# Restricted-provider receipts are self-declared provenance only. Without external
+# human trust supplied by the calling platform, they cannot establish installation
+# authorization or raise any validation level.
+profiles:
+  pymatgen-wrapper:
+    provider_id: pymatgen-wrapper
+    profile_type: python-package
+    role: structure-library
+    source_tier: first-party-official
+    software:
+      name: pymatgen wrapper
+      version: "2026.5.4"
+      release_date: "2026-05-04"
+    official_urls:
+      - https://github.com/materialsproject/pymatgen/releases/latest
+      - https://pypi.org/project/pymatgen/
+    license:
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the MIT notice when redistributing the package.
+        - Treat external services and licensed potential data as separate resources.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: true
+        min_inclusive: "3.11"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - User structures, database responses, and potential metadata retain their own provenance.
+    runtime_probe:
+      kind: python-metadata
+      target: pymatgen distribution metadata
+      expected_identity: pymatgen 2026.5.4
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - The wrapper version does not establish the independently released core version.
+      - Database access and licensed VASP potential content are outside this profile.
+    current_machine:
+      status: installed-compatible
+      observations:
+        - Apple Silicon arm64 with macOS 26.5.2 and Python 3.14.0.
+        - Distribution metadata reports pymatgen 2026.5.4.
+    planned_blockers:
+      - Deterministic structure and serialization regressions have not been executed for this provider profile.
+    maximum_validation_level: environment-verified
+
+  pymatgen-core:
+    provider_id: pymatgen-core
+    profile_type: python-package
+    role: structure-library
+    source_tier: first-party-official
+    software:
+      name: pymatgen-core
+      version: "2026.7.16"
+      release_date: "2026-07-16"
+    official_urls:
+      - https://github.com/materialsproject/pymatgen-core/releases/latest
+      - https://github.com/materialsproject/pymatgen-core/blob/main/pyproject.toml
+    license:
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the MIT notice when redistributing the package.
+        - Record wrapper and core versions independently after the project split.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: true
+        min_inclusive: "3.11"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - User structures and derived datasets retain their own provenance and terms.
+    runtime_probe:
+      kind: python-metadata
+      target: pymatgen-core distribution metadata
+      expected_identity: pymatgen-core 2026.7.16
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - The installed core is older than the current first-party release.
+      - Package metadata alone does not validate structure algorithms.
+    current_machine:
+      status: version-mismatch
+      observations:
+        - Apple Silicon arm64 with macOS 26.5.2 and Python 3.14.0.
+        - Distribution metadata reports pymatgen-core 2026.5.18 rather than 2026.7.16.
+    planned_blockers:
+      - Exact-version installation and deterministic structure regressions remain unverified.
+    maximum_validation_level: planned
+
+  rdkit-pypi:
+    provider_id: rdkit-pypi
+    profile_type: python-package
+    role: structure-library
+    source_tier: first-party-official
+    software:
+      name: RDKit
+      version: "2026.03.4"
+      release_date: "2026-07-16"
+    official_urls:
+      - https://github.com/rdkit/rdkit/releases/latest
+      - https://pypi.org/project/rdkit/
+      - https://www.rdkit.org/docs/Install.html
+    license:
+      category: open-source
+      identifier: BSD-3-Clause
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the BSD notice and inspect optional third-party components separately.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: true
+        min_inclusive: "3.10"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements:
+          - A source build has additional C++ and CMake requirements not represented by the wheel profile.
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - User molecule collections and descriptor datasets retain separate terms.
+    runtime_probe:
+      kind: python-metadata
+      target: rdkit distribution metadata
+      expected_identity: rdkit 2026.03.4
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - A successful conformer embedding does not establish a scientifically reliable geometry.
+      - Sanitization, aromaticity, stereochemistry, and serialization are task-specific gates.
+    current_machine:
+      status: not-installed-compatible
+      observations:
+        - The Python distribution is absent from the current Apple Silicon environment.
+        - First-party wheel metadata includes Python 3.14 and macOS arm64.
+    planned_blockers:
+      - Isolated installation and chemistry mutation regressions have not been executed.
+    maximum_validation_level: planned
+
+  ovito-basic:
+    provider_id: ovito-basic
+    profile_type: desktop-application
+    role: visualization-tool
+    source_tier: first-party-official
+    software:
+      name: OVITO Basic and Python module
+      version: "3.15.5"
+      release_date: unknown
+    official_urls:
+      - https://www.ovito.org/
+      - https://www.ovito.org/docs/current/python/introduction/installation.html
+      - https://www.ovito.org/manual/licenses/index.html
+    license:
+      category: mixed
+      identifier: MIT and GPL-3.0-only components
+      redistribution: component-dependent
+      obligations:
+        - Preserve the notice for each redistributed component and distinguish Basic from Pro.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - Trajectories and generated figures retain source and artifact provenance.
+    runtime_probe:
+      kind: application-metadata
+      target: OVITO Basic application or Python module metadata
+      expected_identity: OVITO 3.15.5 Basic
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - The exact 3.15.5 release date is not publicly stated on the selected first-party pages.
+      - Pro-only modifiers and rendering features are excluded.
+    current_machine:
+      status: not-installed-compatible
+      observations:
+        - The application and Python module are absent.
+        - First-party documentation supports macOS 11 or newer and Apple Silicon.
+    planned_blockers:
+      - Basic-only numerical, rendering, and artifact provenance regressions remain unexecuted.
+    maximum_validation_level: planned
+
+  ovito-pro:
+    provider_id: ovito-pro
+    profile_type: commercial-binary
+    role: visualization-tool
+    source_tier: first-party-official
+    authorization:
+      required: true
+      provenance: declared-requires-external-trust
+      receipt: null
+    software:
+      name: OVITO Pro
+      version: "3.15.5"
+      release_date: unknown
+    official_urls:
+      - https://www.ovito.org/
+      - https://www.ovito.org/manual/licenses/index.html
+    license:
+      category: restricted-proprietary
+      identifier: OVITO Pro EULA
+      redistribution: prohibited
+      obligations:
+        - Use only under an applicable OVITO Pro license and do not redistribute activation material.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - Pro session artifacts and user trajectories remain private inputs.
+    runtime_probe:
+      kind: manual-attestation
+      target: user-supplied OVITO Pro entitlement and application metadata
+      expected_identity: OVITO Pro 3.15.5
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - The exact 3.15.5 release date is not publicly stated on the selected first-party pages.
+      - No Pro-only operation may be inferred from an OVITO Basic installation.
+    current_machine:
+      status: restricted-unavailable
+      observations:
+        - No OVITO Pro entitlement or installation evidence was provided.
+    planned_blockers:
+      - External trust from the calling platform plus private deterministic fixtures are required.
+    maximum_validation_level: planned
+
+  phonopy-pypi:
+    provider_id: phonopy-pypi
+    profile_type: python-package
+    role: postprocess-tool
+    source_tier: first-party-official
+    software:
+      name: Phonopy
+      version: "4.3.1"
+      release_date: "2026-07-01"
+    official_urls:
+      - https://pypi.org/project/phonopy/
+      - https://phonopy.github.io/phonopy/install.html
+      - https://github.com/phonopy/phonopy/blob/develop/LICENSE
+    license:
+      category: open-source
+      identifier: BSD-3-Clause
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the BSD notice when redistributing the package.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: true
+        min_inclusive: "3.10"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - Force sets, Born charges, and parent calculation outputs require independent provenance.
+    runtime_probe:
+      kind: python-metadata
+      target: phonopy distribution metadata
+      expected_identity: phonopy 4.3.1 with phonors available
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Package availability does not validate a QE or VASP force lineage.
+      - Non-analytical corrections require separately validated dielectric and Born-charge inputs.
+    current_machine:
+      status: not-installed-compatible
+      observations:
+        - Phonopy and phonors are absent from the current Python environment.
+        - The current platform and Python satisfy the published broad requirements.
+    planned_blockers:
+      - Exact dependency resolution and real displacement-to-force regressions are missing.
+    maximum_validation_level: planned
+
+  vaspkit-linux-x64:
+    provider_id: vaspkit-linux-x64
+    profile_type: binary-cli
+    role: postprocess-tool
+    source_tier: first-party-official
+    software:
+      name: VASPKIT Linux x64
+      version: "1.5.1"
+      release_date: "2024-01-27"
+    official_urls:
+      - https://vaspkit.com/installation.html
+      - https://sourceforge.net/projects/vaspkit/files/Binaries/
+    license:
+      category: custom
+      identifier: VASPKIT usage agreement
+      redistribution: not-established
+      obligations:
+        - Accept the current usage agreement and recheck mutable commercial terms.
+        - Do not bundle the binary without explicit redistribution permission.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+      python:
+        required: true
+        min_inclusive: "3.5"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: restricted
+      notes:
+        - Licensed VASP potential content must never enter this registry or its fixtures.
+    runtime_probe:
+      kind: binary-banner
+      target: user-supplied VASPKIT Linux x64 binary metadata
+      expected_identity: VASPKIT 1.5.1
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Potential generation, job submission, and unreviewed menu tasks are excluded.
+      - The binary is not compatible with the current operating system.
+    current_machine:
+      status: unsupported-platform
+      observations:
+        - The current machine runs macOS on Apple Silicon rather than Linux x86_64.
+        - No VASPKIT binary is installed.
+    planned_blockers:
+      - A controlled Linux x86_64 environment, binary digest, accepted terms, and task whitelist are missing.
+    maximum_validation_level: planned
+
+  vaspkit-macos-intel:
+    provider_id: vaspkit-macos-intel
+    profile_type: binary-cli
+    role: postprocess-tool
+    source_tier: first-party-official
+    software:
+      name: VASPKIT Intel Mac
+      version: "1.5.0"
+      release_date: "2024-01-02"
+    official_urls:
+      - https://vaspkit.com/installation.html
+      - https://sourceforge.net/projects/vaspkit/files/Binaries/
+    license:
+      category: custom
+      identifier: VASPKIT usage agreement
+      redistribution: not-established
+      obligations:
+        - Accept the current usage agreement and do not assume binary redistribution rights.
+    environment:
+      targets:
+        - platform: macos
+          architectures: [x86_64]
+      python:
+        required: true
+        min_inclusive: "3.5"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: restricted
+      notes:
+        - Licensed VASP potential content remains outside every fixture and artifact.
+    runtime_probe:
+      kind: binary-banner
+      target: user-supplied VASPKIT Intel Mac binary metadata
+      expected_identity: VASPKIT 1.5.0 Intel Mac
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - This provider is older than the Linux 1.5.1 provider.
+      - Native Apple Silicon support is not established by the first-party distribution.
+    current_machine:
+      status: unsupported-architecture
+      observations:
+        - The current machine is Apple Silicon arm64 while this provider is Intel x86_64.
+        - Translation-layer execution is not treated as native support evidence.
+    planned_blockers:
+      - Native architecture evidence, exact binary digest, accepted terms, and menu regressions are missing.
+    maximum_validation_level: planned
+
+  multiwfn-official-linux-x64:
+    provider_id: multiwfn-official-linux-x64
+    profile_type: binary-cli
+    role: postprocess-tool
+    source_tier: first-party-official
+    software:
+      name: Multiwfn official Linux x64
+      version: "2026.7.15"
+      release_date: "2026-07-15"
+    official_urls:
+      - http://sobereva.com/multiwfn/download.html
+      - http://sobereva.com/multiwfn/overview.html
+    license:
+      category: custom
+      identifier: Multiwfn distribution terms
+      redistribution: conditional
+      obligations:
+        - Retain authorship terms and obtain prior author consent before selling a modified version.
+        - Prefer first-party retrieval and immutable digests instead of repository bundling.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements:
+          - Intel Fortran is required only when rebuilding the distributed source.
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - Wavefunction inputs and derived grids retain source calculation provenance.
+    runtime_probe:
+      kind: binary-banner
+      target: user-supplied Multiwfn noGUI Linux binary metadata
+      expected_identity: Multiwfn 2026.7.15
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Rolling date releases and formal 3.8 releases are separate providers.
+      - Interactive menu recipes are invalid without version and prompt sentinels.
+    current_machine:
+      status: unsupported-platform
+      observations:
+        - The current machine is macOS arm64 rather than Linux x86_64.
+        - No official Multiwfn binary is installed.
+    planned_blockers:
+      - A controlled Linux environment, immutable digest, noGUI transcript, and real artifact regression are missing.
+    maximum_validation_level: planned
+
+  multiwfn-community-macos:
+    provider_id: multiwfn-community-macos
+    profile_type: binary-cli
+    role: postprocess-tool
+    source_tier: third-party-community-referenced-by-official
+    software:
+      name: Multiwfn community macOS build
+      version: "unverified-community-build"
+      release_date: unknown
+    official_urls:
+      - http://sobereva.com/multiwfn/download.html
+    license:
+      category: custom
+      identifier: Multiwfn distribution terms with community build provenance unresolved
+      redistribution: conditional
+      obligations:
+        - Do not infer version parity or authenticity from the community build label.
+        - Do not bundle a community artifact without complete provenance and applicable notices.
+    environment:
+      targets:
+        - platform: macos
+          architectures: [x86_64, arm64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - User wavefunctions remain private and provenance-bound.
+    runtime_probe:
+      kind: manual-attestation
+      target: community macOS build provenance metadata
+      expected_identity: exact Multiwfn source revision and build identity
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - The exact release date is not established by a first-party version statement.
+      - The official page says the community build may not correspond to the current release.
+    current_machine:
+      status: unverified
+      observations:
+        - No community build is installed or accepted as first-party evidence.
+    planned_blockers:
+      - First-party version parity, source revision, build provenance, and deterministic transcripts are missing.
+    maximum_validation_level: planned
+
+  lobster-5:
+    provider_id: lobster-5
+    profile_type: commercial-binary
+    role: postprocess-tool
+    source_tier: first-party-official
+    authorization:
+      required: true
+      provenance: declared-requires-external-trust
+      receipt: null
+    software:
+      name: LOBSTER
+      version: "5.1.1"
+      release_date: "2024-09-26"
+    official_urls:
+      - https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6
+      - https://schmeling.ac.rwth-aachen.de/cohp/index.php?fileID=19&menuID=603
+    license:
+      category: restricted-proprietary
+      identifier: LOBSTER non-profit research license
+      redistribution: prohibited
+      obligations:
+        - Use only under the non-transferable registered research license and required citations.
+        - Do not make the software or any part available to third parties.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: restricted
+      data_license: separate-attestation
+      notes:
+        - Basis resources and parent wavefunctions require legal private provenance.
+    runtime_probe:
+      kind: manual-attestation
+      target: registered LOBSTER binary and license metadata
+      expected_identity: LOBSTER 5.1.1
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Synthetic parser tests cannot establish licensed integration maturity.
+      - Parent wavefunction eligibility, basis selection, projection quality, and spilling remain separate gates.
+    current_machine:
+      status: restricted-unavailable
+      observations:
+        - No registered binary or applicable research entitlement was provided.
+    planned_blockers:
+      - External trust from the calling platform, private binary evidence, and legally reusable regression evidence are required.
+    maximum_validation_level: planned
+
+  catmap-v041:
+    provider_id: catmap-v041
+    profile_type: python-package
+    role: scientific-workflow-tool
+    source_tier: first-party-official
+    software:
+      name: CatMAP
+      version: "0.4.1"
+      release_date: "2024-10-08"
+    official_urls:
+      - https://github.com/SUNCAT-Center/catmap/releases/tag/v0.4.1
+      - https://github.com/SUNCAT-Center/catmap/blob/master/COPYING.txt
+      - https://catmap.readthedocs.io/en/latest/installation.html
+    license:
+      category: open-source
+      identifier: GPL-3.0-only
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve GPL source and notice obligations for redistributed derivatives.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+      python:
+        required: true
+        min_inclusive: "3.10"
+        max_exclusive: "3.12"
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - Descriptor tables and kinetic assumptions require explicit provenance and units.
+    runtime_probe:
+      kind: python-metadata
+      target: pinned CatMAP v0.4.1 source metadata
+      expected_identity: CatMAP 0.4.1 pinned revision
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Online documentation, release tags, and master package metadata report different versions.
+      - Native model and log files may execute Python and are unsafe as untrusted inputs.
+    current_machine:
+      status: unsupported-runtime
+      observations:
+        - CatMAP is absent and the conservative profile excludes Python 3.14.
+    planned_blockers:
+      - A safe declarative parser, isolated Python 3.10 or 3.11 environment, and real tutorial regression are missing.
+    maximum_validation_level: planned
+
+  gaussian-g16-c02:
+    provider_id: gaussian-g16-c02
+    profile_type: commercial-binary
+    role: calculation-engine
+    source_tier: first-party-official
+    authorization:
+      required: true
+      provenance: declared-requires-external-trust
+      receipt: null
+    software:
+      name: Gaussian 16 Apple M-Series
+      version: "Rev C.02"
+      release_date: unknown
+    official_urls:
+      - https://gaussian.com/g16/
+      - https://gaussian.com/g16/g16_plat.pdf
+      - https://gaussian.com/wp-content/uploads/dl/cn_com.pdf
+    license:
+      category: restricted-proprietary
+      identifier: Gaussian commercial license
+      redistribution: prohibited
+      obligations:
+        - Use only a legitimately licensed installation and do not redistribute program materials.
+        - Keep manuals, examples, checkpoints, and licensed binaries outside this repository.
+    environment:
+      targets:
+        - platform: macos
+          architectures: [arm64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements:
+          - Source builds of the Apple M-Series C.02 distribution are not supported by the vendor matrix.
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: restricted
+      data_license: separate-attestation
+      notes:
+        - Checkpoint and user calculation data remain private licensed-workflow artifacts.
+    runtime_probe:
+      kind: manual-attestation
+      target: user-supplied Gaussian license and revision metadata
+      expected_identity: Gaussian 16 Rev C.02 Apple M-Series
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - The exact release date is not stated in the selected first-party platform material.
+      - The published platform matrix updated 2025-03-18 lists macOS 12 through 15, not macOS 26.
+    current_machine:
+      status: restricted-unavailable
+      observations:
+        - No licensed binary evidence was provided and the current operating system exceeds the public support matrix.
+    planned_blockers:
+      - External trust from the calling platform, supported-system evidence, private fixtures, and revision fingerprint are required.
+    maximum_validation_level: planned
+
+  gromacs-cpu:
+    provider_id: gromacs-cpu
+    profile_type: simulation-engine
+    role: calculation-engine
+    source_tier: first-party-official
+    software:
+      name: GROMACS CPU
+      version: "2026.3"
+      release_date: "2026-06-25"
+    official_urls:
+      - https://manual.gromacs.org/current/release-notes/2026/2026.3.html
+      - https://manual.gromacs.org/documentation/current/install-guide/index.html
+      - https://manual.gromacs.org/current/reference-manual/preface.html
+    license:
+      category: open-source
+      identifier: LGPL-2.1-or-later
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve LGPL obligations and audit bundled libraries and force fields independently.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: true
+        requirements:
+          - CMake 3.28 or newer with C99 and C++17 support.
+          - GCC 11 or newer, Clang 14 or newer, or a supported MSVC release.
+      mpi:
+        required: false
+        requirements:
+          - MPI is optional for the serial or thread-MPI CPU profile.
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: not-applicable
+      data_license: separate-attestation
+      notes:
+        - Every force field and topology source requires its own license and provenance record.
+    runtime_probe:
+      kind: cli-version
+      target: user-built GROMACS CPU executable metadata
+      expected_identity: GROMACS 2026.3 CPU build and feature summary
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Apple OpenCL acceleration is deprecated and is excluded from this CPU profile.
+      - A version banner does not establish compiled precision, FFT, or MPI configuration.
+    current_machine:
+      status: not-installed-compatible
+      observations:
+        - Apple Clang is available, but CMake, MPI, and GROMACS are absent.
+        - A CPU-only build is compatible in principle with Apple Silicon.
+    planned_blockers:
+      - Exact build manifest, official regression suite, tiny NVE and NVT runs, and restart lineage are missing.
+    maximum_validation_level: planned
+
+  lammps-cpu:
+    provider_id: lammps-cpu
+    profile_type: simulation-engine
+    role: calculation-engine
+    source_tier: first-party-official
+    software:
+      name: LAMMPS CPU
+      version: "4Jul2026"
+      release_date: "2026-07-04"
+    official_urls:
+      - https://docs.lammps.org/Install.html
+      - https://docs.lammps.org/Build_prerequisites.html
+      - https://docs.lammps.org/Intro_opensource.html
+    license:
+      category: open-source
+      identifier: GPL-2.0-only
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve GPL obligations for redistributed builds and audit optional packages separately.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: true
+        requirements:
+          - CMake 3.20 or newer with a C++17 compiler and Make or Ninja.
+      mpi:
+        required: false
+        requirements:
+          - MPI is optional for a serial CPU build and required for distributed runs.
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - Potential files, plugins, and training sources require individual licenses and element mappings.
+    runtime_probe:
+      kind: cli-version
+      target: user-built LAMMPS CPU executable metadata
+      expected_identity: LAMMPS 4Jul2026 with compiled package inventory
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - A pair style cannot be assumed present without the compiled package inventory.
+      - Units, atom style, potential mapping, and restart compatibility remain task gates.
+    current_machine:
+      status: not-installed-compatible
+      observations:
+        - Apple Clang is available, but CMake, MPI, and LAMMPS are absent.
+        - A CPU-only build is compatible in principle with Apple Silicon.
+    planned_blockers:
+      - Exact build and package manifest, potential provenance, tiny dynamics, and restart regressions are missing.
+    maximum_validation_level: planned
+
+  gpumd-cuda:
+    provider_id: gpumd-cuda
+    profile_type: simulation-engine
+    role: calculation-engine
+    source_tier: first-party-official
+    software:
+      name: GPUMD CUDA
+      version: "5.3"
+      release_date: "2026-05-15"
+    official_urls:
+      - https://github.com/brucefan1983/GPUMD/releases/latest
+      - https://gpumd.org/installation.html
+    license:
+      category: open-source
+      identifier: GPL-3.0-only
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve GPL obligations and audit NEP models and datasets separately.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: true
+        requirements:
+          - CUDA 9 or newer with the C++ standard required by the selected build route.
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: true
+        backends: [cuda]
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - NEP model and training dataset terms do not follow automatically from the GPUMD code license.
+    runtime_probe:
+      kind: cli-version
+      target: user-built GPUMD CUDA executable metadata
+      expected_identity: GPUMD 5.3 with CUDA device and build identity
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Apple Metal is not a supported CUDA backend.
+      - The compute_phonon route must reject versions 5.1 and 5.2 because of a first-party reported bug.
+    current_machine:
+      status: unsupported-hardware
+      observations:
+        - The current Apple Silicon machine has neither a CUDA device nor a CUDA toolkit.
+    planned_blockers:
+      - A controlled CUDA system, driver and toolkit identity, NEP fixture, and restart regression are missing.
+    maximum_validation_level: planned
+
+  gpumd-rocm:
+    provider_id: gpumd-rocm
+    profile_type: simulation-engine
+    role: calculation-engine
+    source_tier: first-party-official
+    software:
+      name: GPUMD ROCm
+      version: "5.3"
+      release_date: "2026-05-15"
+    official_urls:
+      - https://github.com/brucefan1983/GPUMD/releases/latest
+      - https://gpumd.org/installation.html
+    license:
+      category: open-source
+      identifier: GPL-3.0-only
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve GPL obligations and audit NEP models and datasets separately.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: true
+        requirements:
+          - A first-party supported ROCm and HIP toolchain with the required C++ standard.
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: true
+        backends: [rocm]
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - NEP model and training dataset provenance must be recorded independently.
+    runtime_probe:
+      kind: cli-version
+      target: user-built GPUMD ROCm executable metadata
+      expected_identity: GPUMD 5.3 with ROCm device and build identity
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Apple Metal is not a supported ROCm backend.
+      - The compute_phonon route must reject versions 5.1 and 5.2.
+    current_machine:
+      status: unsupported-hardware
+      observations:
+        - The current Apple Silicon machine has neither a ROCm device nor a HIP toolchain.
+    planned_blockers:
+      - A controlled ROCm system, toolchain identity, NEP fixture, and restart regression are missing.
+    maximum_validation_level: planned
+
+  lasp-commercial:
+    provider_id: lasp-commercial
+    profile_type: commercial-binary
+    role: calculation-engine
+    source_tier: first-party-official
+    authorization:
+      required: true
+      provenance: declared-requires-external-trust
+      receipt: null
+    software:
+      name: LASP
+      version: "3.7"
+      release_date: unknown
+    official_urls:
+      - https://www.lasphub.com/
+      - https://pubs.acs.org/doi/10.1021/prechem.4c00060
+    license:
+      category: restricted-proprietary
+      identifier: LASP commercial terms not publicly resolved
+      redistribution: prohibited
+      obligations:
+        - Do not assume redistribution, execution, or fixture rights without written terms.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+      python:
+        required: false
+        min_inclusive: null
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements:
+          - Public first-party build requirements were not located.
+      mpi:
+        required: false
+        requirements:
+          - Public first-party parallel runtime requirements were not located.
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: unknown
+      data_license: separate-attestation
+      notes:
+        - Global neural-network potentials and training data require explicit independent terms.
+    runtime_probe:
+      kind: manual-attestation
+      target: user-supplied LASP edition, license, and build metadata
+      expected_identity: LASP 3.7 exact edition
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - The exact release date and public version-matched platform matrix were not located.
+      - Input defaults, completion, restart, and model grammar cannot be inferred from papers.
+    current_machine:
+      status: restricted-unavailable
+      observations:
+        - No legally usable binary, edition metadata, or complete first-party manual was provided.
+    planned_blockers:
+      - External trust from the calling platform, a version-matched first-party manual, private binary evidence, and legal fixtures are required.
+    maximum_validation_level: planned
+
+  deepmd-cpu-macos:
+    provider_id: deepmd-cpu-macos
+    profile_type: ml-framework
+    role: ml-potential-framework
+    source_tier: first-party-official
+    software:
+      name: DeePMD-kit CPU
+      version: "3.1.3"
+      release_date: "2026-03-19"
+    official_urls:
+      - https://github.com/deepmodeling/deepmd-kit/releases/latest
+      - https://docs.deepmodeling.com/projects/deepmd/en/latest/install/easy-install.html
+    license:
+      category: open-source
+      identifier: LGPL-3.0-only
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve LGPL obligations and audit selected backends, plugins, models, and data separately.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+      python:
+        required: true
+        min_inclusive: "3.10"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements:
+          - Source and plugin builds have backend-specific compiler requirements.
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - Framework licensing does not grant rights to a model, dataset, or backend.
+    runtime_probe:
+      kind: python-metadata
+      target: deepmd-kit and selected backend distribution metadata
+      expected_identity: deepmd-kit 3.1.3 CPU with explicit backend
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Backend interchangeability cannot be assumed across TensorFlow, PyTorch, JAX, and Paddle.
+      - Python 3.14 dependency resolution is not established by the broad package bound alone.
+    current_machine:
+      status: unverified
+      observations:
+        - DeePMD-kit and every supported machine-learning backend are absent.
+        - Apple Silicon CPU support is documented, but Python 3.14 resolution was not tested.
+    planned_blockers:
+      - A supported isolated Python environment and dataset-to-training-to-inference regression are missing.
+    maximum_validation_level: planned
+
+  mace-python:
+    provider_id: mace-python
+    profile_type: ml-framework
+    role: ml-potential-framework
+    source_tier: first-party-official
+    software:
+      name: MACE
+      version: "0.3.16"
+      release_date: "2026-05-10"
+    official_urls:
+      - https://pypi.org/project/mace-torch/
+      - https://github.com/ACEsuit/mace/releases/tag/v0.3.16
+      - https://mace-docs.readthedocs.io/en/latest/guide/installation.html
+    license:
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the MIT notice and inspect every pretrained model license independently.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+        - platform: windows
+          architectures: [x86_64]
+      python:
+        required: true
+        min_inclusive: "3.9"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - Pretrained model terms, digest, training domain, and energy convention are mandatory evidence.
+    runtime_probe:
+      kind: python-metadata
+      target: mace-torch and PyTorch distribution metadata
+      expected_identity: mace-torch 0.3.16 with a supported PyTorch release
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - PyTorch 2.4.1 is excluded by first-party guidance.
+      - Package import does not validate model precision, units, or training-domain coverage.
+    current_machine:
+      status: unverified
+      observations:
+        - MACE and PyTorch are absent and Python 3.14 dependency compatibility was not demonstrated.
+    planned_blockers:
+      - A supported Python and PyTorch matrix, model license and digest, train-test leakage gate, and inference regression are missing.
+    maximum_validation_level: planned
+
+  nequip-python:
+    provider_id: nequip-python
+    profile_type: ml-framework
+    role: ml-potential-framework
+    source_tier: first-party-official
+    software:
+      name: NequIP
+      version: "0.19.0"
+      release_date: "2026-07-16"
+    official_urls:
+      - https://github.com/mir-group/nequip/releases/latest
+      - https://nequip.readthedocs.io/en/latest/guide/getting-started/install.html
+      - https://nequip.readthedocs.io/en/latest/guide/getting-started/files.html
+    license:
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the MIT notice and inspect model, data, and extension licenses independently.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64, arm64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+      python:
+        required: true
+        min_inclusive: "3.10"
+        max_exclusive: null
+      compiler:
+        required: false
+        requirements:
+          - Compile and extension routes have PyTorch and platform-specific build requirements.
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - Packaged models can contain code and weights and require safe inspection before use.
+    runtime_probe:
+      kind: python-metadata
+      target: nequip, PyTorch, Lightning, and extension distribution metadata
+      expected_identity: NequIP 0.19.0 with a compatible dependency set
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - Pre-0.7 configurations and models are not compatible with the current line.
+      - Version 0.19.0 introduces dependency exclusions and checkpoint compatibility boundaries.
+    current_machine:
+      status: unverified
+      observations:
+        - NequIP, PyTorch, Lightning, and extensions are absent.
+        - Python 3.14 dependency compatibility was not demonstrated.
+    planned_blockers:
+      - A supported dependency matrix, safe package inspection, and train-package-compile-inference regression are missing.
+    maximum_validation_level: planned
+
+  fairchem-v1-gemnet-oc:
+    provider_id: fairchem-v1-gemnet-oc
+    profile_type: ml-framework
+    role: ml-potential-framework
+    source_tier: first-party-official
+    software:
+      name: fairchem-core V1 legacy provider for GemNet-OC
+      version: "1.10.0"
+      release_date: "2025-04-29"
+    official_urls:
+      - https://pypi.org/project/fairchem-core/1.10.0/
+      - https://fair-chem.github.io/fairchemv1-v2/
+      - https://fair-chem.github.io/models-1/
+    license:
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the MIT notice and inspect checkpoint and dataset terms separately.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+      python:
+        required: true
+        min_inclusive: "3.9"
+        max_exclusive: "3.13"
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - GemNet-OC checkpoint, configuration, dataset domain, and neighbor policy must be immutable evidence.
+    runtime_probe:
+      kind: python-metadata
+      target: fairchem-core V1 and OCPCalculator distribution metadata
+      expected_identity: fairchem-core 1.10.0 legacy GemNet-OC provider
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - fairchem V2 is a breaking rewrite and cannot replace this provider.
+      - UMA checkpoints and calculators are not GemNet-OC compatibility evidence.
+    current_machine:
+      status: unsupported-runtime
+      observations:
+        - Python 3.14 is outside the V1 requirement of Python 3.9 through 3.12.
+        - fairchem-core and PyTorch are absent.
+    planned_blockers:
+      - An isolated supported Python environment, exact checkpoint terms and digest, and OCPCalculator regression are missing.
+    maximum_validation_level: planned
+
+  fairchem-v1-equiformer-v2:
+    provider_id: fairchem-v1-equiformer-v2
+    profile_type: ml-framework
+    role: ml-potential-framework
+    source_tier: first-party-official
+    software:
+      name: fairchem-core V1 legacy provider for EquiformerV2
+      version: "1.10.0"
+      release_date: "2025-04-29"
+    official_urls:
+      - https://pypi.org/project/fairchem-core/1.10.0/
+      - https://fair-chem.github.io/fairchemv1-v2/
+      - https://fair-chem.github.io/models-1/
+    license:
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the MIT notice and inspect checkpoint and dataset terms separately.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+      python:
+        required: true
+        min_inclusive: "3.9"
+        max_exclusive: "3.13"
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: separate-attestation
+      data_license: separate-attestation
+      notes:
+        - EquiformerV2 checkpoint, configuration, dataset domain, and precision must be immutable evidence.
+    runtime_probe:
+      kind: python-metadata
+      target: fairchem-core V1 and OCPCalculator distribution metadata
+      expected_identity: fairchem-core 1.10.0 legacy EquiformerV2 provider
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - fairchem V2 is a breaking rewrite and cannot replace this provider.
+      - UMA checkpoints and calculators are not EquiformerV2 compatibility evidence.
+    current_machine:
+      status: unsupported-runtime
+      observations:
+        - Python 3.14 is outside the V1 requirement of Python 3.9 through 3.12.
+        - fairchem-core and PyTorch are absent.
+    planned_blockers:
+      - An isolated supported Python environment, exact checkpoint terms and digest, and OCPCalculator regression are missing.
+    maximum_validation_level: planned
+
+  fairchem-v2-uma:
+    provider_id: fairchem-v2-uma
+    profile_type: ml-framework
+    role: ml-potential-framework
+    source_tier: first-party-official
+    software:
+      name: fairchem-core V2 UMA
+      version: "2.21.0"
+      release_date: "2026-06-08"
+    official_urls:
+      - https://pypi.org/project/fairchem-core/2.21.0/
+      - https://fair-chem.github.io/fairchemv1-v2/
+      - https://github.com/facebookresearch/fairchem
+    license:
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
+      obligations:
+        - Preserve the MIT notice and treat every UMA checkpoint license as independent.
+    environment:
+      targets:
+        - platform: linux
+          architectures: [x86_64]
+        - platform: macos
+          architectures: [x86_64, arm64]
+      python:
+        required: true
+        min_inclusive: "3.11"
+        max_exclusive: "3.14"
+      compiler:
+        required: false
+        requirements: []
+      mpi:
+        required: false
+        requirements: []
+      gpu:
+        required: false
+        backends: []
+    assets:
+      model_license: restricted
+      data_license: separate-attestation
+      notes:
+        - UMA access approval, checkpoint terms, task domain, and DFT reference convention are separate gates.
+    runtime_probe:
+      kind: python-metadata
+      target: fairchem-core V2 and selected UMA model metadata
+      expected_identity: fairchem-core 2.21.0 UMA provider
+      execution_policy: documentary-read-only
+    known_exclusions:
+      - V2 does not restore the legacy GemNet-OC or EquiformerV2 provider routes.
+      - OMat24 conventions are not interchangeable with Materials Project energy corrections.
+    current_machine:
+      status: unsupported-runtime
+      observations:
+        - Python 3.14 is excluded by fairchem-core 2.21.0.
+        - fairchem-core, PyTorch, and approved UMA model material are absent.
+    planned_blockers:
+      - A supported Python environment, approved model evidence, exact checkpoint terms and digest, and domain-specific regression are missing.
+    maximum_validation_level: planned

@@ -1,0 +1,6 @@
+interface:
+  display_name: "LOBSTER Bonding Analysis"
+  short_description: "Plan LOBSTER evidence and audit bonding outputs"
+  default_prompt: "Use $lobster-bonding-analysis to resolve the public capability and recipe state first; require the authorized exact 5.1.1 manual for native syntax/argv, keep QE design-only, and fail closed on parent lineage, basis, spilling, curve convention, license, or chemical-claim gaps."
+policy:
+  allow_implicit_invocation: false

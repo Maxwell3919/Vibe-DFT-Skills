@@ -1,0 +1,29 @@
+{
+  "contract_name": "catmap-plan-request",
+  "evidence_class": "synthetic-fixture",
+  "provider_version": "0.4.1",
+  "requested_claims": [
+    "network-balance",
+    "thermochemistry-consistency",
+    "steady-state-solution",
+    "coverage",
+    "elementary-rates",
+    "sensitivity-coefficients",
+    "uncertainty-intervals"
+  ],
+  "schema_version": "1.0",
+  "task_id": "microkinetic-package-audit",
+  "thresholds": {
+    "barrier_cycle_abs_tolerance_eV": 1e-09,
+    "coverage_abs_tolerance": 1e-09,
+    "energy_component_abs_tolerance_eV": 1e-09,
+    "max_multistart_coverage_spread": 1e-09,
+    "min_sensitivity_converged_fraction": 1.0,
+    "min_sensitivity_perturbation_count": 2,
+    "min_solver_initializations": 2,
+    "min_uncertainty_converged_fraction": 0.95,
+    "min_uncertainty_samples": 5,
+    "solver_residual_tolerance": 1e-08,
+    "species_rate_residual_tolerance": 1e-08
+  }
+}

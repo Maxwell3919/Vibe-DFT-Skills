@@ -2,6 +2,19 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/postprocess-plan.schema.json",
   "title": "DFT postprocessing execution plan",
+  "$comment": "Schema validation establishes shape only. Planned means the declared graph is technically ready against the immutable bundle; this record cannot authorize execution or support a positive scientific claim.",
+  "x-vibe-semantic-obligations": [
+    "LEGACY_PLAN_STATUS_READINESS_CONSISTENT",
+    "LEGACY_PLAN_SOURCE_ARTIFACT_RESOLVES",
+    "LEGACY_PLAN_STEP_GRAPH_CONSISTENT",
+    "LEGACY_PLAN_NO_POSITIVE_CLAIM_CEILING",
+    "LEGACY_PLAN_PRIVACY_SAFE"
+  ],
+  "x-vibe-authority-boundary": {
+    "may_authorize_execution": false,
+    "may_accept_scientific_claim": false,
+    "maximum_claim_ceiling": "no_positive_claim"
+  },
   "type": "object",
   "additionalProperties": false,
   "required": [

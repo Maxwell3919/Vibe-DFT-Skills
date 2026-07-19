@@ -1,0 +1,87 @@
+schema_version: "1.0"
+software: phonopy
+checked_utc: "2026-07-19T00:00:00Z"
+sources:
+  - id: official-release-tag
+    authority: official-source-repository
+    url: "https://github.com/phonopy/phonopy/releases/tag/v4.3.1"
+    supports: [version-4.3.1-release, tag-commit-baf530a]
+  - id: official-package-manifest
+    authority: official-source-repository
+    url: "https://github.com/phonopy/phonopy/blob/v4.3.1/pyproject.toml"
+    supports: [fifteen-console-scripts, python-and-dependencies, optional-extras, license-identifier]
+  - id: official-installation
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/install.html"
+    supports: [conda-installation, source-installation, environment, hdf5-nfs-workaround]
+  - id: official-command
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/phonopy.html"
+    supports: [phonopy-command, product-generation, yaml-input, nac-auto-enable]
+  - id: official-init-command
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/phonopy-init.html"
+    supports: [displacement-generation, force-collection, force-constant-conversion]
+  - id: official-workflow
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/workflow.html"
+    supports: [finite-displacement-lineage, external-force-calculator-boundary, mesh-band-dos-flow]
+  - id: official-command-options
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/command-options.html"
+    supports: [force-sets, force-constants, save-parameters]
+  - id: official-input-files
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/input-files.html"
+    supports: [force-set-semantics, force-constant-shapes, born-input]
+  - id: official-output-files
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/output-files.html"
+    supports: [band-mesh-dos-output-roles]
+  - id: official-settings
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/setting-tags.html"
+    supports: [mesh-band-dos-parameters, units, nac-method, formats]
+  - id: official-changelog
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/changelog.html"
+    supports: [version-4.3.1-identity, cli-split, nac-and-backend-version-changes]
+  - id: official-v4-migration
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/migration-v4.html"
+    supports: [cli-split, primitive-auto-default, main-nac-removal, mesh-fallback, rust-backend]
+  - id: official-auxiliary-tools
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/auxiliary-tools.html"
+    supports: [bandplot, pdosplot, propplot, vasp-born]
+  - id: official-qha
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/qha.html"
+    supports: [qha-cli, qha-input-order, qha-outputs, pressure-limitation, run-qha-api]
+  - id: official-gruneisen
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/gruneisen.html"
+    supports: [three-volume-workflow, gruneisen-cli, gruneisen-output, gamma-divergence]
+  - id: official-random-displacements
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/random-displacements.html"
+    supports: [random-displacement-workflows, finite-temperature-boundary]
+  - id: official-mlp-sscha
+    authority: official-project-documentation
+    url: "https://phonopy.github.io/phonopy/mlp-sscha.html"
+    supports: [experimental-pypolymlp-sscha-workflows, documented-drift]
+  - id: official-license
+    authority: official-source-repository
+    url: "https://github.com/phonopy/phonopy/blob/develop/LICENSE"
+    supports: [license-text]
+policy:
+  exact_version_required: true
+  conflict_resolution_order:
+    - tag-pinned-source-and-parser
+    - same-version-migration-and-changelog
+    - same-version-command-reference
+    - official-tutorial
+    - unversioned-prose
+  documentation_is_not_package_identity: true
+  package_identity_requires_distribution_sha256: true
+  official_defaults_are_not_convergence_evidence: true

@@ -1,0 +1,4 @@
+interface:
+  display_name: "DFT Project Orchestrator"
+  short_description: "Plan and gate auditable multi-engine DFT workflows"
+  default_prompt: "Use $dft-project-orchestrator to audit this DFT workflow and return the minimum safe next action."

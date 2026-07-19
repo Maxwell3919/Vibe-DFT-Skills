@@ -877,6 +877,20 @@ def validate_parent_manifest(
         findings.append(Finding("QE.ANCESTRY.CODE", "error", "Parent manifest code must be qe"))
     if normalize_version(str(parent.get("code_version", ""))) != normalize_version(expected_version):
         findings.append(Finding("QE.ANCESTRY.VERSION", "error", "Parent manifest QE version differs from the planned executable"))
+    parent_status = parent.get("status")
+    parent_acceptance = parent.get("scientific_acceptance")
+    if (
+        parent_status not in {"planned", "running", "completed", "stopped", "failed"}
+        or parent_acceptance not in {"not_assessed", "requires_human_review"}
+        or (parent_status != "completed" and parent_acceptance != "not_assessed")
+    ):
+        findings.append(
+            Finding(
+                "QE.ANCESTRY.STATE",
+                "error",
+                "Parent run state must follow the immutable pre-decision run-manifest contract",
+            )
+        )
     if plan is not None:
         if parent.get("case_id") != plan.get("case_id"):
             findings.append(Finding("QE.ANCESTRY.CASE", "error", "Parent and plan case_id values differ"))
@@ -894,6 +908,14 @@ def validate_parent_manifest(
         or not isinstance(item.get("role"), str)
         or not isinstance(item.get("label"), str)
         or item.get("status") not in {"present", "missing", "redacted", "external"}
+        or (
+            item.get("status") == "present"
+            and not (
+                isinstance(item.get("sha256"), str)
+                and re.fullmatch(r"[a-f0-9]{64}", item["sha256"])
+            )
+        )
+        or (item.get("status") == "missing" and item.get("sha256") is not None)
         for item in evidence
     ):
         findings.append(Finding("QE.ANCESTRY.EVIDENCE_SCHEMA", "error", "Parent evidence entries do not match the run-manifest contract"))
@@ -906,8 +928,21 @@ def validate_parent_manifest(
         and re.fullmatch(r"[a-f0-9]{64}", item["sha256"])
     }
     if needs_scientific_parent:
-        if parent.get("status") not in {"completed", "accepted"} or parent.get("scientific_acceptance") != "accepted":
-            findings.append(Finding("QE.ANCESTRY.NOT_ACCEPTED", "error", "nscf/bands requires a completed, scientifically accepted parent density"))
+        if parent_status != "completed":
+            findings.append(
+                Finding(
+                    "QE.ANCESTRY.SCIENTIFIC_PARENT_NOT_COMPLETED",
+                    "error",
+                    "nscf/bands requires a technically completed parent run",
+                )
+            )
+        findings.append(
+            Finding(
+                "QE.ANCESTRY.DECISION_BUNDLE_REQUIRED",
+                "error",
+                "nscf/bands scientific ancestry requires an externally trusted bundle containing the calculation record, human scientific decision, and post-decision claim map; this CLI has no platform human-trust resolver",
+            )
+        )
         if parent.get("task_type") not in {"scf", "static"}:
             findings.append(Finding("QE.ANCESTRY.TASK", "error", "nscf/bands parent must be an SCF/static run"))
         if not present_roles.intersection({"charge_density", "scf_density", "save_directory"}):
@@ -918,10 +953,19 @@ def validate_parent_manifest(
                     "Parent manifest lacks hashed charge-density/save-directory evidence",
                 )
             )
-    if needs_restart_parent and not present_roles.intersection({"restart_checkpoint", "save_directory"}):
-        findings.append(
-            Finding("QE.ANCESTRY.RESTART_EVIDENCE", "error", "Restart manifest lacks hashed checkpoint/save-directory evidence")
-        )
+    if needs_restart_parent:
+        if parent_status != "completed":
+            findings.append(
+                Finding(
+                    "QE.ANCESTRY.RESTART_PARENT_NOT_COMPLETED",
+                    "error",
+                    "A restart requires a technically completed parent run",
+                )
+            )
+        if not present_roles.intersection({"restart_checkpoint", "save_directory"}):
+            findings.append(
+                Finding("QE.ANCESTRY.RESTART_EVIDENCE", "error", "Restart manifest lacks hashed checkpoint/save-directory evidence")
+            )
     return gate_status(findings, ("QE.ANCESTRY.",))
 
 

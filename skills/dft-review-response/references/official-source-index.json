@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "candidate": "dft-review-response",
+  "source_policy": "Use exact claim-evidence-map, official-source, artifact, manuscript, and decision refs; do not fetch or embed source/manuscript text automatically.",
+  "required_contract_roles": [
+    {"contract": "claim-evidence-map@1.0", "role": "bounded claim and evidence source"},
+    {"contract": "official-source-record@1.0", "role": "externally resolved documented behavior source"},
+    {"contract": "decision-record@1.0", "role": "separate human scientific or release decision"},
+    {"contract": "artifact-manifest@1.0", "role": "figure, table, or changed-manuscript artifact evidence"}
+  ],
+  "license_boundary": "No journal text, reviewer identity, manuscript content, restricted potential, unpublished result, or credential is bundled in fixtures."
+}

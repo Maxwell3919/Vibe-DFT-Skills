@@ -1,0 +1,43 @@
+{
+  "engine": "gromacs",
+  "files": [
+    {
+      "filename": "production.mdp",
+      "license": "CC0-1.0",
+      "license_status": "verified",
+      "role": "mdp",
+      "sha256": "6fac25dddfcfaf5a105de723d9935d1ef42b9a44f4a126b1a3dfd21dd2a50d86",
+      "source_url": "https://example.invalid/project-authored-fixture"
+    },
+    {
+      "filename": "start.gro",
+      "license": "CC0-1.0",
+      "license_status": "verified",
+      "role": "coordinates",
+      "sha256": "bba4d92406390178afd0f0ee23bf403cc41d46645eeffe5af8041679f28e787b",
+      "source_url": "https://example.invalid/project-authored-fixture"
+    },
+    {
+      "filename": "topol.top",
+      "license": "CC0-1.0",
+      "license_status": "verified",
+      "role": "topology",
+      "sha256": "b16be9e4f546a93671d28188ad079e283f615c3a0103963da74a3ccfa36c2f39",
+      "source_url": "https://example.invalid/project-authored-fixture"
+    },
+    {
+      "filename": "params.itp",
+      "license": "CC0-1.0",
+      "license_status": "verified",
+      "role": "topology-include",
+      "sha256": "55d7d1dc466717a583a891ff5f9a739d421c2bbdf306539dc5a5fbcd9a752487",
+      "source_url": "https://example.invalid/project-authored-fixture"
+    }
+  ],
+  "force_field": {
+    "identity": "project-authored-lj-syntax-only",
+    "license_status": "verified",
+    "source_url": "https://example.invalid/project-authored-fixture"
+  },
+  "schema_version": "1.0"
+}

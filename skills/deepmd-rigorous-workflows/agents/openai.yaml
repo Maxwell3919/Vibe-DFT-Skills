@@ -1,0 +1,4 @@
+interface:
+  display_name: "DeePMD Rigorous Workflows"
+  short_description: "Resolve and audit DeePMD, dpdata, and DP-GEN workflows"
+  default_prompt: "Use $deepmd-rigorous-workflows to resolve this request against the exact-version first-party workflow catalog, select one documented DeePMD-kit, dpdata, or DP-GEN recipe, and apply the offline dataset/config/run/model lineage gates. Keep all native execution unauthorized and report the native-not-run boundary."

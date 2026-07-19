@@ -1,0 +1,4 @@
+interface:
+  display_name: "Phonopy Rigorous Workflows"
+  short_description: "Audit phonon lineage from displacements to products"
+  default_prompt: "Use $phonopy-rigorous-workflows to plan or audit this Phonopy workflow with exact displacement, force, force-constant, product, and NAC lineage."

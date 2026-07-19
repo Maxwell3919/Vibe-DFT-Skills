@@ -2,6 +2,32 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/structure-manifest.schema.json",
   "title": "Traceable crystal structure manifest",
+  "$comment": "Schema validation establishes shape only. PASS/WARN is at most a hash-bound numerical structure candidate after all advertised bundle semantic obligations pass; it does not establish DFT readiness, stability, synthesis feasibility, or scientific acceptance.",
+  "x-vibe-semantic-obligations": [
+    "LEGACY_STRUCTURE_STATUS_CHECK_CONSISTENT",
+    "LEGACY_STRUCTURE_SOURCE_ARTIFACT_HASH_RESOLVES",
+    "LEGACY_STRUCTURE_SOURCE_IDENTITY_CONSISTENT",
+    "LEGACY_STRUCTURE_SITE_COMPOSITION_CONSISTENT",
+    "LEGACY_STRUCTURE_COORDINATE_CELL_CONSISTENT",
+    "LEGACY_STRUCTURE_NEIGHBOR_SUMMARY_CONSISTENT",
+    "LEGACY_STRUCTURE_BOND_MATCH_CONSISTENT",
+    "LEGACY_STRUCTURE_VIEW_ARTIFACTS_RESOLVE",
+    "LEGACY_STRUCTURE_TRANSFORMATION_LINEAGE_PREEXISTS",
+    "LEGACY_STRUCTURE_NUMERICAL_CANDIDATE_CEILING",
+    "LEGACY_STRUCTURE_PRIVACY_SAFE"
+  ],
+  "x-vibe-authority-boundary": {
+    "may_authorize_execution": false,
+    "may_accept_scientific_claim": false,
+    "maximum_claim_ceiling": "numerical_candidate_only"
+  },
+  "x-vibe-artifact-hash-semantics": {
+    "algorithm": "sha256",
+    "byte_basis": "exact-raw-file-bytes",
+    "canonicalization": "none",
+    "bundle_artifact_resolution_required": true,
+    "placeholder_hash_counts_as_evidence": false
+  },
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -318,7 +344,46 @@
       "properties": {
         "algorithm": {"const": "sha256-ordered-cell-sites-v1"},
         "value": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "canonicalization": {"const": "json-sort-keys-compact-utf8-v1"},
+        "fingerprint_input": {"$ref": "#/$defs/structureFingerprintInput"},
         "equivalence_scope": {"type": "string", "minLength": 1}
+      },
+      "dependentRequired": {
+        "canonicalization": ["fingerprint_input"],
+        "fingerprint_input": ["canonicalization"]
+      }
+    },
+    "structureFingerprintInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cell_vectors_ang", "pbc", "sites"],
+      "properties": {
+        "cell_vectors_ang": {"$ref": "#/$defs/matrix3"},
+        "pbc": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "boolean"}
+        },
+        "sites": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/structureFingerprintSite"}
+        }
+      }
+    },
+    "structureFingerprintSite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["atomic_number", "fractional"],
+      "properties": {
+        "atomic_number": {"type": "integer", "minimum": 1, "maximum": 118},
+        "fractional": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "number", "minimum": 0, "maximum": 1}
+        }
       }
     },
     "transformation": {

@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {"label": "valid-review-claim-map.json", "origin": "repository-authored synthetic metadata", "redistribution": "redistributable", "contains_real_result": false, "expected": "shared-schema valid"},
+    {"label": "valid-review-request.json", "origin": "repository-authored synthetic metadata", "redistribution": "redistributable", "contains_real_review": false, "expected": "plan, audit, and render-package pass locally"},
+    {"label": "references/weak-model-decision-table.json", "origin": "repository-authored canonical candidate-decision-table@1.0", "redistribution": "redistributable", "contains_real_review": false, "expected": "standard contract validation passes; priorities are contiguous and final default fails closed without required evidence"}
+  ],
+  "adversarial_cases_generated_in_tests": ["duplicate key", "BOM", "NaN", "symlink", "hash mismatch", "missing response", "unknown change", "unsupported claim", "missing evidence", "implemented change", "privacy path", "stale or forged pass audit", "output overwrite or hard-link alias", "path replacement during file-descriptor read", "intermediate-directory symlink swap and request/evidence base replacement", "FIFO nonblocking rejection", "staging-name substitution and late-target creation", "write, file-fsync, and directory-fsync failure rollback", "positive upstream claim", "one-to-one chain violation", "reviewer-content non-echo"]
+}

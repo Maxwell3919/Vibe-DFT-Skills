@@ -1,0 +1,22 @@
+{
+  "contract_name": "lobster-plan-request",
+  "evidence_class": "synthetic-fixture",
+  "parent_dft_code": "vasp",
+  "provider_version": "5.1.1",
+  "requested_claims": [
+    "projection-quality",
+    "cohp-curve",
+    "coop-curve",
+    "dos-projection-closure"
+  ],
+  "schema_version": "1.0",
+  "task_id": "bonding-package-audit",
+  "thresholds": {
+    "curve_integral_abs_tolerance": 1e-09,
+    "dos_closure_relative_tolerance": 0.05,
+    "fermi_alignment_abs_tolerance_eV": 1e-09,
+    "max_absolute_charge_spilling_percent": 3.0,
+    "max_absolute_total_spilling_percent": 5.0,
+    "min_projected_band_fraction": 0.99
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "namespace": "LAMMPS",
+  "stable_exit_codes": {"pass": 0, "blocked": 2, "incomplete": 3, "internal_error": 4},
+  "families": ["PLAN", "VERSION", "BUILD", "SCRIPT", "INCLUDE", "UNITS", "BOUNDARY", "TOPOLOGY", "MODEL", "INTEGRATOR", "SEED", "RESTART", "OUTPUT", "TRAJECTORY", "STATISTICS", "LICENSE", "EXECUTION", "IO", "JSON", "INTERNAL"],
+  "policy": "Consumers use finding codes, kinds, decisions and exits; explanatory prose is not a protocol field."
+}

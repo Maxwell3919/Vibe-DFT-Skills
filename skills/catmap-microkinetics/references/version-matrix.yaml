@@ -1,0 +1,56 @@
+{
+  "matrix_name": "catmap-version-matrix",
+  "schema_version": "1.0",
+  "checked_on": "2026-07-19",
+  "target_release": "v0.4.1",
+  "records": [
+    {
+      "range": "v0.4.1",
+      "state": "target-release",
+      "changes": [
+        "Release notes describe a small runtime-output update.",
+        "Tagged setup.py and catmap.__version__ still contain 0.3.1, so distribution/module version strings cannot by themselves prove the v0.4.1 tag."
+      ],
+      "required_action": "Record tag commit ed04f91, tree identity, distribution metadata, and catmap.__version__ separately; fail closed on unresolved identity conflicts.",
+      "source_ids": ["CAT-REL-041", "CAT-SETUP-041"]
+    },
+    {
+      "range": "v0.4.0-v0.4.1",
+      "state": "numbers-solver-default",
+      "changes": [
+        "The number-of-sites-based solver was added and made the default in v0.4.0.",
+        "The tagged README says behavior from versions <=0.3.2 can be requested with use_numbers_solver=False."
+      ],
+      "required_action": "Record use_numbers_solver and solver branch in every comparability claim.",
+      "source_ids": ["CAT-README-041", "CAT-PAPER-NUMBERS"]
+    },
+    {
+      "range": "v0.3.2",
+      "state": "pre-numbers-default",
+      "changes": [
+        "Release work included concentration scaling, Shomate updates, interaction fixes, and relative-formation-energy documentation.",
+        "This is the last release identified by the v0.4.1 README as legacy-solver behavior."
+      ],
+      "required_action": "Do not compare convergence or solution branches to v0.4 without an explicit solver-mode record.",
+      "source_ids": ["CAT-README-041", "CAT-TUT-INPUT"]
+    },
+    {
+      "range": "online latest manual",
+      "state": "documentation-drift",
+      "changes": [
+        "ReadTheDocs pages identify themselves as CatMAP 0.2.79 and revision 092f03a1.",
+        "The manual remains authoritative for documented concepts and call shapes but is not a version-matched v0.4.1 implementation snapshot."
+      ],
+      "required_action": "Treat manual-derived calls as documented-not-native-verified until checked in a pinned v0.4.1 environment.",
+      "source_ids": ["CAT-DOCS-LATEST", "CAT-REF-MODEL"]
+    }
+  ],
+  "local_probe": {
+    "date": "2026-07-19",
+    "python": "CPython 3.14.0",
+    "executables": {"catmap": "not-found"},
+    "distributions": {"python-catmap": "not-installed", "catmap": "not-installed"},
+    "modules": {"catmap": "not-found"},
+    "native_example_state": "native-not-run"
+  }
+}

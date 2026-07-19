@@ -1,0 +1,20 @@
+{
+  "artifacts": [
+    {"kind": "project-authored input", "path": "examples/run.in", "redistributable": true},
+    {"kind": "project-authored input", "path": "examples/model.xyz", "redistributable": true},
+    {"kind": "project-authored analytic model", "path": "examples/lj.txt", "redistributable": true},
+    {"kind": "project-authored synthetic output", "path": "examples/synthetic-gpumd.stdout", "redistributable": true},
+    {"kind": "project-authored synthetic output", "path": "examples/thermo.out", "redistributable": true},
+    {"kind": "project-authored synthetic trajectory", "path": "examples/trajectory.xyz", "redistributable": true}
+  ],
+  "contains_copied_gpumd_output": false,
+  "contains_third_party_model": false,
+  "license": "CC0-1.0",
+  "decision_table": {
+    "path": "references/weak-model-decision-table.json",
+    "contract": "candidate-decision-table@1.0",
+    "origin": "project-authored deterministic routing fixture",
+    "redistributable": true,
+    "scientific_meaning": "none"
+  }
+}

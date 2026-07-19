@@ -1,0 +1,93 @@
+{
+  "decision": "pass",
+  "evidence": {
+    "convergence_parameters": {},
+    "input": {
+      "role": "pw_input",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "observables": {},
+    "output": {
+      "role": "pw_output",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "parent_manifest": null,
+    "parent_record_id": null,
+    "plan": {
+      "role": "qe_plan",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "plan_record_id": "protocol-force-qe-001",
+    "pseudopotential_manifest": {
+      "role": "pseudopotential_manifest",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "pseudopotentials": []
+  },
+  "findings": [],
+  "gates": {
+    "execution_completion": "pass",
+    "input_integrity": "pass",
+    "observable_convergence": "not_assessed",
+    "official_version_match": "pass",
+    "parent_ancestry": "pass",
+    "physical_validity": "not_assessed",
+    "plan": "pass",
+    "pseudopotential_provenance": "pass",
+    "runtime_paths": "pass"
+  },
+  "output_summary": {
+    "echoed_settings": {
+      "ecutrho_ry": 400.0,
+      "ecutwfc_ry": 50.0,
+      "ibrav": 0,
+      "nat": 2,
+      "ntyp": 1
+    },
+    "job_done": true,
+    "observables": {},
+    "qe_version": "7.4.1",
+    "scf_iteration_lines": 8,
+    "successful_scf_cycles": 1,
+    "warning_lines": 0
+  },
+  "provenance": {
+    "collector": "qe_guard",
+    "collector_version": "1.0.0",
+    "generated_utc": "2026-07-19T00:00:00+00:00"
+  },
+  "required_remaining_gates": [
+    "observable-specific convergence under a fixed protocol",
+    "claim-specific physical/model validation"
+  ],
+  "schema_version": "1.0",
+  "scientific_claim_decision": "blocked",
+  "scope": "pw.x input and output",
+  "summary": {
+    "calculation": "scf",
+    "conv_thr_ry": 1e-10,
+    "degauss_ry": null,
+    "ecutrho_ry": 400.0,
+    "ecutwfc_ry": 50.0,
+    "executable": "pw.x",
+    "ibrav": 0,
+    "k_points": {
+      "count": 1,
+      "mode": "gamma"
+    },
+    "nat": 2,
+    "ntyp": 1,
+    "occupations": "fixed",
+    "outdir_explicit": true,
+    "prefix_explicit": true,
+    "pseudo_dir_explicit": true,
+    "restart_mode": "from_scratch",
+    "species": [
+      {
+        "label": "Si",
+        "pseudopotential": "Si.upf"
+      }
+    ],
+    "spin_orbit": false
+  }
+}
