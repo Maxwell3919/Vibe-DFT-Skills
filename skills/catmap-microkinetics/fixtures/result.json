@@ -1,0 +1,136 @@
+{
+  "contract_name": "catmap-result-candidate",
+  "data_partition": {
+    "calibration_data_ids": [
+      "synthetic-calibration-001"
+    ],
+    "declared_overlap_count": 0,
+    "evaluation_data_ids": [
+      "synthetic-evaluation-001"
+    ],
+    "partition_sha256": "074c43f58c84c70b2deaa6d016394c7e7abc30e4c96677b22533bd59ff692dee",
+    "purpose": "calibration-evaluation-separation"
+  },
+  "evidence_class": "synthetic-fixture",
+  "model_binding": {
+    "network_sha256": "c5f2794fcc07f9dc7f89847fa273f2d8158521e82feda3c8a7b52e8c4f108bef",
+    "thermochemistry_sha256": "a1e90d7c74cdeb45546e1a370d17a60f9f154e3d8e38b1206e259712c2b9f757"
+  },
+  "points": [
+    {
+      "coverages": {
+        "I_star": 0.3,
+        "P_star": 0.2,
+        "star": 0.5
+      },
+      "elementary_rates": {
+        "r1": 0.05,
+        "r2": 0.05,
+        "r3": 0.05
+      },
+      "point_id": "state-001",
+      "surface_species_residuals": {
+        "I_star": 0.0,
+        "P_star": 0.0,
+        "star": 0.0
+      }
+    }
+  ],
+  "provider": {
+    "dependency_lock_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "environment_profile_id": "catmap-v041",
+    "python_version": "not-applicable-synthetic",
+    "software": "CatMAP",
+    "source_revision": "v0.4.1",
+    "version": "0.4.1"
+  },
+  "rate_normalization": {
+    "area_normalization": "not-applied",
+    "basis": "per_declared_active_site",
+    "site_id": "s"
+  },
+  "result_id": "synthetic-result-001",
+  "schema_version": "1.0",
+  "sensitivity": {
+    "branch_identity": "steady-state-branch-001",
+    "coefficient_units": "dimensionless-log-derivative",
+    "coefficients": {
+      "barrier:r2": {
+        "tof:P_g": -0.7
+      }
+    },
+    "converged_fraction": 1.0,
+    "method": "central-finite-difference",
+    "output_ids": [
+      "tof:P_g"
+    ],
+    "parameter_ids": [
+      "barrier:r2"
+    ],
+    "perturbations_eV": [
+      0.01,
+      0.02
+    ]
+  },
+  "solver": {
+    "branch_identity": "steady-state-branch-001",
+    "converged": true,
+    "initialization_trials": [
+      {
+        "converged": true,
+        "final_coverages": {
+          "I_star": 0.3,
+          "P_star": 0.2,
+          "star": 0.5
+        },
+        "initial_state_id": "initial-low-coverage",
+        "point_id": "state-001",
+        "residual_norm": 1e-10,
+        "solution_fingerprint": "79606ecac77e0e035893ea50dfa978704f3607d1232496b8186f1999c8c21602"
+      },
+      {
+        "converged": true,
+        "final_coverages": {
+          "I_star": 0.3,
+          "P_star": 0.2,
+          "star": 0.5
+        },
+        "initial_state_id": "initial-high-coverage",
+        "point_id": "state-001",
+        "residual_norm": 2e-10,
+        "solution_fingerprint": "79606ecac77e0e035893ea50dfa978704f3607d1232496b8186f1999c8c21602"
+      }
+    ],
+    "iterations": 12,
+    "name": "numbers",
+    "residual_norm": 1e-10,
+    "residual_tolerance": 1e-08,
+    "settings_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "uncertainty": {
+    "converged_samples": 9,
+    "correlation_model": "independent",
+    "distribution_provenance_id": "synthetic-distribution-001",
+    "method": "deterministic-grid",
+    "output_intervals": {
+      "tof:P_g": {
+        "q05": 0.04,
+        "q50": 0.05,
+        "q95": 0.06,
+        "unit": "site^-1 s^-1"
+      }
+    },
+    "parameter_ids": [
+      "barrier:r2"
+    ],
+    "requested_samples": 9,
+    "sampling_identity_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "units": {
+    "coverage": "fraction_of_site",
+    "energy": "eV",
+    "pressure": "bar",
+    "rate": "site^-1 s^-1",
+    "temperature": "K"
+  }
+}

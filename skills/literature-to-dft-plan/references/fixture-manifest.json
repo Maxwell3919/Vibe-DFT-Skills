@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {"label": "valid-literature-request.json", "origin": "repository-authored synthetic metadata", "redistribution": "redistributable", "contains_source_text": false, "contains_real_scientific_fact": false, "expected": "plan, audit, and render-package pass locally"},
+    {"label": "references/weak-model-decision-table.json", "origin": "repository-authored canonical candidate-decision-table@1.0", "redistribution": "redistributable", "contains_source_text": false, "contains_real_scientific_fact": false, "expected": "standard contract validation passes; priorities are contiguous and final default fails closed without required evidence"}
+  ],
+  "adversarial_cases_generated_in_tests": ["duplicate key", "BOM", "NaN", "symlink", "metadata-only fact", "missing official version", "unknown premise", "ID-class collision", "non-active route", "missing authorization", "private path", "stale or forged pass audit", "output overwrite or hard-link alias", "path replacement during file-descriptor read", "intermediate-directory symlink swap and request/evidence base replacement", "FIFO nonblocking rejection", "staging-name substitution and late-target creation", "write, file-fsync, and directory-fsync failure rollback", "raw paper body field", "unstructured numerical fact", "new-claim lineage"]
+}

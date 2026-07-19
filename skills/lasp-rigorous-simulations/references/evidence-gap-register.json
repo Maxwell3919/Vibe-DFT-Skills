@@ -1,0 +1,14 @@
+{
+  "engine": "lasp",
+  "gaps": [
+    {"id": "LASP-GAP-001", "gate": "input_syntax", "required_resolution": "authorized complete version-3.7.3 manual plus parser tests"},
+    {"id": "LASP-GAP-002", "gate": "units_defaults", "required_resolution": "authoritative keyword-specific units/defaults evidence"},
+    {"id": "LASP-GAP-003", "gate": "model_compatibility", "required_resolution": "authoritative potential/model grammar and version rules"},
+    {"id": "LASP-GAP-004", "gate": "restart_lineage", "required_resolution": "state-retention and continuation semantics"},
+    {"id": "LASP-GAP-005", "gate": "output_completion", "required_resolution": "version-matched completion/error/observable grammar"},
+    {"id": "LASP-GAP-006", "gate": "environment", "known_public_baseline": "Linux; Intel MPI and Compiler 2017+; Src/lasp", "required_resolution": "exact authorized architecture, compiler/MPI ABI, library, build/install/runtime and resource specification"},
+    {"id": "LASP-GAP-007", "gate": "license", "required_resolution": "authorized exact software terms and redistribution classification"},
+    {"id": "LASP-GAP-008", "gate": "real_artifacts", "required_resolution": "legal independently expected input/output/restart corpus"},
+    {"id": "LASP-GAP-009", "gate": "execution", "required_resolution": "separately authorized integration and environment capture"}
+  ]
+}

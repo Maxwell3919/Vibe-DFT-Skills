@@ -1,0 +1,82 @@
+{
+  "catalog_contract": "provider-workflow-catalog@1.0",
+  "retrieved_on": "2026-07-19",
+  "scope": "DeePMD-kit, dpdata, and DP-GEN only",
+  "state_definitions": {
+    "listed": "A first-party source documents the capability, but this catalog never implies local availability or execution permission.",
+    "official-recipe": "An exact recipe is present in workflow-recipes.json and is bound to fixed provider versions and first-party sources.",
+    "native": "A safe local provider probe ran successfully in the recorded environment; this is availability evidence only.",
+    "native-not-run": "No matching local distribution or executable was found, so provider help, import, or minimal execution was not attempted."
+  },
+  "native_validation": {
+    "state": "native-not-run",
+    "host": "Darwin arm64; macOS 26.5.2; Python 3.14.0",
+    "executables_found": [],
+    "distributions_found": [],
+    "probes_attempted": [],
+    "reason": "dp, dpdata, and dpgen executables and the deepmd-kit, dpdata, and dpgen Python distributions were absent; no install, import, help, training, conversion, or inference was attempted."
+  },
+  "providers": [
+    {
+      "provider_id": "deepmd-kit",
+      "name": "DeePMD-kit",
+      "version": "3.1.3",
+      "python_requires": ">=3.10",
+      "sources": [
+        {"source_id": "deepmd-release", "url": "https://github.com/deepmodeling/deepmd-kit/releases/tag/v3.1.3", "version_scope": "exact-release"},
+        {"source_id": "deepmd-install", "url": "https://docs.deepmodeling.com/projects/deepmd/en/v3.1.3/install/easy-install.html", "version_scope": "exact-docs"},
+        {"source_id": "deepmd-cli", "url": "https://docs.deepmodeling.com/projects/deepmd/en/v3.1.3/cli.html", "version_scope": "exact-docs"},
+        {"source_id": "deepmd-data", "url": "https://docs.deepmodeling.com/projects/deepmd/en/v3.1.3/data/system.html", "version_scope": "exact-docs"},
+        {"source_id": "deepmd-infer", "url": "https://docs.deepmodeling.com/projects/deepmd/en/v3.1.3/inference/python.html", "version_scope": "exact-docs"},
+        {"source_id": "deepmd-lammps", "url": "https://docs.deepmodeling.com/projects/deepmd/en/v3.1.3/third-party/lammps-command.html", "version_scope": "exact-docs"}
+      ]
+    },
+    {
+      "provider_id": "dpdata",
+      "name": "dpdata",
+      "version": "1.0.2",
+      "python_requires": ">=3.10",
+      "sources": [
+        {"source_id": "dpdata-release", "url": "https://github.com/deepmodeling/dpdata/releases/tag/v1.0.2", "version_scope": "exact-release"},
+        {"source_id": "dpdata-install", "url": "https://docs.deepmodeling.com/projects/dpdata/en/stable/installation.html", "version_scope": "rolling-docs-paired-with-exact-release"},
+        {"source_id": "dpdata-systems", "url": "https://docs.deepmodeling.com/projects/dpdata/en/stable/systems/system.html", "version_scope": "rolling-docs-paired-with-exact-release"},
+        {"source_id": "dpdata-mixed", "url": "https://docs.deepmodeling.com/projects/dpdata/en/stable/formats/DeePMDMixedFormat.html", "version_scope": "rolling-docs-paired-with-exact-release"}
+      ]
+    },
+    {
+      "provider_id": "dpgen",
+      "name": "DP-GEN",
+      "version": "0.13.3",
+      "python_requires": ">=3.10 for the registered combined environment",
+      "sources": [
+        {"source_id": "dpgen-release", "url": "https://github.com/deepmodeling/dpgen/releases/tag/v0.13.3", "version_scope": "exact-release"},
+        {"source_id": "dpgen-cli", "url": "https://docs.deepmodeling.com/projects/dpgen/en/v0.13.3/overview/cli.html", "version_scope": "exact-docs"},
+        {"source_id": "dpgen-run", "url": "https://docs.deepmodeling.com/projects/dpgen/en/v0.13.3/run/overview-of-the-run-process.html", "version_scope": "exact-docs"},
+        {"source_id": "dpgen-machine", "url": "https://docs.deepmodeling.com/projects/dpgen/en/v0.13.3/run/example-of-machine.html", "version_scope": "exact-docs"}
+      ]
+    }
+  ],
+  "entries": [
+    {"entry_id": "deepmd.install.pytorch-cpu-pip", "provider_id": "deepmd-kit", "operation": "install", "kind": "cli", "state": "listed", "summary": "Create a PyTorch CPU environment and pin DeePMD-kit exactly; the deepmd-kit[cpu] extra is the documented TensorFlow CPU route and is not substituted here.", "recipe_id": "deepmd.install.pytorch-cpu-pip@3.1.3", "source_ids": ["deepmd-install", "deepmd-release"]},
+    {"entry_id": "deepmd.probe.identity", "provider_id": "deepmd-kit", "operation": "probe", "kind": "cli", "state": "listed", "summary": "Record dp version, selected backend, and top-level help before any workflow.", "recipe_id": "deepmd.probe.identity@3.1.3", "source_ids": ["deepmd-cli"]},
+    {"entry_id": "deepmd.schema.training-input", "provider_id": "deepmd-kit", "operation": "schema", "kind": "cli", "state": "listed", "summary": "Emit the installed provider's training-input documentation for exact config review.", "recipe_id": "deepmd.schema.training-input@3.1.3", "source_ids": ["deepmd-cli"]},
+    {"entry_id": "deepmd.data.neighbor-stat", "provider_id": "deepmd-kit", "operation": "data-preparation", "kind": "cli", "state": "listed", "summary": "Calculate neighbor statistics before fixing descriptor selection.", "recipe_id": "deepmd.data.neighbor-stat@3.1.3", "source_ids": ["deepmd-cli", "deepmd-data"]},
+    {"entry_id": "deepmd.train.pytorch", "provider_id": "deepmd-kit", "operation": "train", "kind": "cli", "state": "listed", "summary": "Train with an explicit PyTorch backend and an audited JSON/YAML input.", "recipe_id": "deepmd.train.pytorch@3.1.3", "source_ids": ["deepmd-cli", "deepmd-data"]},
+    {"entry_id": "deepmd.restart.pytorch", "provider_id": "deepmd-kit", "operation": "restart", "kind": "cli", "state": "listed", "summary": "Restart the same PyTorch training lineage from a checkpoint prefix.", "recipe_id": "deepmd.restart.pytorch@3.1.3", "source_ids": ["deepmd-cli"]},
+    {"entry_id": "deepmd.freeze.pytorch", "provider_id": "deepmd-kit", "operation": "freeze", "kind": "cli", "state": "listed", "summary": "Freeze an accepted PyTorch checkpoint to a .pth model artifact.", "recipe_id": "deepmd.freeze.pytorch@3.1.3", "source_ids": ["deepmd-cli"]},
+    {"entry_id": "deepmd.compress.pytorch", "provider_id": "deepmd-kit", "operation": "compress", "kind": "cli", "state": "listed", "summary": "Compress a frozen PyTorch model and revalidate it independently.", "recipe_id": "deepmd.compress.pytorch@3.1.3", "source_ids": ["deepmd-cli"]},
+    {"entry_id": "deepmd.test.all-frames", "provider_id": "deepmd-kit", "operation": "validate", "kind": "cli", "state": "listed", "summary": "Evaluate every frame in a held-out DeePMD system and write detail files.", "recipe_id": "deepmd.test.all-frames@3.1.3", "source_ids": ["deepmd-cli", "deepmd-data"]},
+    {"entry_id": "deepmd.model-deviation", "provider_id": "deepmd-kit", "operation": "uncertainty", "kind": "cli", "state": "listed", "summary": "Calculate ensemble model deviation on an explicitly selected system.", "recipe_id": "deepmd.model-deviation@3.1.3", "source_ids": ["deepmd-cli"]},
+    {"entry_id": "deepmd.infer.python", "provider_id": "deepmd-kit", "operation": "inference", "kind": "python-api", "state": "listed", "summary": "Evaluate energy, forces, and virial with deepmd.infer.DeepPot.", "recipe_id": "deepmd.infer.python@3.1.3", "source_ids": ["deepmd-infer", "deepmd-data"]},
+    {"entry_id": "deepmd.deploy.lammps", "provider_id": "deepmd-kit", "operation": "md-interface", "kind": "engine-snippet", "state": "listed", "summary": "Bind a frozen model to LAMMPS pair_style deepmd with explicit species order and units.", "recipe_id": "deepmd.deploy.lammps@3.1.3", "source_ids": ["deepmd-lammps"]},
+    {"entry_id": "dpdata.install.pip", "provider_id": "dpdata", "operation": "install", "kind": "cli", "state": "listed", "summary": "Install the exact dpdata release in the registered Python environment.", "recipe_id": "dpdata.install.pip@1.0.2", "source_ids": ["dpdata-install", "dpdata-release"]},
+    {"entry_id": "dpdata.convert.vasp-outcar", "provider_id": "dpdata", "operation": "data-preparation", "kind": "python-api", "state": "listed", "summary": "Convert labeled VASP OUTCAR frames to DeepMD NPY with explicit format names.", "recipe_id": "dpdata.convert.vasp-outcar@1.0.2", "source_ids": ["dpdata-systems", "dpdata-release"]},
+    {"entry_id": "dpdata.convert.mixed", "provider_id": "dpdata", "operation": "data-preparation", "kind": "python-api", "state": "listed", "summary": "Write multiple compatible systems to deepmd/npy/mixed after type and label checks.", "recipe_id": "dpdata.convert.mixed@1.0.2", "source_ids": ["dpdata-mixed", "dpdata-release"]},
+    {"entry_id": "dpdata.plugins.optional-formats", "provider_id": "dpdata", "operation": "data-preparation", "kind": "python-api", "state": "listed", "summary": "Optional format plugins require separate package/version evidence.", "recipe_id": null, "gap": "No universal recipe is safe because plugin requirements and format semantics differ.", "source_ids": ["dpdata-systems"]},
+    {"entry_id": "dpgen.install.pip", "provider_id": "dpgen", "operation": "install", "kind": "cli", "state": "listed", "summary": "Install the exact DP-GEN release in a Python >=3.10 combined environment.", "recipe_id": "dpgen.install.pip@0.13.3", "source_ids": ["dpgen-release"]},
+    {"entry_id": "dpgen.run.concurrent-learning", "provider_id": "dpgen", "operation": "active-learning", "kind": "cli", "state": "listed", "summary": "Run the train/explore/model-deviation/first-principles labeling loop from param and machine files.", "recipe_id": "dpgen.run.concurrent-learning@0.13.3", "source_ids": ["dpgen-cli", "dpgen-run", "dpgen-machine"]},
+    {"entry_id": "dpgen.init.bulk", "provider_id": "dpgen", "operation": "data-preparation", "kind": "cli", "state": "listed", "summary": "Generate ordered bulk initialization stages from explicit parameter and optional machine files.", "recipe_id": "dpgen.init.bulk@0.13.3", "source_ids": ["dpgen-cli"]},
+    {"entry_id": "dpgen.simplify", "provider_id": "dpgen", "operation": "dataset-selection", "kind": "cli", "state": "listed", "summary": "Simplify labeled data using exact parameter and machine files.", "recipe_id": "dpgen.simplify@0.13.3", "source_ids": ["dpgen-cli"]},
+    {"entry_id": "dpgen.autotest", "provider_id": "dpgen", "operation": "property-validation", "kind": "cli", "state": "listed", "summary": "Prepare, execute, and postprocess DP-GEN autotest tasks as separate authorized stages.", "recipe_id": "dpgen.autotest@0.13.3", "source_ids": ["dpgen-cli"]}
+  ]
+}

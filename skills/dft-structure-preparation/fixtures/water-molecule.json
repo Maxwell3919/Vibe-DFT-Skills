@@ -1,0 +1,38 @@
+{
+  "contract_name": "structure-preparation-input",
+  "schema_version": "1.0",
+  "structure_id": "water-molecule-fixture",
+  "structure_kind": "isolated-molecule",
+  "pbc": [false, false, false],
+  "cell_ang": null,
+  "sites": [
+    {
+      "site_id": "O-0",
+      "species": [{"element": "O", "occupancy": 1.0}],
+      "fractional": null,
+      "cartesian_ang": [0.0, 0.0, 0.0]
+    },
+    {
+      "site_id": "H-0",
+      "species": [{"element": "H", "occupancy": 1.0}],
+      "fractional": null,
+      "cartesian_ang": [0.9572, 0.0, 0.0]
+    },
+    {
+      "site_id": "H-1",
+      "species": [{"element": "H", "occupancy": 1.0}],
+      "fractional": null,
+      "cartesian_ang": [-0.239987, 0.927297, 0.0]
+    }
+  ],
+  "symmetry": {
+    "status": "not-applicable",
+    "number": null,
+    "symbol": null,
+    "tolerance_ang": null,
+    "backend": null,
+    "backend_version": null
+  },
+  "charge_state": {"status": "known", "net_charge_e": 0},
+  "spin_state": {"status": "known", "multiplicity": 1}
+}

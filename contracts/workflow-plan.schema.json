@@ -1,0 +1,353 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:workflow-plan:1.0",
+  "title": "Vibe DFT Skills cross-domain workflow plan",
+  "description": "A dependency-ordered immutable plan with explicit active/development/planned routing, evidence handoffs, gates, authorization requirements, and a claim ceiling. A plan never grants execution permission or scientific acceptance, and it never points back to an execution request created from it.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "plan_id",
+  "x-vibe-semantic-obligations": [
+    "WORKFLOW_STEP_IDS_UNIQUE",
+    "WORKFLOW_DEPENDENCIES_RESOLVE",
+    "WORKFLOW_DAG_ACYCLIC",
+    "WORKFLOW_ROUTE_OPERATION_ACTIVE_MATCH",
+    "WORKFLOW_AUTHORIZATION_SIDE_EFFECT_ALIGNMENT",
+    "WORKFLOW_OUTPUT_HANDOFF_REFS_RESOLVE",
+    "WORKFLOW_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "plan_id",
+    "title",
+    "objective",
+    "case_id",
+    "scientific_protocol_id",
+    "status",
+    "domains",
+    "source_records",
+    "steps",
+    "authorization_policy",
+    "required_decisions",
+    "scientific_acceptance",
+    "scientific_decision_ref",
+    "claim_ceiling",
+    "gates",
+    "blocker_codes",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "workflow-plan"},
+    "plan_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 256},
+    "objective": {"type": "string", "minLength": 1, "maxLength": 4000},
+    "case_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "scientific_protocol_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "status": {"enum": ["draft", "ready", "blocked", "executing", "completed", "abandoned"]},
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "structure",
+          "periodic-dft",
+          "quantum-chemistry",
+          "molecular-dynamics",
+          "machine-learned-potential",
+          "postprocessing",
+          "campaign-efficiency",
+          "reporting"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "source_records": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/step"}
+    },
+    "authorization_policy": {"$ref": "#/$defs/authorizationPolicy"},
+    "required_decisions": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+          {"properties": {"contract_name": {"const": "decision-record"}}}
+        ]
+      },
+      "uniqueItems": true
+    },
+    "scientific_acceptance": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/scientificAcceptance"},
+        {"const": "not_assessed"}
+      ]
+    },
+    "scientific_decision_ref": {"type": "null"},
+    "claim_ceiling": {"$ref": "#/$defs/claimCeiling"},
+    "gates": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+    "blocker_codes": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+      "uniqueItems": true
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "uniqueItems": true
+    },
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "ready"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "blocker_codes": {"maxItems": 0},
+          "steps": {
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/step"},
+                {
+                  "properties": {
+                    "route_lifecycle": {"const": "active"},
+                    "state": {"enum": ["ready", "completed"]},
+                    "blocker_codes": {"maxItems": 0},
+                    "gates": {
+                      "allOf": [
+                        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+                        {"properties": {"status": {"const": "pass"}}}
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"status": {"const": "pass"}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "blocked"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "blocker_codes": {"minItems": 1},
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"status": {"const": "blocked"}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "steps": {
+            "contains": {
+              "properties": {
+                "execution_class": {"enum": ["authorized-local", "authorized-remote", "scheduler"]}
+              },
+              "required": ["execution_class"]
+            }
+          }
+        },
+        "required": ["steps"]
+      },
+      "then": {
+        "properties": {
+          "authorization_policy": {
+            "allOf": [
+              {"$ref": "#/$defs/authorizationPolicy"},
+              {
+                "properties": {
+                  "human_decision_required": {"const": true},
+                  "lease_required": {"const": true},
+                  "side_effects": {"minItems": 1},
+                  "scope_labels": {"minItems": 1}
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "claimCeiling": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/claimCeiling"
+    },
+    "outputContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_name", "schema_version", "role", "required"],
+      "properties": {
+        "contract_name": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/contractName"},
+        "schema_version": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/schemaVersion"},
+        "role": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/contractName"},
+        "required": {"type": "boolean"}
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_id",
+        "skill_id",
+        "operation_id",
+        "route_lifecycle",
+        "state",
+        "execution_class",
+        "dependencies",
+        "input_records",
+        "output_contracts",
+        "calculation_envelope_ref",
+        "execution_request_ref",
+        "maturity",
+        "gates",
+        "blocker_codes"
+      ],
+      "properties": {
+        "step_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+        "skill_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+        "operation_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+        "route_lifecycle": {"enum": ["active", "development", "planned", "unsupported"]},
+        "state": {"enum": ["planned", "ready", "blocked", "running", "completed", "failed", "skipped"]},
+        "execution_class": {
+          "enum": ["inspect-only", "local-deterministic", "authorized-local", "authorized-remote", "scheduler"]
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "input_records": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+          "uniqueItems": true
+        },
+        "output_contracts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/outputContract"}
+        },
+        "calculation_envelope_ref": {
+          "oneOf": [
+            {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+                {"properties": {"contract_name": {"const": "calculation-record-envelope"}}}
+              ]
+            },
+            {"type": "null"}
+          ]
+        },
+        "execution_request_ref": {
+          "description": "Reserved compatibility field. It is always null because execution-request points to workflow-plan; a reverse full-hash reference would form an immutable content-addressing cycle.",
+          "type": "null"
+        },
+        "maturity": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/maturity"},
+        "gates": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+        "blocker_codes": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"route_lifecycle": {"enum": ["development", "planned", "unsupported"]}},
+            "required": ["route_lifecycle"]
+          },
+          "then": {
+            "properties": {
+              "state": {"const": "blocked"},
+              "execution_request_ref": {"type": "null"},
+              "blocker_codes": {"minItems": 1},
+              "maturity": {
+                "allOf": [
+                  {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/maturity"},
+                  {"properties": {"implementation": {"enum": ["unsupported", "contract-only"]}}}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"state": {"const": "ready"}}, "required": ["state"]},
+          "then": {
+            "properties": {
+              "route_lifecycle": {"const": "active"},
+              "blocker_codes": {"maxItems": 0},
+              "gates": {
+                "allOf": [
+                  {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+                  {"properties": {"status": {"const": "pass"}}}
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "authorizationPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["human_decision_required", "lease_required", "side_effects", "scope_labels"],
+      "properties": {
+        "human_decision_required": {"type": "boolean"},
+        "lease_required": {"type": "boolean"},
+        "side_effects": {
+          "oneOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sideEffectSet"},
+            {"type": "array", "maxItems": 0}
+          ]
+        },
+        "scope_labels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^(?![/\\\\])(?![A-Za-z]:[\\\\/])(?!.*\\s[/\\\\])(?!.*[=:][/\\\\])(?!.*\\s[A-Za-z]:[\\\\/])(?!.*\\\\\\\\)(?!.*(?:^|[\\s=,:;()\\[\\]{}\"'])[/\\\\](?:Users|home|private|tmp|var|Volumes|scratch|gpfs|lustre|mnt|work|project)(?:[/\\\\]|$))(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))[^\\u0000\\r\\n]+$"
+          },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"side_effects": {"minItems": 1}}, "required": ["side_effects"]},
+          "then": {
+            "properties": {
+              "human_decision_required": {"const": true},
+              "lease_required": {"const": true}
+            }
+          },
+          "else": {
+            "properties": {
+              "human_decision_required": {"const": false},
+              "lease_required": {"const": false},
+              "scope_labels": {"maxItems": 0}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

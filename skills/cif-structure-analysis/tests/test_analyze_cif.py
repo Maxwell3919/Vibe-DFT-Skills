@@ -1,5 +1,6 @@
 import json
 import copy
+import hashlib
 import subprocess
 import sys
 from pathlib import Path
@@ -248,6 +249,30 @@ class AnalyzeCifTests(unittest.TestCase):
             data = json.loads(out_json.read_text())
             validator = Draft202012Validator(json.loads(SCHEMA.read_text()))
             self.assertEqual(list(validator.iter_errors(data)), [])
+            identity = data["structure_identity"]
+            self.assertEqual(
+                identity["canonicalization"],
+                "json-sort-keys-compact-utf8-v1",
+            )
+            fingerprint_bytes = json.dumps(
+                identity["fingerprint_input"],
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+                allow_nan=False,
+            ).encode("utf-8")
+            self.assertEqual(
+                identity["value"], hashlib.sha256(fingerprint_bytes).hexdigest()
+            )
+            backward_compatible = copy.deepcopy(data)
+            backward_compatible["structure_identity"].pop("fingerprint_input")
+            backward_compatible["structure_identity"].pop("canonicalization")
+            self.assertEqual(
+                list(validator.iter_errors(backward_compatible)), []
+            )
+            incomplete_preimage = copy.deepcopy(data)
+            incomplete_preimage["structure_identity"].pop("fingerprint_input")
+            self.assertTrue(list(validator.iter_errors(incomplete_preimage)))
             misspelled = copy.deepcopy(data)
             misspelled["structure"]["atom_cout"] = misspelled["structure"]["atom_count"]
             self.assertTrue(list(validator.iter_errors(misspelled)))

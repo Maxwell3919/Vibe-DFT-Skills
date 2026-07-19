@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "decision-record",
+  "decision_id": "synthetic-decision-001",
+  "decision_type": "execution-authorization",
+  "subject_ref": {
+    "contract_name": "execution-request",
+    "schema_version": "1.0",
+    "record_id": "synthetic-request-001",
+    "sha256": "2f3b097946996c5483dec801b00a11d115fae62979a0ebfd2633d637ead18034",
+    "role": "execution-subject"
+  },
+  "outcome": "approved",
+  "scientific_acceptance": "not_assessed",
+  "decided_by": {
+    "actor_type": "human",
+    "actor_id": "synthetic-request-owner",
+    "role": "request-owner"
+  },
+  "decided_utc": "2026-07-18T22:30:00Z",
+  "evidence_ids": ["synthetic-request-001"],
+  "evidence_refs": [
+    {
+      "contract_name": "execution-request",
+      "schema_version": "1.0",
+      "record_id": "synthetic-request-001",
+      "sha256": "2f3b097946996c5483dec801b00a11d115fae62979a0ebfd2633d637ead18034",
+      "role": "evidence"
+    }
+  ],
+  "rationale": "Approve only the exact synthetic request for dry-run validation.",
+  "scope_labels": ["synthetic-campaign/run-001"],
+  "valid_until_utc": "2026-07-20T00:00:00Z",
+  "claim_ceiling": "input_gates_only",
+  "limitations": ["This synthetic authorization is not scientific acceptance and performs no side effect."],
+  "producer": {
+    "skill_id": "dft-project-orchestrator",
+    "skill_version": "0.1.0-candidate",
+    "tool_id": "synthetic-decision-builder",
+    "tool_version": "1.0",
+    "generated_utc": "2026-07-18T22:30:00Z"
+  }
+}

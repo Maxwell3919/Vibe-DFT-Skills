@@ -1,0 +1,44 @@
+{
+  "contract_name": "candidate-fixture-manifest",
+  "schema_version": "1.0",
+  "skill_id": "ovito-atomistic-analysis",
+  "fixtures": [
+    {
+      "path": "references/weak-model-decision-table.json",
+      "sha256": "4ae9cd9793435e3af6c2ce663ef091538e31afe611402da02c70482d2b510ac1",
+      "kind": "canonical-weak-model-decision-table",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/changing-order.xyz",
+      "sha256": "2740f0e97d1fc86b8bea88dac016632299be407d84d149c10cdd8c6cd44da6c1",
+      "kind": "synthetic-ordinal-mapping-break",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/metadata-pipeline.json",
+      "sha256": "bdccf62e1129d8d8197fcc00a6f7d69b2cc23b85564cfe6be0c8c4534b1709f0",
+      "kind": "synthetic-execution-ready-plan",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/pro-render-pipeline.json",
+      "sha256": "b5f53d47ebfa5b0a94e22c7e39044dbedbdba267b9f812cbdaa223fcb2009dfc",
+      "kind": "synthetic-plan-only-license-boundary",
+      "expected_exit": 0
+    },
+    {
+      "path": "fixtures/truncated.xyz",
+      "sha256": "5292da9f25cdde726eef83e20541915ce7f6392ba4c9069a31f3b1e003b16119",
+      "kind": "adversarial-truncated-trajectory",
+      "expected_exit": 2
+    },
+    {
+      "path": "fixtures/two-frame.extxyz",
+      "sha256": "17429ccbba90bf3c464087b7d7d7dfa39d74ffd9e9a7cae75ff2306744b1fcbc",
+      "kind": "synthetic-periodic-extxyz",
+      "expected_exit": 0
+    }
+  ],
+  "claim_boundary": "All fixtures and the test API double are synthetic and provide no real OVITO integration or scientific authority."
+}

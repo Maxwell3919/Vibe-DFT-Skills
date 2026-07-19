@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "software": "GROMACS",
+  "expected_version": "2026.3",
+  "probe_date": "2026-07-19",
+  "platform": "Darwin arm64",
+  "state": "native-not-run",
+  "executable_probe": {
+    "names": ["gmx", "gmx_mpi", "gmx_d", "gmx_mpi_d"],
+    "resolved": [],
+    "version_command_run": false,
+    "help_command_run": false
+  },
+  "python_distribution_probe": {
+    "gromacs": "not-installed",
+    "gmxapi": "not-installed",
+    "MDAnalysis": "not-installed"
+  },
+  "package_manager_probe": {"homebrew_formula": "not-installed"},
+  "reason": "No exact or alternate common executable resolved, so provider help/import/minimal execution was not attempted.",
+  "claim_boundary": "This is fresh absence evidence for one host and shell only; it is not evidence about another environment."
+}

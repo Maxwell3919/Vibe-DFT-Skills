@@ -57,6 +57,12 @@ Read [references/capability-coverage-matrix.md](references/capability-coverage-m
 - HFX/ADMM, DFT+U, dispersion, post-HF, excited states, QM/MM or enhanced sampling: [references/advanced-methods-and-sampling.md](references/advanced-methods-and-sampling.md);
 - optional official-community parsers/converters: [references/tool-adapters.md](references/tool-adapters.md).
 
+Before constructing or launching a native command, read
+[references/execution-and-executable-map.md](references/execution-and-executable-map.md)
+for the official `cp2k.psmp -i ... -o ...` invocation, build suffixes,
+`RUN_TYPE` ownership, input/side-effect inventory, high-use execution recipes,
+and current `native-not-run` state.
+
 Use `references/task-evidence-profiles.json` and `references/method-evidence-profiles.json` as machine-readable coverage declarations. A documented or detected surface is not automatically a supported positive audit.
 
 ### 4. Audit planned inputs
@@ -118,7 +124,7 @@ The validator binds the selected audit to the convergence series, independently 
 
 ### 9. Emit terminal handoffs
 
-At completion, intentional stop, failure, abandonment, or scientific acceptance, read [references/run-manifest-handoff.md](references/run-manifest-handoff.md) and emit the canonical run manifest:
+At a technical completion, intentional stop, failure, or abandonment, read [references/run-manifest-handoff.md](references/run-manifest-handoff.md) and emit the canonical immutable pre-decision run manifest:
 
 ```bash
 python3 ../../tools/create_run_manifest.py \

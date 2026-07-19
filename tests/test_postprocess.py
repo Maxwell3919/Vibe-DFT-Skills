@@ -157,6 +157,9 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(dry["status"], "dry-run")
             self.assertFalse(work.joinpath("result.dat").exists())
             self.assertEqual(validation_errors("execution", dry), [])
+            self.assertEqual(dry["working_directory_label"], "working-directory")
+            self.assertEqual(dry["command"][0], Path(sys.executable).name)
+            self.assertEqual(dry["inputs"][0]["path"], "source.dat")
 
             completed = run_external_command(
                 execution_id="exec-run-001",
@@ -173,7 +176,9 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(completed["status"], "succeeded")
             self.assertEqual(completed["return_code"], 0)
             self.assertEqual(validation_errors("execution", completed), [])
-            self.assertIn("tool stdout", Path(completed["stdout"]["path"]).read_text())
+            self.assertEqual(completed["outputs"][0]["path"], "result.dat")
+            self.assertEqual(completed["stdout"]["path"], "exec-run-001.stdout")
+            self.assertIn("tool stdout", records.joinpath(completed["stdout"]["path"]).read_text())
 
             with self.assertRaisesRegex(ValueError, "refusing to overwrite"):
                 run_external_command(

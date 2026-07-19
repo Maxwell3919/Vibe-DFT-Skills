@@ -1,0 +1,40 @@
+{
+  "engine": "lammps",
+  "pin": {
+    "release_banner": "LAMMPS (4 Jul 2026)",
+    "version": "4Jul2026",
+    "official_tag": "patch_4Jul2026",
+    "tag_object_sha": "9681d32037b82154929988a28d2f92ffd5088065",
+    "peeled_commit": "b54f0e7b0fb0003d6cec2e53c3b222211f4915c0",
+    "checked_date": "2026-07-19"
+  },
+  "sources": [
+    {"authority": "LAMMPS official source tag", "purpose": "immutable release source boundary", "url": "https://github.com/lammps/lammps/tree/patch_4Jul2026"},
+    {"authority": "LAMMPS pinned official manual source", "purpose": "complete general-command index for 4Jul2026", "url": "https://raw.githubusercontent.com/lammps/lammps/patch_4Jul2026/doc/src/Commands_all.rst"},
+    {"authority": "LAMMPS pinned official example", "purpose": "exact LJ melt smoke input", "url": "https://github.com/lammps/lammps/blob/patch_4Jul2026/examples/melt/in.melt"},
+    {"authority": "LAMMPS official manual", "purpose": "release-date version identity", "url": "https://docs.lammps.org/Manual_version.html"},
+    {"authority": "LAMMPS official manual", "purpose": "unit styles and potential UNITS metadata", "url": "https://docs.lammps.org/units.html"},
+    {"authority": "LAMMPS official manual", "purpose": "boundary syntax", "url": "https://docs.lammps.org/boundary.html"},
+    {"authority": "LAMMPS official manual", "purpose": "velocity and seed semantics", "url": "https://docs.lammps.org/velocity.html"},
+    {"authority": "LAMMPS official manual", "purpose": "time-step semantics", "url": "https://docs.lammps.org/timestep.html"},
+    {"authority": "LAMMPS official manual", "purpose": "thermostat versus integration fixes", "url": "https://docs.lammps.org/Howto_thermostat.html"},
+    {"authority": "LAMMPS official manual", "purpose": "build packages/styles/configuration inventory", "url": "https://docs.lammps.org/info.html"},
+    {"authority": "LAMMPS official manual", "purpose": "run completion output", "url": "https://docs.lammps.org/Run_output.html"},
+    {"authority": "LAMMPS official manual", "purpose": "binary restart portability and retained state", "url": "https://docs.lammps.org/read_restart.html"},
+    {"authority": "LAMMPS official manual", "purpose": "GPL version 2 terms", "url": "https://docs.lammps.org/Intro_opensource.html"},
+    {"authority": "LAMMPS official manual", "purpose": "pair coefficients and potential metadata", "url": "https://docs.lammps.org/pair_coeff.html"},
+    {"authority": "LAMMPS official manual", "purpose": "lost atom policy", "url": "https://docs.lammps.org/thermo_modify.html"},
+    {"authority": "LAMMPS official manual", "purpose": "build prerequisites", "url": "https://docs.lammps.org/Build_prerequisites.html"},
+    {"authority": "LAMMPS official manual", "purpose": "executable shell command surface", "url": "https://docs.lammps.org/shell.html"},
+    {"authority": "LAMMPS official manual", "purpose": "embedded Python command surface", "url": "https://docs.lammps.org/python.html"},
+    {"authority": "LAMMPS official manual", "purpose": "literal and dynamic include behavior", "url": "https://docs.lammps.org/include.html"},
+    {"authority": "LAMMPS official manual", "purpose": "launch options and -help/-restart conversion probes", "url": "https://docs.lammps.org/Run_options.html"},
+    {"authority": "LAMMPS official manual", "purpose": "input/data/restart/dump/log format roles", "url": "https://docs.lammps.org/Commands_input.html"}
+  ],
+  "source_policy": {
+    "rolling_html_is_behavior_locator_only": true,
+    "pinned_tag_source_is_exact_release_boundary": true,
+    "actual_binary_styles_require_native_help": true,
+    "manual_recipe_does_not_prove_native_execution": true
+  }
+}

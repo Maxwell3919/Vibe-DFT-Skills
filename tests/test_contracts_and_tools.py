@@ -16,7 +16,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import validate_contract  # noqa: E402
 import audit_repository  # noqa: E402
+import skill_registry  # noqa: E402
 import software_registry  # noqa: E402
+from registry_yaml import load_yaml_strict  # noqa: E402
 import sync_contract_codes  # noqa: E402
 
 
@@ -101,7 +103,7 @@ class ContractTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(validate_contract.validate_file("run", output), [])
 
-    def test_software_registry_is_the_canonical_extension_point(self) -> None:
+    def test_software_registry_is_the_canonical_provider_mapping(self) -> None:
         registry = software_registry.load_registry()
         self.assertEqual(software_registry.validation_errors(registry, ROOT), [])
         extended = copy.deepcopy(registry)
@@ -123,9 +125,109 @@ class ContractTests(unittest.TestCase):
         missing_skill = software_registry.validation_errors(extended, ROOT)
         self.assertTrue(any("abinit-rigorous-calculations" in item for item in missing_skill))
 
+    def test_planned_software_is_excluded_from_active_interfaces(self) -> None:
+        registry = software_registry.load_registry()
+        active_codes = set(software_registry.calculation_codes())
+        planned_codes = set(software_registry.planned_software_codes())
+        self.assertTrue({"gaussian", "lammps", "phonopy", "mace"}.issubset(planned_codes))
+        self.assertFalse(active_codes.intersection(planned_codes))
+        self.assertIn("gaussian-rigorous-calculations", software_registry.planned_skill_names())
+        self.assertNotIn("gaussian-rigorous-calculations", skill_registry.active_skill_names())
+        schema = json.loads((ROOT / "contracts" / "run-manifest.schema.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(schema["properties"]["code"]["enum"]), active_codes)
+        self.assertFalse(planned_codes.intersection(schema["properties"]["code"]["enum"]))
+        self.assertEqual(registry["planned_software"]["vaspkit"]["lifecycle"], "planned")
+
+    def test_planned_software_requires_an_activation_profile_and_planned_lifecycle(self) -> None:
+        registry = software_registry.load_registry()
+        invalid_profile = copy.deepcopy(registry)
+        invalid_profile["planned_software"]["gaussian"]["activation_profile"] = "missing-profile"
+        self.assertTrue(
+            any("must equal provider role" in item for item in software_registry.validation_errors(invalid_profile))
+        )
+        invalid_lifecycle = copy.deepcopy(registry)
+        invalid_lifecycle["planned_software"]["gaussian"]["lifecycle"] = "active"
+        self.assertTrue(
+            any("expected 'planned'" in item for item in software_registry.validation_errors(invalid_lifecycle))
+        )
+
+    def test_skill_registry_separates_active_development_and_planned_routes(self) -> None:
+        registry = skill_registry.load_registry()
+        software = software_registry.load_registry()
+        interfaces = load_yaml_strict(ROOT / "registry" / "interface-registry.yaml")
+        environments = load_yaml_strict(ROOT / "registry" / "environment-profiles.yaml")
+        self.assertEqual(
+            skill_registry.validation_errors(
+                registry,
+                software_data=software,
+                interface_data=interfaces,
+                environment_data=environments,
+            ),
+            [],
+        )
+        active = {
+            name for name, entry in registry["skills"].items() if entry["lifecycle"] == "active"
+        }
+        development = {
+            name for name, entry in registry["skills"].items() if entry["lifecycle"] == "development"
+        }
+        planned = {
+            name for name, entry in registry["skills"].items() if entry["lifecycle"] == "planned"
+        }
+        self.assertEqual(active, set(skill_registry.active_skill_names()))
+        self.assertEqual(development, set(skill_registry.development_skill_names()))
+        self.assertEqual(
+            active,
+            {
+                "cif-structure-analysis",
+                "qe-rigorous-calculations",
+                "vasp-rigorous-calculations",
+                "cp2k-rigorous-calculations",
+                "siesta-rigorous-calculations",
+                "dft-postprocess",
+                "dft-campaign-efficiency",
+            },
+        )
+        self.assertIn("dft-project-orchestrator", development)
+        self.assertIn("gaussian-rigorous-calculations", development)
+        self.assertEqual(planned, set())
+        self.assertFalse(active.intersection(development))
+        self.assertTrue(
+            all(registry["skills"][name]["path"] == f"skills/{name}" for name in development)
+        )
+
+        missing_source_path = copy.deepcopy(registry)
+        missing_source_path["skills"]["gaussian-rigorous-calculations"]["path"] = None
+        self.assertTrue(
+            any(
+                "development skill must use" in item
+                for item in skill_registry.validation_errors(missing_source_path)
+            )
+        )
+
     def test_repository_interfaces_are_aligned(self) -> None:
         self.assertEqual(sync_contract_codes.contract_drift(ROOT), [])
         self.assertEqual(audit_repository.repository_errors(ROOT), [])
+
+    def test_capability_catalog_json_is_strict_and_object_rooted(self) -> None:
+        cases = {
+            "duplicate": b'{"schema_version":"1.0","profiles":{},"profiles":{"x":{}}}',
+            "bom": b'\xef\xbb\xbf{"schema_version":"1.0","profiles":{"x":{}}}',
+            "nan": b'{"schema_version":"1.0","profiles":{"x":NaN}}',
+            "array": b'[]',
+        }
+        for label, raw in cases.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "catalog.json"
+                path.write_bytes(raw)
+                failures = audit_repository.capability_catalog_errors(path)
+                self.assertTrue(failures)
+                self.assertTrue(
+                    any(
+                        marker in " ".join(failures)
+                        for marker in ("duplicate", "BOM", "non-finite", "root")
+                    )
+                )
 
     def test_invalid_run_manifest_is_rejected(self) -> None:
         failures = validate_contract.validation_errors("run", {"schema_version": "1.0"})

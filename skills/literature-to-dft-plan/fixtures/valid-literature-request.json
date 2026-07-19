@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "literature-dft-request",
+  "request_id": "synthetic-literature-request-001",
+  "plan_id": "synthetic-literature-plan-001",
+  "generated_utc": "2026-07-19T00:00:00Z",
+  "objective": "Plan a synthetic calculation that tests one explicitly proposed inference.",
+  "target_observables": ["total-energy"],
+  "sources": [
+    {
+      "source_id": "source-synthetic-001",
+      "source_kind": "synthetic-fixture",
+      "citation_label": "Synthetic source metadata",
+      "identifier": "synthetic-source-001",
+      "version": "1.0",
+      "retrieval_status": "retrieved",
+      "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source_record_ref": {
+        "contract_name": "evidence-record",
+        "schema_version": "1.0",
+        "record_id": "synthetic-source-evidence-001",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "role": "literature-source"
+      },
+      "license_status": "synthetic",
+      "redistribution": "redistributable",
+      "limitations": ["Synthetic metadata supports structure tests only."]
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "fact-synthetic-001",
+      "classification": "source-assertion",
+      "statement": "The synthetic fixture explicitly labels one proposed comparison.",
+      "text_mode": "paraphrase",
+      "quantity": null,
+      "source_id": "source-synthetic-001",
+      "locator": "synthetic-section-1",
+      "evidence_status": "extracted",
+      "limitations": ["This is not a real literature fact."]
+    }
+  ],
+  "inferences": [
+    {
+      "inference_id": "inference-synthetic-001",
+      "classification": "inference",
+      "statement": "A controlled synthetic calculation may distinguish the proposed alternatives.",
+      "premise_fact_ids": ["fact-synthetic-001"],
+      "uncertainty": "No real source or calculation evidence is present.",
+      "validation_action": "Run a fixed-protocol convergence study after separate authorization.",
+      "status": "proposed"
+    }
+  ],
+  "assumptions": [
+    {
+      "assumption_id": "assumption-model-001",
+      "classification": "project-choice",
+      "statement": "The selected synthetic model is adequate for demonstrating workflow linkage.",
+      "owner": "planner",
+      "status": "unverified",
+      "validation_evidence_ids": [],
+      "impact": "An invalid model would make the proposed comparison uninterpretable.",
+      "failure_consequence": "Stop before scientific interpretation and revise the model."
+    }
+  ],
+  "new_claims": [
+    {
+      "new_claim_id": "new-claim-synthetic-001",
+      "classification": "new-claim-proposal",
+      "question": "Test whether the controlled synthetic alternatives are distinguishable under one fixed protocol.",
+      "premise_inference_ids": ["inference-synthetic-001"],
+      "validation_step_ids": ["step-scf-001"],
+      "status": "proposed",
+      "claim_ceiling": "no_positive_claim"
+    }
+  ],
+  "calculation_steps": [
+    {
+      "step_id": "step-scf-001",
+      "engine_skill": "qe-rigorous-calculations",
+      "route_lifecycle": "active",
+      "task_type": "scf",
+      "observable_ids": ["total-energy"],
+      "tests_inference_ids": ["inference-synthetic-001"],
+      "tests_new_claim_ids": ["new-claim-synthetic-001"],
+      "assumption_ids": ["assumption-model-001"],
+      "required_evidence": ["input integrity", "technical completion", "observable-specific numerical convergence", "physical and model validity"],
+      "authorization_required": true,
+      "status": "proposed"
+    }
+  ],
+  "limitations": ["No network access, real literature, DFT execution, or scientific acceptance is included."]
+}

@@ -1,0 +1,30 @@
+{
+  "contract_name": "catmap-task-evidence-profiles",
+  "schema_version": "1.0",
+  "profiles": {
+    "microkinetic-package-audit": {
+      "required_artifacts": ["network", "thermochemistry", "result"],
+      "required_blocks": ["steady_state", "data_partition", "rate_normalization", "sensitivity", "uncertainty"]
+    },
+    "network-audit": {
+      "required_artifacts": ["network"],
+      "required_blocks": []
+    },
+    "sensitivity-audit": {
+      "required_artifacts": ["network", "thermochemistry", "result"],
+      "required_blocks": ["steady_state", "data_partition", "rate_normalization", "sensitivity"]
+    },
+    "steady-state-audit": {
+      "required_artifacts": ["network", "thermochemistry", "result"],
+      "required_blocks": ["steady_state", "data_partition", "rate_normalization"]
+    },
+    "thermochemistry-audit": {
+      "required_artifacts": ["network", "thermochemistry"],
+      "required_blocks": []
+    },
+    "uncertainty-audit": {
+      "required_artifacts": ["network", "thermochemistry", "result"],
+      "required_blocks": ["steady_state", "data_partition", "rate_normalization", "uncertainty"]
+    }
+  }
+}

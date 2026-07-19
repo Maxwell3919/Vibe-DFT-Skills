@@ -1,0 +1,7 @@
+#include "params.itp"
+
+[ system ]
+Project-authored two-site syntax fixture
+
+[ molecules ]
+AR2 1

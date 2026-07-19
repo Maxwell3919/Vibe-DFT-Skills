@@ -1,0 +1,12 @@
+{
+  "current": "synthetic-validated",
+  "levels": [
+    {"name": "design-only", "requirement": "workflow and claim boundaries"},
+    {"name": "format-fixture-validated", "requirement": "legal project-authored inputs and parser tests"},
+    {"name": "synthetic-validated", "requirement": "offline end-to-end synthetic output and adversarial tests"},
+    {"name": "real-artifact-validated", "requirement": "legal 4Jul2026 real artifacts with independent expectations"},
+    {"name": "execution-validated", "requirement": "authorized version/build-matched integration"},
+    {"name": "activation-ready", "requirement": "shared-interface alignment, red-team acceptance, registry promotion and install verification"}
+  ],
+  "unmet_for_activation": ["No legal independently produced 4Jul2026 real-artifact corpus is committed.", "No authorized LAMMPS integration has been run.", "Binary restart adapter is not implemented.", "Shared simulation/trajectory handoff must be atomically verified at promotion."]
+}

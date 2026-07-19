@@ -24,17 +24,47 @@ def _write_bytes_atomic(path: Path, payload: bytes) -> None:
     temporary.replace(path)
 
 
-def _file_record(role: str, path: Path) -> dict[str, Any]:
+def _file_record(role: str, path: Path, label: str) -> dict[str, Any]:
     path = path.resolve()
     if not path.is_file():
         raise ValueError(f"missing file for role {role}: {path}")
     if path.name == "POTCAR":
         raise ValueError("POTCAR contents must not be recorded or passed to postprocessing tools")
-    return {"role": role, "path": str(path), "sha256": sha256_file(path), "bytes": path.stat().st_size}
+    if not label or Path(label).is_absolute() or ".." in Path(label).parts:
+        raise ValueError(f"unsafe shared file label for role {role}")
+    return {"role": role, "path": label, "sha256": sha256_file(path), "bytes": path.stat().st_size}
 
 
 def _log_record(path: Path) -> dict[str, Any]:
-    return {"path": str(path.resolve()), "sha256": sha256_file(path), "bytes": path.stat().st_size}
+    return {"path": path.name, "sha256": sha256_file(path), "bytes": path.stat().st_size}
+
+
+def _shared_command(
+    command: list[str],
+    work: Path,
+    inputs: dict[str, Path],
+    outputs: dict[str, Path],
+) -> list[str]:
+    """Redact runtime paths while preserving the argv shape needed for audit."""
+
+    replacements = {str(work): "working-directory"}
+    replacements.update((str(path.resolve()), path.name) for path in inputs.values())
+    for path in outputs.values():
+        replacements[str(path)] = str(path.relative_to(work))
+    shared: list[str] = []
+    for item in command:
+        redacted = item
+        for private, label in sorted(replacements.items(), key=lambda pair: len(pair[0]), reverse=True):
+            redacted = redacted.replace(private, label)
+        candidate = Path(redacted)
+        if candidate.is_absolute():
+            redacted = candidate.name
+        elif "=" in redacted:
+            prefix, value = redacted.split("=", 1)
+            if Path(value).is_absolute():
+                redacted = f"{prefix}={Path(value).name}"
+        shared.append(redacted)
+    return shared
 
 
 def _output_path(work: Path, value: Path) -> Path:
@@ -73,7 +103,8 @@ def run_external_command(
     existing = [str(path) for path in outputs.values() if path.exists()]
     if existing:
         raise ValueError(f"refusing to overwrite existing outputs: {existing}")
-    input_records = [_file_record(role, path) for role, path in sorted(input_files.items())]
+    input_records = [_file_record(role, path, path.name) for role, path in sorted(input_files.items())]
+    shared_command = _shared_command(command, work, input_files, outputs)
 
     base = {
         "schema_version": "1.0",
@@ -81,8 +112,8 @@ def run_external_command(
         "plan_id": plan_id,
         "step_id": step_id,
         "backend": backend,
-        "command": list(command),
-        "working_directory_label": str(work),
+        "command": shared_command,
+        "working_directory_label": "working-directory",
         "dry_run": dry_run,
         "status": "dry-run" if dry_run else "blocked",
         "started_utc": None,
@@ -137,7 +168,7 @@ def run_external_command(
     missing_outputs = []
     for role, path in sorted(outputs.items()):
         if path.is_file():
-            output_records.append(_file_record(role, path))
+            output_records.append(_file_record(role, path, str(path.relative_to(work))))
         else:
             missing_outputs.append(role)
     if missing_outputs:

@@ -1,0 +1,19 @@
+schema_version: "1.0"
+findings:
+  PH_JSON_INVALID: {severity: error, disposition: fail}
+  PH_VERSION_UNSUPPORTED: {severity: blocker, disposition: blocked}
+  PH_STRUCTURE_INVALID: {severity: error, disposition: fail}
+  PH_SUPERCELL_INVALID: {severity: error, disposition: fail}
+  PH_DISPLACEMENT_INVALID: {severity: error, disposition: fail}
+  PH_DISPLACEMENT_CLOSURE_FAILED: {severity: error, disposition: fail}
+  PH_FORCE_INVALID: {severity: error, disposition: fail}
+  PH_FORCE_PARENT_MISMATCH: {severity: error, disposition: fail}
+  PH_FORCE_COLLECTION_HASH_MISMATCH: {severity: error, disposition: fail}
+  PH_FORCE_CONSTANTS_INVALID: {severity: error, disposition: fail}
+  PH_PRODUCT_INVALID: {severity: error, disposition: fail}
+  PH_PRODUCT_PARENT_MISMATCH: {severity: error, disposition: fail}
+  PH_NAC_INVALID: {severity: error, disposition: fail}
+  PH_TABLE_INVALID: {severity: error, disposition: fail}
+  PH_OUTPUT_EXISTS: {severity: error, disposition: fail}
+  PH_OUTPUT_WRITE_FAILED: {severity: error, disposition: fail}
+  PH_DECISION_NO_MATCH: {severity: error, disposition: fail}

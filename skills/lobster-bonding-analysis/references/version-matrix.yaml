@@ -1,0 +1,64 @@
+{
+  "matrix_name": "lobster-version-matrix",
+  "schema_version": "1.0",
+  "checked_on": "2026-07-19",
+  "target_release": "5.1.1",
+  "records": [
+    {
+      "range": "5.1.1",
+      "state": "target-release",
+      "release_date": "2024-09-26",
+      "public_evidence": [
+        "The first-party download page identifies 5.1.1 as current and advertises a 940 MB licensed package.",
+        "The package includes the exact manual and examples after registration; the public page does not publish their content."
+      ],
+      "required_action": "Bind executable, authorized manual/examples, basis resources, output header, and execution record to exact 5.1.1 evidence.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-LICENSE-511"]
+    },
+    {
+      "range": "5.1.0",
+      "state": "older-release-not-profiled",
+      "release_date": "2024-06-12",
+      "public_evidence": ["The first-party download page lists 5.1.0 as an older release."],
+      "required_action": "Do not infer 5.1.1 input or output compatibility; establish a separate manual/parser profile.",
+      "source_ids": ["LOB-DOWNLOAD-511"]
+    },
+    {
+      "range": "5.0 and later",
+      "state": "companion-observation-manual-confirmation-required",
+      "public_evidence": [
+        "LobsterPy documentation states that LOBSTER 5.0 generates POSCAR.lobster by default and uses it for cross-provider structure handoff."
+      ],
+      "required_action": "Treat this only as a developer-companion observation until the authorized version-matched LOBSTER manual/output proves it for the run under review.",
+      "source_ids": ["LOB-LOBSTERPY-GETTING-STARTED"]
+    },
+    {
+      "range": "unversioned or any other release",
+      "state": "unsupported",
+      "public_evidence": [],
+      "required_action": "Fail closed; do not infer parser, basis, parent-provider, spin, SOC, or artifact compatibility across versions.",
+      "source_ids": ["LOB-DOWNLOAD-511"]
+    }
+  ],
+  "public_documentation_gap": {
+    "state": "manual-required",
+    "missing_from_public_first_party_pages": [
+      "exact executable filename and argv",
+      "complete lobsterin grammar and keywords",
+      "provider-specific required input files and settings",
+      "5.1.1 completion and fatal markers",
+      "complete 5.1.1 output-file schemas"
+    ],
+    "failure_semantics": "Do not fill these fields from memory or community tutorials; require the authorized 5.1.1 manual/examples and record their identity without redistributing them."
+  },
+  "local_probe": {
+    "date": "2026-07-19",
+    "python": "CPython 3.14.0",
+    "candidate_executables": {
+      "lobster": "not-found",
+      "lobster-5.1.1": "not-found",
+      "lobster-5.1.0": "not-found"
+    },
+    "native_example_state": "native-not-run"
+  }
+}

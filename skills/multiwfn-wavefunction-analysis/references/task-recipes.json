@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "software": "Multiwfn",
+  "program_version": "2026.7.15",
+  "manual_version": "2026.7.10",
+  "execution_validation": "not_run",
+  "checked_date": "2026-07-19",
+  "recipes": {
+    "interactive-launch": {
+      "status": "official-manual-sequence", "mode": "interactive", "argv": ["Multiwfn"], "stdin_sequence": ["<input-file>"],
+      "required_files": ["<input-file>", "settings.ini or accepted defaults"], "expected_outputs": ["loaded-file summary", "main menu"], "batch_ready": false,
+      "source": "manual sections 2.2 and 2.5", "checks": ["Verify banner/update date and loaded file identity.", "Check file-format eligibility for the intended function."],
+      "caution": "Pressing Enter may open a GUI file chooser; use an explicit path for traceability."
+    },
+    "silent-launch-options": {
+      "status": "official-manual-sequence", "mode": "argv", "argv": ["Multiwfn", "COCl2.fch", "-nt", "36", "-set", "/sob/tmp/settings.ini", "-silent"], "stdin_sequence": [],
+      "required_files": ["COCl2.fch", "/sob/tmp/settings.ini"], "expected_outputs": ["task-dependent stdout"], "batch_ready": false,
+      "source": "manual section 2.2", "checks": ["Confirm settings.ini is found; documented arguments do not take effect when settings.ini cannot be found.", "Choose physical cores and memory/stack settings for the real host."],
+      "caution": "The paths and thread count are manual examples, not reusable host settings."
+    },
+    "orbital-composition-mulliken": {
+      "status": "official-manual-sequence", "mode": "stdin-file", "argv": ["Multiwfn", "COCl2.fch", "-silent"], "stdin_sequence": ["8", "1", "1", "2", "3"],
+      "required_files": ["COCl2.fch", "settings.ini"], "expected_outputs": ["stdout orbital compositions for orbitals 1, 2, and 3"], "batch_ready": true,
+      "source": "manual section 5.2", "checks": ["Require basis-function-bearing wavefunction data.", "Check orbital numbering, spin, occupation, method, and basis/ECP semantics."],
+      "caution": "Mulliken composition is basis-sensitive and diffuse functions can make it unsuitable."
+    },
+    "elf-cube": {
+      "status": "official-manual-sequence", "mode": "stdin-file", "argv": ["Multiwfn", "<wavefunction>", "-silent"], "stdin_sequence": ["5", "9", "2", "2"],
+      "required_files": ["<wavefunction>", "settings.ini"], "expected_outputs": ["ELF.cub"], "batch_ready": true,
+      "source": "manual section 5.3", "checks": ["Confirm the input contains the GTF information needed for ELF.", "Hash the cube; check dimensions, origin, axes, units, atom list, finite values, and integral/field plausibility."],
+      "caution": "Manual option 2 is a medium-quality grid example, not a converged spatial grid. Run in a scratch directory because ELF.cub is a fixed output name."
+    },
+    "mulliken-population": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<basis-bearing-wavefunction>"], "stdin_sequence": ["7", "5", "1"],
+      "required_files": ["<basis-bearing-wavefunction>"], "expected_outputs": ["basis, shell, angular, atom, charge, and spin population tables on stdout"], "batch_ready": false,
+      "source": "manual section 4.7.0", "checks": ["Verify electron count, net charge, spin population, basis mapping, and expected atom order."],
+      "caution": "The manual explicitly warns that diffuse functions make Mulliken analysis meaningless."
+    },
+    "hirshfeld-charge": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<wavefunction>"], "stdin_sequence": ["7", "1", "1"],
+      "required_files": ["<wavefunction>"], "expected_outputs": ["raw and normalized Hirshfeld charges on stdout", "optional .chg export after an explicit prompt"], "batch_ready": false,
+      "source": "manual section 4.7.1", "checks": ["Record free-atom density route, integration settings, raw charge sum, normalized charge sum, dipole, and atom order."],
+      "caution": "The export prompt and filename must be captured from the exact binary before unattended use."
+    },
+    "adch-charge": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<wavefunction>"], "stdin_sequence": ["7", "11", "1"],
+      "required_files": ["<wavefunction>"], "expected_outputs": ["Hirshfeld and ADCH charge summary on stdout"], "batch_ready": false,
+      "source": "manual section 4.7.2", "checks": ["Check normalized charge conservation and reproduced dipole error.", "Retain the underlying Hirshfeld density route."],
+      "caution": "A charge model is a chosen partition, not a unique observable or oxidation state."
+    },
+    "hirshfeld-i-charge": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<wavefunction>"], "stdin_sequence": ["7", "15", "1"],
+      "required_files": ["<wavefunction>", "compatible atmrad data or an explicitly configured Gaussian route"], "expected_outputs": ["Hirshfeld-I iterations and final charges"], "batch_ready": false,
+      "source": "manual section 4.7.4", "checks": ["Record atomic radial-density provenance and convergence threshold.", "Check iteration convergence, charge conservation, atom order, and sensitivity to radial densities."],
+      "caution": "Never allow Multiwfn to invoke Gaussian or generate radial data without separate authorization and exact environment evidence."
+    },
+    "mayer-bond-order": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<basis-bearing-wavefunction>"], "stdin_sequence": ["9", "1"],
+      "required_files": [".mwfn, .fch/.fchk, .molden, or .gms with basis functions"], "expected_outputs": ["Mayer bond-order list and valences", "optional bndmat.txt after explicit y"], "batch_ready": false,
+      "source": "manual section 4.9.1", "checks": ["Record threshold, atom order, basis, occupations, spin state, and optional matrix hash.", "Compare chemically important terms across basis and method where needed."],
+      "caution": "The optional export prompt must be pinned before batch use; bond order is method-dependent."
+    },
+    "fuzzy-bond-order": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<wavefunction>"], "stdin_sequence": ["9", "7"],
+      "required_files": ["wavefunction with GTFs"], "expected_outputs": ["fuzzy bond-order list"], "batch_ready": false,
+      "source": "manual section 4.9.1", "checks": ["Record fuzzy-space partition, integration grid, threshold, atom order, and numerical convergence."],
+      "caution": "Fuzzy bond order is more expensive and remains partition- and wavefunction-dependent."
+    },
+    "aim-topology": {
+      "status": "official-tutorial-sequence", "mode": "interactive-gui", "argv": ["Multiwfn", "<wavefunction>"], "stdin_sequence": ["2", "2", "3", "0", "<close-GUI>", "8", "0"],
+      "required_files": ["wavefunction or supported grid with sufficient density information"], "expected_outputs": ["critical-point summary", "topology paths", "GUI view"], "batch_ready": false,
+      "source": "manual section 4.2.1", "checks": ["Check critical-point types, coordinates, duplicates, convergence, expected bonds, and Poincare-Hopf relation.", "Inspect heavy-atom ECP/EDF treatment and missing/unphysical critical points."],
+      "caution": "Poincare-Hopf satisfaction is necessary in some cases but not sufficient to prove every critical point was found; GUI steps make this sequence unsuitable for noGUI automation."
+    },
+    "tdos-plot": {
+      "status": "official-tutorial-sequence", "mode": "interactive-gui", "argv": ["Multiwfn", "<eligible-orbital-energy-file>"], "stdin_sequence": ["10", "0"],
+      "required_files": ["basis-bearing wavefunction or a documented TDOS-compatible energy-level source"], "expected_outputs": ["interactive TDOS plot"], "batch_ready": false,
+      "source": "manual section 4.10.1", "checks": ["Record spin selection, energy unit/reference, broadening, range, degeneracy rule, occupations, and source orbitals."],
+      "caution": "GUI/noGUI capability differs; a plotted curve does not establish meaningful or converged electronic DOS."
+    },
+    "pdos-opdos-fragments": {
+      "status": "official-tutorial-sequence", "mode": "interactive-gui", "argv": ["Multiwfn", "N-phenylpyrrole.fch"],
+      "stdin_sequence": ["10", "-1", "1", "a 1-5", "q", "2", "a 10-13,15,17", "q", "3", "a 6-9,14,16,18-20", "q", "0", "2", "-1.1,-0.1,0.1", "0"],
+      "required_files": ["basis-bearing wavefunction with occupied and virtual orbitals"], "expected_outputs": ["interactive TDOS, PDOS, and OPDOS plot"], "batch_ready": false,
+      "source": "manual section 4.10.1 part 2", "checks": ["Validate fragment and basis selections, spin, energy reference, broadening, and composition method.", "Check whether diffuse functions invalidate Mulliken/SCPA compositions."],
+      "caution": "Atom indices and example energy window are system-specific; OPDOS interpretation is basis-dependent."
+    },
+    "igmh-interfragment": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<wavefunction>"], "stdin_sequence": ["20", "11", "2", "1-12", "13-25", "2", "3"],
+      "required_files": ["wavefunction with GTF information"], "expected_outputs": ["sl2r.cub", "dg_inter.cub", "other task-dependent cube data"], "batch_ready": false,
+      "source": "manual section 4.20.11", "checks": ["Replace tutorial fragment indices with reviewed selections.", "Converge grid spacing/box, retain partition/settings, check cube identity and finite values, and vary isovalue only for presentation."],
+      "caution": "The example's medium grid and fragment indices are not transferable; colored isosurfaces do not uniquely quantify interaction energy."
+    },
+    "hole-electron-cubes": {
+      "status": "official-tutorial-sequence", "mode": "interactive-prefix", "argv": ["Multiwfn", "<excited-state-wavefunction>"],
+      "stdin_sequence": ["18", "1", "<excited-state-output>", "2", "1", "3", "10", "11"],
+      "required_files": ["compatible excited-state wavefunction", "matching excited-state output"], "expected_outputs": ["hole.cub", "electron.cub"], "batch_ready": false,
+      "source": "manual sections 4.18.1 and 4.A.14", "checks": ["Verify state numbering, method compatibility, coefficient normalization, spin convention, matching geometry/basis, grid convergence, and integrated hole/electron populations."],
+      "caution": "The tutorial's state 2 and high-quality grid token are examples; exact prompts and export-menu state must be captured before batching."
+    }
+  }
+}

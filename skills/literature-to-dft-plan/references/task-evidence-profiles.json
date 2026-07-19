@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "profiles": [
+    {
+      "task_id": "literature-classification",
+      "required": ["source kind", "citation label", "identifier", "retrieval status", "content hash when resolved", "source record ref when resolved", "version when sensitive", "license state", "redistribution state", "fact locator", "explicit source-assertion or quoted-numerical-fact classification", "structured value, unit, and precision for numerical facts", "no embedded paper body"],
+      "blocked_when": ["metadata-only source supports an extracted fact", "resolved source lacks hash or ref", "official manual version is absent", "fact locator is absent", "citation metadata is substituted for content evidence", "numerical content is unstructured"]
+    },
+    {
+      "task_id": "calculation-proposal",
+      "required": ["target observables", "proposed inference IDs", "project-choice IDs", "new-claim proposal IDs and reciprocal validation-step IDs", "active engine Skill", "task ID", "future evidence profile", "execution authorization requirement"],
+      "blocked_when": ["route is development, planned, or unsupported", "inference, project choice, or new claim does not resolve", "observable is unknown", "future evidence is empty", "authorization is omitted"]
+    }
+  ]
+}

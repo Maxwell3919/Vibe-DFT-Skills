@@ -1,0 +1,96 @@
+{
+  "schema_version": "candidate-1.0",
+  "candidate_lifecycle": "development",
+  "claim_ceiling": "no_positive_claim",
+  "profiles": {
+    "single_point": {
+      "required_input_gates": [
+        "plan-integrity",
+        "structure-lineage",
+        "input-identity",
+        "route-model-chemistry",
+        "charge-multiplicity",
+        "atom-count"
+      ],
+      "required_run_gates": [
+        "output-identity",
+        "execution-record-binding",
+        "revision-match",
+        "normal-termination",
+        "scf-energy-present",
+        "scf-no-known-failure"
+      ],
+      "stationary_point": "not_applicable",
+      "future_maximum_claim": "technical_run_gates_only"
+    },
+    "optimization": {
+      "required_input_gates": [
+        "plan-integrity",
+        "structure-lineage",
+        "input-identity",
+        "route-model-chemistry",
+        "charge-multiplicity",
+        "atom-count",
+        "task-keyword"
+      ],
+      "required_run_gates": [
+        "output-identity",
+        "execution-record-binding",
+        "revision-match",
+        "normal-termination",
+        "scf-energy-present",
+        "scf-no-known-failure",
+        "optimization-completed"
+      ],
+      "stationary_point": "not_assessed",
+      "future_maximum_claim": "technical_run_gates_only"
+    },
+    "frequency": {
+      "required_input_gates": [
+        "plan-integrity",
+        "structure-lineage",
+        "input-identity",
+        "route-model-chemistry",
+        "charge-multiplicity",
+        "atom-count",
+        "task-keyword"
+      ],
+      "required_run_gates": [
+        "output-identity",
+        "execution-record-binding",
+        "revision-match",
+        "normal-termination",
+        "scf-energy-present",
+        "scf-no-known-failure",
+        "frequencies-present",
+        "stationary-point-count"
+      ],
+      "stationary_point": "plan_bound",
+      "future_maximum_claim": "numerical_candidate_only"
+    },
+    "optimization_frequency": {
+      "required_input_gates": [
+        "plan-integrity",
+        "structure-lineage",
+        "input-identity",
+        "route-model-chemistry",
+        "charge-multiplicity",
+        "atom-count",
+        "task-keyword"
+      ],
+      "required_run_gates": [
+        "output-identity",
+        "execution-record-binding",
+        "revision-match",
+        "normal-termination",
+        "scf-energy-present",
+        "scf-no-known-failure",
+        "optimization-completed",
+        "frequencies-present",
+        "stationary-point-count"
+      ],
+      "stationary_point": "minimum",
+      "future_maximum_claim": "numerical_candidate_only"
+    }
+  }
+}

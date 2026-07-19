@@ -1,0 +1,8 @@
+2
+Time=0.0 pbc="T T T" Lattice="10 0 0 0 10 0 0 0 10" Properties=species:S:1:pos:R:3
+Si 2.00 5.00 5.00
+Si 8.00 5.00 5.00
+2
+Time=1.0 pbc="T T T" Lattice="10 0 0 0 10 0 0 0 10" Properties=species:S:1:pos:R:3
+Si 2.01 5.00 5.00
+Si 7.99 5.00 5.00

@@ -1,0 +1,26 @@
+{
+  "contract_name": "parent-validation-receipt-candidate",
+  "evidence_bindings": {
+    "completion": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "input": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "numerical": "9999999999999999999999999999999999999999999999999999999999999999",
+    "wavefunction_eligible_for_lobster": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "evidence_class": "synthetic-fixture",
+  "gates": {
+    "completion": "pass",
+    "input": "pass",
+    "numerical": "pass",
+    "wavefunction_eligible_for_lobster": "pass"
+  },
+  "schema_version": "1.0",
+  "subject": {
+    "record_id": "parent-synthetic-001",
+    "record_sha256": "44f259277b546bf5ce1d2b01846b99097b0f6eb17dfa928e80738989ff24fe89"
+  },
+  "validator": {
+    "id": "synthetic-independent-parent-validator",
+    "mode": "declarative-synthetic",
+    "version": "1.0"
+  }
+}

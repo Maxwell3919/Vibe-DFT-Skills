@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:candidate:ovito-output-envelope:0.1",
+  "title": "OVITO candidate output envelope",
+  "type": "object",
+  "required": [
+    "contract_name", "schema_version", "status", "claim_ceiling", "future_gate_ceiling",
+    "promotion_authorized", "execution_authorized", "provenance"
+  ],
+  "properties": {
+    "contract_name": {
+      "enum": [
+        "ovito-trajectory-inventory-candidate", "ovito-pipeline-plan-candidate",
+        "ovito-provider-probe-candidate", "ovito-execution-result-candidate", "ovito-candidate-error"
+      ]
+    },
+    "schema_version": {"const": "0.1"},
+    "status": {"enum": ["pass", "blocked", "planned", "available", "unavailable", "complete", "internal-error"]},
+    "claim_ceiling": {"const": "no_positive_claim"},
+    "future_gate_ceiling": {
+      "enum": ["documented_behavior_only", "input_gates_only", "technical_run_gates_only"]
+    },
+    "promotion_authorized": {"const": false},
+    "execution_authorized": {"const": false},
+    "finding_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]*$"},
+    "message": {"type": "string", "minLength": 1},
+    "provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["tool", "tool_version"],
+      "properties": {
+        "tool": {"const": "ovito_analysis.py"},
+        "tool_version": {"const": "0.1.0-candidate"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["contract_name"],
+        "properties": {"contract_name": {"const": "ovito-candidate-error"}}
+      },
+      "then": {
+        "required": ["finding_id", "message"],
+        "properties": {"status": {"enum": ["blocked", "internal-error"]}}
+      }
+    },
+    {
+      "if": {
+        "required": ["status"],
+        "properties": {"status": {"const": "internal-error"}}
+      },
+      "then": {"properties": {"contract_name": {"const": "ovito-candidate-error"}}}
+    }
+  ]
+}

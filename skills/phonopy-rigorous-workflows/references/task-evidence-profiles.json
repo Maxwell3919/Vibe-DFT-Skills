@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "lifecycle_notice": "Every claim_ceiling below is post-promotion potential only; current candidate reports must remain no_positive_claim and authorize neither promotion nor execution.",
+  "current_candidate_claim_ceiling": "no_positive_claim",
+  "candidate_promotion_authorized": false,
+  "candidate_execution_authorized": false,
+  "post_promotion_potential_claim_ceiling_field_scope": "future-only",
+  "profiles": {
+    "displacements": {
+      "requires": ["structure-fingerprint", "unitcell-hash", "supercell-matrix", "displacement-distance", "displacement-set-hash"],
+      "post_promotion_potential_claim_ceiling": "deterministic-displacement-plan"
+    },
+    "force-collection": {
+      "requires": ["complete-displacement-set", "one-parent-calculation-record-per-displacement", "input-validation-pass", "output-completion-pass", "electronic-convergence-pass", "force-acceptance-pass", "force-unit-and-shape", "force-collection-hash"],
+      "post_promotion_potential_claim_ceiling": "technical-force-set-lineage"
+    },
+    "force-constants": {
+      "requires": ["displacement-set-parent", "force-collection-parent", "full-force-constant-shape", "calculator", "symmetrization", "asr-policy"],
+      "post_promotion_potential_claim_ceiling": "technical-force-constant-lineage"
+    },
+    "mesh": {
+      "requires": ["force-constants-parent", "mesh-numbers", "qpoint-and-branch-dimensions", "artifact-hash"],
+      "post_promotion_potential_claim_ceiling": "technical-mesh-product-lineage"
+    },
+    "band": {
+      "requires": ["force-constants-parent", "q-segments", "points-per-segment", "artifact-hash"],
+      "post_promotion_potential_claim_ceiling": "technical-band-product-lineage"
+    },
+    "dos": {
+      "requires": ["force-constants-parent", "mesh-parent", "integration-method", "frequency-unit", "artifact-hash"],
+      "post_promotion_potential_claim_ceiling": "technical-dos-product-lineage"
+    },
+    "nac": {
+      "requires": ["force-constants-parent", "born-tensor", "dielectric-tensor", "raw-source-record-hash", "source-evidence-projection-hash", "unit-and-primitive-fingerprints", "response-acceptance-pass", "method", "factor-and-unit-convention"],
+      "post_promotion_potential_claim_ceiling": "technical-nac-parameter-lineage"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+[PROJECT-AUTHORED DOCUMENTARY PLACEHOLDER]
+This file intentionally does not represent LASP input syntax.
+It exists only to exercise bounded hashing and evidence-gap reporting.
+case_label=lasp-documentary-fixture-001

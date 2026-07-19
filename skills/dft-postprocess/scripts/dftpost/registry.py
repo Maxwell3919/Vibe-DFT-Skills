@@ -2,9 +2,25 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import sys
 from typing import Any, Iterable
 
-import yaml
+
+for _parent in Path(__file__).resolve().parents:
+    if _parent.joinpath("tools", "registry_snapshot.py").is_file():
+        _tools = str(_parent / "tools")
+        if _tools not in sys.path:
+            sys.path.insert(0, _tools)
+        break
+else:  # pragma: no cover - installation layout is checked by the caller
+    raise RuntimeError("cannot locate shared registry snapshot loader")
+
+from registry_snapshot import (  # noqa: E402
+    RegistrySnapshot,
+    RegistrySnapshotError,
+    load_registry_snapshot,
+)
+from registry_yaml import load_yaml_strict  # noqa: E402
 
 
 MATURITY_LEVELS = (
@@ -32,28 +48,21 @@ def software_registry_path() -> Path:
     raise RuntimeError("cannot locate registry/software-registry.yaml")
 
 
-def registered_codes() -> tuple[str, ...]:
-    data = yaml.safe_load(software_registry_path().read_text(encoding="utf-8"))
-    software = data.get("software") if isinstance(data, dict) else None
-    if not isinstance(software, dict) or not software:
-        raise ValueError("software registry must contain a nonempty software mapping")
-    return tuple(software)
+def _snapshot(snapshot: RegistrySnapshot | None = None) -> RegistrySnapshot:
+    return snapshot or load_registry_snapshot(software_registry_path().parents[1])
 
 
-def registered_aggregate_codes() -> tuple[str, ...]:
-    data = yaml.safe_load(software_registry_path().read_text(encoding="utf-8"))
-    aggregate = data.get("aggregate_codes") if isinstance(data, dict) else None
-    if not isinstance(aggregate, list) or not all(isinstance(item, str) for item in aggregate):
-        raise ValueError("software registry must contain an aggregate_codes string list")
-    return tuple(aggregate)
+def registered_codes(snapshot: RegistrySnapshot | None = None) -> tuple[str, ...]:
+    return _snapshot(snapshot).calculation_codes()
+
+
+def registered_aggregate_codes(snapshot: RegistrySnapshot | None = None) -> tuple[str, ...]:
+    return _snapshot(snapshot).aggregate_codes()
 
 
 def load_registry(path: Path | None = None) -> dict[str, Any]:
     selected = path or registry_path()
-    data = yaml.safe_load(selected.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise ValueError(f"observable registry must be a mapping: {selected}")
-    return data
+    return load_yaml_strict(selected, "observable-registry.yaml")
 
 
 def _strings(value: object) -> Iterable[str]:
@@ -68,7 +77,11 @@ def _strings(value: object) -> Iterable[str]:
             yield from _strings(item)
 
 
-def validate_registry(data: object) -> list[str]:
+def validate_registry(
+    data: object,
+    *,
+    snapshot: RegistrySnapshot | None = None,
+) -> list[str]:
     failures: list[str] = []
     if not isinstance(data, dict):
         return ["<root>: registry must be a mapping"]
@@ -96,8 +109,8 @@ def validate_registry(data: object) -> list[str]:
                 failures.append(f"backends/{backend_id}/capability_key: expected string or null")
 
     try:
-        supported_codes = set(registered_codes())
-    except (OSError, RuntimeError, ValueError, yaml.YAMLError) as exc:
+        supported_codes = set(registered_codes(snapshot))
+    except (OSError, RuntimeError, RegistrySnapshotError, ValueError) as exc:
         failures.append(f"software-registry: {exc}")
         supported_codes = set()
 

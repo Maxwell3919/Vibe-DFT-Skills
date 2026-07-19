@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gaussian Rigorous Calculations"
+  short_description: "Resolve, plan, and audit Gaussian 16 evidence safely"
+  default_prompt: "Use $gaussian-rigorous-calculations to resolve this Gaussian 16 request against the public first-party feature catalog, select a documented recipe when needed, and apply the offline evidence gates. Keep native execution unauthorized and distinguish documented, guard-supported, and native-validated states."

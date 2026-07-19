@@ -1,0 +1,21 @@
+{
+  "changed_files": [
+    "skills/gaussian-rigorous-calculations/SKILL.md",
+    "skills/gaussian-rigorous-calculations/examples/request-minimum.json",
+    "skills/gaussian-rigorous-calculations/examples/synthetic-execution-record.json",
+    "skills/gaussian-rigorous-calculations/examples/synthetic-minimum.gjf",
+    "skills/gaussian-rigorous-calculations/examples/synthetic-minimum.log",
+    "skills/gaussian-rigorous-calculations/references/calling-and-recipes.md",
+    "skills/gaussian-rigorous-calculations/references/environment-and-license.md",
+    "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+    "skills/gaussian-rigorous-calculations/references/fail-closed-contract.md",
+    "skills/gaussian-rigorous-calculations/references/official-sources.md",
+    "skills/gaussian-rigorous-calculations/references/parser-boundary.md",
+    "skills/gaussian-rigorous-calculations/references/task-recipes.json",
+    "skills/gaussian-rigorous-calculations/references/task-evidence-profiles.json",
+    "skills/gaussian-rigorous-calculations/references/weak-model-decision-table.json",
+    "skills/gaussian-rigorous-calculations/scripts/gaussian_guard.py",
+    "skills/gaussian-rigorous-calculations/tests/test_gaussian_guard.py",
+    "skills/gaussian-rigorous-calculations/validation-files.json"
+  ]
+}

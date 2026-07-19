@@ -1,0 +1,9 @@
+# Project-authored GPUMD v5.3 syntax fixture. It has never been executed.
+potential lj.txt
+velocity 300 seed 20260719
+time_step 1.0
+ensemble nve
+dump_thermo 2
+dump_restart 4
+dump_xyz -1 0 4 trajectory.xyz mass velocity force unwrapped_position
+run 12

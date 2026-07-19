@@ -1,0 +1,44 @@
+schema_version: "1.1"
+candidate_lifecycle: {claim_ceiling: no_positive_claim, promotion_authorized: false, execution_authorized: false}
+dimensions:
+  documentation: [unresolved, official-feature-listed, official-tutorial-recipe, documentation-conflict]
+  deterministic_adapter: [design-only, synthetic-validated, format-fixture-validated, real-artifact-validated]
+  native_execution: [not-run, help-version-tested, public-smoke-tested, real-artifact-tested]
+documentation_routes:
+  official-feature-catalog:
+    maturity: official-feature-listed
+    coverage: {categories: 25, tasks: 174, top-level-only-categories: 4}
+    source: references/official-task-catalog.json
+    independent_id_set_comparison: pass
+  high-use-recipes:
+    maturity: official-tutorial-recipe
+    source: references/task-recipes.json
+    limitation: "Recipe coverage is task-specific; a missing recipe remains blocked even when the feature page lists the task."
+  conflicting-task-identities:
+    maturity: documentation-conflict
+    tasks: [109, 604, 710-713, 926]
+    blocker: "Inspect the exact installed binary menu and transcript before automation."
+adapter_routes:
+  source-record-audit: {maturity: synthetic-validated, fixture: examples/synthetic-source.json}
+  menu-211-plan-1.5.0: {maturity: synthetic-validated, fixture: examples/synthetic-211-transcript.txt}
+  menu-252-plan-1.5.0: {maturity: synthetic-validated}
+  menu-1.5.1: {maturity: design-only, blocker: "No version-specific private transcript or binary digest is bundled."}
+  band-table-parser: {maturity: synthetic-validated, fixture: examples/synthetic-BAND.dat}
+  spin-polarized-layout: {maturity: design-only, blocker: "No explicit spin-channel table contract or fixture is bundled."}
+  projected-band-parser: {maturity: design-only, blocker: "Selectors, weights, spin layouts, and projection closure are not parser-validated."}
+native_execution:
+  current_state: not-run
+  checked_date: "2026-07-18"
+  reason: "No vaspkit executable was found in the maintainer PATH."
+promotion_requirements:
+  real-artifact-validated:
+    - authorized-private-vaspkit-output
+    - exact-parent-vasp-hashes
+    - negative-real-artifact
+    - version-boundary-case
+  native-real-artifact-tested:
+    - current-terms-review
+    - package-and-binary-digests
+    - exact-platform-banner-help-and-menu
+    - isolated-menu-regression
+    - side-effect-and-overwrite-regression

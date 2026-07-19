@@ -1,0 +1,29 @@
+{
+  "contract_name": "structure-preparation-input",
+  "schema_version": "1.0",
+  "structure_id": "disordered-site-fixture",
+  "structure_kind": "periodic-crystal",
+  "pbc": [true, true, true],
+  "cell_ang": [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]],
+  "sites": [
+    {
+      "site_id": "mixed-0",
+      "species": [
+        {"element": "Fe", "occupancy": 0.5},
+        {"element": "Co", "occupancy": 0.5}
+      ],
+      "fractional": [0.0, 0.0, 0.0],
+      "cartesian_ang": [0.0, 0.0, 0.0]
+    }
+  ],
+  "symmetry": {
+    "status": "unresolved",
+    "number": null,
+    "symbol": null,
+    "tolerance_ang": null,
+    "backend": null,
+    "backend_version": null
+  },
+  "charge_state": {"status": "known", "net_charge_e": 0},
+  "spin_state": {"status": "not-assessed", "multiplicity": null}
+}

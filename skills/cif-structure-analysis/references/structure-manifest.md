@@ -6,7 +6,11 @@
 
 - `manifest_id` is derived from the source CIF SHA-256 prefix and selected data-block index.
 - `source` records only a safe file label, syntax family, byte count, SHA-256, and selected block. It must not contain an absolute path.
-- `structure_identity` is an ordered cell-and-site fingerprint. It is deliberately not invariant to site ordering, origin shifts, basis changes, symmetry standardization, or supercells; read `equivalence_scope` before comparing fingerprints.
+- `structure_identity` is an ordered cell-and-site fingerprint. New producer output includes the exact `fingerprint_input`: cell vectors rounded to 10 decimal places, PBC flags, and ordered atomic numbers with wrapped fractional coordinates rounded to 10 decimal places.
+- `canonicalization=json-sort-keys-compact-utf8-v1` means serialize that input as UTF-8 JSON with lexicographically sorted object keys, `,` and `:` separators, no insignificant whitespace, JSON booleans, and finite JSON numbers, then take SHA-256. Do not hash the pretty-printed manifest bytes or reconstruct hidden ASE precision.
+- The bundle semantic gate also compares the preimage with the published six-decimal `structure.cell.vectors_ang` and ordered `structure.sites` after six-decimal quantization and periodic wrapping. Replacing both the preimage and its hash therefore does not establish consistency.
+- The preimage and canonicalization fields are paired but optional for backward schema compatibility. An older record without them passes identity verification only when its v1 hash is reproducible from the published structure payload; otherwise it is `blocked` as unverifiable, never accepted as a positive result.
+- The fingerprint is deliberately not invariant to site ordering, origin shifts, basis changes, symmetry standardization, or supercells; read `equivalence_scope` before comparing fingerprints.
 - `provenance.command` uses placeholders rather than the local input/output paths. Exact analysis options and dependency versions remain available separately.
 
 ## Status

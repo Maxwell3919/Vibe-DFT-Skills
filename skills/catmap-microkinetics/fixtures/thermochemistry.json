@@ -1,0 +1,110 @@
+{
+  "barriers": [
+    {
+      "forward_barrier_eV": 0.2,
+      "provenance_id": "synthetic-barrier-r1",
+      "reaction_id": "r1",
+      "reverse_barrier_eV": 0.7
+    },
+    {
+      "forward_barrier_eV": 0.6,
+      "provenance_id": "synthetic-barrier-r2",
+      "reaction_id": "r2",
+      "reverse_barrier_eV": 0.3
+    },
+    {
+      "forward_barrier_eV": 0.4,
+      "provenance_id": "synthetic-barrier-r3",
+      "reaction_id": "r3",
+      "reverse_barrier_eV": 0.1
+    }
+  ],
+  "conditions": {
+    "gas_pressures_bar": {
+      "I_g": 1.0,
+      "P_g": 0.1
+    },
+    "temperature_K": 500.0
+  },
+  "contract_name": "thermochemistry-dataset-candidate",
+  "corrections": [
+    {
+      "components_eV": {
+        "electronic": 0.0,
+        "enthalpy": 0.0,
+        "minus_t_s": 0.0,
+        "zero_point": 0.0
+      },
+      "free_energy_eV": 0.0,
+      "provenance_id": "synthetic-correction-Ig",
+      "species_id": "I_g"
+    },
+    {
+      "components_eV": {
+        "electronic": 0.1,
+        "enthalpy": 0.0,
+        "minus_t_s": 0.0,
+        "zero_point": 0.0
+      },
+      "free_energy_eV": 0.1,
+      "provenance_id": "synthetic-correction-Pg",
+      "species_id": "P_g"
+    },
+    {
+      "components_eV": {
+        "electronic": 0.0,
+        "enthalpy": 0.0,
+        "minus_t_s": 0.0,
+        "zero_point": 0.0
+      },
+      "free_energy_eV": 0.0,
+      "provenance_id": "synthetic-correction-star",
+      "species_id": "star"
+    },
+    {
+      "components_eV": {
+        "electronic": -0.6,
+        "enthalpy": 0.02,
+        "minus_t_s": 0.03,
+        "zero_point": 0.05
+      },
+      "free_energy_eV": -0.5,
+      "provenance_id": "synthetic-correction-Istar",
+      "species_id": "I_star"
+    },
+    {
+      "components_eV": {
+        "electronic": -0.3,
+        "enthalpy": 0.02,
+        "minus_t_s": 0.04,
+        "zero_point": 0.04
+      },
+      "free_energy_eV": -0.2,
+      "provenance_id": "synthetic-correction-Pstar",
+      "species_id": "P_star"
+    }
+  ],
+  "evidence_class": "synthetic-fixture",
+  "network_sha256": "c5f2794fcc07f9dc7f89847fa273f2d8158521e82feda3c8a7b52e8c4f108bef",
+  "reference_state": {
+    "description": "Original synthetic formation-energy reference shared by all species.",
+    "energy_zero": "declared-synthetic-formation-reference",
+    "pressure_standard_bar": 1.0
+  },
+  "schema_version": "1.0",
+  "species_free_energies_eV": {
+    "I_g": 0.0,
+    "I_star": -0.5,
+    "P_g": 0.1,
+    "P_star": -0.2,
+    "star": 0.0
+  },
+  "thermochemistry_id": "synthetic-thermochemistry-001",
+  "units": {
+    "coverage": "fraction_of_site",
+    "energy": "eV",
+    "pressure": "bar",
+    "rate": "site^-1 s^-1",
+    "temperature": "K"
+  }
+}

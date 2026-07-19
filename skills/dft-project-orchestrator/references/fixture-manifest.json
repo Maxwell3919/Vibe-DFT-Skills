@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {
+      "fixture_id": "orchestrator-ready-plan",
+      "path": "fixtures/ready-plan.json",
+      "origin": "project-authored synthetic record",
+      "contains_third_party_content": false,
+      "contains_real_research_data": false,
+      "sensitivity": "public",
+      "redistribution_status": "maintainer-controlled-original",
+      "purpose": "positive plan and next-action validation"
+    },
+    {
+      "fixture_id": "orchestrator-cycle-plan",
+      "path": "fixtures/cycle-plan.json",
+      "origin": "project-authored synthetic mutation",
+      "contains_third_party_content": false,
+      "contains_real_research_data": false,
+      "sensitivity": "public",
+      "redistribution_status": "maintainer-controlled-original",
+      "purpose": "adversarial dependency-cycle rejection"
+    },
+    {
+      "fixture_id": "orchestrator-weak-model-decision-table",
+      "path": "references/weak-model-decision-table.json",
+      "origin": "project-authored synthetic policy projection",
+      "contains_third_party_content": false,
+      "contains_real_research_data": false,
+      "sensitivity": "public",
+      "redistribution_status": "maintainer-controlled-original",
+      "purpose": "canonical fail-closed first-match routing for weak-model acceptance tests"
+    }
+  ],
+  "legal_note": "Fixtures are original synthetic metadata and contain no copied software output, pseudopotential, credential, private path, or external repository content. Repository maintainers retain responsibility for the repository-wide license and redistribution decision."
+}

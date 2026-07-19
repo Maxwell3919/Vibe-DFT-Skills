@@ -1,0 +1,17 @@
+{
+  "current": "synthetic-validated",
+  "levels": [
+    {"name": "design-only", "requirement": "workflow and fail-closed contract"},
+    {"name": "format-fixture-validated", "requirement": "legal project-authored syntax fixtures and unit tests"},
+    {"name": "synthetic-validated", "requirement": "full offline synthetic pipeline and adversarial tests"},
+    {"name": "real-artifact-validated", "requirement": "legal version-matched GPUMD artifacts with independent expected values"},
+    {"name": "execution-validated", "requirement": "authorized supported-GPU integration and environment capture"},
+    {"name": "activation-ready", "requirement": "license/interface alignment, red-team acceptance, registry promotion and installation verification"}
+  ],
+  "unmet_for_activation": [
+    "No legal independently generated v5.3 real-artifact corpus is committed.",
+    "No authorized GPU integration has been performed.",
+    "Planned registry license and exact source-header SPDX conclusions differ.",
+    "Shared simulation-manifest and trajectory handoff must be atomically verified at promotion."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "software": "LAMMPS",
+  "expected_version": "4Jul2026",
+  "expected_banner": "LAMMPS (4 Jul 2026)",
+  "probe_date": "2026-07-19",
+  "platform": "Darwin arm64",
+  "state": "native-not-run",
+  "executable_probe": {
+    "names": ["lmp", "lmp_serial", "lmp_mpi", "lammps", "lmp_mac", "lmp_omp"],
+    "resolved": [],
+    "help_command_run": false,
+    "official_example_run": false
+  },
+  "python_distribution_probe": {"lammps": "not-installed"},
+  "package_manager_probe": {"homebrew_formula": "not-installed"},
+  "reason": "No common executable resolved, so provider help/import/official smoke execution was not attempted.",
+  "claim_boundary": "This is fresh absence evidence for one host and shell only; it is not evidence about another environment."
+}

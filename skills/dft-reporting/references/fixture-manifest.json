@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {
+      "label": "valid-claim-map.json",
+      "origin": "repository-authored synthetic metadata",
+      "redistribution": "redistributable",
+      "contains_real_scientific_result": false,
+      "expected": "shared-schema valid and candidate plan pass"
+    },
+    {
+      "label": "valid-report-request.json",
+      "origin": "repository-authored synthetic metadata",
+      "redistribution": "redistributable",
+      "contains_real_scientific_result": false,
+      "expected": "plan, audit, and render-package pass locally"
+    },
+    {
+      "label": "references/weak-model-decision-table.json",
+      "origin": "repository-authored canonical candidate-decision-table@1.0",
+      "redistribution": "redistributable",
+      "contains_real_scientific_result": false,
+      "expected": "standard contract validation passes; priorities are contiguous and final default fails closed without required evidence"
+    }
+  ],
+  "adversarial_cases_generated_in_tests": [
+    "duplicate key", "BOM", "NaN", "symlink", "hash mismatch", "unsupported claim",
+    "missing evidence", "non-passing gate", "private path", "output overwrite",
+    "stale or forged pass audit", "path replacement during file-descriptor read",
+    "intermediate-directory symlink swap and request/evidence base replacement",
+    "FIFO nonblocking rejection", "staging-name substitution and late-target creation",
+    "write, file-fsync, and directory-fsync failure rollback",
+    "hard-link output alias", "positive upstream claim"
+  ]
+}

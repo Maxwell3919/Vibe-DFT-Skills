@@ -11,33 +11,67 @@ from typing import Any
 from . import __version__
 
 
+FINGERPRINT_ALGORITHM = "sha256-ordered-cell-sites-v1"
+FINGERPRINT_CANONICALIZATION = "json-sort-keys-compact-utf8-v1"
+FINGERPRINT_DECIMAL_PLACES = 10
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def ordered_structure_fingerprint(atoms: Any) -> dict[str, str]:
-    payload = {
+def ordered_structure_fingerprint_input(atoms: Any) -> dict[str, Any]:
+    """Return the exact JSON-shaped preimage used by the v1 fingerprint."""
+
+    return {
         "cell_vectors_ang": [
-            [round(float(value), 10) for value in row] for row in atoms.cell.array
+            [round(float(value), FINGERPRINT_DECIMAL_PLACES) for value in row]
+            for row in atoms.cell.array
         ],
         "pbc": [bool(value) for value in atoms.get_pbc()],
         "sites": [
             {
                 "atomic_number": int(number),
-                "fractional": [round(float(value) % 1.0, 10) for value in position],
+                "fractional": [
+                    round(
+                        float(value) % 1.0,
+                        FINGERPRINT_DECIMAL_PLACES,
+                    )
+                    for value in position
+                ],
             }
             for number, position in zip(
                 atoms.get_atomic_numbers(), atoms.get_scaled_positions(wrap=True)
             )
         ],
     }
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+
+def fingerprint_value(fingerprint_input: dict[str, Any]) -> str:
+    """Hash the v1 preimage with the frozen compact sorted-key JSON rule."""
+
+    canonical = json.dumps(
+        fingerprint_input,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def ordered_structure_fingerprint(atoms: Any) -> dict[str, Any]:
+    payload = ordered_structure_fingerprint_input(atoms)
     return {
-        "algorithm": "sha256-ordered-cell-sites-v1",
-        "value": hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
+        "algorithm": FINGERPRINT_ALGORITHM,
+        "value": fingerprint_value(payload),
+        "canonicalization": FINGERPRINT_CANONICALIZATION,
+        "fingerprint_input": payload,
         "equivalence_scope": (
-            "same ordered atomic numbers, wrapped fractional coordinates, cell vectors, and PBC "
-            "after decimal normalization; not invariant to origin, basis, symmetry, or supercell"
+            "same ordered atomic numbers, cell vectors, PBC, and wrapped fractional "
+            "coordinates after rounding to 10 decimal places and compact sorted-key "
+            "UTF-8 JSON canonicalization; not invariant to origin, basis, symmetry, "
+            "or supercell"
         ),
     }
 

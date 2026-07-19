@@ -1,0 +1,98 @@
+schema_version: "1.1"
+software: vaspkit
+checked_date: "2026-07-18"
+documentation_series: "1.5"
+sources:
+  - id: official-overview
+    authority: official-project-documentation
+    url: "https://vaspkit.com/"
+    supports:
+      - interactive-launch
+      - command-line-mode
+      - version-1.5.0-banner-example
+      - top-level-menu-families
+  - id: official-features
+    authority: official-project-documentation
+    url: "https://vaspkit.com/features.html"
+    raw_url: "https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/master/_sources/features.rst.txt"
+    documentation_repository: "https://github.com/vaspkit/vaspkit.github.io"
+    documentation_commit: "383a7103505b5b9436dedbf04df42ebb6e248638"
+    raw_sha256: "454271ce1eab377a1a5539dab52e16b8aaec8e1413d0f739fa12840608772ccd"
+    supports:
+      - 25-enumerated-feature-families
+      - 174-feature-page-task-ids
+      - task-id-purpose-catalog
+    limitation: "The feature page is a capability index, not an exact prompt or output transcript."
+  - id: official-tutorials
+    authority: official-project-documentation
+    url: "https://vaspkit.com/tutorials.html"
+    raw_url: "https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/master/_sources/tutorials.rst.txt"
+    documentation_repository: "https://github.com/vaspkit/vaspkit.github.io"
+    documentation_commit: "383a7103505b5b9436dedbf04df42ebb6e248638"
+    raw_sha256: "5a3f882c267b8da23d029861b9cbde3b9213f31e551b12df5e4bdc86e0bf6c59"
+    supports:
+      - five-invocation-modes
+      - task-102-flags-and-stdin
+      - kpath-workflows
+      - dos-and-pdos-workflows
+      - conventional-and-hybrid-band-workflows
+      - charge-and-potential-workflows
+      - d-band-center-workflow
+      - optical-workflow
+      - molecular-dynamics-workflow
+      - semiconductor-workflows
+      - structure-and-symmetry-workflows
+    limitation: "The official page warns that tutorial guidance is not guaranteed to be scientifically certified."
+  - id: official-installation
+    authority: official-project-documentation
+    url: "https://vaspkit.com/installation.html"
+    supports:
+      - usage-agreement
+      - binary-distribution-model
+      - supported-platforms
+      - python-numpy-scipy-matplotlib-dependencies
+      - dot-vaspkit-configuration
+      - potential-library-settings
+      - fermi-shift-and-plot-settings
+  - id: official-release-notes
+    authority: official-project-documentation
+    url: "https://vaspkit.com/changelog.html"
+    supports:
+      - version-sensitive-bug-history
+  - id: official-binary-archive
+    authority: official-project-download-linked-from-installation
+    url: "https://sourceforge.net/projects/vaspkit/files/Binaries/"
+    supports:
+      - version-1.5.1-linux-x64-archive
+      - version-1.5.0-linux-x64-archive
+      - version-1.5.0-macos-intel-archive
+      - release-dates
+  - id: official-nature-protocols-2025
+    authority: peer-reviewed-protocol-by-vaspkit-authors
+    url: "https://doi.org/10.1038/s41596-025-01160-w"
+    bibliographic_identity: "Geng et al., Nature Protocols 20, 3143-3169 (2025)"
+    published_date: "2025-04-23"
+    supports:
+      - comprehensive-practical-protocol
+      - preprocessing-and-postprocessing-workflow
+      - example-scope-and-companion-data-link
+    limitation: "The full article may require institutional or paid access; this repository does not reproduce its text."
+  - id: official-nature-protocols-examples
+    authority: official-vaspkit-organization-companion-repository
+    url: "https://github.com/vaspkit/VASPKIT_NatureProtocols"
+    commit: "540333475cc602b0d32263bff32e00198bc6c02b"
+    supports:
+      - public-example-input-layouts
+      - nature-protocols-companion-data
+    limitation: "The repository provides examples, not a substitute for an installed binary or accepted VASP parent calculation."
+policy:
+  first_party_manual_required: true
+  exact_binary_digest_required_for_native_claim: true
+  documentation-series-is-not-exact-binary-identity: true
+  feature-listing-is-not-a-recipe: true
+  recipe-is-not-native-execution: true
+  official-documentation-conflict-requires-binary-inspection: true
+  terms-must-be-reviewed-at-use-time: true
+  no-binary-or-license-acceptance-committed: true
+  native_validation_state: not_run
+  native_validation_reason: "No vaspkit executable was found in the maintainer PATH on 2026-07-18."

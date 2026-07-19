@@ -1,0 +1,634 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:structure-snapshot:1.0",
+  "title": "Tool-agnostic ordered atomistic structure snapshot",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "snapshot_id",
+  "$comment": "Draft validation establishes structural conformance only. Every x-vibe-semantic-obligations entry must be evaluated externally; a failed or unresolved obligation blocks the listed readiness and positive claims.",
+  "x-vibe-semantic-obligations": [
+    {
+      "finding_id": "structure-site-identity-not-unique",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Every site_id is unique and every ordinal occurs exactly once in the contiguous range zero through site count minus one.",
+      "evidence_required": ["parsed-site-table", "site-id-set", "ordinal-sequence"]
+    },
+    {
+      "finding_id": "structure-composition-site-mismatch",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Formula, element site counts, and occupancy sums equal values recomputed from sites under the declared composition convention.",
+      "evidence_required": ["parsed-site-table", "recomputed-element-counts", "recomputed-occupancy-sums", "canonical-formula"]
+    },
+    {
+      "finding_id": "structure-periodicity-cell-mismatch",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Structure kind, periodic dimensions, PBC vector, cell presence, cell rank, and a nonsingular cell agree.",
+      "evidence_required": ["periodicity-declaration", "pbc-vector", "cell-rank", "cell-determinant"]
+    },
+    {
+      "finding_id": "structure-coordinate-representation-mismatch",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "For periodic structures each fractional coordinate maps to its Cartesian coordinate through the declared cell within an explicit tolerance.",
+      "evidence_required": ["cell-vectors", "fractional-coordinates", "cartesian-coordinates", "coordinate-residuals", "comparison-tolerance"]
+    },
+    {
+      "finding_id": "structure-charge-spin-electron-parity-mismatch",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Resolved nuclear charges and net charge imply an electron count compatible with the declared multiplicity or total magnetization convention.",
+      "evidence_required": ["atomic-number-sum", "net-charge", "electron-count-derivation", "spin-state"]
+    },
+    {
+      "finding_id": "structure-identity-fingerprint-mismatch",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "The canonical structure digest and site-order digest recomputed with the declared algorithm and precision equal identity.value and identity.site_order_sha256.",
+      "evidence_required": ["canonical-structure-payload", "canonical-structure-digest", "canonical-site-order-digest"]
+    },
+    {
+      "finding_id": "record-reference-dag-invalid",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Every recordRef resolves to an already existing bundle-local UTF-8 JSON target by exact raw-byte SHA-256; self-reference, forward or back edges outside the declared topological order, cycles, and upstream references to post-record validation, claim, or decision records are forbidden.",
+      "evidence_required": ["bundle-record-index", "raw-byte-sha256-check", "record-reference-dag-topological-order"]
+    }
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "snapshot_id",
+    "structure_kind",
+    "periodicity",
+    "cell",
+    "sites",
+    "composition",
+    "charge_state",
+    "spin_state",
+    "constraints",
+    "identity",
+    "source_refs",
+    "source_files",
+    "calculation_readiness",
+    "validation",
+    "maturity",
+    "provenance",
+    "limitations",
+    "extension_refs"
+  ],
+  "properties": {
+    "contract_name": {"const": "structure-snapshot"},
+    "schema_version": {"const": "1.0"},
+    "snapshot_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "structure_kind": {
+      "enum": [
+        "periodic-crystal",
+        "periodic-slab",
+        "periodic-wire",
+        "isolated-molecule",
+        "isolated-cluster"
+      ]
+    },
+    "periodicity": {"$ref": "#/$defs/periodicity"},
+    "cell": {"$ref": "#/$defs/cell"},
+    "sites": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/site"}
+    },
+    "composition": {"$ref": "#/$defs/composition"},
+    "charge_state": {"$ref": "#/$defs/chargeState"},
+    "spin_state": {"$ref": "#/$defs/spinState"},
+    "constraints": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/constraint"}
+    },
+    "identity": {"$ref": "#/$defs/identity"},
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+      }
+    },
+    "source_files": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"
+      }
+    },
+    "calculation_readiness": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/readiness"
+    },
+    "validation": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"
+    },
+    "maturity": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/maturity"
+    },
+    "provenance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "extension_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+      }
+    }
+  },
+  "anyOf": [
+    {"properties": {"source_refs": {"minItems": 1}}},
+    {"properties": {"source_files": {"minItems": 1}}}
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "structure_kind": {
+            "enum": ["isolated-molecule", "isolated-cluster"]
+          }
+        },
+        "required": ["structure_kind"]
+      },
+      "then": {
+        "properties": {
+          "periodicity": {
+            "properties": {
+              "dimensions": {"const": 0},
+              "boundary_condition": {"const": "isolated"},
+              "pbc": {"const": [false, false, false]}
+            }
+          },
+          "cell": {
+            "properties": {
+              "status": {"const": "not-applicable"},
+              "vectors_ang": {"type": "null"},
+              "rank": {"const": 0}
+            }
+          },
+          "sites": {
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/site"},
+                {"properties": {"fractional": {"type": "null"}}}
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"structure_kind": {"const": "periodic-wire"}},
+        "required": ["structure_kind"]
+      },
+      "then": {
+        "properties": {
+          "periodicity": {
+            "properties": {
+              "dimensions": {"const": 1},
+              "boundary_condition": {"const": "wire-1d"},
+              "pbc": {"contains": {"const": true}, "minContains": 1, "maxContains": 1}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"structure_kind": {"const": "periodic-slab"}},
+        "required": ["structure_kind"]
+      },
+      "then": {
+        "properties": {
+          "periodicity": {
+            "properties": {
+              "dimensions": {"const": 2},
+              "boundary_condition": {"const": "slab-2d"},
+              "pbc": {"contains": {"const": true}, "minContains": 2, "maxContains": 2}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"structure_kind": {"const": "periodic-crystal"}},
+        "required": ["structure_kind"]
+      },
+      "then": {
+        "properties": {
+          "periodicity": {
+            "properties": {
+              "dimensions": {"const": 3},
+              "boundary_condition": {"const": "periodic-3d"},
+              "pbc": {"const": [true, true, true]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "periodicity": {
+            "properties": {"dimensions": {"minimum": 1}},
+            "required": ["dimensions"]
+          }
+        },
+        "required": ["periodicity"]
+      },
+      "then": {
+        "properties": {
+          "cell": {
+            "properties": {
+              "status": {"const": "present"},
+              "vectors_ang": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/matrix3"
+              },
+              "rank": {"const": 3}
+            }
+          },
+          "sites": {
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/site"},
+                {
+                  "properties": {
+                    "fractional": {
+                      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/vector3"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "sites": {
+            "contains": {
+              "properties": {
+                "ordering_state": {
+                  "enum": ["partial-occupancy", "disordered"]
+                }
+              },
+              "required": ["ordering_state"]
+            }
+          }
+        },
+        "required": ["sites"]
+      },
+      "then": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "charge_state": {
+            "properties": {"status": {"const": "unknown"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["charge_state"]
+      },
+      "then": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "spin_state": {
+            "properties": {"status": {"const": "unknown"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["spin_state"]
+      },
+      "then": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "ready"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["calculation_readiness"]
+      },
+      "then": {
+        "properties": {
+          "validation": {"properties": {"status": {"const": "pass"}}},
+          "sites": {
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/site"},
+                {"properties": {"ordering_state": {"const": "ordered"}}}
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "periodicity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dimensions", "pbc", "boundary_condition"],
+      "properties": {
+        "dimensions": {"type": "integer", "minimum": 0, "maximum": 3},
+        "pbc": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "boolean"}
+        },
+        "boundary_condition": {
+          "enum": ["isolated", "wire-1d", "slab-2d", "periodic-3d"]
+        }
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "vectors_ang", "rank"],
+      "properties": {
+        "status": {"enum": ["present", "not-applicable"]},
+        "vectors_ang": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/matrix3"
+            },
+            {"type": "null"}
+          ]
+        },
+        "rank": {"type": "integer", "minimum": 0, "maximum": 3}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "present"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "vectors_ang": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/matrix3"
+              },
+              "rank": {"const": 3}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "not-applicable"}}, "required": ["status"]},
+          "then": {
+            "properties": {"vectors_ang": {"type": "null"}, "rank": {"const": 0}}
+          }
+        }
+      ]
+    },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "site_id",
+        "ordinal",
+        "element",
+        "atomic_number",
+        "isotope",
+        "occupancy",
+        "ordering_state",
+        "cartesian_ang",
+        "fractional",
+        "formal_charge_e",
+        "magnetic_moment_mu_b"
+      ],
+      "properties": {
+        "site_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "ordinal": {"type": "integer", "minimum": 0},
+        "element": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/elementSymbol"
+        },
+        "atomic_number": {"type": "integer", "minimum": 1, "maximum": 118},
+        "isotope": {"type": ["integer", "null"], "minimum": 1},
+        "occupancy": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "ordering_state": {"enum": ["ordered", "partial-occupancy", "disordered"]},
+        "cartesian_ang": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/vector3"
+        },
+        "fractional": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/vector3"
+            },
+            {"type": "null"}
+          ]
+        },
+        "formal_charge_e": {"type": ["number", "null"]},
+        "magnetic_moment_mu_b": {"type": ["number", "null"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"ordering_state": {"const": "ordered"}}, "required": ["ordering_state"]},
+          "then": {"properties": {"occupancy": {"const": 1}}}
+        },
+        {
+          "if": {"properties": {"ordering_state": {"const": "partial-occupancy"}}, "required": ["ordering_state"]},
+          "then": {"properties": {"occupancy": {"exclusiveMaximum": 1}}}
+        }
+      ]
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formula", "elements"],
+      "properties": {
+        "formula": {"type": "string", "minLength": 1},
+        "elements": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["element", "site_count", "occupancy_sum"],
+            "properties": {
+              "element": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/elementSymbol"
+              },
+              "site_count": {"type": "integer", "minimum": 1},
+              "occupancy_sum": {"type": "number", "exclusiveMinimum": 0}
+            }
+          }
+        }
+      }
+    },
+    "chargeState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "net_charge_e", "source", "evidence_refs"],
+      "properties": {
+        "status": {"enum": ["known", "unknown", "not-applicable"]},
+        "net_charge_e": {"type": ["number", "null"]},
+        "source": {"enum": ["user", "source-record", "derived", "not-available"]},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "known"}}, "required": ["status"]},
+          "then": {"properties": {"net_charge_e": {"type": "number"}}}
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["unknown", "not-applicable"]}}, "required": ["status"]},
+          "then": {"properties": {"net_charge_e": {"type": "null"}}}
+        }
+      ]
+    },
+    "spinState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "multiplicity",
+        "total_magnetization_mu_b",
+        "source",
+        "evidence_refs"
+      ],
+      "properties": {
+        "status": {"enum": ["known", "unknown", "not-applicable"]},
+        "multiplicity": {"type": ["integer", "null"], "minimum": 1},
+        "total_magnetization_mu_b": {"type": ["number", "null"]},
+        "source": {"enum": ["user", "source-record", "derived", "not-available"]},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "known"}}, "required": ["status"]},
+          "then": {
+            "anyOf": [
+              {"properties": {"multiplicity": {"type": "integer", "minimum": 1}}},
+              {"properties": {"total_magnetization_mu_b": {"type": "number"}}}
+            ]
+          }
+        },
+        {
+          "if": {"properties": {"status": {"enum": ["unknown", "not-applicable"]}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "multiplicity": {"type": "null"},
+              "total_magnetization_mu_b": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "kind", "site_ids", "axes", "parameters", "source_ref"],
+      "properties": {
+        "constraint_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "kind": {
+          "enum": ["fixed-position", "fixed-axis", "fixed-cell", "collective-coordinate", "other-registered"]
+        },
+        "site_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          },
+          "uniqueItems": true
+        },
+        "axes": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {"type": "boolean"}
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/parameterRecord"
+          }
+        },
+        "source_ref": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+            },
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value",
+        "canonicalization",
+        "coordinate_precision_ang",
+        "site_order_sha256"
+      ],
+      "properties": {
+        "algorithm": {"const": "sha256-canonical-ordered-structure-v1"},
+        "value": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "canonicalization": {"const": "ordered-sites-cartesian-cell-v1"},
+        "coordinate_precision_ang": {"type": "number", "exclusiveMinimum": 0},
+        "site_order_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    }
+  }
+}

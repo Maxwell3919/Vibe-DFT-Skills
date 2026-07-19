@@ -1,0 +1,202 @@
+{
+  "recipe_contract": "provider-task-recipes@1.0",
+  "retrieved_on": "2026-07-19",
+  "execution_policy": {
+    "execution_authorized": false,
+    "native_validation": "native-not-run",
+    "meaning": "These are first-party-documented handoff recipes. They do not authorize a licensed command, add guard support, or prove compatibility."
+  },
+  "recipes": [
+    {
+      "recipe_id": "gaussian.run.by-job-name@G16-C.02",
+      "purpose": "Run one already-audited Gaussian input using the documented basename interface.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": [
+        "Exact Gaussian 16 revision, entitlement, platform support, shell setup, and scratch policy are attested",
+        "job-name.gjf bytes and resource request are audited and authorized",
+        "job-name.log and checkpoint destinations do not alias evidence inputs"
+      ],
+      "input_contract": {
+        "files": ["job-name.gjf"],
+        "required_identity": ["input SHA-256", "byte count", "plan SHA-256", "environment SHA-256", "authorization SHA-256"]
+      },
+      "invocation": {
+        "kind": "argv",
+        "argv": ["g16", "job-name"],
+        "stdin_path": null,
+        "stdout_path": "job-name.log"
+      },
+      "expected_outputs": ["job-name.log", "declared checkpoint/scratch artifacts only"],
+      "success_signals": ["authorized process exit record", "matching Gaussian 16 revision in bound output", "Normal termination of Gaussian 16", "task-specific completion markers"],
+      "failure_semantics": ["Any missing identity/authorization blocks launch", "Error termination, nonzero platform exit, revision mismatch, or incomplete task blocks acceptance", "Output-file existence alone is not success"],
+      "restart_semantics": "Do not rerun blindly over prior outputs; choose the documented task-specific restart only after binding parent artifacts.",
+      "scientific_acceptance": ["Apply the selected task profile", "Convergence and model-chemistry adequacy remain independent"],
+      "source_ids": ["g16-running", "g16-input", "g16-route"]
+    },
+    {
+      "recipe_id": "gaussian.run.redirected@G16-C.02",
+      "purpose": "Run one already-audited input with explicit stdin/stdout file binding.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["All basename-recipe environment, entitlement, input, output, and authorization gates pass"],
+      "input_contract": {
+        "files": ["case.gjf"],
+        "required_identity": ["input SHA-256", "planned output label", "environment and authorization hashes"]
+      },
+      "invocation": {
+        "kind": "stdin-stdout-redirection",
+        "argv": ["g16"],
+        "stdin_path": "case.gjf",
+        "stdout_path": "case.log"
+      },
+      "expected_outputs": ["case.log", "only explicitly declared checkpoint/scratch artifacts"],
+      "success_signals": ["bound provider revision", "normal termination", "task-specific completion evidence"],
+      "failure_semantics": ["A partial redirected log may exist after failure", "Shell success and Gaussian technical completion must be recorded separately"],
+      "restart_semantics": "Preserve the failed log and checkpoint identities; restart into new bound outputs.",
+      "scientific_acceptance": ["Never accept from process status alone"],
+      "source_ids": ["g16-running"]
+    },
+    {
+      "recipe_id": "gaussian.opt-freq.minimum@G16-C.02",
+      "purpose": "Optimize a local minimum candidate and compute same-level harmonic frequencies.",
+      "guard_support": "guard-supported-synthetic-only",
+      "execution_authorized": false,
+      "preconditions": ["Exact structure, charge, multiplicity, method, basis, resources, convergence policy, and checkpoint are frozen", "The selected model chemistry is scientifically justified and converged for the target"],
+      "input_contract": {
+        "required_route_tokens": ["<method>/<basis>", "Opt", "Freq"],
+        "required_sections": ["Link 0 if used", "route", "title", "charge/multiplicity and Cartesian or supported molecular specification"],
+        "required_identity": ["structure-manifest SHA-256", "input SHA-256", "checkpoint output label"]
+      },
+      "invocation": {
+        "kind": "provider-input-plus-run-recipe",
+        "argv": ["g16"],
+        "stdin_path": "minimum.gjf",
+        "stdout_path": "minimum.log"
+      },
+      "expected_outputs": ["bound log", "bound checkpoint when requested", "final optimized geometry evidence", "frequencies and thermochemistry requested by the route"],
+      "success_signals": ["optimization completed", "frequency section present", "normal termination", "zero meaningful imaginary frequencies for the minimum intent"],
+      "failure_semantics": ["Optimization failure blocks downstream frequency acceptance", "Any meaningful imaginary mode blocks a minimum claim", "Near-zero modes require explicit review"],
+      "restart_semantics": "Use a separately authorized Opt=Restart recipe only with the exact parent checkpoint.",
+      "scientific_acceptance": ["A local stationary point is not a global/conformer minimum", "Thermochemistry requires temperature, standard state, scaling, and low-mode policy", "Electronic-structure convergence remains observable-specific"],
+      "source_ids": ["g16-input", "g16-opt", "g16-freq"]
+    },
+    {
+      "recipe_id": "gaussian.opt.restart@G16-C.02",
+      "purpose": "Continue an interrupted optimization from its exact checkpoint lineage.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["Parent checkpoint bytes are available on the licensed platform and hash-bound", "Parent input/log/revision/environment are recorded", "The documented restart route is compatible with the parent"],
+      "input_contract": {
+        "required_route_tokens": ["Opt=Restart"],
+        "required_link0": ["%Chk=<exact parent checkpoint label>"],
+        "required_identity": ["parent checkpoint SHA-256", "parent input/output hashes", "new input hash"]
+      },
+      "invocation": {
+        "kind": "provider-input-plus-run-recipe",
+        "argv": ["g16"],
+        "stdin_path": "restart.gjf",
+        "stdout_path": "restart.log"
+      },
+      "expected_outputs": ["new bound restart log", "updated checkpoint with explicit parent-child lineage"],
+      "success_signals": ["optimization completed after restart", "normal termination", "lineage identities match"],
+      "failure_semantics": ["Missing/wrong checkpoint or incompatible restart blocks the run", "A restarted job inherits no scientific acceptance from the failed parent"],
+      "restart_semantics": "Each additional restart is a new lineage edge and requires a new authorization/output identity.",
+      "scientific_acceptance": ["Reapply final geometry and frequency gates after technical completion"],
+      "source_ids": ["g16-opt", "g16-link0", "g16-running"]
+    },
+    {
+      "recipe_id": "gaussian.ts-qst2-freq-irc@G16-C.02",
+      "purpose": "Plan a transition-structure search, stationary-point check, and two-direction reaction-path validation.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["Reactant and product structures have identical atom ordering for QST2", "Exact model chemistry and checkpoint lineage are frozen", "Each job is separately audited/authorized"],
+      "input_contract": {
+        "stages": ["Opt=QST2 transition-structure search", "same-level Freq", "IRC=RCFC or IRC=CalcFC in both directions"],
+        "required_identity": ["endpoint structure hashes", "per-stage input/output hashes", "checkpoint and Hessian lineage"]
+      },
+      "invocation": {
+        "kind": "multi-job-handoff-plan",
+        "argv": ["g16"],
+        "stdin_path": "one audited stage at a time",
+        "stdout_path": "one immutable log per stage"
+      },
+      "expected_outputs": ["transition-structure geometry", "one intended imaginary mode and eigenvector", "forward and reverse IRC paths", "identified endpoint structures"],
+      "success_signals": ["each stage normally terminates", "exactly one meaningful imaginary frequency follows the intended coordinate", "IRC branches connect the intended endpoints"],
+      "failure_semantics": ["Wrong atom ordering invalidates QST2 input", "Wrong mode count/eigenvector blocks transition-state identity", "Missing or mismatched force constants block IRC", "One-sided/unconverged/wrong-endpoint paths block reaction connectivity"],
+      "restart_semantics": "Use each task's documented restart with exact checkpoint ancestry; do not convert a partial path into a complete one by prose.",
+      "scientific_acceptance": ["Endpoint identities and competing paths require independent assessment", "Kinetic claims require additional thermodynamic/dynamic assumptions"],
+      "source_ids": ["g16-opt", "g16-freq", "g16-irc"]
+    },
+    {
+      "recipe_id": "gaussian.formchk@G16-C.02",
+      "purpose": "Convert an exact binary checkpoint to a separately identified formatted checkpoint.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["Licensed Gaussian utility is available", "Input checkpoint identity and disclosure policy are accepted", "Output path is new and private"],
+      "input_contract": {
+        "files": ["case.chk"],
+        "required_identity": ["checkpoint SHA-256", "checkpoint byte count", "parent run hash"]
+      },
+      "invocation": {
+        "kind": "argv",
+        "argv": ["formchk", "case.chk", "case.fchk"],
+        "stdin_path": null,
+        "stdout_path": null
+      },
+      "expected_outputs": ["case.fchk with separately recorded SHA-256 and byte count"],
+      "success_signals": ["zero utility exit recorded by the trusted platform", "nonempty output bound to the exact checkpoint", "format/version expectations verified by an authorized consumer"],
+      "failure_semantics": ["Missing/unreadable checkpoint or conversion error blocks use", "Output existence does not prove correct parentage"],
+      "restart_semantics": "Regenerate into a new path from the same immutable checkpoint; never overwrite evidence.",
+      "scientific_acceptance": ["Conversion adds no independent scientific evidence"],
+      "source_ids": ["g16-formchk"]
+    },
+    {
+      "recipe_id": "gaussian.cubegen-density@G16-C.02",
+      "purpose": "Generate a formatted electron-density cube from an exact formatted checkpoint.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["Authorized formatted checkpoint is bound to the accepted run", "Density selector, grid policy, units, and disclosure policy are explicit"],
+      "input_contract": {
+        "files": ["case.fchk"],
+        "quantity": "Density=SCF",
+        "grid": "npts=0 requests the documented automatic 80x80x80 grid; do not treat it as a converged visualization grid"
+      },
+      "invocation": {
+        "kind": "argv",
+        "argv": ["cubegen", "0", "Density=SCF", "case.fchk", "density.cube", "0", "h"],
+        "stdin_path": null,
+        "stdout_path": null
+      },
+      "expected_outputs": ["density.cube plus recorded quantity/grid/unit/parent metadata and file hash"],
+      "success_signals": ["utility exit record", "well-formed grid metadata", "requested quantity and parent identity match"],
+      "failure_semantics": ["Wrong selector/grid/format/parent blocks analysis", "An automatic grid is not numerical convergence evidence"],
+      "restart_semantics": "Regenerate into a new output after any selector or grid change.",
+      "scientific_acceptance": ["Record cube convention (primarily atomic units per the utility page)", "Converge the grid and isovalue/analysis procedure for quantitative claims"],
+      "source_ids": ["g16-cubegen", "g16-formchk"]
+    },
+    {
+      "recipe_id": "gaussian.version-evidence-from-bound-log@G16-C.02",
+      "purpose": "Establish provider revision from a trusted execution record and exact bound output; no undocumented --version flag is assumed.",
+      "guard_support": "guard-supported-synthetic-only",
+      "execution_authorized": false,
+      "preconditions": ["Output bytes are bound to input/environment/authorization", "The platform records the executable identity privately"],
+      "input_contract": {
+        "files": ["bound Gaussian log"],
+        "required_identity": ["output SHA-256", "environment attestation SHA-256", "execution-record SHA-256"]
+      },
+      "invocation": {
+        "kind": "offline-output-audit",
+        "argv": ["python3", "-B", "skills/gaussian-rigorous-calculations/scripts/gaussian_guard.py", "audit-run", "--input", "case.gjf", "--output", "case.log", "--plan", "plan.json", "--execution-record", "execution-record.json", "--out", "run-audit.json"],
+        "stdin_path": null,
+        "stdout_path": null
+      },
+      "expected_outputs": ["offline run-audit with observed revision and stable findings"],
+      "success_signals": ["observed revision equals G16 C.02", "record and output hashes match"],
+      "failure_semantics": ["Filename, user prose, or an unbound banner is not version evidence", "Revision mismatch blocks the registered profile"],
+      "restart_semantics": "Not applicable; re-audit immutable evidence after correcting only the evidence bundle.",
+      "scientific_acceptance": ["Version identity is necessary but does not validate a result"],
+      "source_ids": ["g16-release-notes", "g16-running"]
+    }
+  ]
+}

@@ -1,0 +1,373 @@
+{
+  "contract_name": "structure-provider-capability-catalog",
+  "schema_version": "1.0",
+  "skill_id": "dft-structure-preparation",
+  "checked_date": "2026-07-19",
+  "evidence_state_definitions": {
+    "official-docs": "The API shape is supported by a first-party documentation page, but that alone is not local execution evidence.",
+    "native-api-tested": "The installed package was imported and the named API was directly executed in a temporary directory with recorded invariants.",
+    "native-not-run": "No native call was made; do not infer runtime availability or behavior.",
+    "package-absent": "Distribution metadata and module import were both unavailable in the checked environment."
+  },
+  "environment": [
+    {
+      "provider": "ASE",
+      "distribution": "ase",
+      "expected_version": "3.29.0",
+      "observed_version": "3.29.0",
+      "import_module": "ase",
+      "metadata_state": "installed",
+      "import_state": "imported",
+      "native_state": "native-api-tested"
+    },
+    {
+      "provider": "pymatgen",
+      "distribution": "pymatgen",
+      "expected_version": "2026.5.4",
+      "observed_version": "2026.5.4",
+      "import_module": "pymatgen",
+      "metadata_state": "installed",
+      "import_state": "imported-namespace-package",
+      "native_state": "native-api-tested"
+    },
+    {
+      "provider": "pymatgen-core",
+      "distribution": "pymatgen-core",
+      "expected_version": "2026.5.18",
+      "observed_version": "2026.5.18",
+      "import_module": "pymatgen.core",
+      "metadata_state": "installed",
+      "import_state": "imported",
+      "native_state": "native-api-tested"
+    },
+    {
+      "provider": "pymatgen-analysis-defects",
+      "distribution": "pymatgen-analysis-defects",
+      "expected_version": null,
+      "observed_version": null,
+      "import_module": "pymatgen.analysis.defects",
+      "metadata_state": "package-absent",
+      "import_state": "module-not-found",
+      "native_state": "native-not-run"
+    },
+    {
+      "provider": "RDKit",
+      "distribution": "rdkit",
+      "expected_version": "2026.03.4",
+      "observed_version": null,
+      "import_module": "rdkit",
+      "metadata_state": "package-absent",
+      "import_state": "module-not-found",
+      "native_state": "native-not-run"
+    }
+  ],
+  "capabilities": [
+    {
+      "capability_id": "ase-structure-io",
+      "provider": "ASE",
+      "tasks": ["read", "write", "format-conversion", "round-trip"],
+      "apis": [
+        "ase.io.read(filename, index=None, format=None, parallel=True, do_not_split_by_at_sign=False, **kwargs) -> Atoms | list[Atoms]",
+        "ase.io.write(filename, images, format=None, parallel=True, append=False, **kwargs) -> None"
+      ],
+      "inputs": "Path, file-like object, or format-supported structure stream; a file-like object requires explicit format.",
+      "outputs": "Atoms, list[Atoms], or a format-specific file.",
+      "official_docs": ["https://docs.ase-lib.org/ase/io/io.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["atom count", "species and order", "cell", "positions", "PBC", "selected arrays"],
+      "boundaries": [
+        "read() returns the last configuration by default; use index=':' for all frames.",
+        "write() overwrites by default and append=True can create unreadable files for formats without multi-frame support.",
+        "extxyz preserved tested site_id, initial_charges, and initial_magmoms arrays; POSCAR lost custom site_id.",
+        "A format opening successfully does not prove occupancy, charge, spin, labels, constraints, or site mapping survived."
+      ],
+      "failure_semantics": "Reader/writer exceptions, missing required format keywords, or any invariant loss block conversion acceptance."
+    },
+    {
+      "capability_id": "ase-wrap-partial-pbc",
+      "provider": "ASE",
+      "tasks": ["wrap", "periodic-images"],
+      "apis": ["Atoms.wrap(**wrap_kw)", "Atoms.get_scaled_positions(wrap=False)"],
+      "inputs": "Atoms with finite cell, positions, and explicit per-axis PBC.",
+      "outputs": "The same mutable Atoms object with periodic components wrapped.",
+      "official_docs": ["https://docs.ase-lib.org/ase/atoms.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["periodic x/y wrapped into [0,1)", "nonperiodic z unchanged"],
+      "boundaries": ["Record integer image shifts before mutation; wrapped coordinates alone lose trajectory continuity."],
+      "failure_semantics": "Missing or singular cell, undeclared PBC, or mutation of a nonperiodic component blocks equivalence."
+    },
+    {
+      "capability_id": "ase-general-supercell",
+      "provider": "ASE",
+      "tasks": ["supercell", "site-lineage"],
+      "apis": ["ase.build.make_supercell(prim, P, *, wrap=True, order='cell-major', tol=1e-5)"],
+      "inputs": "Atoms and a 3x3 integer transformation P.",
+      "outputs": "New Atoms with cell P @ parent_cell.",
+      "official_docs": ["https://docs.ase-lib.org/ase/build/tools.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["count multiplied by abs(det(P))", "volume multiplied by abs(det(P))", "cell equals P @ parent cell", "caller site_id array propagated"],
+      "boundaries": ["order='cell-major' and order='atom-major' produce different atom order; record the chosen value.", "Propagated parent IDs are not unique child IDs; add explicit replica/image lineage."],
+      "failure_semantics": "Non-integer/singular transformations, count or volume mismatch, or absent one-to-many mapping block acceptance."
+    },
+    {
+      "capability_id": "ase-slab-adsorbate",
+      "provider": "ASE",
+      "tasks": ["slab", "surface", "adsorbate"],
+      "apis": [
+        "ase.build.surface(lattice, indices, layers, vacuum=None, tol=1e-10, periodic=False)",
+        "ase.build.fcc111(symbol, size, a=None, vacuum=None, orthogonal=False, periodic=False)",
+        "ase.build.add_adsorbate(slab, adsorbate, height, position=(0, 0), offset=None, mol_index=0)",
+        "Atoms.center(vacuum=None, axis=(0, 1, 2), about=None)"
+      ],
+      "inputs": "Bulk/conventional lattice, Miller indices, layer count, vacuum and adsorption geometry in angstrom.",
+      "outputs": "Slab Atoms, then in-place adsorbate addition.",
+      "official_docs": ["https://docs.ase-lib.org/ase/build/surface.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["surface PBC true,true,false", "one adsorbate added", "requested Cartesian height", "adsorbate tag zero", "vacuum cell expansion"],
+      "boundaries": ["Miller indices require the intended conventional cell.", "Named adsorption sites are builder-specific.", "The caller owns molecular orientation, termination selection, lateral-size convergence, dipole, charge, spin, and vacuum convergence."],
+      "failure_semantics": "Ambiguous termination/site/orientation, missing nonperiodic axis, or unmet size/vacuum checks blocks scientific use."
+    },
+    {
+      "capability_id": "ase-manual-vacancy",
+      "provider": "ASE",
+      "tasks": ["vacancy", "substitution", "manual-defect"],
+      "apis": ["Atoms.pop(i=-1)", "del atoms[index]", "Atoms.new_array(name, array)"],
+      "inputs": "A converged supercell and an explicitly selected stable site identifier/index.",
+      "outputs": "Mutated Atoms plus the removed Atom if pop() is used.",
+      "official_docs": ["https://docs.ase-lib.org/ase/atoms.html", "https://docs.ase-lib.org/examples_generated/03-tutorials/defects.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["exactly one ID removed", "survivor order and supplied IDs preserved", "removed species recorded"],
+      "boundaries": ["This is graph mutation, not defect enumeration, charge-state selection, chemical-potential treatment, image correction, or finite-size convergence."],
+      "failure_semantics": "An index without a stable parent ID or an absent charge/spin/defect lineage record blocks the defect recipe."
+    },
+    {
+      "capability_id": "pymatgen-structure-io",
+      "provider": "pymatgen-core",
+      "tasks": ["read", "write", "serialization", "round-trip"],
+      "apis": [
+        "Structure.from_file(filename, primitive=False, sort=False, merge_tol=0.0, **kwargs) -> Structure",
+        "Structure.to(filename='', fmt='', **kwargs) -> str",
+        "Structure.from_dict(dct) -> Structure"
+      ],
+      "inputs": "Format-recognized path or an MSON dictionary.",
+      "outputs": "Structure, serialized string, or file.",
+      "official_docs": ["https://pymatgen.org/pymatgen.core.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["count", "ordered species", "lattice", "fractional coordinates", "site properties", "nonzero total charge"],
+      "boundaries": [
+        "In the tested 2026.5.18 core, Structure.to(fmt='json') writes charge, but Structure.from_file(json) reconstructed charge as 0.0; Structure.from_dict(as_dict()) preserved it.",
+        "POSCAR preserved tested geometry/order but lost site_properties and reset nonzero total charge to 0.0.",
+        "sort=True and merge_tol>0 mutate order/topology; keep both false for a representation round-trip.",
+        "Disordered Structure cannot be written as POSCAR."
+      ],
+      "failure_semantics": "Any lost/changed site ID, occupancy, charge, spin/magmom, PBC, order, lattice, or coordinate mapping makes the conversion lossy and blocks promotion."
+    },
+    {
+      "capability_id": "pymatgen-ase-adaptor",
+      "provider": "pymatgen-core",
+      "tasks": ["ase-conversion", "structure-conversion", "molecule-conversion"],
+      "apis": [
+        "AseAtomsAdaptor.get_structure(atoms, cls=Structure, **cls_kwargs)",
+        "AseAtomsAdaptor.get_atoms(structure, msonable=True, **kwargs)",
+        "AseAtomsAdaptor.get_molecule(atoms, cls=Molecule, **cls_kwargs)"
+      ],
+      "inputs": "ASE Atoms or pymatgen SiteCollection.",
+      "outputs": "pymatgen Structure/Molecule or ASE Atoms/MSONAtoms.",
+      "official_docs": ["https://pymatgen.org/pymatgen.io.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["count/species/cell/fractional coordinates", "partial PBC on Lattice.pbc", "custom site_id", "initial charge and magmom arrays"],
+      "boundaries": ["ASE initial_charges and initial_magmoms are per-atom initial values, not a general total-charge or spin-multiplicity contract.", "Revalidate constraints, calculators, velocities, labels, oxidation states, total charge, and molecule multiplicity separately."],
+      "failure_semantics": "Absent semantic fields or non-bijective site mapping blocks equivalence even if coordinates match."
+    },
+    {
+      "capability_id": "pymatgen-standardization",
+      "provider": "pymatgen-core",
+      "tasks": ["symmetry", "primitive-standardization", "conventional-standardization"],
+      "apis": [
+        "SpacegroupAnalyzer(structure, symprec=0.01, angle_tolerance=5)",
+        "get_conventional_standard_structure(international_monoclinic=True, keep_site_properties=False)",
+        "get_primitive_standard_structure(international_monoclinic=True, keep_site_properties=False)",
+        "get_refined_structure(keep_site_properties=False)"
+      ],
+      "inputs": "Periodic Structure and explicit distance/angle tolerances.",
+      "outputs": "A new standardized/refined Structure; no explicit site-mapping object.",
+      "official_docs": ["https://pymatgen.org/pymatgen.symmetry.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["diamond space group 227", "8-site conventional cell", "2-site primitive cell", "reduced composition"],
+      "boundaries": ["Standard cells follow the documented convention and are not automatically an International Tables representation.", "keep_site_properties defaults false because magnetic properties may not transfer.", "No returned site map means the caller must build and verify one or fail closed."],
+      "failure_semantics": "Tolerance sensitivity, disorder, ambiguous mapping, or unreviewed property transfer blocks standardized output acceptance."
+    },
+    {
+      "capability_id": "pymatgen-general-supercell",
+      "provider": "pymatgen-core",
+      "tasks": ["supercell", "site-lineage", "charge-boundary"],
+      "apis": ["Structure.make_supercell(scaling_matrix, to_unit_cell=True, in_place=True) -> Structure"],
+      "inputs": "Structure and scalar/vector/full integer scaling matrix.",
+      "outputs": "Mutated Structure or copy when in_place=False.",
+      "official_docs": ["https://pymatgen.org/pymatgen.core.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["parent unchanged with in_place=False", "count and volume multiplied by abs(det)", "site properties replicated"],
+      "boundaries": ["The tested nonzero Structure.charge was copied unchanged instead of multiplied by determinant; require an explicit post-supercell charge policy.", "Replicated site_id properties are not unique child IDs."],
+      "failure_semantics": "Missing one-to-many lineage, unexpected total-charge semantics, or count/volume mismatch blocks acceptance."
+    },
+    {
+      "capability_id": "pymatgen-slab-adsorbate",
+      "provider": "pymatgen-core",
+      "tasks": ["slab", "termination", "adsorption-sites", "adsorbate"],
+      "apis": [
+        "SlabGenerator(initial_structure, miller_index, min_slab_size, min_vacuum_size, lll_reduce=False, center_slab=False, in_unit_planes=False, primitive=True, max_normal_search=None, reorient_lattice=True)",
+        "SlabGenerator.get_slabs(bonds=None, ftol=0.1, tol=0.1, max_broken_bonds=0, symmetrize=False, repair=False, ztol=0, filter_out_sym_slabs=True)",
+        "AdsorbateSiteFinder.find_adsorption_sites(distance=2.0, put_inside=True, symm_reduce=0.01, near_reduce=0.01, positions=('ontop','bridge','hollow'), no_obtuse_hollow=True)",
+        "AdsorbateSiteFinder.add_adsorbate(molecule, ads_coord, repeat=None, translate=True, reorient=True)"
+      ],
+      "inputs": "Conventional bulk Structure, Miller index, slab/vacuum dimensions and Molecule; distances are angstrom unless in_unit_planes=True for slab sizing.",
+      "outputs": "Termination list, adsorption Cartesian coordinates, and new adsorbate Structure.",
+      "official_docs": ["https://pymatgen.org/pymatgen.core.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["at least one Al(111) termination", "Miller index retained", "vacuum present", "ontop site found", "one H added at requested Cartesian coordinate"],
+      "boundaries": ["Termination, polarity, broken bonds, orientation, coverage, charge/spin and convergence remain reviewer decisions."],
+      "failure_semantics": "No acceptable termination, ambiguous adsorption site/orientation, or absent mapping/provenance blocks the recipe."
+    },
+    {
+      "capability_id": "pymatgen-core-manual-vacancy",
+      "provider": "pymatgen-core",
+      "tasks": ["vacancy", "manual-defect"],
+      "apis": ["Structure.remove_sites(indices) -> Structure", "Structure.replace(idx, species, coords=None, coords_are_cartesian=False, properties=None, label=None)"],
+      "inputs": "Structure with explicit site IDs and selected indices.",
+      "outputs": "In-place mutated Structure.",
+      "official_docs": ["https://pymatgen.org/pymatgen.core.html", "https://materialsproject.github.io/pymatgen-analysis-defects/content/defining-defects.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["one selected site removed", "remaining supplied IDs/order preserved"],
+      "boundaries": ["pymatgen-analysis-defects was absent and not run.", "Core removal is not symmetry-aware enumeration, charge-state handling, correction, chemical-potential, or finite-size analysis."],
+      "failure_semantics": "Do not label core mutation as a validated defect workflow; missing specialized evidence blocks that claim."
+    },
+    {
+      "capability_id": "pymatgen-molecule-box",
+      "provider": "pymatgen-core",
+      "tasks": ["molecule", "periodic-box", "embedding"],
+      "apis": ["Molecule.get_boxed_structure(a, b, c, images=(1,1,1), random_rotation=False, min_dist=1.0, cls=None, offset=None, no_cross=False, reorder=True)"],
+      "inputs": "Molecule plus orthorhombic box lengths in angstrom and explicit rotation/reorder policy.",
+      "outputs": "Periodic Structure.",
+      "official_docs": ["https://pymatgen.org/pymatgen.core.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-api-tested",
+      "tested_invariants": ["count/composition", "12x13x14 angstrom box", "site properties with reorder=False", "Structure return type"],
+      "boundaries": ["random_rotation=True introduces stochastic geometry; seed control is not exposed by this signature.", "Molecular spin multiplicity is not a Structure field; retain it in external provenance."],
+      "failure_semantics": "Unrecorded reordering/randomness, boundary crossing, atom overlap, or lost charge/spin/site mapping blocks embedding acceptance."
+    },
+    {
+      "capability_id": "rdkit-molecule-parse",
+      "provider": "RDKit",
+      "tasks": ["molecule-read", "sanitization", "formal-charge"],
+      "apis": [
+        "Chem.MolFromMolFile(filename, sanitize=True, removeHs=True, strictParsing=True) -> Mol | None",
+        "Chem.MolFromSmiles(smiles, sanitize=True) -> Mol | None",
+        "Chem.SanitizeMol(mol)",
+        "Chem.GetFormalCharge(mol) -> int"
+      ],
+      "inputs": "Molfile or SMILES plus explicit sanitization/H-removal policy.",
+      "outputs": "Mol on success or None/exception on parse or sanitization failure.",
+      "official_docs": ["https://www.rdkit.org/docs/GettingStartedInPython.html", "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html", "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolops.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-not-run",
+      "tested_invariants": [],
+      "boundaries": ["Package absent locally.", "removeHs changes explicit atom inventory.", "A Mol does not supply a general total spin multiplicity contract; retain formal charge, radicals, stereochemistry and external multiplicity explicitly."],
+      "failure_semantics": "None return, sanitization exception, atom-count/map loss, or unresolved charge/spin/stereochemistry blocks handoff."
+    },
+    {
+      "capability_id": "rdkit-etkdg-conformers",
+      "provider": "RDKit",
+      "tasks": ["hydrogen-addition", "3d-embedding", "conformer-generation", "force-field-optimization"],
+      "apis": [
+        "Chem.AddHs(mol, addCoords=False) -> Mol",
+        "AllChem.ETKDGv3() -> EmbedParameters",
+        "AllChem.EmbedMultipleConfs(mol, numConfs, params) -> conformer IDs",
+        "AllChem.MMFFHasAllMoleculeParams(mol) -> bool",
+        "AllChem.MMFFOptimizeMoleculeConfs(mol, numThreads=1, maxIters=200, mmffVariant='MMFF94') -> list[(not_converged, energy)]"
+      ],
+      "inputs": "Sanitized Mol with explicit H policy, fixed randomSeed, fixed numThreads and conformer count.",
+      "outputs": "A new H-expanded Mol, conformer IDs, and optimization status/energy tuples.",
+      "official_docs": ["https://www.rdkit.org/docs/GettingStartedInPython.html", "https://www.rdkit.org/docs/source/rdkit.Chem.AllChem.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-not-run",
+      "tested_invariants": [],
+      "boundaries": ["Package absent locally.", "Embedding is stochastic unless randomSeed is fixed.", "not_converged=0 is required per optimized conformer.", "Distance geometry and MMFF are initial-geometry methods, not DFT conformer-energy validation.", "Coordinate arrays carry no self-describing DFT unit contract; record angstrom convention explicitly at handoff."],
+      "failure_semantics": "No conformer ID, missing MMFF parameters, nonzero not_converged, invalid atom mapping, or nondeterministic settings blocks acceptance."
+    },
+    {
+      "capability_id": "rdkit-molfile-write",
+      "provider": "RDKit",
+      "tasks": ["molecule-write", "conformer-export", "round-trip"],
+      "apis": ["Chem.MolToMolFile(mol, filename, includeStereo=True, confId=-1, kekulize=True, forceV3000=False) -> None"],
+      "inputs": "Mol, explicit conformer ID, stereochemistry/kekulization/V2000-V3000 policy and a new path.",
+      "outputs": "Molfile.",
+      "official_docs": ["https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html"],
+      "documentation_state": "official-docs",
+      "native_state": "native-not-run",
+      "tested_invariants": [],
+      "boundaries": ["Package absent locally.", "Reparse and compare atom order/map numbers, bonds/orders, formal charge, radicals, stereochemistry, conformer coordinates and explicit H count."],
+      "failure_semantics": "Writer completion without a successful invariant round-trip is not conversion acceptance."
+    }
+  ],
+  "recipes": [
+    {
+      "recipe_id": "structure-io-roundtrip",
+      "tasks": ["format-conversion", "round-trip"],
+      "preferred_provider": "ASE-or-pymatgen-by-format",
+      "preconditions": ["immutable source hash", "explicit input/output formats", "explicit length/PBC/occupancy/charge/spin/site-order contract", "new output path"],
+      "acceptance": ["reparse output", "verify count/composition/occupancy", "verify cell/PBC/coordinates and units", "verify charge/spin/site properties", "construct bijective site mapping", "classify exact/equivalent/lossy"],
+      "fail_closed_when": ["any required invariant is absent", "mapping is non-bijective or ambiguous", "format cannot represent a required field"]
+    },
+    {
+      "recipe_id": "periodic-standardize-with-mapping",
+      "tasks": ["symmetry", "standardization"],
+      "preferred_provider": "pymatgen-core",
+      "preconditions": ["ordered periodic Structure", "recorded symprec and angle_tolerance", "reviewed occupancy and magnetic state"],
+      "acceptance": ["record provider versions", "record before/after symmetry and cell", "verify composition", "build site/image mapping at explicit tolerance", "revalidate magnetic/site properties"],
+      "fail_closed_when": ["no unique site mapping", "result changes with plausible tolerances", "keep_site_properties semantics are unreviewed"]
+    },
+    {
+      "recipe_id": "general-supercell-with-lineage",
+      "tasks": ["supercell"],
+      "preferred_provider": "ASE-or-pymatgen-core",
+      "preconditions": ["integer nonsingular transform", "site IDs", "site budget", "explicit atom-order policy", "explicit charge policy"],
+      "acceptance": ["count/volume scale by abs(det)", "cell transform matches provider convention", "every child has parent plus replica/image lineage", "charge/spin are reassessed"],
+      "fail_closed_when": ["replicated parent IDs are mistaken for unique child IDs", "total charge semantics are assumed", "mapping is incomplete"]
+    },
+    {
+      "recipe_id": "slab-and-adsorbate-campaign",
+      "tasks": ["slab", "adsorbate"],
+      "preferred_provider": "pymatgen-core-or-ASE",
+      "preconditions": ["verified conventional bulk", "Miller index", "termination policy", "slab/vacuum/lateral-size plan", "adsorbate charge/spin/orientation"],
+      "acceptance": ["enumerate/review terminations", "record site coordinate and orientation", "verify PBC and vacuum", "preserve atom mapping", "converge slab/vacuum/coverage"] ,
+      "fail_closed_when": ["termination or site is ambiguous", "adsorbate mapping/charge/spin is lost", "vacuum and size are unconverged"]
+    },
+    {
+      "recipe_id": "manual-defect-seed-only",
+      "tasks": ["vacancy", "substitution", "defect"],
+      "preferred_provider": "ASE-or-pymatgen-core",
+      "preconditions": ["converged supercell", "stable selected site ID", "recorded removal/replacement"],
+      "acceptance": ["exact survivor mapping", "composition delta", "charge/spin decision", "separate specialized defect workflow evidence"],
+      "fail_closed_when": ["core mutation is presented as defect enumeration or formation-energy evidence", "charge state/correction/finite-size evidence is absent"]
+    },
+    {
+      "recipe_id": "molecule-to-periodic-box",
+      "tasks": ["molecule", "embedding", "conformer"],
+      "preferred_provider": "pymatgen-core-for-box; RDKit-for-conformer-when-installed",
+      "preconditions": ["sanitized connectivity", "explicit H/formal-charge/radical/multiplicity state", "stable atom map", "fixed seed for stochastic embedding"],
+      "acceptance": ["atom/bond/stereo mapping", "coordinate unit", "box dimensions and overlap check", "charge/spin provenance", "conformer IDs and optimization status"],
+      "fail_closed_when": ["RDKit package remains absent for requested conformer work", "mapping or electronic state is unresolved", "random settings are unrecorded"]
+    }
+  ]
+}

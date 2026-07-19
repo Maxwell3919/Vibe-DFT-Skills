@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:candidate:ovito-pipeline-spec:0.1",
+  "title": "Non-routable OVITO candidate pipeline specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name", "schema_version", "pipeline_id", "provider", "source",
+    "frame_selection", "operations", "outputs", "periodic_policy", "mapping_policy",
+    "source_length_unit", "claim_boundary"
+  ],
+  "properties": {
+    "contract_name": {"const": "ovito-pipeline-spec-candidate"},
+    "schema_version": {"const": "0.1"},
+    "pipeline_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "provider": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profile", "version"],
+      "properties": {
+        "profile": {"enum": ["ovito-basic", "ovito-pro"]},
+        "version": {"const": "3.15.5"}
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sha256", "format"],
+      "properties": {
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "format": {"enum": ["xyz", "extxyz"]}
+      }
+    },
+    "frame_selection": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "indices"],
+          "properties": {
+            "mode": {"const": "indices"},
+            "indices": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "integer", "minimum": 0}}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["mode", "start", "stop", "step"],
+          "properties": {
+            "mode": {"const": "range"},
+            "start": {"type": "integer", "minimum": 0},
+            "stop": {"type": "integer", "minimum": 1},
+            "step": {"type": "integer", "minimum": 1}
+          }
+        }
+      ]
+    },
+    "operations": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["operation_id", "kind", "parameters", "evidence_role"],
+        "properties": {
+          "operation_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+          "kind": {
+            "enum": [
+              "compute-frame-metadata", "coordination-analysis", "common-neighbor-analysis",
+              "atomic-strain", "dislocation-analysis", "render-image", "export-table"
+            ]
+          },
+          "parameters": {"type": "object"},
+          "evidence_role": {
+            "enum": ["technical-metadata", "numerical-analysis", "visual-only", "technical-export"]
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["output_id", "kind", "label"],
+        "properties": {
+          "output_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+          "kind": {"enum": ["json-data", "data-table", "image", "animation"]},
+          "label": {"type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$"}
+        }
+      }
+    },
+    "periodic_policy": {"enum": ["preserve-source", "require-cell"]},
+    "mapping_policy": {"enum": ["ordinal-only-for-metadata", "require-stable-site-ids"]},
+    "source_length_unit": {"enum": ["undeclared", "angstrom", "nanometer", "bohr"]},
+    "claim_boundary": {"const": "technical-only"}
+  }
+}

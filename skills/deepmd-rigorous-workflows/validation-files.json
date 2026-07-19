@@ -1,0 +1,20 @@
+{
+  "changed_files": [
+    "skills/deepmd-rigorous-workflows/SKILL.md",
+    "skills/deepmd-rigorous-workflows/examples/example-sequence.md",
+    "skills/deepmd-rigorous-workflows/examples/synthetic-layout.json",
+    "skills/deepmd-rigorous-workflows/references/calling-and-recipes.md",
+    "skills/deepmd-rigorous-workflows/references/dataset-layout.md",
+    "skills/deepmd-rigorous-workflows/references/fail-closed-contract.md",
+    "skills/deepmd-rigorous-workflows/references/official-sources.md",
+    "skills/deepmd-rigorous-workflows/references/run-and-model-lineage.md",
+    "skills/deepmd-rigorous-workflows/references/task-evidence-profiles.json",
+    "skills/deepmd-rigorous-workflows/references/training-projection.md",
+    "skills/deepmd-rigorous-workflows/references/weak-model-decision-table.json",
+    "skills/deepmd-rigorous-workflows/references/workflow-catalog.json",
+    "skills/deepmd-rigorous-workflows/references/workflow-recipes.json",
+    "skills/deepmd-rigorous-workflows/scripts/deepmd_guard.py",
+    "skills/deepmd-rigorous-workflows/tests/test_deepmd_guard.py",
+    "skills/deepmd-rigorous-workflows/validation-files.json"
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:activation-checklist:1.0",
+  "title": "Vibe-DFT Skill activation checklist evidence",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "checklist_id",
+  "x-vibe-semantic-obligations": {
+    "validator": "commit-aware-promotion-validator",
+    "required_checks": [
+      "activation-evidence-files-exist-at-candidate-commit",
+      "activation-evidence-sha256-matches-bytes",
+      "reviewer-and-forward-test-records-belong-to-promoted-skill"
+    ]
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "checklist_id",
+    "subject",
+    "profile_ids",
+    "checks",
+    "summary",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "activation-checklist"},
+    "checklist_id": {"$ref": "#/$defs/safeId"},
+    "subject": {"$ref": "#/$defs/subject"},
+    "profile_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/hyphenId"}
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "prefixItems": [
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "identity-and-routing"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "primary-source-provenance"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "capability-boundary"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "deterministic-gates"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "lineage-and-hashes"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "scientific-gate-separation"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "shared-interfaces"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "side-effect-boundary"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "idempotency-recovery-cancel"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "validation-evidence"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "privacy-and-license"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "portability-and-environment"}}}]},
+        {"allOf": [{"$ref": "#/$defs/check"}, {"properties": {"check_id": {"const": "maintenance-and-forward-test"}}}]}
+      ],
+      "items": false
+    },
+    "summary": {"$ref": "#/$defs/summary"},
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {"decision": {"const": "eligible"}},
+            "required": ["decision"]
+          }
+        },
+        "required": ["summary"]
+      },
+      "then": {
+        "properties": {
+          "checks": {
+            "not": {
+              "contains": {
+                "type": "object",
+                "properties": {"status": {"enum": ["fail", "not-assessed"]}},
+                "required": ["status"]
+              }
+            }
+          },
+          "summary": {
+            "properties": {"blocker_check_ids": {"maxItems": 0}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {"decision": {"const": "blocked"}},
+            "required": ["decision"]
+          }
+        },
+        "required": ["summary"]
+      },
+      "then": {
+        "properties": {
+          "summary": {
+            "properties": {"blocker_check_ids": {"minItems": 1}}
+          },
+          "checks": {
+            "contains": {
+              "type": "object",
+              "properties": {"status": {"enum": ["fail", "not-assessed"]}},
+              "required": ["status"]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "skillId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\r\\n]+$"
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skill_id", "software_ids", "candidate_commit"],
+      "properties": {
+        "skill_id": {"$ref": "#/$defs/skillId"},
+        "software_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/hyphenId"}
+        },
+        "candidate_commit": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "kind", "path", "sha256"],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/safeId"},
+        "kind": {
+          "enum": [
+            "source-report",
+            "schema-report",
+            "test-report",
+            "fixture-manifest",
+            "privacy-license-report",
+            "environment-report",
+            "technical-review",
+            "forward-test-report",
+            "not-applicable-record"
+          ]
+        },
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer_id", "role", "independent_of_implementation"],
+      "properties": {
+        "reviewer_id": {"$ref": "#/$defs/safeId"},
+        "role": {
+          "enum": [
+            "independent-technical-reviewer",
+            "blind-forward-tester",
+            "contract-steward",
+            "integration-reviewer"
+          ]
+        },
+        "independent_of_implementation": {"const": true}
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "status",
+        "evidence",
+        "reviewer",
+        "validated_utc",
+        "not_applicable_reason",
+        "limitations"
+      ],
+      "properties": {
+        "check_id": {"$ref": "#/$defs/hyphenId"},
+        "status": {"enum": ["pass", "fail", "not-assessed", "not-applicable"]},
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidence"}
+        },
+        "reviewer": {"$ref": "#/$defs/reviewer"},
+        "validated_utc": {"type": "string", "format": "date-time"},
+        "not_applicable_reason": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "minLength": 20, "maxLength": 1000}
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "not-applicable"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "not_applicable_reason": {"type": "string", "minLength": 20, "maxLength": 1000},
+              "evidence": {
+                "contains": {
+                  "type": "object",
+                  "properties": {"kind": {"const": "not-applicable-record"}},
+                  "required": ["kind"]
+                }
+              }
+            }
+          },
+          "else": {"properties": {"not_applicable_reason": {"type": "null"}}}
+        }
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "blocker_check_ids", "limitations"],
+      "properties": {
+        "decision": {"enum": ["eligible", "blocked"]},
+        "blocker_check_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/hyphenId"}
+        },
+        "limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "producer_version", "generated_utc"],
+      "properties": {
+        "producer": {"type": "string", "minLength": 1, "maxLength": 160},
+        "producer_version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "generated_utc": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

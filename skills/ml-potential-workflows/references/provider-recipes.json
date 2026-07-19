@@ -1,0 +1,291 @@
+{
+  "recipe_contract": "ml-provider-recipes@1.0",
+  "retrieved_on": "2026-07-19",
+  "execution_policy": "Read-only specifications. Installation, import, deserialization, model download, training, compilation, evaluation, inference, and deployment each require separate authorization and an execution record.",
+  "native_validation": "native-not-run",
+  "recipes": [
+    {
+      "recipe_id": "mace.install-and-probe@0.3.16",
+      "provider_id": "mace",
+      "provider_version": "0.3.16",
+      "operation": "install-probe",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Isolated compatible Python environment", "Network/package installation authorized", "PyTorch/device build and dependency lock predeclared"],
+      "steps": [
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "mace-torch==0.3.16"], "outputs": ["installed distribution metadata and dependency lock"]},
+        {"kind": "command", "argv": ["python", "-c", "import importlib.metadata as m; print(m.version('mace-torch'))"], "outputs": ["distribution version evidence"]},
+        {"kind": "command", "argv": ["mace_run_train", "--help"], "outputs": ["training CLI surface"]},
+        {"kind": "command", "argv": ["mace_eval_configs", "--help"], "outputs": ["evaluation CLI surface"]}
+      ],
+      "restart": "Recreate from the accepted lock and record any platform-specific dependency change.",
+      "units": {},
+      "failure_modes": ["Distribution or CLI version mismatch", "Incompatible PyTorch/device build", "CLI and Python distribution resolve from different environments"],
+      "scientific_checks": ["Installation proves availability only; it validates no dataset, model, prediction, or device numerics."],
+      "source_ids": ["mace-release", "mace-packaging"]
+    },
+    {
+      "recipe_id": "mace.train.yaml@0.3.16",
+      "provider_id": "mace",
+      "provider_version": "0.3.16",
+      "operation": "train",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["train.yaml is immutable and reviewed against exact 0.3.16 arguments", "Name, train/valid/test files, energy/force/stress keys, units, seeds, device, dtype, cutoff, loss, stopping, and output directories are explicit", "Dataset audit proves group-disjoint validation/test/OOD roles", "Compute/filesystem side effects are authorized"],
+      "steps": [
+        {"kind": "command", "argv": ["mace_run_train", "--config", "train.yaml"], "outputs": ["logs", "checkpoints", "results", "final models/<name>.model", "provider test evaluation when configured"]}
+      ],
+      "restart": "Use the dedicated restart recipe only for the same config/data/environment lineage.",
+      "units": {"energy": "eV", "forces": "eV/angstrom", "stress": "eV/angstrom^3 after explicit source-key/unit normalization"},
+      "failure_modes": ["Implicit keys/units or data split", "Non-finite loss/gradient", "Missing validation", "Test data influences selection", "Config/data/environment mutates during training", "Final model aliases a checkpoint or prior artifact"],
+      "scientific_checks": ["Freeze thresholds before training", "Select on validation only", "Report independent test/OOD and slice/tail errors", "Converge cutoff, architecture, precision, data coverage, and seeds"],
+      "source_ids": ["mace-args", "mace-train-source", "mace-training-doc"]
+    },
+    {
+      "recipe_id": "mace.restart-latest@0.3.16",
+      "provider_id": "mace",
+      "provider_version": "0.3.16",
+      "operation": "restart",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Latest checkpoint bytes and parent run are hash-bound", "Name, config, data, split, model, loss, optimizer, dtype, device policy and environment lineage are unchanged", "Output paths preserve parent evidence"],
+      "steps": [
+        {"kind": "command", "argv": ["mace_run_train", "--config", "train.yaml", "--restart_latest"], "outputs": ["restart log", "new checkpoints", "updated results", "new final model artifact"]}
+      ],
+      "restart": "If a scientific/config/data field changed, create a new training plan or explicit fine-tune lineage instead of restart.",
+      "units": {},
+      "failure_modes": ["Wrong latest checkpoint selected", "Checkpoint/config/environment mismatch", "Parent artifacts overwritten", "Step/metric discontinuity"],
+      "scientific_checks": ["Compare the first resumed metrics with the parent trace and reapply all final evaluation gates."],
+      "source_ids": ["mace-args", "mace-training-doc"]
+    },
+    {
+      "recipe_id": "mace.evaluate-configs@0.3.16",
+      "provider_id": "mace",
+      "provider_version": "0.3.16",
+      "operation": "evaluate",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["test.xyz and model artifact hashes are frozen", "Model loading is authorized and artifact trust is established", "Species, units, dtype, device, target keys and held-out status are explicit", "evaluated.xyz is a new output"],
+      "steps": [
+        {"kind": "command", "argv": ["mace_eval_configs", "--configs", "test.xyz", "--model", "models/case.model", "--output", "evaluated.xyz", "--device", "cpu", "--default_dtype", "float64"], "outputs": ["evaluated.xyz with MACE-prefixed predictions"]}
+      ],
+      "restart": "Rerun from immutable inputs to a new output; never append mixed model/data results.",
+      "units": {"energy": "ASE eV", "forces": "ASE eV/angstrom", "stress": "only when --compute_stress is requested and source convention is normalized"},
+      "failure_modes": ["Untrusted torch model deserialization", "Wrong head/species/dtype/device", "Output overwrites references", "Evaluation set was used for selection", "Stress requested without compatible periodic labels"],
+      "scientific_checks": ["Compute predeclared MAE/RMSE/tail metrics independently from immutable output", "Slice by chemistry/configuration and include OOD", "Check force-energy consistency and device/dtype regression"],
+      "source_ids": ["mace-eval-source"]
+    },
+    {
+      "recipe_id": "mace.infer.ase@0.3.16",
+      "provider_id": "mace",
+      "provider_version": "0.3.16",
+      "operation": "inference",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["models/case.model is trusted, hash-bound, independently evaluated and licensed", "case.extxyz is audited for species/cell/PBC/domain", "ASE/provider/environment versions and device/dtype are recorded"],
+      "steps": [
+        {"kind": "python-api", "code": ["from ase.io import read", "from mace.calculators import MACECalculator", "atoms = read('case.extxyz')", "atoms.calc = MACECalculator(model_path='models/case.model', device='cpu', default_dtype='float64')", "energy = atoms.get_potential_energy()", "forces = atoms.get_forces()"], "outputs": ["energy scalar", "N x 3 force array", "inference execution record"]}
+      ],
+      "restart": "Inference is immutable per model/input/environment; rerun as a new record after any change.",
+      "units": {"energy": "eV", "forces": "eV/angstrom"},
+      "failure_modes": ["Untrusted model load", "Unsupported species/domain", "Cell/PBC mismatch", "Non-finite output", "Device/dtype regression"],
+      "scientific_checks": ["Stay inside the accepted deployment envelope and monitor extrapolation", "A finite prediction is not accuracy evidence"],
+      "source_ids": ["mace-ase-doc"]
+    },
+    {
+      "recipe_id": "nequip.install-and-probe@0.19.0",
+      "provider_id": "nequip",
+      "provider_version": "0.19.0",
+      "operation": "install-probe",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Isolated Python >=3.10 environment", "Compatible torch>=2.2 and Lightning dependency lock", "Network/package installation authorized"],
+      "steps": [
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "nequip==0.19.0"], "outputs": ["installed distribution metadata and dependency lock"]},
+        {"kind": "command", "argv": ["python", "-c", "import importlib.metadata as m; print(m.version('nequip'))"], "outputs": ["distribution version evidence"]},
+        {"kind": "command", "argv": ["nequip-train", "--help"], "outputs": ["training CLI surface"]},
+        {"kind": "command", "argv": ["nequip-package", "--help"], "outputs": ["package CLI surface"]},
+        {"kind": "command", "argv": ["nequip-compile", "--help"], "outputs": ["compile CLI surface"]}
+      ],
+      "restart": "Recreate from the exact accepted lock; do not infer compatibility from import success.",
+      "units": {},
+      "failure_modes": ["Python/PyTorch/Lightning incompatibility", "Distribution/CLI mismatch", "Optional acceleration/compiler stack missing"],
+      "scientific_checks": ["Installation proves no model, dataset, prediction, compiler portability, or LAMMPS readiness."],
+      "source_ids": ["nequip-release", "nequip-packaging"]
+    },
+    {
+      "recipe_id": "nequip.train@0.19.0",
+      "provider_id": "nequip",
+      "provider_version": "0.19.0",
+      "operation": "train",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["configs/train.yaml and all Hydra-resolved settings are frozen", "Dataset, splits, units, species/type map, seeds, model/loss/stopping and output root are audited", "run includes train and validation roles without test-driven selection"],
+      "steps": [
+        {"kind": "command", "argv": ["nequip-train", "-cp", "configs", "-cn", "train.yaml"], "outputs": ["resolved configuration", "logs/metrics", "Lightning checkpoints", "run directory"]}
+      ],
+      "restart": "Use ++ckpt_path only under the dedicated unchanged-lineage recipe.",
+      "units": {"energy": "explicit dataset/model unit convention", "forces": "explicit energy/length convention", "stress": "explicit provider/data convention when targeted"},
+      "failure_modes": ["Hydra override changes frozen plan", "Data leakage or implicit units", "Non-finite loss/gradient", "Missing validation", "Run directory collision", "Test influences selection"],
+      "scientific_checks": ["Converge architecture/cutoff/precision/data/seeds", "Freeze thresholds and report held-out/OOD slice/tail errors", "Training completion is not a deployable model"],
+      "source_ids": ["nequip-workflow", "nequip-files"]
+    },
+    {
+      "recipe_id": "nequip.test-in-workflow@0.19.0",
+      "provider_id": "nequip",
+      "provider_version": "0.19.0",
+      "operation": "test",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Configuration run stage includes test", "Test dataset is held out and immutable", "ModelFromCheckpoint or the provider-documented checkpoint selection is exact", "Output directory is new"],
+      "steps": [
+        {"kind": "config-contract", "required": ["run contains test", "test data module/split is explicit", "checkpoint identity is explicit"], "outputs": ["audited test-stage configuration"]},
+        {"kind": "command", "argv": ["nequip-train", "-cp", "configs", "-cn", "test.yaml"], "outputs": ["provider test metrics and bound run artifacts"]}
+      ],
+      "restart": "Rerun as a new immutable model/test/config record.",
+      "units": {"metrics": "must be normalized to the generic evidence manifest's explicit units"},
+      "failure_modes": ["Removed nequip-evaluate command used", "Wrong/untrusted checkpoint", "Test data participated in selection", "Aggregate-only metrics hide tails/OOD"],
+      "scientific_checks": ["Independently verify required MAE/RMSE/tail/slice/OOD metrics and thresholds."],
+      "source_ids": ["nequip-workflow", "nequip-faq"]
+    },
+    {
+      "recipe_id": "nequip.restart@0.19.0",
+      "provider_id": "nequip",
+      "provider_version": "0.19.0",
+      "operation": "restart",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["path/to/last.ckpt is hash-bound to the parent run", "The original config/data/environment are identical except an allowed max_epochs increase", "Output ancestry is preserved"],
+      "steps": [
+        {"kind": "command", "argv": ["nequip-train", "-cp", "configs", "-cn", "train.yaml", "++ckpt_path=path/to/last.ckpt"], "outputs": ["resumed run log", "new checkpoints", "resolved configuration"]}
+      ],
+      "restart": "The official workflow warns that safety is not automatically checked; any other config change creates a new plan/fine-tune lineage.",
+      "units": {},
+      "failure_modes": ["Provider does not detect unsafe config change", "Wrong checkpoint/run", "Step/optimizer/scheduler discontinuity", "Parent artifacts overwritten"],
+      "scientific_checks": ["Diff the resolved config and compare first post-restart metrics before accepting continuity."],
+      "source_ids": ["nequip-workflow"]
+    },
+    {
+      "recipe_id": "nequip.package@0.19.0",
+      "provider_id": "nequip",
+      "provider_version": "0.19.0",
+      "operation": "package",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Accepted checkpoint is exact and trusted", "Package output is new", "Bundled code/model/data-license implications are reviewed"],
+      "steps": [
+        {"kind": "command", "argv": ["nequip-package", "build", "path/to/model.ckpt", "model.nequip.zip"], "outputs": ["model.nequip.zip"]},
+        {"kind": "command", "argv": ["nequip-package", "info", "model.nequip.zip"], "outputs": ["captured package metadata"]}
+      ],
+      "restart": "Build a new package after any checkpoint/code/environment change; never overwrite the source checkpoint.",
+      "units": {},
+      "failure_modes": ["Untrusted checkpoint/package deserialization", "Package metadata/embedded code mismatch", "Artifact overwritten", "License or provenance missing"],
+      "scientific_checks": ["Hash the package and re-evaluate predictions; portability is not numerical equivalence."],
+      "source_ids": ["nequip-workflow", "nequip-save-model"]
+    },
+    {
+      "recipe_id": "nequip.compile.aoti-ase@0.19.0",
+      "provider_id": "nequip",
+      "provider_version": "0.19.0",
+      "operation": "compile",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["model.nequip.zip is trusted and independently evaluated", "Deployment-like device/compiler/PyTorch environment is recorded", "C++17 toolchain is available", "ASE target and output path are explicit"],
+      "steps": [
+        {"kind": "command", "argv": ["nequip-compile", "model.nequip.zip", "model.nequip.pt2", "--device", "cpu", "--mode", "aotinductor", "--target", "ase"], "outputs": ["model.nequip.pt2", "compile log and environment record"]}
+      ],
+      "restart": "Recompile for every target/device/toolchain/package change and create a new artifact.",
+      "units": {},
+      "failure_modes": ["Compiler/device mismatch", "Unsupported package operation", "Compiled artifact not portable", "Numerical drift", "Untrusted package load"],
+      "scientific_checks": ["Regression-test energy/forces/stress against the package on accepted and OOD sets before deployment."],
+      "source_ids": ["nequip-workflow"]
+    },
+    {
+      "recipe_id": "fairchem-v1.install-and-probe@1.10.0",
+      "provider_id": "fairchem-v1",
+      "provider_version": "1.10.0",
+      "operation": "install-probe",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Isolated Python >=3.9,<3.13 environment; current Python 3.14 is incompatible", "Network/package installation authorized", "PyTorch 2.4-family and dependency lock are compatible"],
+      "steps": [
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "fairchem-core==1.10.0"], "outputs": ["installed v1 distribution metadata and dependency lock"]},
+        {"kind": "command", "argv": ["python", "-c", "import importlib.metadata as m; print(m.version('fairchem-core'))"], "outputs": ["distribution version evidence"]},
+        {"kind": "command", "argv": ["fairchem", "--help"], "outputs": ["registered CLI surface"]}
+      ],
+      "restart": "Recreate from the exact lock; never install v2 over a v1 environment.",
+      "units": {},
+      "failure_modes": ["Python >=3.13", "v2 package/model mixed with v1", "PyTorch/dependency incompatibility"],
+      "scientific_checks": ["Framework installation proves no model availability, model license, task validity, or result."],
+      "source_ids": ["fairchem-v1-packaging", "fairchem-v1-pypi"]
+    },
+    {
+      "recipe_id": "fairchem-v1.equiformer-v2-ase@1.10.0",
+      "provider_id": "fairchem-v1",
+      "provider_version": "1.10.0",
+      "operation": "pretrained-inference",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Exact v1 environment", "Model access/download/cache and network are separately authorized", "Exact model card, model artifact hash, model license and OC20 task/domain are accepted", "Input ASE Atoms species/cell/PBC/domain are audited"],
+      "steps": [
+        {"kind": "python-api", "code": ["from fairchem.core import OCPCalculator", "calc = OCPCalculator(model_name='EquiformerV2-31M-S2EF-OC20-All+MD', local_cache='pretrained_models', cpu=True)", "atoms.calc = calc", "energy = atoms.get_potential_energy()", "forces = atoms.get_forces()"], "outputs": ["download/cache artifact when absent", "energy", "forces", "inference record"]}
+      ],
+      "restart": "Bind the downloaded model bytes once, then rerun immutable model/input/environment pairs as new records.",
+      "units": {"energy": "ASE eV", "forces": "ASE eV/angstrom"},
+      "failure_modes": ["Unauthorized/changed download", "Wrong v1/v2 API or artifact", "Model card/license unresolved", "Unsupported species/domain/task", "Non-finite prediction"],
+      "scientific_checks": ["Validate against independent OC20-compatible reference data and application-specific OOD slices", "Do not infer suitability outside the model card/domain from finite output"],
+      "source_ids": ["fairchem-v1-readme", "fairchem-v1-tag"]
+    },
+    {
+      "recipe_id": "fairchem-v2.install-and-probe@2.21.0",
+      "provider_id": "fairchem-v2",
+      "provider_version": "2.21.0",
+      "operation": "install-probe",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Isolated Python >=3.11,<3.14 environment; current Python 3.14 is incompatible", "Network/package installation authorized", "PyTorch 2.8-family and dependency lock are compatible"],
+      "steps": [
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "fairchem-core==2.21.0"], "outputs": ["installed v2 distribution metadata and dependency lock"]},
+        {"kind": "command", "argv": ["python", "-c", "import importlib.metadata as m; print(m.version('fairchem-core'))"], "outputs": ["distribution version evidence"]},
+        {"kind": "command", "argv": ["fairchem", "--help"], "outputs": ["registered CLI surface"]}
+      ],
+      "restart": "Recreate from the exact lock; do not mix FairChem v1 code or pretrained artifacts.",
+      "units": {},
+      "failure_modes": ["Python outside >=3.11,<3.14", "v1/v2 artifact/API mix", "PyTorch/dependency incompatibility"],
+      "scientific_checks": ["Framework installation proves no UMA access, model identity/license, task validity, or prediction quality."],
+      "source_ids": ["fairchem-v2-packaging", "fairchem-v2-pypi", "fairchem-v1-v2"]
+    },
+    {
+      "recipe_id": "fairchem-v2.uma-1p2-ase@2.21.0",
+      "provider_id": "fairchem-v2",
+      "provider_version": "2.21.0",
+      "operation": "pretrained-inference",
+      "state": "official-recipe-native-not-run",
+      "guard_support": "generic-evidence-only",
+      "execution_authorized": false,
+      "preconditions": ["Exact v2 environment", "Hugging Face account/model access/token and download are separately authorized without recording the token", "uma-s-1p2 model card/license/artifact identity is accepted", "task_name=omat is correct for the audited inorganic-material input", "Charge/spin, reference-energy convention, species/cell/PBC and deployment domain are explicit"],
+      "steps": [
+        {"kind": "python-api", "code": ["from fairchem.core import pretrained_mlip, FAIRChemCalculator", "predictor = pretrained_mlip.get_predict_unit('uma-s-1p2', device='cpu')", "calc = FAIRChemCalculator(predictor, task_name='omat')", "atoms.calc = calc", "energy = atoms.get_potential_energy()", "forces = atoms.get_forces()"], "outputs": ["gated model download/cache artifact when absent", "energy", "forces", "inference record"]}
+      ],
+      "restart": "Bind downloaded model bytes/model card/license once; every model/task/input/environment change is a new inference lineage.",
+      "units": {"energy": "ASE eV under the selected task/reference convention", "forces": "ASE eV/angstrom"},
+      "failure_modes": ["Missing/unauthorized model access", "Token disclosure", "Wrong task name", "Unsupported charge/spin/species/domain", "OMat24/Materials Project reference convention mixed", "Model revision changes behind a name", "Non-finite prediction"],
+      "scientific_checks": ["Verify task-specific charge/spin and DFT reference conventions", "Validate independent in-domain/OOD slice/tail metrics", "Do not compare formation/hull energies across incompatible reference conventions", "Finite inference is not deployment acceptance"],
+      "source_ids": ["fairchem-v2-readme", "fairchem-uma", "fairchem-uma-tutorial", "fairchem-models"]
+    }
+  ]
+}

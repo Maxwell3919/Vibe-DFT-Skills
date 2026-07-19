@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "software": "LAMMPS",
+  "pinned_version": "4Jul2026",
+  "checked_date": "2026-07-19",
+  "official_sources": [
+    "https://docs.lammps.org/Commands_input.html",
+    "https://docs.lammps.org/read_data.html",
+    "https://docs.lammps.org/read_restart.html",
+    "https://docs.lammps.org/dump.html",
+    "https://docs.lammps.org/thermo.html",
+    "https://docs.lammps.org/Run_output.html"
+  ],
+  "formats": [
+    {"name": "input script", "common_extension": ".lammps or .in", "encoding": "text executable command stream", "primary_consumer": "LAMMPS -in", "lineage_rule": "Hash the root and every literal include; variable, shell, Python, geturl, plugin and dynamic control surfaces require explicit code review and authorization."},
+    {"name": "data file", "common_extension": ".data", "encoding": "sectioned text", "primary_consumer": "read_data", "lineage_rule": "Bind header counts, box, atom style, topology sections, coefficients, units and type map to the input/model closure."},
+    {"name": "binary restart", "common_extension": ".restart", "encoding": "version/platform-sensitive binary", "primary_consumer": "read_restart or -restart2info/-restart2data", "lineage_rule": "Bind producing executable/build/platform, parent step, external files and commands not stored; never claim archival portability or universal exactness."},
+    {"name": "custom text dump", "common_extension": ".lammpstrj", "encoding": "ITEM-delimited text", "primary_consumer": "read_dump/rerun/analysis", "lineage_rule": "Record exact columns, coordinate variant, image flags, box variant, boundary flags, units, sort policy and segment times."},
+    {"name": "native/binary dump", "common_extension": ".bin or style-specific", "encoding": "binary", "primary_consumer": "matching LAMMPS/tools", "lineage_rule": "Require a pinned reader and captured field/layout evidence."},
+    {"name": "DCD/XTC/XYZ/CFG and package dump styles", "common_extension": "style-dependent", "encoding": "style-dependent", "primary_consumer": "external/native readers", "lineage_rule": "The dump style, not extension alone, defines available fields and semantics; verify compiled style availability."},
+    {"name": "log", "common_extension": ".lammps or .log", "encoding": "text", "primary_consumer": "human/guard", "lineage_rule": "Require exact release banner, intended thermo tables, final step/Loop time semantics and no adverse marker; screen and log may differ by launch options."},
+    {"name": "potential/model file", "common_extension": "style-dependent", "encoding": "text or binary", "primary_consumer": "pair/bond/fix style", "lineage_rule": "Hash every artifact and record style, element/type order, UNITS metadata when present, license, cutoff/domain and provider version."}
+  ],
+  "fail_closed_rules": [
+    "The selected units command controls input, coefficient and output meanings; never relabel values silently.",
+    "A restart does not store all fixes, computes, variables, regions, neighbor/KSpace, output commands or every external coefficient/model dependency.",
+    "Unknown dump columns or triclinic/general-box variants need an exact parser; do not infer unwrapping.",
+    "Treat the input script as code and refuse unreviewed executable/network extension surfaces."
+  ]
+}

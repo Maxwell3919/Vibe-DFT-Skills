@@ -1,0 +1,1181 @@
+schema_version: "1.0"
+
+# Canonical projection policy for fast or low-reasoning models.  User prose
+# describes the request and an evidence inventory; it is not itself a passed,
+# content-addressed gate.  Models must preserve native statuses in gate/finding
+# details while emitting the single normalized top-level projection below.
+response_policy:
+  natural_language_evidence: unverified-inventory-only
+  positive_evidence_requirement: bundle-verified-hash-bound-gate-evidence
+  route_selection: requested-terminal-intent
+  canonical_route_output: registered-skill-id-or-null
+  terminal_intent_routes:
+    external-publish: null
+    destructive-delete: null
+    scheduler-submit: dft-hpc-execution
+    scheduler-control: dft-hpc-execution
+    execution-authorization: dft-project-orchestrator
+    scientific-acceptance-decision: dft-project-orchestrator
+    structure-export: dft-structure-preparation
+    structure-transformation: dft-structure-preparation
+    scientific-report: dft-reporting
+    review-response: dft-review-response
+    literature-plan: literature-to-dft-plan
+  claim_ceiling_basis: highest-fully-satisfied-gate-profile
+  unverified_claim_ceiling: no_positive_claim
+  canonical_status_output: action-state
+  hard_block_action_state: local_gate_blocked
+  missing_evidence_action_state: needs_evidence
+  native_status_reporting: preserve-in-gates-and-finding-codes
+  action_state_precedence: [failed_terminal, failed_recoverable, local_gate_blocked, needs_evidence, needs_authorization, ready_for_deterministic_check, deterministic_check_running, ready_for_authorized_execution, execution_in_progress, handoff_ready, local_gate_passed_limited, complete]
+
+# This registry is the machine-facing weak-model routing boundary. A route is
+# executable only when both lifecycle=active and routable=true. Development and
+# planned routes describe promotion requirements, but deliberately have
+# no first tool or tool sequence. handoff.consumers contains only active live
+# targets; non-active future targets are isolated in future_consumers.
+routes:
+  cif-structure-analysis:
+    lifecycle: active
+    routable: true
+    required_reads:
+      - skills/cif-structure-analysis/SKILL.md
+      - skills/cif-structure-analysis/references/structure-manifest.md
+    first_tool:
+      explain: cif.analyze
+      structure_analysis: cif.analyze
+    tool_sequence:
+      explain: [cif.analyze]
+      structure_analysis: [cif.analyze]
+    side_effects: [local-write, local-execution]
+    minimum_evidence:
+      - CIF source bytes and a safe source label
+      - selected data block or explicit acceptance of block index zero
+      - explicit query options for requested numeric structure facts
+    native_status_mapping:
+      PASS: pass
+      WARN: warn
+      BLOCK: blocked
+      MATCHED: pass
+      NO_MATCH: pass
+      NOT_REQUESTED: not_applicable
+    maximum_claim: eligible_for_expert_review
+    actions:
+      cif.analyze:
+        argv:
+          - python3
+          - -B
+          - skills/cif-structure-analysis/scripts/analyze_cif.py
+          - --input
+          - <cif-file>
+          - --json
+          - <derived-json>
+          - --markdown
+          - <derived-markdown>
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+    claim_gate_profile:
+      no_positive_claim: {all_of: [], any_of: []}
+      documented_behavior_only: {all_of: [structure-analysis], any_of: []}
+      input_gates_only: {all_of: [structure-analysis], any_of: []}
+      technical_run_gates_only: {all_of: [structure-analysis], any_of: []}
+      numerical_candidate_only: {all_of: [structure-analysis], any_of: []}
+      eligible_for_expert_review: {all_of: [structure-analysis, structure-claim-boundary], any_of: []}
+    handoff:
+      status: enabled
+      produces:
+        - structure-manifest@1.0
+      consumers:
+        - qe-rigorous-calculations
+        - vasp-rigorous-calculations
+        - cp2k-rigorous-calculations
+        - siesta-rigorous-calculations
+        - dft-postprocess
+      future_consumers:
+        - dft-structure-preparation
+      requirements:
+        - schema-valid manifest with source SHA-256 and structure fingerprint
+        - preserve occupancy, disorder, symmetry, and representative-model warnings
+
+  qe-rigorous-calculations:
+    lifecycle: active
+    routable: true
+    required_reads:
+      - skills/qe-rigorous-calculations/SKILL.md
+      - skills/qe-rigorous-calculations/references/fail-closed-contract.md
+      - skills/qe-rigorous-calculations/references/official-manual-index.md
+    first_tool:
+      explain: qe.reference
+      design: qe.plan
+      audit_input: qe.audit-input
+      audit_run: qe.audit-run
+      convergence: qe.convergence
+      handoff: qe.audit-run
+    tool_sequence:
+      explain: [qe.reference]
+      design: [qe.plan, qe.reference, qe.audit-input]
+      audit_input: [qe.audit-input]
+      audit_run: [qe.audit-run]
+      convergence: [qe.convergence]
+      handoff: [qe.audit-run, qe.validate-handoff]
+    side_effects: [network-read, local-write, local-execution]
+    minimum_evidence:
+      - QE version and executable identity
+      - task, observable, unit, tolerance, protocol, and state identity
+      - exact input plus pseudopotential provenance and required parent evidence
+    native_status_mapping:
+      pass: pass
+      fail: fail
+      incomplete: blocked
+      blocked: blocked
+      cached_only: unresolved
+      not_assessed: not_evaluated
+      not_applicable: not_applicable
+      "not automated": not_evaluated
+    maximum_claim: eligible_for_expert_review
+    actions:
+      qe.plan:
+        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, plan, --case-id, <case-id>, --protocol-id, <protocol-id>, --task-type, <task>, --qe-version, <version>, --objective, <objective>, --observable, <observable>, --observable-unit, <unit>, --absolute-tolerance, <tolerance>, --out, <plan-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: no_positive_claim
+      qe.reference:
+        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, reference, --executable, <executable>, --term, <term>, --qe-version, <version>, --live-check, --out, <reference-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: [3]
+        side_effects: [network-read, local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      qe.audit-input:
+        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, audit, --input, <input>, --run-dir, <run-dir>, --pseudo-dir, <pseudo-dir>, --pseudo-manifest, <pseudo-manifest>, --expected-version, <version>, --plan, <plan-json>, --out, <audit-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: input_gates_only
+      qe.audit-run:
+        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, audit, --input, <input>, --output, <output>, --run-dir, <run-dir>, --pseudo-dir, <pseudo-dir>, --pseudo-manifest, <pseudo-manifest>, --expected-version, <version>, --plan, <plan-json>, --out, <audit-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: technical_run_gates_only
+      qe.convergence:
+        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, convergence, --csv, <series-csv>, --plan, <plan-json>, --protocol-id, <protocol-id>, --parameter, <parameter>, --parameter-unit, <parameter-unit>, --observable, <observable>, --observable-unit, <unit>, --absolute-tolerance, <tolerance>, --tail, <tail>, --out, <convergence-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: numerical_candidate_only
+      qe.validate-handoff:
+        argv: [python3, -B, tools/validate_contract.py, run, <run-manifest>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+    claim_gate_profile:
+      no_positive_claim: {all_of: [], any_of: []}
+      documented_behavior_only: {all_of: [], any_of: [official-source-coverage]}
+      input_gates_only: {all_of: [input-integrity], any_of: []}
+      technical_run_gates_only: {all_of: [input-integrity, execution-completion], any_of: []}
+      numerical_candidate_only: {all_of: [input-integrity, execution-completion, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [input-integrity, execution-completion, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+    handoff:
+      status: enabled
+      produces:
+        - run-manifest@1.0
+      consumers:
+        - dft-postprocess
+        - dft-campaign-efficiency
+      future_consumers:
+        - dft-project-orchestrator
+      requirements:
+        - bind input, output, plan, pseudopotential, parent, and report hashes
+        - retain scientific_claim_decision and every unassessed dimension
+
+  vasp-rigorous-calculations:
+    lifecycle: active
+    routable: true
+    required_reads:
+      - skills/vasp-rigorous-calculations/SKILL.md
+      - skills/vasp-rigorous-calculations/references/fail-closed-execution-contract.md
+      - skills/vasp-rigorous-calculations/references/task-evidence-profiles.json
+    first_tool:
+      explain: vasp.reference
+      design: vasp.reference
+      audit_input: vasp.audit-input
+      audit_run: vasp.audit-run
+      convergence: vasp.convergence
+      handoff: vasp.validate-claim
+    tool_sequence:
+      explain: [vasp.reference]
+      design: [vasp.reference, vasp.audit-input]
+      audit_input: [vasp.audit-input]
+      audit_run: [vasp.audit-run]
+      convergence: [vasp.convergence]
+      handoff: [vasp.validate-claim, vasp.validate-handoff]
+    side_effects: [local-execution]
+    minimum_evidence:
+      - VASP version/build and explicit task
+      - observable, unit, reference, tolerance, protocol, and state identity
+      - INCAR, POSCAR, KPOINTS, privacy-safe POTCAR metadata, and required run or parent evidence
+    native_status_mapping:
+      pass: pass
+      warn: warn
+      fail: fail
+      unresolved: unresolved
+      not_applicable: not_applicable
+      not_evaluated: not_evaluated
+      blocked: blocked
+    maximum_claim: eligible_for_expert_review
+    actions:
+      vasp.reference:
+        argv: [python3, -B, skills/vasp-rigorous-calculations/scripts/resolve_official_sources.py, <decisive-tag>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      vasp.audit-input:
+        argv: [python3, -B, skills/vasp-rigorous-calculations/scripts/audit_vasp_case.py, <case>, --mode, input, --task-type, <task>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: input_gates_only
+      vasp.audit-run:
+        argv: [python3, -B, skills/vasp-rigorous-calculations/scripts/audit_vasp_case.py, <case>, --mode, run, --task-type, <task>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: technical_run_gates_only
+      vasp.convergence:
+        argv: [python3, -B, skills/vasp-rigorous-calculations/scripts/analyze_convergence.py, <series-csv>, --x, <control>, --y, <observable-column>, --abs-tol, <tolerance>, --min-tail, <tail>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: numerical_candidate_only
+      vasp.validate-claim:
+        argv: [python3, -B, skills/vasp-rigorous-calculations/scripts/validate_claim_package.py, <claim-package>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+      vasp.validate-handoff:
+        argv: [python3, -B, tools/validate_contract.py, run, <run-manifest>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+    claim_gate_profile:
+      no_positive_claim: {all_of: [], any_of: []}
+      documented_behavior_only: {all_of: [], any_of: [official-source-coverage]}
+      input_gates_only: {all_of: [input-integrity, input-reproducibility], any_of: []}
+      technical_run_gates_only: {all_of: [input-integrity, input-reproducibility, execution-completion, electronic-convergence, output-warnings, version-identity], any_of: []}
+      numerical_candidate_only: {all_of: [input-integrity, input-reproducibility, execution-completion, electronic-convergence, output-warnings, version-identity, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [input-integrity, input-reproducibility, execution-completion, electronic-convergence, output-warnings, version-identity, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+    handoff:
+      status: enabled
+      produces:
+        - run-manifest@1.0
+      consumers:
+        - dft-postprocess
+        - dft-campaign-efficiency
+      future_consumers:
+        - dft-project-orchestrator
+      requirements:
+        - preserve safe POTCAR identity without licensed content
+        - preserve the gate matrix, claim ceiling, hashes, task checks, and limitations
+
+  cp2k-rigorous-calculations:
+    lifecycle: active
+    routable: true
+    required_reads:
+      - skills/cp2k-rigorous-calculations/SKILL.md
+      - skills/cp2k-rigorous-calculations/references/fail-closed-execution-contract.md
+      - skills/cp2k-rigorous-calculations/references/capability-coverage-matrix.md
+      - skills/cp2k-rigorous-calculations/references/task-evidence-profiles.json
+    first_tool:
+      explain: cp2k.reference
+      design: cp2k.reference
+      audit_input: cp2k.audit-input
+      audit_run: cp2k.audit-run
+      convergence: cp2k.convergence
+      handoff: cp2k.validate-claim
+    tool_sequence:
+      explain: [cp2k.reference]
+      design: [cp2k.reference, cp2k.audit-input]
+      audit_input: [cp2k.audit-input]
+      audit_run: [cp2k.audit-run]
+      convergence: [cp2k.convergence]
+      handoff: [cp2k.validate-claim, cp2k.validate-handoff]
+    side_effects: [network-read, local-execution]
+    minimum_evidence:
+      - CP2K version/build, executable variant, task, and method
+      - observable, unit, tolerance, protocol, state, and boundary conditions
+      - exact input, external basis/potential hashes, output when audited, and parent/restart evidence
+    native_status_mapping:
+      pass: pass
+      warn: warn
+      fail: fail
+      unresolved: unresolved
+      not_applicable: not_applicable
+      not_evaluated: not_evaluated
+      blocked: blocked
+    maximum_claim: eligible_for_expert_review
+    actions:
+      cp2k.reference:
+        argv: [python3, -B, skills/cp2k-rigorous-calculations/scripts/resolve_official_sources.py, --version, <version>, --live-check, <topic>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [network-read, local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      cp2k.audit-input:
+        argv: [python3, -B, skills/cp2k-rigorous-calculations/scripts/audit_cp2k_case.py, <input>, --mode, input, --task-type, <task>, --data-file, <data-file>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: input_gates_only
+      cp2k.audit-run:
+        argv: [python3, -B, skills/cp2k-rigorous-calculations/scripts/audit_cp2k_case.py, <input>, --mode, run, --task-type, <task>, --output, <output>, --data-file, <data-file>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: technical_run_gates_only
+      cp2k.convergence:
+        argv: [python3, -B, skills/cp2k-rigorous-calculations/scripts/analyze_convergence.py, <series-csv>, --x, <control>, --y, <observable-column>, --abs-tol, <tolerance>, --min-tail, <tail>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: numerical_candidate_only
+      cp2k.validate-claim:
+        argv: [python3, -B, skills/cp2k-rigorous-calculations/scripts/validate_claim_package.py, <claim-package>, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+      cp2k.validate-handoff:
+        argv: [python3, -B, tools/validate_contract.py, run, <run-manifest>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+    claim_gate_profile:
+      no_positive_claim: {all_of: [], any_of: []}
+      documented_behavior_only: {all_of: [], any_of: [official-source-coverage]}
+      input_gates_only: {all_of: [input-integrity, input-reproducibility, external-data-provenance], any_of: []}
+      technical_run_gates_only: {all_of: [input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity], any_of: []}
+      numerical_candidate_only: {all_of: [input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+    handoff:
+      status: enabled
+      produces:
+        - run-manifest@1.0
+      consumers:
+        - dft-postprocess
+        - dft-campaign-efficiency
+      future_consumers:
+        - dft-project-orchestrator
+      requirements:
+        - preserve data-file, input, output, parent, and audit hashes
+        - retain unsupported parser or method surfaces as blockers
+
+  siesta-rigorous-calculations:
+    lifecycle: active
+    routable: true
+    required_reads:
+      - skills/siesta-rigorous-calculations/SKILL.md
+      - skills/siesta-rigorous-calculations/references/fail-closed-execution-contract.md
+      - skills/siesta-rigorous-calculations/references/scientific-plan-contract.md
+      - skills/siesta-rigorous-calculations/references/task-evidence-profiles.json
+    first_tool:
+      explain: siesta.reference
+      design: siesta.plan
+      audit_input: siesta.audit-input
+      audit_run: siesta.audit-run
+      convergence: siesta.convergence
+      handoff: siesta.audit-run
+    tool_sequence:
+      explain: [siesta.reference]
+      design: [siesta.plan, siesta.reference, siesta.audit-input]
+      audit_input: [siesta.audit-input]
+      audit_run: [siesta.audit-run]
+      convergence: [siesta.convergence]
+      handoff: [siesta.audit-run, siesta.validate-handoff]
+    side_effects: [network-read, local-write, local-execution]
+    minimum_evidence:
+      - immutable scientific plan with SIESTA 5.4.2 identity
+      - direct FDF, pseudopotential manifest, periodicity, task, protocol, and state
+      - output plus parent/checkpoint evidence for run or restart routes
+    native_status_mapping:
+      pass: pass
+      warn: warn
+      fail: fail
+      unresolved: unresolved
+      cached_only: unresolved
+      not_applicable: not_applicable
+      not_evaluated: not_evaluated
+      blocked: blocked
+    maximum_claim: eligible_for_expert_review
+    actions:
+      siesta.plan:
+        argv: [python3, -B, skills/siesta-rigorous-calculations/scripts/create_siesta_plan.py, --case-id, <case-id>, --protocol-id, <protocol-id>, --state-id, <state-id>, --task-type, <task>, --siesta-version, <version>, --periodicity, <periodicity>, --workflow-stage, <stage>, --objective, <objective>, --observable, <observable>, --observable-unit, <unit>, --normalization, <normalization>, --reference, <reference>, --absolute-tolerance, <tolerance>, --acceptance-criterion, <criterion>, --out, <plan-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: no_positive_claim
+      siesta.reference:
+        argv: [python3, -B, skills/siesta-rigorous-calculations/scripts/resolve_official_sources.py, <fdf-label>, --live-check, --pretty]
+        success_exit_codes: [0]
+        limited_exit_codes: [3]
+        side_effects: [network-read, local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      siesta.audit-input:
+        argv: [python3, -B, skills/siesta-rigorous-calculations/scripts/audit_siesta_case.py, <input>, --mode, input, --task-type, <task>, --periodicity, <periodicity>, --plan, <plan-json>, --expected-version, <version>, --out, <audit-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: input_gates_only
+      siesta.audit-run:
+        argv: [python3, -B, skills/siesta-rigorous-calculations/scripts/audit_siesta_case.py, <input>, --mode, run, --task-type, <task>, --periodicity, <periodicity>, --plan, <plan-json>, --expected-version, <version>, --output, <output>, --out, <audit-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: technical_run_gates_only
+      siesta.convergence:
+        argv: [python3, -B, skills/siesta-rigorous-calculations/scripts/analyze_convergence.py, <series-csv>, --plan, <plan-json>, --protocol-id, <protocol-id>, --parameter, <parameter>, --parameter-unit, <parameter-unit>, --observable, <observable>, --observable-unit, <unit>, --absolute-tolerance, <tolerance>, --min-tail, <tail>, --direction, <direction>, --out, <convergence-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: numerical_candidate_only
+      siesta.validate-handoff:
+        argv: [python3, -B, tools/validate_contract.py, run, <run-manifest>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+    claim_gate_profile:
+      no_positive_claim: {all_of: [], any_of: []}
+      documented_behavior_only: {all_of: [], any_of: [official-source-resolution]}
+      input_gates_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance], any_of: []}
+      technical_run_gates_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, official-version-match], any_of: []}
+      numerical_candidate_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, official-version-match, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, official-version-match, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+    handoff:
+      status: enabled
+      produces:
+        - run-manifest@1.0
+      consumers:
+        - dft-postprocess
+        - dft-campaign-efficiency
+      future_consumers:
+        - dft-project-orchestrator
+      requirements:
+        - bind plan, direct FDF, output, pseudopotential, parent, and checkpoint hashes
+        - preserve documented-only, parser-only, cached-only, and physical-validity limitations
+
+  dft-postprocess:
+    lifecycle: active
+    routable: true
+    required_reads:
+      - skills/dft-postprocess/SKILL.md
+      - skills/dft-postprocess/references/observable-registry.yaml
+      - skills/dft-postprocess/references/tool-registry.md
+    first_tool:
+      explain: post.registry
+      postprocess: post.inventory
+      figure: post.inventory
+      handoff: post.validate-artifact
+    tool_sequence:
+      explain: [post.registry]
+      postprocess: [post.inventory, post.capabilities, post.plan]
+      figure: [post.inventory, post.capabilities, post.plan]
+      handoff: [post.validate-artifact]
+    side_effects: [local-write, local-execution]
+    minimum_evidence:
+      - source run identity, code/version, task, and source hashes
+      - observable route, units, reference state, selectors, and maturity
+      - required native files or explicitly declared external table inputs
+    native_status_mapping:
+      complete: pass
+      partial: warn
+      failed: fail
+      blocked: blocked
+      pass: pass
+      warn: warn
+      block: blocked
+      TOOL_UNAVAILABLE: blocked
+      SCRIPT_GAP: not_evaluated
+      design-only: not_evaluated
+    maximum_claim: eligible_for_expert_review
+    actions:
+      post.registry:
+        argv: [python3, -B, skills/dft-postprocess/scripts/dftpost_cli.py, registry]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      post.inventory:
+        argv: [python3, -B, skills/dft-postprocess/scripts/dftpost_cli.py, inventory, <run-dir>, --out, <inventory-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      post.capabilities:
+        argv: [python3, -B, skills/dft-postprocess/scripts/dftpost_cli.py, capabilities, --out, <capabilities-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      post.plan:
+        argv: [python3, -B, skills/dft-postprocess/scripts/dftpost_cli.py, plan, --plan-id, <plan-id>, --observable, <observable>, --code, <code>, --source-root, <source-root>, --output-root, <output-root>, --out, <plan-json>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: input_gates_only
+      post.validate-artifact:
+        argv: [python3, -B, skills/dft-postprocess/scripts/dftpost_cli.py, validate-manifest, artifact, <artifact-manifest>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+    claim_gate_profile:
+      no_positive_claim: {all_of: [], any_of: []}
+      documented_behavior_only: {all_of: [], any_of: [source-inventory, observable-route]}
+      input_gates_only: {all_of: [source-inventory, observable-route], any_of: []}
+      technical_run_gates_only: {all_of: [source-inventory, observable-route, dataset-validation], any_of: []}
+      numerical_candidate_only: {all_of: [source-inventory, observable-route, dataset-validation, numerical-analysis-validation], any_of: []}
+      eligible_for_expert_review: {all_of: [source-inventory, observable-route, dataset-validation, artifact-validation, expert-review-readiness], any_of: []}
+    handoff:
+      status: enabled
+      produces:
+        - postprocess-plan@1.0
+        - tool-execution@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      consumers:
+        - dft-campaign-efficiency
+      future_consumers:
+        - dft-reporting
+        - dft-review-response
+        - dft-project-orchestrator
+      requirements:
+        - bind every structured value and figure to source hashes, units, and transformations
+        - preserve route maturity, partial data, warning channels, and blocked claims
+
+  dft-campaign-efficiency:
+    lifecycle: active
+    routable: true
+    required_reads:
+      - skills/dft-campaign-efficiency/SKILL.md
+      - skills/dft-campaign-efficiency/references/case-first-learning.md
+      - skills/dft-campaign-efficiency/references/comparability-and-evidence.md
+    first_tool:
+      explain: efficiency.validate-run
+      efficiency: efficiency.validate-run
+      handoff: efficiency.validate-recommendation
+    tool_sequence:
+      explain: [efficiency.validate-run]
+      efficiency: [efficiency.validate-run, efficiency.from-run]
+      handoff: [efficiency.validate-recommendation]
+    side_effects: [local-write, local-execution]
+    minimum_evidence:
+      - privacy-safe terminal run or artifact manifest
+      - measured or explicitly estimated cost metrics and configuration identity
+      - scientific gate, protocol, comparability group, and counterexamples
+    native_status_mapping:
+      candidate: warn
+      validated-for-this-campaign: pass
+      cross-campaign-validated: pass
+      superseded: warn
+      insufficient-evidence: unresolved
+      accepted: pass
+      rejected: fail
+      failed: fail
+      stopped: warn
+    maximum_claim: eligible_for_expert_review
+    actions:
+      efficiency.validate-run:
+        argv: [python3, -B, tools/validate_contract.py, run, <run-manifest>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: documented_behavior_only
+      efficiency.from-run:
+        argv: [python3, -B, skills/dft-campaign-efficiency/scripts/dft_efficiency_cli.py, from-run, <run-manifest>, --system-class, <system-class>, --atom-count, <atom-count>, --configuration-id, <configuration-id>, --out, <campaign-record>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-write, local-execution]
+        requires_authorization: false
+        maximum_claim: technical_run_gates_only
+      efficiency.validate-recommendation:
+        argv: [python3, -B, tools/validate_contract.py, recommendation, <recommendation-record>]
+        success_exit_codes: [0]
+        limited_exit_codes: []
+        side_effects: [local-execution]
+        requires_authorization: false
+        maximum_claim: eligible_for_expert_review
+    claim_gate_profile:
+      no_positive_claim: {all_of: [], any_of: []}
+      documented_behavior_only: {all_of: [manifest-validation], any_of: []}
+      input_gates_only: {all_of: [manifest-validation], any_of: []}
+      technical_run_gates_only: {all_of: [manifest-validation, campaign-normalization], any_of: []}
+      numerical_candidate_only: {all_of: [manifest-validation, campaign-normalization, comparability], any_of: []}
+      eligible_for_expert_review: {all_of: [manifest-validation, campaign-normalization, comparability, recommendation-evidence, expert-review-readiness], any_of: []}
+    handoff:
+      status: enabled
+      produces:
+        - campaign-record@1.0
+        - recommendation-record@1.0
+      consumers: []
+      future_consumers:
+        - dft-reporting
+      requirements:
+        - recommendation cites evidence record IDs and preserves the scientific gate
+        - runtime database, private narratives, hosts, paths, and unpublished results remain external
+
+  dft-project-orchestrator:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/dft-project-orchestrator/SKILL.md
+      - skills/dft-project-orchestrator/references/weak-model-decision-table.json
+    first_tool: &planned_first_tool {}
+    tool_sequence: &planned_tool_sequence {}
+    side_effects: [local-write, local-execution]
+    minimum_evidence: &planned_evidence
+      - reviewed promotion checklist with versioned primary evidence
+      - deterministic positive, negative, mutation, version-boundary, and blind forward tests
+      - atomic registry, contract, documentation, installation, and CI promotion delta
+    native_status_mapping: &planned_mapping
+      development: blocked
+      planned: blocked
+      inactive: blocked
+      unsupported: not_evaluated
+    maximum_claim: no_positive_claim
+    actions: &planned_actions {}
+    claim_gate_profile: &planned_claim_profile
+      no_positive_claim: {all_of: [], any_of: []}
+    handoff:
+      status: blocked
+      produces:
+        - workflow-plan@1.0
+        - decision-record@1.0
+        - execution-request@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after workflow state, routing, resumability, approvals, and two-engine fixtures pass
+
+  dft-hpc-execution:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/dft-hpc-execution/SKILL.md
+      - skills/dft-hpc-execution/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-execution, remote-read, remote-write, scheduler-submit, scheduler-control]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - execution-lease@1.0
+        - execution-record@1.0
+        - workflow-event@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after approval, credential, lease, retry, cancellation, scheduler, and recovery gates pass
+
+  dft-reporting:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/dft-reporting/SKILL.md
+      - skills/dft-reporting/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - scientific-report@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after claim-evidence validation and bilingual render QA pass
+
+  literature-to-dft-plan:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/literature-to-dft-plan/SKILL.md
+      - skills/literature-to-dft-plan/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [network-read, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - literature-evidence-plan@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after source-quality, citation, extraction, inference, and assumption gates pass
+
+  dft-review-response:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/dft-review-response/SKILL.md
+      - skills/dft-review-response/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - claim-evidence-map@1.0
+        - review-evidence-map@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after reviewer-comment, claim, result, contradiction, and insufficiency gates pass
+
+  dft-structure-preparation:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/dft-structure-preparation/SKILL.md
+      - skills/dft-structure-preparation/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - structure-snapshot@1.0
+        - molecular-structure-manifest@1.0
+        - structure-transformation-manifest@1.0
+        - structure-export-manifest@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after parent-child fingerprints, site mapping, transformations, disorder, and round-trip gates pass
+
+  gaussian-rigorous-calculations:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/gaussian-rigorous-calculations/SKILL.md
+      - skills/gaussian-rigorous-calculations/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - quantum-chemistry-run-manifest@1.0
+        - calculation-record-envelope@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after exact licensed-version documentation, legal fixtures, checkpoint, completion, and task gates pass
+
+  gromacs-rigorous-simulations:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/gromacs-rigorous-simulations/SKILL.md
+      - skills/gromacs-rigorous-simulations/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - md-run-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after topology, force-field, ensemble, restart, trajectory, and statistical gates pass
+
+  lammps-rigorous-simulations:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/lammps-rigorous-simulations/SKILL.md
+      - skills/lammps-rigorous-simulations/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - simulation-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after input grammar, potential, units, boundary, ensemble, restart, and trajectory gates pass
+
+  deepmd-rigorous-workflows:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/deepmd-rigorous-workflows/SKILL.md
+      - skills/deepmd-rigorous-workflows/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - ml-training-run@1.0
+        - ml-evaluation-manifest@1.0
+        - ml-model-manifest@1.0
+        - ml-deployment-manifest@1.0
+        - ml-inference-run@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after dataset, split, leakage, training, restart, evaluation, model, and inference gates pass
+
+  multiwfn-wavefunction-analysis:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/multiwfn-wavefunction-analysis/SKILL.md
+      - skills/multiwfn-wavefunction-analysis/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after exact-version menu recipes, wavefunction inventory, prompt sentinels, and real artifacts pass
+
+  phonopy-rigorous-workflows:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/phonopy-rigorous-workflows/SKILL.md
+      - skills/phonopy-rigorous-workflows/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - phonon-workflow-manifest@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after displacement, child-force, force-constant, mesh, band, DOS, NAC, and lineage gates pass
+
+  vaspkit-postprocess:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/vaspkit-postprocess/SKILL.md
+      - skills/vaspkit-postprocess/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after exact-version task whitelist, configuration sandbox, references, and real artifacts pass
+
+  catmap-microkinetics:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/catmap-microkinetics/SKILL.md
+      - skills/catmap-microkinetics/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - microkinetic-model-manifest@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after safe model parsing, network, thermochemistry, solver, balance, and steady-state gates pass
+
+  lobster-bonding-analysis:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/lobster-bonding-analysis/SKILL.md
+      - skills/lobster-bonding-analysis/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after licensed-version, wavefunction eligibility, basis, projection, spilling, and COHP gates pass
+
+  ovito-atomistic-analysis:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/ovito-atomistic-analysis/SKILL.md
+      - skills/ovito-atomistic-analysis/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - ovito-pipeline-spec@1.0
+        - artifact-manifest@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after trajectory inventory, numerical pipeline, render, edition, and visual-review gates pass
+
+  ml-potential-workflows:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/ml-potential-workflows/SKILL.md
+      - skills/ml-potential-workflows/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - ml-training-plan@1.0
+        - ml-training-run@1.0
+        - ml-evaluation-manifest@1.0
+        - ml-model-manifest@1.0
+        - ml-deployment-manifest@1.0
+        - ml-inference-run@1.0
+        - calculation-record-envelope@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after provider-specific dataset, training, evaluation, deployment, extrapolation, and inference gates pass
+
+  gpumd-rigorous-simulations:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/gpumd-rigorous-simulations/SKILL.md
+      - skills/gpumd-rigorous-simulations/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - simulation-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - activate only after build, GPU, model, input, simulation, restart, output, and version-boundary gates pass
+
+  lasp-rigorous-simulations:
+    lifecycle: development
+    routable: false
+    required_reads:
+      - registry/skill-registry.yaml
+      - registry/operation-routes.yaml
+      - skills/lasp-rigorous-simulations/SKILL.md
+      - skills/lasp-rigorous-simulations/references/weak-model-decision-table.json
+    first_tool: *planned_first_tool
+    tool_sequence: *planned_tool_sequence
+    side_effects: [local-write, local-execution]
+    minimum_evidence: *planned_evidence
+    native_status_mapping: *planned_mapping
+    maximum_claim: no_positive_claim
+    actions: *planned_actions
+    claim_gate_profile: *planned_claim_profile
+    handoff:
+      status: blocked
+      produces:
+        - simulation-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      consumers: []
+      future_consumers: []
+      requirements:
+        - remain blocked until legal version-matched manuals, software identity, fixtures, and controlled regression access exist

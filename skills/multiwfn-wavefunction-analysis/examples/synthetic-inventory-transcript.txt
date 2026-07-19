@@ -1,0 +1,6 @@
+Multiwfn -- A Multifunctional Wavefunction Analyzer
+Version 3.8(dev), update date: 2026-Jul-15
+Loaded synthetic.wfx successfully!
+************ Main function menu ************
+q: Exit program gracefully
+Multiwfn exited gracefully

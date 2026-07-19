@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "candidate": "dft-review-response",
+  "tasks": [
+    {"task_id": "plan", "inputs": ["response request", "claim-evidence-map@1.0 exact bytes"], "outputs": ["review-response-candidate-plan"], "maximum_action": "local-draft-plan", "maximum_claim": "no_positive_claim"},
+    {"task_id": "audit", "inputs": ["candidate plan exact bytes"], "outputs": ["review-response-candidate-audit"], "maximum_action": "local-audit", "maximum_claim": "no_positive_claim"},
+    {"task_id": "render-package", "inputs": ["passing plan", "exact-plan audit"], "outputs": ["review-response-candidate-package"], "maximum_action": "local-json-draft", "maximum_claim": "no_positive_claim"},
+    {"task_id": "apply-manuscript-change", "inputs": [], "outputs": [], "maximum_action": "blocked-external-editor", "maximum_claim": "no_positive_claim"},
+    {"task_id": "send-or-submit", "inputs": [], "outputs": [], "maximum_action": "blocked-external-release", "maximum_claim": "no_positive_claim"}
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "dft-review-response-request",
+  "request_id": "synthetic-review-request-001",
+  "package_id": "synthetic-review-package-001",
+  "generated_utc": "2026-07-19T00:00:00Z",
+  "manuscript_ref": {
+    "contract_name": "scientific-report",
+    "schema_version": "1.0",
+    "record_id": "synthetic-manuscript-001",
+    "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "role": "manuscript"
+  },
+  "claim_map_ref": {
+    "contract_name": "claim-evidence-map",
+    "schema_version": "1.0",
+    "record_id": "synthetic-review-map-001",
+    "sha256": "70a85353dfe9209a074632c2254d474c0b43dac26488a81ee4944abcc1e435d3",
+    "role": "claim-map"
+  },
+  "comments": [
+    {
+      "comment_id": "comment-001",
+      "reviewer_label": "reviewer-001",
+      "text": "Please clarify how technical completion is evidenced.",
+      "concern_type": "method",
+      "requested_action": "Add an evidence-bound clarification."
+    }
+  ],
+  "responses": [
+    {
+      "response_id": "response-001",
+      "comment_id": "comment-001",
+      "response_kind": "method",
+      "position": "agree",
+      "draft_text": "The revision will identify the exact technical gate and its evidence ID.",
+      "change_ids": ["change-001"],
+      "evidence_ids": ["ev-review-output"],
+      "claim_ids": ["claim-review-technical"],
+      "no_change_reason": null,
+      "limitations": ["The candidate does not apply or submit the revision."]
+    }
+  ],
+  "modifications": [
+    {
+      "change_id": "change-001",
+      "location_label": "methods-section",
+      "action": "Propose one sentence linking technical completion to the evidence ID.",
+      "status": "proposed",
+      "comment_ids": ["comment-001"],
+      "evidence_ids": ["ev-review-output"],
+      "claim_ids": ["claim-review-technical"],
+      "limitations": ["A later editor must create and hash the actual manuscript change."]
+    }
+  ],
+  "limitations": ["Synthetic metadata demonstrates linkage only; no message is sent."]
+}

@@ -2,6 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/recommendation-record.schema.json",
   "title": "DFT efficiency recommendation record",
+  "description": "Advisory efficiency conclusion whose positive states require bundle-resolved, scientifically accepted campaign records. Unreviewed cost records may inform inventory but cannot validate a recommendation.",
+  "x-vibe-semantic-obligations": [
+    "RECOMMENDATION_EVIDENCE_CAMPAIGNS_MATCH",
+    "RECOMMENDATION_POSITIVE_EVIDENCE_ACCEPTED",
+    "RECOMMENDATION_RECORD_REF_DAG_ACYCLIC"
+  ],
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,6 +18,7 @@
     "baseline_configuration_id",
     "recommended_configuration_id",
     "evidence_record_ids",
+    "evidence_record_refs",
     "estimated_savings_fraction",
     "confidence",
     "scientific_gate",
@@ -22,14 +29,96 @@
     "schema_version": {"const": "1.0"},
     "recommendation_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
     "status": {"enum": ["candidate", "validated-for-this-campaign", "cross-campaign-validated", "superseded", "insufficient-evidence"]},
-    "applicability": {"type": "object"},
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "code_version",
+        "task_type",
+        "system_class",
+        "atom_count",
+        "scientific_protocol_id"
+      ],
+      "properties": {
+        "code": {"enum": ["qe", "vasp", "cp2k", "siesta"]},
+        "code_version": {"type": "string", "minLength": 1},
+        "task_type": {"type": "string", "minLength": 1},
+        "system_class": {"type": "string", "minLength": 1},
+        "atom_count": {"type": "integer", "minimum": 1},
+        "scientific_protocol_id": {"type": "string", "minLength": 1}
+      }
+    },
     "baseline_configuration_id": {"type": ["string", "null"]},
     "recommended_configuration_id": {"type": ["string", "null"]},
-    "evidence_record_ids": {"type": "array", "items": {"type": "string"}},
+    "evidence_record_ids": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+      "uniqueItems": true
+    },
+    "evidence_record_refs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/campaignRecordRef"},
+      "uniqueItems": true
+    },
     "estimated_savings_fraction": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
     "confidence": {"enum": ["none", "campaign", "cross-campaign"]},
     "scientific_gate": {"type": "string", "minLength": 1},
     "limitations": {"type": "array", "items": {"type": "string"}},
     "generated_utc": {"type": "string", "format": "date-time"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": ["validated-for-this-campaign", "cross-campaign-validated"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "baseline_configuration_id": {"type": "string", "minLength": 1},
+          "recommended_configuration_id": {"type": "string", "minLength": 1},
+          "evidence_record_ids": {"minItems": 4},
+          "evidence_record_refs": {"minItems": 4},
+          "estimated_savings_fraction": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          },
+          "confidence": {"enum": ["campaign", "cross-campaign"]}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "insufficient-evidence"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "baseline_configuration_id": {"type": "null"},
+          "recommended_configuration_id": {"type": "null"},
+          "estimated_savings_fraction": {"type": "null"},
+          "confidence": {"const": "none"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "campaignRecordRef": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "campaign-record"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "efficiency-evidence"}
+          }
+        }
+      ]
+    }
   }
 }

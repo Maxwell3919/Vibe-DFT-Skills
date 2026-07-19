@@ -1,0 +1,71 @@
+{
+  "catalog_name": "catmap-software-capabilities",
+  "schema_version": "1.0",
+  "provider_target": "CatMAP v0.4.1",
+  "evidence_state": "official-feature",
+  "scope_note": "This catalog maps documented/tagged software surfaces. It is not evidence that CatMAP is installed, that a recipe ran locally, or that a scientific model is valid.",
+  "modules": [
+    {"id":"module.catmap","group":"core","python_name":"catmap","public_symbols":["ReactionModel","ReactionModelWrapper","load"],"purpose":"Top-level package and model-loading convenience surface.","source_ids":["CAT-REF-MODEL","CAT-SETUP-041"]},
+    {"id":"module.catmap.model","group":"core","python_name":"catmap.model","public_symbols":["ReactionModel"],"purpose":"Central reaction-model object, setup-file loading, parsing, solving, mapping, logging, and model summaries.","source_ids":["CAT-REF-MODEL","CAT-CODE-OVERVIEW"]},
+    {"id":"module.catmap.cli","group":"core","python_name":"catmap.cli","public_symbols":["main","get_options"],"purpose":"Command-line import shell and reaction-graph entry points.","source_ids":["CAT-CLI-041","CAT-REF-MODEL"]},
+    {"id":"module.catmap.functions","group":"core","python_name":"catmap.functions","public_symbols":["fetch_all_output_variables","get_composition","convert_formation_energies","numerical_jacobian"],"purpose":"Shared parsing, numerical, energy-conversion, and output-discovery helpers.","source_ids":["CAT-REF-MODEL"]},
+    {"id":"module.catmap.api","group":"core","python_name":"catmap.api","public_symbols":[],"purpose":"Packaged API namespace present in the v0.4.1 distribution; no stable high-level workflow is claimed here.","source_ids":["CAT-SETUP-041"]},
+
+    {"id":"module.catmap.analyze","group":"analysis","python_name":"catmap.analyze","public_symbols":["VectorMap","MatrixMap","MechanismAnalysis","ScalingAnalysis"],"purpose":"Analysis and plotting package.","source_ids":["CAT-REF-ANALYZE","CAT-CODE-OVERVIEW"]},
+    {"id":"module.catmap.analyze.analysis_base","group":"analysis","python_name":"catmap.analyze.analysis_base","public_symbols":["AnalysisBase"],"purpose":"Base class for model analysis objects.","source_ids":["CAT-REF-ANALYZE"]},
+    {"id":"module.catmap.analyze.vector_map","group":"analysis","python_name":"catmap.analyze.vector_map","public_symbols":["VectorMap"],"purpose":"Plot vector-valued descriptor maps such as rates and coverages.","source_ids":["CAT-REF-ANALYZE","CAT-TUT-MODEL"]},
+    {"id":"module.catmap.analyze.matrix_map","group":"analysis","python_name":"catmap.analyze.matrix_map","public_symbols":["MatrixMap"],"purpose":"Plot matrix-valued descriptor maps such as rate/selectivity control.","source_ids":["CAT-REF-ANALYZE","CAT-TUT-REFINE"]},
+    {"id":"module.catmap.analyze.mechanism","group":"analysis","python_name":"catmap.analyze.mechanism","public_symbols":["MechanismAnalysis"],"purpose":"Free-energy diagrams and reaction-mechanism graph representation.","source_ids":["CAT-REF-ANALYZE","CAT-TUT-REFINE"]},
+    {"id":"module.catmap.analyze.scaling","group":"analysis","python_name":"catmap.analyze.scaling","public_symbols":["ScalingAnalysis"],"purpose":"Inspect scaling projections and relationships.","source_ids":["CAT-REF-ANALYZE","CAT-CODE-OVERVIEW"]},
+
+    {"id":"module.catmap.data","group":"data","python_name":"catmap.data","public_symbols":[],"purpose":"Built-in parameter, template, regular-expression, Shomate, gas, and electrochemical data namespace.","source_ids":["CAT-REF-MODEL","CAT-TOPIC-ECHEM"]},
+    {"id":"module.catmap.data.hbond_data","group":"data","python_name":"catmap.data.hbond_data","public_symbols":[],"purpose":"Default electrochemical hydrogen-bond correction data.","source_ids":["CAT-TOPIC-ECHEM"]},
+    {"id":"module.catmap.data.parameter_data","group":"data","python_name":"catmap.data.parameter_data","public_symbols":[],"purpose":"Built-in thermochemical parameter data.","source_ids":["CAT-REF-MODEL","CAT-TUT-MODEL"]},
+    {"id":"module.catmap.data.regular_expressions","group":"data","python_name":"catmap.data.regular_expressions","public_symbols":[],"purpose":"Reaction/species parsing expressions.","source_ids":["CAT-REF-MODEL"]},
+    {"id":"module.catmap.data.templates","group":"data","python_name":"catmap.data.templates","public_symbols":[],"purpose":"Code and output templates used by model generation/logging.","source_ids":["CAT-REF-MODEL"]},
+
+    {"id":"module.catmap.mappers","group":"mapping","python_name":"catmap.mappers","public_symbols":["MinResidMapper"],"purpose":"Descriptor-space traversal package.","source_ids":["CAT-REF-MAPPERS","CAT-CODE-OVERVIEW"]},
+    {"id":"module.catmap.mappers.mapper_base","group":"mapping","python_name":"catmap.mappers.mapper_base","public_symbols":["MapperBase"],"purpose":"Base mapping, map serialization, and reaction-parameter map interface.","source_ids":["CAT-REF-MAPPERS"]},
+    {"id":"module.catmap.mappers.min_resid_mapper","group":"mapping","python_name":"catmap.mappers.min_resid_mapper","public_symbols":["MinResidMapper"],"purpose":"Default residual-guided descriptor-space mapper.","source_ids":["CAT-REF-MAPPERS","CAT-CODE-OVERVIEW"]},
+
+    {"id":"module.catmap.parsers","group":"parsing","python_name":"catmap.parsers","public_symbols":["TableParser"],"purpose":"Model-input parser package.","source_ids":["CAT-REF-PARSERS","CAT-TUT-INPUT"]},
+    {"id":"module.catmap.parsers.parser_base","group":"parsing","python_name":"catmap.parsers.parser_base","public_symbols":["ParserBase"],"purpose":"Base input-parser interface.","source_ids":["CAT-REF-PARSERS"]},
+    {"id":"module.catmap.parsers.table_parser","group":"parsing","python_name":"catmap.parsers.table_parser","public_symbols":["TableParser"],"purpose":"Default tab-separated energetics/frequency table parser.","source_ids":["CAT-REF-PARSERS","CAT-TUT-INPUT"]},
+
+    {"id":"module.catmap.scalers","group":"scaling","python_name":"catmap.scalers","public_symbols":["GeneralizedLinearScaler","NullScaler","ThermodynamicScaler"],"purpose":"Descriptor-to-parameter projection package.","source_ids":["CAT-REF-SCALERS","CAT-CODE-OVERVIEW"]},
+    {"id":"module.catmap.scalers.scaler_base","group":"scaling","python_name":"catmap.scalers.scaler_base","public_symbols":["ScalerBase"],"purpose":"Base scaler and scaler-originated output interface.","source_ids":["CAT-REF-SCALERS","CAT-TOPIC-OUTPUT"]},
+    {"id":"module.catmap.scalers.generalized_linear_scaler","group":"scaling","python_name":"catmap.scalers.generalized_linear_scaler","public_symbols":["GeneralizedLinearScaler"],"purpose":"Default generalized linear scaling from descriptors to reaction parameters.","source_ids":["CAT-REF-SCALERS"]},
+    {"id":"module.catmap.scalers.null_scaler","group":"scaling","python_name":"catmap.scalers.null_scaler","public_symbols":["NullScaler"],"purpose":"Pass descriptor values directly to the solver.","source_ids":["CAT-REF-SCALERS"]},
+    {"id":"module.catmap.scalers.thermodynamic_scaler","group":"scaling","python_name":"catmap.scalers.thermodynamic_scaler","public_symbols":["ThermodynamicScaler"],"purpose":"Use temperature, pressure, or potential as descriptors with fixed energetics.","source_ids":["CAT-REF-SCALERS","CAT-TOPIC-ECHEM"]},
+
+    {"id":"module.catmap.solvers","group":"solving","python_name":"catmap.solvers","public_symbols":["SteadyStateSolver","IntegratedRateControlSolver"],"purpose":"Mean-field kinetic solver package.","source_ids":["CAT-REF-SOLVERS","CAT-CODE-OVERVIEW"]},
+    {"id":"module.catmap.solvers.solver_base","group":"solving","python_name":"catmap.solvers.solver_base","public_symbols":["SolverBase"],"purpose":"Base rate, output, sensitivity, and solver interface.","source_ids":["CAT-REF-SOLVERS","CAT-TOPIC-OUTPUT"]},
+    {"id":"module.catmap.solvers.mean_field_solver","group":"solving","python_name":"catmap.solvers.mean_field_solver","public_symbols":["MeanFieldSolver"],"purpose":"Mean-field rate-equation implementation shared by steady-state solvers.","source_ids":["CAT-REF-SOLVERS"]},
+    {"id":"module.catmap.solvers.steady_state_solver","group":"solving","python_name":"catmap.solvers.steady_state_solver","public_symbols":["SteadyStateSolver"],"purpose":"Default steady-state solver surface; v0.4 behavior depends on use_numbers_solver.","source_ids":["CAT-REF-SOLVERS","CAT-README-041","CAT-PAPER-NUMBERS"]},
+    {"id":"module.catmap.solvers.numbers_solver","group":"solving","python_name":"catmap.solvers.numbers_solver","public_symbols":["SteadyStateNumbersSolver","SquaredNumbersToTheta"],"purpose":"Number-of-sites parameterization added and made default in v0.4.0.","source_ids":["CAT-README-041","CAT-PAPER-NUMBERS"]},
+    {"id":"module.catmap.solvers.integrated_rate_control_solver","group":"solving","python_name":"catmap.solvers.integrated_rate_control_solver","public_symbols":["IntegratedRateControlSolver"],"purpose":"Integrated degree-of-rate-control screening solver.","source_ids":["CAT-REF-SOLVERS"]},
+
+    {"id":"module.catmap.thermodynamics","group":"thermochemistry","python_name":"catmap.thermodynamics","public_symbols":["ThermoCorrections"],"purpose":"Thermodynamic corrections and lateral-interaction package.","source_ids":["CAT-REF-THERMO","CAT-CODE-OVERVIEW"]},
+    {"id":"module.catmap.thermodynamics.enthalpy_entropy","group":"thermochemistry","python_name":"catmap.thermodynamics.enthalpy_entropy","public_symbols":["ThermoCorrections"],"purpose":"Gas, adsorbate, transition-state, pressure, temperature, and electrochemical corrections.","source_ids":["CAT-REF-THERMO","CAT-TOPIC-ECHEM","CAT-TUT-MODEL"]},
+    {"id":"module.catmap.thermodynamics.first_order_interactions","group":"thermochemistry","python_name":"catmap.thermodynamics.first_order_interactions","public_symbols":["FirstOrderInteractions"],"purpose":"First-order coverage-dependent adsorbate interaction model.","source_ids":["CAT-REF-THERMO","CAT-TOPIC-INTERACTIONS"]},
+    {"id":"module.catmap.thermodynamics.second_order_interactions","group":"thermochemistry","python_name":"catmap.thermodynamics.second_order_interactions","public_symbols":["SecondOrderInteractions"],"purpose":"Second-order interaction implementation; manual support and validation are limited.","source_ids":["CAT-REF-THERMO","CAT-TOPIC-INTERACTIONS"]}
+  ],
+  "features": [
+    {"id":"feature.python.run-model","group":"execution","surface":"Python","call":"ReactionModel(setup_file='model.mkm').run()","purpose":"Load a setup file and run the configured parser/scaler/solver/mapper workflow.","source_ids":["CAT-TUT-MODEL","CAT-REF-MODEL"]},
+    {"id":"feature.python.single-point","group":"execution","surface":"Python","call":"model.single_point_analysis(pt)","purpose":"Evaluate one descriptor-space point.","source_ids":["CAT-REF-MODEL"]},
+    {"id":"feature.python.recalculate","group":"execution","surface":"Python","call":"model.run(recalculate=True)","purpose":"Re-solve using reloaded data as an initial guess.","source_ids":["CAT-REF-MODEL"]},
+    {"id":"feature.python.verify","group":"validation","surface":"Python","call":"model.verify()","purpose":"Run CatMAP's documented consistency checks; not a scientific validity proof.","source_ids":["CAT-REF-MODEL"]},
+    {"id":"feature.python.parse-table","group":"input","surface":"Python","call":"TableParser(model).parse()","purpose":"Parse tab-separated energetic/frequency input into species_definitions.","source_ids":["CAT-TUT-INPUT","CAT-REF-PARSERS"]},
+    {"id":"feature.cli.import","group":"cli","surface":"CLI","call":"catmap import model.mkm","purpose":"Open a setup model in an interactive IPython shell; loading executes the setup file.","source_ids":["CAT-CLI-041","CAT-REF-MODEL"]},
+    {"id":"feature.cli.graphviz","group":"cli","surface":"CLI","call":"catmap graphviz model.mkm","purpose":"Create and render a reaction-mechanism graph through MechanismAnalysis.","source_ids":["CAT-CLI-041"]},
+    {"id":"feature.cli.run-submission","group":"cli","surface":"CLI","call":"python mkm_job.py","purpose":"Run a user-authored submission script that constructs and runs ReactionModel.","source_ids":["CAT-TUT-MODEL"]},
+    {"id":"feature.cli.inspect-log","group":"cli","surface":"CLI","call":"python -i model.log","purpose":"Open a CatMAP-generated Python log interactively; the log loads its associated pickle.","source_ids":["CAT-TUT-MODEL"]},
+    {"id":"feature.output.maps","group":"output","surface":"Python attributes","call":"model.<output>_map; model.output_labels[<output>]","purpose":"Access descriptor points paired with vector/matrix values and their label ordering.","source_ids":["CAT-TOPIC-ACCESS","CAT-TOPIC-OUTPUT"]},
+    {"id":"feature.output.variables","group":"output","surface":"setup/Python","call":"model.output_variables += ['production_rate', 'rate_control']","purpose":"Request coverage, rates, production/consumption/turnover, free-energy, sensitivity, and related outputs.","source_ids":["CAT-TOPIC-OUTPUT","CAT-TUT-REFINE"]},
+    {"id":"feature.analysis.vector-map","group":"analysis","surface":"Python","call":"analyze.VectorMap(model).plot(save='plot.pdf')","purpose":"Plot vector-valued outputs such as rate, production_rate, or coverage.","source_ids":["CAT-TUT-MODEL","CAT-REF-ANALYZE"]},
+    {"id":"feature.analysis.matrix-map","group":"analysis","surface":"Python","call":"analyze.MatrixMap(model).plot(save='plot.pdf')","purpose":"Plot matrix-valued outputs such as rate_control and selectivity_control.","source_ids":["CAT-TUT-REFINE","CAT-REF-ANALYZE"]},
+    {"id":"feature.analysis.mechanism","group":"analysis","surface":"Python","call":"analyze.MechanismAnalysis(model)","purpose":"Construct free-energy diagrams and reaction graphs.","source_ids":["CAT-TUT-REFINE","CAT-REF-ANALYZE"]},
+    {"id":"feature.thermo.interactions","group":"advanced","surface":"setup/Python","call":"adsorbate_interaction_model = 'first_order'","purpose":"Enable coverage-dependent first-order interaction corrections with compatible parser/scaler/solver.","source_ids":["CAT-TOPIC-INTERACTIONS"]},
+    {"id":"feature.thermo.electrochemistry","group":"advanced","surface":"setup/Python","call":"voltage = -0.2; beta = 0.5; electrochemical_thermo_mode = 'simple_electrochemical'","purpose":"Apply documented computational-hydrogen-electrode/electron potential corrections.","source_ids":["CAT-TOPIC-ECHEM"]}
+  ]
+}

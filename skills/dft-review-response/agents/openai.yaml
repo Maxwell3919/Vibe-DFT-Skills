@@ -1,0 +1,4 @@
+interface:
+  display_name: "DFT Review Response"
+  short_description: "Bind review comments, revisions, and evidence"
+  default_prompt: "Use $dft-review-response to plan, audit, and render a no-send point-by-point package with one-to-one comment, response, proposed change, evidence, and no-positive claim lineage."

@@ -1,0 +1,22 @@
+{
+  "schema_version": "candidate-1.0",
+  "case_id": "water-minimum-001",
+  "gaussian_revision": "G16 C.02",
+  "task": "optimization_frequency",
+  "model_chemistry": {
+    "method": "B3LYP",
+    "basis": "6-31G(d)"
+  },
+  "charge": 0,
+  "multiplicity": 1,
+  "atom_count": 3,
+  "structure_manifest_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "target": {
+    "observable": "harmonic_frequencies",
+    "unit": "cm^-1",
+    "absolute_tolerance": 1.0
+  },
+  "stationary_point": "minimum",
+  "expected_checkpoint": "water.chk",
+  "parent_checkpoint_ref": null
+}

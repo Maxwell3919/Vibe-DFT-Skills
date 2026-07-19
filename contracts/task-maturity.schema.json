@@ -1,0 +1,530 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:task-maturity:1.0",
+  "title": "Vibe-DFT task and provider maturity catalog",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "catalog_id",
+  "x-vibe-semantic-obligations": {
+    "validator": "commit-aware-promotion-validator",
+    "required_checks": [
+      "task-evidence-file-exists-at-candidate-commit",
+      "task-evidence-sha256-matches-bytes",
+      "external-record-ref-resolves-by-id-and-sha256",
+      "local-parent-route-exists-and-graph-is-acyclic",
+      "external-parent-record-resolves-by-id-and-sha256",
+      "provider-version-and-parent-route-match-promoted-registry-state"
+    ]
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "catalog_id",
+    "skill_id",
+    "aggregate",
+    "routes",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "task-maturity"},
+    "catalog_id": {"$ref": "#/$defs/safeId"},
+    "skill_id": {"$ref": "#/$defs/skillId"},
+    "aggregate": {"type": "boolean"},
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/route"}
+    },
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "skillId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "providerId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "routeId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._/-]{2,127}$"
+    },
+    "contractName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*\\.[0-9]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\r\\n]+$"
+    },
+    "implementation": {
+      "enum": ["unsupported", "contract-only", "implemented"]
+    },
+    "maturityLevel": {
+      "enum": [
+        "design-only",
+        "synthetic-validated",
+        "format-fixture-validated",
+        "real-artifact-validated",
+        "tool-integration-validated"
+      ]
+    },
+    "claimCeiling": {
+      "enum": [
+        "no_positive_claim",
+        "documented_behavior_only",
+        "input_gates_only",
+        "technical_run_gates_only",
+        "numerical_candidate_only",
+        "eligible_for_expert_review"
+      ]
+    },
+    "recordRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_name",
+        "schema_version",
+        "record_id",
+        "sha256",
+        "role"
+      ],
+      "properties": {
+        "contract_name": {"$ref": "#/$defs/contractName"},
+        "schema_version": {"$ref": "#/$defs/schemaVersion"},
+        "record_id": {"$ref": "#/$defs/safeId"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "role": {"$ref": "#/$defs/contractName"}
+      }
+    },
+    "parentRoute": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scope", "route_id", "record_ref"],
+          "properties": {
+            "scope": {"const": "catalog"},
+            "route_id": {"$ref": "#/$defs/routeId"},
+            "record_ref": {"type": "null"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scope", "route_id", "record_ref"],
+          "properties": {
+            "scope": {"const": "external-record"},
+            "route_id": {"type": "null"},
+            "record_ref": {"$ref": "#/$defs/recordRef"}
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "axis",
+        "maturity_level",
+        "kind",
+        "provider_version",
+        "source",
+        "path",
+        "external_record_ref",
+        "sha256"
+      ],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/safeId"},
+        "axis": {
+          "enum": ["invocation", "parser", "scientific_validation"]
+        },
+        "maturity_level": {"$ref": "#/$defs/maturityLevel"},
+        "kind": {
+          "enum": [
+            "design-record",
+            "invocation-synthetic-test",
+            "invocation-format-fixture-test",
+            "invocation-real-artifact-test",
+            "invocation-tool-integration-test",
+            "parser-synthetic-test",
+            "parser-format-fixture-test",
+            "parser-real-artifact-test",
+            "parser-tool-integration-test",
+            "scientific-synthetic-validation",
+            "scientific-format-fixture-validation",
+            "scientific-real-artifact-validation",
+            "task-specific-scientific-validation",
+            "official-source-evidence",
+            "expert-readiness-review",
+            "version-boundary-test",
+            "forward-test"
+          ]
+        },
+        "provider_version": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "minLength": 1, "maxLength": 128}
+          ]
+        },
+        "source": {"enum": ["skill-local", "external-record"]},
+        "path": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/relativePath"}
+          ]
+        },
+        "external_record_ref": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/recordRef"}
+          ]
+        },
+        "sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"source": {"const": "skill-local"}},
+            "required": ["source"]
+          },
+          "then": {
+            "properties": {
+              "path": {"$ref": "#/$defs/relativePath"},
+              "external_record_ref": {"type": "null"}
+            }
+          },
+          "else": {
+            "properties": {
+              "path": {"type": "null"},
+              "external_record_ref": {"$ref": "#/$defs/recordRef"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "maturity_level": {
+                "enum": [
+                  "format-fixture-validated",
+                  "real-artifact-validated",
+                  "tool-integration-validated"
+                ]
+              }
+            },
+            "required": ["maturity_level"]
+          },
+          "then": {
+            "properties": {
+              "provider_version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            }
+          }
+        }
+      ]
+    },
+    "overallMaturity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declared", "computed"],
+      "properties": {
+        "declared": {"$ref": "#/$defs/maturityLevel"},
+        "computed": {"$ref": "#/$defs/maturityLevel"}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "producer_version", "generated_utc"],
+      "properties": {
+        "producer": {"type": "string", "minLength": 1, "maxLength": 160},
+        "producer_version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "generated_utc": {"type": "string", "format": "date-time"}
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "provider_id",
+        "provider_lifecycle",
+        "task_id",
+        "parent_route",
+        "provider_version",
+        "implementation",
+        "invocation_maturity",
+        "parser_maturity",
+        "scientific_validation_maturity",
+        "overall_maturity",
+        "claim_ceiling",
+        "advertised",
+        "execution_capability",
+        "unknown_version_policy",
+        "evidence",
+        "limitations"
+      ],
+      "properties": {
+        "route_id": {"$ref": "#/$defs/routeId"},
+        "provider_id": {"$ref": "#/$defs/providerId"},
+        "provider_lifecycle": {"enum": ["active", "planned"]},
+        "task_id": {"$ref": "#/$defs/routeId"},
+        "parent_route": {"$ref": "#/$defs/parentRoute"},
+        "provider_version": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "minLength": 1, "maxLength": 128}
+          ]
+        },
+        "implementation": {"$ref": "#/$defs/implementation"},
+        "invocation_maturity": {"$ref": "#/$defs/maturityLevel"},
+        "parser_maturity": {"$ref": "#/$defs/maturityLevel"},
+        "scientific_validation_maturity": {"$ref": "#/$defs/maturityLevel"},
+        "overall_maturity": {"$ref": "#/$defs/overallMaturity"},
+        "claim_ceiling": {"$ref": "#/$defs/claimCeiling"},
+        "advertised": {"type": "boolean"},
+        "execution_capability": {"type": "boolean"},
+        "unknown_version_policy": {
+          "enum": ["block", "downgrade_to_no_positive_claim"]
+        },
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/evidence"}
+        },
+        "limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"implementation": {"const": "unsupported"}}, "required": ["implementation"]},
+          "then": {
+            "properties": {
+              "invocation_maturity": {"const": "design-only"},
+              "parser_maturity": {"const": "design-only"},
+              "scientific_validation_maturity": {"const": "design-only"},
+              "overall_maturity": {
+                "properties": {
+                  "declared": {"const": "design-only"},
+                  "computed": {"const": "design-only"}
+                }
+              },
+              "claim_ceiling": {"const": "no_positive_claim"},
+              "advertised": {"const": false},
+              "execution_capability": {"const": false},
+              "evidence": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"implementation": {"const": "contract-only"}}, "required": ["implementation"]},
+          "then": {
+            "properties": {
+              "invocation_maturity": {
+                "enum": ["design-only", "synthetic-validated", "format-fixture-validated"]
+              },
+              "parser_maturity": {
+                "enum": ["design-only", "synthetic-validated", "format-fixture-validated"]
+              },
+              "scientific_validation_maturity": {
+                "enum": ["design-only", "synthetic-validated", "format-fixture-validated"]
+              },
+              "claim_ceiling": {
+                "enum": ["no_positive_claim", "documented_behavior_only"]
+              },
+              "advertised": {"const": false},
+              "execution_capability": {"const": false}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"provider_lifecycle": {"const": "planned"}}, "required": ["provider_lifecycle"]},
+          "then": {
+            "properties": {
+              "implementation": {"enum": ["unsupported", "contract-only"]},
+              "advertised": {"const": false},
+              "claim_ceiling": {"const": "no_positive_claim"},
+              "execution_capability": {"const": false}
+            }
+          }
+        },
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "invocation_maturity": {
+                    "enum": [
+                      "format-fixture-validated",
+                      "real-artifact-validated",
+                      "tool-integration-validated"
+                    ]
+                  }
+                },
+                "required": ["invocation_maturity"]
+              },
+              {
+                "properties": {
+                  "parser_maturity": {
+                    "enum": [
+                      "format-fixture-validated",
+                      "real-artifact-validated",
+                      "tool-integration-validated"
+                    ]
+                  }
+                },
+                "required": ["parser_maturity"]
+              },
+              {
+                "properties": {
+                  "scientific_validation_maturity": {
+                    "enum": [
+                      "format-fixture-validated",
+                      "real-artifact-validated",
+                      "tool-integration-validated"
+                    ]
+                  }
+                },
+                "required": ["scientific_validation_maturity"]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "provider_version": {"type": "string", "minLength": 1, "maxLength": 128}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "overall_maturity": {
+                "properties": {"declared": {"const": "design-only"}},
+                "required": ["declared"]
+              }
+            },
+            "required": ["overall_maturity"]
+          },
+          "then": {"properties": {"claim_ceiling": {"const": "no_positive_claim"}, "advertised": {"const": false}}}
+        },
+        {
+          "if": {
+            "properties": {
+              "overall_maturity": {
+                "properties": {"declared": {"const": "synthetic-validated"}},
+                "required": ["declared"]
+              }
+            },
+            "required": ["overall_maturity"]
+          },
+          "then": {
+            "properties": {
+              "claim_ceiling": {"enum": ["no_positive_claim", "documented_behavior_only"]},
+              "advertised": {"const": false}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "overall_maturity": {
+                "properties": {"declared": {"const": "format-fixture-validated"}},
+                "required": ["declared"]
+              }
+            },
+            "required": ["overall_maturity"]
+          },
+          "then": {
+            "properties": {
+              "claim_ceiling": {
+                "enum": ["no_positive_claim", "documented_behavior_only", "input_gates_only"]
+              },
+              "advertised": {"const": false}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "overall_maturity": {
+                "properties": {"declared": {"const": "real-artifact-validated"}},
+                "required": ["declared"]
+              }
+            },
+            "required": ["overall_maturity"]
+          },
+          "then": {
+            "properties": {
+              "claim_ceiling": {
+                "enum": [
+                  "no_positive_claim",
+                  "documented_behavior_only",
+                  "input_gates_only",
+                  "technical_run_gates_only",
+                  "numerical_candidate_only"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"advertised": {"const": true}}, "required": ["advertised"]},
+          "then": {
+            "properties": {
+              "provider_lifecycle": {"const": "active"},
+              "implementation": {"const": "implemented"},
+              "provider_version": {"type": "string", "minLength": 1, "maxLength": 128},
+              "overall_maturity": {
+                "properties": {
+                  "declared": {"enum": ["real-artifact-validated", "tool-integration-validated"]},
+                  "computed": {"enum": ["real-artifact-validated", "tool-integration-validated"]}
+                }
+              },
+              "evidence": {"minItems": 1}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"execution_capability": {"const": true}},
+            "required": ["execution_capability"]
+          },
+          "then": {
+            "properties": {
+              "provider_lifecycle": {"const": "active"},
+              "implementation": {"const": "implemented"},
+              "provider_version": {"type": "string", "minLength": 1, "maxLength": 128},
+              "invocation_maturity": {"const": "tool-integration-validated"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

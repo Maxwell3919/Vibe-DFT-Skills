@@ -1,0 +1,8 @@
+{
+  "namespace": "GPUMD",
+  "stable_exit_codes": {"blocked": 2, "incomplete": 3, "internal_error": 4, "pass": 0},
+  "families": [
+    "PLAN", "VERSION", "UNITS", "BOUNDARY", "INPUT", "MODEL", "POTENTIAL", "SEED", "RESTART", "RUN_BLOCK", "OUTPUT", "TRAJECTORY", "STATISTICS", "LICENSE", "EXECUTION", "UPSTREAM", "IO", "JSON", "INTERNAL"
+  ],
+  "policy": "Finding codes are stable machine fields. Message text is explanatory and must not be parsed as protocol state."
+}

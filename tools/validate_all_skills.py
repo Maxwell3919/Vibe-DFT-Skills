@@ -7,12 +7,12 @@ import re
 from pathlib import Path
 import sys
 
-import yaml
-
-from software_registry import all_skill_names
+from registry_yaml import RegistryYAMLError, load_yaml_strict, loads_yaml_strict
+from skill_registry import validate_source_skills
 
 
 LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+MAX_SKILL_BYTES = 1024 * 1024
 
 
 def validate_skill(path: Path) -> list[str]:
@@ -20,7 +20,17 @@ def validate_skill(path: Path) -> list[str]:
     skill_file = path / "SKILL.md"
     if not skill_file.is_file():
         return [f"{path.name}: missing SKILL.md"]
-    text = skill_file.read_text(encoding="utf-8")
+    try:
+        raw = skill_file.read_bytes()
+        if len(raw) > MAX_SKILL_BYTES:
+            return [f"{path.name}: SKILL.md exceeds the byte limit"]
+        if raw.startswith(b"\xef\xbb\xbf"):
+            return [f"{path.name}: SKILL.md UTF-8 BOM is forbidden"]
+        text = raw.decode("utf-8", errors="strict")
+    except UnicodeDecodeError:
+        return [f"{path.name}: SKILL.md is not strict UTF-8"]
+    except OSError as exc:
+        return [f"{path.name}: SKILL.md is unreadable ({exc.__class__.__name__})"]
     lines = text.splitlines()
     if len(lines) > 500:
         failures.append(f"{path.name}: SKILL.md exceeds 500 lines ({len(lines)})")
@@ -30,7 +40,11 @@ def validate_skill(path: Path) -> list[str]:
     if not match:
         failures.append(f"{path.name}: invalid YAML frontmatter delimiters")
         return failures
-    metadata = yaml.safe_load(match.group(1))
+    try:
+        metadata = loads_yaml_strict(match.group(1), "SKILL.md-frontmatter")
+    except RegistryYAMLError as exc:
+        failures.append(f"{path.name}: invalid YAML frontmatter: {exc}")
+        metadata = None
     if not isinstance(metadata, dict) or set(metadata) != {"name", "description"}:
         failures.append(f"{path.name}: frontmatter must contain only name and description")
     elif metadata["name"] != path.name:
@@ -41,7 +55,11 @@ def validate_skill(path: Path) -> list[str]:
     if not agent_file.is_file():
         failures.append(f"{path.name}: missing agents/openai.yaml")
     else:
-        agent = yaml.safe_load(agent_file.read_text(encoding="utf-8"))
+        try:
+            agent = load_yaml_strict(agent_file, "openai.yaml")
+        except RegistryYAMLError as exc:
+            failures.append(f"{path.name}: invalid agents/openai.yaml: {exc}")
+            agent = {}
         interface = agent.get("interface", {}) if isinstance(agent, dict) else {}
         short = interface.get("short_description", "")
         prompt = interface.get("default_prompt", "")
@@ -53,8 +71,15 @@ def validate_skill(path: Path) -> list[str]:
         if target.startswith(("http://", "https://", "#")):
             continue
         clean = target.split("#", 1)[0]
-        if clean and not path.joinpath(clean).resolve().exists():
-            failures.append(f"{path.name}: broken SKILL.md link {target}")
+        if clean:
+            resolved = path.joinpath(clean).resolve()
+            try:
+                resolved.relative_to(path.resolve())
+            except ValueError:
+                failures.append(f"{path.name}: SKILL.md link escapes the Skill root")
+            else:
+                if not resolved.exists():
+                    failures.append(f"{path.name}: broken SKILL.md link {target}")
     if path.joinpath("README.md").exists():
         failures.append(f"{path.name}: README.md is not allowed inside a skill")
     return failures
@@ -63,7 +88,11 @@ def validate_skill(path: Path) -> list[str]:
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     skills = sorted(path for path in (root / "skills").iterdir() if path.is_dir())
-    expected = set(all_skill_names())
+    try:
+        expected = set(validate_source_skills(root))
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     failures = []
     if {path.name for path in skills} != expected:
         failures.append(f"skill set mismatch: {sorted(path.name for path in skills)}")

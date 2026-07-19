@@ -1,0 +1,26 @@
+{
+  "contract_name": "ovito-pipeline-spec-candidate",
+  "schema_version": "0.1",
+  "pipeline_id": "pro-render-pipeline-fixture",
+  "provider": {"profile": "ovito-pro", "version": "3.15.5"},
+  "source": {
+    "sha256": "17429ccbba90bf3c464087b7d7d7dfa39d74ffd9e9a7cae75ff2306744b1fcbc",
+    "format": "extxyz"
+  },
+  "frame_selection": {"mode": "indices", "indices": [0]},
+  "operations": [
+    {
+      "operation_id": "render-image-0",
+      "kind": "render-image",
+      "parameters": {"width_px": 800, "height_px": 600, "background": "white", "camera": "orthographic"},
+      "evidence_role": "visual-only"
+    }
+  ],
+  "outputs": [
+    {"output_id": "render-png-0", "kind": "image", "label": "structure.png"}
+  ],
+  "periodic_policy": "preserve-source",
+  "mapping_policy": "ordinal-only-for-metadata",
+  "source_length_unit": "undeclared",
+  "claim_boundary": "technical-only"
+}

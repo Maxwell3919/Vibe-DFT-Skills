@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "candidate": "dft-project-orchestrator",
+  "overall_maturity": "synthetic-validated",
+  "axes": {
+    "invocation": "synthetic-validated",
+    "workflow_plan_parser": "format-fixture-validated",
+    "dag_semantics": "synthetic-validated",
+    "authorization_audit": "synthetic-validated",
+    "resume_and_event_reconciliation": "design-only",
+    "route_registry_integration": "design-only",
+    "two_engine_real_artifacts": "design-only",
+    "scientific_acceptance": "human-only"
+  },
+  "claim_ceiling": "no_positive_claim",
+  "activation_blockers": [
+    "Bind active operation-route and interface-registry snapshots by reviewed hashes.",
+    "Validate emitted full contracts and cross-record semantics with repository validators in an isolated integration test.",
+    "Add real redistributable QE and VASP workflow bundles covering success, blocked, resume, and conflicting-event cases.",
+    "Implement and validate append-only event reconciliation, idempotent recovery, and cancellation handoff.",
+    "Bind exact unsigned candidate-report bytes in a trusted manifest or signed evidence envelope and validate anti-substitution semantics.",
+    "Pass blind forward tests with weak-reasoning agents and human review.",
+    "Complete atomic promotion of source, registry, routes, documentation, installer, and CI."
+  ]
+}

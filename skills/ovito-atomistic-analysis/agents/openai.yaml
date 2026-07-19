@@ -1,0 +1,4 @@
+interface:
+  display_name: "OVITO Atomistic Analysis"
+  short_description: "Fail-closed OVITO trajectory analysis and rendering"
+  default_prompt: "Use $ovito-atomistic-analysis to plan or audit an OVITO pipeline and keep numerical evidence separate from visual review."

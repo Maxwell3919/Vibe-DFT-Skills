@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "candidate": "literature-to-dft-plan",
+  "source_policy": "No live official source is bundled or automatically trusted by this candidate.",
+  "record_contract": "official-source-record@1.0",
+  "required_for_real_sources": ["source identity", "software/manual version when relevant", "retrieval status", "exact content hash when resolved", "external authority state", "license state", "redistribution state", "bounded fact locator"],
+  "version_policy": "Do not infer behavior across manual or software versions; an unmatched version blocks version-sensitive facts.",
+  "license_boundary": "Only metadata, refs, hashes, and locators are stored. Restricted or copyrighted source text is never bundled."
+}

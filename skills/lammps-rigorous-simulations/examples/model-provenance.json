@@ -1,0 +1,18 @@
+{
+  "artifacts": [
+    {
+      "label": "in.lammps",
+      "license_status": "verified",
+      "sha256": "9c546850f44ebdac8d437a7e552a4d8115ff995f72db6651e91a4b8e742929f9",
+      "source_url": "https://example.invalid/vibe-dft-skills/lammps-fixture/input"
+    },
+    {
+      "label": "system.data",
+      "license_status": "verified",
+      "sha256": "a0d0ae96bbab2f77c30c7117a9e4e4e5a8cb512714352030b6588fa811f145f5",
+      "source_url": "https://example.invalid/vibe-dft-skills/lammps-fixture/data"
+    }
+  ],
+  "fixture_license": "CC0-1.0",
+  "scope": "project-authored synthetic fixture only"
+}

@@ -1,0 +1,26 @@
+{
+  "contract_name": "structure-preparation-input",
+  "schema_version": "1.0",
+  "structure_id": "coordinate-mismatch-fixture",
+  "structure_kind": "periodic-crystal",
+  "pbc": [true, true, true],
+  "cell_ang": [[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]],
+  "sites": [
+    {
+      "site_id": "C-0",
+      "species": [{"element": "C", "occupancy": 1.0}],
+      "fractional": [0.5, 0.5, 0.5],
+      "cartesian_ang": [0.0, 0.0, 0.0]
+    }
+  ],
+  "symmetry": {
+    "status": "unresolved",
+    "number": null,
+    "symbol": null,
+    "tolerance_ang": null,
+    "backend": null,
+    "backend_version": null
+  },
+  "charge_state": {"status": "known", "net_charge_e": 0},
+  "spin_state": {"status": "not-assessed", "multiplicity": null}
+}

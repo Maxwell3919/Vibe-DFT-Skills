@@ -1,0 +1,18 @@
+{
+  "artifacts": [
+    {
+      "label": "opaque-input.txt",
+      "license_status": "verified",
+      "sha256": "529004f66bfb12e43d73c3a2d6655e0fbe7f4945b589db13f7089b925e030c55",
+      "source_url": "https://example.invalid/vibe-dft-skills/lasp-documentary-fixture/input"
+    },
+    {
+      "label": "opaque-model.extxyz",
+      "license_status": "verified",
+      "sha256": "bac30a4c1a01d25029e41b822a0b65c5860714e31893800c123164db56f98ae1",
+      "source_url": "https://example.invalid/vibe-dft-skills/lasp-documentary-fixture/model"
+    }
+  ],
+  "fixture_license": "CC0-1.0",
+  "scope": "project-authored documentary fixture only"
+}

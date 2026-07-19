@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "dft-report-request",
+  "request_id": "synthetic-report-request-001",
+  "report_id": "synthetic-report-001",
+  "title": "Synthetic DFT evidence report",
+  "language": "en",
+  "generated_utc": "2026-07-19T00:00:00Z",
+  "claim_map_ref": {
+    "contract_name": "claim-evidence-map",
+    "schema_version": "1.0",
+    "record_id": "synthetic-report-map-001",
+    "sha256": "f0fd6791f284ff74481658ef10c6131c702743715d9a3a77ad3fe4eab40865f9",
+    "role": "claim-map"
+  },
+  "selected_claim_ids": ["claim-technical"],
+  "sections": [
+    {
+      "section_id": "results",
+      "title": "Results and evidence",
+      "claim_ids": ["claim-technical"],
+      "artifact_record_ids": ["synthetic-artifact-001"]
+    }
+  ],
+  "citation_locators": [
+    {
+      "evidence_id": "ev-source",
+      "source_label": "synthetic-official-source",
+      "locator": "synthetic-section-1"
+    }
+  ],
+  "artifact_refs": [
+    {
+      "contract_name": "artifact-manifest",
+      "schema_version": "1.0",
+      "record_id": "synthetic-artifact-001",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "role": "artifact"
+    }
+  ],
+  "campaign_refs": [
+    {
+      "contract_name": "campaign-record",
+      "schema_version": "1.0",
+      "record_id": "synthetic-campaign-001",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "role": "campaign"
+    }
+  ],
+  "limitations": ["Synthetic metadata demonstrates linkage only."]
+}

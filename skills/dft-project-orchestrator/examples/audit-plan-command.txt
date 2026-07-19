@@ -1,0 +1,1 @@
+PYTHONDONTWRITEBYTECODE=1 python3 -B skills/dft-project-orchestrator/scripts/orchestrator_cli.py audit-plan --plan skills/dft-project-orchestrator/fixtures/ready-plan.json

@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {"fixture_id": "hpc-slurm-request", "path": "fixtures/slurm-request.json", "origin": "project-authored synthetic record", "contains_third_party_content": false, "contains_real_research_data": false, "sensitivity": "public", "redistribution_status": "maintainer-controlled-original", "purpose": "request validation and dry-run rendering"},
+    {"fixture_id": "hpc-human-decision", "path": "fixtures/slurm-decision.json", "origin": "project-authored synthetic record", "contains_third_party_content": false, "contains_real_research_data": false, "sensitivity": "public", "redistribution_status": "maintainer-controlled-original", "purpose": "exact-byte authorization validation"},
+    {"fixture_id": "hpc-single-use-lease", "path": "fixtures/slurm-lease.json", "origin": "project-authored synthetic record", "contains_third_party_content": false, "contains_real_research_data": false, "sensitivity": "public", "redistribution_status": "maintainer-controlled-original", "purpose": "lease subset and expiry validation"},
+    {"fixture_id": "hpc-application-failure-observation", "path": "fixtures/scheduler-success-app-failure.json", "origin": "project-authored synthetic mutation", "contains_third_party_content": false, "contains_real_research_data": false, "sensitivity": "public", "redistribution_status": "maintainer-controlled-original", "purpose": "prove scheduler success does not imply application success"},
+    {"fixture_id": "hpc-weak-model-decision-table", "path": "references/weak-model-decision-table.json", "origin": "project-authored synthetic policy projection", "contains_third_party_content": false, "contains_real_research_data": false, "sensitivity": "public", "redistribution_status": "maintainer-controlled-original", "purpose": "canonical fail-closed first-match routing for weak-model acceptance tests"}
+  ],
+  "legal_note": "Fixtures are original synthetic metadata and contain no copied scheduler output, DFT output, executable, pseudopotential, credential, private path, or external repository content. Repository maintainers retain responsibility for the repository-wide license and redistribution decision."
+}

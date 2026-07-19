@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:calculation-record-envelope:1.0",
+  "title": "Vibe DFT Skills domain-neutral calculation record envelope",
+  "description": "A hash-linked envelope for periodic DFT, quantum chemistry, molecular dynamics, and machine-learned-potential plans or runs. It is an immutable pre-decision record: a human decision may point to it, but this envelope is never rewritten to point back to that decision. It does not extend the legacy run-manifest code enumeration.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "record_id",
+  "x-vibe-semantic-obligations": [
+    "CALC_PAYLOAD_REF_HASH_RESOLVES",
+    "CALC_DOMAIN_PAYLOAD_CONTRACT_MATCH",
+    "CALC_ENGINE_PAYLOAD_ID_MATCH",
+    "CALC_PAYLOAD_STATUS_SUPPORTS_ENVELOPE",
+    "CALC_PARENT_LINEAGE_RESOLVES",
+    "CALC_GATE_EVIDENCE_REFS_RESOLVE",
+    "CALC_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "record_id",
+    "domain",
+    "record_kind",
+    "case_id",
+    "scientific_protocol_id",
+    "task_type",
+    "engine",
+    "environment_profile_id",
+    "payload_ref",
+    "parent_records",
+    "inputs",
+    "outputs",
+    "status",
+    "scientific_decision_ref",
+    "gates",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "calculation-record-envelope"},
+    "record_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "domain": {
+      "enum": [
+        "periodic-dft",
+        "quantum-chemistry",
+        "molecular-dynamics",
+        "machine-learned-potential"
+      ]
+    },
+    "record_kind": {"enum": ["plan", "run"]},
+    "case_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "scientific_protocol_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "task_type": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/contractName"},
+    "engine": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/softwareIdentity"},
+    "environment_profile_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "payload_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {"properties": {"role": {"const": "payload"}}}
+      ]
+    },
+    "parent_records": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "inputs": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"}
+    },
+    "outputs": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"}
+    },
+    "status": {"$ref": "#/$defs/status"},
+    "scientific_decision_ref": {
+      "description": "Always null in this immutable pre-decision record. A later decision-record points to this record; a post-decision claim-evidence-map may then point to both.",
+      "type": "null"
+    },
+    "gates": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "uniqueItems": true
+    },
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"domain": {"const": "periodic-dft"}},
+        "required": ["domain"]
+      },
+      "then": {
+        "properties": {
+          "payload_ref": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+              {
+                "properties": {
+                  "contract_name": {"const": "run-manifest"},
+                  "schema_version": {"const": "1.0"},
+                  "role": {"const": "payload"}
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"record_kind": {"const": "plan"}},
+        "required": ["record_kind"]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "allOf": [
+              {"$ref": "#/$defs/status"},
+              {
+                "properties": {
+                  "normalized_status": {"enum": ["planned", "blocked"]},
+                  "scheduler_status": {"const": "not-submitted"},
+                  "process_status": {"const": "not-started"},
+                  "application_status": {"const": "not-started"},
+                  "scientific_acceptance": {"const": "not_assessed"}
+                }
+              }
+            ]
+          },
+          "outputs": {
+            "items": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "missing"}}}
+              ]
+            }
+          },
+          "scientific_decision_ref": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "properties": {
+              "normalized_status": {"const": "completed"}
+            },
+            "required": ["normalized_status"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "outputs": {"minItems": 1},
+          "status": {
+            "allOf": [
+              {"$ref": "#/$defs/status"},
+              {
+                "properties": {
+                  "application_status": {"const": "completed"}
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "properties": {
+              "scientific_acceptance": {"const": "requires_human_review"}
+            },
+            "required": ["scientific_acceptance"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "record_kind": {"const": "run"},
+          "outputs": {
+            "minItems": 1,
+            "contains": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "present"}}}
+              ]
+            }
+          },
+          "status": {
+            "allOf": [
+              {"$ref": "#/$defs/status"},
+              {
+                "properties": {
+                  "normalized_status": {"const": "completed"},
+                  "scheduler_status": {"enum": ["succeeded", "not-applicable"]},
+                  "process_status": {"enum": ["exited-zero", "not-applicable"]},
+                  "application_status": {"const": "completed"}
+                }
+              }
+            ]
+          },
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {
+                "properties": {
+                  "status": {"const": "pass"},
+                  "claim_ceiling": {"const": "eligible_for_expert_review"},
+                  "checks": {
+                    "allOf": [
+                      {"contains": {"$ref": "#/$defs/reviewTechnicalCheck"}},
+                      {"contains": {"$ref": "#/$defs/reviewNumericalCheck"}},
+                      {"contains": {"$ref": "#/$defs/reviewReadinessCheck"}}
+                    ]
+                  }
+                },
+                "required": ["status", "claim_ceiling", "checks"]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_status",
+        "normalized_status",
+        "scheduler_status",
+        "process_status",
+        "application_status",
+        "scientific_acceptance"
+      ],
+      "properties": {
+        "native_status": {"type": ["string", "null"], "minLength": 1, "maxLength": 256},
+        "normalized_status": {
+          "enum": ["planned", "staged", "queued", "running", "completed", "stopped", "failed", "blocked", "unknown"]
+        },
+        "scheduler_status": {
+          "enum": ["not-submitted", "submitted", "queued", "running", "succeeded", "failed", "cancelled", "unknown", "not-applicable"]
+        },
+        "process_status": {
+          "enum": ["not-started", "running", "exited-zero", "exited-nonzero", "signalled", "timed-out", "unknown", "not-applicable"]
+        },
+        "application_status": {
+          "enum": ["not-started", "running", "completed", "incomplete", "failed", "unknown", "not-applicable"]
+        },
+        "scientific_acceptance": {
+          "allOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/scientificAcceptance"},
+            {"enum": ["not_assessed", "requires_human_review"]}
+          ]
+        }
+      }
+    },
+    "reviewTechnicalCheck": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateRecord"},
+        {
+          "properties": {
+            "check_id": {"const": "technical-completion"},
+            "status": {"const": "pass"},
+            "decisive": {"const": true},
+            "evidence_refs": {"minItems": 1},
+            "validated_by": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+                {"properties": {"role": {"const": "technical-validator"}}}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "reviewNumericalCheck": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateRecord"},
+        {
+          "properties": {
+            "check_id": {"const": "numerical-evidence"},
+            "status": {"const": "pass"},
+            "decisive": {"const": true},
+            "evidence_refs": {"minItems": 1},
+            "validated_by": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+                {"properties": {"role": {"const": "numerical-validator"}}}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "reviewReadinessCheck": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateRecord"},
+        {
+          "properties": {
+            "check_id": {"const": "expert-review-readiness"},
+            "status": {"const": "pass"},
+            "decisive": {"const": true},
+            "evidence_refs": {"minItems": 1},
+            "validated_by": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+                {
+                  "properties": {
+                    "actor_type": {"const": "deterministic-tool"},
+                    "role": {"const": "review-readiness-validator"}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

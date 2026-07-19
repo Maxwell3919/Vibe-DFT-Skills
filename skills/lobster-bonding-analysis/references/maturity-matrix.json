@@ -1,0 +1,37 @@
+{
+  "contract_name": "lobster-maturity-matrix",
+  "schema_version": "1.0",
+  "providers": {
+    "lobster-5.1.1+vasp+synthetic": {
+      "invocation": "design-only",
+      "parser": "synthetic-validated",
+      "scientific_validation": "synthetic-validated",
+      "tasks": {
+        "bonding-package-audit": "synthetic-validated",
+        "cohp-audit": "synthetic-validated",
+        "coop-audit": "synthetic-validated",
+        "dos-audit": "synthetic-validated",
+        "projection-audit": "synthetic-validated"
+      }
+    },
+    "lobster-5.1.1+vasp+real": {
+      "invocation": "design-only",
+      "parser": "design-only",
+      "scientific_validation": "design-only",
+      "tasks": {}
+    },
+    "lobster-5.1.1+qe": {
+      "invocation": "design-only",
+      "parser": "design-only",
+      "scientific_validation": "design-only",
+      "tasks": {}
+    },
+    "lobster-5.1.1+abinit": {
+      "invocation": "design-only",
+      "parser": "design-only",
+      "scientific_validation": "design-only",
+      "tasks": {}
+    }
+  },
+  "overall_rule": "For each task and provider route, maturity is the lowest of invocation, parser, and scientific_validation; it is never borrowed across routes."
+}

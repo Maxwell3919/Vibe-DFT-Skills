@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "profiles": {
+    "plan-audit": {
+      "required": ["one strict workflow-plan@1.0 document", "unique step IDs", "resolved dependencies", "route lifecycle per step", "step and plan gate summaries"],
+      "blocked_if_missing": ["contract identity", "protocol ID", "DAG edge", "route lifecycle", "authorization policy for side effects"],
+      "claim_ceiling": "no_positive_claim"
+    },
+    "authorization-audit": {
+      "required": ["exact execution-request bytes", "request SHA-256", "separate decision-record", "human actor", "approved outcome", "matching subject and evidence refs", "scope coverage", "unexpired validity"],
+      "blocked_if_missing": ["exact hash resolution", "human identity", "scope", "validity time", "request gate pass"],
+      "claim_ceiling": "no_positive_claim"
+    },
+    "resume": {
+      "required": ["immutable base plan", "ordered events", "exact referenced records", "lease consumption evidence", "independent scheduler/process/application observations"],
+      "blocked_if_missing": ["event sequence", "exact ref", "terminal-state reconciliation", "idempotency outcome"],
+      "claim_ceiling": "no_positive_claim"
+    },
+    "expert-review-routing": {
+      "required": ["observable-specific numerical gates", "technical completion evidence", "claim-evidence mapping", "limitations"],
+      "blocked_if_missing": ["convergence evidence", "claim mapping", "expert decision"],
+      "claim_ceiling": "eligible_for_expert_review",
+      "note": "The profile may describe review eligibility; this development Skill itself remains capped at no_positive_claim and cannot accept a claim."
+    }
+  }
+}

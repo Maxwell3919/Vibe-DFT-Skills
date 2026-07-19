@@ -1,0 +1,414 @@
+schema_version: "1.0"
+
+# This registry recognizes official documentation locations. Only a reviewed,
+# exact-byte canonical snapshot declared here may establish offline content
+# identity; every unpinned source still requires a platform adapter. Bundle
+# fields and adapter receipts cannot add or widen authority entries.
+authorities:
+  qe-official-docs:
+    display_name: Quantum ESPRESSO official documentation
+    lifecycle: active
+    provider_id: qe
+    allowed_https_origins: ["https://www.quantum-espresso.org"]
+    version_policy:
+      allowed_scopes: [exact]
+      registered_scopes:
+        - {scope: exact, exact_version: "7.5", minimum_version: null, maximum_version: null, release_series: null}
+    content_policy:
+      source_kinds: [official-manual, official-reference, official-release-notes]
+      allowed_path_prefixes: ["/Doc/"]
+      query_policy: forbidden
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values: [unknown]
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+      - Official origin and documentation path are recognized, but source bytes and licensing remain externally verified facts.
+    provenance:
+      verified_utc: "2026-07-18T00:00:00Z"
+      official_fact_urls: ["https://www.quantum-espresso.org/Doc/"]
+
+  vasp-official-wiki:
+    display_name: VASP official Wiki
+    lifecycle: active
+    provider_id: vasp
+    allowed_https_origins: ["https://vasp.at", "https://www.vasp.at"]
+    version_policy:
+      allowed_scopes: [latest-at-retrieval]
+      registered_scopes:
+        - {scope: latest-at-retrieval, exact_version: null, minimum_version: null, maximum_version: null, release_series: null}
+    content_policy:
+      source_kinds: [official-manual, official-reference, official-release-notes]
+      allowed_path_prefixes: ["/wiki/"]
+      query_policy: forbidden
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-restricted
+      identifier: "VASP website terms of use"
+      terms_urls: ["https://vasp.at/footer/termsofuse/"]
+      verification_status: verified
+    redistribution_policy:
+      allowed_values: [runtime-only, restricted]
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+      - Wiki authority does not establish compatibility with a specific VASP binary version or redistribution permission.
+    provenance:
+      verified_utc: "2026-07-18T00:00:00Z"
+      official_fact_urls: ["https://vasp.at/wiki/Main_page", "https://vasp.at/footer/termsofuse/"]
+
+  cp2k-official-manual:
+    display_name: CP2K official versioned manual
+    lifecycle: active
+    provider_id: cp2k
+    allowed_https_origins: ["https://manual.cp2k.org"]
+    version_policy:
+      allowed_scopes: [exact]
+      registered_scopes:
+        - {scope: exact, exact_version: "2026.2", minimum_version: null, maximum_version: null, release_series: null}
+    content_policy:
+      source_kinds: [official-manual, official-reference, official-release-notes]
+      allowed_path_prefixes: ["/cp2k-2026_2-branch/"]
+      query_policy: forbidden
+      fragment_policy: forbidden
+      resolution_mode: canonical-pin-or-platform-verified
+    content_identity_policy:
+      mode: canonical-pinned-open-snapshot-or-platform-adapter
+      unpinned_action: adapter-required
+    canonical_snapshot:
+      snapshot_id: cp2k-manual-2026-2
+      manifest_path: skills/cp2k-rigorous-calculations/references/official-manual/manifest.json
+      manifest_raw_sha256: 37242192094a13384491108850b96c06c0e7cdd058913913bd0681b558e55349
+      artifact_basis: snapshot-file-exact-bytes
+    license_policy:
+      status: known-open
+      identifier: "GPL-2.0-or-later"
+      terms_urls: ["https://github.com/cp2k/cp2k/blob/master/LICENSE"]
+      verification_status: verified
+    redistribution_policy:
+      allowed_values: [redistributable]
+      bundle_content: canonical-pinned-open-only
+      external_runtime_content: platform-verification-required
+    limitations:
+      - The canonical snapshot pins the bundled excerpts, not the distinct upstream raw page bytes; any refresh requires a reviewed manifest and digest update.
+    provenance:
+      verified_utc: "2026-07-18T00:00:00Z"
+      official_fact_urls: ["https://manual.cp2k.org/cp2k-2026_2-branch/", "https://github.com/cp2k/cp2k/blob/master/LICENSE"]
+
+  siesta-official-docs:
+    display_name: SIESTA official versioned documentation
+    lifecycle: active
+    provider_id: siesta
+    allowed_https_origins: ["https://docs.siesta-project.org"]
+    version_policy:
+      allowed_scopes: [exact]
+      registered_scopes:
+        - {scope: exact, exact_version: "5.4", minimum_version: null, maximum_version: null, release_series: null}
+    content_policy:
+      source_kinds: [official-manual, official-reference, official-release-notes]
+      allowed_path_prefixes: ["/projects/siesta/en/5.4/"]
+      query_policy: forbidden
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-restricted
+      identifier: "CC-BY-NC-SA-4.0"
+      terms_urls: ["https://gitlab.com/siesta-project/documentation/siesta-docs/-/blob/master/LICENSE"]
+      verification_status: verified
+    redistribution_policy:
+      allowed_values: [runtime-only, restricted]
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+      - The versioned documentation root is recognized; content identity and redistribution permission remain external trust decisions.
+    provenance:
+      verified_utc: "2026-07-18T00:00:00Z"
+      official_fact_urls: ["https://docs.siesta-project.org/projects/siesta/en/5.4/", "https://gitlab.com/siesta-project/documentation/siesta-docs/-/blob/master/LICENSE"]
+
+  gaussian-official-reference:
+    display_name: Gaussian official reference placeholder
+    lifecycle: planned
+    provider_id: gaussian
+    allowed_https_origins: []
+    version_policy: &planned-version-policy
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy: &planned-content-policy
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy: &planned-content-identity-policy
+      mode: unresolved
+      unpinned_action: block
+    canonical_snapshot: null
+    license_policy: &planned-license-policy
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy: &planned-redistribution-policy
+      allowed_values: [unknown]
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations: &planned-limitations
+      - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance: &planned-provenance
+      verified_utc: null
+      official_fact_urls: []
+
+  gromacs-official-reference:
+    display_name: GROMACS official reference placeholder
+    lifecycle: planned
+    provider_id: gromacs
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  lammps-official-reference:
+    display_name: LAMMPS official reference placeholder
+    lifecycle: planned
+    provider_id: lammps
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  deepmd-official-reference:
+    display_name: DeePMD-kit official reference placeholder
+    lifecycle: planned
+    provider_id: deepmd
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  multiwfn-official-reference:
+    display_name: Multiwfn official reference placeholder
+    lifecycle: planned
+    provider_id: multiwfn
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  phonopy-official-reference:
+    display_name: Phonopy official reference placeholder
+    lifecycle: planned
+    provider_id: phonopy
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  vaspkit-official-reference:
+    display_name: VASPKIT official reference placeholder
+    lifecycle: planned
+    provider_id: vaspkit
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  catmap-official-reference:
+    display_name: CatMAP official reference placeholder
+    lifecycle: planned
+    provider_id: catmap
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  lobster-official-reference:
+    display_name: LOBSTER official reference placeholder
+    lifecycle: planned
+    provider_id: lobster
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  ovito-official-reference:
+    display_name: OVITO official reference placeholder
+    lifecycle: planned
+    provider_id: ovito
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  pymatgen-official-reference:
+    display_name: pymatgen official reference placeholder
+    lifecycle: planned
+    provider_id: pymatgen
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  rdkit-official-reference:
+    display_name: RDKit official reference placeholder
+    lifecycle: planned
+    provider_id: rdkit
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  mace-official-reference:
+    display_name: MACE official reference placeholder
+    lifecycle: planned
+    provider_id: mace
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  nequip-official-reference:
+    display_name: NequIP official reference placeholder
+    lifecycle: planned
+    provider_id: nequip
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  gpumd-official-reference:
+    display_name: GPUMD official reference placeholder
+    lifecycle: planned
+    provider_id: gpumd
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  lasp-official-reference:
+    display_name: LASP official reference placeholder
+    lifecycle: planned
+    provider_id: lasp
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  gemnet-oc-official-reference:
+    display_name: GemNet-OC official reference placeholder
+    lifecycle: planned
+    provider_id: gemnet-oc
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  equiformer-v2-official-reference:
+    display_name: Equiformer V2 official reference placeholder
+    lifecycle: planned
+    provider_id: equiformer-v2
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance
+  fairchem-uma-official-reference:
+    display_name: FAIR-Chem UMA official reference placeholder
+    lifecycle: planned
+    provider_id: fairchem-uma
+    allowed_https_origins: []
+    version_policy: *planned-version-policy
+    content_policy: *planned-content-policy
+    content_identity_policy: *planned-content-identity-policy
+    canonical_snapshot: null
+    license_policy: *planned-license-policy
+    redistribution_policy: *planned-redistribution-policy
+    limitations: *planned-limitations
+    provenance: *planned-provenance

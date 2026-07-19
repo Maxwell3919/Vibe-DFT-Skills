@@ -1,0 +1,6 @@
+interface:
+  display_name: "CatMAP Microkinetics"
+  short_description: "Plan CatMAP calls and audit microkinetic evidence"
+  default_prompt: "Use $catmap-microkinetics to resolve the versioned official call/recipe first, keep the plan non-executing, and audit only declarative evidence; fail closed on version drift, unsafe native files, balance, units, thermochemistry, solver branch/convergence, uncertainty, or mechanistic-claim gaps."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,56 @@
+schema_version: "1.0"
+findings:
+  MW_SOURCE_INVALID:
+    severity: error
+    disposition: fail
+  MW_SOURCE_PROVENANCE_INCOMPLETE:
+    severity: error
+    disposition: fail
+  MW_WAVEFUNCTION_HASH_MISMATCH:
+    severity: error
+    disposition: fail
+  MW_PARENT_ACCEPTANCE_FAILED:
+    severity: error
+    disposition: fail
+  MW_PARENT_PROJECTION_MISMATCH:
+    severity: error
+    disposition: fail
+  MW_PROFILE_UNKNOWN:
+    severity: error
+    disposition: fail
+  MW_PROFILE_BLOCKED:
+    severity: blocker
+    disposition: blocked
+  MW_TASK_UNSUPPORTED:
+    severity: blocker
+    disposition: blocked
+  MW_TRANSCRIPT_INVALID:
+    severity: error
+    disposition: fail
+  MW_VERSION_MISMATCH:
+    severity: error
+    disposition: fail
+  MW_PROMPT_DRIFT:
+    severity: error
+    disposition: fail
+  MW_FATAL_SENTINEL:
+    severity: error
+    disposition: fail
+  MW_TABLE_INVALID:
+    severity: error
+    disposition: fail
+  MW_ATOM_MAPPING_MISMATCH:
+    severity: error
+    disposition: fail
+  MW_CHARGE_CLOSURE_FAILED:
+    severity: error
+    disposition: fail
+  MW_OUTPUT_EXISTS:
+    severity: error
+    disposition: fail
+  MW_OUTPUT_WRITE_FAILED:
+    severity: error
+    disposition: fail
+  MW_DECISION_NO_MATCH:
+    severity: error
+    disposition: fail

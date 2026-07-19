@@ -1,0 +1,4 @@
+interface:
+  display_name: "DFT HPC Execution"
+  short_description: "Validate and dry-run scheduler-bound DFT requests"
+  default_prompt: "Use $dft-hpc-execution to validate this approved execution request without submitting a job."

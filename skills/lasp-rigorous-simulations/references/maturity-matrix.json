@@ -1,0 +1,12 @@
+{
+  "current": "documentary-inventory-only",
+  "levels": [
+    {"name": "documentary-inventory-only", "requirement": "gap-aware plan, artifact hashes, no invented syntax"},
+    {"name": "syntax-fixture-validated", "requirement": "authorized version-matched manual and legal syntax fixtures"},
+    {"name": "synthetic-validated", "requirement": "deterministic input/output/restart parsers and adversarial synthetic tests"},
+    {"name": "real-artifact-validated", "requirement": "legal independently expected LASP 3.7.3 corpus"},
+    {"name": "execution-validated", "requirement": "authorized version/environment-matched integration"},
+    {"name": "activation-ready", "requirement": "legal/interface alignment, red-team acceptance, registry promotion and install verification"}
+  ],
+  "activation_blocked": true
+}

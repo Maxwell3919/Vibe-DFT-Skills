@@ -1,0 +1,63 @@
+{
+  "case_id": "case-force-vasp-001",
+  "code": "vasp",
+  "code_version": "6.4.3",
+  "configuration": {
+    "phonopy_force_parent": {
+      "displaced_supercell_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "displacement_id": "disp-002",
+      "displacement_set_id": "synthetic-displacements",
+      "displacement_set_sha256": "a29eec1130f3e2cbb211cecd72a3e0a515999c42cd22571438c6a8f3cb8f0ac8",
+      "structure_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "supercell_atom_count": 2,
+      "workflow_id": "synthetic-phonon-001"
+    }
+  },
+  "evidence": [
+    {
+      "label": "INCAR",
+      "role": "INCAR",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "status": "present"
+    },
+    {
+      "label": "OUTCAR",
+      "role": "OUTCAR",
+      "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "status": "present"
+    },
+    {
+      "label": "POSCAR",
+      "role": "displaced_structure",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "status": "present"
+    },
+    {
+      "label": "force-002.dat",
+      "role": "force_table",
+      "sha256": "abababababababababababababababababababababababababababababababab",
+      "status": "present"
+    },
+    {
+      "label": "vasp-force-audit.json",
+      "role": "vasp_audit_report",
+      "sha256": "1e441f09b6383a510e72b906f40a30ced330d21364c4bc88b0046138a3f84087",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Synthetic parent record; force acceptance is not emitted by active audit_vasp_case.py schema 2.0."
+  ],
+  "metrics": {},
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-07-19T00:00:00+00:00"
+  },
+  "record_id": "run-force-vasp-001",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "protocol-force-vasp-001",
+  "status": "completed",
+  "task_type": "static"
+}

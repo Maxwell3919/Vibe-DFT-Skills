@@ -18,7 +18,7 @@ Vary `Mesh.Cutoff` and geometry/grid placement when eggbox effects can affect en
 
 ## 5. Freeze ancestry before downstream work
 
-For restarts, bind exact checkpoint hashes and parent identity. For bands/DOS/phonons/optics/transport, require an accepted parent task with compatible structure/state/protocol/version and required artifact role. Do not infer ancestry from filenames.
+For restarts, bind exact checkpoint hashes and a technically completed parent identity. For bands/DOS/phonons/optics/transport, require a bundle-verified human-accepted parent task with compatible structure/state/protocol/version and the required artifact role. Do not infer ancestry from filenames or a run-manifest field.
 
 ## 6. Preflight, execute only with authorization, and preserve output
 
@@ -38,4 +38,4 @@ Apply the task checklist, conservation/symmetry/sum-rule/reference comparisons a
 
 ## 10. Terminate and learn
 
-Emit the shared run manifest at completion/stop/failure/acceptance. Route artifacts/figures to postprocessing and privacy-safe performance/decision lessons to campaign efficiency. Never store project experience or restricted runtime data in this skill.
+Emit the shared immutable pre-decision run manifest at technical completion, stop, or failure; abandonment is represented as an intentional stop with a stated limitation. Never emit or rewrite that manifest at scientific acceptance. Route the later human verdict through the separate decision and post-decision claim chain, artifacts/figures to postprocessing, and privacy-safe performance/decision lessons to campaign efficiency. Never store project experience or restricted runtime data in this skill.

@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "claim-evidence-map",
+  "map_id": "synthetic-report-map-001",
+  "subject_records": [
+    {
+      "contract_name": "calculation-record-envelope",
+      "schema_version": "1.0",
+      "record_id": "synthetic-calculation-001",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "role": "claim-subject"
+    }
+  ],
+  "status": "complete",
+  "claim_ceiling": "no_positive_claim",
+  "scientific_acceptance": "not_assessed",
+  "scientific_decision_ref": null,
+  "evidence": [
+    {
+      "evidence_id": "ev-output",
+      "kind": "file",
+      "record_ref": null,
+      "file_ref": {
+        "role": "technical-output",
+        "label": "synthetic-run-summary.json",
+        "media_type": "application/json",
+        "format": "synthetic-run-summary",
+        "format_version": "1.0",
+        "availability": "present",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "bytes": 128,
+        "sensitivity": "public",
+        "redistribution": "redistributable"
+      },
+      "status": "present",
+      "limitations": ["Synthetic metadata is not a scientific result."]
+    },
+    {
+      "evidence_id": "ev-source",
+      "kind": "record",
+      "record_ref": {
+        "contract_name": "official-source-record",
+        "schema_version": "1.0",
+        "record_id": "synthetic-source-record-001",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "role": "official-source"
+      },
+      "file_ref": null,
+      "status": "present",
+      "limitations": ["External authority resolution is required."]
+    }
+  ],
+  "gates": [
+    {
+      "check_id": "technical-completion",
+      "status": "pass",
+      "decisive": true,
+      "finding_codes": [],
+      "evidence_refs": [
+        {
+          "contract_name": "official-source-record",
+          "schema_version": "1.0",
+          "record_id": "synthetic-source-record-001",
+          "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "role": "gate-evidence"
+        }
+      ],
+      "validated_by": {
+        "actor_type": "deterministic-tool",
+        "actor_id": "synthetic-gate-tool",
+        "role": "technical-validator"
+      },
+      "validated_utc": "2026-07-19T00:00:00Z",
+      "limitations": ["Synthetic gate for candidate tests only."]
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim-technical",
+      "statement": "The fixture contains a technical-completion gate record and linked evidence identifiers; no positive run or scientific result is asserted.",
+      "claim_level": "no_positive_claim",
+      "status": "supported",
+      "evidence_ids": ["ev-output", "ev-source"],
+      "gate_ids": ["technical-completion"],
+      "blocker_codes": []
+    }
+  ],
+  "limitations": ["This map contains no real calculation or scientific acceptance."],
+  "producer": {
+    "skill_id": "dft-reporting",
+    "skill_version": "0.1.0-candidate",
+    "tool_id": "synthetic-fixture-builder",
+    "tool_version": "1.0",
+    "generated_utc": "2026-07-19T00:00:00Z"
+  }
+}

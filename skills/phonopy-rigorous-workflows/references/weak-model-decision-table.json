@@ -1,0 +1,375 @@
+{
+  "contract_name": "candidate-decision-table",
+  "schema_version": "1.0",
+  "skill_id": "phonopy-rigorous-workflows",
+  "lifecycle": "development",
+  "selection_policy": "first-match-by-ascending-priority",
+  "default_case_id": "ph-default-fail-closed",
+  "current_claim": "no_positive_claim",
+  "execution_authorized": false,
+  "promotion_authorized": false,
+  "cases": [
+    {
+      "case_id": "ph-d001",
+      "priority": 1,
+      "severity": "P1",
+      "condition": "phonopy version is not exact 4.3.1 or the requested stage has no versioned profile",
+      "required_evidence": [
+        "version-profile",
+        "official-version-evidence"
+      ],
+      "finding_codes": [
+        "PH_VERSION_UNSUPPORTED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Add exact official semantics, profile, and fixtures for the requested version or stage."
+    },
+    {
+      "case_id": "ph-d002",
+      "priority": 2,
+      "severity": "P0",
+      "condition": "unit-cell or primitive identity, atom count, or primitive matrix is missing or inconsistent",
+      "required_evidence": [
+        "workflow-manifest",
+        "unit-cell-identity",
+        "primitive-identity"
+      ],
+      "finding_codes": [
+        "PH_STRUCTURE_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Rebuild the manifest with separate unit-cell and primitive identities and a nonsingular primitive matrix."
+    },
+    {
+      "case_id": "ph-d003",
+      "priority": 3,
+      "severity": "P0",
+      "condition": "supercell matrix is not integer nonsingular 3 by 3 or its determinant does not close atom count",
+      "required_evidence": [
+        "workflow-manifest",
+        "supercell-matrix",
+        "atom-counts"
+      ],
+      "finding_codes": [
+        "PH_SUPERCELL_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Correct the supercell matrix or atom count and regenerate all downstream identities."
+    },
+    {
+      "case_id": "ph-d004",
+      "priority": 4,
+      "severity": "P0",
+      "condition": "displacement ids or structure hashes duplicate, atom index is out of range, or vector norm differs from the declared distance",
+      "required_evidence": [
+        "workflow-manifest",
+        "displacement-set"
+      ],
+      "finding_codes": [
+        "PH_DISPLACEMENT_INVALID",
+        "PH_DISPLACEMENT_CLOSURE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Regenerate the displacement set from the same validated unit and supercell identities."
+    },
+    {
+      "case_id": "ph-d005",
+      "priority": 5,
+      "severity": "P0",
+      "condition": "displacement and force records are not exactly one to one",
+      "required_evidence": [
+        "workflow-manifest",
+        "displacement-set",
+        "force-records"
+      ],
+      "finding_codes": [
+        "PH_DISPLACEMENT_CLOSURE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Provide exactly one evidenced force record for every displacement and remove extras."
+    },
+    {
+      "case_id": "ph-d006",
+      "priority": 6,
+      "severity": "P0",
+      "condition": "force unit or shape differs, a parent acceptance gate is not pass, or raw parent hash and semantic projection detach",
+      "required_evidence": [
+        "workflow-manifest",
+        "force-records",
+        "parent-calculation-records"
+      ],
+      "finding_codes": [
+        "PH_FORCE_INVALID",
+        "PH_FORCE_PARENT_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Repair the upstream calculation evidence and rebuild its projection from the same raw parent record."
+    },
+    {
+      "case_id": "ph-d007",
+      "priority": 7,
+      "severity": "P0",
+      "condition": "canonical ordered force-collection hash differs from the manifest",
+      "required_evidence": [
+        "workflow-manifest",
+        "force-records",
+        "force-collection-hash"
+      ],
+      "finding_codes": [
+        "PH_FORCE_COLLECTION_HASH_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Sort by displacement id and recompute the collection hash from the specified canonical preimage."
+    },
+    {
+      "case_id": "ph-d008",
+      "priority": 8,
+      "severity": "P0",
+      "condition": "force-constant shape or either displacement and force-collection parent is inconsistent",
+      "required_evidence": [
+        "workflow-manifest",
+        "force-constants-record"
+      ],
+      "finding_codes": [
+        "PH_FORCE_CONSTANTS_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Rebuild force constants from the same validated displacement and force collection."
+    },
+    {
+      "case_id": "ph-d009",
+      "priority": 9,
+      "severity": "P0",
+      "condition": "mesh, band, DOS, or NAC product binds to a different force-constant parent or DOS binds to a different mesh",
+      "required_evidence": [
+        "workflow-manifest",
+        "product-records"
+      ],
+      "finding_codes": [
+        "PH_PRODUCT_PARENT_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Select artifacts from one lineage and never join products by filename."
+    },
+    {
+      "case_id": "ph-d010",
+      "priority": 10,
+      "severity": "P0",
+      "condition": "frequency artifact bytes, unit, 3N modes, dimensions, signed values, or declared q path are inconsistent",
+      "required_evidence": [
+        "workflow-manifest",
+        "frequency-table-artifact"
+      ],
+      "finding_codes": [
+        "PH_TABLE_INVALID",
+        "PH_PRODUCT_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Parse the original bound artifact with matching explicit unit, dimensions, and q-path parameters."
+    },
+    {
+      "case_id": "ph-d011",
+      "priority": 11,
+      "severity": "P0",
+      "condition": "NAC tensor shape, primitive identity, response acceptance, unit convention, or raw source projection is inconsistent",
+      "required_evidence": [
+        "workflow-manifest",
+        "nac-response-record"
+      ],
+      "finding_codes": [
+        "PH_NAC_INVALID"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Rebuild NAC evidence from an accepted response record for the same primitive identity."
+    },
+    {
+      "case_id": "ph-d012",
+      "priority": 12,
+      "severity": "P0",
+      "condition": "output exists, aliases an input, or durable temporary write and atomic publish fails",
+      "required_evidence": [
+        "candidate-report",
+        "output-target-identity"
+      ],
+      "finding_codes": [
+        "PH_OUTPUT_EXISTS",
+        "PH_OUTPUT_WRITE_FAILED"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Preserve all inputs and old targets, repair storage, and rerun with a new absent output path."
+    },
+    {
+      "case_id": "ph-catalog-native-unavailable",
+      "priority": 13,
+      "severity": "P1",
+      "condition": "native Phonopy execution is requested but no exact 4.3.1 executable or Python distribution identity is available",
+      "required_evidence": [
+        "catalog-probe",
+        "exact-executable-or-distribution-identity"
+      ],
+      "finding_codes": [
+        "PH_NATIVE_UNAVAILABLE"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Keep the request documentation-only until exact 4.3.1 package and entrypoint identity are available."
+    },
+    {
+      "case_id": "ph-catalog-v4-cli-mismatch",
+      "priority": 14,
+      "severity": "P0",
+      "condition": "a plan uses the pre-v4 setup or collection route, phonopy-load as a current primary command, main-CLI --nac, or another option absent from the pinned 4.3.1 parser",
+      "required_evidence": [
+        "planned-argv",
+        "official-command-catalog"
+      ],
+      "finding_codes": [
+        "PH_V4_CLI_MISMATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Rebuild the plan with phonopy-init for setup or force collection and phonopy for YAML calculations using only pinned 4.3.1 options."
+    },
+    {
+      "case_id": "ph-catalog-recipe-or-doc-conflict",
+      "priority": 15,
+      "severity": "P1",
+      "condition": "the requested capability has no established recipe or a documented command conflicts with the pinned 4.3.1 entrypoint parser",
+      "required_evidence": [
+        "official-command-catalog",
+        "task-recipe-catalog"
+      ],
+      "finding_codes": [
+        "PH_RECIPE_NOT_ESTABLISHED",
+        "PH_DOCUMENTATION_CONFLICT"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        3
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Resolve the exact installed parser and official source conflict or add a version-safe recipe before generating a command."
+    },
+    {
+      "case_id": "ph-d013",
+      "priority": 16,
+      "severity": "P2",
+      "condition": "all requested candidate gates pass, including signed-frequency preservation",
+      "required_evidence": [
+        "workflow-manifest",
+        "requested-artifacts"
+      ],
+      "finding_codes": [],
+      "action_state": "local_gate_passed_limited",
+      "expected_exit_codes": [
+        0
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Retain the candidate report without authorizing execution or promotion and perform post-promotion scientific review separately."
+    },
+    {
+      "case_id": "ph-default-fail-closed",
+      "priority": 17,
+      "severity": "P0",
+      "condition": "No earlier case can be established from the available exact evidence.",
+      "required_evidence": [],
+      "finding_codes": [
+        "PH_DECISION_NO_MATCH"
+      ],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [
+        2
+      ],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Stop and obtain the exact evidence needed to select one earlier Phonopy case."
+    }
+  ]
+}

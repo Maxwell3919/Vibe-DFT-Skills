@@ -1,0 +1,403 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:evidence-record:1.0",
+  "title": "Vibe DFT Skills generic non-human evidence record",
+  "description": "An immutable, content-addressed record for scheduler, process, application, parser, gate, convergence, numerical, structure, artifact-integrity, and provenance observations produced by an agent or deterministic tool. It is evidence only: it cannot authorize execution, attest human identity, or accept a scientific conclusion.",
+  "$comment": "Schema validation establishes structural conformance only. Every x-vibe-semantic-obligations entry must be evaluated against exact raw artifact bytes and the complete immutable bundle before this record can support any bounded claim.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "evidence_id",
+  "x-vibe-semantic-obligations": [
+    "EVIDENCE_SUBJECT_REF_HASH_RESOLVES",
+    "EVIDENCE_SOURCE_REF_HASH_RESOLVES",
+    "EVIDENCE_PARENT_REF_HASH_RESOLVES",
+    "EVIDENCE_REF_ROLE_MATCH",
+    "EVIDENCE_PRESENT_ARTIFACT_RAW_BYTES_HASH_MATCH",
+    "EVIDENCE_STATUS_ARTIFACT_AVAILABILITY_MATCH",
+    "EVIDENCE_KIND_RESULT_CLAIM_CEILING_MATCH",
+    "EVIDENCE_NONHUMAN_OBSERVER_REQUIRED",
+    "EVIDENCE_CANNOT_AUTHORIZE_EXECUTION",
+    "EVIDENCE_CANNOT_ACCEPT_SCIENCE",
+    "EVIDENCE_CANNOT_ESTABLISH_EXTERNAL_SOURCE_AUTHORITY",
+    "EVIDENCE_PARENT_REFS_PREEXIST_RECORD",
+    "EVIDENCE_RECORD_REF_DAG_ACYCLIC",
+    "EVIDENCE_PRIVACY_LABELS_SAFE"
+  ],
+  "x-vibe-artifact-hash-semantics": {
+    "algorithm": "sha256",
+    "target_scope": "resolved-present-artifact",
+    "byte_basis": "exact-raw-file-bytes",
+    "canonicalization": "none",
+    "artifact_resolution_required_when_present": true,
+    "placeholder_hash_counts_as_resolved_evidence": false
+  },
+  "x-vibe-authority-boundary": {
+    "may_authorize_execution": false,
+    "may_assert_human_identity": false,
+    "may_accept_scientific_claim": false,
+    "may_establish_external_source_authority": false,
+    "maximum_claim_ceiling": "numerical_candidate_only"
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "evidence_id",
+    "evidence_kind",
+    "status",
+    "observed_utc",
+    "observed_by",
+    "subject_refs",
+    "source_refs",
+    "parent_evidence_refs",
+    "artifacts",
+    "observation",
+    "claim_ceiling",
+    "authority_limits",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "evidence-record"},
+    "evidence_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "evidence_kind": {
+      "enum": [
+        "scheduler-observation",
+        "process-observation",
+        "application-observation",
+        "parser-result",
+        "gate-result",
+        "input-validation",
+        "convergence-study",
+        "numerical-observation",
+        "structure-observation",
+        "artifact-integrity",
+        "provenance-observation"
+      ]
+    },
+    "status": {"enum": ["present", "external", "redacted", "missing", "unknown"]},
+    "observed_utc": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "format": "date-time"}
+      ]
+    },
+    "observed_by": {"$ref": "#/$defs/nonHumanActor"},
+    "subject_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/subjectRef"}
+    },
+    "source_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sourceRef"}
+    },
+    "parent_evidence_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/parentEvidenceRef"}
+    },
+    "artifacts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"
+      }
+    },
+    "observation": {"$ref": "#/$defs/observation"},
+    "claim_ceiling": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/claimCeiling"},
+        {
+          "enum": [
+            "no_positive_claim",
+            "documented_behavior_only",
+            "input_gates_only",
+            "technical_run_gates_only",
+            "numerical_candidate_only"
+          ]
+        }
+      ]
+    },
+    "authority_limits": {"$ref": "#/$defs/authorityLimits"},
+    "limitations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/privacySafeText"}
+    },
+    "producer": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "present"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "observed_utc": {"type": "string", "format": "date-time"},
+          "artifacts": {
+            "minItems": 1,
+            "contains": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "present"}}}
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "external"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "artifacts": {
+            "minItems": 1,
+            "contains": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "external"}}}
+              ]
+            },
+            "not": {
+              "contains": {
+                "type": "object",
+                "properties": {"availability": {"const": "present"}},
+                "required": ["availability"]
+              }
+            }
+          },
+          "claim_ceiling": {"const": "no_positive_claim"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "redacted"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "artifacts": {
+            "minItems": 1,
+            "contains": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "redacted"}}}
+              ]
+            },
+            "not": {
+              "contains": {
+                "type": "object",
+                "properties": {"availability": {"const": "present"}},
+                "required": ["availability"]
+              }
+            }
+          },
+          "claim_ceiling": {"const": "no_positive_claim"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "missing"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "observed_utc": {"type": "null"},
+          "artifacts": {
+            "minItems": 1,
+            "items": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "missing"}}}
+              ]
+            }
+          },
+          "observation": {
+            "allOf": [
+              {"$ref": "#/$defs/observation"},
+              {"properties": {"result": {"enum": ["not-observed", "blocked", "unknown"]}}}
+            ]
+          },
+          "claim_ceiling": {"const": "no_positive_claim"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"status": {"const": "unknown"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "observed_utc": {"type": "null"},
+          "artifacts": {"maxItems": 0},
+          "observation": {
+            "allOf": [
+              {"$ref": "#/$defs/observation"},
+              {"properties": {"result": {"const": "unknown"}}}
+            ]
+          },
+          "claim_ceiling": {"const": "no_positive_claim"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observation": {
+            "properties": {
+              "result": {"enum": ["warn", "fail", "blocked", "partial", "not-observed", "unknown", "not-applicable"]}
+            },
+            "required": ["result"]
+          }
+        },
+        "required": ["observation"]
+      },
+      "then": {"properties": {"claim_ceiling": {"const": "no_positive_claim"}}}
+    },
+    {
+      "if": {
+        "properties": {
+          "evidence_kind": {
+            "enum": ["input-validation", "structure-observation"]
+          }
+        },
+        "required": ["evidence_kind"]
+      },
+      "then": {
+        "properties": {
+          "claim_ceiling": {
+            "enum": ["no_positive_claim", "documented_behavior_only", "input_gates_only"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evidence_kind": {
+            "enum": [
+              "scheduler-observation",
+              "process-observation",
+              "application-observation",
+              "parser-result",
+              "gate-result",
+              "artifact-integrity",
+              "provenance-observation"
+            ]
+          }
+        },
+        "required": ["evidence_kind"]
+      },
+      "then": {
+        "properties": {
+          "claim_ceiling": {
+            "enum": [
+              "no_positive_claim",
+              "documented_behavior_only",
+              "input_gates_only",
+              "technical_run_gates_only"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "privacySafeText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^(?!.*(?:/Users/|/home/|/scratch/|/tmp/|[A-Za-z]:[\\\\/]))(?!.*(?:api[_-]?key|access[_-]?token|password|secret|bearer)[ \\t]*[:=])[^\\u0000-\\u001f\\u007f]+$"
+    },
+    "nonHumanActor": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+        {"properties": {"actor_type": {"enum": ["deterministic-tool", "agent"]}}}
+      ]
+    },
+    "subjectRef": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {"properties": {"role": {"const": "evidence-subject"}}}
+      ]
+    },
+    "sourceRef": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {"properties": {"role": {"const": "evidence-source"}}}
+      ]
+    },
+    "parentEvidenceRef": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "evidence-record"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "parent-evidence"}
+          }
+        }
+      ]
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "finding_codes", "summary"],
+      "properties": {
+        "result": {
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "blocked",
+            "observed",
+            "partial",
+            "not-observed",
+            "unknown",
+            "not-applicable"
+          ]
+        },
+        "finding_codes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "summary": {"$ref": "#/$defs/privacySafeText"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"result": {"enum": ["pass", "observed"]}},
+            "required": ["result"]
+          },
+          "then": {"properties": {"finding_codes": {"maxItems": 0}}}
+        },
+        {
+          "if": {
+            "properties": {"result": {"enum": ["warn", "fail", "blocked", "partial", "not-observed", "unknown"]}},
+            "required": ["result"]
+          },
+          "then": {"properties": {"finding_codes": {"minItems": 1}}}
+        }
+      ]
+    },
+    "authorityLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "may_authorize_execution",
+        "may_assert_human_identity",
+        "may_accept_scientific_claim",
+        "may_establish_external_source_authority"
+      ],
+      "properties": {
+        "may_authorize_execution": {"const": false},
+        "may_assert_human_identity": {"const": false},
+        "may_accept_scientific_claim": {"const": false},
+        "may_establish_external_source_authority": {"const": false}
+      }
+    }
+  }
+}

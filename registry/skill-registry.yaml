@@ -1,0 +1,612 @@
+schema_version: "1.0"
+
+# This registry is the routing boundary for the collection. Active entries are
+# installable and routable. Development entries are source-backed under skills/
+# but remain non-installable and non-routable. Planned entries reserve identity
+# only and have no source path.
+skills:
+  cif-structure-analysis:
+    display_name: CIF Structure Analysis
+    kind: structure
+    lifecycle: active
+    path: skills/cif-structure-analysis
+    source_tree_sha256: "84f599ce27ad91ed0b601a06322b12a597003ffa752bb063f1d546add4369419"
+    side_effects: [local-write, local-execution]
+    consumes: []
+    produces:
+      - structure-manifest@1.0
+    activation_requirements: &active_activation_requirements
+      software_profiles: []
+      interface_ids: []
+      activation_check_ids: []
+      task_catalog_ids: []
+  qe-rigorous-calculations:
+    display_name: Quantum ESPRESSO Rigorous Calculations
+    kind: calculation
+    lifecycle: active
+    path: skills/qe-rigorous-calculations
+    source_tree_sha256: "19c333f8cdbb126684cec26b44947c6c2b13fcf835713063bae896848182a142"
+    side_effects: [network-read, local-write, local-execution]
+    consumes:
+      - structure-manifest@1.0
+    produces:
+      - run-manifest@1.0
+    activation_requirements: *active_activation_requirements
+  vasp-rigorous-calculations:
+    display_name: VASP Rigorous Calculations
+    kind: calculation
+    lifecycle: active
+    path: skills/vasp-rigorous-calculations
+    source_tree_sha256: "d1e0d4f5490734aec67fd55de78c524810744ac91bcb513c22686852422095ab"
+    side_effects: [local-execution]
+    consumes:
+      - structure-manifest@1.0
+    produces:
+      - run-manifest@1.0
+    activation_requirements: *active_activation_requirements
+  cp2k-rigorous-calculations:
+    display_name: CP2K Rigorous Calculations
+    kind: calculation
+    lifecycle: active
+    path: skills/cp2k-rigorous-calculations
+    source_tree_sha256: "142367b77fd10f7355eb9495e1d9fb54f3eaf650fd5428a5e3847f34d12c2be6"
+    side_effects: [network-read, local-execution]
+    consumes:
+      - structure-manifest@1.0
+    produces:
+      - run-manifest@1.0
+    activation_requirements: *active_activation_requirements
+  siesta-rigorous-calculations:
+    display_name: SIESTA Rigorous Calculations
+    kind: calculation
+    lifecycle: active
+    path: skills/siesta-rigorous-calculations
+    source_tree_sha256: "5298399befeaf42ab7dfdb36e7d63a48a363c80c5ee223724554e7d677c9bf27"
+    side_effects: [network-read, local-write, local-execution]
+    consumes:
+      - structure-manifest@1.0
+    produces:
+      - run-manifest@1.0
+    activation_requirements: *active_activation_requirements
+  dft-postprocess:
+    display_name: DFT Postprocess
+    kind: postprocess
+    lifecycle: active
+    path: skills/dft-postprocess
+    source_tree_sha256: "a4449f5d63f4aade8a9061a571aabce834ecc90990c08c7846424b51bed59a27"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-manifest@1.0
+      - run-manifest@1.0
+    produces:
+      - postprocess-plan@1.0
+      - tool-execution@1.0
+      - normalized-dataset@1.0
+      - artifact-manifest@1.0
+    activation_requirements: *active_activation_requirements
+  dft-campaign-efficiency:
+    display_name: DFT Campaign Efficiency
+    kind: advisory
+    lifecycle: active
+    path: skills/dft-campaign-efficiency
+    source_tree_sha256: "ec280d800ae1efcf75a154ec841129e5d0ae80f0a7b6ffd505cc99037f4803cb"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - run-manifest@1.0
+      - artifact-manifest@1.0
+    produces:
+      - campaign-record@1.0
+      - recommendation-record@1.0
+    activation_requirements: *active_activation_requirements
+
+  dft-project-orchestrator:
+    display_name: DFT Project Orchestrator
+    kind: orchestration
+    lifecycle: development
+    path: skills/dft-project-orchestrator
+    source_tree_sha256: "11d0a9534c5b578911c3e7015e95c045cd3564ab33783bda7c036753377e527f"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-manifest@1.0
+      - run-manifest@1.0
+      - artifact-manifest@1.0
+    produces:
+      - workflow-plan@1.0
+      - decision-record@1.0
+      - execution-request@1.0
+    activation_requirements:
+      software_profiles: []
+      interface_ids:
+        - structure-manifest@1.0
+        - run-manifest@1.0
+        - artifact-manifest@1.0
+        - workflow-plan@1.0
+        - decision-record@1.0
+        - execution-request@1.0
+      activation_check_ids: &planned_activation_checks
+        - identity-and-routing
+        - primary-source-provenance
+        - capability-boundary
+        - deterministic-gates
+        - lineage-and-hashes
+        - scientific-gate-separation
+        - shared-interfaces
+        - side-effect-boundary
+        - idempotency-recovery-cancel
+        - validation-evidence
+        - privacy-and-license
+        - portability-and-environment
+        - maintenance-and-forward-test
+      task_catalog_ids: []
+  dft-hpc-execution:
+    display_name: DFT HPC Execution
+    kind: execution
+    lifecycle: development
+    path: skills/dft-hpc-execution
+    source_tree_sha256: "df50167cb6dccb0c7257cbccf6a2f413072c87bbe4873c0588e43bc5fea81475"
+    side_effects: [local-execution, remote-read, remote-write, scheduler-submit, scheduler-control]
+    consumes:
+      - execution-request@1.0
+      - decision-record@1.0
+    produces:
+      - execution-lease@1.0
+      - execution-record@1.0
+      - workflow-event@1.0
+    activation_requirements:
+      software_profiles: []
+      interface_ids:
+        - execution-request@1.0
+        - decision-record@1.0
+        - execution-lease@1.0
+        - execution-record@1.0
+        - workflow-event@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  dft-reporting:
+    display_name: DFT Reporting
+    kind: reporting
+    lifecycle: development
+    path: skills/dft-reporting
+    source_tree_sha256: "08797db8791720a8df9616d3bdc1d4277b88c96adfd49ea155834433fcf27d78"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - claim-evidence-map@1.0
+      - review-evidence-map@1.0
+      - artifact-manifest@1.0
+      - campaign-record@1.0
+    produces:
+      - scientific-report@1.0
+    activation_requirements:
+      software_profiles: []
+      interface_ids:
+        - claim-evidence-map@1.0
+        - review-evidence-map@1.0
+        - artifact-manifest@1.0
+        - campaign-record@1.0
+        - scientific-report@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  literature-to-dft-plan:
+    display_name: Literature to DFT Plan
+    kind: advisory
+    lifecycle: development
+    path: skills/literature-to-dft-plan
+    source_tree_sha256: "70a061181d1feea55bd5cf69341731f9965d103a1985b9063229f4176a5016a0"
+    side_effects: [network-read, local-execution]
+    consumes: []
+    produces:
+      - literature-evidence-plan@1.0
+    activation_requirements:
+      software_profiles: []
+      interface_ids: [literature-evidence-plan@1.0]
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  dft-review-response:
+    display_name: DFT Review Response
+    kind: reporting
+    lifecycle: development
+    path: skills/dft-review-response
+    source_tree_sha256: "060295d5b2e4976ee4f2dc4eeb38fda5337ba1be03183b6bd59bc95eb4119f75"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - review-comment-set@1.0
+      - artifact-manifest@1.0
+    produces:
+      - claim-evidence-map@1.0
+      - review-evidence-map@1.0
+    activation_requirements:
+      software_profiles: []
+      interface_ids:
+        - review-comment-set@1.0
+        - artifact-manifest@1.0
+        - claim-evidence-map@1.0
+        - review-evidence-map@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  dft-structure-preparation:
+    display_name: DFT Structure Preparation
+    kind: structure
+    lifecycle: development
+    path: skills/dft-structure-preparation
+    source_tree_sha256: "fb62dd479f3e99707037050eb023eb485a8547a59d1b54cda68c32883c87dc96"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-manifest@1.0
+      - structure-snapshot@1.0
+      - molecular-structure-manifest@1.0
+    produces:
+      - structure-snapshot@1.0
+      - molecular-structure-manifest@1.0
+      - structure-transformation-manifest@1.0
+      - structure-export-manifest@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: pymatgen
+          selection_policy: all_of
+          environment_profile_ids: [pymatgen-wrapper, pymatgen-core]
+        - software_id: rdkit
+          selection_policy: all_of
+          environment_profile_ids: [rdkit-pypi]
+      interface_ids:
+        - structure-manifest@1.0
+        - structure-snapshot@1.0
+        - molecular-structure-manifest@1.0
+        - structure-transformation-manifest@1.0
+        - structure-export-manifest@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  gaussian-rigorous-calculations:
+    display_name: Gaussian Rigorous Calculations
+    kind: calculation
+    lifecycle: development
+    path: skills/gaussian-rigorous-calculations
+    source_tree_sha256: "9984bbf0bf3212b06cd1025de10993e95e9b6649e00bb8359d555602cfe8a85b"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - molecular-structure-manifest@1.0
+    produces:
+      - quantum-chemistry-run-manifest@1.0
+      - calculation-record-envelope@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: gaussian
+          selection_policy: all_of
+          environment_profile_ids: [gaussian-g16-c02]
+      interface_ids:
+        - molecular-structure-manifest@1.0
+        - quantum-chemistry-run-manifest@1.0
+        - calculation-record-envelope@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  gromacs-rigorous-simulations:
+    display_name: GROMACS Rigorous Simulations
+    kind: calculation
+    lifecycle: development
+    path: skills/gromacs-rigorous-simulations
+    source_tree_sha256: "b8623a7df9b1e694f90cfae653d94bf45948faccbc29b5f7967124beaeca7cca"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - simulation-system-manifest@1.0
+    produces:
+      - md-run-manifest@1.0
+      - atomistic-trajectory-manifest@1.0
+      - calculation-record-envelope@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: gromacs
+          selection_policy: all_of
+          environment_profile_ids: [gromacs-cpu]
+      interface_ids:
+        - simulation-system-manifest@1.0
+        - md-run-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  lammps-rigorous-simulations:
+    display_name: LAMMPS Rigorous Simulations
+    kind: calculation
+    lifecycle: development
+    path: skills/lammps-rigorous-simulations
+    source_tree_sha256: "e9c66f4a2209da9f7325ff9fccab563afb7365b298a1a67f363cb1f5c6e2f954"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - simulation-system-manifest@1.0
+    produces:
+      - simulation-manifest@1.0
+      - atomistic-trajectory-manifest@1.0
+      - calculation-record-envelope@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: lammps
+          selection_policy: all_of
+          environment_profile_ids: [lammps-cpu]
+      interface_ids:
+        - simulation-system-manifest@1.0
+        - simulation-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  deepmd-rigorous-workflows:
+    display_name: DeePMD Rigorous Workflows
+    kind: calculation
+    lifecycle: development
+    path: skills/deepmd-rigorous-workflows
+    source_tree_sha256: "a075af8a736a2763756d2e9b0e51cc54927586d3018e602ed8fa36930359decc"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - ml-dataset-manifest@1.0
+      - ml-training-plan@1.0
+    produces:
+      - ml-training-run@1.0
+      - ml-evaluation-manifest@1.0
+      - ml-model-manifest@1.0
+      - ml-deployment-manifest@1.0
+      - ml-inference-run@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: deepmd
+          selection_policy: all_of
+          environment_profile_ids: [deepmd-cpu-macos]
+      interface_ids:
+        - ml-dataset-manifest@1.0
+        - ml-training-plan@1.0
+        - ml-training-run@1.0
+        - ml-evaluation-manifest@1.0
+        - ml-model-manifest@1.0
+        - ml-deployment-manifest@1.0
+        - ml-inference-run@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  multiwfn-wavefunction-analysis:
+    display_name: Multiwfn Wavefunction Analysis
+    kind: postprocess
+    lifecycle: development
+    path: skills/multiwfn-wavefunction-analysis
+    source_tree_sha256: "544e02e729a75123f53eb85cdd19d1edc2421acbf1f9f0fc138279b1a665671d"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - electronic-wavefunction-source@1.0
+    produces:
+      - normalized-dataset@1.0
+      - artifact-manifest@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: multiwfn
+          selection_policy: platform_variant
+          environment_profile_ids: [multiwfn-official-linux-x64, multiwfn-community-macos]
+      interface_ids:
+        - electronic-wavefunction-source@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  phonopy-rigorous-workflows:
+    display_name: Phonopy Rigorous Workflows
+    kind: postprocess
+    lifecycle: development
+    path: skills/phonopy-rigorous-workflows
+    source_tree_sha256: "e5ea56a9afe4ae3217d27b9a13d897299f45c6a91423bdbbe66b4989730cad95"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-snapshot@1.0
+      - calculation-record-envelope@1.0
+    produces:
+      - phonon-workflow-manifest@1.0
+      - normalized-dataset@1.0
+      - artifact-manifest@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: phonopy
+          selection_policy: all_of
+          environment_profile_ids: [phonopy-pypi]
+      interface_ids:
+        - structure-snapshot@1.0
+        - calculation-record-envelope@1.0
+        - phonon-workflow-manifest@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  vaspkit-postprocess:
+    display_name: VASPKIT Postprocess
+    kind: postprocess
+    lifecycle: development
+    path: skills/vaspkit-postprocess
+    source_tree_sha256: "3824ddf6f9e80bd075518214e8a0296d274a4c5f622cee990b3e1a18cb8e7943"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - calculation-record-envelope@1.0
+      - electronic-wavefunction-source@1.0
+    produces:
+      - normalized-dataset@1.0
+      - artifact-manifest@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: vaspkit
+          selection_policy: platform_variant
+          environment_profile_ids: [vaspkit-linux-x64, vaspkit-macos-intel]
+      interface_ids:
+        - calculation-record-envelope@1.0
+        - electronic-wavefunction-source@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  catmap-microkinetics:
+    display_name: CatMAP Microkinetics
+    kind: scientific-workflow
+    lifecycle: development
+    path: skills/catmap-microkinetics
+    source_tree_sha256: "7d2f7360f9e1d912ea4efe8287a7570f7ddc4ed55a7a79766a228f94de0a9102"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - reaction-network-manifest@1.0
+      - thermochemistry-dataset@1.0
+    produces:
+      - microkinetic-model-manifest@1.0
+      - normalized-dataset@1.0
+      - artifact-manifest@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: catmap
+          selection_policy: all_of
+          environment_profile_ids: [catmap-v041]
+      interface_ids:
+        - reaction-network-manifest@1.0
+        - thermochemistry-dataset@1.0
+        - microkinetic-model-manifest@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  lobster-bonding-analysis:
+    display_name: LOBSTER Bonding Analysis
+    kind: postprocess
+    lifecycle: development
+    path: skills/lobster-bonding-analysis
+    source_tree_sha256: "4b94c307f2b4a487984b99e765f8bea956797f58686640b3bb36272ffcfcbf72"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - electronic-wavefunction-source@1.0
+    produces:
+      - normalized-dataset@1.0
+      - artifact-manifest@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: lobster
+          selection_policy: all_of
+          environment_profile_ids: [lobster-5]
+      interface_ids:
+        - electronic-wavefunction-source@1.0
+        - normalized-dataset@1.0
+        - artifact-manifest@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  ovito-atomistic-analysis:
+    display_name: OVITO Atomistic Analysis
+    kind: postprocess
+    lifecycle: development
+    path: skills/ovito-atomistic-analysis
+    source_tree_sha256: "6679fdfdef39e5f41a00916d899f939028a005b000071db167e64b9379910671"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-snapshot@1.0
+      - atomistic-trajectory-manifest@1.0
+    produces:
+      - ovito-pipeline-spec@1.0
+      - artifact-manifest@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: ovito
+          selection_policy: edition_variant
+          environment_profile_ids: [ovito-basic, ovito-pro]
+      interface_ids:
+        - structure-snapshot@1.0
+        - atomistic-trajectory-manifest@1.0
+        - ovito-pipeline-spec@1.0
+        - artifact-manifest@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  ml-potential-workflows:
+    display_name: Machine-Learned Potential Workflows
+    kind: calculation
+    lifecycle: development
+    path: skills/ml-potential-workflows
+    source_tree_sha256: "0d57b57752bbfa1a994017e9fd60abb3ee57b58518ecf55f2ce9b556c9d79cc4"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-snapshot@1.0
+      - ml-dataset-manifest@1.0
+    produces:
+      - ml-training-plan@1.0
+      - ml-training-run@1.0
+      - ml-evaluation-manifest@1.0
+      - ml-model-manifest@1.0
+      - ml-deployment-manifest@1.0
+      - ml-inference-run@1.0
+      - calculation-record-envelope@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: mace
+          selection_policy: all_of
+          environment_profile_ids: [mace-python]
+        - software_id: nequip
+          selection_policy: all_of
+          environment_profile_ids: [nequip-python]
+        - software_id: gemnet-oc
+          selection_policy: all_of
+          environment_profile_ids: [fairchem-v1-gemnet-oc]
+        - software_id: equiformer-v2
+          selection_policy: all_of
+          environment_profile_ids: [fairchem-v1-equiformer-v2]
+        - software_id: fairchem-uma
+          selection_policy: all_of
+          environment_profile_ids: [fairchem-v2-uma]
+      interface_ids:
+        - structure-snapshot@1.0
+        - ml-dataset-manifest@1.0
+        - ml-training-plan@1.0
+        - ml-training-run@1.0
+        - ml-evaluation-manifest@1.0
+        - ml-model-manifest@1.0
+        - ml-deployment-manifest@1.0
+        - ml-inference-run@1.0
+        - calculation-record-envelope@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  gpumd-rigorous-simulations:
+    display_name: GPUMD Rigorous Simulations
+    kind: calculation
+    lifecycle: development
+    path: skills/gpumd-rigorous-simulations
+    source_tree_sha256: "c233c5d6d4f491b8e55da1de70ea1bc9b2628e6edfba41b03027a18737e8139e"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-snapshot@1.0
+      - ml-model-manifest@1.0
+    produces:
+      - simulation-manifest@1.0
+      - atomistic-trajectory-manifest@1.0
+      - calculation-record-envelope@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: gpumd
+          selection_policy: any_of
+          environment_profile_ids: [gpumd-cuda, gpumd-rocm]
+      interface_ids:
+        - structure-snapshot@1.0
+        - ml-model-manifest@1.0
+        - simulation-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []
+  lasp-rigorous-simulations:
+    display_name: LASP Rigorous Simulations
+    kind: calculation
+    lifecycle: development
+    path: skills/lasp-rigorous-simulations
+    source_tree_sha256: "bc83f386df911c07d03af9a6185c2d60f034586bb8a05b32e6a81189ac38ab1d"
+    side_effects: [local-write, local-execution]
+    consumes:
+      - structure-snapshot@1.0
+      - ml-model-manifest@1.0
+    produces:
+      - simulation-manifest@1.0
+      - atomistic-trajectory-manifest@1.0
+      - calculation-record-envelope@1.0
+    activation_requirements:
+      software_profiles:
+        - software_id: lasp
+          selection_policy: all_of
+          environment_profile_ids: [lasp-commercial]
+      interface_ids:
+        - structure-snapshot@1.0
+        - ml-model-manifest@1.0
+        - simulation-manifest@1.0
+        - atomistic-trajectory-manifest@1.0
+        - calculation-record-envelope@1.0
+      activation_check_ids: *planned_activation_checks
+      task_catalog_ids: []

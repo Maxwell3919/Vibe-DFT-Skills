@@ -1,0 +1,63 @@
+{
+  "case_id": "case-force-qe-001",
+  "code": "qe",
+  "code_version": "7.4.1",
+  "configuration": {
+    "phonopy_force_parent": {
+      "displaced_supercell_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "displacement_id": "disp-001",
+      "displacement_set_id": "synthetic-displacements",
+      "displacement_set_sha256": "a29eec1130f3e2cbb211cecd72a3e0a515999c42cd22571438c6a8f3cb8f0ac8",
+      "structure_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "supercell_atom_count": 2,
+      "workflow_id": "synthetic-phonon-001"
+    }
+  },
+  "evidence": [
+    {
+      "label": "disp-001.in",
+      "role": "pw_input",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "present"
+    },
+    {
+      "label": "disp-001.out",
+      "role": "pw_output",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "status": "present"
+    },
+    {
+      "label": "disp-001.structure.json",
+      "role": "displaced_structure",
+      "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "status": "present"
+    },
+    {
+      "label": "force-001.dat",
+      "role": "force_table",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "status": "present"
+    },
+    {
+      "label": "qe-force-audit.json",
+      "role": "qe_audit_report",
+      "sha256": "891b9d786138c81859a6ac2b92b37b2452fc6fe19461d703b1063cf10513f54c",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Synthetic parent record; force acceptance is not emitted by active qe_guard@1.0.0."
+  ],
+  "metrics": {},
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-07-19T00:00:00+00:00"
+  },
+  "record_id": "run-force-qe-001",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "protocol-force-qe-001",
+  "status": "completed",
+  "task_type": "scf"
+}

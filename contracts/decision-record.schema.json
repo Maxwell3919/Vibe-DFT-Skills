@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:decision-record:1.0",
+  "title": "Vibe DFT Skills explicit decision record",
+  "description": "A durable downstream decision over an immutable, pre-existing subject and pre-existing evidence. Execution authorization and scientific acceptance require a human actor; an agent or deterministic tool cannot self-authorize or scientifically accept a result. The subject never points back to this decision.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "decision_id",
+  "x-vibe-semantic-obligations": [
+    "DECISION_SUBJECT_REF_HASH_RESOLVES",
+    "DECISION_EVIDENCE_IDS_RESOLVE",
+    "DECISION_AUTHORIZATION_REQUEST_SCOPE_MATCH",
+    "DECISION_SCIENTIFIC_SUBJECT_HASH_OUTCOME_MATCH",
+    "DECISION_REFS_PREEXIST_DECISION",
+    "DECISION_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "decision_id",
+    "decision_type",
+    "subject_ref",
+    "outcome",
+    "scientific_acceptance",
+    "decided_by",
+    "decided_utc",
+    "evidence_ids",
+    "evidence_refs",
+    "rationale",
+    "scope_labels",
+    "valid_until_utc",
+    "claim_ceiling",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "decision-record"},
+    "decision_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "decision_type": {
+      "enum": [
+        "execution-authorization",
+        "scientific-acceptance",
+        "workflow-change",
+        "skill-promotion",
+        "release",
+        "external-publication"
+      ]
+    },
+    "subject_ref": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+    "outcome": {"enum": ["approved", "denied", "deferred", "accepted", "rejected"]},
+    "scientific_acceptance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/scientificAcceptance"
+    },
+    "decided_by": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+    "decided_utc": {"type": "string", "format": "date-time"},
+    "evidence_ids": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+      "uniqueItems": true
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "rationale": {"type": "string", "minLength": 1, "maxLength": 4000},
+    "scope_labels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255,
+        "pattern": "^(?![/\\\\])(?![A-Za-z]:[\\\\/])(?!.*\\s[/\\\\])(?!.*[=:][/\\\\])(?!.*\\s[A-Za-z]:[\\\\/])(?!.*\\\\\\\\)(?!.*(?:^|[\\s=,:;()\\[\\]{}\"'])[/\\\\](?:Users|home|private|tmp|var|Volumes|scratch|gpfs|lustre|mnt|work|project)(?:[/\\\\]|$))(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))[^\\u0000\\r\\n]+$"
+      },
+      "uniqueItems": true
+    },
+    "valid_until_utc": {"type": ["string", "null"], "format": "date-time"},
+    "claim_ceiling": {"$ref": "#/$defs/claimCeiling"},
+    "limitations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000},
+      "uniqueItems": true
+    },
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"decision_type": {"const": "execution-authorization"}},
+        "required": ["decision_type"]
+      },
+      "then": {
+        "properties": {
+          "subject_ref": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+              {
+                "properties": {
+                  "contract_name": {"const": "execution-request"},
+                  "schema_version": {"const": "1.0"},
+                  "role": {"const": "execution-subject"}
+                }
+              }
+            ]
+          },
+          "outcome": {"enum": ["approved", "denied", "deferred"]},
+          "scientific_acceptance": {"const": "not_assessed"},
+          "decided_by": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+              {"properties": {"actor_type": {"const": "human"}}}
+            ]
+          },
+          "evidence_ids": {"minItems": 1},
+          "evidence_refs": {"minItems": 1},
+          "scope_labels": {"minItems": 1},
+          "valid_until_utc": {"type": "string", "format": "date-time"},
+          "claim_ceiling": {
+            "enum": ["no_positive_claim", "documented_behavior_only", "input_gates_only"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"decision_type": {"const": "scientific-acceptance"}},
+        "required": ["decision_type"]
+      },
+      "then": {
+        "properties": {
+          "subject_ref": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+              {
+                "properties": {
+                  "schema_version": {"const": "1.0"},
+                  "role": {"const": "scientific-subject"}
+                }
+              },
+              {
+                "oneOf": [
+                  {"properties": {"contract_name": {"const": "calculation-record-envelope"}}},
+                  {"properties": {"contract_name": {"const": "claim-evidence-map"}}}
+                ]
+              }
+            ]
+          },
+          "outcome": {"enum": ["accepted", "rejected", "deferred"]},
+          "decided_by": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+              {"properties": {"actor_type": {"const": "human"}}}
+            ]
+          },
+          "evidence_ids": {"minItems": 1},
+          "evidence_refs": {"minItems": 1},
+          "scope_labels": {"minItems": 1},
+          "valid_until_utc": {"type": "null"},
+          "claim_ceiling": {"const": "eligible_for_expert_review"}
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"outcome": {"const": "accepted"}}, "required": ["outcome"]},
+            "then": {"properties": {"scientific_acceptance": {"const": "accepted"}}}
+          },
+          {
+            "if": {"properties": {"outcome": {"const": "rejected"}}, "required": ["outcome"]},
+            "then": {"properties": {"scientific_acceptance": {"const": "rejected"}}}
+          },
+          {
+            "if": {"properties": {"outcome": {"const": "deferred"}}, "required": ["outcome"]},
+            "then": {"properties": {"scientific_acceptance": {"const": "not_assessed"}}}
+          }
+        ]
+      },
+      "else": {
+        "properties": {
+          "scientific_acceptance": {"const": "not_assessed"},
+          "outcome": {"enum": ["approved", "denied", "deferred"]}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "claimCeiling": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/claimCeiling"
+    }
+  }
+}

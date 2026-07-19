@@ -1,0 +1,83 @@
+{
+  "artifact_class": "synthetic",
+  "authorization": {
+    "execute_external_software": false
+  },
+  "case_id": "synthetic-lj-001",
+  "claim_target": "Demonstrate deterministic offline gate behavior only; no physical claim.",
+  "ensemble": "nve",
+  "equilibration": {
+    "acceptance_checks": [
+      "predeclared-discard-only"
+    ],
+    "steps": 4
+  },
+  "force_field": {
+    "identity": "project-authored-lj-syntax-only",
+    "license_status": "verified",
+    "source_url": "https://example.invalid/project-authored-fixture"
+  },
+  "gromacs_version": "2026.3",
+  "integrator": "md",
+  "objective": "Exercise the candidate parser with a legal project-authored syntax fixture.",
+  "observables": [
+    {
+      "estimator": "mean",
+      "max_standard_error": 0.1,
+      "minimum_effective_samples": 3,
+      "name": "total_energy",
+      "uncertainty_method": "block-mean",
+      "unit": "kJ/mol"
+    },
+    {
+      "estimator": "mean",
+      "max_standard_error": 5.0,
+      "minimum_effective_samples": 3,
+      "name": "temperature",
+      "uncertainty_method": "block-mean",
+      "unit": "K"
+    }
+  ],
+  "output": {
+    "energy_interval_steps": 2,
+    "expected_trajectory_frames": 4,
+    "log_interval_steps": 2,
+    "trajectory_interval_steps": 4
+  },
+  "pbc": [
+    true,
+    true,
+    true
+  ],
+  "production": {
+    "acceptance_checks": [
+      "minimum-effective-samples",
+      "block-mean-standard-error"
+    ],
+    "steps": 8
+  },
+  "protocol_id": "gmx-synthetic-core-v1",
+  "restart": {
+    "checkpoint_sha256": null,
+    "mode": "new",
+    "parent_run_id": null
+  },
+  "seed": {
+    "mode": "explicit",
+    "value": 20260719
+  },
+  "task": "nve",
+  "timestep_ps": 0.002,
+  "topology": {
+    "identity": "project-authored-two-site-topology",
+    "license_status": "verified",
+    "source_url": "https://example.invalid/project-authored-fixture"
+  },
+  "units": {
+    "energy": "kJ/mol",
+    "length": "nm",
+    "pressure": "bar",
+    "temperature": "K",
+    "time": "ps"
+  }
+}

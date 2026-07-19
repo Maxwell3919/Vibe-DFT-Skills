@@ -37,7 +37,7 @@ Use this order:
 3. validate completeness, dimensions, labels, finite values, and provenance;
 4. perform deterministic numerical analysis;
 5. plot only validated structured data;
-6. emit `artifact_manifest.json` using the canonical [artifact contract](../../contracts/artifact-manifest.schema.json);
+6. emit `artifact_manifest.json` against the registered canonical `artifact-manifest@1.0` interface;
 7. report supported claims, limitations, and blocked claims.
 
 For QE/VASP scalar traces:

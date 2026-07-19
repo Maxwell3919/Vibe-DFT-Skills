@@ -1,0 +1,144 @@
+{
+  "catalog_name": "lobster-software-capabilities",
+  "schema_version": "1.0",
+  "provider_target": "LOBSTER 5.1.1",
+  "checked_on": "2026-07-19",
+  "scope_note": "Public first-party pages establish feature families and supported parent codes, but delegate exact native invocation, lobsterin grammar, provider-specific file contracts, and complete output schemas to the licensed package manual/examples. Those details remain manual-required.",
+  "capabilities": [
+    {
+      "id": "provider.release.5.1.1",
+      "group": "provider",
+      "surface": "licensed-package",
+      "evidence_state": "official-public-feature",
+      "purpose": "Current LOBSTER provider release, dated 2024-09-26.",
+      "call_contract": null,
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-LICENSE-511"]
+    },
+    {
+      "id": "provider.parent.vasp",
+      "group": "parent-provider",
+      "surface": "plane-wave-dft-output",
+      "evidence_state": "official-public-feature",
+      "purpose": "Use VASP plane-wave results as a LOBSTER parent.",
+      "call_contract": "Exact 5.1.1 files/settings are manual-required; a software name or WAVECAR-like filename is insufficient.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-COHP-OVERVIEW", "LOB-PAPER-2013"]
+    },
+    {
+      "id": "provider.parent.abinit",
+      "group": "parent-provider",
+      "surface": "plane-wave-dft-output",
+      "evidence_state": "official-public-feature",
+      "purpose": "Use ABINIT plane-wave results as a LOBSTER parent.",
+      "call_contract": "Exact 5.1.1 files/settings are manual-required and this Skill has no validated ABINIT adapter.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-COHP-OVERVIEW"]
+    },
+    {
+      "id": "provider.parent.qe",
+      "group": "parent-provider",
+      "surface": "plane-wave-dft-output",
+      "evidence_state": "official-public-feature",
+      "purpose": "Use Quantum ESPRESSO plane-wave results as a LOBSTER parent.",
+      "call_contract": "Exact supported QE versions, pseudopotentials, wavefunction/save artifacts, and conversion settings are manual-required; this route is design-only in the Skill.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-COHP-OVERVIEW"]
+    },
+    {
+      "id": "analysis.projected-cohp",
+      "group": "bonding-analysis",
+      "surface": "native-feature",
+      "evidence_state": "official-public-feature",
+      "purpose": "Project energy-resolved COHP from plane-wave/PAW wavefunctions.",
+      "call_contract": "Exact lobsterin keywords and 5.1.1 output schema are manual-required.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-COHP-OVERVIEW", "LOB-PAPER-2011", "LOB-PAPER-2013"]
+    },
+    {
+      "id": "analysis.projected-coop",
+      "group": "bonding-analysis",
+      "surface": "native-feature",
+      "evidence_state": "official-public-feature",
+      "purpose": "Project energy-resolved COOP from plane-wave DFT output.",
+      "call_contract": "Exact lobsterin keywords and 5.1.1 output schema are manual-required.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-FAQ"]
+    },
+    {
+      "id": "analysis.projected-dos",
+      "group": "electronic-analysis",
+      "surface": "native-feature",
+      "evidence_state": "official-public-feature",
+      "purpose": "Produce reliable atom-projected density of states from the local projection.",
+      "call_contract": "Exact lobsterin keywords, orbital/spin layout, and 5.1.1 output schema are manual-required.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-COHP-OVERVIEW"]
+    },
+    {
+      "id": "analysis.population-charge",
+      "group": "population-analysis",
+      "surface": "native-feature",
+      "evidence_state": "method-paper-feature",
+      "purpose": "Compute local-orbital population and atomic-charge quantities.",
+      "call_contract": "Exact 5.1.1 task keywords/output schema are manual-required and oxidation-state conclusions remain expert-only.",
+      "source_ids": ["LOB-PAPER-2020", "LOB-LICENSE-511"]
+    },
+    {
+      "id": "analysis.k-dependent-cohp",
+      "group": "bonding-analysis",
+      "surface": "native-feature",
+      "evidence_state": "method-paper-feature",
+      "purpose": "Evaluate k-dependent COHP information.",
+      "call_contract": "Exact 5.1.1 task syntax/artifacts are manual-required and no current fixture validates this surface.",
+      "source_ids": ["LOB-PAPER-2020"]
+    },
+    {
+      "id": "quality.spilling",
+      "group": "projection-quality",
+      "surface": "scientific-gate",
+      "evidence_state": "official-public-concept",
+      "purpose": "Assess resemblance between original and reconstructed wavefunctions with a spilling indicator in the interval from one to zero, lower being better.",
+      "call_contract": "No universal acceptance threshold is supplied; predeclare claim-specific charge and total spilling limits and retain basis evidence.",
+      "source_ids": ["LOB-PROJECTION-OVERVIEW", "LOB-PAPER-2016"]
+    },
+    {
+      "id": "quality.basis-projection",
+      "group": "projection-quality",
+      "surface": "scientific-gate",
+      "evidence_state": "official-public-concept",
+      "purpose": "Project plane waves onto a proper local auxiliary basis and record its exact identity.",
+      "call_contract": "Basis family/resource hash and per-element orbitals must match the authorized 5.1.1 resources and observed output; low spilling alone does not prove chemical completeness.",
+      "source_ids": ["LOB-PROJECTION-OVERVIEW", "LOB-PAPER-2013", "LOB-PAPER-2016"]
+    },
+    {
+      "id": "native.input.lobsterin",
+      "group": "native-interface",
+      "surface": "input-file",
+      "evidence_state": "manual-required",
+      "purpose": "Configure a LOBSTER task through lobsterin.",
+      "call_contract": "Do not generate keywords from memory; require the exact authorized 5.1.1 manual/example identity and review.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-LICENSE-511"]
+    },
+    {
+      "id": "native.execution",
+      "group": "native-interface",
+      "surface": "executable",
+      "evidence_state": "manual-required",
+      "purpose": "Launch the licensed LOBSTER binary in a prepared parent directory.",
+      "call_contract": "Public first-party pages do not state the exact executable filename/argv; an execution plan is blocked until the authorized 5.1.1 manual and binary identity are provided.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-LICENSE-511"]
+    },
+    {
+      "id": "native.outputs",
+      "group": "native-interface",
+      "surface": "output-files",
+      "evidence_state": "manual-required",
+      "purpose": "Interpret 5.1.1 completion, spilling, basis, COHP/COOP/DOS, list, structure, charge, and auxiliary outputs.",
+      "call_contract": "The complete file names, schemas, completion marker, and fatal markers require the authorized 5.1.1 manual plus genuine artifacts.",
+      "source_ids": ["LOB-DOWNLOAD-511", "LOB-LICENSE-511"]
+    },
+    {
+      "id": "postprocess.lobsterpy",
+      "group": "postprocessing",
+      "surface": "companion-cli-python",
+      "evidence_state": "developer-companion-feature",
+      "purpose": "Analyze and plot existing LOBSTER COHP/COOP/COBI and DOS artifacts with LobsterPy.",
+      "call_contract": "Companion documentation is authoritative for LobsterPy calls only; it cannot establish native LOBSTER syntax, projection quality, or missing interactions.",
+      "source_ids": ["LOB-LOBSTERPY-GETTING-STARTED", "LOB-LOBSTERPY-CLI"]
+    }
+  ]
+}

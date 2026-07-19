@@ -1,0 +1,65 @@
+{
+  "artifact_class": "synthetic",
+  "authorization": {"execute_external_software": false},
+  "boundary": [true, true, true],
+  "case_id": "gpumd-fixture-001",
+  "claim_target": "Offline technical integrity of the declared synthetic NVE segment only",
+  "ensemble": "nve",
+  "equilibration": {
+    "acceptance_checks": ["predeclared prefix excluded", "finite thermo values"],
+    "steps": 4
+  },
+  "gpumd_commit": "f2b46c5d528e985a5bf68becd442b18c0e04396c",
+  "gpumd_version": "5.3",
+  "objective": "Exercise the deterministic GPUMD v5.3 offline audit pipeline",
+  "observables": [
+    {
+      "estimator": "mean",
+      "max_standard_error": 1.0,
+      "minimum_effective_samples": 2,
+      "name": "temperature",
+      "uncertainty_method": "block-mean",
+      "unit": "K"
+    },
+    {
+      "estimator": "mean",
+      "max_standard_error": 0.2,
+      "minimum_effective_samples": 2,
+      "name": "potential_energy",
+      "uncertainty_method": "block-mean",
+      "unit": "eV"
+    }
+  ],
+  "output": {
+    "expected_trajectory_frames": 3,
+    "restart_interval_steps": 4,
+    "thermo_interval_steps": 2,
+    "trajectory_filename": "trajectory.xyz",
+    "trajectory_interval_steps": 4
+  },
+  "potential": {
+    "family": "lj",
+    "identity": "project-authored-two-atom-lj-v1",
+    "license_status": "verified",
+    "source_url": "https://example.invalid/vibe-dft-skills/gpumd-fixture"
+  },
+  "production": {
+    "acceptance_checks": ["effective sample minimum", "block-mean uncertainty bound"],
+    "steps": 8
+  },
+  "protocol_id": "gpumd-nve-protocol-001",
+  "restart": {"mode": "new"},
+  "seed": {"mode": "explicit", "value": 20260719},
+  "task": "nve",
+  "timestep_fs": 1.0,
+  "units": {
+    "charge": "e",
+    "energy": "eV",
+    "length": "angstrom",
+    "mass": "amu",
+    "pressure": "GPa",
+    "temperature": "K",
+    "time": "fs",
+    "velocity": "angstrom/fs"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "retrieved_utc": "2026-07-19T00:00:00Z",
+  "policy": "Only official SchedMD Slurm documentation is cited for scheduler behavior. The live pages identified themselves as version 26.05 at retrieval; match the installed cluster version and site policy before external use.",
+  "sources": [
+    {
+      "source_id": "slurm-sbatch",
+      "authority": "SchedMD",
+      "kind": "official-manual",
+      "locator": "https://slurm.schedmd.com/sbatch.html",
+      "version": "26.05-live-at-retrieval",
+      "scope": [
+        "batch script directives",
+        "submission syntax and return meaning",
+        "parsable job-id output",
+        "file-movement boundary"
+      ],
+      "redistribution": "link-only"
+    },
+    {
+      "source_id": "slurm-squeue",
+      "authority": "SchedMD",
+      "kind": "official-manual",
+      "locator": "https://slurm.schedmd.com/squeue.html",
+      "version": "26.05-live-at-retrieval",
+      "scope": [
+        "job filtering",
+        "active-state observation",
+        "format fields"
+      ],
+      "redistribution": "link-only"
+    },
+    {
+      "source_id": "slurm-sacct",
+      "authority": "SchedMD",
+      "kind": "official-manual",
+      "locator": "https://slurm.schedmd.com/sacct.html",
+      "version": "26.05-live-at-retrieval",
+      "scope": [
+        "accounting observation",
+        "terminal state and exit code",
+        "parsable2 output",
+        "duplicate/requeue records"
+      ],
+      "redistribution": "link-only"
+    },
+    {
+      "source_id": "slurm-scontrol",
+      "authority": "SchedMD",
+      "kind": "official-manual",
+      "locator": "https://slurm.schedmd.com/scontrol.html",
+      "version": "26.05-live-at-retrieval",
+      "scope": [
+        "detailed job inspection",
+        "one-line output",
+        "authorization and RPC boundary"
+      ],
+      "redistribution": "link-only"
+    },
+    {
+      "source_id": "slurm-scancel",
+      "authority": "SchedMD",
+      "kind": "official-manual",
+      "locator": "https://slurm.schedmd.com/scancel.html",
+      "version": "26.05-live-at-retrieval",
+      "scope": [
+        "job cancellation syntax",
+        "interactive confirmation",
+        "signal semantics",
+        "post-action observation requirement"
+      ],
+      "redistribution": "link-only"
+    },
+    {
+      "source_id": "slurm-job-state-codes",
+      "authority": "SchedMD",
+      "kind": "official-manual",
+      "locator": "https://slurm.schedmd.com/job_state_codes.html",
+      "version": "26.05-live-at-retrieval",
+      "scope": [
+        "native job state names",
+        "terminal and nonterminal state meanings"
+      ],
+      "redistribution": "link-only"
+    }
+  ]
+}

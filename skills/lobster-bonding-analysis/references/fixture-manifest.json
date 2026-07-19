@@ -1,0 +1,20 @@
+{
+  "contract_name": "lobster-fixture-manifest",
+  "schema_version": "1.0",
+  "fixtures": [
+    {"file": "fixtures/audit-request-pass.json", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "integration request"},
+    {"file": "fixtures/cohp.synthetic", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "COHP normalized curve"},
+    {"file": "fixtures/coop.synthetic", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "COOP normalized curve"},
+    {"file": "fixtures/dos.synthetic", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "projected-DOS closure"},
+    {"file": "fixtures/lobsterout.synthetic", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "completion, basis, spilling, provider identity"},
+    {"file": "fixtures/parent-validation.json", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "independent hash-bound parent validation receipt"},
+    {"file": "fixtures/parent-wavefunction.json", "origin": "original-synthetic", "redistribution": "allowed", "purpose": "candidate-local parent lineage, DFT protocol, and input identities"}
+  ],
+  "excluded_material": [
+    "LOBSTER binary or manual bytes",
+    "LOBSTER basis resources",
+    "genuine LOBSTER output excerpts",
+    "VASP POTCAR or WAVECAR contents",
+    "private paths, accounts, hosts, job identifiers, credentials, or unpublished results"
+  ]
+}

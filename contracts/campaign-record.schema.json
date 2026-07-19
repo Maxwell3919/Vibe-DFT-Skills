@@ -2,12 +2,19 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/campaign-record.schema.json",
   "title": "DFT campaign efficiency record",
+  "description": "Privacy-safe measured cost record. A completed but unreviewed run may preserve cost evidence, while accepted or rejected science requires a hash-linked calculation, human decision, and post-decision claim map that a production bundle validator resolves.",
+  "x-vibe-semantic-obligations": [
+    "CAMPAIGN_SOURCE_RUN_BINDING_MATCH",
+    "CAMPAIGN_ACCEPTANCE_CHAIN_MATCH",
+    "CAMPAIGN_RECORD_REF_DAG_ACYCLIC"
+  ],
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema_version",
     "record_id",
     "run_manifest_id",
+    "source_run_ref",
     "code",
     "code_version",
     "task_type",
@@ -18,12 +25,26 @@
     "configuration",
     "metrics",
     "outcome",
+    "acceptance_evidence",
+    "source_manifest_sha256",
     "recorded_utc"
   ],
   "properties": {
     "schema_version": {"const": "1.0"},
     "record_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
     "run_manifest_id": {"type": "string", "minLength": 1},
+    "source_run_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "run-manifest"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "source-run"}
+          }
+        }
+      ]
+    },
     "code": {"enum": ["qe", "vasp", "cp2k", "siesta"]},
     "code_version": {"type": "string", "minLength": 1},
     "task_type": {"type": "string", "minLength": 1},
@@ -48,15 +69,209 @@
     "outcome": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["scientifically_accepted", "status", "accuracy_metrics"],
+      "required": ["scientifically_accepted", "scientific_acceptance", "status", "accuracy_metrics"],
       "properties": {
         "scientifically_accepted": {"type": "boolean"},
-        "status": {"enum": ["accepted", "rejected", "failed", "stopped"]},
+        "scientific_acceptance": {
+          "enum": ["not_assessed", "requires_human_review", "accepted", "rejected"]
+        },
+        "status": {"enum": ["completed-unreviewed", "accepted", "rejected", "failed", "stopped"]},
         "accuracy_metrics": {"type": "object"},
         "failure_code": {"type": ["string", "null"]}
       }
     },
-    "source_manifest_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "acceptance_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calculation_record_ref",
+        "decision_ref",
+        "postdecision_claim_map_ref"
+      ],
+      "properties": {
+        "calculation_record_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/calculationRecordRef"},
+            {"type": "null"}
+          ]
+        },
+        "decision_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/scientificDecisionRef"},
+            {"type": "null"}
+          ]
+        },
+        "postdecision_claim_map_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/postdecisionClaimMapRef"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "source_manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "recorded_utc": {"type": "string", "format": "date-time"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "properties": {"status": {"const": "completed-unreviewed"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "properties": {
+              "scientifically_accepted": {"const": false},
+              "scientific_acceptance": {
+                "enum": ["not_assessed", "requires_human_review"]
+              },
+              "failure_code": {"type": "null"}
+            }
+          },
+          "acceptance_evidence": {"$ref": "#/$defs/noAcceptanceEvidence"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "properties": {"status": {"enum": ["failed", "stopped"]}},
+            "required": ["status"]
+          }
+        },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "properties": {
+              "scientifically_accepted": {"const": false},
+              "scientific_acceptance": {"const": "not_assessed"},
+              "failure_code": {"type": "string", "minLength": 1}
+            }
+          },
+          "acceptance_evidence": {"$ref": "#/$defs/noAcceptanceEvidence"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "properties": {"status": {"const": "accepted"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "properties": {
+              "scientifically_accepted": {"const": true},
+              "scientific_acceptance": {"const": "accepted"},
+              "failure_code": {"type": "null"}
+            }
+          },
+          "acceptance_evidence": {"$ref": "#/$defs/requiredAcceptanceEvidence"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "properties": {"status": {"const": "rejected"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "properties": {
+              "scientifically_accepted": {"const": false},
+              "scientific_acceptance": {"const": "rejected"},
+              "failure_code": {"type": "string", "minLength": 1}
+            }
+          },
+          "acceptance_evidence": {"$ref": "#/$defs/requiredAcceptanceEvidence"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "calculationRecordRef": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "calculation-record-envelope"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "scientific-candidate"}
+          }
+        }
+      ]
+    },
+    "scientificDecisionRef": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "decision-record"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "scientific-acceptance"}
+          }
+        }
+      ]
+    },
+    "postdecisionClaimMapRef": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "claim-evidence-map"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "postdecision-claim-map"}
+          }
+        }
+      ]
+    },
+    "noAcceptanceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calculation_record_ref",
+        "decision_ref",
+        "postdecision_claim_map_ref"
+      ],
+      "properties": {
+        "calculation_record_ref": {"type": "null"},
+        "decision_ref": {"type": "null"},
+        "postdecision_claim_map_ref": {"type": "null"}
+      }
+    },
+    "requiredAcceptanceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calculation_record_ref",
+        "decision_ref",
+        "postdecision_claim_map_ref"
+      ],
+      "properties": {
+        "calculation_record_ref": {"$ref": "#/$defs/calculationRecordRef"},
+        "decision_ref": {"$ref": "#/$defs/scientificDecisionRef"},
+        "postdecision_claim_map_ref": {"$ref": "#/$defs/postdecisionClaimMapRef"}
+      }
+    }
   }
 }

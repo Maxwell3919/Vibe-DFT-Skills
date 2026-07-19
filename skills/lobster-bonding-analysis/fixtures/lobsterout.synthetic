@@ -1,0 +1,15 @@
+VIBE_DFT_SYNTHETIC_LOBSTEROUT_V1
+LOBSTER version: 5.1.1
+DFT program: VASP
+basis X: 1s
+basis Y: 2s 2p
+absolute charge spilling percent: 1.20
+absolute total spilling percent: 1.80
+projected band fraction: 1.0
+projection window minimum eV: -2.0
+projection window maximum eV: 1.0
+fermi energy eV: 0.0
+wrote artifact: COHP
+wrote artifact: COOP
+wrote artifact: DOS
+LOBSTER run completed

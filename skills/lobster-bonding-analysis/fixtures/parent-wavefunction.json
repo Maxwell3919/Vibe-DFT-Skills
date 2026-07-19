@@ -1,0 +1,32 @@
+{
+  "claim_ceiling": "no_positive_claim",
+  "contract_name": "electronic-wavefunction-source-candidate",
+  "dft_code": "vasp",
+  "dft_inputs": {
+    "kpoints_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "potential_metadata_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+    "settings_sha256": "6666666666666666666666666666666666666666666666666666666666666666",
+    "structure_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "dft_version": "6.4.3",
+  "evidence_class": "synthetic-fixture",
+  "gates": {
+    "completion": "pass",
+    "input": "pass",
+    "numerical": "pass",
+    "wavefunction_eligible_for_lobster": "pass"
+  },
+  "protocol": {
+    "id": "vasp-static-wavefunction-synthetic-v1",
+    "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "task_profile": "static-wavefunction-for-lobster"
+  },
+  "record_id": "parent-synthetic-001",
+  "schema_version": "1.0",
+  "structure_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "task_id": "static-wavefunction",
+  "wavefunction": {
+    "artifact_label": "synthetic-wavefunction-001",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  }
+}

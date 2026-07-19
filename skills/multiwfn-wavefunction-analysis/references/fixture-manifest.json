@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {
+      "path": "examples/synthetic-wavefunction-source.json",
+      "kind": "constructed-record",
+      "maturity": "synthetic-validated",
+      "scientific_use": false
+    },
+    {
+      "path": "examples/synthetic.wfx",
+      "kind": "original-constructed-wavefunction-shaped-identity-fixture",
+      "sha256": "d67014a373f34e20131d90ea5d63058d2b0bf9e08389e779ec1551db56ffba9b",
+      "bytes": 468,
+      "maturity": "synthetic-validated",
+      "scientific_use": false
+    },
+    {
+      "path": "examples/synthetic-inventory-transcript.txt",
+      "kind": "constructed-transcript",
+      "maturity": "synthetic-validated",
+      "scientific_use": false
+    },
+    {
+      "path": "examples/synthetic-charges.txt",
+      "kind": "constructed-table",
+      "maturity": "synthetic-validated",
+      "scientific_use": false
+    },
+    {
+      "path": "references/weak-model-decision-table.json",
+      "kind": "machine-decision-contract",
+      "contract_name": "candidate-decision-table",
+      "schema_version": "1.0",
+      "scientific_use": false
+    }
+  ],
+  "assertion": "All bundled numerical, wavefunction-shaped, and terminal data are original synthetic fixtures and support no chemical or tool-integration claim."
+}

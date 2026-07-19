@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "policy": "Mappings classify only documented scheduler state. Unknown values remain unknown, and no scheduler state establishes application or scientific completion.",
+  "slurm": {
+    "source_id": "slurm-state-codes",
+    "queued": ["PENDING", "CONFIGURING", "REQUEUED", "REQUEUE_FED", "RESIZING"],
+    "running": ["RUNNING", "COMPLETING", "SUSPENDED", "SIGNALING", "STAGE_OUT"],
+    "succeeded": ["COMPLETED"],
+    "failed": ["BOOT_FAIL", "DEADLINE", "FAILED", "NODE_FAIL", "OUT_OF_MEMORY", "PREEMPTED", "REVOKED", "SPECIAL_EXIT"],
+    "cancelled": ["CANCELLED"]
+  },
+  "openpbs": {
+    "source_id": "openpbs-user-documentation",
+    "queued": ["Q", "H", "W", "T"],
+    "running": ["R", "E", "B", "S"],
+    "terminal_requires_accounting": ["F", "X"],
+    "note": "A terminal PBS state is not classified succeeded without exit and application evidence. Site/version mappings require validation before activation."
+  },
+  "local": {"not_applicable": ["NOT_APPLICABLE"]}
+}

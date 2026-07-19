@@ -1,0 +1,4 @@
+interface:
+  display_name: "DFT Structure Preparation"
+  short_description: "Traceable periodic and molecular structure preparation"
+  default_prompt: "Use $dft-structure-preparation to audit and prepare a traceable structure without inventing calculation parameters."

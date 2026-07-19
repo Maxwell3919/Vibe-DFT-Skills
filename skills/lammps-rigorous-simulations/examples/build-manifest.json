@@ -1,0 +1,18 @@
+{
+  "accelerator": "none",
+  "artifact_class": "project-authored-fictional-build-declaration",
+  "compiler": "not-applicable-to-synthetic-fixture",
+  "executable_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "lammps_version": "4Jul2026",
+  "license_spdx": "GPL-2.0-only",
+  "packages": ["CORE"],
+  "release_banner": "LAMMPS (4 Jul 2026)",
+  "source_revision": "project-authored-fixture-no-executable",
+  "source_url": "https://github.com/lammps/lammps",
+  "styles": {
+    "atom": ["atomic"],
+    "dump": ["custom"],
+    "fix": ["nve"],
+    "pair": ["lj/cut"]
+  }
+}

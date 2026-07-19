@@ -26,7 +26,7 @@ Read only the requested section. These are evidence requirements, not universal 
 
 ## Bands
 
-- Scientifically accepted SCF parent density/Hamiltonian and identical structure/state/version/protocol.
+- Bundle-verified human-accepted SCF parent density/Hamiltonian and identical structure/state/version/protocol.
 - Band path, reciprocal convention, symmetry labels, discontinuities, spin/SOC channels and energy reference.
 - Basis/mesh, parent sampling, path resolution, unoccupied window and avoided-crossing robustness.
 - Exact producer/consumer files and versions for bands/postprocessing.
@@ -40,7 +40,7 @@ Read only the requested section. These are evidence requirements, not universal 
 
 ## Phonons and vibrations
 
-- Force-converged accepted parent, displacement method/amplitude, supercell/molecule treatment and symmetry.
+- Bundle-verified human-accepted force-converged parent, displacement method/amplitude, supercell/molecule treatment and symmetry.
 - Identical basis/mesh/k-grid/pseudopotentials/SCF/state for all displacements; demonstrate force noise below signal.
 - Mass/isotope, mode normalization, acoustic/translational rules and imaginary-mode diagnosis.
 - Converge displacement, supercell/q sampling, electronic force accuracy and non-analytic treatment where relevant.
@@ -59,7 +59,7 @@ Read only the requested section. These are evidence requirements, not universal 
 
 ## TranSIESTA and TBtrans
 
-- Separately accepted electrodes/device with compatible species, pseudopotentials, basis, mesh, Hamiltonian conventions and transverse sampling.
+- Separately bundle-verified human-accepted electrodes/device with compatible species, pseudopotentials, basis, mesh, Hamiltonian conventions and transverse sampling.
 - Electrode-device geometry mapping, screening, chemical potentials/bias, temperature, charge and NEGF contour convergence.
 - Exact TSHS/TSDE/electrode Hamiltonian roles and producer/consumer versions.
 - Independently converge electrodes, device SCF, transverse k points, contour/energy sampling and transport-model dimensions.

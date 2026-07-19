@@ -1,0 +1,4 @@
+interface:
+  display_name: "LAMMPS Rigorous Simulations"
+  short_description: "Manual-first LAMMPS 4Jul2026 workflows and gates"
+  default_prompt: "Use $lammps-rigorous-simulations to resolve the exact LAMMPS 4Jul2026 workflow, audit its evidence, and route any requested run through explicit execution authorization."

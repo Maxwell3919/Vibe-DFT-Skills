@@ -157,4 +157,4 @@ Limitations:
 - <version / mirror / parser / POTCAR metadata / declared-comparability limits>
 ```
 
-Do not set a run manifest's `scientific_acceptance` to `accepted` from an auditor verdict or convergence candidate alone. Acceptance requires the task-specific and physical/model checks defined for the scientific claim.
+Never set a run manifest's `status` or `scientific_acceptance` to accepted/rejected. The manifest is immutable pre-decision evidence; task-specific and physical/model checks feed a separate calculation record, human decision, and post-decision claim map that production bundle validation must resolve.

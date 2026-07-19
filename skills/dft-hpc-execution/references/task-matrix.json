@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "tasks": [
+    {"task_id": "validate-request", "inputs": ["execution-request@1.0 exact bytes"], "outputs": ["candidate-hpc-report@1.0"], "side_effects": [], "decisive_gates": ["strict JSON", "argv", "artifacts", "profiles", "resources", "authorization requirement"], "maximum_claim": "no_positive_claim"},
+    {"task_id": "audit-authorization-and-lease", "inputs": ["execution-request@1.0", "decision-record@1.0", "execution-lease@1.0", "evaluation time"], "outputs": ["dry-run eligibility report"], "side_effects": [], "decisive_gates": ["exact hashes", "human scope and time", "lease subset and expiry", "single use"], "maximum_claim": "no_positive_claim"},
+    {"task_id": "render-dry-run", "inputs": ["validated request", "validated decision", "validated lease", "scheduler family"], "outputs": ["script text", "script SHA-256", "proposed submission argv"], "side_effects": [], "decisive_gates": ["scheduler support", "resource arithmetic", "safe quoting"], "maximum_claim": "no_positive_claim"},
+    {"task_id": "classify-status", "inputs": ["status-observation@1.0"], "outputs": ["layered status classification"], "side_effects": [], "decisive_gates": ["native observation", "scheduler mapping", "process evidence", "application evidence"], "maximum_claim": "no_positive_claim"},
+    {"task_id": "plan-recovery", "inputs": ["request", "lease", "execution record", "workflow events"], "outputs": ["recovery proposal"], "side_effects": [], "decisive_gates": ["idempotency", "lease consumption", "uncertain outcome", "new authorization requirement"], "maximum_claim": "no_positive_claim"},
+    {"task_id": "plan-cancellation", "inputs": ["active execution record", "scheduler-control decision", "lease", "scheduler handle"], "outputs": ["cancellation proposal"], "side_effects": [], "decisive_gates": ["lineage", "scheduler-control scope", "live state", "post-action reconciliation"], "maximum_claim": "no_positive_claim"}
+  ]
+}

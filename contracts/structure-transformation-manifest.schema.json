@@ -1,0 +1,533 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:structure-transformation-manifest:1.0",
+  "title": "Traceable atomistic structure transformation",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "transformation_id",
+  "$comment": "Draft validation establishes structural conformance only. Every x-vibe-semantic-obligations entry must be evaluated externally; a failed or unresolved obligation blocks the listed calculation use and positive claims.",
+  "x-vibe-semantic-obligations": [
+    {
+      "finding_id": "structure-transform-reference-hash-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Every parent, child, mapping endpoint, comparison snapshot, and evidence reference resolves to content matching its declared record hash.",
+      "evidence_required": ["resolved-records", "resolved-record-sha256", "parent-child-membership"]
+    },
+    {
+      "finding_id": "structure-transform-mapping-id-not-unique",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Every mapping_id is unique and identifies one relation assertion only.",
+      "evidence_required": ["mapping-id-set"]
+    },
+    {
+      "finding_id": "structure-transform-site-reference-missing",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Each non-null parent or child site ID exists in the exact referenced snapshot, and each mapping endpoint snapshot belongs to parents or children respectively.",
+      "evidence_required": ["parent-site-id-sets", "child-site-id-sets", "mapping-endpoint-membership"]
+    },
+    {
+      "finding_id": "structure-transform-mapping-coverage-incomplete",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "All sites required by the operation are covered, with every unexplained parent omission or child appearance represented as removed or created rather than silently dropped or invented.",
+      "evidence_required": ["parent-site-id-sets", "child-site-id-sets", "mapped-parent-sites", "mapped-child-sites", "coverage-delta"]
+    },
+    {
+      "finding_id": "structure-transform-relation-cardinality-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Same, replicated, merged, split, created, removed, and capped relations have operation-consistent one-to-one, one-to-many, many-to-one, or null-endpoint cardinality.",
+      "evidence_required": ["canonical-parent-child-pairs", "relation-cardinality-table", "operation-class"]
+    },
+    {
+      "finding_id": "structure-transform-image-shift-inconsistent",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Each periodic image_shift reconstructs the mapped Cartesian position under the relevant parent-child cell relation within an explicit tolerance.",
+      "evidence_required": ["parent-child-cells", "mapped-coordinates", "image-shift-vectors", "coordinate-residuals", "comparison-tolerance"]
+    },
+    {
+      "finding_id": "structure-transform-operation-semantics-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "The observed cell, site, composition, and coordinate deltas are consistent with operation_class and typed parameters, including supercell determinant and site replication counts when applicable.",
+      "evidence_required": ["typed-parameters", "parent-child-structure-delta", "operation-specific-invariants"]
+    },
+    {
+      "finding_id": "structure-transform-roundtrip-fingerprint-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "The comparison snapshot fingerprint is recomputed and supports the declared exact, equivalent, lossy, or failed roundtrip classification.",
+      "evidence_required": ["source-structure-fingerprint", "comparison-structure-fingerprint", "roundtrip-diff"]
+    },
+    {
+      "finding_id": "structure-transform-tolerance-unverified",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Roundtrip tolerance is explicit, applied in one declared coordinate convention, and every claimed equivalent coordinate and cell residual is within that tolerance.",
+      "evidence_required": ["comparison-tolerance", "coordinate-convention", "coordinate-residuals", "cell-residuals"]
+    },
+    {
+      "finding_id": "record-reference-dag-invalid",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-use", "positive-claim"],
+      "assertion": "Every recordRef resolves to an already existing bundle-local UTF-8 JSON target by exact raw-byte SHA-256; self-reference, forward or back edges outside the declared topological order, cycles, and upstream references to post-record validation, claim, or decision records are forbidden.",
+      "evidence_required": ["bundle-record-index", "raw-byte-sha256-check", "record-reference-dag-topological-order"]
+    }
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "transformation_id",
+    "operation_class",
+    "operation_profile_id",
+    "parents",
+    "children",
+    "backend",
+    "parameters",
+    "random_seed",
+    "site_mapping",
+    "mapping_status",
+    "roundtrip",
+    "calculation_use",
+    "validation",
+    "maturity",
+    "provenance",
+    "limitations",
+    "extension_refs"
+  ],
+  "properties": {
+    "contract_name": {"const": "structure-transformation-manifest"},
+    "schema_version": {"const": "1.0"},
+    "transformation_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "operation_class": {
+      "enum": [
+        "standardize",
+        "primitive",
+        "conventional",
+        "supercell",
+        "slab",
+        "vacuum",
+        "defect",
+        "substitution",
+        "interstitial",
+        "adsorbate",
+        "merge",
+        "split",
+        "extract-cluster",
+        "cap-sites",
+        "add-sites",
+        "remove-sites",
+        "reorder",
+        "wrap",
+        "translate",
+        "rotate",
+        "strain",
+        "format-roundtrip",
+        "other-registered"
+      ]
+    },
+    "operation_profile_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "parents": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/snapshotRef"}
+    },
+    "children": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/snapshotRef"}
+    },
+    "backend": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/softwareIdentity"
+    },
+    "parameters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/parameterRecord"
+      }
+    },
+    "random_seed": {"type": ["integer", "null"], "minimum": 0},
+    "site_mapping": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/siteMapping"}
+    },
+    "mapping_status": {"enum": ["exact", "incomplete", "ambiguous", "blocked"]},
+    "roundtrip": {"$ref": "#/$defs/roundtrip"},
+    "calculation_use": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/readiness"
+    },
+    "validation": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"
+    },
+    "maturity": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/maturity"
+    },
+    "provenance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "extension_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"operation_class": {"const": "merge"}},
+        "required": ["operation_class"]
+      },
+      "then": {"properties": {"parents": {"minItems": 2}}}
+    },
+    {
+      "if": {
+        "properties": {"operation_class": {"const": "split"}},
+        "required": ["operation_class"]
+      },
+      "then": {"properties": {"children": {"minItems": 2}}}
+    },
+    {
+      "if": {
+        "properties": {"operation_class": {"const": "supercell"}},
+        "required": ["operation_class"]
+      },
+      "then": {
+        "properties": {
+          "parameters": {
+            "contains": {
+              "allOf": [
+                {
+                  "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/parameterRecord"
+                },
+                {
+                  "properties": {
+                    "name": {"const": "supercell-matrix"},
+                    "value_kind": {"const": "integer-matrix3"}
+                  }
+                }
+              ]
+            },
+            "minContains": 1,
+            "maxContains": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "site_mapping": {
+            "contains": {
+              "properties": {"confidence": {"const": "ambiguous"}},
+              "required": ["confidence"]
+            }
+          }
+        },
+        "required": ["site_mapping"]
+      },
+      "then": {
+        "properties": {
+          "mapping_status": {"enum": ["ambiguous", "blocked"]},
+          "validation": {"properties": {"status": {"const": "blocked"}}},
+          "calculation_use": {
+            "properties": {
+              "status": {"enum": ["blocked", "not-assessed", "requires-decision"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"mapping_status": {"const": "exact"}},
+        "required": ["mapping_status"]
+      },
+      "then": {
+        "properties": {
+          "site_mapping": {
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/siteMapping"},
+                {"properties": {"confidence": {"const": "exact"}}}
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "mapping_status": {"enum": ["incomplete", "ambiguous", "blocked"]}
+        },
+        "required": ["mapping_status"]
+      },
+      "then": {
+        "properties": {
+          "validation": {"properties": {"status": {"const": "blocked"}}},
+          "calculation_use": {
+            "properties": {
+              "status": {"enum": ["blocked", "not-assessed", "requires-decision"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "roundtrip": {
+            "properties": {
+              "classification": {"enum": ["lossy", "not-assessed", "failed"]}
+            },
+            "required": ["classification"]
+          }
+        },
+        "required": ["roundtrip"]
+      },
+      "then": {
+        "properties": {
+          "calculation_use": {
+            "properties": {
+              "status": {"enum": ["blocked", "not-assessed", "requires-decision"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculation_use": {
+            "properties": {"status": {"const": "ready"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["calculation_use"]
+      },
+      "then": {
+        "properties": {
+          "mapping_status": {"const": "exact"},
+          "roundtrip": {
+            "properties": {
+              "classification": {"enum": ["exact", "equivalent-with-tolerance"]}
+            }
+          },
+          "validation": {"properties": {"status": {"const": "pass"}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "snapshotRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {"properties": {"contract_name": {"const": "structure-snapshot"}}}
+      ]
+    },
+    "siteMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapping_id",
+        "parent_ref",
+        "parent_site_id",
+        "child_ref",
+        "child_site_id",
+        "relation",
+        "image_shift",
+        "confidence",
+        "rationale_code"
+      ],
+      "properties": {
+        "mapping_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "parent_ref": {"$ref": "#/$defs/snapshotRef"},
+        "parent_site_id": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        },
+        "child_ref": {"$ref": "#/$defs/snapshotRef"},
+        "child_site_id": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        },
+        "relation": {"enum": ["same", "replicated", "merged", "split", "created", "removed", "capped"]},
+        "image_shift": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/integerVector3"
+            },
+            {"type": "null"}
+          ]
+        },
+        "confidence": {"enum": ["exact", "declared", "ambiguous"]},
+        "rationale_code": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"relation": {"const": "created"}}, "required": ["relation"]},
+          "then": {
+            "properties": {
+              "parent_site_id": {"type": "null"},
+              "child_site_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              },
+              "image_shift": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"relation": {"const": "removed"}}, "required": ["relation"]},
+          "then": {
+            "properties": {
+              "parent_site_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              },
+              "child_site_id": {"type": "null"},
+              "image_shift": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"relation": {"enum": ["same", "replicated"]}},
+            "required": ["relation"]
+          },
+          "then": {
+            "properties": {
+              "parent_site_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              },
+              "child_site_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              },
+              "image_shift": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/integerVector3"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"relation": {"enum": ["merged", "split", "capped"]}},
+            "required": ["relation"]
+          },
+          "then": {
+            "properties": {
+              "parent_site_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              },
+              "child_site_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "roundtrip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classification",
+        "comparison_snapshot_ref",
+        "tolerance_ang",
+        "evidence_refs",
+        "loss_codes"
+      ],
+      "properties": {
+        "classification": {
+          "enum": ["exact", "equivalent-with-tolerance", "lossy", "not-assessed", "failed"]
+        },
+        "comparison_snapshot_ref": {
+          "oneOf": [{"$ref": "#/$defs/snapshotRef"}, {"type": "null"}]
+        },
+        "tolerance_ang": {"type": ["number", "null"], "minimum": 0},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        },
+        "loss_codes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"classification": {"const": "exact"}}, "required": ["classification"]},
+          "then": {
+            "properties": {
+              "comparison_snapshot_ref": {"$ref": "#/$defs/snapshotRef"},
+              "tolerance_ang": {"const": 0},
+              "evidence_refs": {"minItems": 1},
+              "loss_codes": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"classification": {"const": "equivalent-with-tolerance"}}, "required": ["classification"]},
+          "then": {
+            "properties": {
+              "comparison_snapshot_ref": {"$ref": "#/$defs/snapshotRef"},
+              "tolerance_ang": {"type": "number", "exclusiveMinimum": 0},
+              "evidence_refs": {"minItems": 1},
+              "loss_codes": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"classification": {"enum": ["lossy", "not-assessed", "failed"]}},
+            "required": ["classification"]
+          },
+          "then": {"properties": {"loss_codes": {"minItems": 1}}}
+        }
+      ]
+    }
+  }
+}

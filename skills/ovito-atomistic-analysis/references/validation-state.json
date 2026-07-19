@@ -1,0 +1,74 @@
+{
+  "contract_name": "candidate-validation-state",
+  "schema_version": "1.0",
+  "skill_id": "ovito-atomistic-analysis",
+  "validated_date": "2026-07-19",
+  "quick_validate": {"status": "pass"},
+  "standalone_tests": {
+    "status": "pass",
+    "interpreter": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+    "test_count": 35,
+    "environment": "standard-library-only candidate suite with synthetic OVITO API double"
+  },
+  "red_to_green": {
+    "reproduced_red_findings": 22,
+    "final_boundary_test_methods": 18,
+    "final_green_tests": 35,
+    "weak_model_decision_cases": 14,
+    "mutation_domains": [
+      "typed-extxyz-schema",
+      "plain-xyz-column-boundary",
+      "cross-frame-drift",
+      "particle-identifier-mapping",
+      "source-native-unit-gate",
+      "deep-inventory-validation",
+      "computed-frame-inventory-crosscheck",
+      "operation-output-role",
+      "authorization-scope",
+      "source-hash-toctou",
+      "distribution-and-module-version",
+      "edition-entitlement",
+      "candidate-lifecycle",
+      "canonical-weak-model-decision-table",
+      "schema-shaped-error-envelopes",
+      "privacy-labels",
+      "single-fd-input-identity",
+      "atomic-no-overwrite-output",
+      "repeat-and-failure-no-partial-output"
+    ]
+  },
+  "candidate_validator": {
+    "L0": {
+      "status": "fail",
+      "passed": 38,
+      "failed": 1,
+      "not_run": 2,
+      "failed_check_ids": ["CANDIDATE.ROUTING.INSTALL"]
+    },
+    "L1": {
+      "status": "fail",
+      "passed": 38,
+      "failed": 1,
+      "not_run": 2,
+      "failed_check_ids": ["CANDIDATE.ROUTING.INSTALL"],
+      "candidate_tests": "not-run-by-validator-because-pre-execution-repository-gate-failed"
+    }
+  },
+  "provider_probe": {
+    "status": "unavailable",
+    "exit": 3,
+    "ovito": "not-installed",
+    "module_imported": false,
+    "license_entitlement_verified": false
+  },
+  "native_api_validation": {
+    "status": "not-run",
+    "reason": "OVITO distribution and ovitos executable were absent in the checked environment",
+    "evidence_state": "official-documentation-and-synthetic-api-double-only"
+  },
+  "claim_ceiling": "no_positive_claim",
+  "future_gate_ceiling": "technical_run_gates_only",
+  "promotion_authorized": false,
+  "execution_authorized": false,
+  "claim_boundary": "Standalone candidate tests passed; the shared active installer hash gate still fails, promotion remains unauthorized, and L1 isolation did not start."
+}

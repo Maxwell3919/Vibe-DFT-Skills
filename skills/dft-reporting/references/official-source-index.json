@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "candidate": "dft-reporting",
+  "source_policy": "consume externally resolved official-source-record@1.0 refs; do not fetch or embed source text",
+  "authoritative_inputs": [
+    {
+      "contract": "claim-evidence-map@1.0",
+      "role": "bounded claim, evidence ID, gate ID, and decision lineage source",
+      "version_policy": "exact 1.0 identity and raw-byte hash required"
+    },
+    {
+      "contract": "official-source-record@1.0",
+      "role": "citation authority candidate",
+      "version_policy": "exact 1.0 ref plus external authority resolver required"
+    },
+    {
+      "contract": "decision-record@1.0",
+      "role": "separate human scientific or release decision",
+      "version_policy": "exact 1.0 ref plus external human-authenticity resolver required"
+    }
+  ],
+  "license_boundary": "No source text, restricted potential, manuscript, or unpublished result is bundled. Citation labels and locators do not grant redistribution rights."
+}

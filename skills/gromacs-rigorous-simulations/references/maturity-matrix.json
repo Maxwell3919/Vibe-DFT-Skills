@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "engine": "gromacs",
+  "candidate_lifecycle": "development",
+  "task_axes": ["task", "engine_version", "parser", "model_family"],
+  "matrix": [
+    {"task": "plan", "version": "2026.3", "parser": "json-request", "model_family": "generic-classical", "maturity": "synthetic-validated", "current_claim": "no_positive_claim", "future_gate_ceiling": "documented_behavior_only"},
+    {"task": "input-audit", "version": "2026.3", "parser": "mdp-gro-top-core", "model_family": "project-authored-lj", "maturity": "synthetic-validated", "current_claim": "no_positive_claim", "future_gate_ceiling": "input_gates_only"},
+    {"task": "output-audit", "version": "2026.3", "parser": "synthetic-log-csv", "model_family": "project-authored-lj", "maturity": "synthetic-validated", "current_claim": "no_positive_claim", "future_gate_ceiling": "technical_run_gates_only"},
+    {"task": "trajectory-audit", "version": "2026.3", "parser": "text-gro", "model_family": "project-authored-lj", "maturity": "format-fixture-validated", "current_claim": "no_positive_claim", "future_gate_ceiling": "technical_run_gates_only"},
+    {"task": "xtc-trr-tng-h5md", "version": "2026.3", "parser": "none", "model_family": "any", "maturity": "unsupported", "current_claim": "no_positive_claim", "future_gate_ceiling": "no_positive_claim"},
+    {"task": "authorized-preprocess-or-run", "version": "2026.3", "parser": "none", "model_family": "any", "maturity": "unsupported", "current_claim": "no_positive_claim", "future_gate_ceiling": "no_positive_claim"}
+  ],
+  "activation_blockers": [
+    "No legal version-matched real GROMACS input/output/checkpoint/trajectory package has been validated.",
+    "No trusted grompp, dump, check, energy, or trajectory adapter exists.",
+    "The shared md-run-manifest interface and promotion delta have not passed review.",
+    "No weak-model blind forward test has been accepted.",
+    "No user-HPC execution authorization or recovery validation exists."
+  ]
+}

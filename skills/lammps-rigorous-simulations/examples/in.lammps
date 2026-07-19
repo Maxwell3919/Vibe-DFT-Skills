@@ -1,0 +1,18 @@
+# Project-authored LAMMPS 4Jul2026 syntax fixture. It has never been executed.
+units lj
+atom_style atomic
+boundary p p p
+read_data system.data
+pair_style lj/cut 2.5
+pair_coeff * * 1.0 1.0 2.5
+neighbor 0.3 bin
+neigh_modify every 1 delay 0 check yes
+velocity all create 1.0 20260719 mom yes rot no dist gaussian
+fix integrate all nve
+timestep 0.005
+thermo 2
+thermo_style custom step temp pe ke etotal press
+thermo_modify lost error norm no
+dump traj all custom 4 trajectory.lammpstrj id type x y z ix iy iz
+restart 4 restart.*
+run 12

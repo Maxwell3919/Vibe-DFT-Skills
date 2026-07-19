@@ -1,0 +1,46 @@
+schema_version: "1.0"
+software: multiwfn
+program_version_reviewed: "2026.7.15"
+manual_version_reviewed: "2026.7.10"
+checked_utc: "2026-07-19T00:00:00Z"
+sources:
+  - id: official-download
+    authority: official-project-site
+    url: "http://sobereva.com/multiwfn/download.html"
+    supports:
+      - latest-version-identity
+      - official-linux-full-and-nogui-packages
+      - source-package-availability
+      - macos-community-build-boundary
+      - license-and-citation-terms
+  - id: official-update-history
+    authority: official-project-site
+    url: "http://sobereva.com/multiwfn/update.html"
+    supports:
+      - update-date-specific-change-history
+      - version-sensitive-behavior
+  - id: official-manual
+    authority: official-project-site
+    url: "http://sobereva.com/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf"
+    supports:
+      - input-format-and-menu-semantics
+      - analysis-definitions
+      - environment-guidance
+      - documented-cli-arguments
+      - stdin-and-batch-examples
+      - menu-function-families
+      - tutorial-menu-sequences
+  - id: official-quick-start
+    authority: official-project-site
+    url: "http://sobereva.com/multiwfn/misc/Multiwfn%20quick%20start.pdf"
+    supports:
+      - official-site-identity
+      - manual-routing
+policy:
+  no_mirror_committed: true
+  refresh_requires_manual_review: true
+  official_page_is_not_binary_identity: true
+  executable_identity_requires_sha256_and_banner: true
+  function_listing_is_not_recipe: true
+  tutorial_values_are_not_transferable_defaults: true
+  native_validation_state: not-run

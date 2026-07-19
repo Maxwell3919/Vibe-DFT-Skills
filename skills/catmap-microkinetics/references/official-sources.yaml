@@ -1,0 +1,191 @@
+{
+  "catalog_name": "catmap-official-sources",
+  "schema_version": "1.0",
+  "checked_on": "2026-07-19",
+  "sources": [
+    {
+      "id": "CAT-REL-041",
+      "kind": "release",
+      "version_scope": "v0.4.1",
+      "title": "CatMAP release v0.4.1",
+      "url": "https://github.com/SUNCAT-Center/catmap/releases/tag/v0.4.1",
+      "authority": "first-party release"
+    },
+    {
+      "id": "CAT-README-041",
+      "kind": "repository-document",
+      "version_scope": "v0.4.1",
+      "title": "CatMAP README at v0.4.1",
+      "url": "https://github.com/SUNCAT-Center/catmap/blob/v0.4.1/README.md",
+      "authority": "first-party tagged source"
+    },
+    {
+      "id": "CAT-SETUP-041",
+      "kind": "packaging-source",
+      "version_scope": "v0.4.1",
+      "title": "CatMAP setup.py at v0.4.1",
+      "url": "https://github.com/SUNCAT-Center/catmap/blob/v0.4.1/setup.py",
+      "authority": "first-party tagged source"
+    },
+    {
+      "id": "CAT-CLI-041",
+      "kind": "cli-source",
+      "version_scope": "v0.4.1",
+      "title": "CatMAP CLI implementation at v0.4.1",
+      "url": "https://github.com/SUNCAT-Center/catmap/blob/v0.4.1/catmap/cli.py",
+      "authority": "first-party tagged source"
+    },
+    {
+      "id": "CAT-LICENSE-041",
+      "kind": "license",
+      "version_scope": "v0.4.1",
+      "title": "CatMAP GNU GPL v3 text",
+      "url": "https://github.com/SUNCAT-Center/catmap/blob/v0.4.1/COPYING.txt",
+      "authority": "first-party tagged source"
+    },
+    {
+      "id": "CAT-DOCS-LATEST",
+      "kind": "manual-index",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "CatMAP documentation",
+      "url": "https://catmap.readthedocs.io/en/latest/",
+      "authority": "first-party manual with version drift"
+    },
+    {
+      "id": "CAT-CODE-OVERVIEW",
+      "kind": "manual",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Code Overview",
+      "url": "https://catmap.readthedocs.io/en/latest/topics/code_overview.html",
+      "authority": "first-party manual with version drift"
+    },
+    {
+      "id": "CAT-REF-MODEL",
+      "kind": "api-reference",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "catmap.model and catmap.cli reference",
+      "url": "https://catmap.readthedocs.io/en/latest/reference/catmap.html",
+      "authority": "first-party API reference with version drift"
+    },
+    {
+      "id": "CAT-REF-ANALYZE",
+      "kind": "api-reference",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "catmap.analyze reference",
+      "url": "https://catmap.readthedocs.io/en/latest/reference/catmap.analyze.html",
+      "authority": "first-party API reference with version drift"
+    },
+    {
+      "id": "CAT-REF-MAPPERS",
+      "kind": "api-reference",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "catmap.mappers reference",
+      "url": "https://catmap.readthedocs.io/en/latest/reference/catmap.mappers.html",
+      "authority": "first-party API reference with version drift"
+    },
+    {
+      "id": "CAT-REF-PARSERS",
+      "kind": "api-reference",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "catmap.parsers reference",
+      "url": "https://catmap.readthedocs.io/en/latest/reference/catmap.parsers.html",
+      "authority": "first-party API reference with version drift"
+    },
+    {
+      "id": "CAT-REF-SCALERS",
+      "kind": "api-reference",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "catmap.scalers reference",
+      "url": "https://catmap.readthedocs.io/en/latest/reference/catmap.scalers.html",
+      "authority": "first-party API reference with version drift"
+    },
+    {
+      "id": "CAT-REF-SOLVERS",
+      "kind": "api-reference",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "catmap.solvers reference",
+      "url": "https://catmap.readthedocs.io/en/latest/reference/catmap.solvers.html",
+      "authority": "first-party API reference with version drift"
+    },
+    {
+      "id": "CAT-REF-THERMO",
+      "kind": "api-reference",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "catmap.thermodynamics reference",
+      "url": "https://catmap.readthedocs.io/en/latest/reference/catmap.thermodynamics.html",
+      "authority": "first-party API reference with version drift"
+    },
+    {
+      "id": "CAT-TUT-INPUT",
+      "kind": "tutorial",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Generating an Input File",
+      "url": "https://catmap.readthedocs.io/en/latest/tutorials/generating_an_input_file.html",
+      "authority": "first-party tutorial with version drift"
+    },
+    {
+      "id": "CAT-TUT-MODEL",
+      "kind": "tutorial",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Creating a Microkinetic Model",
+      "url": "https://catmap.readthedocs.io/en/latest/tutorials/creating_a_microkinetic_model.html",
+      "authority": "first-party tutorial with version drift"
+    },
+    {
+      "id": "CAT-TUT-REFINE",
+      "kind": "tutorial",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Refining a Microkinetic Model",
+      "url": "https://catmap.readthedocs.io/en/latest/tutorials/refining_a_microkinetic_model.html",
+      "authority": "first-party tutorial with version drift"
+    },
+    {
+      "id": "CAT-TOPIC-OUTPUT",
+      "kind": "manual",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Output Variables",
+      "url": "https://catmap.readthedocs.io/en/latest/topics/output_variables.html",
+      "authority": "first-party manual with version drift"
+    },
+    {
+      "id": "CAT-TOPIC-ACCESS",
+      "kind": "manual",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Accessing and reformatting output",
+      "url": "https://catmap.readthedocs.io/en/latest/topics/accessing_reformatting_output.html",
+      "authority": "first-party manual with version drift"
+    },
+    {
+      "id": "CAT-TOPIC-INTERACTIONS",
+      "kind": "manual",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Including Adsorbate-Adsorbate Interactions",
+      "url": "https://catmap.readthedocs.io/en/latest/topics/including_adsorbate_adsorbate_interactions.html",
+      "authority": "first-party manual with explicit experimental warning"
+    },
+    {
+      "id": "CAT-TOPIC-ECHEM",
+      "kind": "manual",
+      "version_scope": "online latest, page header 0.2.79",
+      "title": "Electrochemistry",
+      "url": "https://catmap.readthedocs.io/en/latest/topics/electrochemistry.html",
+      "authority": "first-party manual with version drift"
+    },
+    {
+      "id": "CAT-PAPER-2015",
+      "kind": "method-paper",
+      "version_scope": "method",
+      "title": "CatMAP: a software package for descriptor-based microkinetic mapping of catalytic trends",
+      "url": "https://doi.org/10.1007/s10562-015-1495-6",
+      "authority": "developer-authored method paper"
+    },
+    {
+      "id": "CAT-PAPER-NUMBERS",
+      "kind": "method-paper",
+      "version_scope": "v0.4 series solver",
+      "title": "Number of sites-based solver for determining coverages from steady-state mean-field micro-kinetic models",
+      "url": "https://doi.org/10.1002/jcc.27263",
+      "authority": "developer-cited solver paper"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "schema_version": "candidate-1.0",
+  "dataset_id": "synthetic-water",
+  "dataset_version": "v1",
+  "purpose": "deployment_candidate",
+  "reference_protocol_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "species_order": ["H", "O"],
+  "units": {
+    "energy": "eV",
+    "forces": "eV/angstrom",
+    "stress": "eV/angstrom^3"
+  },
+  "stress_policy": "absent",
+  "test_use_policy": "held_out_once_after_freeze",
+  "licenses": {
+    "dataset": "synthetic-test-data",
+    "reference_data": "synthetic-test-data",
+    "redistribution": "allowed"
+  },
+  "frames": [
+    {
+      "frame_id": "frame-train",
+      "group_id": "group-train",
+      "split": "train",
+      "structure_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "labels_sha256": "2111111111111111111111111111111111111111111111111111111111111111",
+      "source_run_sha256": "3111111111111111111111111111111111111111111111111111111111111111",
+      "source_acceptance_sha256": "4111111111111111111111111111111111111111111111111111111111111111",
+      "atom_count": 3,
+      "elements": ["H", "O"],
+      "has_energy": true,
+      "has_forces": true,
+      "has_stress": false
+    },
+    {
+      "frame_id": "frame-validation",
+      "group_id": "group-validation",
+      "split": "validation",
+      "structure_sha256": "1222222222222222222222222222222222222222222222222222222222222222",
+      "labels_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "source_run_sha256": "3222222222222222222222222222222222222222222222222222222222222222",
+      "source_acceptance_sha256": "4222222222222222222222222222222222222222222222222222222222222222",
+      "atom_count": 3,
+      "elements": ["H", "O"],
+      "has_energy": true,
+      "has_forces": true,
+      "has_stress": false
+    },
+    {
+      "frame_id": "frame-test",
+      "group_id": "group-test",
+      "split": "test",
+      "structure_sha256": "1333333333333333333333333333333333333333333333333333333333333333",
+      "labels_sha256": "2333333333333333333333333333333333333333333333333333333333333333",
+      "source_run_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+      "source_acceptance_sha256": "4333333333333333333333333333333333333333333333333333333333333333",
+      "atom_count": 3,
+      "elements": ["H", "O"],
+      "has_energy": true,
+      "has_forces": true,
+      "has_stress": false
+    },
+    {
+      "frame_id": "frame-ood",
+      "group_id": "group-ood",
+      "split": "ood",
+      "structure_sha256": "1444444444444444444444444444444444444444444444444444444444444444",
+      "labels_sha256": "2444444444444444444444444444444444444444444444444444444444444444",
+      "source_run_sha256": "3444444444444444444444444444444444444444444444444444444444444444",
+      "source_acceptance_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+      "atom_count": 3,
+      "elements": ["H", "O"],
+      "has_energy": true,
+      "has_forces": true,
+      "has_stress": false
+    }
+  ]
+}

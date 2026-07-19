@@ -1,0 +1,36 @@
+schema_version: "1.0"
+profiles:
+  phonopy-4.3.1:
+    version: "4.3.1"
+    release_date: "2026-07-01"
+    official_source: official-changelog
+    python_minimum: "3.10"
+    planning_supported: true
+    lineage_audit_maturity: synthetic-validated
+    execution_supported: false
+    cli:
+      setup: phonopy-init
+      calculation: phonopy
+      deprecated_alias: phonopy-load
+    behavior:
+      nac_auto_enabled_when_parameters_present: true
+      removed_option: "--nac"
+      missing_current_parser_options: ["--symfc", "--br", "phonopy-vasp-born --st"]
+      version_probe: "python -c 'import phonopy; print(phonopy.__version__)'"
+      console_script_version_flag: null
+      help_flags: ["-h", "--help"]
+      console_script_count: 15
+      calculator_selector_count: 17
+      rust_backend_default_since: "4.0.0"
+      finite_difference_symmetrization_default: symfc-projector
+    native_validation:
+      state: not-run
+      checked_date: "2026-07-19"
+      platform: "Darwin arm64"
+      reason: "No Phonopy distribution or console script was installed."
+compatibility_policy:
+  exact_profile_only: true
+  reject_pre_v4_cli_assumptions: true
+  reject_removed_nac_flag: true
+  reject_unknown_force_constant_backend: true
+  reject_version_inference_from_directory_name: true

@@ -2,6 +2,28 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/vibe-dft-skills/normalized-dataset.schema.json",
   "title": "Normalized DFT postprocessing dataset",
+  "$comment": "Schema validation establishes shape only. A pass status is at most a hash-bound numerical candidate after every advertised bundle semantic obligation passes; it is not scientific acceptance.",
+  "x-vibe-semantic-obligations": [
+    "LEGACY_DATASET_VALIDATION_CHECK_CONSISTENT",
+    "LEGACY_DATASET_SOURCE_ARTIFACT_HASH_RESOLVES",
+    "LEGACY_DATASET_OUTPUT_ARTIFACT_HASH_RESOLVES",
+    "LEGACY_DATASET_TOOL_LINEAGE_PREEXISTS",
+    "LEGACY_DATASET_MATURITY_EVIDENCE_CONSISTENT",
+    "LEGACY_DATASET_NUMERICAL_CANDIDATE_CEILING",
+    "LEGACY_DATASET_PRIVACY_SAFE"
+  ],
+  "x-vibe-authority-boundary": {
+    "may_authorize_execution": false,
+    "may_accept_scientific_claim": false,
+    "maximum_claim_ceiling": "numerical_candidate_only"
+  },
+  "x-vibe-artifact-hash-semantics": {
+    "algorithm": "sha256",
+    "byte_basis": "exact-raw-file-bytes",
+    "canonicalization": "none",
+    "bundle_artifact_resolution_required": true,
+    "placeholder_hash_counts_as_evidence": false
+  },
   "type": "object",
   "additionalProperties": false,
   "required": [

@@ -1,0 +1,643 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:common-definitions:1.0",
+  "title": "Vibe DFT Skills shared contract definitions",
+  "x-vibe-document-kind": "definition-library",
+  "x-vibe-record-ref-hash-semantics": {
+    "algorithm": "sha256",
+    "target_scope": "resolved-target-json-document-in-same-bundle",
+    "media_type": "application/json",
+    "text_encoding": "utf-8",
+    "byte_basis": "exact-raw-file-bytes",
+    "canonicalization": "none",
+    "bundle_local_resolution_required": true,
+    "projection_hash_allowed": false,
+    "placeholder_hash_counts_as_resolved_evidence": false
+  },
+  "x-vibe-record-ref-graph-semantics": {
+    "topology": "immutable-dag",
+    "same_bundle_required": true,
+    "target_must_preexist_referrer": true,
+    "self_reference_allowed": false,
+    "cycles_allowed": false,
+    "post_record_back_reference_allowed": false
+  },
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "softwareId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "contractName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*\\.[0-9]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "vector3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "number"}
+    },
+    "integerVector3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "integer"}
+    },
+    "matrix3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/vector3"}
+    },
+    "integerMatrix3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/integerVector3"}
+    },
+    "elementSymbol": {
+      "type": "string",
+      "pattern": "^[A-Z][a-z]?$"
+    },
+    "recordRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_name",
+        "schema_version",
+        "record_id",
+        "sha256",
+        "role"
+      ],
+      "properties": {
+        "contract_name": {"$ref": "#/$defs/contractName"},
+        "schema_version": {"$ref": "#/$defs/schemaVersion"},
+        "record_id": {"$ref": "#/$defs/safeId"},
+        "sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "SHA-256 of the exact raw file bytes of the resolved target UTF-8 JSON document stored in the same bundle. No canonicalization, whitespace normalization, key sorting, projection, or reserialization is permitted. A schema-valid placeholder digest is not resolved evidence."
+        },
+        "role": {"$ref": "#/$defs/contractName"}
+      }
+    },
+    "fileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "label",
+        "media_type",
+        "format",
+        "format_version",
+        "availability",
+        "sha256",
+        "bytes",
+        "sensitivity",
+        "redistribution"
+      ],
+      "properties": {
+        "role": {"$ref": "#/$defs/contractName"},
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^(?!\\.{1,2}$)(?!.*[/\\\\])[^\\u0000-\\u001f]+$"
+        },
+        "media_type": {
+          "type": "string",
+          "pattern": "^[a-z0-9.+-]+/[a-z0-9.+-]+$"
+        },
+        "format": {"$ref": "#/$defs/contractName"},
+        "format_version": {"type": ["string", "null"], "minLength": 1},
+        "availability": {
+          "enum": ["present", "external", "redacted", "missing"]
+        },
+        "sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "bytes": {"type": ["integer", "null"], "minimum": 0},
+        "sensitivity": {"enum": ["public", "private", "restricted"]},
+        "redistribution": {
+          "enum": ["redistributable", "runtime-only", "restricted", "unknown"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"availability": {"const": "present"}},
+            "required": ["availability"]
+          },
+          "then": {
+            "properties": {
+              "sha256": {"$ref": "#/$defs/sha256"},
+              "bytes": {"type": "integer", "minimum": 0}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"availability": {"const": "missing"}},
+            "required": ["availability"]
+          },
+          "then": {
+            "properties": {
+              "sha256": {"type": "null"},
+              "bytes": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "softwareIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "software_id",
+        "version",
+        "build_id",
+        "executable_sha256",
+        "identity_status",
+        "version_evidence",
+        "capability_profile_id"
+      ],
+      "properties": {
+        "software_id": {"$ref": "#/$defs/softwareId"},
+        "version": {"type": "string", "minLength": 1, "maxLength": 128},
+        "build_id": {"type": ["string", "null"], "minLength": 1, "maxLength": 256},
+        "executable_sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        },
+        "identity_status": {
+          "enum": [
+            "exact-match",
+            "documented-compatible",
+            "cached-only",
+            "unknown",
+            "mismatch"
+          ]
+        },
+        "version_evidence": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/fileRef"}
+        },
+        "capability_profile_id": {"$ref": "#/$defs/safeId"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "identity_status": {
+                "enum": ["exact-match", "documented-compatible"]
+              }
+            },
+            "required": ["identity_status"]
+          },
+          "then": {
+            "properties": {
+              "version_evidence": {"minItems": 1}
+            }
+          }
+        }
+      ]
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actor_type", "actor_id", "role"],
+      "properties": {
+        "actor_type": {"enum": ["deterministic-tool", "agent", "human"]},
+        "actor_id": {"$ref": "#/$defs/safeId"},
+        "role": {"$ref": "#/$defs/contractName"}
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skill_id",
+        "skill_version",
+        "tool_id",
+        "tool_version",
+        "generated_utc"
+      ],
+      "properties": {
+        "skill_id": {"$ref": "#/$defs/safeId"},
+        "skill_version": {"type": "string", "minLength": 1},
+        "tool_id": {"$ref": "#/$defs/safeId"},
+        "tool_version": {"type": "string", "minLength": 1},
+        "generated_utc": {"type": "string", "format": "date-time"}
+      }
+    },
+    "gateRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "status",
+        "decisive",
+        "finding_codes",
+        "evidence_refs",
+        "validated_by",
+        "validated_utc",
+        "limitations"
+      ],
+      "properties": {
+        "check_id": {"$ref": "#/$defs/safeId"},
+        "status": {
+          "enum": ["pass", "warn", "fail", "blocked", "not-assessed", "not-applicable"]
+        },
+        "decisive": {"type": "boolean"},
+        "finding_codes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/recordRef"}
+        },
+        "validated_by": {"$ref": "#/$defs/actor"},
+        "validated_utc": {"type": "string", "format": "date-time"},
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "gateSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "maximum_action", "claim_ceiling", "checks"],
+      "properties": {
+        "status": {"enum": ["pass", "blocked"]},
+        "maximum_action": {
+          "enum": [
+            "inspect-only",
+            "plan-only",
+            "stage-local-files",
+            "request-execution-authorization",
+            "execute-approved-request",
+            "postprocess-only",
+            "eligible-for-expert-review"
+          ]
+        },
+        "claim_ceiling": {"$ref": "#/$defs/claimCeiling"},
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/gateRecord"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"status": {"const": "pass"}},
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "checks": {
+                "items": {
+                  "allOf": [
+                    {"$ref": "#/$defs/gateRecord"},
+                    {
+                      "properties": {
+                        "status": {"enum": ["pass", "not-applicable"]}
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "maturity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["implementation", "validation", "claim_ceiling"],
+      "properties": {
+        "implementation": {"enum": ["unsupported", "contract-only", "implemented"]},
+        "validation": {
+          "enum": [
+            "design-only",
+            "synthetic-validated",
+            "format-fixture-validated",
+            "real-artifact-validated",
+            "tool-integration-validated"
+          ]
+        },
+        "claim_ceiling": {"$ref": "#/$defs/claimCeiling"}
+      }
+    },
+    "claimCeiling": {
+      "enum": [
+        "no_positive_claim",
+        "documented_behavior_only",
+        "input_gates_only",
+        "technical_run_gates_only",
+        "numerical_candidate_only",
+        "eligible_for_expert_review"
+      ]
+    },
+    "scientificAcceptance": {
+      "enum": [
+        "not_assessed",
+        "requires_human_review",
+        "accepted",
+        "rejected"
+      ]
+    },
+    "sideEffect": {
+      "enum": [
+        "read-only",
+        "network-read",
+        "local-write",
+        "local-execution",
+        "remote-read",
+        "remote-write",
+        "scheduler-submit",
+        "scheduler-control",
+        "external-publish",
+        "destructive-delete"
+      ]
+    },
+    "sideEffectSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sideEffect"}
+    },
+    "readiness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "blocker_codes", "decision_ref"],
+      "properties": {
+        "status": {"enum": ["ready", "blocked", "not-assessed", "requires-decision"]},
+        "blocker_codes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "decision_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/recordRef"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"status": {"const": "ready"}},
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "blocker_codes": {"maxItems": 0},
+              "decision_ref": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {"enum": ["blocked", "not-assessed"]}
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {"blocker_codes": {"minItems": 1}}
+          }
+        },
+        {
+          "if": {
+            "properties": {"status": {"const": "requires-decision"}},
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "blocker_codes": {"minItems": 1},
+              "decision_ref": {"$ref": "#/$defs/recordRef"}
+            }
+          }
+        }
+      ]
+    },
+    "parameterRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value_kind",
+        "number_value",
+        "integer_value",
+        "boolean_value",
+        "string_value",
+        "integer_vector3_value",
+        "integer_matrix3_value",
+        "number_vector_value",
+        "number_matrix3_value",
+        "unit",
+        "source",
+        "source_ref",
+        "decisive"
+      ],
+      "properties": {
+        "name": {"$ref": "#/$defs/safeId"},
+        "value_kind": {
+          "enum": [
+            "number",
+            "integer",
+            "boolean",
+            "string",
+            "integer-vector3",
+            "integer-matrix3",
+            "number-vector",
+            "number-matrix3"
+          ]
+        },
+        "number_value": {"type": ["number", "null"]},
+        "integer_value": {"type": ["integer", "null"]},
+        "boolean_value": {"type": ["boolean", "null"]},
+        "string_value": {"type": ["string", "null"], "minLength": 1},
+        "integer_vector3_value": {
+          "oneOf": [
+            {"$ref": "#/$defs/integerVector3"},
+            {"type": "null"}
+          ]
+        },
+        "integer_matrix3_value": {
+          "oneOf": [
+            {"$ref": "#/$defs/integerMatrix3"},
+            {"type": "null"}
+          ]
+        },
+        "number_vector_value": {
+          "oneOf": [
+            {"type": "array", "minItems": 1, "items": {"type": "number"}},
+            {"type": "null"}
+          ]
+        },
+        "number_matrix3_value": {
+          "oneOf": [
+            {"$ref": "#/$defs/matrix3"},
+            {"type": "null"}
+          ]
+        },
+        "unit": {"type": ["string", "null"], "minLength": 1},
+        "source": {
+          "enum": ["user", "protocol", "official-default", "observed", "derived"]
+        },
+        "source_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/recordRef"},
+            {"type": "null"}
+          ]
+        },
+        "decisive": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"value_kind": {"const": "number"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "number"},
+              "integer_value": {"type": "null"},
+              "boolean_value": {"type": "null"},
+              "string_value": {"type": "null"},
+              "integer_vector3_value": {"type": "null"},
+              "integer_matrix3_value": {"type": "null"},
+              "number_vector_value": {"type": "null"},
+              "number_matrix3_value": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"value_kind": {"const": "integer"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "null"},
+              "integer_value": {"type": "integer"},
+              "boolean_value": {"type": "null"},
+              "string_value": {"type": "null"},
+              "integer_vector3_value": {"type": "null"},
+              "integer_matrix3_value": {"type": "null"},
+              "number_vector_value": {"type": "null"},
+              "number_matrix3_value": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"value_kind": {"const": "boolean"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "null"},
+              "integer_value": {"type": "null"},
+              "boolean_value": {"type": "boolean"},
+              "string_value": {"type": "null"},
+              "integer_vector3_value": {"type": "null"},
+              "integer_matrix3_value": {"type": "null"},
+              "number_vector_value": {"type": "null"},
+              "number_matrix3_value": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"value_kind": {"const": "string"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "null"},
+              "integer_value": {"type": "null"},
+              "boolean_value": {"type": "null"},
+              "string_value": {"type": "string", "minLength": 1},
+              "integer_vector3_value": {"type": "null"},
+              "integer_matrix3_value": {"type": "null"},
+              "number_vector_value": {"type": "null"},
+              "number_matrix3_value": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"value_kind": {"const": "integer-vector3"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "null"},
+              "integer_value": {"type": "null"},
+              "boolean_value": {"type": "null"},
+              "string_value": {"type": "null"},
+              "integer_vector3_value": {"$ref": "#/$defs/integerVector3"},
+              "integer_matrix3_value": {"type": "null"},
+              "number_vector_value": {"type": "null"},
+              "number_matrix3_value": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"value_kind": {"const": "integer-matrix3"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "null"},
+              "integer_value": {"type": "null"},
+              "boolean_value": {"type": "null"},
+              "string_value": {"type": "null"},
+              "integer_vector3_value": {"type": "null"},
+              "integer_matrix3_value": {"$ref": "#/$defs/integerMatrix3"},
+              "number_vector_value": {"type": "null"},
+              "number_matrix3_value": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"value_kind": {"const": "number-vector"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "null"},
+              "integer_value": {"type": "null"},
+              "boolean_value": {"type": "null"},
+              "string_value": {"type": "null"},
+              "integer_vector3_value": {"type": "null"},
+              "integer_matrix3_value": {"type": "null"},
+              "number_vector_value": {"type": "array", "minItems": 1, "items": {"type": "number"}},
+              "number_matrix3_value": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"value_kind": {"const": "number-matrix3"}}, "required": ["value_kind"]},
+          "then": {
+            "properties": {
+              "number_value": {"type": "null"},
+              "integer_value": {"type": "null"},
+              "boolean_value": {"type": "null"},
+              "string_value": {"type": "null"},
+              "integer_vector3_value": {"type": "null"},
+              "integer_matrix3_value": {"type": "null"},
+              "number_vector_value": {"type": "null"},
+              "number_matrix3_value": {"$ref": "#/$defs/matrix3"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:execution-request:1.0",
+  "title": "Vibe DFT Skills immutable execution request",
+  "description": "A staged dry-run or execution request. It records required authorization but never grants it; authorization is represented by a separate decision and execution lease.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "request_id",
+  "x-vibe-semantic-obligations": [
+    "REQUEST_WORKFLOW_STEP_REF_RESOLVES",
+    "REQUEST_WORKFLOW_PLAN_REF_HASH_MATCH",
+    "REQUEST_OPERATION_ROUTE_BINDING",
+    "REQUEST_AUTHORIZATION_POLICY_MATCH",
+    "REQUEST_ARGV_TEMPLATE_BINDING",
+    "REQUEST_INPUT_HASH_CONTENT_MATCHES",
+    "REQUEST_PARENT_LINEAGE_RESOLVES",
+    "REQUEST_RECORD_REF_DAG_ACYCLIC"
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "request_id",
+    "created_utc",
+    "requested_by",
+    "workflow_plan_ref",
+    "workflow_step_id",
+    "operation_id",
+    "execution_mode",
+    "command_kind",
+    "shell",
+    "argv",
+    "working_directory_label",
+    "environment_profile_id",
+    "resources",
+    "inputs",
+    "expected_outputs",
+    "parent_records",
+    "timeout_s",
+    "retry_policy",
+    "authorization_requirement",
+    "state",
+    "blocker_codes",
+    "gates",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "execution-request"},
+    "request_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "created_utc": {"type": "string", "format": "date-time"},
+    "requested_by": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/actor"},
+    "workflow_plan_ref": {
+      "allOf": [
+        {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+        {
+          "properties": {
+            "contract_name": {"const": "workflow-plan"},
+            "schema_version": {"const": "1.0"},
+            "role": {"const": "workflow-plan"}
+          }
+        }
+      ]
+    },
+    "workflow_step_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "operation_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "execution_mode": {"enum": ["dry-run", "execute"]},
+    "command_kind": {"const": "argv"},
+    "shell": {"const": false},
+    "argv": {"$ref": "#/$defs/argv"},
+    "working_directory_label": {"$ref": "#/$defs/pathLabel"},
+    "environment_profile_id": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+    "resources": {"$ref": "#/$defs/resources"},
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"}
+    },
+    "expected_outputs": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"}
+    },
+    "parent_records": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"},
+      "uniqueItems": true
+    },
+    "timeout_s": {"type": "integer", "minimum": 1, "maximum": 31536000},
+    "retry_policy": {"$ref": "#/$defs/retryPolicy"},
+    "authorization_requirement": {"$ref": "#/$defs/authorizationRequirement"},
+    "state": {"enum": ["prepared", "blocked"]},
+    "blocker_codes": {
+      "type": "array",
+      "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+      "uniqueItems": true
+    },
+    "gates": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+    "producer": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"execution_mode": {"const": "execute"}},
+        "required": ["execution_mode"]
+      },
+      "then": {
+        "properties": {
+          "authorization_requirement": {
+            "allOf": [
+              {"$ref": "#/$defs/authorizationRequirement"},
+              {"properties": {"required": {"const": true}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "execution_mode": {"const": "execute"},
+          "state": {"const": "prepared"}
+        },
+        "required": ["execution_mode", "state"]
+      },
+      "then": {
+        "properties": {
+          "inputs": {
+            "minItems": 1,
+            "items": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "present"}}}
+              ]
+            }
+          },
+          "expected_outputs": {
+            "minItems": 1,
+            "items": {
+              "allOf": [
+                {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"},
+                {"properties": {"availability": {"const": "missing"}}}
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"state": {"const": "prepared"}},
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "blocker_codes": {"maxItems": 0},
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"status": {"const": "pass"}}}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"state": {"const": "blocked"}},
+        "required": ["state"]
+      },
+      "then": {
+        "properties": {
+          "blocker_codes": {"minItems": 1},
+          "gates": {
+            "allOf": [
+              {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"},
+              {"properties": {"status": {"const": "blocked"}}}
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "pathLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "pattern": "^(?![/\\\\])(?![A-Za-z]:[\\\\/])(?!.*\\s[/\\\\])(?!.*[=:][/\\\\])(?!.*\\s[A-Za-z]:[\\\\/])(?!.*\\\\\\\\)(?!.*(?:^|[\\s=,:;()\\[\\]{}\"'])[/\\\\](?:Users|home|private|tmp|var|Volumes|scratch|gpfs|lustre|mnt|work|project)(?:[/\\\\]|$))(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))[^\\u0000\\r\\n]+$"
+    },
+    "argvItem": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^(?![/\\\\])(?![A-Za-z]:[\\\\/])(?!.*\\s[/\\\\])(?!.*[=:][/\\\\])(?!.*\\s[A-Za-z]:[\\\\/])(?!.*\\\\\\\\)(?!.*(?:^|[\\s=,:;()\\[\\]{}\"'])[/\\\\](?:Users|home|private|tmp|var|Volumes|scratch|gpfs|lustre|mnt|work|project)(?:[/\\\\]|$))(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))[^\\u0000\\r\\n]+$"
+    },
+    "argv": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "prefixItems": [
+        {
+          "type": "string",
+          "pattern": "^(?!(?:sh|ash|bash|csh|dash|fish|ksh|tcsh|zsh)$)(?!cmd(?:\\.exe)?$)(?!powershell(?:\\.exe)?$)[A-Za-z0-9][A-Za-z0-9._+-]{0,127}$"
+        }
+      ],
+      "items": {"$ref": "#/$defs/argvItem"},
+      "not": {
+        "anyOf": [
+          {
+            "contains": {
+              "pattern": "^(?:sh|ash|bash|csh|dash|fish|ksh|tcsh|zsh|cmd(?:\\.exe)?|powershell(?:\\.exe)?)$"
+            }
+          },
+          {
+            "allOf": [
+              {
+                "contains": {
+                  "pattern": "^(?:python(?:[0-9]+(?:\\.[0-9]+)?)?|pypy(?:[0-9]+)?|perl|ruby|node|nodejs)$"
+                }
+              },
+              {"contains": {"enum": ["-c", "-e", "--eval"]}}
+            ]
+          }
+        ]
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scheduler_profile_id",
+        "nodes",
+        "mpi_ranks",
+        "threads_per_rank",
+        "gpus",
+        "memory_mb",
+        "walltime_s"
+      ],
+      "properties": {
+        "scheduler_profile_id": {
+          "oneOf": [
+            {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+            {"type": "null"}
+          ]
+        },
+        "nodes": {"type": "integer", "minimum": 1},
+        "mpi_ranks": {"type": "integer", "minimum": 1},
+        "threads_per_rank": {"type": "integer", "minimum": 1},
+        "gpus": {"type": "integer", "minimum": 0},
+        "memory_mb": {"type": "integer", "minimum": 1},
+        "walltime_s": {"type": "integer", "minimum": 1}
+      }
+    },
+    "retryPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maximum_attempts", "automatic_retry", "retryable_finding_codes"],
+      "properties": {
+        "maximum_attempts": {"type": "integer", "minimum": 1, "maximum": 20},
+        "automatic_retry": {"const": false},
+        "retryable_finding_codes": {
+          "type": "array",
+          "items": {"$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"},
+          "uniqueItems": true
+        }
+      }
+    },
+    "authorizationRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "side_effects", "scope_labels", "reason"],
+      "properties": {
+        "required": {"type": "boolean"},
+        "side_effects": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sideEffectSet"
+        },
+        "scope_labels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/pathLabel"},
+          "uniqueItems": true
+        },
+        "reason": {"type": "string", "minLength": 1, "maxLength": 1000}
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# multiwfn_atomic_charges_v1 method=hirshfeld unit=e
+1 O -0.200000
+2 H 0.100000
+3 H 0.100000
+# total_charge=0.000000

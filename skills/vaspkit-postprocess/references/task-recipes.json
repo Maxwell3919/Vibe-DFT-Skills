@@ -1,0 +1,389 @@
+{
+  "schema_version": "1.0",
+  "software": "VASPKIT",
+  "documentation_series": "1.5",
+  "checked_date": "2026-07-18",
+  "execution_validation": "not_run",
+  "execution_validation_reason": "No vaspkit executable was available in the maintainer PATH.",
+  "policy": {
+    "feature_listing_is_not_a_recipe": true,
+    "unknown_prompt_sequence_requires_interactive_discovery": true,
+    "example_parameters_require_project_convergence": true,
+    "exact_binary_menu_overrides_conflicting_web_labels": true
+  },
+  "recipes": {
+    "102": {
+      "status": "official-tutorial-documented",
+      "mode": "flags-or-stdin",
+      "required_files": ["POSCAR"],
+      "argv_template": ["vaspkit", "-task", "102", "-file", "POSCAR", "-kpr", "<converged-resolution>"],
+      "stdin_template": ["102", "<mesh-scheme:1-or-2>", "<converged-resolution>"],
+      "expected_outputs": ["KPOINTS"],
+      "source": "https://vaspkit.com/tutorials.html#ways-to-run-vaspkit",
+      "caution": "The official 0.04 example is not a convergence guarantee."
+    },
+    "301": {
+      "status": "official-workflow-documented",
+      "mode": "interactive-until-version-pinned",
+      "required_files": ["POSCAR"],
+      "stdin_template": ["301"],
+      "expected_outputs": ["PRIMCELL.vasp", "KPATH.in", "HIGH_SYMMETRY_POINTS"],
+      "source": "https://vaspkit.com/tutorials.html#pre-process-band-structure-pure-functional",
+      "caution": "Check dimensionality, primitive-cell mapping, and the path independently."
+    },
+    "302": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["POSCAR"],
+      "stdin_template": ["302"],
+      "expected_outputs": ["PRIMCELL.vasp", "KPATH.in", "HIGH_SYMMETRY_POINTS"],
+      "source": "https://vaspkit.com/tutorials.html#pre-process-band-structure-pure-functional",
+      "caution": "The official tutorial calls the 2D feature experimental and says to check PRIMCELL.vasp and the path."
+    },
+    "303": {
+      "status": "official-workflow-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["POSCAR"],
+      "stdin_template": ["303"],
+      "expected_outputs": ["PRIMCELL.vasp", "KPATH.in", "HIGH_SYMMETRY_POINTS"],
+      "source": "https://vaspkit.com/tutorials.html#pre-process-band-structure-pure-functional",
+      "caution": "Check primitive-cell identity and the high-symmetry path independently."
+    },
+    "111": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["INCAR", "POSCAR", "DOSCAR", "OUTCAR"],
+      "stdin_template": ["111"],
+      "expected_outputs": ["TDOS.dat", "ITDOS.dat"],
+      "source": "https://vaspkit.com/tutorials.html#extract-and-output-dos-and-pdos",
+      "caution": "Record Fermi shifting, spin convention, DOS grid, smearing, and normalization."
+    },
+    "112": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-selector",
+      "required_files": ["INCAR", "POSCAR", "DOSCAR", "OUTCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["SELECTED_ATOM_LIST", "PDOS_A*_UP.dat", "PDOS_A*_DW.dat", "IPDOS_A*_UP.dat", "IPDOS_A*_DW.dat"],
+      "source": "https://vaspkit.com/tutorials.html#extract-and-output-dos-and-pdos",
+      "caution": "The exact atom-selector dialogue and spin-dependent filenames must be captured from the installed version."
+    },
+    "113": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["INCAR", "POSCAR", "DOSCAR", "OUTCAR"],
+      "stdin_template": ["113"],
+      "expected_outputs": ["PDOS_<element>*.dat"],
+      "source": "https://vaspkit.com/tutorials.html#extract-and-output-dos-and-pdos",
+      "caution": "LORBIT controls available projection channels."
+    },
+    "114": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-selector",
+      "required_files": ["INCAR", "POSCAR", "DOSCAR", "OUTCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["SELECTED_ATOM_LIST", "PDOS_SUM_UP.dat", "PDOS_SUM_DW.dat"],
+      "source": "https://vaspkit.com/tutorials.html#extract-and-output-dos-and-pdos",
+      "caution": "Capture atom/element selection and exact spin-dependent filenames."
+    },
+    "115": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-repeated-selector",
+      "required_files": ["INCAR", "POSCAR", "DOSCAR", "OUTCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["PDOS_USER.dat"],
+      "source": "https://vaspkit.com/tutorials.html#extract-and-output-dos-and-pdos",
+      "caution": "Capture every atom/element and orbital selector; do not infer the repeated dialogue."
+    },
+    "211": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin",
+      "required_files": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPOINTS"],
+      "stdin_template": ["211", "0"],
+      "expected_outputs": ["BAND.dat", "BAND_REFORMATTED.dat", "KLINES.dat", "KLABELS", "BAND_GAP"],
+      "optional_outputs": ["band.png"],
+      "source": "https://vaspkit.com/tutorials.html#post-process-band-structure-pure-functional",
+      "caution": "Default documentation shifts the Fermi level to zero; missing KPOINTS labels produce undefined KLABELS."
+    },
+    "212": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-selector",
+      "required_files": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPOINTS", "PROCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["SELECTED_ATOM_LIST", "PBAND_A*.dat", "KLINES.dat", "KLABELS"],
+      "source": "https://vaspkit.com/tutorials.html#post-process-band-structure-pure-functional",
+      "caution": "Requires projection-bearing output; the official tutorial specifies LORBIT=10 or 11."
+    },
+    "213": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPOINTS", "PROCAR"],
+      "stdin_template": ["213"],
+      "expected_outputs": ["PBAND_<element>.dat", "KLINES.dat", "KLABELS"],
+      "source": "https://vaspkit.com/tutorials.html#post-process-band-structure-pure-functional",
+      "caution": "Requires projection-bearing output and exact element mapping."
+    },
+    "214": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-selector",
+      "required_files": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPOINTS", "PROCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["SELECTED_ATOM_LIST", "PBAND_SUM.dat", "KLINES.dat", "KLABELS"],
+      "source": "https://vaspkit.com/tutorials.html#post-process-band-structure-pure-functional",
+      "caution": "Capture the atom/element selector and preserve atom numbering."
+    },
+    "215": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "No exact prompt/output recipe is established in this repository."
+    },
+    "216": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "No exact prompt/output recipe is established in this repository."
+    },
+    "251": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-parameters",
+      "required_files": ["POSCAR", "KPATH.in"],
+      "stdin_template": ["251", "<mesh-scheme:1-or-2>", "<converged-weighted-mesh-resolution>", "<converged-zero-weight-path-resolution>"],
+      "expected_outputs": ["KPOINTS"],
+      "source": "https://vaspkit.com/tutorials.html#pre-process-band-structure-hybrid-functional",
+      "caution": "Tutorial resolution values are examples; independently validate weighted and zero-weight k-point density."
+    },
+    "252": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin",
+      "required_files": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPATH.in"],
+      "stdin_template": ["252", "0"],
+      "expected_outputs": ["BAND.dat", "BAND_REFORMATTED.dat", "KLINES.dat", "KLABELS", "BAND_GAP"],
+      "optional_outputs": ["band.png"],
+      "source": "https://vaspkit.com/tutorials.html#post-process-band-structure-hybrid-functional",
+      "caution": "Preserve the KPATH.in used to generate the hybrid KPOINTS and the actual energy reference."
+    },
+    "253": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Projected hybrid-band prompt and output contract are not established here."
+    },
+    "254": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Projected hybrid-band prompt and output contract are not established here."
+    },
+    "255": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Projected hybrid-band prompt and output contract are not established here."
+    },
+    "256": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Projected hybrid-band prompt and output contract are not established here."
+    },
+    "257": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Projected hybrid-band prompt and output contract are not established here."
+    },
+    "311": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-until-version-pinned",
+      "required_files": ["CHGCAR"],
+      "stdin_template": ["311"],
+      "expected_outputs": ["CHARGE.vasp"],
+      "source": "https://vaspkit.com/tutorials.html#charge-density-and-spin-density",
+      "caution": "Verify grid, units, spin convention, and source calculation."
+    },
+    "312": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-until-version-pinned",
+      "required_files": ["CHGCAR"],
+      "stdin_template": ["312"],
+      "expected_outputs": ["SPIN.vasp"],
+      "source": "https://vaspkit.com/tutorials.html#charge-density-and-spin-density",
+      "caution": "Verify that the source CHGCAR contains the expected spin layout."
+    },
+    "313": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-until-version-pinned",
+      "required_files": ["CHGCAR"],
+      "stdin_template": ["313"],
+      "expected_outputs": ["SPIN_UP.vasp", "SPIN_DW.vasp"],
+      "source": "https://vaspkit.com/tutorials.html#charge-density-and-spin-density",
+      "caution": "Verify spin-channel semantics against the parent VASP calculation."
+    },
+    "314": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-file-list",
+      "required_files": ["<combined-grid>", "<subtracted-grid-1>", "<subtracted-grid-2-if-needed>"],
+      "stdin_template": null,
+      "expected_outputs": ["CHGDIFF.vasp"],
+      "source": "https://vaspkit.com/tutorials.html#charge-density-difference",
+      "caution": "Cells, grids, coordinates, ordering, and calculation conventions must be identical before subtraction."
+    },
+    "400": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-matrix-or-TRANSMAT.in",
+      "required_files": ["POSCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["SUPERCELL.vasp"],
+      "source": "https://vaspkit.com/tutorials.html#redefine-lattice",
+      "caution": "Verify the integer matrix, determinant, atom mapping, and geometry."
+    },
+    "401": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-repeats",
+      "required_files": ["POSCAR"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/tutorials.html#build-supercell",
+      "caution": "Output filename is version-sensitive; inspect the exact transcript and resulting structure."
+    },
+    "426": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["LOCPOT"],
+      "stdin_template": ["426", "<direction:1-x,2-y,3-z>"],
+      "expected_outputs": ["POTPAVG.dat"],
+      "source": "https://vaspkit.com/tutorials.html#planar-average-potential",
+      "caution": "For work functions, use the matching OUTCAR Fermi level and prove vacuum convergence."
+    },
+    "427": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-parameters",
+      "required_files": ["LOCPOT"],
+      "stdin_template": null,
+      "expected_outputs": ["PLANAR_AVERAGE.dat", "MACROSCOPIC_AVERAGE.dat"],
+      "source": "https://vaspkit.com/tutorials.html#macroscopic-averaged-potential",
+      "caution": "Capture direction, averaging period, and iteration count; validate the physical averaging window."
+    },
+    "503": {
+      "status": "official-tutorial-documented-experimental",
+      "mode": "interactive-energy-window",
+      "required_files": ["INCAR", "DOSCAR", "POSCAR"],
+      "stdin_template": ["503", "<change-window:y-or-n>", "<emin emax-if-y>"],
+      "expected_outputs": ["D_BAND_CENTER"],
+      "source": "https://vaspkit.com/tutorials.html#d-band-center",
+      "caution": "Sensitive to unoccupied bands and the integration window; trends are safer than absolute values."
+    },
+    "601": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["POSCAR"],
+      "stdin_template": ["601"],
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/tutorials.html#symmetry-tools",
+      "caution": "Symmetry depends on geometry and tolerance; retain the exact structure."
+    },
+    "602": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["POSCAR"],
+      "stdin_template": ["602"],
+      "expected_outputs": ["PRIMCELL.vasp"],
+      "source": "https://vaspkit.com/tutorials.html#symmetry-tools",
+      "caution": "Verify primitive-cell atom/site mapping before use."
+    },
+    "604": {
+      "status": "official-documentation-conflict",
+      "mode": "exact-binary-inspection-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "The feature page and tutorial assign different meanings to task 604."
+    },
+    "711": {
+      "status": "official-documentation-conflict-with-tutorial-recipe",
+      "mode": "exact-binary-inspection-required",
+      "required_files": ["vasprun.xml"],
+      "stdin_template": null,
+      "argv_template": ["vaspkit", "-task", "711"],
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/tutorials.html#linear-optical-properties",
+      "caution": "Official pages disagree on optical task mapping; the tutorial says its 711 route is unsuitable for low-dimensional materials."
+    },
+    "721": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-until-version-pinned",
+      "required_files": ["POSCAR.ref", "<VASP-MD-output>"],
+      "stdin_template": ["721"],
+      "expected_outputs": ["MSD.dat"],
+      "source": "https://vaspkit.com/tutorials.html#molecular-dynamics-process",
+      "caution": "Validate timestep, equilibration, atom selection, periodic unwrapping, and fitting window."
+    },
+    "911": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["INCAR", "DOSCAR", "EIGENVAL", "POSCAR", "KPOINTS"],
+      "stdin_template": ["911"],
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/tutorials.html#run-vaspkit-in-batch-mode",
+      "caution": "Do not scrape a fixed stdout line; verify the sampled extrema and energy reference."
+    },
+    "912": {
+      "status": "official-tutorial-documented-experimental",
+      "mode": "two-stage-VPKIT.in-workflow",
+      "required_files": ["POSCAR", "VPKIT.in"],
+      "stdin_template": null,
+      "expected_outputs": ["KPOINTS", "INCAR"],
+      "source": "https://vaspkit.com/tutorials.html#effective-mass",
+      "caution": "The illustrated route is restricted to neutral non-magnetic semiconductors; validate quadratic fit stability."
+    },
+    "923": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["POSCAR"],
+      "stdin_template": ["923"],
+      "expected_outputs": ["POSCAR_NEW"],
+      "source": "https://vaspkit.com/tutorials.html#pre-process-band-structure-pure-functional",
+      "caution": "Inspect cell, vacuum axis, centering, atom mapping, and geometry before replacing POSCAR."
+    },
+    "926": {
+      "status": "official-documentation-conflict",
+      "mode": "exact-binary-inspection-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "The feature page calls 926 stacking-dependent potential energy; the tutorial menu calls it 2D elastic constants."
+    },
+    "927": {
+      "status": "official-feature-and-workflow-documented",
+      "mode": "interactive-until-version-pinned",
+      "required_files": ["<accepted-band-output>", "LOCPOT", "OUTCAR"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/tutorials.html#pre-process-band-structure-pure-functional",
+      "caution": "Require a converged vacuum plateau and common energy reference; exact prompt/output names are not pinned here."
+    }
+  }
+}

@@ -20,7 +20,7 @@ Use [fail-closed-contract.md](fail-closed-contract.md) for commands, exit codes,
 |---|---|---|
 | SCF/static | completed output, charge convergence, actual settings, energy/forces/stress as relevant | basis, k mesh, occupation, electronic threshold for target observable |
 | relax/vc-relax | completed/stop reason, final structure, forces/stress, constraints, restart lineage | force/stress thresholds, basis/k mesh, Pulay and cell sensitivity |
-| bands/DOS | converged parent density, fixed method, path/mesh provenance, energy reference | parent SCF convergence, band count, DOS grid/broadening, projection completeness |
+| bands/DOS | technically completed parent density plus a bundle-verified human decision chain, fixed method, path/mesh provenance, energy reference | parent SCF convergence, band count, DOS grid/broadening, projection completeness |
 | phonon | converged ground state, q provenance, acoustic/NAC/2D treatment where relevant | q mesh, electronic thresholds, interpolation vs direct checkpoints, supercell/model controls |
 | EPC | complete electronic and phonon ancestry, k/q mesh pairing, smearing/integration method | nested mesh or controlled convergence of the reported coupling/Tc observable |
 | NEB | endpoint provenance, image mapping, force/status evidence | image count, path initialization, force tolerance, endpoint and supercell convergence |

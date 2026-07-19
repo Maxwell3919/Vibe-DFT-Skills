@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "nve": {
+      "required_gates": ["version_pin", "fixed_units", "model_xyz", "potential_provenance", "minimum_image", "explicit_seed_or_state", "timestep", "run_block_controls", "completion", "trajectory", "nve_drift", "uncertainty"],
+      "supported_core": true
+    },
+    "npt": {
+      "required_gates": ["version_pin", "fixed_units", "periodic_boundary_compatibility", "barostat_parameters", "state_lineage", "completion", "cell_trajectory", "uncertainty"],
+      "supported_core": false
+    },
+    "nvt": {
+      "required_gates": ["version_pin", "fixed_units", "thermostat_parameters", "state_lineage", "completion", "trajectory", "uncertainty"],
+      "supported_core": false
+    },
+    "phonon": {
+      "required_gates": ["exact_version", "v5.1_v5.2_bug_exclusion", "method_specific_convergence", "reference_validation"],
+      "supported_core": false
+    }
+  }
+}

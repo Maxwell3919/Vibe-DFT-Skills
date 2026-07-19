@@ -1,0 +1,36 @@
+{
+  "contract_name": "structure-preparation-input",
+  "schema_version": "1.0",
+  "structure_id": "si-wrapped-reordered-fixture",
+  "structure_kind": "periodic-crystal",
+  "pbc": [true, true, true],
+  "cell_ang": [
+    [5.43, 0.0, 0.0],
+    [0.0, 5.43, 0.0],
+    [0.0, 0.0, 5.43]
+  ],
+  "sites": [
+    {
+      "site_id": "Si-1",
+      "species": [{"element": "Si", "occupancy": 1.0}],
+      "fractional": [0.25, 0.25, 0.25],
+      "cartesian_ang": [1.3575, 1.3575, 1.3575]
+    },
+    {
+      "site_id": "Si-0",
+      "species": [{"element": "Si", "occupancy": 1.0}],
+      "fractional": [0.0, 0.0, 0.0],
+      "cartesian_ang": [0.0, 0.0, 0.0]
+    }
+  ],
+  "symmetry": {
+    "status": "verified",
+    "number": 227,
+    "symbol": "Fd-3m",
+    "tolerance_ang": 0.01,
+    "backend": "synthetic-fixture",
+    "backend_version": "1"
+  },
+  "charge_state": {"status": "known", "net_charge_e": 0},
+  "spin_state": {"status": "not-assessed", "multiplicity": null}
+}

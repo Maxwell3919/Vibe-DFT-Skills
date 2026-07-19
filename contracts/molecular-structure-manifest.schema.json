@@ -1,0 +1,554 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:molecular-structure-manifest:1.0",
+  "title": "Molecular semantics bound to an ordered structure snapshot",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "molecular_structure_id",
+  "$comment": "Draft validation establishes structural conformance only. Every x-vibe-semantic-obligations entry must be evaluated externally; a failed or unresolved obligation blocks the listed readiness and positive claims.",
+  "x-vibe-semantic-obligations": [
+    {
+      "finding_id": "molecular-snapshot-hash-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "snapshot_ref resolves to a structure snapshot whose canonical record hash equals the declared hash.",
+      "evidence_required": ["resolved-structure-snapshot", "resolved-record-sha256"]
+    },
+    {
+      "finding_id": "molecular-site-reference-missing",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Every site ID used by bonds, fragments, isotopes, constraints, and extraction sets exists in the referenced snapshot or in the declared created-site lineage.",
+      "evidence_required": ["snapshot-site-id-set", "bond-site-ids", "fragment-site-ids", "extraction-site-ids"]
+    },
+    {
+      "finding_id": "molecular-charge-multiplicity-electron-parity-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Electron count equals the resolved nuclear charge sum minus net charge and its parity and spin capacity are compatible with multiplicity; fragment declarations are mutually consistent.",
+      "evidence_required": ["snapshot-atomic-numbers", "net-charge", "electron-count", "multiplicity", "fragment-quantum-states"]
+    },
+    {
+      "finding_id": "molecular-connectivity-inconsistent",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Bond IDs and unordered site pairs are unique, contain two existing distinct sites, and agree with connectivity status and method evidence.",
+      "evidence_required": ["bond-id-set", "canonical-bond-pairs", "connectivity-method-evidence"]
+    },
+    {
+      "finding_id": "molecular-fragment-coverage-inconsistent",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Whole-molecule and fragment memberships follow the declared partition policy without silent omissions, overlaps, or incompatible fragment charge and spin totals.",
+      "evidence_required": ["molecule-site-id-set", "fragment-membership-table", "fragment-charge-spin-balance"]
+    },
+    {
+      "finding_id": "molecular-extraction-lineage-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Parent snapshot, transformation, and decision hashes resolve and their created, removed, and capped site mappings exactly match the extraction boundary sets.",
+      "evidence_required": ["resolved-parent-snapshot", "resolved-transformation", "resolved-boundary-decision", "site-change-set-comparison"]
+    },
+    {
+      "finding_id": "record-reference-dag-invalid",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["calculation-readiness", "positive-claim"],
+      "assertion": "Every recordRef resolves to an already existing bundle-local UTF-8 JSON target by exact raw-byte SHA-256; self-reference, forward or back edges outside the declared topological order, cycles, and upstream references to post-record validation, claim, or decision records are forbidden.",
+      "evidence_required": ["bundle-record-index", "raw-byte-sha256-check", "record-reference-dag-topological-order"]
+    }
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "molecular_structure_id",
+    "snapshot_ref",
+    "net_charge",
+    "multiplicity",
+    "electron_count",
+    "connectivity",
+    "fragments",
+    "conformer",
+    "electronic_state",
+    "isotopes",
+    "constraints",
+    "extraction_boundary",
+    "calculation_readiness",
+    "validation",
+    "maturity",
+    "provenance",
+    "limitations",
+    "extension_refs"
+  ],
+  "properties": {
+    "contract_name": {"const": "molecular-structure-manifest"},
+    "schema_version": {"const": "1.0"},
+    "molecular_structure_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "snapshot_ref": {"$ref": "#/$defs/snapshotRef"},
+    "net_charge": {"$ref": "#/$defs/integerState"},
+    "multiplicity": {"$ref": "#/$defs/positiveIntegerState"},
+    "electron_count": {"$ref": "#/$defs/electronCount"},
+    "connectivity": {"$ref": "#/$defs/connectivity"},
+    "fragments": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/fragment"}
+    },
+    "conformer": {"$ref": "#/$defs/conformer"},
+    "electronic_state": {"$ref": "#/$defs/electronicState"},
+    "isotopes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/isotope"}
+    },
+    "constraints": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/constraintRef"}
+    },
+    "extraction_boundary": {"$ref": "#/$defs/extractionBoundary"},
+    "calculation_readiness": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/readiness"
+    },
+    "validation": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"
+    },
+    "maturity": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/maturity"
+    },
+    "provenance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "extension_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "net_charge": {
+            "properties": {"status": {"const": "unknown"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["net_charge"]
+      },
+      "then": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "multiplicity": {
+            "properties": {"status": {"const": "unknown"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["multiplicity"]
+      },
+      "then": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "electron_count": {
+            "properties": {"status": {"const": "unknown"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["electron_count"]
+      },
+      "then": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calculation_readiness": {
+            "properties": {"status": {"const": "ready"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["calculation_readiness"]
+      },
+      "then": {
+        "properties": {
+          "net_charge": {"properties": {"status": {"const": "known"}}},
+          "multiplicity": {"properties": {"status": {"const": "known"}}},
+          "electron_count": {"properties": {"status": {"const": "known"}}},
+          "validation": {"properties": {"status": {"const": "pass"}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "snapshotRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {"properties": {"contract_name": {"const": "structure-snapshot"}}}
+      ]
+    },
+    "transformationRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {
+          "properties": {
+            "contract_name": {"const": "structure-transformation-manifest"}
+          }
+        }
+      ]
+    },
+    "decisionRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {"properties": {"contract_name": {"const": "decision-record"}}}
+      ]
+    },
+    "integerState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value", "source", "evidence_refs"],
+      "properties": {
+        "status": {"enum": ["known", "unknown"]},
+        "value": {"type": ["integer", "null"]},
+        "source": {"enum": ["user", "source-record", "derived", "not-available"]},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "known"}}, "required": ["status"]},
+          "then": {"properties": {"value": {"type": "integer"}}}
+        },
+        {
+          "if": {"properties": {"status": {"const": "unknown"}}, "required": ["status"]},
+          "then": {"properties": {"value": {"type": "null"}}}
+        }
+      ]
+    },
+    "positiveIntegerState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value", "source", "evidence_refs"],
+      "properties": {
+        "status": {"enum": ["known", "unknown"]},
+        "value": {"type": ["integer", "null"], "minimum": 1},
+        "source": {"enum": ["user", "source-record", "derived", "not-available"]},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "known"}}, "required": ["status"]},
+          "then": {"properties": {"value": {"type": "integer", "minimum": 1}}}
+        },
+        {
+          "if": {"properties": {"status": {"const": "unknown"}}, "required": ["status"]},
+          "then": {"properties": {"value": {"type": "null"}}}
+        }
+      ]
+    },
+    "electronCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value", "derivation", "evidence_refs"],
+      "properties": {
+        "status": {"enum": ["known", "unknown"]},
+        "value": {"type": ["integer", "null"], "minimum": 1},
+        "derivation": {"enum": ["explicit", "from-charge-and-nuclei", "not-available"]},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "known"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "value": {"type": "integer", "minimum": 1},
+              "derivation": {"enum": ["explicit", "from-charge-and-nuclei"]}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "unknown"}}, "required": ["status"]},
+          "then": {
+            "properties": {"value": {"type": "null"}, "derivation": {"const": "not-available"}}
+          }
+        }
+      ]
+    },
+    "bond": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bond_id", "site_ids", "order", "source", "evidence_refs"],
+      "properties": {
+        "bond_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "site_ids": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "order": {"enum": ["single", "double", "triple", "aromatic", "unknown"]},
+        "source": {"enum": ["explicit", "perceived", "source-record"]},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      }
+    },
+    "connectivity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "backend", "bonds", "limitations"],
+      "properties": {
+        "status": {"enum": ["explicit", "perceived", "absent", "unresolved"]},
+        "backend": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/softwareIdentity"
+            },
+            {"type": "null"}
+          ]
+        },
+        "bonds": {"type": "array", "items": {"$ref": "#/$defs/bond"}},
+        "limitations": {"type": "array", "items": {"type": "string"}}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "absent"}}, "required": ["status"]},
+          "then": {"properties": {"backend": {"type": "null"}, "bonds": {"maxItems": 0}}}
+        },
+        {
+          "if": {"properties": {"status": {"const": "unresolved"}}, "required": ["status"]},
+          "then": {"properties": {"bonds": {"maxItems": 0}, "limitations": {"minItems": 1}}}
+        }
+      ]
+    },
+    "fragment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fragment_id", "site_ids", "role", "net_charge", "multiplicity"],
+      "properties": {
+        "fragment_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "site_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "role": {"enum": ["whole-molecule", "fragment", "environment", "cap"]},
+        "net_charge": {"$ref": "#/$defs/integerState"},
+        "multiplicity": {"$ref": "#/$defs/positiveIntegerState"}
+      }
+    },
+    "conformer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conformer_id",
+        "state_label",
+        "parent_conformer_ref",
+        "generation_method",
+        "energy_ranking_status"
+      ],
+      "properties": {
+        "conformer_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "state_label": {"type": "string", "minLength": 1},
+        "parent_conformer_ref": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+            },
+            {"type": "null"}
+          ]
+        },
+        "generation_method": {"type": "string", "minLength": 1},
+        "energy_ranking_status": {
+          "enum": ["not-assessed", "relative-candidate", "validated"]
+        }
+      }
+    },
+    "electronicState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state_label", "state_kind", "root_index", "symmetry_label", "evidence_refs"],
+      "properties": {
+        "state_label": {"type": "string", "minLength": 1},
+        "state_kind": {"enum": ["ground", "excited", "broken-symmetry", "unknown"]},
+        "root_index": {"type": ["integer", "null"], "minimum": 1},
+        "symmetry_label": {"type": ["string", "null"], "minLength": 1},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      }
+    },
+    "isotope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["site_id", "mass_number"],
+      "properties": {
+        "site_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "mass_number": {"type": "integer", "minimum": 1}
+      }
+    },
+    "constraintRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "snapshot_ref"],
+      "properties": {
+        "constraint_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "snapshot_ref": {"$ref": "#/$defs/snapshotRef"}
+      }
+    },
+    "extractionBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "parent_periodic_snapshot_ref",
+        "transformation_ref",
+        "capping_policy",
+        "created_site_ids",
+        "removed_site_ids",
+        "capped_site_ids",
+        "boundary_decision_ref"
+      ],
+      "properties": {
+        "kind": {"enum": ["native-molecule", "cluster-from-periodic", "fragment-from-molecule"]},
+        "parent_periodic_snapshot_ref": {
+          "oneOf": [{"$ref": "#/$defs/snapshotRef"}, {"type": "null"}]
+        },
+        "transformation_ref": {
+          "oneOf": [{"$ref": "#/$defs/transformationRef"}, {"type": "null"}]
+        },
+        "capping_policy": {"enum": ["none", "hydrogen", "pseudoatom", "other-registered"]},
+        "created_site_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "removed_site_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "capped_site_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "boundary_decision_ref": {
+          "oneOf": [{"$ref": "#/$defs/decisionRef"}, {"type": "null"}]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"const": "native-molecule"}}, "required": ["kind"]},
+          "then": {
+            "properties": {
+              "parent_periodic_snapshot_ref": {"type": "null"},
+              "transformation_ref": {"type": "null"},
+              "capping_policy": {"const": "none"},
+              "created_site_ids": {"maxItems": 0},
+              "removed_site_ids": {"maxItems": 0},
+              "capped_site_ids": {"maxItems": 0},
+              "boundary_decision_ref": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"kind": {"const": "cluster-from-periodic"}}, "required": ["kind"]},
+          "then": {
+            "properties": {
+              "parent_periodic_snapshot_ref": {"$ref": "#/$defs/snapshotRef"},
+              "transformation_ref": {"$ref": "#/$defs/transformationRef"},
+              "boundary_decision_ref": {"$ref": "#/$defs/decisionRef"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"kind": {"const": "fragment-from-molecule"}}, "required": ["kind"]},
+          "then": {
+            "properties": {
+              "parent_periodic_snapshot_ref": {"type": "null"},
+              "transformation_ref": {"$ref": "#/$defs/transformationRef"},
+              "boundary_decision_ref": {"$ref": "#/$defs/decisionRef"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

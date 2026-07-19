@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "profiles": {
+    "request-audit": {"required": ["exact request bytes", "argv and shell flag", "input hashes", "expected output labels", "environment and scheduler profiles", "resources", "authorization requirement", "gates"], "blocked_if_missing": ["request identity", "input hash", "profile ID", "scope"], "claim_ceiling": "no_positive_claim"},
+    "dry-run-render": {"required": ["request audit pass", "exact human decision", "exact active lease", "scheduler family", "resource arithmetic"], "blocked_if_missing": ["decision hash", "lease hash", "expiry", "single-use status", "scheduler support"], "claim_ceiling": "no_positive_claim"},
+    "status-classification": {"required": ["native scheduler status", "normalized scheduler status", "process status", "application status", "evidence labels"], "blocked_if_missing": ["terminal process evidence", "application completion gate"], "claim_ceiling": "technical_run_gates_only", "note": "The profile can describe a technical ceiling; this development Skill remains no_positive_claim."},
+    "recovery": {"required": ["idempotency key", "attempt lineage", "lease consumption state", "authoritative scheduler observation", "collected outputs"], "blocked_if_missing": ["prior outcome", "lease status", "authorization for changed scope"], "claim_ceiling": "no_positive_claim"},
+    "cancellation": {"required": ["scheduler-control authorization", "live scheduler handle", "matching request and lease", "post-control observation"], "blocked_if_missing": ["control scope", "handle", "terminal reconciliation"], "claim_ceiling": "no_positive_claim"}
+  }
+}

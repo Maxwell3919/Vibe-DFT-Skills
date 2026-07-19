@@ -1,0 +1,358 @@
+{
+  "recipe_contract": "provider-workflow-recipes@1.0",
+  "retrieved_on": "2026-07-19",
+  "execution_policy": "Catalog display is read-only. Every installation, training, scheduler, remote, model-loading, and MD step requires separate authorization and a captured execution record.",
+  "recipes": [
+    {
+      "recipe_id": "deepmd.install.pytorch-cpu-pip@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "install",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Isolated Python >=3.10 environment", "Package index and network use explicitly authorized", "PyTorch CPU backend selected and compatible PyTorch resolution is recorded"],
+      "steps": [
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "torch", "--index-url", "https://download.pytorch.org/whl/cpu"], "stdin": null, "outputs": ["installed PyTorch distribution metadata and resolved dependency lock"]},
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "deepmd-kit==3.1.3"], "stdin": null, "outputs": ["installed DeePMD-kit distribution metadata"]},
+        {"kind": "command", "argv": ["dp", "--version"], "stdin": null, "outputs": ["captured version text"]},
+        {"kind": "command", "argv": ["dp", "--pt", "-h"], "stdin": null, "outputs": ["captured backend-specific help"]}
+      ],
+      "restart": "Recreate the isolated environment from the same lock; do not mutate a partially resolved environment without recording the delta.",
+      "units": {},
+      "failure_modes": ["Unsupported platform or Python", "Backend dependency conflict", "Package resolver selects a different DeePMD-kit version", "PyTorch is not the intended CPU build"],
+      "scientific_checks": ["Installation proves availability only; it proves no model or result."],
+      "source_ids": ["deepmd-install", "deepmd-release"]
+    },
+    {
+      "recipe_id": "deepmd.probe.identity@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "probe",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["dp executable resolved inside the intended environment"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--version"], "stdin": null, "outputs": ["version evidence"]},
+        {"kind": "command", "argv": ["dp", "--pt", "-h"], "stdin": null, "outputs": ["PyTorch CLI surface"]},
+        {"kind": "command", "argv": ["python", "-c", "import importlib.metadata as m; print(m.version('deepmd-kit'))"], "stdin": null, "outputs": ["distribution version evidence"]}
+      ],
+      "restart": "Not applicable.",
+      "units": {},
+      "failure_modes": ["Executable and Python distribution resolve from different environments", "Requested backend absent"],
+      "scientific_checks": ["Record executable path and environment hash outside this catalog."],
+      "source_ids": ["deepmd-cli"]
+    },
+    {
+      "recipe_id": "deepmd.schema.training-input@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "schema",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Exact dp 3.1.3 executable and explicit backend are proven"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "doc-train-input", "--out-type", "json_schema"], "stdin": null, "stdout_path": "deepmd-3.1.3-pytorch-train-input.schema.json", "outputs": ["provider-emitted JSON Schema for training input"]}
+      ],
+      "restart": "Regenerate after any provider/backend change.",
+      "units": {},
+      "failure_modes": ["Implicit TensorFlow default used", "Output not hashed or bound to environment"],
+      "scientific_checks": ["Validate the rendered config against this exact provider/backend evidence; do not infer defaults."],
+      "source_ids": ["deepmd-cli"]
+    },
+    {
+      "recipe_id": "deepmd.data.neighbor-stat@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "data-preparation",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Audited DeePMD dataset at data/train", "Ordered type map O,H is confirmed", "Cutoff 6.0 Å is a predeclared candidate, not an accepted default"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "neighbor-stat", "-s", "data/train", "-r", "6.0", "-t", "O", "H"], "stdin": null, "outputs": ["captured neighbor statistics"]}
+      ],
+      "restart": "Rerun whenever data, type order, periodicity, or cutoff changes.",
+      "units": {"rcut": "angstrom"},
+      "failure_modes": ["Type-map order mismatch", "Training systems omitted", "Cutoff copied without convergence evidence"],
+      "scientific_checks": ["Choose descriptor sel from all relevant training environments with headroom and document the rule."],
+      "source_ids": ["deepmd-cli", "deepmd-data"]
+    },
+    {
+      "recipe_id": "deepmd.train.pytorch@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "train",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["input.json is audited against exact 3.1.3 PyTorch schema evidence", "Dataset/type map/units/splits are audited", "Seeds and every scientific hyperparameter are explicit", "Compute and filesystem side effects are authorized"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "train", "input.json", "--output", "resolved-input.json"], "stdin": null, "outputs": ["resolved-input.json", "learning curve", "checkpoint family", "training log"]}
+      ],
+      "restart": "Use the dedicated restart recipe with the unchanged config and checkpoint lineage.",
+      "units": {"coordinates": "angstrom", "energy": "eV", "forces": "eV/angstrom", "virial": "eV"},
+      "failure_modes": ["Implicit backend/defaults", "Non-finite loss", "Missing validation data", "Checkpoint cadence exceeds useful recovery window", "Config or dataset changes during run"],
+      "scientific_checks": ["Track train and validation energy/force/virial metrics separately", "Do not select on test/OOD", "A completed run is not an accepted potential"],
+      "source_ids": ["deepmd-cli", "deepmd-data"]
+    },
+    {
+      "recipe_id": "deepmd.restart.pytorch@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "restart",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Checkpoint prefix model.ckpt hash and parent run are recorded", "input.json and environment are lineage-identical", "No scientific setting changed"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "train", "input.json", "--restart", "model.ckpt", "--output", "resolved-restart-input.json"], "stdin": null, "outputs": ["restart log", "new checkpoint family", "resolved-restart-input.json"]}
+      ],
+      "restart": "If dataset, type map, backend, model shape, or loss changes, create a new training plan rather than call it a restart.",
+      "units": {},
+      "failure_modes": ["Checkpoint/config mismatch", "Parent checkpoint incomplete", "Changed environment or backend", "Overwrite of parent artifacts"],
+      "scientific_checks": ["Verify step continuity and compare first post-restart metrics with the parent trace."],
+      "source_ids": ["deepmd-cli"]
+    },
+    {
+      "recipe_id": "deepmd.freeze.pytorch@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "freeze",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Accepted checkpoint prefix and backend are proven", "Output path is new"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "freeze", "--checkpoint-folder", "model.ckpt", "--output", "frozen_model.pth"], "stdin": null, "outputs": ["frozen_model.pth"]},
+        {"kind": "command", "argv": ["dp", "--pt", "show", "frozen_model.pth", "type-map", "descriptor", "fitting-net", "size"], "stdin": null, "outputs": ["captured model metadata"]}
+      ],
+      "restart": "Freeze again to a new artifact after any accepted checkpoint changes.",
+      "units": {},
+      "failure_modes": ["Wrong backend suffix", "Checkpoint prefix not resolved", "Model metadata differs from plan"],
+      "scientific_checks": ["Hash the output and test the frozen artifact independently before deployment."],
+      "source_ids": ["deepmd-cli"]
+    },
+    {
+      "recipe_id": "deepmd.compress.pytorch@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "compress",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["frozen_model.pth passed the uncompressed validation gate", "Compression tolerances are predeclared"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "compress", "--input", "frozen_model.pth", "--output", "compressed_model.pth"], "stdin": null, "outputs": ["compressed_model.pth"]}
+      ],
+      "restart": "Compression creates a new artifact and never replaces the source model.",
+      "units": {},
+      "failure_modes": ["Unsupported model features", "Accuracy drift after tabulation", "Output overwritten"],
+      "scientific_checks": ["Repeat held-out errors and force/energy consistency comparisons against the uncompressed model."],
+      "source_ids": ["deepmd-cli"]
+    },
+    {
+      "recipe_id": "deepmd.test.all-frames@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "validate",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Held-out system has never selected hyperparameters", "Model and data type maps/units match", "Detail prefix is new"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "test", "--model", "frozen_model.pth", "--system", "data/test", "--numb-test", "0", "--detail-file", "test-detail"], "stdin": null, "outputs": ["test summary", "energy/force/virial detail files when labels exist"]}
+      ],
+      "restart": "Rerun from scratch for each immutable model/data pair.",
+      "units": {"coordinates": "angstrom", "energy": "eV", "forces": "eV/angstrom", "virial": "eV"},
+      "failure_modes": ["Training data tested by mistake", "numb-test subsamples unexpectedly", "Missing target labels", "Unit/type mismatch"],
+      "scientific_checks": ["Report MAE/RMSE and tail errors by system and chemistry; a single aggregate error is insufficient."],
+      "source_ids": ["deepmd-cli", "deepmd-data"]
+    },
+    {
+      "recipe_id": "deepmd.model-deviation@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "uncertainty",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Four independently seeded model artifacts are frozen and type-compatible", "Target data are immutable"],
+      "steps": [
+        {"kind": "command", "argv": ["dp", "--pt", "model-devi", "--models", "model.000.pth", "model.001.pth", "model.002.pth", "model.003.pth", "--system", "data/candidates", "--output", "model_devi.out", "--atomic"], "stdin": null, "outputs": ["model_devi.out"]}
+      ],
+      "restart": "Rerun for the exact ensemble/data hashes; never append across ensembles.",
+      "units": {"force_deviation": "eV/angstrom", "virial_deviation": "eV"},
+      "failure_modes": ["Models share training initialization", "Incompatible type maps", "Deviation thresholds tuned on the same candidates"],
+      "scientific_checks": ["Calibrate deviation thresholds against actual errors; ensemble disagreement is not a guaranteed uncertainty bound."],
+      "source_ids": ["deepmd-cli"]
+    },
+    {
+      "recipe_id": "deepmd.infer.python@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "inference",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Loading the model artifact is authorized", "Coordinates/cell/type indices are validated against model metadata"],
+      "steps": [
+        {"kind": "python-api", "code": ["import numpy as np", "from deepmd.infer import DeepPot", "model = DeepPot('frozen_model.pth')", "coord = np.asarray(coord_angstrom, dtype=float)", "cell = np.asarray(cell_angstrom, dtype=float)", "atype = np.asarray(type_indices, dtype=int)", "energy, force, virial = model.eval(coord, cell, atype)"], "inputs": ["coord_angstrom", "cell_angstrom", "type_indices", "frozen_model.pth"], "outputs": ["energy", "force", "virial"]}
+      ],
+      "restart": "Inference is rerun for immutable model and input hashes.",
+      "units": {"coordinates": "angstrom", "cell": "angstrom", "energy": "eV", "forces": "eV/angstrom", "virial": "eV"},
+      "failure_modes": ["Unsafe/untrusted model artifact", "Wrong atom-type indices", "Cell supplied for nonperiodic data or omitted for periodic data", "Shape mismatch"],
+      "scientific_checks": ["Compare a small public labeled fixture with dp test and verify output shapes before production use."],
+      "source_ids": ["deepmd-infer", "deepmd-data"]
+    },
+    {
+      "recipe_id": "deepmd.deploy.lammps@3.1.3",
+      "provider_id": "deepmd-kit",
+      "provider_version": "3.1.3",
+      "operation": "md-interface",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["LAMMPS build/plugin compatibility is proven", "Model test and deployment envelope passed", "LAMMPS atom types map exactly to O,H", "MD execution is separately authorized"],
+      "steps": [
+        {"kind": "engine-snippet", "language": "lammps", "code": ["units metal", "atom_style atomic", "pair_style deepmd model.000.pth model.001.pth model.002.pth model.003.pth out_file md.out out_freq 10 atomic relative 1.0", "pair_coeff * * O H"], "outputs": ["LAMMPS thermo/trajectory", "md.out model-deviation trace"]}
+      ],
+      "restart": "LAMMPS restart must preserve model hashes, type mapping, units, timestep, ensemble state, and random-state lineage.",
+      "units": {"required_example_lammps_units": "metal", "deepmd_internal_length": "angstrom", "deepmd_internal_energy": "eV", "deepmd_internal_force": "eV/angstrom"},
+      "failure_modes": ["LAMMPS units lj is unsupported", "pair_coeff species order mismatch", "Plugin/library ABI mismatch", "Extrapolation monitor ignored"],
+      "scientific_checks": ["Compare single-point energy/forces against Python inference", "Run short NVE drift and ensemble checks before longer MD", "Stop on predeclared deviation threshold"],
+      "source_ids": ["deepmd-lammps"]
+    },
+    {
+      "recipe_id": "dpdata.install.pip@1.0.2",
+      "provider_id": "dpdata",
+      "provider_version": "1.0.2",
+      "operation": "install",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Isolated Python >=3.10 environment", "Network/package installation authorized"],
+      "steps": [
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "dpdata==1.0.2"], "stdin": null, "outputs": ["installed distribution metadata"]},
+        {"kind": "command", "argv": ["dpdata", "--version"], "stdin": null, "outputs": ["version evidence"]}
+      ],
+      "restart": "Recreate from the same lock.",
+      "units": {},
+      "failure_modes": ["Python <3.10", "Optional parser plugin absent", "Version differs from pin"],
+      "scientific_checks": ["Installation does not prove that any format conversion preserves labels."],
+      "source_ids": ["dpdata-install", "dpdata-release"]
+    },
+    {
+      "recipe_id": "dpdata.convert.vasp-outcar@1.0.2",
+      "provider_id": "dpdata",
+      "provider_version": "1.0.2",
+      "operation": "data-preparation",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["OUTCAR completion and DFT acceptance are already established", "Output directory is new", "VASP energy/force/stress conventions are documented"],
+      "steps": [
+        {"kind": "python-api", "code": ["import dpdata", "system = dpdata.LabeledSystem('OUTCAR', fmt='vasp/outcar')", "assert len(system) > 0", "system.to('deepmd/npy', 'deepmd_npy')"], "inputs": ["OUTCAR"], "outputs": ["deepmd_npy/type.raw", "deepmd_npy/type_map.raw when available", "deepmd_npy/set.* arrays"]}
+      ],
+      "restart": "Delete or quarantine a partial output only under explicit authorization; otherwise write a new directory.",
+      "units": {"deepmd_coordinates": "angstrom", "deepmd_energy": "eV", "deepmd_forces": "eV/angstrom", "deepmd_virial": "eV"},
+      "failure_modes": ["Truncated OUTCAR", "Frame order or atom order changes", "Missing labels", "Stress/virial sign or ordering assumed", "Output mixed with an old conversion"],
+      "scientific_checks": ["Count frames/atoms", "Compare first and last frame species, cell, energy and force samples against source parsing", "Hash row-to-source mapping"],
+      "source_ids": ["dpdata-systems", "dpdata-release"]
+    },
+    {
+      "recipe_id": "dpdata.convert.mixed@1.0.2",
+      "provider_id": "dpdata",
+      "provider_version": "1.0.2",
+      "operation": "data-preparation",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Each LabeledSystem is independently audited", "Global species/type policy and label coverage are explicit", "Output directory is new"],
+      "steps": [
+        {"kind": "python-api", "code": ["import dpdata", "systems = [dpdata.LabeledSystem(path, fmt=fmt) for path, fmt in sources]", "collection = dpdata.MultiSystems(*systems)", "collection.to_deepmd_npy_mixed('mixed_dir')"], "inputs": ["ordered sources list of path/format pairs"], "outputs": ["mixed_dir DeepMD mixed-type dataset"]}
+      ],
+      "restart": "Rebuild into a new directory after any input/order/type-map change.",
+      "units": {"coordinates": "angstrom", "energy": "eV", "forces": "eV/angstrom", "virial": "eV"},
+      "failure_modes": ["Incompatible atom counts or type policy", "Labels missing in a subset", "Source order not recorded", "Formula-based merge hides distinct protocols"],
+      "scientific_checks": ["Preserve system/group provenance and split groups; mixed format is storage, not evidence of comparability."],
+      "source_ids": ["dpdata-mixed", "dpdata-release"]
+    },
+    {
+      "recipe_id": "dpgen.install.pip@0.13.3",
+      "provider_id": "dpgen",
+      "provider_version": "0.13.3",
+      "operation": "install",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Isolated Python >=3.10 environment compatible with dpdata 1.0.2", "Network/package installation authorized"],
+      "steps": [
+        {"kind": "command", "argv": ["python", "-m", "pip", "install", "dpgen==0.13.3", "dpdata==1.0.2"], "stdin": null, "outputs": ["installed distribution metadata"]},
+        {"kind": "command", "argv": ["dpgen", "-h"], "stdin": null, "outputs": ["captured CLI help"]}
+      ],
+      "restart": "Recreate from a lock; record DPDispatcher and provider executable versions separately.",
+      "units": {},
+      "failure_modes": ["Dependency conflict", "Scheduler/remote adapters unavailable", "Different dpdata version resolved"],
+      "scientific_checks": ["Installation proves no remote machine, DFT engine, or model is ready."],
+      "source_ids": ["dpgen-release", "dpgen-cli"]
+    },
+    {
+      "recipe_id": "dpgen.run.concurrent-learning@0.13.3",
+      "provider_id": "dpgen",
+      "provider_version": "0.13.3",
+      "operation": "active-learning",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["param.json and machine.json pass exact DP-GEN review", "Training, exploration, and first-principles commands are version-pinned", "Remote credentials are never stored in the catalog", "Scheduler/remote/DFT writes and costs are authorized", "Candidate/failed/accurate thresholds are predeclared"],
+      "steps": [
+        {"kind": "command", "argv": ["dpgen", "run", "param.json", "machine.json"], "stdin": null, "outputs": ["iter.000000 and later iteration directories", "training/exploration/model-deviation/FP records"]},
+        {"kind": "command", "argv": ["dpgen", "run/report", "--stat-sys", "--stat-iter", "--stat-time", "--param", "param.json", "."], "stdin": null, "outputs": ["captured campaign report"]}
+      ],
+      "restart": "Rerun the identical dpgen run command only after auditing existing iteration state, remote jobs, partial labels, and immutable param/machine hashes.",
+      "units": {"must_match": "DeePMD, exploration engine, and first-principles label conventions declared in param.json"},
+      "failure_modes": ["Duplicate remote jobs", "Partial first-principles labels", "Model-deviation thresholds uncalibrated", "Machine command/version drift", "Candidate pool feedback leaks into independent test"],
+      "scientific_checks": ["Audit every accepted FP label with its DFT Skill", "Keep independent test/OOD outside the selection loop", "Track ensemble seeds and per-iteration model/data lineage"],
+      "source_ids": ["dpgen-cli", "dpgen-run", "dpgen-machine"]
+    },
+    {
+      "recipe_id": "dpgen.init.bulk@0.13.3",
+      "provider_id": "dpgen",
+      "provider_version": "0.13.3",
+      "operation": "data-preparation",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["init-bulk parameters, structures, DFT settings, and output directory are reviewed", "Machine file commands are pinned when supplied"],
+      "steps": [
+        {"kind": "command", "argv": ["dpgen", "init_bulk", "init-bulk.json", "machine.json"], "stdin": null, "outputs": ["ordered initialization stage directories"]}
+      ],
+      "restart": "Resume only after identifying the last completed stage and checking remote job state; absence of machine.json means manual stage execution, not completion.",
+      "units": {},
+      "failure_modes": ["Stages executed out of order", "Manual stage mistaken for completed", "DFT input not accepted", "Existing output overwritten"],
+      "scientific_checks": ["Inspect generated volume/perturbation coverage and DFT convergence before training use."],
+      "source_ids": ["dpgen-cli"]
+    },
+    {
+      "recipe_id": "dpgen.simplify@0.13.3",
+      "provider_id": "dpgen",
+      "provider_version": "0.13.3",
+      "operation": "dataset-selection",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["Simplification criteria and retained scientific coverage are explicit", "param.json and machine.json are immutable"],
+      "steps": [
+        {"kind": "command", "argv": ["dpgen", "simplify", "param.json", "machine.json"], "stdin": null, "outputs": ["simplification work directories and selected data"]}
+      ],
+      "restart": "Audit partial state and rerun only with identical hashes.",
+      "units": {},
+      "failure_modes": ["Rare/high-error configurations removed", "Selection threshold tuned on test", "Remote job duplication"],
+      "scientific_checks": ["Compare composition, thermodynamic, structural, and error-tail coverage before and after simplification."],
+      "source_ids": ["dpgen-cli"]
+    },
+    {
+      "recipe_id": "dpgen.autotest@0.13.3",
+      "provider_id": "dpgen",
+      "provider_version": "0.13.3",
+      "operation": "property-validation",
+      "state": "official-recipe",
+      "execution_authorized": false,
+      "preconditions": ["task.json defines a supported property and exact model/reference settings", "machine.json is reviewed before run", "Each stage has separate authorization"],
+      "steps": [
+        {"kind": "command", "argv": ["dpgen", "autotest", "make", "task.json"], "stdin": null, "outputs": ["generated property tasks"]},
+        {"kind": "command", "argv": ["dpgen", "autotest", "run", "task.json", "machine.json"], "stdin": null, "outputs": ["property execution artifacts"]},
+        {"kind": "command", "argv": ["dpgen", "autotest", "post", "task.json"], "stdin": null, "outputs": ["postprocessed property results"]}
+      ],
+      "restart": "The documented run command can be repeated for restart, but remote/partial state must be audited first.",
+      "units": {"property_units": "must be read from the selected autotest property definition and reference method"},
+      "failure_modes": ["make/run/post task hashes differ", "Reference and model structures differ", "Partial remote run", "Property-specific convergence omitted"],
+      "scientific_checks": ["Compare against an accepted reference calculation with property-specific convergence and uncertainty."],
+      "source_ids": ["dpgen-cli"]
+    }
+  ]
+}

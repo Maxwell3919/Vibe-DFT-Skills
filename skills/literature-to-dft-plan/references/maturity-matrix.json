@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "candidate": "literature-to-dft-plan",
+  "overall_maturity": "synthetic-validated",
+  "axes": {
+    "invocation": "synthetic-validated",
+    "strict_json_and_privacy": "synthetic-validated",
+    "five_semantic_class_separation": "synthetic-validated",
+    "fd_identity_and_output_alias_gates": "synthetic-validated",
+    "dirfd_race_and_durable_publication_gates": "synthetic-validated",
+    "mechanical_decision_table": "synthetic-validated",
+    "source_body_non_echo": "synthetic-validated",
+    "source_record_shape": "format-fixture-validated",
+    "live_source_retrieval": "design-only",
+    "source_authority_and_license_resolution": "design-only",
+    "active_route_snapshot_integration": "design-only",
+    "real_literature_to_calculation_cases": "design-only",
+    "scientific_acceptance": "human-only"
+  },
+  "claim_ceiling": "no_positive_claim",
+  "activation_blockers": [
+    "Activate literature-evidence-plan@1.0 with complete bundle semantics.",
+    "Reconcile the planned side-effect contract: the offline core performs local-write while network-read belongs only to a future retrieval adapter.",
+    "Register the exact official-source, evidence, calculation-plan, and decision interfaces consumed by the promoted Skill.",
+    "Implement reviewed source retrieval adapters with terms, license, version, exact-byte, and failure evidence.",
+    "Bind calculation steps to an immutable active route/interface registry snapshot.",
+    "Add redistributable real-source cases spanning official manuals, articles, reviews, and datasets.",
+    "Validate downstream calculation plans, results, contradiction handling, and supersession lineage.",
+    "Pass two blind weak-model rounds including metadata-only, version drift, source conflict, five-class confusion, non-active route, and authorization cases.",
+    "Complete reviewed atomic promotion and CI integration."
+  ]
+}

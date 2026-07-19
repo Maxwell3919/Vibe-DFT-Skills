@@ -1,0 +1,58 @@
+{
+  "artifact_class": "synthetic",
+  "authorization": {"execute_external_software": false},
+  "boundary": [true, true, true],
+  "case_id": "lasp-documentary-fixture-001",
+  "claim_target": "Artifact inventory only; no LASP syntax, completion, or scientific claim",
+  "documents": {
+    "discovery_url": "http://www.lasphub.com/#/lasp/download",
+    "input_reference_available": false,
+    "license_terms_available": false,
+    "manual_advertised_by_official_page": true,
+    "output_reference_available": false,
+    "public_environment_baseline_available": true,
+    "public_executable_entry_available": true,
+    "restart_reference_available": false,
+    "version_matched_manual_available": false
+  },
+  "ensemble": "nve",
+  "equilibration": {
+    "acceptance_checks": ["project-intended prefix recorded"],
+    "steps": 0
+  },
+  "lasp_version": "3.7.3",
+  "model": {
+    "identity": "project-authored-generic-two-site-structure-v1",
+    "license_status": "verified",
+    "source_url": "https://example.invalid/vibe-dft-skills/lasp-documentary-fixture/model"
+  },
+  "objective": "Record a fail-closed LASP evidence gap and generic artifact integrity workflow",
+  "observables": [
+    {
+      "estimator": "mean",
+      "max_standard_error": 1.0,
+      "minimum_effective_samples": 2,
+      "name": "project_energy_intent",
+      "uncertainty_method": "block-mean",
+      "unit": "eV"
+    }
+  ],
+  "production": {
+    "acceptance_checks": ["future effective-sample evidence", "future uncertainty evidence"],
+    "steps": 1
+  },
+  "protocol_id": "lasp-gap-aware-plan-001",
+  "restart": {"mode": "new"},
+  "seed": {"mode": "explicit-project-intent", "value": 20260719},
+  "task": "nve",
+  "timestep": {"declared_by_project": true, "unit": "fs", "value": 1.0},
+  "units": {
+    "declared_by_project": true,
+    "map": {
+      "energy": "eV",
+      "length": "angstrom",
+      "temperature": "K",
+      "time": "fs"
+    }
+  }
+}

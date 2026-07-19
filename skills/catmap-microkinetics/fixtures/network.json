@@ -1,0 +1,90 @@
+{
+  "contract_name": "reaction-network-candidate",
+  "elements": [
+    "X"
+  ],
+  "evidence_class": "synthetic-fixture",
+  "network_id": "synthetic-network-001",
+  "reactions": [
+    {
+      "id": "r1",
+      "reversible": true,
+      "stoichiometry": {
+        "I_g": -1,
+        "I_star": 1,
+        "star": -1
+      }
+    },
+    {
+      "id": "r2",
+      "reversible": true,
+      "stoichiometry": {
+        "I_star": -1,
+        "P_star": 1
+      }
+    },
+    {
+      "id": "r3",
+      "reversible": true,
+      "stoichiometry": {
+        "P_g": 1,
+        "P_star": -1,
+        "star": 1
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "sites": [
+    {
+      "capacity": 1.0,
+      "empty_species": "star",
+      "id": "s"
+    }
+  ],
+  "species": [
+    {
+      "composition": {
+        "X": 1
+      },
+      "id": "I_g",
+      "phase": "gas",
+      "site_occupancy": {}
+    },
+    {
+      "composition": {
+        "X": 1
+      },
+      "id": "P_g",
+      "phase": "gas",
+      "site_occupancy": {}
+    },
+    {
+      "composition": {},
+      "id": "star",
+      "phase": "site",
+      "site_occupancy": {
+        "s": 1.0
+      }
+    },
+    {
+      "composition": {
+        "X": 1
+      },
+      "id": "I_star",
+      "phase": "adsorbate",
+      "site_occupancy": {
+        "s": 1.0
+      }
+    },
+    {
+      "composition": {
+        "X": 1
+      },
+      "id": "P_star",
+      "phase": "adsorbate",
+      "site_occupancy": {
+        "s": 1.0
+      }
+    }
+  ]
+}

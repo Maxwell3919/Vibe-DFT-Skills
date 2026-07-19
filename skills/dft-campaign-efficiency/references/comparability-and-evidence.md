@@ -4,7 +4,7 @@ Records are directly comparable only when code, code version, task type, anonymi
 
 Configuration ids may differ only in the efficiency choice being studied. If multiple numerical or model choices differ, classify the comparison as confounded and propose a controlled pilot.
 
-Use only scientifically accepted records for positive speed/accuracy recommendations. Failed or rejected records remain valuable for bounded failure avoidance, observability, and preflight design, but cannot prove a faster accepted route.
+Use only production-bundle-validated, externally human-authenticated accepted records for positive speed/accuracy recommendations. A self-filled hash, boolean, decision actor field, or SQLite column is not that evidence. The current v2 private store has no trust resolver and therefore emits only insufficient-evidence recommendations. Failed, rejected, and completed-unreviewed records remain valuable for bounded failure avoidance, observability, cost inventory, and preflight design, but cannot prove a faster accepted route.
 
 Compare the same state gate. Do not compare an executable-finished record with an artifact-complete record, or a numerically valid intermediate with a scientifically accepted observable.
 

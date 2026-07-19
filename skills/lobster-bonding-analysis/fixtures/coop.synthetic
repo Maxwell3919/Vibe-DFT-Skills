@@ -1,0 +1,12 @@
+# VIBE_DFT_SYNTHETIC_LOBSTER_CURVE_V1
+# kind=COOP
+# energy_unit=eV
+# energy_reference=fermi
+# fermi_energy_eV=0.0
+# spin_mode=total
+# sign_convention=raw_coop
+# columns=energy_eV,value,integrated
+-2.0 0.4 0.0
+-1.0 0.2 0.3
+0.0 -0.1 0.35
+1.0 -0.2 0.2

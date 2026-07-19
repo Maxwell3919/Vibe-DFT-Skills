@@ -352,6 +352,68 @@ class SiestaAuditTests(unittest.TestCase, CaseBuilder):
             self.assertIn("TASK_INPUT_NOT_AUTOMATED", codes)
             self.assertIn("PARENT_MANIFEST_MISSING", codes)
 
+    def test_downstream_parent_requires_external_decision_bundle_verification(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            plan = self.make_plan(root, task="bands")
+            input_path, _ = self.make_case(
+                root,
+                fdf_text(
+                    extra=(
+                        "%block BandLines\n"
+                        "1 0.0 0.0 0.0 G\n"
+                        "%endblock BandLines\n"
+                    )
+                ),
+                task="bands",
+                plan_path=plan,
+            )
+            parent = root / "parent.json"
+            parent.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.0",
+                        "record_id": "run-parent-density",
+                        "code": "siesta",
+                        "code_version": "5.4.2",
+                        "task_type": "scf",
+                        "case_id": "case-siesta",
+                        "scientific_protocol_id": "protocol-pbe-dzp",
+                        "status": "completed",
+                        "scientific_acceptance": "requires_human_review",
+                        "configuration": {},
+                        "metrics": {},
+                        "evidence": [
+                            {
+                                "role": "density_matrix",
+                                "label": "saved-density",
+                                "status": "present",
+                                "sha256": "a" * 64,
+                            }
+                        ],
+                        "limitations": [
+                            "Scientific acceptance is a downstream decision."
+                        ],
+                        "provenance": {
+                            "collector": "create_run_manifest.py",
+                            "collector_version": "1.2.0",
+                            "generated_utc": "2026-07-18T00:00:00+00:00",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+            report, status = self.run_audit(
+                input_path,
+                plan,
+                task="bands",
+                parent=parent,
+            )
+            self.assertEqual(status, 2)
+            codes = {item["code"] for item in report["findings"]}
+            self.assertIn("PARENT_SCIENTIFIC_DECISION_BUNDLE_REQUIRED", codes)
+            self.assertNotIn("PARENT_NOT_SCIENTIFICALLY_ACCEPTED", codes)
+
     def test_restart_requires_hashed_parent_checkpoint(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             input_path, plan = self.make_case(Path(temporary), fdf_text(extra="UseSaveData true\n"))

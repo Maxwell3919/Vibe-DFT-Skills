@@ -1,0 +1,614 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:atomistic-trajectory-manifest:1.0",
+  "title": "Traceable atomistic trajectory or ordered structure sequence",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "trajectory_id",
+  "$comment": "Draft validation establishes structural conformance only. Every x-vibe-semantic-obligations entry must be evaluated externally; a failed or unresolved obligation blocks the listed analysis readiness and positive claims.",
+  "x-vibe-semantic-obligations": [
+    {
+      "finding_id": "trajectory-source-lineage-hash-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Initial structure, source run, topology, segment run, checkpoint, and evidence references resolve to content matching their declared hashes and ancestry.",
+      "evidence_required": ["resolved-source-records", "resolved-record-sha256", "segment-ancestry"]
+    },
+    {
+      "finding_id": "trajectory-file-hash-mismatch",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Trajectory, frame-index, irregular-time, and used checkpoint files exist and their observed byte counts and SHA-256 values match the manifest.",
+      "evidence_required": ["observed-file-bytes", "observed-file-sha256", "file-role-inventory"]
+    },
+    {
+      "finding_id": "trajectory-segment-id-not-unique",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Every segment_id is unique and every non-null parent_segment_id identifies exactly one earlier segment without cycles.",
+      "evidence_required": ["segment-id-set", "segment-parent-graph", "cycle-check"]
+    },
+    {
+      "finding_id": "trajectory-frame-index-not-unique",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Parsed frame indices are unique and contiguous from zero through frame_count minus one, with exactly one locator per frame.",
+      "evidence_required": ["parsed-frame-index", "frame-locator-count", "contiguous-index-check"]
+    },
+    {
+      "finding_id": "trajectory-frame-count-mismatch",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Parsed trajectory frame count, frame-index count, declared frame_count, and the union of segment frame ranges agree exactly.",
+      "evidence_required": ["parsed-frame-count", "frame-index-count", "segment-frame-union"]
+    },
+    {
+      "finding_id": "trajectory-atom-count-site-order-mismatch",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "site_order IDs are unique, exist in the resolved topology, have length atom_count, and every parsed frame has that atom count and order.",
+      "evidence_required": ["topology-site-id-order", "declared-site-order", "per-frame-atom-count", "per-frame-site-order-check"]
+    },
+    {
+      "finding_id": "trajectory-segment-range-invalid",
+      "scope": "intra-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Each segment has ordered frame and step bounds inside global limits, and parent-child segment ranges support continuity_from_parent.",
+      "evidence_required": ["segment-frame-ranges", "segment-step-ranges", "segment-parent-order"]
+    },
+    {
+      "finding_id": "trajectory-continuity-mismatch",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Parsed frame, step, and time boundaries reproduce each segment continuity label and the global status, gap_count, and overlap_count exactly.",
+      "evidence_required": ["segment-boundary-comparison", "parsed-gap-events", "parsed-overlap-events", "global-continuity-reduction"]
+    },
+    {
+      "finding_id": "trajectory-time-axis-nonmonotonic",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Time values are finite, strictly increasing, have frame_count entries, and for a regular axis equal start plus frame index times step in the declared unit within tolerance.",
+      "evidence_required": ["parsed-time-values", "time-value-count", "monotonicity-check", "regular-step-residuals"]
+    },
+    {
+      "finding_id": "trajectory-pbc-cell-mismatch",
+      "scope": "artifact-content",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Parsed per-frame cell data agree with pbc and cell_mode, fixed cells remain invariant within tolerance, and variable cells remain finite and nonsingular.",
+      "evidence_required": ["parsed-frame-cells", "pbc-vector", "cell-mode", "cell-determinants", "cell-residuals"]
+    },
+    {
+      "finding_id": "record-reference-dag-invalid",
+      "scope": "cross-record",
+      "enforcement": "external-semantic-validator-required",
+      "blocks": ["analysis-readiness", "positive-claim"],
+      "assertion": "Every recordRef resolves to an already existing bundle-local UTF-8 JSON target by exact raw-byte SHA-256; self-reference, forward or back edges outside the declared topological order, cycles, and upstream references to post-record validation, claim, or decision records are forbidden.",
+      "evidence_required": ["bundle-record-index", "raw-byte-sha256-check", "record-reference-dag-topological-order"]
+    }
+  ],
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "trajectory_id",
+    "sequence_kind",
+    "initial_structure_ref",
+    "source_run_ref",
+    "topology",
+    "files",
+    "format",
+    "frame_count",
+    "atom_count",
+    "site_order",
+    "pbc",
+    "cell_mode",
+    "coordinate_unit",
+    "time_axis",
+    "available_fields",
+    "segments",
+    "continuity",
+    "frame_index",
+    "analysis_readiness",
+    "validation",
+    "maturity",
+    "provenance",
+    "limitations",
+    "extension_refs"
+  ],
+  "properties": {
+    "contract_name": {"const": "atomistic-trajectory-manifest"},
+    "schema_version": {"const": "1.0"},
+    "trajectory_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "sequence_kind": {
+      "enum": [
+        "time-trajectory",
+        "optimization-path",
+        "neb-path",
+        "displacement-set",
+        "structure-collection"
+      ]
+    },
+    "initial_structure_ref": {"$ref": "#/$defs/snapshotRef"},
+    "source_run_ref": {
+      "oneOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {"type": "null"}
+      ]
+    },
+    "topology": {"$ref": "#/$defs/topology"},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/hashedFileRef"}
+    },
+    "format": {"$ref": "#/$defs/format"},
+    "frame_count": {"type": "integer", "minimum": 1},
+    "atom_count": {"type": "integer", "minimum": 1},
+    "site_order": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+      }
+    },
+    "pbc": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"type": "boolean"}
+    },
+    "cell_mode": {"enum": ["fixed", "variable", "absent"]},
+    "coordinate_unit": {"enum": ["angstrom", "nanometer", "bohr"]},
+    "time_axis": {"$ref": "#/$defs/timeAxis"},
+    "available_fields": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/availableField"}
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/segment"}
+    },
+    "continuity": {"$ref": "#/$defs/continuity"},
+    "frame_index": {"$ref": "#/$defs/hashedFileRef"},
+    "analysis_readiness": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/readiness"
+    },
+    "validation": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/gateSummary"
+    },
+    "maturity": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/maturity"
+    },
+    "provenance": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "extension_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"sequence_kind": {"const": "time-trajectory"}},
+        "required": ["sequence_kind"]
+      },
+      "then": {
+        "properties": {
+          "time_axis": {
+            "properties": {
+              "status": {"enum": ["present-regular", "present-irregular"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "sequence_kind": {
+            "enum": ["optimization-path", "neb-path", "displacement-set", "structure-collection"]
+          }
+        },
+        "required": ["sequence_kind"]
+      },
+      "then": {
+        "properties": {
+          "time_axis": {
+            "properties": {
+              "status": {"enum": ["not-applicable", "present-regular", "present-irregular"]}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"cell_mode": {"const": "absent"}},
+        "required": ["cell_mode"]
+      },
+      "then": {"properties": {"pbc": {"const": [false, false, false]}}}
+    },
+    {
+      "if": {
+        "properties": {
+          "topology": {
+            "properties": {"status": {"const": "unresolved"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["topology"]
+      },
+      "then": {
+        "properties": {
+          "analysis_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "continuity": {
+            "properties": {"status": {"const": "unresolved"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["continuity"]
+      },
+      "then": {
+        "properties": {
+          "analysis_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "files": {
+            "contains": {
+              "properties": {"availability": {"enum": ["external", "redacted", "missing"]}},
+              "required": ["availability"]
+            }
+          }
+        },
+        "required": ["files"]
+      },
+      "then": {
+        "properties": {
+          "analysis_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "frame_index": {
+            "properties": {
+              "availability": {"enum": ["external", "redacted", "missing"]}
+            },
+            "required": ["availability"]
+          }
+        },
+        "required": ["frame_index"]
+      },
+      "then": {
+        "properties": {
+          "analysis_readiness": {
+            "properties": {"status": {"const": "blocked"}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "analysis_readiness": {
+            "properties": {"status": {"const": "ready"}},
+            "required": ["status"]
+          }
+        },
+        "required": ["analysis_readiness"]
+      },
+      "then": {
+        "properties": {
+          "continuity": {"properties": {"status": {"const": "continuous"}}},
+          "topology": {
+            "properties": {"status": {"enum": ["present", "not-applicable"]}}
+          },
+          "files": {
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/hashedFileRef"},
+                {"properties": {"availability": {"const": "present"}}}
+              ]
+            }
+          },
+          "frame_index": {
+            "allOf": [
+              {"$ref": "#/$defs/hashedFileRef"},
+              {"properties": {"availability": {"const": "present"}}}
+            ]
+          },
+          "validation": {"properties": {"status": {"const": "pass"}}}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "snapshotRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        {"properties": {"contract_name": {"const": "structure-snapshot"}}}
+      ]
+    },
+    "hashedFileRef": {
+      "allOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/fileRef"
+        },
+        {
+          "properties": {
+            "availability": {"enum": ["present", "external", "redacted", "missing"]}
+          }
+        }
+      ]
+    },
+    "topology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "ref"],
+      "properties": {
+        "status": {"enum": ["present", "not-applicable", "unresolved"]},
+        "ref": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+            },
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "present"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "ref": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"status": {"enum": ["not-applicable", "unresolved"]}},
+            "required": ["status"]
+          },
+          "then": {"properties": {"ref": {"type": "null"}}}
+        }
+      ]
+    },
+    "format": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "compression"],
+      "properties": {
+        "name": {
+          "enum": [
+            "xtc",
+            "trr",
+            "dcd",
+            "xyz",
+            "extxyz",
+            "lammpstrj",
+            "h5md",
+            "netcdf",
+            "vasp-xdatcar",
+            "qe-trajectory",
+            "other-registered"
+          ]
+        },
+        "version": {"type": ["string", "null"], "minLength": 1},
+        "compression": {"enum": ["none", "lossless", "lossy", "unknown"]}
+      }
+    },
+    "timeAxis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "start", "step", "unit", "values_file"],
+      "properties": {
+        "status": {"enum": ["present-regular", "present-irregular", "not-applicable", "unresolved"]},
+        "start": {"type": ["number", "null"]},
+        "step": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "unit": {"enum": ["fs", "ps", "ns", null]},
+        "values_file": {
+          "oneOf": [{"$ref": "#/$defs/hashedFileRef"}, {"type": "null"}]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "present-regular"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "start": {"type": "number"},
+              "step": {"type": "number", "exclusiveMinimum": 0},
+              "unit": {"enum": ["fs", "ps", "ns"]},
+              "values_file": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "present-irregular"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "start": {"type": "number"},
+              "step": {"type": "null"},
+              "unit": {"enum": ["fs", "ps", "ns"]},
+              "values_file": {
+                "allOf": [
+                  {"$ref": "#/$defs/hashedFileRef"},
+                  {"properties": {"availability": {"const": "present"}}}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"status": {"enum": ["not-applicable", "unresolved"]}},
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "start": {"type": "null"},
+              "step": {"type": "null"},
+              "unit": {"type": "null"},
+              "values_file": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "availableField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "unit", "file_role", "completeness"],
+      "properties": {
+        "name": {
+          "enum": ["positions", "velocities", "forces", "stress", "energy", "temperature", "pressure", "other-registered"]
+        },
+        "unit": {"type": ["string", "null"], "minLength": 1},
+        "file_role": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/contractName"
+        },
+        "completeness": {"enum": ["all-frames", "partial", "unknown"]}
+      }
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "segment_id",
+        "parent_segment_id",
+        "source_run_ref",
+        "first_frame",
+        "last_frame",
+        "start_step",
+        "end_step",
+        "checkpoint_ref",
+        "continuity_from_parent"
+      ],
+      "properties": {
+        "segment_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "parent_segment_id": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        },
+        "source_run_ref": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+        },
+        "first_frame": {"type": "integer", "minimum": 0},
+        "last_frame": {"type": "integer", "minimum": 0},
+        "start_step": {"type": ["integer", "null"], "minimum": 0},
+        "end_step": {"type": ["integer", "null"], "minimum": 0},
+        "checkpoint_ref": {
+          "oneOf": [{"$ref": "#/$defs/hashedFileRef"}, {"type": "null"}]
+        },
+        "continuity_from_parent": {
+          "enum": ["not-applicable", "continuous", "gapped", "overlapping", "unresolved"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"parent_segment_id": {"type": "null"}}, "required": ["parent_segment_id"]},
+          "then": {"properties": {"continuity_from_parent": {"const": "not-applicable"}}}
+        },
+        {
+          "if": {
+            "properties": {
+              "parent_segment_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              }
+            },
+            "required": ["parent_segment_id"]
+          },
+          "then": {
+            "properties": {
+              "continuity_from_parent": {
+                "enum": ["continuous", "gapped", "overlapping", "unresolved"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "continuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "gap_count", "overlap_count", "evidence_refs"],
+      "properties": {
+        "status": {"enum": ["continuous", "gapped", "overlapping", "unresolved"]},
+        "gap_count": {"type": "integer", "minimum": 0},
+        "overlap_count": {"type": "integer", "minimum": 0},
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/recordRef"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "continuous"}}, "required": ["status"]},
+          "then": {
+            "properties": {"gap_count": {"const": 0}, "overlap_count": {"const": 0}}
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "gapped"}}, "required": ["status"]},
+          "then": {"properties": {"gap_count": {"minimum": 1}}}
+        },
+        {
+          "if": {"properties": {"status": {"const": "overlapping"}}, "required": ["status"]},
+          "then": {"properties": {"overlap_count": {"minimum": 1}}}
+        }
+      ]
+    }
+  }
+}
