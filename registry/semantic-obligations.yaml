@@ -28,6 +28,13 @@ validators:
     scope: candidate-source-commit-plus-review-artifact-commit
     unavailable_policy: block
     maximum_claim_when_unavailable: no_positive_claim
+  qe-2d-epc-validator:
+    implementation: implemented
+    entrypoint: tools/validate_qe_2d_epc.py
+    dispatcher: tools/validate_qe_2d_epc.py
+    scope: qe-two-dimensional-phonon-epc-tc-evidence
+    unavailable_policy: block
+    maximum_claim_when_unavailable: no_positive_claim
 
 policies:
   unknown_validator: reject
