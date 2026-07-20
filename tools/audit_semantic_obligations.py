@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit Schema semantic-obligation declarations against registered validator ownership."""
+"""Audit Schema semantic-obligation declarations and fail-closed ownership."""
 
 from __future__ import annotations
 
@@ -17,7 +17,9 @@ import validate_contract
 
 
 VALIDATOR_ID = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
-OBLIGATION_ID = re.compile(r"^(?:[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*|[a-z][a-z0-9]*(?:-[a-z0-9]+)*)$")
+OBLIGATION_ID = re.compile(
+    r"^(?:[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*|[a-z][a-z0-9]*(?:-[a-z0-9]+)*)$"
+)
 IMPLEMENTATION_STATES = frozenset({"implemented", "blocked"})
 CLAIM_CEILINGS = frozenset(
     {
@@ -63,18 +65,17 @@ def _safe_relative_path(value: object) -> str | None:
     return path.as_posix()
 
 
-def parse_declaration(contract: validate_contract.ContractSchema) -> tuple[Declaration | None, list[Finding]]:
+def parse_declaration(
+    contract: validate_contract.ContractSchema,
+) -> tuple[Declaration | None, list[Finding]]:
     raw = contract.schema.get("x-vibe-semantic-obligations")
     location = f"contracts/{contract.filename}/x-vibe-semantic-obligations"
     if raw is None:
         return None, []
     findings: list[Finding] = []
-    validator_id: object
-    obligations: object
-    form: str
     if isinstance(raw, list):
-        validator_id = "bundle-semantic-dispatcher"
-        obligations = raw
+        validator_id: object = "bundle-semantic-dispatcher"
+        obligations: object = raw
         form = "list"
     elif isinstance(raw, dict):
         validator_id = raw.get("validator")
@@ -90,14 +91,13 @@ def parse_declaration(contract: validate_contract.ContractSchema) -> tuple[Decla
                 )
             )
     else:
-        findings.append(
+        return None, [
             Finding(
                 "SEMANTIC_DECLARATION_INVALID",
                 location,
                 "declaration must be a list or an object",
             )
-        )
-        return None, findings
+        ]
 
     if not isinstance(validator_id, str) or VALIDATOR_ID.fullmatch(validator_id) is None:
         findings.append(
@@ -127,8 +127,8 @@ def parse_declaration(contract: validate_contract.ContractSchema) -> tuple[Decla
                     f"invalid obligation ID {obligation!r}",
                 )
             )
-            continue
-        normalized.append(obligation)
+        else:
+            normalized.append(obligation)
     if len(normalized) != len(set(normalized)):
         findings.append(
             Finding(
@@ -147,7 +147,7 @@ def parse_declaration(contract: validate_contract.ContractSchema) -> tuple[Decla
             obligation_ids=tuple(normalized),
             form=form,
         ),
-        findings,
+        [],
     )
 
 
@@ -156,13 +156,7 @@ def _load_registry(root: Path) -> tuple[dict[str, Any] | None, list[Finding]]:
     try:
         value = load_yaml_strict(path)
     except (OSError, UnicodeError, RegistryYAMLError) as exc:
-        return None, [
-            Finding(
-                "SEMANTIC_REGISTRY_UNREADABLE",
-                path.relative_to(root).as_posix(),
-                str(exc),
-            )
-        ]
+        return None, [Finding("SEMANTIC_REGISTRY_UNREADABLE", str(path), str(exc))]
     if not isinstance(value, dict) or value.get("schema_version") != "1.0":
         return None, [
             Finding(
@@ -269,44 +263,43 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
     try:
         catalog = validate_contract.load_catalog(root / "contracts")
     except (OSError, ValueError, validate_contract.CatalogError) as exc:
-        findings.append(
-            Finding(
-                "SEMANTIC_CONTRACT_CATALOG_INVALID",
-                "contracts",
-                str(exc),
-            )
-        )
+        findings.append(Finding("SEMANTIC_CONTRACT_CATALOG_INVALID", "contracts", str(exc)))
         return sorted(set(findings)), {}
 
     declarations: list[Declaration] = []
+    runtime_blocked: set[str] = set()
     for contract in catalog.contracts:
         declaration, declaration_findings = parse_declaration(contract)
         findings.extend(declaration_findings)
-        if declaration is not None:
-            declarations.append(declaration)
-            state = validator_states.get(declaration.validator_id)
-            if state is None:
-                findings.append(
-                    Finding(
-                        "SEMANTIC_VALIDATOR_UNREGISTERED",
-                        f"contracts/{contract.filename}",
-                        f"validator {declaration.validator_id!r} is not registered",
-                    )
+        if declaration is None:
+            continue
+        declarations.append(declaration)
+        state = validator_states.get(declaration.validator_id)
+        if state is None:
+            findings.append(
+                Finding(
+                    "SEMANTIC_VALIDATOR_UNREGISTERED",
+                    f"contracts/{contract.filename}",
+                    f"validator {declaration.validator_id!r} is not registered",
                 )
-            if declaration.validator_id == "bundle-semantic-dispatcher":
-                evaluator = bundle_semantics.builtin_evaluator(contract.name)
-                core_owned = all(
-                    obligation in bundle_semantics.CORE_OBLIGATION_HANDLERS
-                    for obligation in declaration.obligation_ids
-                )
-                if evaluator is None and not core_owned:
-                    findings.append(
-                        Finding(
-                            "SEMANTIC_BUNDLE_OWNER_MISSING",
-                            f"contracts/{contract.filename}",
-                            "list-form obligations have no exact repository-owned evaluator",
-                        )
-                    )
+            )
+            continue
+        identity = f"{contract.name}@{contract.version}"
+        if state == "blocked":
+            runtime_blocked.add(identity)
+        if declaration.validator_id == "bundle-semantic-dispatcher":
+            evaluator = bundle_semantics.builtin_evaluator(contract.name)
+            core_owned = all(
+                obligation in bundle_semantics.CORE_OBLIGATION_HANDLERS
+                for obligation in declaration.obligation_ids
+            )
+            # The production dispatcher already turns a missing exact owner into
+            # a blocked result for every advertised obligation. Preserve that
+            # fail-closed state in the registry report rather than misclassifying
+            # it as a malformed repository. Duplicate or broken owners remain
+            # structural errors through builtin_ownership_errors below.
+            if evaluator is None and not core_owned:
+                runtime_blocked.add(identity)
 
     for error in bundle_semantics.builtin_ownership_errors():
         findings.append(
@@ -326,17 +319,11 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
             {
                 "validator_id": validator_id,
                 "implementation": validator_states[validator_id],
-                "contract_count": sum(
-                    item.validator_id == validator_id for item in declarations
-                ),
+                "contract_count": sum(item.validator_id == validator_id for item in declarations),
             }
             for validator_id in sorted(validator_states)
         ],
-        "blocked_contracts": sorted(
-            f"{item.contract_name}@{item.schema_version}"
-            for item in declarations
-            if validator_states.get(item.validator_id) == "blocked"
-        ),
+        "blocked_contracts": sorted(runtime_blocked),
     }
     return sorted(set(findings)), report
 
@@ -348,21 +335,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--require-implemented",
         action="store_true",
-        help="also fail when any declared validator is registered as blocked",
+        help="also fail when any declared contract is runtime blocked",
     )
     args = parser.parse_args(argv)
     root = args.root.resolve()
     findings, report = audit(root)
-    if args.require_implemented:
-        for item in report.get("validators", []):
-            if item.get("implementation") == "blocked" and item.get("contract_count", 0):
-                findings.append(
-                    Finding(
-                        "SEMANTIC_VALIDATOR_IMPLEMENTATION_BLOCKED",
-                        f"validator/{item.get('validator_id')}",
-                        "declared contracts depend on a blocked validator",
-                    )
-                )
+    if args.require_implemented and report.get("blocked_contracts"):
+        findings.append(
+            Finding(
+                "SEMANTIC_VALIDATOR_IMPLEMENTATION_BLOCKED",
+                "blocked-contracts",
+                "one or more declared contracts are fail-closed blocked",
+            )
+        )
     findings = sorted(set(findings))
     if args.report is not None:
         args.report.parent.mkdir(parents=True, exist_ok=True)
@@ -390,10 +375,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         for finding in findings:
             print(finding.render(), file=sys.stderr)
         return 2
-    blocked = len(report.get("blocked_contracts", []))
     print(
-        "PASS: semantic obligations are registered and owned; "
-        f"{blocked} contract(s) remain explicitly blocked"
+        "PASS: semantic obligations are registered; "
+        f"{len(report.get('blocked_contracts', []))} contract(s) remain fail-closed blocked"
     )
     return 0
 
