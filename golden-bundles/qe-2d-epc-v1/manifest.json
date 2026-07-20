@@ -1,0 +1,28 @@
+{
+  "bundle_id": "qe-2d-epc-synthetic-golden-v1",
+  "claim_boundary": {
+    "maximum_claim": "technical_run_gates_only",
+    "native_execution_established": false,
+    "scientific_acceptance_established": false
+  },
+  "evidence_class": "synthetic",
+  "expected_values": {
+    "lambda": 0.8632857142857143,
+    "mu_star": 0.1,
+    "omega_log_mev": 17.071652491805146,
+    "tc_kelvin": 10.764537564017099
+  },
+  "files": [
+    {
+      "path": "evidence.json",
+      "role": "qe-2d-epc-evidence",
+      "sha256": "cf15cb64bbf5db09aeb8f95022ad32e5fa830aa88fab23c5ef644cb385c97531"
+    },
+    {
+      "path": "README.md",
+      "role": "human-readable-boundary",
+      "sha256": "17f4589f321f61fa8ea9c8a72235338b7cf0fa783baa55592bdd0a7799c1207c"
+    }
+  ],
+  "schema_version": "1.0"
+}
