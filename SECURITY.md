@@ -60,4 +60,4 @@ A fixed version may be disclosed after:
 
 ## Supported versions
 
-Until formal releases are published, only the current protected `main` branch is intended to receive security fixes. Historical commits and development branches are retained for audit and may remain unsupported.
+Until formal releases are published, only the current `main` branch is intended to receive security fixes. Whether that branch is protected is an external GitHub repository setting and must be verified separately. Historical commits and development branches are retained for audit and may remain unsupported.
