@@ -12,6 +12,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  semantic-diagnostic:
+    name: semantic-diagnostic
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Run low-noise semantic audit
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git init -q repo
+          cd repo
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth=1 origin "${GITHUB_SHA}"
+          git checkout -q FETCH_HEAD
+          python3 -m pip install -q --disable-pip-version-check PyYAML jsonschema referencing
+          python3 tools/audit_semantic_obligations.py
+
   core:
     name: core-python-${{ matrix.python-version }}
     runs-on: ubuntu-24.04
