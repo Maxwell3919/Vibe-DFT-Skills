@@ -251,7 +251,7 @@ def validate_distribution(root: Path, output: Path) -> list[str]:
     actual_files = {
         path.relative_to(output).as_posix()
         for path in output.rglob("*")
-        if path.is_file() and path.name != MANIFEST_NAME
+        if path.is_file() and path != manifest_path
     }
     if actual_files != declared_paths:
         errors.append(
