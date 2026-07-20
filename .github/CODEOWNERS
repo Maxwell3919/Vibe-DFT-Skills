@@ -1,0 +1,20 @@
+# Default ownership
+* @Maxwell3919
+
+# Governance and release boundaries
+/.github/ @Maxwell3919
+/AGENTS.md @Maxwell3919
+/CONTRIBUTING.md @Maxwell3919
+/SECURITY.md @Maxwell3919
+/CHANGELOG.md @Maxwell3919
+/docs/baselines/ @Maxwell3919
+/docs/release-policy.md @Maxwell3919
+/docs/lifecycle-promotion-policy.md @Maxwell3919
+
+# Scientific contracts, registries, and routing boundaries
+/contracts/ @Maxwell3919
+/registry/ @Maxwell3919
+/tools/ @Maxwell3919
+
+# Skill source and scientific evidence
+/skills/ @Maxwell3919
