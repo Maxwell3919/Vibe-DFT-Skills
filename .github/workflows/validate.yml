@@ -12,24 +12,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  semantic-diagnostic:
-    name: semantic-diagnostic
+  trust-diagnostic:
+    name: trust-diagnostic
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: Run low-noise semantic audit
+      - name: Run low-noise trust-boundary diagnostics
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
+          set -u
           git init -q repo
           cd repo
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git fetch -q --depth=1 origin "${GITHUB_SHA}"
+          git fetch -q --depth=50 origin "${GITHUB_SHA}"
           git checkout -q FETCH_HEAD
           python3 -m pip install -q --disable-pip-version-check PyYAML jsonschema referencing
-          python3 tools/audit_semantic_obligations.py
+          status=0
+          python3 tools/audit_semantic_obligations.py || status=1
+          python3 tools/activation_ledger.py || status=1
+          python3 tools/build_distribution.py --check || status=1
+          python3 tools/audit_privacy.py --history || status=1
+          exit "$status"
 
   core:
     name: core-python-${{ matrix.python-version }}
