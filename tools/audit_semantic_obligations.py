@@ -31,6 +31,16 @@ CLAIM_CEILINGS = frozenset(
         "eligible_for_expert_review",
     }
 )
+STRUCTURED_OBLIGATION_FIELDS = frozenset(
+    {
+        "finding_id",
+        "scope",
+        "enforcement",
+        "blocks",
+        "assertion",
+        "evidence_required",
+    }
+)
 
 
 @dataclass(frozen=True, order=True)
@@ -63,6 +73,98 @@ def _safe_relative_path(value: object) -> str | None:
     if path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts):
         return None
     return path.as_posix()
+
+
+def _unique_nonempty_strings(value: object) -> bool:
+    return (
+        isinstance(value, list)
+        and bool(value)
+        and all(isinstance(item, str) and bool(item.strip()) for item in value)
+        and len(value) == len(set(value))
+    )
+
+
+def _parse_obligation(
+    value: object,
+    location: str,
+) -> tuple[str | None, list[Finding]]:
+    if isinstance(value, str):
+        if OBLIGATION_ID.fullmatch(value) is None:
+            return None, [
+                Finding(
+                    "SEMANTIC_OBLIGATION_ID_INVALID",
+                    location,
+                    f"invalid obligation ID {value!r}",
+                )
+            ]
+        return value, []
+    if not isinstance(value, dict):
+        return None, [
+            Finding(
+                "SEMANTIC_OBLIGATION_INVALID",
+                location,
+                "obligation must be an ID string or a structured object",
+            )
+        ]
+
+    findings: list[Finding] = []
+    missing = sorted(STRUCTURED_OBLIGATION_FIELDS.difference(value))
+    extra = sorted(set(value).difference(STRUCTURED_OBLIGATION_FIELDS))
+    if missing:
+        findings.append(
+            Finding(
+                "SEMANTIC_STRUCTURED_OBLIGATION_FIELDS_MISSING",
+                location,
+                f"missing fields: {missing}",
+            )
+        )
+    if extra:
+        findings.append(
+            Finding(
+                "SEMANTIC_STRUCTURED_OBLIGATION_EXTRA_FIELDS",
+                location,
+                f"unexpected fields: {extra}",
+            )
+        )
+    finding_id = value.get("finding_id")
+    if not isinstance(finding_id, str) or OBLIGATION_ID.fullmatch(finding_id) is None:
+        findings.append(
+            Finding(
+                "SEMANTIC_OBLIGATION_ID_INVALID",
+                f"{location}/finding_id",
+                f"invalid obligation ID {finding_id!r}",
+            )
+        )
+    for field in ("scope", "enforcement", "assertion"):
+        candidate = value.get(field)
+        if not isinstance(candidate, str) or not candidate.strip():
+            findings.append(
+                Finding(
+                    "SEMANTIC_STRUCTURED_OBLIGATION_FIELD_INVALID",
+                    f"{location}/{field}",
+                    "field must be a nonempty string",
+                )
+            )
+    if value.get("enforcement") != "external-semantic-validator-required":
+        findings.append(
+            Finding(
+                "SEMANTIC_STRUCTURED_OBLIGATION_ENFORCEMENT_INVALID",
+                f"{location}/enforcement",
+                "structured obligations must fail closed through the external semantic validator",
+            )
+        )
+    for field in ("blocks", "evidence_required"):
+        if not _unique_nonempty_strings(value.get(field)):
+            findings.append(
+                Finding(
+                    "SEMANTIC_STRUCTURED_OBLIGATION_LIST_INVALID",
+                    f"{location}/{field}",
+                    "field must be a nonempty unique string list",
+                )
+            )
+    if findings or not isinstance(finding_id, str):
+        return None, findings
+    return finding_id, []
 
 
 def parse_declaration(
@@ -119,16 +221,13 @@ def parse_declaration(
 
     normalized: list[str] = []
     for index, obligation in enumerate(obligations):
-        if not isinstance(obligation, str) or OBLIGATION_ID.fullmatch(obligation) is None:
-            findings.append(
-                Finding(
-                    "SEMANTIC_OBLIGATION_ID_INVALID",
-                    f"{location}/{index}",
-                    f"invalid obligation ID {obligation!r}",
-                )
-            )
-        else:
-            normalized.append(obligation)
+        obligation_id, obligation_findings = _parse_obligation(
+            obligation,
+            f"{location}/{index}",
+        )
+        findings.extend(obligation_findings)
+        if obligation_id is not None:
+            normalized.append(obligation_id)
     if len(normalized) != len(set(normalized)):
         findings.append(
             Finding(
@@ -168,25 +267,21 @@ def _load_registry(root: Path) -> tuple[dict[str, Any] | None, list[Finding]]:
     return value, []
 
 
-def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
+def _validate_registry(
+    root: Path,
+    registry: dict[str, Any],
+) -> tuple[dict[str, str], list[Finding]]:
     findings: list[Finding] = []
-    registry, registry_findings = _load_registry(root)
-    findings.extend(registry_findings)
-    if registry is None:
-        return sorted(set(findings)), {}
-
     validators = registry.get("validators")
-    policies = registry.get("policies")
     if not isinstance(validators, dict) or not validators:
-        findings.append(
+        return {}, [
             Finding(
                 "SEMANTIC_REGISTRY_VALIDATORS_INVALID",
                 "registry/semantic-obligations.yaml/validators",
                 "validators must be a nonempty mapping",
             )
-        )
-        validators = {}
-    if not isinstance(policies, dict):
+        ]
+    if not isinstance(registry.get("policies"), dict):
         findings.append(
             Finding(
                 "SEMANTIC_REGISTRY_POLICIES_INVALID",
@@ -195,7 +290,7 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
             )
         )
 
-    validator_states: dict[str, str] = {}
+    states: dict[str, str] = {}
     for validator_id, specification in sorted(validators.items()):
         location = f"registry/semantic-obligations.yaml/validators/{validator_id}"
         if not isinstance(validator_id, str) or VALIDATOR_ID.fullmatch(validator_id) is None:
@@ -218,14 +313,13 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
                 )
             )
             continue
-        validator_states[validator_id] = str(state)
-        ceiling = specification.get("maximum_claim_when_unavailable")
-        if ceiling not in CLAIM_CEILINGS:
+        states[validator_id] = str(state)
+        if specification.get("maximum_claim_when_unavailable") not in CLAIM_CEILINGS:
             findings.append(
                 Finding(
                     "SEMANTIC_REGISTRY_CLAIM_CEILING_INVALID",
                     location,
-                    f"invalid unavailable claim ceiling {ceiling!r}",
+                    "invalid unavailable claim ceiling",
                 )
             )
         entrypoint = specification.get("entrypoint")
@@ -259,7 +353,15 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
                         "blocked validator requires an explicit blocker",
                     )
                 )
+    return states, findings
 
+
+def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
+    registry, findings = _load_registry(root)
+    if registry is None:
+        return sorted(set(findings)), {}
+    states, registry_findings = _validate_registry(root, registry)
+    findings.extend(registry_findings)
     try:
         catalog = validate_contract.load_catalog(root / "contracts")
     except (OSError, ValueError, validate_contract.CatalogError) as exc:
@@ -267,14 +369,14 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
         return sorted(set(findings)), {}
 
     declarations: list[Declaration] = []
-    runtime_blocked: set[str] = set()
+    blocked: set[str] = set()
     for contract in catalog.contracts:
         declaration, declaration_findings = parse_declaration(contract)
         findings.extend(declaration_findings)
         if declaration is None:
             continue
         declarations.append(declaration)
-        state = validator_states.get(declaration.validator_id)
+        state = states.get(declaration.validator_id)
         if state is None:
             findings.append(
                 Finding(
@@ -286,20 +388,15 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
             continue
         identity = f"{contract.name}@{contract.version}"
         if state == "blocked":
-            runtime_blocked.add(identity)
+            blocked.add(identity)
         if declaration.validator_id == "bundle-semantic-dispatcher":
             evaluator = bundle_semantics.builtin_evaluator(contract.name)
             core_owned = all(
-                obligation in bundle_semantics.CORE_OBLIGATION_HANDLERS
-                for obligation in declaration.obligation_ids
+                item in bundle_semantics.CORE_OBLIGATION_HANDLERS
+                for item in declaration.obligation_ids
             )
-            # The production dispatcher already turns a missing exact owner into
-            # a blocked result for every advertised obligation. Preserve that
-            # fail-closed state in the registry report rather than misclassifying
-            # it as a malformed repository. Duplicate or broken owners remain
-            # structural errors through builtin_ownership_errors below.
             if evaluator is None and not core_owned:
-                runtime_blocked.add(identity)
+                blocked.add(identity)
 
     for error in bundle_semantics.builtin_ownership_errors():
         findings.append(
@@ -318,12 +415,12 @@ def audit(root: Path) -> tuple[list[Finding], dict[str, Any]]:
         "validators": [
             {
                 "validator_id": validator_id,
-                "implementation": validator_states[validator_id],
+                "implementation": states[validator_id],
                 "contract_count": sum(item.validator_id == validator_id for item in declarations),
             }
-            for validator_id in sorted(validator_states)
+            for validator_id in sorted(states)
         ],
-        "blocked_contracts": sorted(runtime_blocked),
+        "blocked_contracts": sorted(blocked),
     }
     return sorted(set(findings)), report
 
@@ -338,8 +435,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="also fail when any declared contract is runtime blocked",
     )
     args = parser.parse_args(argv)
-    root = args.root.resolve()
-    findings, report = audit(root)
+    findings, report = audit(args.root.resolve())
     if args.require_implemented and report.get("blocked_contracts"):
         findings.append(
             Finding(
