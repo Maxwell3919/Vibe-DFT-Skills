@@ -1,0 +1,288 @@
+{
+  "claim_ceiling": "technical_run_gates_only",
+  "contract_name": "qe-2d-epc-evidence",
+  "convergence": [
+    {
+      "accepted": true,
+      "dimension": "ecutwfc",
+      "observable": "lambda",
+      "observed_change": 0.004,
+      "tested_values": [
+        50.0,
+        60.0,
+        70.0
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "accepted": true,
+      "dimension": "k-mesh",
+      "observable": "lambda",
+      "observed_change": 0.006,
+      "tested_values": [
+        [
+          18,
+          18,
+          1
+        ],
+        [
+          21,
+          21,
+          1
+        ],
+        [
+          24,
+          24,
+          1
+        ]
+      ],
+      "tolerance": 0.01
+    },
+    {
+      "accepted": true,
+      "dimension": "q-mesh",
+      "observable": "lambda",
+      "observed_change": 0.012,
+      "tested_values": [
+        [
+          4,
+          4,
+          1
+        ],
+        [
+          5,
+          5,
+          1
+        ],
+        [
+          6,
+          6,
+          1
+        ]
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "accepted": true,
+      "dimension": "smearing",
+      "observable": "lambda",
+      "observed_change": 0.008,
+      "tested_values": [
+        0.03,
+        0.025,
+        0.02
+      ],
+      "tolerance": 0.02
+    },
+    {
+      "accepted": true,
+      "dimension": "vacuum",
+      "observable": "omega_log_mev",
+      "observed_change": 0.003,
+      "tested_values": [
+        16.0,
+        19.0,
+        22.0
+      ],
+      "tolerance": 0.01
+    }
+  ],
+  "epc": {
+    "alpha2f": [
+      0.04,
+      0.16,
+      0.3,
+      0.4,
+      0.36,
+      0.24,
+      0.12,
+      0.04
+    ],
+    "frequency_mev": [
+      5.0,
+      10.0,
+      15.0,
+      20.0,
+      25.0,
+      30.0,
+      35.0,
+      40.0
+    ],
+    "lambda_reported": 0.8632857142857143,
+    "mode_weighted_lambda": [
+      0.1,
+      0.18,
+      0.22,
+      0.2,
+      0.1632857142857143
+    ],
+    "omega_log_mev_reported": 17.071652491805146,
+    "q_lambda": [
+      {
+        "lambda_unweighted": 0.7,
+        "q_id": "q-gamma",
+        "weight": 0.25
+      },
+      {
+        "lambda_unweighted": 0.8,
+        "q_id": "q-1",
+        "weight": 0.25
+      },
+      {
+        "lambda_unweighted": 0.9,
+        "q_id": "q-2",
+        "weight": 0.25
+      },
+      {
+        "lambda_unweighted": 1.053142857142857,
+        "q_id": "q-3",
+        "weight": 0.25
+      }
+    ]
+  },
+  "evidence_class": "synthetic",
+  "limitations": [
+    "This bundle is synthetic and does not contain native Quantum ESPRESSO output.",
+    "No material identity, superconducting prediction, numerical convergence claim, or scientific acceptance is established.",
+    "The spectral function is an analytic fixture used only to test integration, decomposition, and claim-ceiling gates."
+  ],
+  "phonons": {
+    "acoustic_sum_rule": "applied-and-reviewed",
+    "imaginary_mode_tolerance_mev": 0.5,
+    "imaginary_modes_mev": [],
+    "q_points": [
+      {
+        "q_id": "q-gamma",
+        "weight": 0.25
+      },
+      {
+        "q_id": "q-1",
+        "weight": 0.25
+      },
+      {
+        "q_id": "q-2",
+        "weight": 0.25
+      },
+      {
+        "q_id": "q-3",
+        "weight": 0.25
+      }
+    ],
+    "unresolved_imaginary_modes": false,
+    "za_mode_reviewed": true
+  },
+  "protocol": {
+    "ecutrho_ry": 560.0,
+    "ecutwfc_ry": 70.0,
+    "k_mesh": [
+      24,
+      24,
+      1
+    ],
+    "phonon_threshold": 1e-14,
+    "q_mesh": [
+      6,
+      6,
+      1
+    ],
+    "scf_threshold_ry": 1e-10,
+    "smearing_type": "marzari-vanderbilt",
+    "smearing_width_ry": 0.02,
+    "xc": "PBE"
+  },
+  "provenance": {
+    "generated_utc": "2026-07-21T00:00:00Z",
+    "producer": "Vibe-DFT-Skills synthetic QE 2D EPC fixture",
+    "producer_version": "1.0"
+  },
+  "pseudopotentials": [
+    {
+      "element": "B",
+      "family": "synthetic-fixture",
+      "filename": "B.synthetic.UPF",
+      "relativity": "scalar-relativistic",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "element": "N",
+      "family": "synthetic-fixture",
+      "filename": "N.synthetic.UPF",
+      "relativity": "scalar-relativistic",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "record_id": "qe-2d-epc-synthetic-v1",
+  "schema_version": "1.0",
+  "software": {
+    "build_id": "synthetic-no-native-execution",
+    "code": "qe",
+    "executables": [
+      "pw.x",
+      "ph.x"
+    ],
+    "version": "7.5-synthetic-interface"
+  },
+  "stage_identity": [
+    {
+      "parent_record_id": null,
+      "pseudopotential_set_sha256": "f9576fab5e84064a20b67849aa0744b5bf56eed47daa4333238d148b489efaed",
+      "record_id": "synthetic-scf",
+      "soc": false,
+      "spin_mode": "non-spin-polarized",
+      "stage": "scf",
+      "structure_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "parent_record_id": "synthetic-scf",
+      "pseudopotential_set_sha256": "f9576fab5e84064a20b67849aa0744b5bf56eed47daa4333238d148b489efaed",
+      "record_id": "synthetic-nscf",
+      "soc": false,
+      "spin_mode": "non-spin-polarized",
+      "stage": "nscf",
+      "structure_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "parent_record_id": "synthetic-scf",
+      "pseudopotential_set_sha256": "f9576fab5e84064a20b67849aa0744b5bf56eed47daa4333238d148b489efaed",
+      "record_id": "synthetic-phonon",
+      "soc": false,
+      "spin_mode": "non-spin-polarized",
+      "stage": "phonon",
+      "structure_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "parent_record_id": "synthetic-phonon",
+      "pseudopotential_set_sha256": "f9576fab5e84064a20b67849aa0744b5bf56eed47daa4333238d148b489efaed",
+      "record_id": "synthetic-epc",
+      "soc": false,
+      "spin_mode": "non-spin-polarized",
+      "stage": "epc",
+      "structure_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ],
+  "system": {
+    "case_id": "synthetic-2d-epc-case",
+    "compensation": "none",
+    "dimensionality": "2d",
+    "doping_type": "neutral",
+    "net_charge_e_per_cell": 0.0,
+    "periodic_image_treatment": "vacuum-converged",
+    "soc": false,
+    "spin_mode": "non-spin-polarized",
+    "structure_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+    "vacuum_angstrom": 22.0
+  },
+  "tc": {
+    "method": "allen-dynes-modified-mcmillan",
+    "mu_star": 0.1,
+    "mu_star_source": "external-assumption",
+    "reported_kelvin": 10.764537564017099
+  },
+  "tolerances": {
+    "decomposition_relative": 1e-12,
+    "lambda_relative": 1e-12,
+    "omega_log_relative": 1e-12,
+    "q_weight_absolute": 1e-12,
+    "tc_relative": 1e-12
+  }
+}
