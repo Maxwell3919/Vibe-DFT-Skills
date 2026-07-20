@@ -13,6 +13,7 @@ This private repository is the single source of truth for portable, maintainable
 - Never improve efficiency by weakening a scientific acceptance criterion.
 - Keep runtime experience databases outside Git; version schemas, migrations, rules, and synthetic fixtures only.
 - Treat `registry/semantic-obligations.yaml`, `registry/activation-ledger.yaml`, and `registry/maturity-ledger.yaml` as reviewed trust boundaries.
+- Treat synthetic scientific fixtures as repository-behavior evidence only. They never establish native software execution, material properties, or scientific acceptance.
 
 ## Skill maintenance
 
@@ -28,6 +29,7 @@ This private repository is the single source of truth for portable, maintainable
 - Register every active, development, or planned Skill lifecycle, path, interface role, and side-effect class in `registry/skill-registry.yaml`.
 - Keep roadmap placeholders fail closed: a planned software or Skill is not supported, installed, routable, schema-enumerated, or maturity-bearing. Planned Skills use `path: null` and have no source directory. Source-backed but unfinished Skills use `lifecycle: development`, live under `skills/`, and remain non-routable and non-installable until explicit promotion.
 - Promote a placeholder only after its registered activation profile, deterministic fixtures, contracts, provenance, and repository audit pass; promotion must be an explicit reviewed change rather than a side effect of installing an executable.
+- Use the two-phase promotion model. Freeze source, registries, and task maturity in a candidate commit; add activation and review artifacts only under `evidence/promotions/<skill>/` in a later review commit; validate the review commit with `tools/validate_promotion.py`.
 - Register every postprocessing observable/code/backend route in `skills/dft-postprocess/references/observable-registry.yaml`, including explicit `design-only` routes.
 - Run development Skill behavior tests in the controlled offline runner; passing those tests never makes a development Skill routable.
 - Build releases from `tools/build_distribution.py`; do not hand-copy Skill directories into a release.
@@ -44,8 +46,15 @@ python3 tools/audit_semantic_obligations.py
 python3 tools/audit_privacy.py --history
 python3 tools/activation_ledger.py
 python3 tools/build_distribution.py --check
+python3 tools/validate_qe_2d_epc.py golden-bundles/qe-2d-epc-v1/evidence.json
 python3 tools/audit_repository.py
 git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'
+```
+
+For a promotion review commit, additionally run:
+
+```text
+python3 tools/validate_promotion.py evidence/promotions/<skill>/promotion.json --review-commit <review-commit-sha>
 ```
 
 The QE `official-*` mirror preserves generated official text and is verified by its manifest-aware `--check`; do not rewrite it merely to satisfy generic whitespace rules.
