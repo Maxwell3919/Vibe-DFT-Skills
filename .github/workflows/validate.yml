@@ -12,6 +12,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  p1-diagnostic:
+    name: p1-diagnostic
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Run low-noise P1 diagnostics
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -u
+          git init -q repo
+          cd repo
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth=100 origin "${GITHUB_SHA}"
+          git checkout -q FETCH_HEAD
+          python3 -m pip install -q --disable-pip-version-check -r requirements-dev.txt
+          status=0
+          python3 tools/audit_semantic_obligations.py || status=1
+          python3 tools/validate_qe_2d_epc.py golden-bundles/qe-2d-epc-v1/evidence.json || status=1
+          python3 -m unittest -v tests.test_semantic_obligation_registry tests.test_promotion_validator tests.test_qe_2d_epc_validation || status=1
+          python3 tools/run_source_skill_tests.py --lifecycle development --list || status=1
+          exit "$status"
+
   core:
     name: core-python-${{ matrix.python-version }}
     runs-on: ubuntu-24.04
