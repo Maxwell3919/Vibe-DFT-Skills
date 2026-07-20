@@ -12,6 +12,7 @@ This private repository is the single source of truth for portable, maintainable
 - Treat calculation correctness, execution completion, numerical convergence, physical validity, postprocessing validity, and efficiency as separate gates.
 - Never improve efficiency by weakening a scientific acceptance criterion.
 - Keep runtime experience databases outside Git; version schemas, migrations, rules, and synthetic fixtures only.
+- Treat `registry/semantic-obligations.yaml`, `registry/activation-ledger.yaml`, and `registry/maturity-ledger.yaml` as reviewed trust boundaries.
 
 ## Skill maintenance
 
@@ -28,6 +29,8 @@ This private repository is the single source of truth for portable, maintainable
 - Keep roadmap placeholders fail closed: a planned software or Skill is not supported, installed, routable, schema-enumerated, or maturity-bearing. Planned Skills use `path: null` and have no source directory. Source-backed but unfinished Skills use `lifecycle: development`, live under `skills/`, and remain non-routable and non-installable until explicit promotion.
 - Promote a placeholder only after its registered activation profile, deterministic fixtures, contracts, provenance, and repository audit pass; promotion must be an explicit reviewed change rather than a side effect of installing an executable.
 - Register every postprocessing observable/code/backend route in `skills/dft-postprocess/references/observable-registry.yaml`, including explicit `design-only` routes.
+- Run development Skill behavior tests in the controlled offline runner; passing those tests never makes a development Skill routable.
+- Build releases from `tools/build_distribution.py`; do not hand-copy Skill directories into a release.
 
 ## Validation
 
@@ -36,10 +39,15 @@ Before commit or push, run:
 ```text
 python3 tools/run_tests.py
 python3 tools/validate_all_skills.py
+python3 tools/run_source_skill_tests.py --lifecycle development
+python3 tools/audit_semantic_obligations.py
+python3 tools/audit_privacy.py --history
+python3 tools/activation_ledger.py
+python3 tools/build_distribution.py --check
 python3 tools/audit_repository.py
 git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'
 ```
 
 The QE `official-*` mirror preserves generated official text and is verified by its manifest-aware `--check`; do not rewrite it merely to satisfy generic whitespace rules.
 
-Inspect `git status`, scan for sensitive paths/identifiers, and confirm no runtime database or calculation output is staged.
+Inspect `git status`, scan for sensitive paths/identifiers, and confirm no runtime database or calculation output is staged. A clean bundle validator does not replace the repository/history privacy audit, and a clean repository audit does not establish native scientific execution.
