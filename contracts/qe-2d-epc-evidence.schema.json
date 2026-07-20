@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:qe-2d-epc-evidence:1.0",
+  "title": "Quantum ESPRESSO two-dimensional phonon-EPC-Tc evidence",
+  "description": "A versioned evidence record for two-dimensional conventional electron-phonon superconductivity validation. Synthetic records validate repository mathematics and gates only.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "record_id",
+  "x-vibe-semantic-obligations": {
+    "validator": "qe-2d-epc-validator",
+    "required_checks": [
+      "stage-structure-pseudopotential-spin-and-soc-identities-match",
+      "two-dimensional-boundary-and-convergence-evidence-is-explicit",
+      "q-point-weights-sum-to-one",
+      "alpha2f-integrates-to-reported-lambda",
+      "alpha2f-integrates-to-reported-omega-log",
+      "q-and-mode-lambda-decompositions-close",
+      "imaginary-and-acoustic-mode-policy-is-resolved",
+      "mu-star-is-marked-as-an-external-assumption",
+      "allen-dynes-tc-recomputes-from-lambda-omega-log-and-mu-star",
+      "synthetic-evidence-cannot-claim-native-or-scientific-validation"
+    ]
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "record_id",
+    "evidence_class",
+    "claim_ceiling",
+    "system",
+    "software",
+    "pseudopotentials",
+    "stage_identity",
+    "protocol",
+    "convergence",
+    "phonons",
+    "epc",
+    "tc",
+    "tolerances",
+    "limitations",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "qe-2d-epc-evidence"},
+    "record_id": {"$ref": "#/$defs/safeId"},
+    "evidence_class": {"enum": ["synthetic", "real-artifact"]},
+    "claim_ceiling": {"$ref": "#/$defs/claimCeiling"},
+    "system": {"$ref": "#/$defs/system"},
+    "software": {"$ref": "#/$defs/software"},
+    "pseudopotentials": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/pseudopotential"}
+    },
+    "stage_identity": {
+      "type": "array",
+      "minItems": 4,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/stageIdentity"}
+    },
+    "protocol": {"$ref": "#/$defs/protocol"},
+    "convergence": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/convergenceDimension"}
+    },
+    "phonons": {"$ref": "#/$defs/phonons"},
+    "epc": {"$ref": "#/$defs/epc"},
+    "tc": {"$ref": "#/$defs/tc"},
+    "tolerances": {"$ref": "#/$defs/tolerances"},
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+    },
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"evidence_class": {"const": "synthetic"}},
+        "required": ["evidence_class"]
+      },
+      "then": {
+        "properties": {
+          "claim_ceiling": {
+            "enum": [
+              "no_positive_claim",
+              "documented_behavior_only",
+              "input_gates_only",
+              "technical_run_gates_only"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "positiveNumber": {"type": "number", "exclusiveMinimum": 0},
+    "mesh": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {"type": "integer", "minimum": 1},
+        {"type": "integer", "minimum": 1},
+        {"type": "integer", "const": 1}
+      ],
+      "items": false
+    },
+    "claimCeiling": {
+      "enum": [
+        "no_positive_claim",
+        "documented_behavior_only",
+        "input_gates_only",
+        "technical_run_gates_only",
+        "numerical_candidate_only",
+        "eligible_for_expert_review"
+      ]
+    },
+    "system": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "dimensionality",
+        "structure_fingerprint",
+        "net_charge_e_per_cell",
+        "doping_type",
+        "compensation",
+        "spin_mode",
+        "soc",
+        "vacuum_angstrom",
+        "periodic_image_treatment"
+      ],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/safeId"},
+        "dimensionality": {"const": "2d"},
+        "structure_fingerprint": {"$ref": "#/$defs/sha256"},
+        "net_charge_e_per_cell": {"type": "number"},
+        "doping_type": {"enum": ["neutral", "electron", "hole"]},
+        "compensation": {
+          "enum": ["none", "uniform-background", "explicit-countercharge"]
+        },
+        "spin_mode": {"enum": ["non-spin-polarized", "collinear", "noncollinear"]},
+        "soc": {"type": "boolean"},
+        "vacuum_angstrom": {"$ref": "#/$defs/positiveNumber"},
+        "periodic_image_treatment": {
+          "enum": ["vacuum-converged", "coulomb-cutoff", "dipole-corrected", "combined"]
+        }
+      }
+    },
+    "software": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "version", "build_id", "executables"],
+      "properties": {
+        "code": {"const": "qe"},
+        "version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "build_id": {"type": "string", "minLength": 1, "maxLength": 160},
+        "executables": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {"enum": ["pw.x", "ph.x", "q2r.x", "matdyn.x", "epw.x"]},
+          "allOf": [
+            {"contains": {"const": "pw.x"}},
+            {"contains": {"const": "ph.x"}}
+          ]
+        }
+      }
+    },
+    "pseudopotential": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["element", "filename", "sha256", "family", "relativity"],
+      "properties": {
+        "element": {"type": "string", "pattern": "^[A-Z][a-z]?$"},
+        "filename": {"type": "string", "minLength": 1, "maxLength": 200},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "family": {"type": "string", "minLength": 1, "maxLength": 160},
+        "relativity": {"enum": ["scalar-relativistic", "fully-relativistic"]}
+      }
+    },
+    "stageIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage",
+        "record_id",
+        "structure_fingerprint",
+        "pseudopotential_set_sha256",
+        "spin_mode",
+        "soc",
+        "parent_record_id"
+      ],
+      "properties": {
+        "stage": {"enum": ["scf", "nscf", "phonon", "epc"]},
+        "record_id": {"$ref": "#/$defs/safeId"},
+        "structure_fingerprint": {"$ref": "#/$defs/sha256"},
+        "pseudopotential_set_sha256": {"$ref": "#/$defs/sha256"},
+        "spin_mode": {"enum": ["non-spin-polarized", "collinear", "noncollinear"]},
+        "soc": {"type": "boolean"},
+        "parent_record_id": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/safeId"}
+          ]
+        }
+      }
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "xc",
+        "ecutwfc_ry",
+        "ecutrho_ry",
+        "scf_threshold_ry",
+        "phonon_threshold",
+        "k_mesh",
+        "q_mesh",
+        "smearing_type",
+        "smearing_width_ry"
+      ],
+      "properties": {
+        "xc": {"type": "string", "minLength": 1, "maxLength": 80},
+        "ecutwfc_ry": {"$ref": "#/$defs/positiveNumber"},
+        "ecutrho_ry": {"$ref": "#/$defs/positiveNumber"},
+        "scf_threshold_ry": {"$ref": "#/$defs/positiveNumber"},
+        "phonon_threshold": {"$ref": "#/$defs/positiveNumber"},
+        "k_mesh": {"$ref": "#/$defs/mesh"},
+        "q_mesh": {"$ref": "#/$defs/mesh"},
+        "smearing_type": {
+          "enum": ["gaussian", "methfessel-paxton", "marzari-vanderbilt", "fermi-dirac"]
+        },
+        "smearing_width_ry": {"$ref": "#/$defs/positiveNumber"}
+      }
+    },
+    "convergenceDimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimension",
+        "tested_values",
+        "observable",
+        "tolerance",
+        "observed_change",
+        "accepted"
+      ],
+      "properties": {
+        "dimension": {
+          "enum": ["ecutwfc", "k-mesh", "q-mesh", "smearing", "vacuum"]
+        },
+        "tested_values": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "oneOf": [
+              {"type": "number"},
+              {"$ref": "#/$defs/mesh"}
+            ]
+          }
+        },
+        "observable": {"type": "string", "minLength": 1, "maxLength": 160},
+        "tolerance": {"type": "number", "minimum": 0},
+        "observed_change": {"type": "number", "minimum": 0},
+        "accepted": {"type": "boolean"}
+      }
+    },
+    "phonons": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "q_points",
+        "acoustic_sum_rule",
+        "za_mode_reviewed",
+        "imaginary_mode_tolerance_mev",
+        "imaginary_modes_mev",
+        "unresolved_imaginary_modes"
+      ],
+      "properties": {
+        "q_points": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["q_id", "weight"],
+            "properties": {
+              "q_id": {"$ref": "#/$defs/safeId"},
+              "weight": {"type": "number", "minimum": 0, "maximum": 1}
+            }
+          }
+        },
+        "acoustic_sum_rule": {"enum": ["applied-and-reviewed", "not-applied-blocked"]},
+        "za_mode_reviewed": {"type": "boolean"},
+        "imaginary_mode_tolerance_mev": {"type": "number", "minimum": 0},
+        "imaginary_modes_mev": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "number", "exclusiveMaximum": 0}
+        },
+        "unresolved_imaginary_modes": {"type": "boolean"}
+      }
+    },
+    "epc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frequency_mev",
+        "alpha2f",
+        "lambda_reported",
+        "omega_log_mev_reported",
+        "q_lambda",
+        "mode_weighted_lambda"
+      ],
+      "properties": {
+        "frequency_mev": {
+          "type": "array",
+          "minItems": 3,
+          "items": {"$ref": "#/$defs/positiveNumber"}
+        },
+        "alpha2f": {
+          "type": "array",
+          "minItems": 3,
+          "items": {"type": "number", "minimum": 0}
+        },
+        "lambda_reported": {"$ref": "#/$defs/positiveNumber"},
+        "omega_log_mev_reported": {"$ref": "#/$defs/positiveNumber"},
+        "q_lambda": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["q_id", "weight", "lambda_unweighted"],
+            "properties": {
+              "q_id": {"$ref": "#/$defs/safeId"},
+              "weight": {"type": "number", "minimum": 0, "maximum": 1},
+              "lambda_unweighted": {"type": "number", "minimum": 0}
+            }
+          }
+        },
+        "mode_weighted_lambda": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "tc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "mu_star", "mu_star_source", "reported_kelvin"],
+      "properties": {
+        "method": {"const": "allen-dynes-modified-mcmillan"},
+        "mu_star": {"type": "number", "minimum": 0, "exclusiveMaximum": 0.3},
+        "mu_star_source": {"const": "external-assumption"},
+        "reported_kelvin": {"type": "number", "minimum": 0}
+      }
+    },
+    "tolerances": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "q_weight_absolute",
+        "lambda_relative",
+        "omega_log_relative",
+        "decomposition_relative",
+        "tc_relative"
+      ],
+      "properties": {
+        "q_weight_absolute": {"type": "number", "minimum": 0, "maximum": 0.1},
+        "lambda_relative": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.1},
+        "omega_log_relative": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.1},
+        "decomposition_relative": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.1},
+        "tc_relative": {"type": "number", "exclusiveMinimum": 0, "maximum": 0.1}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "producer_version", "generated_utc"],
+      "properties": {
+        "producer": {"type": "string", "minLength": 1, "maxLength": 160},
+        "producer_version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "generated_utc": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}
