@@ -38,9 +38,12 @@ RESTRICTED_MARKERS = (
 )
 HIGH_CONFIDENCE_PATTERNS = (
     ("PRIVATE_KEY", re.compile(r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----")),
-    ("AWS_ACCESS_KEY", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
-    ("GITHUB_TOKEN", re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b")),
-    ("OPENAI_TOKEN", re.compile(r"\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}\b")),
+    ("AWS_ACCESS_KEY", re.compile(r"(?<![A-Za-z0-9_])AKIA[0-9A-Z]{16}\b")),
+    ("GITHUB_TOKEN", re.compile(r"(?<![A-Za-z0-9_])gh[pousr]_[A-Za-z0-9]{20,}\b")),
+    (
+        "OPENAI_TOKEN",
+        re.compile(r"(?<![A-Za-z0-9_])sk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}\b"),
+    ),
     ("BEARER_TOKEN", re.compile(r"\bBearer\s+[A-Za-z0-9._~+/=-]{24,}", re.IGNORECASE)),
 )
 SECRET_ASSIGNMENT = re.compile(
@@ -68,14 +71,25 @@ SECRET_ASSIGNMENT_SUFFIXES = frozenset(
 SIGNATURE_LITERAL_PATHS = frozenset(
     {
         "tools/audit_privacy.py",
+        "tools/validate_agent_answer.py",
         "tools/validate_bundle.py",
         "skills/catmap-microkinetics/scripts/catmap_guard.py",
         "skills/lobster-bonding-analysis/scripts/lobster_guard.py",
+        "skills/vasp-rigorous-calculations/scripts/audit_vasp_case.py",
+        "skills/vasp-rigorous-calculations/scripts/test_skill_scripts.py",
         "tests/test_bundle_validation.py",
         "tests/test_repository_privacy.py",
         "tests/test_run_manifest_security_migration.py",
         "tests/test_semantic_validation.py",
     }
+)
+# Official mirrors are immutable, manifest-verified documentation snapshots.
+# They may contain short upstream examples of otherwise restricted signatures;
+# raw restricted filenames and unregistered payloads remain forbidden.
+SIGNATURE_LITERAL_PREFIXES = (
+    "skills/cp2k-rigorous-calculations/references/official-manual/",
+    "skills/qe-rigorous-calculations/references/official-",
+    "skills/vasp-rigorous-calculations/references/official-wiki/",
 )
 # Policy files necessarily name restricted classes and placeholder examples.
 POLICY_EXCLUDED_PATHS = frozenset(
@@ -90,11 +104,7 @@ POLICY_EXCLUDED_PATHS = frozenset(
 # Versioned official-source mirrors may reproduce upstream example paths. This
 # exception applies only to absolute-path detection; hashes and source-manifest
 # checks remain owned by the existing official-mirror validators.
-ABSOLUTE_PATH_EXCLUDED_PREFIXES = (
-    "skills/cp2k-rigorous-calculations/references/official-manual/",
-    "skills/qe-rigorous-calculations/references/official-",
-    "skills/vasp-rigorous-calculations/references/official-wiki/",
-)
+ABSOLUTE_PATH_EXCLUDED_PREFIXES = SIGNATURE_LITERAL_PREFIXES
 SAFE_SECRET_WORDS = (
     "example",
     "dummy",
@@ -171,7 +181,9 @@ def _decode_text(raw: bytes) -> str | None:
 
 
 def _signature_exempt(path_text: str) -> bool:
-    return path_text in SIGNATURE_LITERAL_PATHS
+    return path_text in SIGNATURE_LITERAL_PATHS or path_text.startswith(
+        SIGNATURE_LITERAL_PREFIXES
+    )
 
 
 def _absolute_path_exempt(path_text: str) -> bool:
@@ -290,16 +302,18 @@ def scan_history(root: Path) -> list[Finding]:
                     Finding("PRIVACY_RESTRICTED_PATH_HISTORY", path_text, reason, commit)
                 )
 
+    # Use PCRE lookbehind so ordinary identifiers such as task-* and risk-* do
+    # not masquerade as OpenAI-style sk-* tokens in historical text.
     grep_expression = (
         r"-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----"
-        r"|AKIA[0-9A-Z]{16}"
-        r"|gh[pousr]_[A-Za-z0-9]{20,}"
-        r"|sk-(proj-|svcacct-)?[A-Za-z0-9_-]{20,}"
+        r"|(?<![A-Za-z0-9_])AKIA[0-9A-Z]{16}\b"
+        r"|(?<![A-Za-z0-9_])gh[pousr]_[A-Za-z0-9]{20,}\b"
+        r"|(?<![A-Za-z0-9_])sk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{20,}\b"
     )
     for commit in commits:
         completed = _git(
             root,
-            ["grep", "-I", "-n", "-E", "-e", grep_expression, commit, "--"],
+            ["grep", "-I", "-n", "-P", "-e", grep_expression, commit, "--"],
         )
         if completed.returncode not in (0, 1):
             detail = completed.stderr.decode(errors="replace").strip() or "git grep failed"
