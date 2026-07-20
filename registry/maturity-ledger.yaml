@@ -1,0 +1,89 @@
+schema_version: "1.0"
+ledger_id: active-maturity-baseline-2026-07-21
+
+# Conservative aggregate entries. Fine-grained route maturity remains in each
+# referenced catalog and must be queried before any task-specific claim.
+entries:
+  cif-structure-analysis:
+    lifecycle: active
+    review_status: review-required
+    route_catalog: skills/cif-structure-analysis/references/structure-manifest.md
+    dimensions: [skill, software, software-version, executable, task, observable, backend, platform]
+    repository_behavior: validated
+    native_execution: not-assessed
+    scientific_validation: not-assessed
+    claim_ceiling: documented_behavior_only
+    version_scope: []
+  qe-rigorous-calculations:
+    lifecycle: active
+    review_status: review-required
+    route_catalog: skills/qe-rigorous-calculations/references/fail-closed-contract.md
+    dimensions: [skill, software, software-version, executable, task, observable, backend, platform]
+    repository_behavior: validated
+    native_execution: not-assessed
+    scientific_validation: not-assessed
+    claim_ceiling: documented_behavior_only
+    version_scope: []
+  vasp-rigorous-calculations:
+    lifecycle: active
+    review_status: review-required
+    route_catalog: skills/vasp-rigorous-calculations/references/task-evidence-profiles.json
+    dimensions: [skill, software, software-version, executable, task, observable, backend, platform]
+    repository_behavior: validated
+    native_execution: not-assessed
+    scientific_validation: not-assessed
+    claim_ceiling: documented_behavior_only
+    version_scope: []
+  cp2k-rigorous-calculations:
+    lifecycle: active
+    review_status: review-required
+    route_catalog: skills/cp2k-rigorous-calculations/references/task-evidence-profiles.json
+    dimensions: [skill, software, software-version, executable, task, observable, backend, platform]
+    repository_behavior: validated
+    native_execution: not-assessed
+    scientific_validation: not-assessed
+    claim_ceiling: documented_behavior_only
+    version_scope: []
+  siesta-rigorous-calculations:
+    lifecycle: active
+    review_status: review-required
+    route_catalog: skills/siesta-rigorous-calculations/references/task-evidence-profiles.json
+    dimensions: [skill, software, software-version, executable, task, observable, backend, platform]
+    repository_behavior: validated
+    native_execution: not-assessed
+    scientific_validation: not-assessed
+    claim_ceiling: documented_behavior_only
+    version_scope: []
+  dft-postprocess:
+    lifecycle: active
+    review_status: review-required
+    route_catalog: skills/dft-postprocess/references/observable-registry.yaml
+    dimensions: [skill, software, software-version, executable, task, observable, backend, platform]
+    repository_behavior: validated
+    native_execution: not-assessed
+    scientific_validation: not-assessed
+    claim_ceiling: documented_behavior_only
+    version_scope: []
+  dft-campaign-efficiency:
+    lifecycle: active
+    review_status: review-required
+    route_catalog: skills/dft-campaign-efficiency/references/comparability-and-evidence.md
+    dimensions: [skill, software, software-version, executable, task, observable, backend, platform]
+    repository_behavior: validated
+    native_execution: not-assessed
+    scientific_validation: not-assessed
+    claim_ceiling: documented_behavior_only
+    version_scope: []
+
+automatic_review_triggers:
+  - software-major-or-minor-version-change
+  - executable-or-output-format-change
+  - parser-or-normalization-change
+  - contract-major-version-change
+  - fixture-bytes-or-provenance-change
+  - backend-change
+  - unit-or-reference-energy-semantics-change
+  - dependency-major-version-change
+  - official-source-authority-change
+  - privacy-or-redistribution-change
+  - authorization-or-side-effect-change
