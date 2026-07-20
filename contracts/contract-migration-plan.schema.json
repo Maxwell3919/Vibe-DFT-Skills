@@ -1,0 +1,35 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:vibe-dft-skills:contract:contract-migration-plan:1.0",
+  "title":"Vibe-DFT contract migration plan",
+  "description":"A deterministic plan that may only preserve, copy, rename, or remove existing record values while updating contract identity and record identity. It cannot synthesize scientific evidence.",
+  "x-vibe-document-kind":"content-addressed-record",
+  "x-vibe-record-id-field":"plan_id",
+  "x-vibe-semantic-obligations":{"validator":"contract-migration-validator","required_checks":["source-record-validates-against-declared-contract","target-contract-exists-and-is-version-distinct","operations-use-safe-json-pointers","operations-do-not-inject-arbitrary-literals","protected-evidence-status-and-claim-fields-are-not-removed","target-record-validates-after-migration","claim-ceiling-does-not-increase"]},
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema_version","contract_name","plan_id","source_contract","target_contract","source_path","output_path","migration_record_path","target_record_id","operations","provenance"],
+  "properties":{
+    "schema_version":{"const":"1.0"},
+    "contract_name":{"const":"contract-migration-plan"},
+    "plan_id":{"$ref":"#/$defs/safeId"},
+    "source_contract":{"$ref":"#/$defs/contractIdentity"},
+    "target_contract":{"$ref":"#/$defs/contractIdentity"},
+    "source_path":{"$ref":"#/$defs/safePath"},
+    "output_path":{"$ref":"#/$defs/safePath"},
+    "migration_record_path":{"$ref":"#/$defs/safePath"},
+    "target_record_id":{"$ref":"#/$defs/safeId"},
+    "operations":{"type":"array","uniqueItems":true,"items":{"$ref":"#/$defs/operation"}},
+    "provenance":{"$ref":"#/$defs/provenance"}
+  },
+  "$defs":{
+    "safeId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"},
+    "contractName":{"type":"string","pattern":"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "version":{"type":"string","pattern":"^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"},
+    "contractIdentity":{"type":"object","additionalProperties":false,"required":["name","version"],"properties":{"name":{"$ref":"#/$defs/contractName"},"version":{"$ref":"#/$defs/version"}}},
+    "safePath":{"type":"string","minLength":1,"maxLength":500,"pattern":"^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\r\\n]+$"},
+    "jsonPointer":{"type":"string","pattern":"^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"},
+    "operation":{"oneOf":[{"type":"object","additionalProperties":false,"required":["op","from","to"],"properties":{"op":{"enum":["copy","rename"]},"from":{"$ref":"#/$defs/jsonPointer"},"to":{"$ref":"#/$defs/jsonPointer"}}},{"type":"object","additionalProperties":false,"required":["op","from"],"properties":{"op":{"const":"remove"},"from":{"$ref":"#/$defs/jsonPointer"}}}]},
+    "provenance":{"type":"object","additionalProperties":false,"required":["producer","producer_version","generated_utc"],"properties":{"producer":{"type":"string","minLength":1,"maxLength":160},"producer_version":{"type":"string","minLength":1,"maxLength":80},"generated_utc":{"type":"string","format":"date-time"}}}
+  }
+}
