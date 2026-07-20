@@ -31,9 +31,7 @@
   "properties": {
     "schema_version": {"const": "1.1"},
     "contract_name": {"const": "task-maturity"},
-    "catalog_id": {
-      "$ref": "urn:vibe-dft-skills:contract:task-maturity:1.0#/$defs/safeId"
-    },
+    "catalog_id": {"$ref": "#/$defs/safeId"},
     "skill_id": {
       "$ref": "urn:vibe-dft-skills:contract:task-maturity:1.0#/$defs/skillId"
     },
@@ -48,6 +46,12 @@
     },
     "provenance": {
       "$ref": "urn:vibe-dft-skills:contract:task-maturity:1.0#/$defs/provenance"
+    }
+  },
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
     }
   }
 }
