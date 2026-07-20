@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate one development-to-active promotion against immutable Git objects."""
+"""Validate a two-phase development-to-active promotion against Git objects."""
 
 from __future__ import annotations
 
@@ -19,6 +19,13 @@ from skill_registry import TREE_HASH_DOMAIN
 
 
 MAX_GIT_FILE_BYTES = 16 * 1024 * 1024
+ROUTING_REGISTRIES = (
+    "registry/skill-registry.yaml",
+    "registry/interface-registry.yaml",
+    "registry/operation-routes.yaml",
+    "registry/software-registry.yaml",
+    "registry/environment-profiles.yaml",
+)
 MATURITY_ORDER = {
     "design-only": 0,
     "synthetic-validated": 1,
@@ -37,7 +44,7 @@ CLAIM_ORDER = {
 MATURITY_MAX_CLAIM = {
     "design-only": "no_positive_claim",
     "synthetic-validated": "documented_behavior_only",
-    "format-fixture-validated": "technical_run_gates_only",
+    "format-fixture-validated": "input_gates_only",
     "real-artifact-validated": "numerical_candidate_only",
     "tool-integration-validated": "eligible_for_expert_review",
 }
@@ -70,8 +77,7 @@ class GitError(ValueError):
 class GitRepository:
     def __init__(self, root: Path) -> None:
         self.root = root.resolve()
-        probe = self._run(["rev-parse", "--git-dir"])
-        if probe.returncode != 0:
+        if self._run(["rev-parse", "--git-dir"]).returncode != 0:
             raise GitError("repository root is not a readable Git work tree")
 
     def _run(self, arguments: Sequence[str]) -> subprocess.CompletedProcess[bytes]:
@@ -82,9 +88,15 @@ class GitRepository:
             check=False,
         )
 
+    def head(self) -> str:
+        completed = self._run(["rev-parse", "HEAD^{commit}"])
+        if completed.returncode != 0:
+            raise GitError("HEAD does not resolve to a commit")
+        return completed.stdout.decode("ascii", errors="strict").strip()
+
     def resolve_commit(self, value: object, label: str) -> str:
         if not isinstance(value, str) or len(value) not in (40, 64):
-            raise GitError(f"{label}: commit ID must be a 40- or 64-character hex string")
+            raise GitError(f"{label}: commit must be an exact 40- or 64-character hex ID")
         completed = self._run(["rev-parse", "--verify", f"{value}^{{commit}}"])
         if completed.returncode != 0:
             raise GitError(f"{label}: commit does not resolve")
@@ -93,13 +105,13 @@ class GitRepository:
             raise GitError(f"{label}: commit must be canonical and exact")
         return resolved
 
-    def is_ancestor(self, base: str, candidate: str) -> bool:
-        return self._run(["merge-base", "--is-ancestor", base, candidate]).returncode == 0
+    def is_ancestor(self, base: str, descendant: str) -> bool:
+        return self._run(["merge-base", "--is-ancestor", base, descendant]).returncode == 0
 
-    def file(self, commit: str, path_text: object) -> GitFile:
-        path = _safe_path(path_text)
+    def file(self, commit: str, path_value: object) -> GitFile:
+        path = _safe_path(path_value)
         if path is None:
-            raise GitError(f"unsafe repository path: {path_text!r}")
+            raise GitError(f"unsafe repository path: {path_value!r}")
         completed = self._run(["show", f"{commit}:{path}"])
         if completed.returncode != 0:
             raise GitError(f"{path}: file does not exist at {commit}")
@@ -107,67 +119,73 @@ class GitRepository:
             raise GitError(f"{path}: file exceeds the validation size limit")
         return GitFile(path=path, raw=completed.stdout)
 
-    def json_file(self, commit: str, path_text: object) -> tuple[GitFile, dict[str, Any]]:
-        item = self.file(commit, path_text)
+    def json_file(self, commit: str, path_value: object) -> tuple[GitFile, dict[str, Any]]:
+        item = self.file(commit, path_value)
         try:
             value = strict_json.loads_object(item.raw, item.path, max_bytes=MAX_GIT_FILE_BYTES)
         except strict_json.StrictJSONError as exc:
             raise GitError(f"{item.path}: strict JSON invalid: {exc}") from exc
         return item, value
 
-    def yaml_file(self, commit: str, path_text: object) -> tuple[GitFile, dict[str, Any]]:
-        item = self.file(commit, path_text)
+    def yaml_file(self, commit: str, path_value: object) -> tuple[GitFile, dict[str, Any]]:
+        item = self.file(commit, path_value)
         try:
-            text = item.raw.decode("utf-8", errors="strict")
-            value = loads_yaml_strict(text, item.path)
+            value = loads_yaml_strict(item.raw.decode("utf-8", errors="strict"), item.path)
         except (UnicodeDecodeError, RegistryYAMLError) as exc:
             raise GitError(f"{item.path}: strict YAML invalid: {exc}") from exc
         return item, value
 
-    def diff_paths(self, base: str, candidate: str) -> tuple[str, ...]:
+    def diff_paths(self, base: str, descendant: str) -> tuple[str, ...]:
         completed = self._run(
-            ["diff", "--name-only", "-z", "--diff-filter=ACMRT", base, candidate, "--"]
+            ["diff", "--name-only", "-z", "--diff-filter=ACMRT", base, descendant, "--"]
         )
         if completed.returncode != 0:
-            raise GitError("candidate diff cannot be enumerated")
-        paths = []
+            raise GitError("commit diff cannot be enumerated")
+        result = []
         for raw in completed.stdout.split(b"\0"):
             if not raw:
                 continue
-            text = raw.decode("utf-8", errors="strict")
-            safe = _safe_path(text)
-            if safe is None:
-                raise GitError("candidate diff contains an unsafe path")
-            paths.append(safe)
-        return tuple(sorted(set(paths)))
+            path = _safe_path(raw.decode("utf-8", errors="strict"))
+            if path is None:
+                raise GitError("commit diff contains an unsafe path")
+            result.append(path)
+        return tuple(sorted(set(result)))
 
     def tree_paths(self, commit: str, prefix: str) -> tuple[str, ...]:
         safe_prefix = _safe_path(prefix)
         if safe_prefix is None:
             raise GitError("unsafe tree prefix")
-        completed = self._run(["ls-tree", "-r", "--name-only", "-z", commit, "--", safe_prefix])
+        completed = self._run(
+            ["ls-tree", "-r", "--name-only", "-z", commit, "--", safe_prefix]
+        )
         if completed.returncode != 0:
             raise GitError(f"cannot enumerate source tree {safe_prefix}")
-        paths = []
-        for raw in completed.stdout.split(b"\0"):
-            if raw:
-                paths.append(raw.decode("utf-8", errors="strict"))
-        return tuple(sorted(paths))
+        return tuple(
+            sorted(
+                raw.decode("utf-8", errors="strict")
+                for raw in completed.stdout.split(b"\0")
+                if raw
+            )
+        )
 
     def source_tree_sha256(self, commit: str, prefix: str) -> str:
         prefix_path = PurePosixPath(prefix)
         files: list[tuple[str, bytes]] = []
         for full_path in self.tree_paths(commit, prefix):
             relative = PurePosixPath(full_path).relative_to(prefix_path).as_posix()
-            if any(part in {"__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache"} for part in PurePosixPath(relative).parts):
+            relative_path = PurePosixPath(relative)
+            if any(
+                part in {"__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache"}
+                for part in relative_path.parts
+            ):
                 continue
-            if PurePosixPath(relative).name in {".coverage", ".DS_Store"}:
+            if relative_path.name in {".coverage", ".DS_Store"}:
                 continue
-            if PurePosixPath(relative).suffix.lower() in {".pyc", ".pyo", ".pyd"}:
+            if relative_path.suffix.lower() in {".pyc", ".pyo", ".pyd"}:
                 continue
             files.append((relative, self.file(commit, full_path).raw))
         if not files:
-            raise GitError(f"{prefix}: source tree contains no regular Git blobs")
+            raise GitError(f"{prefix}: source tree contains no Git blobs")
         digest = hashlib.sha256()
         digest.update(TREE_HASH_DOMAIN)
         for relative, raw in sorted(files):
@@ -186,7 +204,15 @@ def _safe_path(value: object) -> str | None:
     return path.as_posix()
 
 
-def _iter_dicts(value: object, path: tuple[object, ...] = ()) -> Iterator[tuple[tuple[object, ...], dict[str, Any]]]:
+def _pointer(parts: Iterable[object]) -> str:
+    values = tuple(parts)
+    return "<root>" if not values else "/" + "/".join(str(value) for value in values)
+
+
+def _iter_dicts(
+    value: object,
+    path: tuple[object, ...] = (),
+) -> Iterator[tuple[tuple[object, ...], dict[str, Any]]]:
     if isinstance(value, dict):
         yield path, value
         for key, child in value.items():
@@ -196,15 +222,16 @@ def _iter_dicts(value: object, path: tuple[object, ...] = ()) -> Iterator[tuple[
             yield from _iter_dicts(child, (*path, index))
 
 
-def _pointer(path: Iterable[object]) -> str:
-    parts = tuple(path)
-    return "<root>" if not parts else "/" + "/".join(str(item) for item in parts)
-
-
-def _record_id(data: dict[str, Any], contract: validate_contract.ContractSchema) -> str | None:
-    field = contract.record_id_field
-    value = data.get(field) if field else None
-    return value if isinstance(value, str) else None
+def _schema_findings(
+    kind: str,
+    data: dict[str, Any],
+    contracts_dir: Path,
+    location: str,
+) -> list[Finding]:
+    return [
+        Finding("PROMOTION_SCHEMA_INVALID", location, error)
+        for error in validate_contract.validation_errors(kind, data, contracts_dir)
+    ]
 
 
 def _active_set(registry: dict[str, Any]) -> set[str]:
@@ -220,58 +247,75 @@ def _active_set(registry: dict[str, Any]) -> set[str]:
     }
 
 
-def _find_skill(registry: dict[str, Any], skill_id: str) -> dict[str, Any] | None:
+def _skill_entry(registry: dict[str, Any], skill_id: str) -> dict[str, Any] | None:
     skills = registry.get("skills")
-    if not isinstance(skills, dict):
-        return None
-    value = skills.get(skill_id)
+    value = skills.get(skill_id) if isinstance(skills, dict) else None
     return value if isinstance(value, dict) else None
 
 
-def _file_ref_findings(
+def _verify_ref(
     repo: GitRepository,
-    candidate: str,
-    value: object,
-    *,
-    prefix: tuple[object, ...] = (),
-) -> list[Finding]:
-    findings: list[Finding] = []
-    seen: set[tuple[str, str]] = set()
-    for path, node in _iter_dicts(value, prefix):
-        if set(node).issuperset({"path", "sha256"}):
-            path_text = node.get("path")
-            expected = node.get("sha256")
-            if path_text is None:
-                continue
-            key = (str(path_text), str(expected))
-            if key in seen:
-                continue
-            seen.add(key)
-            try:
-                item = repo.file(candidate, path_text)
-            except GitError as exc:
-                findings.append(Finding("PROMOTION_FILE_REF_MISSING", _pointer(path), str(exc)))
-                continue
-            if expected != item.sha256:
-                findings.append(
-                    Finding(
-                        "PROMOTION_FILE_REF_HASH_MISMATCH",
-                        _pointer(path),
-                        f"{item.path}: declared SHA-256 does not match candidate bytes",
-                    )
-                )
-    return findings
+    commit: str,
+    reference: object,
+    location: str,
+    code_prefix: str,
+) -> tuple[GitFile | None, list[Finding]]:
+    if not isinstance(reference, dict):
+        return None, [Finding(f"{code_prefix}_REF_INVALID", location, "reference must be an object")]
+    try:
+        item = repo.file(commit, reference.get("path"))
+    except GitError as exc:
+        return None, [Finding(f"{code_prefix}_REF_MISSING", location, str(exc))]
+    if reference.get("sha256") != item.sha256:
+        return item, [
+            Finding(
+                f"{code_prefix}_REF_HASH_MISMATCH",
+                location,
+                f"{item.path}: declared SHA-256 does not match Git bytes",
+            )
+        ]
+    return item, []
 
 
-def _build_record_index(
+def _candidate_refs(promotion: dict[str, Any]) -> Iterator[tuple[str, object]]:
+    yield "task_maturity_catalog", promotion.get("task_maturity_catalog")
+    for index, change in enumerate(promotion.get("interface_changes") or []):
+        if isinstance(change, dict) and change.get("schema_ref") is not None:
+            yield f"interface_changes/{index}/schema_ref", change.get("schema_ref")
+    for index, change in enumerate(promotion.get("contracts_changed") or []):
+        yield f"contracts_changed/{index}", change
+    for index, decision in enumerate(promotion.get("observable_route_decisions") or []):
+        if isinstance(decision, dict):
+            yield f"observable_route_decisions/{index}/evidence", decision.get("evidence")
+
+
+def _review_refs(promotion: dict[str, Any]) -> Iterator[tuple[str, object]]:
+    yield "activation_checklist", promotion.get("activation_checklist")
+    reports = promotion.get("reports")
+    if isinstance(reports, dict):
+        yield "reports/privacy_license", reports.get("privacy_license")
+        for index, report in enumerate(reports.get("forward_tests") or []):
+            yield f"reports/forward_tests/{index}", report
+
+
+def _record_id(
+    data: dict[str, Any],
+    contract: validate_contract.ContractSchema,
+) -> str | None:
+    field = contract.record_id_field
+    value = data.get(field) if field else None
+    return value if isinstance(value, str) else None
+
+
+def _record_index(
     repo: GitRepository,
     candidate: str,
     paths: Iterable[str],
     contracts_dir: Path,
 ) -> tuple[dict[tuple[str, str, str], tuple[str, str]], list[Finding]]:
+    catalog = validate_contract.load_catalog(contracts_dir)
     index: dict[tuple[str, str, str], tuple[str, str]] = {}
     findings: list[Finding] = []
-    catalog = validate_contract.load_catalog(contracts_dir)
     for path in sorted(set(paths)):
         if not path.endswith(".json"):
             continue
@@ -291,32 +335,36 @@ def _build_record_index(
         if record_id is None:
             continue
         key = (name, version, record_id)
-        previous = index.get(key)
-        value = (item.path, item.sha256)
-        if previous is not None and previous != value:
+        resolved = (item.path, item.sha256)
+        if key in index and index[key] != resolved:
             findings.append(
                 Finding(
                     "PROMOTION_RECORD_ID_AMBIGUOUS",
                     item.path,
-                    f"record identity {key!r} resolves to more than one candidate file",
+                    f"record identity {key!r} resolves to multiple candidate files",
                 )
             )
         else:
-            index[key] = value
+            index[key] = resolved
     return index, findings
 
 
 def _record_ref_findings(
     value: object,
     index: dict[tuple[str, str, str], tuple[str, str]],
-    *,
-    prefix: tuple[object, ...] = (),
+    prefix: tuple[object, ...],
 ) -> list[Finding]:
     findings: list[Finding] = []
     for path, node in _iter_dicts(value, prefix):
-        if not set(node).issuperset({"contract_name", "schema_version", "record_id", "sha256"}):
+        if not set(node).issuperset(
+            {"contract_name", "schema_version", "record_id", "sha256"}
+        ):
             continue
-        key = (node.get("contract_name"), node.get("schema_version"), node.get("record_id"))
+        key = (
+            node.get("contract_name"),
+            node.get("schema_version"),
+            node.get("record_id"),
+        )
         if not all(isinstance(item, str) for item in key):
             continue
         resolved = index.get(key)  # type: ignore[arg-type]
@@ -325,7 +373,7 @@ def _record_ref_findings(
                 Finding(
                     "PROMOTION_RECORD_REF_UNRESOLVED",
                     _pointer(path),
-                    f"record reference {key!r} does not resolve in candidate evidence",
+                    f"record reference {key!r} is absent from candidate evidence",
                 )
             )
         elif resolved[1] != node.get("sha256"):
@@ -333,44 +381,100 @@ def _record_ref_findings(
                 Finding(
                     "PROMOTION_RECORD_REF_HASH_MISMATCH",
                     _pointer(path),
-                    f"record reference {key!r} SHA-256 does not match {resolved[0]}",
+                    f"record reference {key!r} does not match {resolved[0]}",
                 )
             )
     return findings
 
 
-def _schema_findings(
-    kind: str,
-    data: dict[str, Any],
-    contracts_dir: Path,
-    location: str,
+def _activation_findings(
+    repo: GitRepository,
+    candidate: str,
+    activation: dict[str, Any],
+    skill_id: str,
+    decision: object,
+    record_index: dict[tuple[str, str, str], tuple[str, str]],
 ) -> list[Finding]:
-    return [
-        Finding("PROMOTION_SCHEMA_INVALID", location, error)
-        for error in validate_contract.validation_errors(kind, data, contracts_dir)
-    ]
+    findings: list[Finding] = []
+    subject = activation.get("subject")
+    if (
+        not isinstance(subject, dict)
+        or subject.get("skill_id") != skill_id
+        or subject.get("candidate_commit") != candidate
+    ):
+        findings.append(
+            Finding(
+                "PROMOTION_ACTIVATION_SUBJECT_MISMATCH",
+                "activation_checklist/subject",
+                "skill_id or candidate_commit differs from promotion",
+            )
+        )
+    summary = activation.get("summary")
+    if not isinstance(summary, dict) or summary.get("decision") != decision:
+        findings.append(
+            Finding(
+                "PROMOTION_DECISION_MISMATCH",
+                "activation_checklist/summary",
+                "activation and promotion decisions differ",
+            )
+        )
+    for path, node in _iter_dicts(activation, ("activation_checklist",)):
+        if not set(node).issuperset({"path", "sha256"}):
+            continue
+        path_text = node.get("path")
+        if not isinstance(path_text, str) or not path_text.startswith(f"skills/{skill_id}/"):
+            findings.append(
+                Finding(
+                    "PROMOTION_ACTIVATION_EVIDENCE_OUTSIDE_SKILL",
+                    _pointer(path),
+                    str(path_text),
+                )
+            )
+            continue
+        _item, ref_findings = _verify_ref(
+            repo,
+            candidate,
+            node,
+            _pointer(path),
+            "PROMOTION_CANDIDATE_EVIDENCE",
+        )
+        findings.extend(ref_findings)
+    findings.extend(
+        _record_ref_findings(activation, record_index, ("activation_checklist",))
+    )
+    return findings
 
 
 def _maturity_findings(
-    data: dict[str, Any],
+    repo: GitRepository,
+    candidate: str,
+    maturity: dict[str, Any],
     skill_id: str,
-    index: dict[tuple[str, str, str], tuple[str, str]],
+    decision: object,
+    record_index: dict[tuple[str, str, str], tuple[str, str]],
 ) -> list[Finding]:
     findings: list[Finding] = []
-    if data.get("skill_id") != skill_id:
+    if maturity.get("skill_id") != skill_id:
         findings.append(
-            Finding("PROMOTION_MATURITY_SKILL_MISMATCH", "task_maturity_catalog", "skill_id differs from promotion subject")
+            Finding(
+                "PROMOTION_MATURITY_SKILL_MISMATCH",
+                "task_maturity_catalog/skill_id",
+                "skill_id differs from promotion",
+            )
         )
-    routes = data.get("routes")
+    routes = maturity.get("routes")
     if not isinstance(routes, list):
         return findings
     route_map: dict[str, dict[str, Any]] = {}
-    for index_value, route in enumerate(routes):
+    eligible_routes = 0
+    for index, route in enumerate(routes):
         if not isinstance(route, dict) or not isinstance(route.get("route_id"), str):
             continue
         route_id = route["route_id"]
         if route_id in route_map:
-            findings.append(Finding("PROMOTION_MATURITY_ROUTE_DUPLICATE", f"routes/{index_value}", route_id))
+            findings.append(
+                Finding("PROMOTION_MATURITY_ROUTE_DUPLICATE", f"routes/{index}", route_id)
+            )
         route_map[route_id] = route
         axes = [
             route.get("invocation_maturity"),
@@ -380,12 +484,16 @@ def _maturity_findings(
         if all(axis in MATURITY_ORDER for axis in axes):
             computed = min(axes, key=lambda item: MATURITY_ORDER[str(item)])
             overall = route.get("overall_maturity")
-            if not isinstance(overall, dict) or overall.get("computed") != computed or overall.get("declared") != computed:
+            if (
+                not isinstance(overall, dict)
+                or overall.get("declared") != computed
+                or overall.get("computed") != computed
+            ):
                 findings.append(
                     Finding(
                         "PROMOTION_MATURITY_COMPUTED_MISMATCH",
-                        f"routes/{index_value}/overall_maturity",
-                        f"expected both declared and computed to equal {computed}",
+                        f"routes/{index}/overall_maturity",
+                        f"both values must equal {computed}",
                     )
                 )
             ceiling = route.get("claim_ceiling")
@@ -394,32 +502,192 @@ def _maturity_findings(
                 findings.append(
                     Finding(
                         "PROMOTION_MATURITY_CLAIM_OVERSTATED",
-                        f"routes/{index_value}/claim_ceiling",
+                        f"routes/{index}/claim_ceiling",
                         f"{computed} caps claims at {maximum}",
                     )
                 )
+        if (
+            route.get("provider_lifecycle") == "active"
+            and route.get("implementation") == "implemented"
+            and route.get("advertised") is True
+            and route.get("overall_maturity", {}).get("computed")
+            in {"real-artifact-validated", "tool-integration-validated"}
+        ):
+            eligible_routes += 1
+        evidence_axes: set[str] = set()
+        for evidence_index, evidence in enumerate(route.get("evidence") or []):
+            if not isinstance(evidence, dict):
+                continue
+            axis = evidence.get("axis")
+            if isinstance(axis, str):
+                evidence_axes.add(axis)
+            if evidence.get("source") == "skill-local":
+                path_text = evidence.get("path")
+                if not isinstance(path_text, str) or not path_text.startswith(
+                    f"skills/{skill_id}/"
+                ):
+                    findings.append(
+                        Finding(
+                            "PROMOTION_MATURITY_EVIDENCE_OUTSIDE_SKILL",
+                            f"routes/{index}/evidence/{evidence_index}",
+                            str(path_text),
+                        )
+                    )
+                else:
+                    _item, ref_findings = _verify_ref(
+                        repo,
+                        candidate,
+                        evidence,
+                        f"routes/{index}/evidence/{evidence_index}",
+                        "PROMOTION_CANDIDATE_EVIDENCE",
+                    )
+                    findings.extend(ref_findings)
+        for field, axis in (
+            ("invocation_maturity", "invocation"),
+            ("parser_maturity", "parser"),
+            ("scientific_validation_maturity", "scientific_validation"),
+        ):
+            if route.get(field) != "design-only" and axis not in evidence_axes:
+                findings.append(
+                    Finding(
+                        "PROMOTION_MATURITY_AXIS_EVIDENCE_MISSING",
+                        f"routes/{index}/{field}",
+                        f"no {axis} evidence is declared",
+                    )
+                )
+    if decision == "eligible" and eligible_routes == 0:
+        findings.append(
+            Finding(
+                "PROMOTION_NO_ELIGIBLE_ROUTE",
+                "task_maturity_catalog/routes",
+                "eligible promotion requires an advertised implemented route with real-artifact or tool-integration maturity",
+            )
+        )
+
     graph: dict[str, str | None] = {}
     for route_id, route in route_map.items():
         parent = route.get("parent_route")
         if isinstance(parent, dict) and parent.get("scope") == "catalog":
             parent_id = parent.get("route_id")
             if not isinstance(parent_id, str) or parent_id not in route_map:
-                findings.append(Finding("PROMOTION_MATURITY_PARENT_MISSING", route_id, str(parent_id)))
+                findings.append(
+                    Finding("PROMOTION_MATURITY_PARENT_MISSING", route_id, str(parent_id))
+                )
                 graph[route_id] = None
             else:
                 graph[route_id] = parent_id
         else:
             graph[route_id] = None
     for start in graph:
-        seen: set[str] = set()
+        visited: set[str] = set()
         current: str | None = start
         while current is not None:
-            if current in seen:
-                findings.append(Finding("PROMOTION_MATURITY_PARENT_CYCLE", start, current))
+            if current in visited:
+                findings.append(
+                    Finding("PROMOTION_MATURITY_PARENT_CYCLE", start, current)
+                )
                 break
-            seen.add(current)
+            visited.add(current)
             current = graph.get(current)
-    findings.extend(_record_ref_findings(data, index, prefix=("task_maturity_catalog",)))
+    findings.extend(
+        _record_ref_findings(maturity, record_index, ("task_maturity_catalog",))
+    )
+    return findings
+
+
+def _registry_cross_findings(
+    repo: GitRepository,
+    candidate: str,
+    review: str,
+    promotion: dict[str, Any],
+    candidate_skill_registry: dict[str, Any],
+) -> list[Finding]:
+    findings: list[Finding] = []
+    skill_id = promotion.get("skill_id")
+    candidate_registries: dict[str, dict[str, Any]] = {}
+    for path in ROUTING_REGISTRIES:
+        try:
+            candidate_file, candidate_value = repo.yaml_file(candidate, path)
+            review_file = repo.file(review, path)
+            candidate_registries[path] = candidate_value
+            if review_file.raw != candidate_file.raw:
+                findings.append(
+                    Finding(
+                        "PROMOTION_REVIEW_REGISTRY_CHANGED",
+                        path,
+                        "review commit must not change candidate routing registries",
+                    )
+                )
+        except GitError as exc:
+            findings.append(Finding("PROMOTION_SHARED_REGISTRY_INVALID", path, str(exc)))
+
+    operation = candidate_registries.get("registry/operation-routes.yaml", {})
+    routes = operation.get("routes") if isinstance(operation, dict) else None
+    route = routes.get(skill_id) if isinstance(routes, dict) else None
+    if (
+        not isinstance(route, dict)
+        or route.get("lifecycle") != "active"
+        or route.get("routable") is not True
+    ):
+        findings.append(
+            Finding(
+                "PROMOTION_OPERATION_ROUTE_INACTIVE",
+                "registry/operation-routes.yaml",
+                str(skill_id),
+            )
+        )
+
+    interfaces = candidate_registries.get("registry/interface-registry.yaml", {}).get(
+        "interfaces"
+    )
+    for index, change in enumerate(promotion.get("interface_changes") or []):
+        if not isinstance(change, dict) or change.get("action") not in {
+            "activate",
+            "add-active",
+        }:
+            continue
+        interface_id = change.get("interface_id")
+        entry = interfaces.get(interface_id) if isinstance(interfaces, dict) else None
+        if not isinstance(entry, dict) or entry.get("lifecycle") != "active":
+            findings.append(
+                Finding(
+                    "PROMOTION_INTERFACE_NOT_ACTIVE",
+                    f"interface_changes/{index}",
+                    str(interface_id),
+                )
+            )
+
+    software_registry = candidate_registries.get("registry/software-registry.yaml", {})
+    active_software = software_registry.get("software")
+    planned_software = software_registry.get("planned_software")
+    for index, move in enumerate(promotion.get("software_entries_moved") or []):
+        software_id = move.get("software_id") if isinstance(move, dict) else None
+        if not isinstance(active_software, dict) or software_id not in active_software:
+            findings.append(
+                Finding(
+                    "PROMOTION_SOFTWARE_NOT_ACTIVE",
+                    f"software_entries_moved/{index}",
+                    str(software_id),
+                )
+            )
+        if isinstance(planned_software, dict) and software_id in planned_software:
+            findings.append(
+                Finding(
+                    "PROMOTION_SOFTWARE_STILL_PLANNED",
+                    f"software_entries_moved/{index}",
+                    str(software_id),
+                )
+            )
+
+    before = _active_set(candidate_skill_registry)
+    if skill_id not in before:
+        findings.append(
+            Finding(
+                "PROMOTION_CANDIDATE_ACTIVE_SET_INVALID",
+                "registry/skill-registry.yaml",
+                "promoted Skill is absent from candidate active set",
+            )
+        )
     return findings
 
 
@@ -427,221 +695,406 @@ def validate_promotion(
     root: Path,
     promotion_path: Path,
     *,
+    review_commit: str | None = None,
     contracts_dir: Path | None = None,
 ) -> tuple[list[Finding], dict[str, Any]]:
-    selected_root = root.resolve()
-    selected_contracts = (contracts_dir or selected_root / "contracts").resolve()
+    root = root.resolve()
+    contracts = (contracts_dir or root / "contracts").resolve()
     findings: list[Finding] = []
     try:
         raw = promotion_path.read_bytes()
-        promotion = strict_json.loads_object(raw, promotion_path.name, max_bytes=MAX_GIT_FILE_BYTES)
+        promotion = strict_json.loads_object(
+            raw, promotion_path.name, max_bytes=MAX_GIT_FILE_BYTES
+        )
     except (OSError, strict_json.StrictJSONError) as exc:
         return [Finding("PROMOTION_INPUT_INVALID", str(promotion_path), str(exc))], {}
-    findings.extend(_schema_findings("promotion-delta@1.0", promotion, selected_contracts, "promotion"))
-    try:
-        repo = GitRepository(selected_root)
-        base = repo.resolve_commit(promotion.get("base_commit"), "base_commit")
-        candidate = repo.resolve_commit(promotion.get("candidate_commit"), "candidate_commit")
-    except GitError as exc:
-        return sorted(set(findings + [Finding("PROMOTION_COMMIT_INVALID", "commits", str(exc))])), {}
-    if base == candidate or not repo.is_ancestor(base, candidate):
-        findings.append(Finding("PROMOTION_COMMIT_ORDER_INVALID", "commits", "base must be a strict ancestor of candidate"))
+    findings.extend(
+        _schema_findings("promotion-delta@1.1", promotion, contracts, "promotion")
+    )
 
     try:
-        base_registry_file, base_registry = repo.yaml_file(base, "registry/skill-registry.yaml")
-        candidate_registry_file, candidate_registry = repo.yaml_file(candidate, "registry/skill-registry.yaml")
+        repo = GitRepository(root)
+        base = repo.resolve_commit(promotion.get("base_commit"), "base_commit")
+        candidate = repo.resolve_commit(
+            promotion.get("candidate_commit"), "candidate_commit"
+        )
+        review = (
+            repo.resolve_commit(review_commit, "review_commit")
+            if review_commit is not None
+            else repo.head()
+        )
     except GitError as exc:
-        findings.append(Finding("PROMOTION_SKILL_REGISTRY_INVALID", "registry/skill-registry.yaml", str(exc)))
-        return sorted(set(findings)), {}
-    if promotion.get("base_registry_sha256") != base_registry_file.sha256:
-        findings.append(Finding("PROMOTION_BASE_REGISTRY_HASH_MISMATCH", "base_registry_sha256", "does not match base commit bytes"))
+        return sorted(
+            set(findings + [Finding("PROMOTION_COMMIT_INVALID", "commits", str(exc))])
+        ), {}
+    if base == candidate or not repo.is_ancestor(base, candidate):
+        findings.append(
+            Finding(
+                "PROMOTION_CANDIDATE_ORDER_INVALID",
+                "commits",
+                "base must be a strict ancestor of candidate",
+            )
+        )
+    if candidate == review or not repo.is_ancestor(candidate, review):
+        findings.append(
+            Finding(
+                "PROMOTION_REVIEW_ORDER_INVALID",
+                "commits",
+                "candidate must be a strict ancestor of review",
+            )
+        )
 
     skill_id = promotion.get("skill_id")
     if not isinstance(skill_id, str):
         return sorted(set(findings)), {}
-    base_skill = _find_skill(base_registry, skill_id)
-    candidate_skill = _find_skill(candidate_registry, skill_id)
-    if base_skill is None or base_skill.get("lifecycle") != "development":
-        findings.append(Finding("PROMOTION_BASE_LIFECYCLE_INVALID", skill_id, "base Skill must exist as development"))
-    if candidate_skill is None or candidate_skill.get("lifecycle") != "active":
-        findings.append(Finding("PROMOTION_CANDIDATE_LIFECYCLE_INVALID", skill_id, "candidate Skill must exist as active"))
-
-    expected_source = f"skills/{skill_id}"
-    transition = promotion.get("path_transition")
-    if not isinstance(transition, dict) or transition.get("from") != expected_source or transition.get("to") != expected_source:
-        findings.append(Finding("PROMOTION_PATH_TRANSITION_INVALID", "path_transition", f"both paths must equal {expected_source}"))
-    try:
-        tree_hash = repo.source_tree_sha256(candidate, expected_source)
-    except GitError as exc:
-        findings.append(Finding("PROMOTION_SOURCE_TREE_INVALID", expected_source, str(exc)))
-        tree_hash = None
-    if tree_hash is not None:
-        declared_tree = transition.get("source_tree_sha256") if isinstance(transition, dict) else None
-        registry_tree = candidate_skill.get("source_tree_sha256") if isinstance(candidate_skill, dict) else None
-        if tree_hash != declared_tree or tree_hash != registry_tree:
-            findings.append(Finding("PROMOTION_SOURCE_TREE_HASH_MISMATCH", expected_source, "candidate bytes, promotion delta, and Skill registry differ"))
-
-    try:
-        actual_diff = set(repo.diff_paths(base, candidate))
-    except GitError as exc:
-        findings.append(Finding("PROMOTION_DIFF_INVALID", "diff", str(exc)))
-        actual_diff = set()
-    declared_domain = promotion.get("domain_owned_files_changed")
-    declared_shared = promotion.get("shared_files_changed")
-    declared_diff = set(declared_domain if isinstance(declared_domain, list) else []) | set(declared_shared if isinstance(declared_shared, list) else [])
-    if actual_diff != declared_diff:
+    source_root = f"skills/{skill_id}"
+    expected_review_root = f"evidence/promotions/{skill_id}"
+    if promotion.get("review_artifact_root") != expected_review_root:
         findings.append(
             Finding(
-                "PROMOTION_DIFF_DECLARATION_MISMATCH",
-                "changed_files",
-                f"actual-only={sorted(actual_diff - declared_diff)} declared-only={sorted(declared_diff - actual_diff)}",
+                "PROMOTION_REVIEW_ROOT_INVALID",
+                "review_artifact_root",
+                f"expected {expected_review_root}",
             )
         )
-    if any(not str(path).startswith(f"{expected_source}/") for path in (declared_domain or [])):
-        findings.append(Finding("PROMOTION_DOMAIN_PATH_OUTSIDE_SKILL", "domain_owned_files_changed", expected_source))
 
-    findings.extend(_file_ref_findings(repo, candidate, promotion))
+    try:
+        local_relative = promotion_path.resolve().relative_to(root).as_posix()
+    except ValueError:
+        findings.append(
+            Finding(
+                "PROMOTION_RECORD_OUTSIDE_REPOSITORY",
+                str(promotion_path),
+                "promotion record must be committed under the review artifact root",
+            )
+        )
+        local_relative = ""
+    if local_relative and not local_relative.startswith(f"{expected_review_root}/"):
+        findings.append(
+            Finding(
+                "PROMOTION_RECORD_OUTSIDE_REVIEW_ROOT",
+                local_relative,
+                expected_review_root,
+            )
+        )
+    if local_relative:
+        try:
+            committed_promotion = repo.file(review, local_relative)
+            if committed_promotion.raw != raw:
+                findings.append(
+                    Finding(
+                        "PROMOTION_RECORD_BYTES_MISMATCH",
+                        local_relative,
+                        "local bytes differ from review commit",
+                    )
+                )
+        except GitError as exc:
+            findings.append(
+                Finding("PROMOTION_RECORD_NOT_COMMITTED", local_relative, str(exc))
+            )
 
-    referenced_paths: set[str] = set(actual_diff)
-    for _path, node in _iter_dicts(promotion):
-        candidate_path = _safe_path(node.get("path")) if isinstance(node, dict) else None
-        if candidate_path:
-            referenced_paths.add(candidate_path)
-    record_index, index_findings = _build_record_index(repo, candidate, referenced_paths, selected_contracts)
+    try:
+        base_registry_file, base_registry = repo.yaml_file(
+            base, "registry/skill-registry.yaml"
+        )
+        _candidate_registry_file, candidate_registry = repo.yaml_file(
+            candidate, "registry/skill-registry.yaml"
+        )
+    except GitError as exc:
+        findings.append(
+            Finding(
+                "PROMOTION_SKILL_REGISTRY_INVALID",
+                "registry/skill-registry.yaml",
+                str(exc),
+            )
+        )
+        return sorted(set(findings)), {}
+    if promotion.get("base_registry_sha256") != base_registry_file.sha256:
+        findings.append(
+            Finding(
+                "PROMOTION_BASE_REGISTRY_HASH_MISMATCH",
+                "base_registry_sha256",
+                "does not match base commit bytes",
+            )
+        )
+
+    base_skill = _skill_entry(base_registry, skill_id)
+    candidate_skill = _skill_entry(candidate_registry, skill_id)
+    if base_skill is None or base_skill.get("lifecycle") != "development":
+        findings.append(
+            Finding(
+                "PROMOTION_BASE_LIFECYCLE_INVALID",
+                skill_id,
+                "base Skill must be development",
+            )
+        )
+    if candidate_skill is None or candidate_skill.get("lifecycle") != "active":
+        findings.append(
+            Finding(
+                "PROMOTION_CANDIDATE_LIFECYCLE_INVALID",
+                skill_id,
+                "candidate Skill must be active",
+            )
+        )
+
+    transition = promotion.get("path_transition")
+    if (
+        not isinstance(transition, dict)
+        or transition.get("from") != source_root
+        or transition.get("to") != source_root
+    ):
+        findings.append(
+            Finding(
+                "PROMOTION_PATH_TRANSITION_INVALID",
+                "path_transition",
+                f"from and to must equal {source_root}",
+            )
+        )
+    try:
+        tree_hash = repo.source_tree_sha256(candidate, source_root)
+    except GitError as exc:
+        findings.append(
+            Finding("PROMOTION_SOURCE_TREE_INVALID", source_root, str(exc))
+        )
+        tree_hash = None
+    if tree_hash is not None:
+        delta_hash = transition.get("source_tree_sha256") if isinstance(transition, dict) else None
+        registry_hash = (
+            candidate_skill.get("source_tree_sha256")
+            if isinstance(candidate_skill, dict)
+            else None
+        )
+        if tree_hash != delta_hash or tree_hash != registry_hash:
+            findings.append(
+                Finding(
+                    "PROMOTION_SOURCE_TREE_HASH_MISMATCH",
+                    source_root,
+                    "candidate bytes, promotion delta, and Skill registry differ",
+                )
+            )
+
+    try:
+        candidate_diff = set(repo.diff_paths(base, candidate))
+        review_diff = set(repo.diff_paths(candidate, review))
+    except GitError as exc:
+        findings.append(Finding("PROMOTION_DIFF_INVALID", "diff", str(exc)))
+        candidate_diff = set()
+        review_diff = set()
+    declared_domain = promotion.get("domain_owned_files_changed")
+    declared_shared = promotion.get("shared_files_changed")
+    declared_candidate_diff = set(
+        declared_domain if isinstance(declared_domain, list) else []
+    ) | set(declared_shared if isinstance(declared_shared, list) else [])
+    if candidate_diff != declared_candidate_diff:
+        findings.append(
+            Finding(
+                "PROMOTION_CANDIDATE_DIFF_MISMATCH",
+                "changed_files",
+                f"actual-only={sorted(candidate_diff - declared_candidate_diff)} "
+                f"declared-only={sorted(declared_candidate_diff - candidate_diff)}",
+            )
+        )
+    if any(
+        not isinstance(path, str) or not path.startswith(f"{source_root}/")
+        for path in (declared_domain or [])
+    ):
+        findings.append(
+            Finding(
+                "PROMOTION_DOMAIN_PATH_OUTSIDE_SKILL",
+                "domain_owned_files_changed",
+                source_root,
+            )
+        )
+    illegal_review_paths = sorted(
+        path for path in review_diff if not path.startswith(f"{expected_review_root}/")
+    )
+    if illegal_review_paths:
+        findings.append(
+            Finding(
+                "PROMOTION_REVIEW_DIFF_ESCAPES_ARTIFACT_ROOT",
+                "review_diff",
+                str(illegal_review_paths),
+            )
+        )
+
+    candidate_ref_paths: set[str] = set(candidate_diff)
+    for location, reference in _candidate_refs(promotion):
+        item, ref_findings = _verify_ref(
+            repo, candidate, reference, location, "PROMOTION_CANDIDATE"
+        )
+        findings.extend(ref_findings)
+        if item is not None:
+            candidate_ref_paths.add(item.path)
+    for location, reference in _review_refs(promotion):
+        item, ref_findings = _verify_ref(
+            repo, review, reference, location, "PROMOTION_REVIEW"
+        )
+        findings.extend(ref_findings)
+        if item is not None and not item.path.startswith(f"{expected_review_root}/"):
+            findings.append(
+                Finding(
+                    "PROMOTION_REVIEW_REF_OUTSIDE_ROOT",
+                    location,
+                    item.path,
+                )
+            )
+
+    record_index, index_findings = _record_index(
+        repo, candidate, candidate_ref_paths, contracts
+    )
     findings.extend(index_findings)
 
-    activation_ref = promotion.get("activation_checklist")
-    maturity_ref = promotion.get("task_maturity_catalog")
     activation: dict[str, Any] = {}
     maturity: dict[str, Any] = {}
+    activation_ref = promotion.get("activation_checklist")
+    maturity_ref = promotion.get("task_maturity_catalog")
     if isinstance(activation_ref, dict):
         try:
-            _activation_file, activation = repo.json_file(candidate, activation_ref.get("path"))
-            findings.extend(_schema_findings("activation-checklist@1.0", activation, selected_contracts, "activation_checklist"))
+            _item, activation = repo.json_file(review, activation_ref.get("path"))
+            findings.extend(
+                _schema_findings(
+                    "activation-checklist@1.1",
+                    activation,
+                    contracts,
+                    "activation_checklist",
+                )
+            )
         except GitError as exc:
-            findings.append(Finding("PROMOTION_ACTIVATION_RECORD_INVALID", "activation_checklist", str(exc)))
+            findings.append(
+                Finding(
+                    "PROMOTION_ACTIVATION_RECORD_INVALID",
+                    "activation_checklist",
+                    str(exc),
+                )
+            )
     if isinstance(maturity_ref, dict):
         try:
-            _maturity_file, maturity = repo.json_file(candidate, maturity_ref.get("path"))
-            findings.extend(_schema_findings("task-maturity@1.0", maturity, selected_contracts, "task_maturity_catalog"))
+            _item, maturity = repo.json_file(candidate, maturity_ref.get("path"))
+            findings.extend(
+                _schema_findings(
+                    "task-maturity@1.1",
+                    maturity,
+                    contracts,
+                    "task_maturity_catalog",
+                )
+            )
         except GitError as exc:
-            findings.append(Finding("PROMOTION_MATURITY_RECORD_INVALID", "task_maturity_catalog", str(exc)))
-
+            findings.append(
+                Finding(
+                    "PROMOTION_MATURITY_RECORD_INVALID",
+                    "task_maturity_catalog",
+                    str(exc),
+                )
+            )
     if activation:
-        subject = activation.get("subject")
-        if not isinstance(subject, dict) or subject.get("skill_id") != skill_id or subject.get("candidate_commit") != candidate:
-            findings.append(Finding("PROMOTION_ACTIVATION_SUBJECT_MISMATCH", "activation_checklist/subject", "skill or candidate commit differs"))
-        summary = activation.get("summary")
-        expected_decision = promotion.get("decision")
-        activation_decision = summary.get("decision") if isinstance(summary, dict) else None
-        if activation_decision != expected_decision:
-            findings.append(Finding("PROMOTION_DECISION_MISMATCH", "activation_checklist/summary", "activation and promotion decisions differ"))
-        for path, node in _iter_dicts(activation):
-            if set(node).issuperset({"path", "sha256"}) and isinstance(node.get("path"), str):
-                if not node["path"].startswith(f"{expected_source}/"):
-                    findings.append(Finding("PROMOTION_ACTIVATION_EVIDENCE_OUTSIDE_SKILL", _pointer(path), node["path"]))
-        findings.extend(_file_ref_findings(repo, candidate, activation, prefix=("activation_checklist",)))
-        findings.extend(_record_ref_findings(activation, record_index, prefix=("activation_checklist",)))
+        findings.extend(
+            _activation_findings(
+                repo,
+                candidate,
+                activation,
+                skill_id,
+                promotion.get("decision"),
+                record_index,
+            )
+        )
     if maturity:
-        findings.extend(_file_ref_findings(repo, candidate, maturity, prefix=("task_maturity_catalog",)))
-        findings.extend(_maturity_findings(maturity, skill_id, record_index))
+        findings.extend(
+            _maturity_findings(
+                repo,
+                candidate,
+                maturity,
+                skill_id,
+                promotion.get("decision"),
+                record_index,
+            )
+        )
 
     before_active = _active_set(base_registry)
     after_active = _active_set(candidate_registry)
     installer = promotion.get("installer_set")
+    expected_installer = {
+        "before": sorted(before_active),
+        "after": sorted(after_active),
+        "added": sorted(after_active - before_active),
+        "removed": sorted(before_active - after_active),
+    }
     if isinstance(installer, dict):
-        expected_installer = {
-            "before": sorted(before_active),
-            "after": sorted(after_active),
-            "added": sorted(after_active - before_active),
-            "removed": sorted(before_active - after_active),
-        }
         for field, expected in expected_installer.items():
             actual = installer.get(field)
             if not isinstance(actual, list) or sorted(actual) != expected:
-                findings.append(Finding("PROMOTION_INSTALLER_SET_MISMATCH", f"installer_set/{field}", f"expected {expected}"))
-    if after_active - before_active != {skill_id}:
-        findings.append(Finding("PROMOTION_ACTIVE_DELTA_INVALID", "installer_set", "exactly the promoted Skill must be added"))
+                findings.append(
+                    Finding(
+                        "PROMOTION_INSTALLER_SET_MISMATCH",
+                        f"installer_set/{field}",
+                        f"expected {expected}",
+                    )
+                )
+    if after_active - before_active != {skill_id} or before_active - after_active:
+        findings.append(
+            Finding(
+                "PROMOTION_ACTIVE_DELTA_INVALID",
+                "installer_set",
+                "exactly the promoted Skill must be added and none removed",
+            )
+        )
 
-    registry_paths = {
-        "interface": "registry/interface-registry.yaml",
-        "operation": "registry/operation-routes.yaml",
-        "software": "registry/software-registry.yaml",
-        "environment": "registry/environment-profiles.yaml",
-    }
-    candidate_registries: dict[str, dict[str, Any]] = {}
-    for label, path in registry_paths.items():
-        try:
-            _item, value = repo.yaml_file(candidate, path)
-            candidate_registries[label] = value
-        except GitError as exc:
-            findings.append(Finding("PROMOTION_SHARED_REGISTRY_INVALID", path, str(exc)))
-    operation_routes = candidate_registries.get("operation", {}).get("routes")
-    route = operation_routes.get(skill_id) if isinstance(operation_routes, dict) else None
-    if not isinstance(route, dict) or route.get("lifecycle") != "active" or route.get("routable") is not True:
-        findings.append(Finding("PROMOTION_OPERATION_ROUTE_INACTIVE", "registry/operation-routes.yaml", skill_id))
+    findings.extend(
+        _registry_cross_findings(
+            repo, candidate, review, promotion, candidate_registry
+        )
+    )
 
-    interface_registry = candidate_registries.get("interface", {}).get("interfaces")
-    for index_value, change in enumerate(promotion.get("interface_changes") or []):
-        if not isinstance(change, dict) or change.get("action") not in {"activate", "add-active"}:
-            continue
-        interface_id = change.get("interface_id")
-        entry = interface_registry.get(interface_id) if isinstance(interface_registry, dict) else None
-        if not isinstance(entry, dict) or entry.get("lifecycle") != "active":
-            findings.append(Finding("PROMOTION_INTERFACE_NOT_ACTIVE", f"interface_changes/{index_value}", str(interface_id)))
-
-    software = candidate_registries.get("software", {})
-    active_software = software.get("software") if isinstance(software, dict) else None
-    planned_software = software.get("planned_software") if isinstance(software, dict) else None
-    for index_value, move in enumerate(promotion.get("software_entries_moved") or []):
-        software_id = move.get("software_id") if isinstance(move, dict) else None
-        if not isinstance(active_software, dict) or software_id not in active_software:
-            findings.append(Finding("PROMOTION_SOFTWARE_NOT_ACTIVE", f"software_entries_moved/{index_value}", str(software_id)))
-        if isinstance(planned_software, dict) and software_id in planned_software:
-            findings.append(Finding("PROMOTION_SOFTWARE_STILL_PLANNED", f"software_entries_moved/{index_value}", str(software_id)))
-
+    findings = sorted(set(findings))
     status = "pass" if not findings else "fail"
     report = {
         "schema_version": "1.0",
-        "validator": "commit-aware-promotion-validator",
+        "validator": "two-phase-promotion-validator",
         "promotion_id": promotion.get("promotion_id"),
         "skill_id": skill_id,
         "base_commit": base,
         "candidate_commit": candidate,
+        "review_commit": review,
         "status": status,
         "eligible": status == "pass" and promotion.get("decision") == "eligible",
-        "finding_count": len(set(findings)),
+        "finding_count": len(findings),
         "findings": [
             {"code": item.code, "location": item.location, "message": item.message}
-            for item in sorted(set(findings))
+            for item in findings
         ],
     }
-    return sorted(set(findings)), report
+    return findings, report
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("promotion_delta", type=Path)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--review-commit")
     parser.add_argument("--contracts-dir", type=Path)
     parser.add_argument("--report", type=Path)
     args = parser.parse_args(argv)
     findings, report = validate_promotion(
         args.root,
         args.promotion_delta,
+        review_commit=args.review_commit,
         contracts_dir=args.contracts_dir,
     )
     if args.report is not None:
         args.report.parent.mkdir(parents=True, exist_ok=True)
-        args.report.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        args.report.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
     if findings:
         for finding in findings:
             print(finding.render(), file=sys.stderr)
         return 2
     if not report.get("eligible"):
-        print("BLOCKED: promotion record is structurally and semantically valid but not eligible")
+        print("BLOCKED: promotion evidence is valid but decision is blocked")
         return 3
-    print("PASS: promotion is commit-bound, hash-closed, registry-consistent, and eligible")
+    print(
+        "PASS: two-phase promotion is commit-bound, hash-closed, "
+        "registry-consistent, and eligible"
+    )
     return 0
 
 
