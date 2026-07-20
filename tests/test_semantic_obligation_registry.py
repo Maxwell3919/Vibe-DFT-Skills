@@ -29,6 +29,46 @@ class SemanticObligationRegistryTests(unittest.TestCase):
         self.assertIsNotNone(declaration)
         self.assertEqual(declaration.validator_id, "bundle-semantic-dispatcher")
 
+    def test_structured_list_form_uses_finding_id(self) -> None:
+        declaration, findings = audit.parse_declaration(
+            self._contract(
+                [
+                    {
+                        "finding_id": "example-obligation",
+                        "scope": "cross-record",
+                        "enforcement": "external-semantic-validator-required",
+                        "blocks": ["positive-claim"],
+                        "assertion": "Referenced content matches its declared hash.",
+                        "evidence_required": ["resolved-record-sha256"],
+                    }
+                ]
+            )
+        )
+        self.assertEqual(findings, [])
+        self.assertIsNotNone(declaration)
+        self.assertEqual(declaration.obligation_ids, ("example-obligation",))
+
+    def test_structured_obligation_missing_evidence_is_rejected(self) -> None:
+        declaration, findings = audit.parse_declaration(
+            self._contract(
+                [
+                    {
+                        "finding_id": "example-obligation",
+                        "scope": "cross-record",
+                        "enforcement": "external-semantic-validator-required",
+                        "blocks": ["positive-claim"],
+                        "assertion": "Referenced content matches its declared hash.",
+                        "evidence_required": [],
+                    }
+                ]
+            )
+        )
+        self.assertIsNone(declaration)
+        self.assertIn(
+            "SEMANTIC_STRUCTURED_OBLIGATION_LIST_INVALID",
+            {finding.code for finding in findings},
+        )
+
     def test_object_form_preserves_explicit_validator(self) -> None:
         declaration, findings = audit.parse_declaration(
             self._contract(
