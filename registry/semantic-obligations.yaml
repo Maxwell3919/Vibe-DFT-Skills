@@ -1,0 +1,31 @@
+schema_version: "1.0"
+
+# List-form x-vibe-semantic-obligations are owned by the immutable bundle
+# dispatcher. Object-form declarations name their validator explicitly.
+validators:
+  bundle-semantic-dispatcher:
+    implementation: implemented
+    entrypoint: tools/validate_bundle.py
+    dispatcher: tools/bundle_semantics.py
+    scope: immutable-bundle
+    unavailable_policy: block
+    maximum_claim_when_unavailable: no_positive_claim
+  commit-aware-promotion-validator:
+    implementation: blocked
+    entrypoint: null
+    dispatcher: null
+    scope: repository-commit-and-promotion
+    unavailable_policy: block
+    maximum_claim_when_unavailable: no_positive_claim
+    blocker: >-
+      Commit-aware promotion validation is not yet implemented. Activation
+      checklist, task maturity, promotion delta, candidate decision, and related
+      governance records remain non-routable evidence until a validator binds
+      candidate commits, file bytes, reviewers, and forward-test records.
+
+policies:
+  unknown_validator: reject
+  duplicate_obligation_id_within_contract: reject
+  malformed_obligation_declaration: reject
+  implemented_validator_without_entrypoint: reject
+  blocked_validator_positive_claim: reject
