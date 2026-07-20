@@ -30,9 +30,7 @@
   "properties": {
     "schema_version": {"const": "1.1"},
     "contract_name": {"const": "activation-checklist"},
-    "checklist_id": {
-      "$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/safeId"
-    },
+    "checklist_id": {"$ref": "#/$defs/safeId"},
     "subject": {
       "$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/subject"
     },
@@ -125,5 +123,11 @@
         }
       }
     }
-  ]
+  ],
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    }
+  }
 }
