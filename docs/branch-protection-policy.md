@@ -1,15 +1,16 @@
 # Main Branch Protection Policy
 
-The `main` branch is the release and lifecycle source of truth. Repository settings should enforce the following controls.
+The `main` branch is the release and lifecycle source of truth. Repository settings should enforce the following controls without making a single-maintainer repository permanently unmergeable.
 
 ## Required pull-request controls
 
 - Require a pull request before merging.
-- Require at least one explicit approval.
-- Dismiss stale approvals when new commits are pushed.
-- Require review from CODEOWNERS.
+- When more than one eligible human reviewer exists, require at least one independent approval.
+- Dismiss stale approvals when new commits are pushed if approval enforcement is enabled.
+- Require review from CODEOWNERS when an eligible CODEOWNER other than the latest pusher exists.
 - Require all review conversations to be resolved.
 - Prevent the most recent pusher from being the sole approving reviewer when the repository has more than one eligible reviewer.
+- In a single-maintainer repository, use a completed pull-request self-review checklist plus passing required checks instead of an approval rule that no account can satisfy.
 
 ## Required status checks
 
@@ -34,7 +35,7 @@ Require branches to be up to date before merging when a change affects contracts
 - Block branch deletion.
 - Restrict direct pushes to `main`.
 - Apply rules to administrators where operationally possible.
-- Do not allow bypass for lifecycle promotion, release, contract-major, privacy, or authorization changes.
+- Do not allow bypass for lifecycle promotion, release, contract-major, privacy, or authorization changes, except for a documented emergency security procedure.
 - Prefer squash merge or rebase merge for focused pull requests; do not use a merge strategy to hide unrelated changes.
 
 ## Sensitive changes
@@ -49,6 +50,8 @@ The following changes require a dedicated pull request and explicit owner review
 - release and baseline records;
 - GitHub Actions permissions or third-party action changes.
 
+For a single-maintainer repository, explicit owner review may be recorded through the completed pull-request checklist and a written review decision. It must remain separate from automated test output and must not be described as independent review.
+
 ## Verification
 
 Repository settings are external to Git history. After configuring protection, record the following in a reviewed issue, pull request, or release checklist:
@@ -56,7 +59,7 @@ Repository settings are external to Git history. After configuring protection, r
 - ruleset or branch-protection name;
 - protected branch pattern;
 - required checks;
-- required approvals;
+- required approvals and whether an independent reviewer exists;
 - CODEOWNERS enforcement state;
 - force-push and deletion state;
 - administrator bypass state;
