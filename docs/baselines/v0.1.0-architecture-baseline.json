@@ -1,0 +1,103 @@
+{
+  "baseline_schema_version": "1.0",
+  "baseline_id": "v0.1.0-architecture-baseline",
+  "captured_on": "2026-07-21",
+  "timezone": "Asia/Singapore",
+  "repository": "Maxwell3919/Vibe-DFT-Skills",
+  "source_branch": "main",
+  "source_commit_sha": "33dc893ad7dee6cdab8d645f7e25ff44f345c899",
+  "working_branch": "chore/freeze-baseline-governance",
+  "proposed_tag": "v0.1.0-architecture-baseline",
+  "tag_status": "not-created-by-this-record",
+  "scope": {
+    "source_backed_skills": 26,
+    "active_skills": 7,
+    "development_skills": 19,
+    "planned_skills": 0,
+    "active_calculation_code_integrations": 4,
+    "planned_software_identities": 19
+  },
+  "active_skill_sources": {
+    "cif-structure-analysis": "84f599ce27ad91ed0b601a06322b12a597003ffa752bb063f1d546add4369419",
+    "qe-rigorous-calculations": "19c333f8cdbb126684cec26b44947c6c2b13fcf835713063bae896848182a142",
+    "vasp-rigorous-calculations": "d1e0d4f5490734aec67fd55de78c524810744ac91bcb513c22686852422095ab",
+    "cp2k-rigorous-calculations": "142367b77fd10f7355eb9495e1d9fb54f3eaf650fd5428a5e3847f34d12c2be6",
+    "siesta-rigorous-calculations": "5298399befeaf42ab7dfdb36e7d63a48a363c80c5ee223724554e7d677c9bf27",
+    "dft-postprocess": "a4449f5d63f4aade8a9061a571aabce834ecc90990c08c7846424b51bed59a27",
+    "dft-campaign-efficiency": "ec280d800ae1efcf75a154ec841129e5d0ae80f0a7b6ffd505cc99037f4803cb"
+  },
+  "development_skill_ids": [
+    "dft-project-orchestrator",
+    "dft-hpc-execution",
+    "dft-reporting",
+    "literature-to-dft-plan",
+    "dft-review-response",
+    "dft-structure-preparation",
+    "gaussian-rigorous-calculations",
+    "gromacs-rigorous-simulations",
+    "lammps-rigorous-simulations",
+    "deepmd-rigorous-workflows",
+    "multiwfn-wavefunction-analysis",
+    "phonopy-rigorous-workflows",
+    "vaspkit-postprocess",
+    "catmap-microkinetics",
+    "lobster-bonding-analysis",
+    "ovito-atomistic-analysis",
+    "ml-potential-workflows",
+    "gpumd-rigorous-simulations",
+    "lasp-rigorous-simulations"
+  ],
+  "active_software_ids": [
+    "qe",
+    "vasp",
+    "cp2k",
+    "siesta"
+  ],
+  "git_blob_anchors": {
+    "README.md": "6d3be7a87eecdbd855f61b7aa2154d40be59f717",
+    "AGENTS.md": "84b5a79cf0893b713e703bb5cbbe997986190489",
+    "registry/skill-registry.yaml": "82285d3d871171125f4cf814bc45284890139dea",
+    "registry/software-registry.yaml": "da3939036e3ec85154b9e9126f12e4b3b2177de1",
+    ".github/workflows/validate.yml": "d32f132bad225e467a6733ee836089135e3de455",
+    "tools/run_tests.py": "bfd8d70a1add9ed43acc7c34025720482da6aef5",
+    "tools/validate_contract.py": "8d8f097f3451ee49eaf18812f311bc53796e3624"
+  },
+  "validation_commands": [
+    "python3 tools/run_tests.py",
+    "python3 tools/validate_all_skills.py",
+    "python3 tools/audit_repository.py",
+    "git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'"
+  ],
+  "known_blockers": [
+    {
+      "id": "P0-SEMANTIC-LINEAGE",
+      "summary": "Cross-record IDs, hashes, status compatibility, DAG order, and claim ceilings are not yet enforced by one shared bundle semantic validator."
+    },
+    {
+      "id": "P0-PRIVACY-RESTRICTED-CONTENT",
+      "summary": "Repository-wide privacy, credential, private-path, POTCAR, restricted-artifact, and history scanning is incomplete."
+    },
+    {
+      "id": "P0-DEVELOPMENT-BEHAVIOR-TESTS",
+      "summary": "The standard behavior-test runner discovers active Skill tests but does not execute all development Skill behavior tests."
+    },
+    {
+      "id": "P0-ACTIVE-ONLY-DISTRIBUTION",
+      "summary": "A generated distribution containing only active Skills does not yet provide a physical routing boundary for third-party runtimes."
+    },
+    {
+      "id": "P0-ACTIVATION-EVIDENCE",
+      "summary": "Active lifecycle entries do not yet retain immutable, queryable activation evidence records."
+    },
+    {
+      "id": "P1-QE-2D-EPC-GOLDEN-BUNDLE",
+      "summary": "The repository does not yet contain one end-to-end, legally reusable two-dimensional phonon-EPC-Tc golden evidence bundle."
+    }
+  ],
+  "evidence_boundary": {
+    "repository_tests_are_native_execution_evidence": false,
+    "active_means_installed_in_current_environment": false,
+    "active_means_scientifically_accepted": false,
+    "baseline_claim": "This record freezes repository architecture and declared lifecycle state only."
+  }
+}
