@@ -66,6 +66,7 @@ jobs:
       - run: python tools/audit_privacy.py --history
       - run: python tools/activation_ledger.py
       - run: python tools/build_distribution.py --check
+      - run: python tools/validate_qe_2d_epc.py golden-bundles/qe-2d-epc-v1/evidence.json
       - run: python tools/audit_repository.py
 
   portability-smoke:
@@ -89,6 +90,7 @@ jobs:
       - run: python tools/audit_semantic_obligations.py
       - run: python tools/activation_ledger.py
       - run: python tools/build_distribution.py --check
+      - run: python tools/validate_qe_2d_epc.py golden-bundles/qe-2d-epc-v1/evidence.json
 
   diff-check:
     name: documentation-and-whitespace
