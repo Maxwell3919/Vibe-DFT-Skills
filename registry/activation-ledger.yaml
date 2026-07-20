@@ -1,0 +1,71 @@
+schema_version: "1.0"
+ledger_id: legacy-active-baseline-2026-07-21
+baseline_source_commit: 33dc893ad7dee6cdab8d645f7e25ff44f345c899
+governance_commit: 3661511475d77c35042b18fdb163b8b57b6758a3
+
+# These records preserve the inherited active routing state without inventing
+# independent promotion evidence. Every entry remains review-required.
+records:
+  cif-structure-analysis:
+    lifecycle: active
+    activation_state: legacy-active-review-required
+    source_tree_sha256: 84f599ce27ad91ed0b601a06322b12a597003ffa752bb063f1d546add4369419
+    baseline_record: docs/baselines/v0.1.0-architecture-baseline.json
+    independent_promotion_evidence: false
+    native_execution_claimed: false
+    scientific_acceptance_claimed: false
+    required_next_actions: [activation-checklist, independent-review, forward-test]
+  qe-rigorous-calculations:
+    lifecycle: active
+    activation_state: legacy-active-review-required
+    source_tree_sha256: 19c333f8cdbb126684cec26b44947c6c2b13fcf835713063bae896848182a142
+    baseline_record: docs/baselines/v0.1.0-architecture-baseline.json
+    independent_promotion_evidence: false
+    native_execution_claimed: false
+    scientific_acceptance_claimed: false
+    required_next_actions: [activation-checklist, independent-review, version-bound-native-validation, forward-test]
+  vasp-rigorous-calculations:
+    lifecycle: active
+    activation_state: legacy-active-review-required
+    source_tree_sha256: d1e0d4f5490734aec67fd55de78c524810744ac91bcb513c22686852422095ab
+    baseline_record: docs/baselines/v0.1.0-architecture-baseline.json
+    independent_promotion_evidence: false
+    native_execution_claimed: false
+    scientific_acceptance_claimed: false
+    required_next_actions: [activation-checklist, independent-review, license-review, version-bound-native-validation, forward-test]
+  cp2k-rigorous-calculations:
+    lifecycle: active
+    activation_state: legacy-active-review-required
+    source_tree_sha256: 142367b77fd10f7355eb9495e1d9fb54f3eaf650fd5428a5e3847f34d12c2be6
+    baseline_record: docs/baselines/v0.1.0-architecture-baseline.json
+    independent_promotion_evidence: false
+    native_execution_claimed: false
+    scientific_acceptance_claimed: false
+    required_next_actions: [activation-checklist, independent-review, version-bound-native-validation, forward-test]
+  siesta-rigorous-calculations:
+    lifecycle: active
+    activation_state: legacy-active-review-required
+    source_tree_sha256: 5298399befeaf42ab7dfdb36e7d63a48a363c80c5ee223724554e7d677c9bf27
+    baseline_record: docs/baselines/v0.1.0-architecture-baseline.json
+    independent_promotion_evidence: false
+    native_execution_claimed: false
+    scientific_acceptance_claimed: false
+    required_next_actions: [activation-checklist, independent-review, version-bound-native-validation, forward-test]
+  dft-postprocess:
+    lifecycle: active
+    activation_state: legacy-active-review-required
+    source_tree_sha256: a4449f5d63f4aade8a9061a571aabce834ecc90990c08c7846424b51bed59a27
+    baseline_record: docs/baselines/v0.1.0-architecture-baseline.json
+    independent_promotion_evidence: false
+    native_execution_claimed: false
+    scientific_acceptance_claimed: false
+    required_next_actions: [activation-checklist, independent-review, adapter-forward-tests, forward-test]
+  dft-campaign-efficiency:
+    lifecycle: active
+    activation_state: legacy-active-review-required
+    source_tree_sha256: ec280d800ae1efcf75a154ec841129e5d0ae80f0a7b6ffd505cc99037f4803cb
+    baseline_record: docs/baselines/v0.1.0-architecture-baseline.json
+    independent_promotion_evidence: false
+    native_execution_claimed: false
+    scientific_acceptance_claimed: false
+    required_next_actions: [activation-checklist, independent-review, cross-platform-forward-test]
