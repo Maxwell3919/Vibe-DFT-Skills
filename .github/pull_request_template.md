@@ -6,11 +6,11 @@ Describe the specific defect, missing boundary, or capability gap.
 
 Changed:
 
-- 
+- TODO
 
 Intentionally unchanged:
 
-- 
+- TODO
 
 ## Evidence classification
 
@@ -22,15 +22,15 @@ Intentionally unchanged:
 
 Positive tests:
 
-- 
+- TODO
 
 Negative or blocked tests:
 
-- 
+- TODO
 
 Mutation or adversarial tests:
 
-- 
+- TODO
 
 Commands run:
 
@@ -76,4 +76,4 @@ Describe how to revert the change without silently rewriting historical evidence
 
 ## Remaining limitations
 
-- 
+- TODO
