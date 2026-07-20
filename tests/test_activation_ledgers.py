@@ -17,11 +17,11 @@ class ActivationLedgerTests(unittest.TestCase):
         skill = root / "skills" / "example-skill"
         skill.mkdir(parents=True)
         (skill / "SKILL.md").write_text("example\n", encoding="utf-8")
+        (skill / "route.json").write_text("{}\n", encoding="utf-8")
         digest = source_tree_digest(skill).sha256
         (root / "registry").mkdir()
         (root / "docs").mkdir()
         (root / "docs" / "baseline.json").write_text("{}\n", encoding="utf-8")
-        (skill / "route.json").write_text("{}\n", encoding="utf-8")
         (root / "registry" / "skill-registry.yaml").write_text(
             "schema_version: \"1.0\"\n"
             "skills:\n"
