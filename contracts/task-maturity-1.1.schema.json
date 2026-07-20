@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:task-maturity:1.1",
+  "title": "Vibe-DFT two-phase task and provider maturity catalog",
+  "description": "A candidate-source maturity catalog validated before review artifacts are added.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "catalog_id",
+  "x-vibe-semantic-obligations": {
+    "validator": "two-phase-promotion-validator",
+    "required_checks": [
+      "task-evidence-file-exists-at-candidate-source-commit",
+      "task-evidence-sha256-matches-candidate-bytes",
+      "external-record-ref-resolves-by-id-and-sha256",
+      "local-parent-route-exists-and-graph-is-acyclic",
+      "external-parent-record-resolves-by-id-and-sha256",
+      "provider-version-and-parent-route-match-promoted-registry-state",
+      "computed-maturity-and-claim-ceiling-match-evidence-axes"
+    ]
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "catalog_id",
+    "skill_id",
+    "aggregate",
+    "routes",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.1"},
+    "contract_name": {"const": "task-maturity"},
+    "catalog_id": {
+      "$ref": "urn:vibe-dft-skills:contract:task-maturity:1.0#/$defs/safeId"
+    },
+    "skill_id": {
+      "$ref": "urn:vibe-dft-skills:contract:task-maturity:1.0#/$defs/skillId"
+    },
+    "aggregate": {"type": "boolean"},
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:task-maturity:1.0#/$defs/route"
+      }
+    },
+    "provenance": {
+      "$ref": "urn:vibe-dft-skills:contract:task-maturity:1.0#/$defs/provenance"
+    }
+  }
+}
