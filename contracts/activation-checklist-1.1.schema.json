@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:activation-checklist:1.1",
+  "title": "Vibe-DFT two-phase Skill activation checklist evidence",
+  "description": "A review-phase activation record. The record is stored outside the promoted Skill source tree and binds evidence to an earlier candidate source commit, avoiding Git self-reference.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "checklist_id",
+  "x-vibe-semantic-obligations": {
+    "validator": "two-phase-promotion-validator",
+    "required_checks": [
+      "candidate-source-commit-resolves",
+      "activation-record-is-review-artifact-outside-promoted-source-tree",
+      "activation-evidence-files-exist-at-candidate-source-commit",
+      "activation-evidence-sha256-matches-candidate-bytes",
+      "reviewer-and-forward-test-records-belong-to-promoted-skill"
+    ]
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "checklist_id",
+    "subject",
+    "profile_ids",
+    "checks",
+    "summary",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.1"},
+    "contract_name": {"const": "activation-checklist"},
+    "checklist_id": {"$ref": "#/$defs/safeId"},
+    "subject": {
+      "$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/subject"
+    },
+    "profile_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/hyphenId"
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "prefixItems": [
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "identity-and-routing"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "primary-source-provenance"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "capability-boundary"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "deterministic-gates"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "lineage-and-hashes"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "scientific-gate-separation"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "shared-interfaces"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "side-effect-boundary"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "idempotency-recovery-cancel"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "validation-evidence"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "privacy-and-license"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "portability-and-environment"}}}]},
+        {"allOf": [{"$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/check"}, {"properties": {"check_id": {"const": "maintenance-and-forward-test"}}}]}
+      ],
+      "items": false
+    },
+    "summary": {
+      "$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/summary"
+    },
+    "provenance": {
+      "$ref": "urn:vibe-dft-skills:contract:activation-checklist:1.0#/$defs/provenance"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {"decision": {"const": "eligible"}},
+            "required": ["decision"]
+          }
+        },
+        "required": ["summary"]
+      },
+      "then": {
+        "properties": {
+          "checks": {
+            "not": {
+              "contains": {
+                "type": "object",
+                "properties": {"status": {"enum": ["fail", "not-assessed"]}},
+                "required": ["status"]
+              }
+            }
+          },
+          "summary": {
+            "properties": {"blocker_check_ids": {"maxItems": 0}}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "summary": {
+            "properties": {"decision": {"const": "blocked"}},
+            "required": ["decision"]
+          }
+        },
+        "required": ["summary"]
+      },
+      "then": {
+        "properties": {
+          "summary": {
+            "properties": {"blocker_check_ids": {"minItems": 1}}
+          },
+          "checks": {
+            "contains": {
+              "type": "object",
+              "properties": {"status": {"enum": ["fail", "not-assessed"]}},
+              "required": ["status"]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    }
+  }
+}
