@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:contract-migration-record:1.0",
+  "title": "Vibe-DFT contract migration record",
+  "description": "An immutable record of source and target bytes, deterministic field operations, validation results, and evidence boundaries for one contract migration.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "migration_id",
+  "x-vibe-semantic-obligations": {
+    "validator": "contract-migration-validator",
+    "required_checks": [
+      "plan-sha256-matches-plan-bytes",
+      "source-sha256-matches-source-bytes",
+      "target-sha256-matches-target-bytes",
+      "recorded-operations-reproduce-target-bytes",
+      "source-and-target-schema-validation-succeeded",
+      "protected-fields-remain-preserved",
+      "scientific-values-were-not-synthesized",
+      "claim-ceiling-did-not-increase"
+    ]
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "migration_id",
+    "plan_ref",
+    "source",
+    "target",
+    "operations",
+    "preserved_protected_pointers",
+    "removed_pointers",
+    "evidence_boundary",
+    "validation",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "contract-migration-record"},
+    "migration_id": {"$ref": "#/$defs/safeId"},
+    "plan_ref": {"$ref": "#/$defs/fileRef"},
+    "source": {"$ref": "#/$defs/recordSnapshot"},
+    "target": {"$ref": "#/$defs/recordSnapshot"},
+    "operations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:contract-migration-plan:1.0#/$defs/operation"
+      }
+    },
+    "preserved_protected_pointers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/jsonPointer"}
+    },
+    "removed_pointers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/jsonPointer"}
+    },
+    "evidence_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scientific_values_synthesized",
+        "protected_fields_preserved",
+        "claim_ceiling_before",
+        "claim_ceiling_after"
+      ],
+      "properties": {
+        "scientific_values_synthesized": {"const": false},
+        "protected_fields_preserved": {"const": true},
+        "claim_ceiling_before": {"$ref": "#/$defs/nullableClaimCeiling"},
+        "claim_ceiling_after": {"$ref": "#/$defs/nullableClaimCeiling"}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_schema_valid", "target_schema_valid"],
+      "properties": {
+        "source_schema_valid": {"const": true},
+        "target_schema_valid": {"const": true}
+      }
+    },
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "safePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\r\\n]+$"
+    },
+    "jsonPointer": {
+      "type": "string",
+      "pattern": "^/(?:[^~/]|~0|~1)+(?:/(?:[^~/]|~0|~1)+)*$"
+    },
+    "fileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/safePath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "contractIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$"
+        }
+      }
+    },
+    "recordSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "contract", "record_id"],
+      "properties": {
+        "path": {"$ref": "#/$defs/safePath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "contract": {"$ref": "#/$defs/contractIdentity"},
+        "record_id": {
+          "oneOf": [
+            {"type": "null"},
+            {"$ref": "#/$defs/safeId"}
+          ]
+        }
+      }
+    },
+    "claimCeiling": {
+      "enum": [
+        "no_positive_claim",
+        "documented_behavior_only",
+        "input_gates_only",
+        "technical_run_gates_only",
+        "numerical_candidate_only",
+        "eligible_for_expert_review"
+      ]
+    },
+    "nullableClaimCeiling": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "#/$defs/claimCeiling"}
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "producer_version", "generated_utc"],
+      "properties": {
+        "producer": {"type": "string", "minLength": 1, "maxLength": 160},
+        "producer_version": {"type": "string", "minLength": 1, "maxLength": 80},
+        "generated_utc": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}
