@@ -23,6 +23,19 @@ Freezing success does not prove inference equivalence across backends or consume
 Independent test/OOD metrics, MD stability, adapter identity and deployment envelopes
 belong to the generic MLP workflow and engine-specific skills.
 
+Compression is a derived-artifact transformation: bind the uncompressed parent and
+repeat exact prediction, held-out/OOD, device/precision, and deployment-adapter
+regressions. `dp test --numb-test 0` is the documented all-frame provider route, but a
+provider metric file still needs independent frame-count, unit, slice, tail, and
+threshold validation. Committee model deviation is an uncertainty signal, not an
+error certificate; calibrate it against reference errors before using any threshold.
+
+For LAMMPS, bind the exact consumer build/plugin, unit style, atom-type mapping, model
+order, and monitoring configuration. With multiple DeepMD models the first model
+drives dynamics while the set supplies deviation, so model order is scientific
+lineage. See [provider operational workflow](operational-workflow.md) for the complete
+handoff and failure checklist.
+
 DeepMD layout/model metadata records virial in `eV`; the generic workflow records
 stress in `eV/angstrom^3`. Handoff therefore requires an explicit, tested
 cell-volume/sign/convention conversion adapter bound to exact periodic cell bytes.

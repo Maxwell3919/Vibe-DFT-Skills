@@ -1,6 +1,6 @@
 schema_version: "1.1"
 software: vaspkit
-checked_date: "2026-07-18"
+checked_date: "2026-07-22"
 documentation_series: "1.5"
 sources:
   - id: official-overview

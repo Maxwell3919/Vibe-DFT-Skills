@@ -68,6 +68,7 @@ Exit codes are `0` bounded command completed, `2` malformed/contract-invalid inp
 
 ## Additional references
 
+- Use [references/operational-playbooks.md](references/operational-playbooks.md) for resource mapping, arrays/dependencies, live observation, failure recovery, and GPU-specific checks.
 - Use [references/official-source-index.json](references/official-source-index.json) for the Slurm-only official source set.
 - Use [references/scheduler-status-mapping.json](references/scheduler-status-mapping.json) only to normalize supplied observations; preserve unknown native states.
 - Use [references/fail-closed-contract.md](references/fail-closed-contract.md), [references/weak-model-decision-table.json](references/weak-model-decision-table.json), and [references/finding-catalog.json](references/finding-catalog.json) for deterministic local gates.

@@ -7,6 +7,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+OPERATIONAL_GUIDE = ROOT / "references" / "operational-workflows.md"
 SPEC = importlib.util.spec_from_file_location(
     "lammps_manual", ROOT / "scripts" / "lammps_manual.py"
 )
@@ -16,6 +17,25 @@ SPEC.loader.exec_module(MANUAL)
 
 
 class LammpsManualTests(unittest.TestCase):
+    def test_operational_guide_is_release_bound_and_content_complete(self) -> None:
+        text = OPERATIONAL_GUIDE.read_text(encoding="utf-8")
+        for required in (
+            "LAMMPS 4Jul2026",
+            "Official behavior",
+            "Operational heuristic",
+            "Input-script order",
+            "Neighbors and communication",
+            "Fixes, integration, and ensembles",
+            "Restart and segment lineage",
+            "Replicas and partitions",
+            "Accelerators and performance",
+            "Failure triage",
+            "no_positive_claim",
+        ):
+            self.assertIn(required, text)
+        self.assertIn("https://docs.lammps.org/Errors_details.html", text)
+        self.assertNotIn("native execution passed", text.lower())
+
     def test_catalogs_are_version_pinned_and_linked(self) -> None:
         result = MANUAL.validate_catalogs()
         self.assertEqual(result["status"], "valid")

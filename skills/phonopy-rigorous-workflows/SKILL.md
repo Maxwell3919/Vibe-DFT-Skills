@@ -10,6 +10,11 @@ official tag commit `baf530aed09071e1221b3c191918a168fc5f1d9b`, released
 2026-07-01 and checked 2026-07-19. The maintainer machine had no Phonopy
 distribution or console script, so the bundled calls are `native-not-run`.
 
+The unversioned official site was rechecked on 2026-07-22 and already rendered
+some input, settings, and QHA pages as `4.4.0`. Keep this profile on exact
+`4.3.1`; block 4.4.0 until its source, parser, migration, fixtures, and native
+help are reviewed.
+
 Never collapse these evidence layers:
 
 1. the tag-pinned source lists an entrypoint or option;
@@ -39,7 +44,12 @@ recipe is not native execution.
 If no recipe exists, return `PHONOPY_RECIPE_NOT_ESTABLISHED`; do not construct
 an argv by analogy. Read
 [calling-and-recipes.md](references/calling-and-recipes.md) for exact calls,
-inputs, outputs, failure modes, and scientific checks.
+inputs, outputs, failure modes, and scientific checks. Then apply
+[production-acceptance-checklists.md](references/production-acceptance-checklists.md)
+for the force-calculator handoff, supercell and displacement convergence,
+FORCE_SETS type, residual-force, force-constant, NAC, property, and QHA gates.
+Every experience-derived starting point in that reference is labeled
+`operational heuristic` and still requires project-specific validation.
 
 ## Respect the v4 boundary
 

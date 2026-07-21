@@ -187,7 +187,7 @@ planned_software:
     intended_skill: ovito-atomistic-analysis
     activation_profile: visualization-tool
     environment_profiles:
-      selection_policy: edition_variant
+      selection_policy: any_of
       profile_ids: [ovito-basic, ovito-pro]
     required_check_ids: *planned_activation_checks
     lifecycle: planned

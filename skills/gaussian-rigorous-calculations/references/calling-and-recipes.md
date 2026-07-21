@@ -19,8 +19,10 @@ not established, and execution was not authorized. The machine-readable
 |---|---|---|---|
 | Inspect a narrow synthetic SP/Opt/Freq/Opt+Freq input or log | Use `gaussian_guard.py` and the task evidence profile | Implemented offline | None |
 | Learn exact input section order or route syntax | Resolve `g16-input`, `g16-route`, and `g16-link0` in the feature catalog | Documentation only | None |
-| Plan a real licensed single job | Select one recipe, freeze all preconditions and identities | Guard cannot authorize | Trusted licensed platform only |
-| Plan TS/IRC, restart, `formchk`, or `cubegen` | Use the dedicated recipe and retain `guard-not-supported` | Blocked locally | Separate authorized stages |
+| Plan a real licensed SP/Opt/Freq job | Select one recipe, freeze all preconditions and identities, and use `calculation-workflows.md` | Synthetic guard only where explicitly stated; guard cannot authorize | Trusted licensed platform only |
+| Diagnose SCF/geometry/frequency failure | Preserve failed bytes, use `troubleshooting-and-audit.md`, and select one causally motivated child action | Planning only | New immutable authorized child run |
+| Plan TD, TS/IRC, restart, `formchk`, or `cubegen` | Use the dedicated recipe and retain `guard-not-supported` | Blocked locally | Separate authorized stages |
+| Hand off a checkpoint or formatted wavefunction | Resolve each record role with `input-and-checkpoint-workflows.md` | Planning only | Hash-bound private consumer |
 | Claim a result | Apply task-specific scientific gates and independent convergence evidence | No positive claim in development | Requires promoted evaluator and real fixtures |
 
 ## Real public entry points

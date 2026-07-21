@@ -3,7 +3,7 @@
 ## Status and evidence layers
 
 This guide is pinned to the official Multiwfn program update `2026.7.15` and
-the official manual dated `2026.7.10`. The source review date is 2026-07-19.
+the official manual dated `2026.7.10`. The source review date is 2026-07-22.
 The current Darwin arm64 host had neither `Multiwfn` nor `multiwfn` in `PATH`,
 and no Python distribution named `multiwfn`; no banner, help, menu, example, or
 scientific calculation was executed. The native state is therefore

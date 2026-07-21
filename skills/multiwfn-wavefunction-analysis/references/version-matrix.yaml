@@ -57,7 +57,7 @@ compatibility_policy:
     program: "2026.7.15"
     manual: "2026.7.10"
   native_validation:
-    checked_date: "2026-07-19"
+    checked_date: "2026-07-22"
     platform: Darwin-arm64
     state: not-run
     executable_names_resolved: []

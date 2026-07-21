@@ -2,7 +2,7 @@
   "catalog_name": "lobster-software-capabilities",
   "schema_version": "1.0",
   "provider_target": "LOBSTER 5.1.1",
-  "checked_on": "2026-07-19",
+  "checked_on": "2026-07-22",
   "scope_note": "Public first-party pages establish feature families and supported parent codes, but delegate exact native invocation, lobsterin grammar, provider-specific file contracts, and complete output schemas to the licensed package manual/examples. Those details remain manual-required.",
   "capabilities": [
     {
@@ -60,6 +60,15 @@
       "source_ids": ["LOB-DOWNLOAD-511", "LOB-FAQ"]
     },
     {
+      "id": "analysis.projected-cobi",
+      "group": "bonding-analysis",
+      "surface": "native-feature",
+      "evidence_state": "primary-method-and-adapter-feature",
+      "purpose": "Evaluate energy-resolved crystal orbital bond indices and their integrated values as basis-bound solid-state bond-index descriptors.",
+      "call_contract": "Exact 5.1.1 lobsterin syntax and output schema are manual-required; preserve two-/multi-center definition, selector, basis, spin, Fermi reference, and integration window.",
+      "source_ids": ["LOB-PAPER-2021-COBI", "LOB-PYMATGEN-IO", "LOB-LOBSTERPY-CLI"]
+    },
+    {
       "id": "analysis.projected-dos",
       "group": "electronic-analysis",
       "surface": "native-feature",
@@ -75,7 +84,7 @@
       "evidence_state": "method-paper-feature",
       "purpose": "Compute local-orbital population and atomic-charge quantities.",
       "call_contract": "Exact 5.1.1 task keywords/output schema are manual-required and oxidation-state conclusions remain expert-only.",
-      "source_ids": ["LOB-PAPER-2020", "LOB-LICENSE-511"]
+      "source_ids": ["LOB-PAPER-2020", "LOB-PYMATGEN-IO", "LOB-LICENSE-511"]
     },
     {
       "id": "analysis.k-dependent-cohp",
