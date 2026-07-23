@@ -19,27 +19,27 @@ def plan(operations=None):
 class ContractMigrationTests(unittest.TestCase):
     def setup_repo(self,root:Path,p=None):
         (root/"records").mkdir();(root/"plans").mkdir();(root/"records/source.json").write_text(json.dumps(source_record(),indent=2,sort_keys=True)+"\n",encoding="utf-8");path=root/"plans/migration.json";path.write_text(json.dumps(p or plan(),indent=2,sort_keys=True)+"\n",encoding="utf-8");return path
-    def run(self,root,path,write=True):return migrate_contract.migrate(root,path,contracts_dir=ROOT/"contracts",write=write)
+    def run_migration(self,root,path,write=True):return migrate_contract.migrate(root,path,contracts_dir=ROOT/"contracts",write=write)
     def test_valid_migration(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);path=self.setup_repo(root);findings,record,target=self.run(root,path)
+            root=Path(tmp);path=self.setup_repo(root);findings,record,target=self.run_migration(root,path)
             self.assertEqual(findings,[]);self.assertEqual(target["schema_version"],"1.1");self.assertEqual(target["checklist_id"],"migration-target-checklist");self.assertFalse(record["evidence_boundary"]["scientific_values_synthesized"])
             target_data=json.loads((root/"records/target.json").read_text());record_data=json.loads((root/"records/migration.json").read_text())
             self.assertEqual(validate_contract.validation_errors("activation-checklist@1.1",target_data,ROOT/"contracts"),[]);self.assertEqual(validate_contract.validation_errors("contract-migration-record@1.0",record_data,ROOT/"contracts"),[])
     def test_dry_run_no_write(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);path=self.setup_repo(root);findings,_,target=self.run(root,path,False);self.assertEqual(findings,[]);self.assertIsNotNone(target);self.assertFalse((root/"records/target.json").exists())
+            root=Path(tmp);path=self.setup_repo(root);findings,_,target=self.run_migration(root,path,False);self.assertEqual(findings,[]);self.assertIsNotNone(target);self.assertFalse((root/"records/target.json").exists())
     def test_protected_summary_removal(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);path=self.setup_repo(root,plan([{"op":"remove","from":"/summary"}]));findings,_,_=self.run(root,path);self.assertIn("MIGRATION_PROTECTED_FIELD_CHANGED",{f.code for f in findings});self.assertFalse((root/"records/target.json").exists())
+            root=Path(tmp);path=self.setup_repo(root,plan([{"op":"remove","from":"/summary"}]));findings,_,_=self.run_migration(root,path);self.assertIn("MIGRATION_PROTECTED_FIELD_CHANGED",{f.code for f in findings});self.assertFalse((root/"records/target.json").exists())
     def test_required_field_removal(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);path=self.setup_repo(root,plan([{"op":"remove","from":"/profile_ids"}]));findings,_,_=self.run(root,path);self.assertIn("MIGRATION_SCHEMA_INVALID",{f.code for f in findings});self.assertFalse((root/"records/target.json").exists())
+            root=Path(tmp);path=self.setup_repo(root,plan([{"op":"remove","from":"/profile_ids"}]));findings,_,_=self.run_migration(root,path);self.assertIn("MIGRATION_SCHEMA_INVALID",{f.code for f in findings});self.assertFalse((root/"records/target.json").exists())
     def test_existing_output_not_overwritten(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);path=self.setup_repo(root);out=root/"records/target.json";out.write_text("keep\n");findings,_,_=self.run(root,path);self.assertIn("MIGRATION_OUTPUT_EXISTS",{f.code for f in findings});self.assertEqual(out.read_text(),"keep\n")
+            root=Path(tmp);path=self.setup_repo(root);out=root/"records/target.json";out.write_text("keep\n");findings,_,_=self.run_migration(root,path);self.assertIn("MIGRATION_OUTPUT_EXISTS",{f.code for f in findings});self.assertEqual(out.read_text(),"keep\n")
     def test_same_version_blocked(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);p=plan();p["target_contract"]={"name":"activation-checklist","version":"1.0"};path=self.setup_repo(root,p);findings,_,_=self.run(root,path);self.assertIn("MIGRATION_VERSION_UNCHANGED",{f.code for f in findings})
+            root=Path(tmp);p=plan();p["target_contract"]={"name":"activation-checklist","version":"1.0"};path=self.setup_repo(root,p);findings,_,_=self.run_migration(root,path);self.assertIn("MIGRATION_VERSION_UNCHANGED",{f.code for f in findings})
 
 if __name__=="__main__":unittest.main()
