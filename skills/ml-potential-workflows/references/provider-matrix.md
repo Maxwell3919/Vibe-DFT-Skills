@@ -17,3 +17,19 @@ The generic auditor rejects a provider/mode pair outside the machine matrix in
 Framework import success is not model validation. Provider package license does not
 grant model or dataset rights. A model version string without artifact SHA-256 is not
 identity.
+
+Provider vocabulary is part of the boundary:
+
+- MACE may use named multiheads; inference and deployment must select the intended
+  head and its E0/reference convention.
+- UMA uses a single output head with task-conditioned routing; `task_name` selects a
+  dataset/DFT embedding and must not be called an interchangeable MACE-style head.
+- NequIP output fields and transforms are defined by the packaged model/config; do not
+  infer them from a filename.
+- Fine-tuning is currently accepted only for the MACE and NequIP generic profiles.
+  FairChem documents UMA fine-tuning, but the deterministic matrix remains
+  `evaluate_pretrained` until schemas, recipes, artifacts, and native regressions are
+  promoted.
+
+Use [training and transfer playbook](training-and-transfer.md) for the content-level
+selection and convention checks; this matrix remains the executable routing ceiling.

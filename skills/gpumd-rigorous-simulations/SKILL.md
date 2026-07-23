@@ -1,6 +1,6 @@
 ---
 name: gpumd-rigorous-simulations
-description: Design and fail-closed audit offline GPUMD molecular-dynamics plans, run.in/model.xyz/LJ inputs, version and GPU environment evidence, state-file continuation, stdout/thermo.out completion, extxyz trajectories, model provenance, sampling sufficiency, and claim support without launching GPUMD.
+description: Design and fail-closed audit offline GPUMD molecular-dynamics, Green-Kubo/HNEMD thermal-transport, and NEP construction/deployment workflows; inspect run.in/model.xyz/potentials, version and GPU evidence, restart lineage, outputs, trajectories, sampling, uncertainty, and claim support without launching GPUMD.
 ---
 
 # GPUMD Rigorous Simulations
@@ -22,13 +22,35 @@ Stop if the absolute path cannot be resolved. Do not copy the guard into a calcu
 
 1. Inventory the bounded claim, exact GPUMD release and commit, task, structure, potential, units, three-axis boundary, ensemble, time step, seed, lineage, equilibration, production, observables, uncertainty rule, output cadence, environment, legal status, and execution authorization.
 2. Copy [examples/plan-request.json](examples/plan-request.json) and replace only values supported by project evidence. Never invent a seed, potential license, parent state, tolerance, or GPU capability.
-3. Run `plan`. Continue only when `decision=pass`. A plan has `claim_ceiling=no_positive_claim`.
+3. Run `plan` for the parser-supported NVE/LJ route. Continue to `audit-input`
+   only when `decision=pass`. If the result is `incomplete` solely because the
+   requested NEP, Green–Kubo, HNEMD, ensemble, or potential is design-only,
+   stop the deterministic pipeline and use the task references to produce a
+   documentary protocol plus unsupported-gate list. Do not fabricate an NVE/LJ
+   request to obtain a pass. Every plan keeps `claim_ceiling=no_positive_claim`.
 4. Match GPUMD `5.3` to the pinned tag and commit in [references/official-sources.json](references/official-sources.json). The website's rolling documentation is discovery material, not version-matched proof.
 5. Run `audit-input` on `run.in`, `model.xyz`, the potential file, and provenance. The supported core is deliberately limited to one or more MD blocks using `potential`, explicit `velocity` or state velocities, explicit `time_step`, a standard `ensemble`, `dump_thermo`, `dump_restart`, `dump_xyz`, and `run`.
 6. Read [references/execution-and-executable-map.md](references/execution-and-executable-map.md). The documented real launch is the no-argument `path/to/gpumd` from an isolated directory containing fixed-name inputs. Do not invent `--version`, `-h`, MPI flags, or input-file arguments. Stop before execution: a future execution Skill must re-check authorization, executable/source/GPU identity, immutable input hashes, resource limits, and output destination.
 7. Run `audit-output` on unchanged passing plan/input reports, captured stdout, and `thermo.out`. Completion markers do not establish physics, equilibration, or statistical sufficiency.
 8. Run `audit-trajectory` on the exact extxyz named by `dump_xyz`. Check `Time`, `pbc`, `Lattice`, `Properties`, frame/site continuity, and planned cadence.
 9. Report all failed, incomplete, unsupported, and not-assessed gates. Because the lifecycle is `development`, current `claim_ceiling` always remains `no_positive_claim`; `future_gate_ceiling` is post-promotion potential only. Every report is explicitly `report_authenticity=unsigned-candidate-output`. Expert scientific review stays external.
+
+## Route to the task content
+
+- For ordinary MD, ensembles, time-step studies, `thermo.out`, trajectory,
+  restart, performance, and failure triage, read
+  [references/simulation-workflows.md](references/simulation-workflows.md).
+- For Green–Kubo EMD or HNEMD conductivity, also read
+  [references/thermal-transport-workflows.md](references/thermal-transport-workflows.md).
+- For `nep.in`, train/test data, NEP training/restart, model validation, and
+  deployment, read
+  [references/nep-model-workflow.md](references/nep-model-workflow.md).
+
+Those references distinguish exact v5.3 facts from **operational heuristics**.
+Heuristics are project-validation prompts, never GPUMD defaults. The current
+guard remains parser-supported only for its NVE/LJ synthetic slice; for other
+tasks produce a design and evidence checklist, report `parser_supported=false`,
+and do not turn documentary knowledge into a passing audit.
 
 ## Create a plan
 
@@ -38,7 +60,7 @@ python3 "$GPUMD_GUARD" plan --request plan-request.json --out gpumd-plan.json
 
 Require anonymous case/protocol IDs, exact `gpumd_version=5.3`, pinned commit, task, objective, claim target, GPUMD's fixed MD unit map, boundary, ensemble, positive `timestep_fs`, independently identified potential, explicit lineage, seed policy, phase boundaries, observable estimators, accepted uncertainty bounds, output cadence, and `execute_external_software=false`.
 
-The supported fixture uses an analytic LJ potential because its format can be checked deterministically. NEP, qNEP, EAM, Tersoff, SW, many-body combinations, training, phonon, HNEMD, NEMD, shock, path-integral, and multi-GPU tasks remain design-only until each receives its own official-source profile, parser, fixtures, and tests. GPUMD 5.1/5.2 `compute_phonon` results are explicitly outside support because the 5.3 release reports a prior bug fix.
+The supported fixture uses an analytic LJ potential because its format can be checked deterministically. NEP, qNEP, EAM, Tersoff, SW, many-body combinations, training, phonon, Green–Kubo, HNEMD, NEMD, shock, path-integral, and multi-GPU tasks remain design-only until each receives its own official-source profile, parser, fixtures, and tests. Design-only references improve planning but do not increase parser coverage. GPUMD 5.1/5.2 `compute_phonon` results are explicitly outside support because the 5.3 release reports a prior bug fix.
 
 ## Audit inputs
 
@@ -94,7 +116,7 @@ Require the planned frame count, atom count, species/site order, finite values, 
 
 Read [references/environment-license-execution.md](references/environment-license-execution.md) and [references/execution-and-executable-map.md](references/execution-and-executable-map.md). Current official installation material requires a supported GPU stack; Apple Silicon is not a supported execution target. This fact does not prevent offline auditing.
 
-Reports use safe labels and SHA-256 digests, not absolute paths. Keep hosts, usernames, scheduler IDs, private results, unpublished model contents, credentials, and restricted datasets outside source and reports. The exact v5.3 source headers indicate GPL-3.0-or-later, while the current planned registry entry says GPL-3.0-only; resolve that metadata mismatch before activation.
+Reports use safe labels and SHA-256 digests, not absolute paths. Keep hosts, usernames, scheduler IDs, private results, unpublished model contents, credentials, and restricted datasets outside source and reports. The exact v5.3 source headers and planned environment profiles record GPL-3.0-or-later; model and dataset terms remain independent.
 
 The guard may create one new report file after refusing overwrite. Input paths are traversed component by component through stable directory descriptors; symlinked ancestors, FIFOs, and other non-regular inputs fail closed without blocking. Report publication retains and verifies the staging descriptor, then uses an atomic hard-link create-if-absent operation; it never uses replacement semantics, so a late target is preserved and the command fails. It may not execute software, access a network, install packages, alter calculation inputs, submit jobs, signal processes, or control resources.
 

@@ -1,11 +1,11 @@
 ---
 name: lasp-rigorous-simulations
-description: Create evidence-gap-aware LASP 3.7.3 simulation plans; route the verified Linux/Intel-MPI `Src/lasp` executable entry; and deterministically inventory opaque inputs, model provenance, outputs, restart claims, and generic extxyz trajectories without inventing unreviewed LASP syntax, units, defaults, completion markers, license rights, or launching LASP.
+description: Create evidence-gap-aware LASP 3.7.3 plans for PES evaluation, SSW/global structure and reaction exploration, NN-potential active learning, and MD; route the verified Linux/Intel-MPI `Src/lasp` entry; and inventory opaque inputs, models, outputs, restart claims, and trajectories without inventing syntax, units, defaults, completion markers, license rights, or launching LASP.
 ---
 
 # LASP Rigorous Simulations
 
-This candidate is deliberately fail closed. Public author literature supports LASP 3.7 capabilities at a high level. The official LASP Hub page reviewed on 2026-07-19 identifies the CPU distribution as LASP 3.7.3 for Linux with Intel MPI/Compiler 2017+, executable `Src/lasp`, and direct/MPI launcher examples. The advertised manual/examples require authorized download and were not obtained, so complete input grammar, units/defaults, completion markers, restart specification, full compatibility, and software terms remain unimplemented. Never convert that narrower evidence gap into guessed syntax.
+This candidate is deliberately fail closed. Public author literature supports LASP 3.7 capabilities at a high level. The official LASP Hub page reviewed on 2026-07-22 identifies the CPU distribution as LASP 3.7.3 for Linux with Intel MPI/Compiler 2017+, executable `Src/lasp`, and direct/MPI launcher examples. The advertised manual/examples require authorized download and were not obtained, so complete input grammar, units/defaults, completion markers, restart specification, full compatibility, and software terms remain unimplemented. Never convert that narrower evidence gap into guessed syntax.
 
 The candidate remains useful: it creates an explicit scientific plan, content-addresses opaque artifacts, checks privacy/legal declarations, flags corrupted generic text, validates project-authored extxyz structure independently of engine provenance, and produces a precise promotion delta. It never invokes LASP or claims a LASP run completed.
 
@@ -24,13 +24,40 @@ Stop if the absolute path cannot be resolved. Do not copy the script into a calc
 
 1. Inventory the bounded scientific objective, software/version claim, task, intended units, boundaries, ensemble, time step, model, seeds, restart ancestry, equilibration, production, observables, uncertainty rule, documents, environment, legal status, and execution authority.
 2. Copy [examples/plan-request.json](examples/plan-request.json). Values are project declarations, not LASP defaults. Never invent a keyword, unit, tolerance, seed, restart field, output marker, dependency, or license.
-3. Run `plan`. A pass means only that the gap-aware plan is internally complete; `claim_ceiling` remains `no_positive_claim` and `report_authenticity` remains `unsigned-candidate-output`.
+3. Run `plan` only when every current schema field can be stated honestly. A
+   pass means only that the generic gap-aware shape is internally complete;
+   `claim_ceiling` remains `no_positive_claim` and `report_authenticity` remains
+   `unsigned-candidate-output`. For global-structure/reaction search, the
+   current schema is still MD-shaped and cannot encode search coverage,
+   duplicate handling, recurrence, or termination. Never invent timestep,
+   phases, or mean/block-mean observables merely to obtain a pass; use the
+   documentary evidence matrix and report the missing machine profile.
 4. Read [references/official-sources.json](references/official-sources.json) and [references/execution-and-executable-map.md](references/execution-and-executable-map.md). Use the 2024 author paper for capability context and the official download page for the 3.7.3 edition, Linux/Intel baseline, and `Src/lasp` launcher facts. Neither is a version-matched syntax/output/restart contract.
 5. Run `audit-input` on opaque files, provenance, and the documentation attestation. It will return `incomplete` even when inventory checks pass because input semantics cannot be verified.
 6. Stop before execution. The public page verifies `[LASP Installation DIR]/Src/lasp` and `mpirun -np 4 [LASP Installation DIR]/Src/lasp`, but not a side-effect-free version flag, arbitrary rank policy, input argument, working-file grammar, resource estimate, or execution authority. Do not invent any missing part.
 7. Run `audit-output`. It can detect bounded text corruption/adverse markers and bind hashes, but it must return `incomplete` because no authoritative completion or observable grammar is implemented.
 8. Run `audit-trajectory` on generic project-authored extxyz plus a hash-bound frame index. Format integrity can be measured; LASP provenance and technical completion remain unverified.
 9. Report the exact evidence gaps and promotion delta. No automated command after `plan` can support a positive LASP claim.
+
+## Route to the public task content
+
+Read [references/public-capability-workflows.md](references/public-capability-workflows.md)
+before planning PES evaluation, SSW/global structure search, surface/interface
+search, reaction pathways, active learning/NN construction, MD, or performance.
+It maps public author evidence to task-specific inputs, validation questions,
+and stop conditions while deliberately omitting unverified LASP syntax.
+
+Statements labeled **operational heuristic** are project-validation practices,
+not LASP defaults. Keep `parser_supported=false`,
+`operational_readiness=false`, and `no_positive_claim` until the authorized
+3.7.3 manual, examples, terms, parsers, fixtures, and integration evidence close
+the corresponding gaps.
+
+The current `plan` vocabulary is limited to `nve`, `nvt`, `npt`,
+`global-structure-search`, and `reaction-search`. For PES-only evaluation,
+active learning, NN training, ASOP, or ML-interface, use the reference to create
+a documentary evidence matrix and report the missing machine-readable profile;
+never force the work into a misleading supported task label.
 
 ## Create a gap-aware scientific plan
 
@@ -40,7 +67,7 @@ python3 "$LASP_GUARD" plan --request plan-request.json --out lasp-plan.json
 
 The plan requires anonymous IDs, exact `lasp_version=3.7.3` under the LASP 3.7 literature capability context, a literature-described task, objective, bounded claim target, explicitly project-declared units, three boundary booleans, ensemble, positive time step with unit, model identity/source/license status, new or opaque-state lineage, seed policy, equilibration and production phases, named observables, estimator and uncertainty bounds, explicit unavailable-document flags, and `execute_external_software=false`.
 
-The supported plan vocabulary includes standard NVE/NVT/NPT MD and design-only global-structure/reaction search because those capability classes are described in the author paper. This does not assert exact keywords, algorithms, defaults, thermostats, barostats, search parameters, or file formats.
+The supported plan vocabulary includes standard NVE/NVT/NPT MD and design-only global-structure/reaction search because those capability classes are described in the author paper. The schema remains MD-shaped: it does not represent a search algorithm, composition/cell move space, duplicate rule, unique-minimum discovery curve, recurrence, coverage, or termination. Therefore a search-shaped `plan=pass` is only generic inventory completeness, not SSW-plan completeness. This does not assert exact keywords, algorithms, defaults, thermostats, barostats, search parameters, or file formats.
 
 ## Inventory opaque inputs
 

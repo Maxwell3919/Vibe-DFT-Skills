@@ -17,7 +17,7 @@ python3 -B "$LAMMPS_MANUAL" recipes --category molecular-dynamics
 python3 -B "$LAMMPS_MANUAL" show-recipe official-lj-melt-smoke --executable lmp --require-ready
 ```
 
-Use [official-command-catalog.json](references/official-command-catalog.json) for the pinned general-command and style-family indexes, [task-recipes.json](references/task-recipes.json) for exact argv/input-script/input/output/restart/failure/scientific recipes, and [core-file-formats.json](references/core-file-formats.json) for script/data/restart/dump/log/model semantics. Keep `official-index-listed`, `official-manual-recipe`, `native-not-run`, and `native-validated` separate. A style listed in the manual is not necessarily compiled into the selected binary.
+Use [official-command-catalog.json](references/official-command-catalog.json) for the pinned general-command and style-family indexes, [task-recipes.json](references/task-recipes.json) for exact argv/input-script/input/output/restart/failure/scientific recipes, [core-file-formats.json](references/core-file-formats.json) for script/data/restart/dump/log/model semantics, and [operational-workflows.md](references/operational-workflows.md) for content-level script, model, neighbor, fix, restart, replica, accelerator, failure, and trajectory review. Keep `official-index-listed`, `official-manual-recipe`, `native-not-run`, and `native-validated` separate. A style listed in the manual is not necessarily compiled into the selected binary.
 
 If a recipe retains an unresolved `<parameter>`, `--require-ready` fails closed. Resolve it from project evidence; do not invent unit conversions, pair coefficients, atom-type maps, seeds, damping times, timesteps, run lengths, or acceptance thresholds.
 
@@ -40,6 +40,8 @@ This runs only `<executable> -help` in a fresh temporary directory, requires `LA
 6. Verify data/restart/dump artifacts, then apply time-step, drift, cutoff/finite-size, model-domain, ensemble, replica, stationarity, autocorrelation/ESS and uncertainty gates.
 
 The normal route is exact build/style probe → preparation/minimization → NVT/NPT equilibration when justified → immutable NVE/ensemble production → restart/segment verification → declared rerun/RDF/MSD/VACF analysis. Each segment and transform gets a new lineage record.
+
+Before drafting or auditing a real input, read the relevant section of [operational-workflows.md](references/operational-workflows.md). It keeps official release behavior, operational heuristics, project decisions, and observed evidence separate; none of its command families attest native execution.
 
 ## Resolve the offline guard
 

@@ -29,6 +29,8 @@ Prefer an explicit input option and separate stdout/stderr:
 mpirun -np <MPI_RANKS> pw.x -in scf.in > scf.out 2> scf.err
 ```
 
+Preserve both files. A `qe_guard audit` completion check requires `--output scf.out --stderr scf.err`; signalling IEEE floating-point flags in stderr are blocking runtime diagnostics even when stdout contains `JOB DONE.`.
+
 The MPI launcher and resource flags are site-specific. Do not copy
 `<MPI_RANKS>` or parallelization flags until they match the scheduler
 allocation and build.

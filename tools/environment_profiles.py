@@ -66,7 +66,12 @@ PROFILE_ROLE_COMPATIBILITY = {
     "commercial-binary": {"calculation-engine", "postprocess-tool", "visualization-tool"},
     "desktop-application": {"visualization-tool"},
     "ml-framework": {"ml-potential-framework"},
-    "python-package": {"postprocess-tool", "scientific-workflow-tool", "structure-library"},
+    "python-package": {
+        "postprocess-tool",
+        "scientific-workflow-tool",
+        "structure-library",
+        "visualization-tool",
+    },
     "simulation-engine": {"calculation-engine"},
 }
 SOURCE_TIERS = {"first-party-official", "third-party-community-referenced-by-official"}
@@ -174,6 +179,7 @@ REVIEWED_PROVIDER_URLS: dict[str, frozenset[str]] = {
             "https://www.ovito.org/",
             "https://www.ovito.org/docs/current/python/introduction/installation.html",
             "https://www.ovito.org/manual/licenses/index.html",
+            "https://pypi.org/project/ovito/3.15.5/",
         }
     ),
     "ovito-pro": frozenset(

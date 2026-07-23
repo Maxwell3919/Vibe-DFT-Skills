@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "software": "GROMACS",
   "pinned_version": "2026.3",
-  "checked_date": "2026-07-19",
+  "checked_date": "2026-07-22",
   "evidence_states": {
     "official-index-listed": "The command is listed by the pinned official command-line reference.",
     "official-manual-recipe": "The exact syntax used by a local recipe is established by a pinned official command page.",
@@ -58,7 +58,7 @@
     {"name": "gmx rdf", "category": "analysis", "catalog_state": "official-manual-recipe", "recipe_ids": ["rdf-analysis"], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-rdf.html"},
     {"name": "gmx msd", "category": "analysis", "catalog_state": "official-manual-recipe", "recipe_ids": ["msd-analysis"], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-msd.html"},
     {"name": "gmx velacc", "category": "analysis", "catalog_state": "official-index-listed", "recipe_ids": [], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-velacc.html"},
-    {"name": "gmx density", "category": "analysis", "catalog_state": "official-index-listed", "recipe_ids": [], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-density.html"},
+    {"name": "gmx density", "category": "analysis", "catalog_state": "official-manual-recipe", "recipe_ids": ["spatial-density-profile"], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-density.html"},
     {"name": "gmx sasa", "category": "analysis", "catalog_state": "official-index-listed", "recipe_ids": [], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-sasa.html"},
     {"name": "gmx covar", "category": "analysis", "catalog_state": "official-index-listed", "recipe_ids": [], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-covar.html"},
     {"name": "gmx anaeig", "category": "analysis", "catalog_state": "official-index-listed", "recipe_ids": [], "manual_url": "https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-anaeig.html"},

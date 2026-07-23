@@ -1,13 +1,20 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
+import sys
 from typing import Any
-
-from jsonschema import Draft202012Validator, FormatChecker
 
 from . import __version__
 from .utils import find_repo_root, relative_file, sha256_file, utc_now
+
+
+REPO_ROOT = find_repo_root(Path(__file__))
+TOOLS_ROOT = str(REPO_ROOT / "tools")
+if TOOLS_ROOT not in sys.path:
+    sys.path.insert(0, TOOLS_ROOT)
+
+from validate_contract import validate_file as catalog_validate_file  # noqa: E402
+from validate_contract import validation_errors as catalog_validation_errors  # noqa: E402
 
 
 SCHEMAS = {
@@ -23,26 +30,15 @@ SCHEMAS = {
 
 
 def schema_path(kind: str) -> Path:
-    root = find_repo_root(Path(__file__))
-    return root / "contracts" / SCHEMAS[kind]
+    return REPO_ROOT / "contracts" / SCHEMAS[kind]
 
 
 def validation_errors(kind: str, data: object) -> list[str]:
-    schema = json.loads(schema_path(kind).read_text(encoding="utf-8"))
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
-    failures = []
-    for error in sorted(validator.iter_errors(data), key=lambda item: list(item.absolute_path)):
-        location = "/".join(str(part) for part in error.absolute_path) or "<root>"
-        failures.append(f"{location}: {error.message}")
-    return failures
+    return catalog_validation_errors(kind, data, REPO_ROOT / "contracts")
 
 
 def validate_manifest(kind: str, path: Path) -> list[str]:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        return [f"<file>: {exc}"]
-    return validation_errors(kind, data)
+    return catalog_validate_file(kind, path, REPO_ROOT / "contracts")
 
 
 def _file_record(root: Path, specification: str) -> dict[str, Any]:

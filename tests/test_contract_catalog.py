@@ -90,7 +90,7 @@ class ContractCatalogTests(unittest.TestCase):
         for contract in catalog.contracts:
             with self.subTest(contract=contract.name):
                 self.assertEqual(
-                    catalog.resolve(contract.name).canonical_id,
+                    catalog.resolve(contract.canonical_id).canonical_id,
                     contract.canonical_id,
                 )
                 if contract.name == "common-definitions":
@@ -177,7 +177,7 @@ class ContractCatalogTests(unittest.TestCase):
         for alias, filename in validate_contract.SCHEMAS.items():
             with self.subTest(alias=alias):
                 legacy = catalog.resolve(alias)
-                canonical = catalog.resolve(legacy.name)
+                canonical = catalog.resolve(f"{legacy.name}@{legacy.version}")
                 self.assertEqual(legacy.filename, filename)
                 self.assertEqual(canonical.filename, filename)
                 self.assertEqual(legacy.version, "1.0")

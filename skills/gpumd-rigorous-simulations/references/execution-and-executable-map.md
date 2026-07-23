@@ -4,7 +4,7 @@
 
 The command shapes below are grounded in the official GPUMD `v5.3` tag at
 commit `f2b46c5d528e985a5bf68becd442b18c0e04396c`. The maintainer machine was
-macOS arm64 and had no `gpumd`, CUDA, or ROCm tools in `PATH` on 2026-07-19,
+macOS arm64 and had no `gpumd`, CUDA, or ROCm tools in `PATH` on 2026-07-22,
 so no native GPUMD run was performed there. Keep documented invocation,
 offline artifact validation, and native execution as separate claims.
 

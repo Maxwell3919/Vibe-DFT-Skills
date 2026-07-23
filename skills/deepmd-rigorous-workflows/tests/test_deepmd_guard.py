@@ -32,12 +32,12 @@ def system(name: str, split: str, number: int, *, periodic: bool = False, virial
     nframes = 2
     natoms = 3
     arrays = [
-        array("coord.npy", [nframes, natoms, 3], number * 10 + 1),
+        array("coord.npy", [nframes, natoms * 3], number * 10 + 1),
         array("energy.npy", [nframes], number * 10 + 2),
-        array("force.npy", [nframes, natoms, 3], number * 10 + 3),
+        array("force.npy", [nframes, natoms * 3], number * 10 + 3),
     ]
     if periodic:
-        arrays.append(array("box.npy", [nframes, 3, 3], number * 10 + 4))
+        arrays.append(array("box.npy", [nframes, 9], number * 10 + 4))
     if virial:
         arrays.append(array("virial.npy", [nframes, 9], number * 10 + 5))
     return {
@@ -212,6 +212,18 @@ def model_manifest(run: dict[str, object], run_raw: bytes, config: dict[str, obj
 
 
 class LayoutTests(unittest.TestCase):
+    def test_provider_produced_numpy_headers_use_flat_frame_rows(self) -> None:
+        self.assertEqual(
+            guard.expected_arrays(nframes=2, natoms=3, periodic=True, virial=True),
+            {
+                "coord.npy": [2, 9],
+                "energy.npy": [2],
+                "force.npy": [2, 9],
+                "box.npy": [2, 9],
+                "virial.npy": [2, 9],
+            },
+        )
+
     def test_valid_layout_metadata_passes_without_reading_arrays(self) -> None:
         result, _ = layout_chain()
         self.assertEqual(result["status"], "pass")
@@ -237,7 +249,7 @@ class LayoutTests(unittest.TestCase):
 
     def test_array_shape_dtype_set_and_hash_are_fail_closed(self) -> None:
         value = layout_manifest()
-        value["systems"][0]["arrays"][0]["shape"] = [2, 9]
+        value["systems"][0]["arrays"][0]["shape"] = [2, 3, 3]
         value["systems"][1]["arrays"][1]["dtype"] = "float16"
         value["systems"][2]["arrays"][2]["sha256"] = value["systems"][0]["arrays"][2]["sha256"]
         value["systems"][3]["arrays"].pop()

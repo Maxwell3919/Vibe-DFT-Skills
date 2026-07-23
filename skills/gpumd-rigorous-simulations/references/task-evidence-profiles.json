@@ -1,5 +1,17 @@
 {
   "profiles": {
+    "green-kubo": {
+      "required_gates": ["version_pin", "equilibrated_state", "heat_current_scope", "sampling_interval", "correlation_window", "replicas", "finite_size", "volume_convention", "uncertainty", "model_validation"],
+      "supported_core": false
+    },
+    "hnemd": {
+      "required_gates": ["version_pin", "equilibrated_state", "driving_direction", "linear_response_sweep", "compatible_thermostat", "temperature_control", "replicas", "finite_size", "volume_convention", "uncertainty", "model_validation"],
+      "supported_core": false
+    },
+    "nep-training": {
+      "required_gates": ["version_pin", "dataset_provenance", "units_and_label_conventions", "split_independence", "complete_nep_in", "restart_lineage", "componentwise_test_errors", "application_observables", "dynamical_stability", "domain_policy", "model_license"],
+      "supported_core": false
+    },
     "nve": {
       "required_gates": ["version_pin", "fixed_units", "model_xyz", "potential_provenance", "minimum_image", "explicit_seed_or_state", "timestep", "run_block_controls", "completion", "trajectory", "nve_drift", "uncertainty"],
       "supported_core": true
@@ -12,9 +24,17 @@
       "required_gates": ["version_pin", "fixed_units", "thermostat_parameters", "state_lineage", "completion", "trajectory", "uncertainty"],
       "supported_core": false
     },
+    "performance-benchmark": {
+      "required_gates": ["executable_build_gpu_identity", "identical_scientific_contract", "representative_case", "warmup_and_repetition_policy", "steps_per_second", "peak_memory", "io_volume", "variance"],
+      "supported_core": false
+    },
     "phonon": {
       "required_gates": ["exact_version", "v5.1_v5.2_bug_exclusion", "method_specific_convergence", "reference_validation"],
       "supported_core": false
+    },
+    "state-file-continuation": {
+      "required_gates": ["parent_run_identity", "restart_sha256", "parent_final_step_time", "retained_state_inventory", "child_input_audit", "segment_output_boundaries", "exact_continuation_claim_false"],
+      "supported_core": true
     }
   }
 }

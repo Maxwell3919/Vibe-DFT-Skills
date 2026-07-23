@@ -471,6 +471,23 @@ class QeGuardTests(unittest.TestCase):
         self.assertIn("QE.OUTPUT.MULTIPLE_RUNS", codes)
         self.assertIn("QE.OUTPUT.MULTIPLE_JOB_DONE", codes)
 
+    def test_signalling_floating_point_stderr_blocks_runtime_diagnostics(self) -> None:
+        findings: list[qe_guard.Finding] = []
+        status, summary = qe_guard.validate_stderr(
+            "Note: The following floating-point exceptions are signalling: "
+            "IEEE_INVALID_FLAG IEEE_DIVIDE_BY_ZERO\n",
+            findings,
+        )
+        self.assertEqual(status, "fail")
+        self.assertGreater(summary["floating_point_exception_lines"], 0)
+        self.assertIn("QE.STDERR.FLOATING_POINT_EXCEPTION", {item.code for item in findings})
+
+    def test_empty_stderr_passes_runtime_diagnostics(self) -> None:
+        findings: list[qe_guard.Finding] = []
+        status, summary = qe_guard.validate_stderr("", findings)
+        self.assertEqual(status, "pass")
+        self.assertEqual(summary["nonempty_lines"], 0)
+
     def test_runtime_pseudo_directory_must_match_input_resolution(self) -> None:
         summary, findings = qe_guard.validate_pw_input(VALID_INPUT)
         with tempfile.TemporaryDirectory() as tempdir:
@@ -550,7 +567,7 @@ class QeGuardTests(unittest.TestCase):
 
     def make_convergence_artifacts(
         self, root: Path, points: list[tuple[float, float, str]]
-    ) -> list[tuple[float, float, str, str, str, str]]:
+    ) -> list[tuple[float, float, str, str, str, str, str]]:
         pseudo_dir = root / "pseudo"
         pseudo_dir.mkdir()
         (root / "scratch").mkdir()
@@ -561,10 +578,11 @@ class QeGuardTests(unittest.TestCase):
         )
         pseudo_manifest = self.make_pseudo_manifest(root, pseudo_dir)
         plan = self.make_plan(root, absolute_tolerance=0.1)
-        rows: list[tuple[float, float, str, str, str, str]] = []
+        rows: list[tuple[float, float, str, str, str, str, str]] = []
         for index, (setting, observable, protocol_id) in enumerate(points, start=1):
             input_path = root / f"point-{index}.in"
             output_path = root / f"point-{index}.out"
+            stderr_path = root / f"point-{index}.err"
             audit_path = root / f"point-{index}.audit.json"
             input_path.write_text(
                 VALID_INPUT.replace("ecutwfc = 50.0", f"ecutwfc = {setting}"), encoding="ascii"
@@ -582,12 +600,15 @@ class QeGuardTests(unittest.TestCase):
                 "JOB DONE.\n",
                 encoding="ascii",
             )
+            stderr_path.write_text("", encoding="ascii")
             self.run_cli(
                 "audit",
                 "--input",
                 str(input_path),
                 "--output",
                 str(output_path),
+                "--stderr",
+                str(stderr_path),
                 "--pseudo-dir",
                 str(pseudo_dir),
                 "--pseudo-manifest",
@@ -609,16 +630,27 @@ class QeGuardTests(unittest.TestCase):
                     audit_path.name,
                     input_path.name,
                     output_path.name,
+                    stderr_path.name,
                 )
             )
         return rows
 
     def write_convergence_csv(
-        self, path: Path, points: list[tuple[float, float, str, str, str, str]]
+        self, path: Path, points: list[tuple[float, float, str, str, str, str, str]]
     ) -> None:
         with path.open("w", encoding="utf-8", newline="") as handle:
             writer = csv.writer(handle)
-            writer.writerow(["setting", "observable", "protocol_id", "audit_report", "input_file", "output_file"])
+            writer.writerow(
+                [
+                    "setting",
+                    "observable",
+                    "protocol_id",
+                    "audit_report",
+                    "input_file",
+                    "output_file",
+                    "stderr_file",
+                ]
+            )
             writer.writerows(points)
 
     def test_stable_tail_passes_but_physical_claim_remains_blocked(self) -> None:
@@ -699,7 +731,7 @@ class QeGuardTests(unittest.TestCase):
                 root,
                 [(30, -10.0, "protocol-001"), (40, -10.01, "protocol-001"), (50, -10.011, "protocol-001")],
             )
-            rows[1] = (40, -10.01, "protocol-001", rows[0][3], rows[0][4], rows[0][5])
+            rows[1] = (40, -10.01, "protocol-001", rows[0][3], rows[0][4], rows[0][5], rows[1][6])
             self.write_convergence_csv(path, rows)
             result = self.run_cli(
                 "convergence",
@@ -764,6 +796,43 @@ class QeGuardTests(unittest.TestCase):
             self.assertIn("QE.CONVERGENCE.OUTPUT_HASH", codes)
             self.assertIn("QE.CONVERGENCE.OBSERVABLE_UNSUPPORTED", codes)
 
+    def test_tampered_stderr_is_rejected_by_convergence_binding(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            root = Path(tempdir)
+            path = root / "convergence.csv"
+            rows = self.make_convergence_artifacts(
+                root,
+                [(30, -10.0, "protocol-001"), (40, -10.01, "protocol-001"), (50, -10.011, "protocol-001")],
+            )
+            (root / rows[1][6]).write_text("changed after audit\n", encoding="ascii")
+            self.write_convergence_csv(path, rows)
+            result = self.run_cli(
+                "convergence",
+                "--csv",
+                str(path),
+                "--plan",
+                str(root / "qe_plan.json"),
+                "--protocol-id",
+                "protocol-001",
+                "--parameter",
+                "ecutwfc",
+                "--parameter-unit",
+                "Ry",
+                "--observable",
+                "total_energy",
+                "--observable-unit",
+                "Ry",
+                "--direction",
+                "increasing",
+                "--absolute-tolerance",
+                "0.1",
+                expected=2,
+            )
+            self.assertIn(
+                "QE.CONVERGENCE.STDERR_HASH",
+                {item["code"] for item in json.loads(result.stdout)["findings"]},
+            )
+
     def test_plan_changed_after_audits_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir:
             root = Path(tempdir)
@@ -809,7 +878,17 @@ class QeGuardTests(unittest.TestCase):
             path = root / "convergence.csv"
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle)
-                writer.writerow(["setting", "observable", "protocol_id", "audit_report", "input_file", "output_file"])
+                writer.writerow(
+                    [
+                        "setting",
+                        "observable",
+                        "protocol_id",
+                        "audit_report",
+                        "input_file",
+                        "output_file",
+                        "stderr_file",
+                    ]
+                )
                 writer.writerow([30, -10.0, "protocol-001"])
             result = self.run_cli(
                 "convergence",

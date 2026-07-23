@@ -7,11 +7,11 @@ maturity is the minimum of invocation, parser, and scientific-validation axes.
 |---|---|---|---|---|---|---|---|
 | XYZ/extxyz inventory | stdlib candidate 0.1.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
 | Pipeline planning | stdlib candidate 0.1.0 | synthetic-validated | synthetic-validated | design-only | design-only | no_positive_claim | input_gates_only |
-| Frame metadata execution | OVITO Basic 3.15.5 | synthetic-validated with API double | synthetic-validated | design-only | design-only | no_positive_claim | technical_run_gates_only |
+| Frame metadata execution | standalone `ovito` module 3.15.5 (`ovito-basic` internal profile) | synthetic-validated with API double | synthetic-validated | design-only | design-only | no_positive_claim | technical_run_gates_only |
 | Coordination analysis | OVITO Basic 3.15.5 | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
 | Common-neighbor analysis | OVITO Basic 3.15.5 | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
-| Atomic strain | OVITO Pro 3.15.5 | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
-| Dislocation analysis | OVITO Pro 3.15.5 | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
+| Atomic strain | OVITO Basic desktop or standalone module 3.15.5 | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
+| Dislocation analysis | OVITO Basic desktop or standalone module 3.15.5 | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
 | Static rendering | conservative Pro 3.15.5 profile | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
 | Table export | OVITO Basic 3.15.5 | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
 

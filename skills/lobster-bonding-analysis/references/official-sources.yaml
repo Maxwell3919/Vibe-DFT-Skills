@@ -1,7 +1,7 @@
 {
   "catalog_name": "lobster-official-sources",
   "schema_version": "1.0",
-  "checked_on": "2026-07-19",
+  "checked_on": "2026-07-22",
   "sources": [
     {
       "id": "LOB-DOWNLOAD-511",
@@ -92,9 +92,41 @@
       "authority": "provider-required primary paper"
     },
     {
+      "id": "LOB-PAPER-2021-COBI",
+      "kind": "method-paper",
+      "version_scope": "COBI and ICOBI definition",
+      "title": "Crystal Orbital Bond Index: Covalent Bond Orders in Solids",
+      "url": "https://doi.org/10.1021/acs.jpcc.1c00718",
+      "authority": "primary paper by LOBSTER/COBI developers"
+    },
+    {
+      "id": "LOB-PAPER-2022-AUTOMATION",
+      "kind": "workflow-paper",
+      "version_scope": "VASP-LOBSTER basis testing and automated COHP analysis workflow",
+      "title": "Automated Bonding Analysis with Crystal Orbital Hamilton Populations",
+      "url": "https://doi.org/10.1002/cplu.202200123",
+      "authority": "primary workflow paper by LOBSTER/LobsterPy developers; not 5.1.1 syntax authority"
+    },
+    {
+      "id": "LOB-PYMATGEN-IO",
+      "kind": "community-adapter-documentation",
+      "version_scope": "online documentation checked 2026-07-22",
+      "title": "pymatgen.io.lobster package",
+      "url": "https://pymatgen.org/pymatgen.io.lobster.html",
+      "authority": "public adapter and parser API; not native LOBSTER 5.1.1 syntax authority"
+    },
+    {
+      "id": "LOB-ATOMATE2-OUTPUTS",
+      "kind": "community-workflow-documentation",
+      "version_scope": "online documentation checked 2026-07-22",
+      "title": "atomate2 LOBSTER output-file inventory",
+      "url": "https://materialsproject.github.io/atomate2/reference/atomate2.lobster.files.LOBSTEROUTPUT_FILES.html",
+      "authority": "public workflow file-role inventory; not a complete provider output schema"
+    },
+    {
       "id": "LOB-LOBSTERPY-GETTING-STARTED",
       "kind": "developer-companion-documentation",
-      "version_scope": "online documentation checked 2026-07-19",
+      "version_scope": "online documentation checked 2026-07-22",
       "title": "LobsterPy getting started",
       "url": "https://jageo.github.io/LobsterPy/installation/index.html",
       "authority": "developer-authored companion project; not LOBSTER native syntax authority"
@@ -102,7 +134,7 @@
     {
       "id": "LOB-LOBSTERPY-CLI",
       "kind": "developer-companion-documentation",
-      "version_scope": "online documentation checked 2026-07-19",
+      "version_scope": "online documentation checked 2026-07-22",
       "title": "LobsterPy description CLI reference",
       "url": "https://jageo.github.io/LobsterPy/reference/cli_subcommands/description.html",
       "authority": "developer-authored companion project; postprocessing call authority only"

@@ -16,17 +16,23 @@ inference, or approve deployment. Every report stays at
 1. [Fail-closed contract](references/fail-closed-contract.md)
 2. [Dataset and leakage rules](references/dataset-and-leakage.md)
 3. [Provider capability matrix](references/provider-matrix.md)
-4. [Evaluation and deployment rules](references/evaluation-and-deployment.md)
-5. [Official-source boundary](references/official-sources.md)
-6. [Task evidence profiles](references/task-evidence-profiles.json)
-7. [Weak-model decision table](references/weak-model-decision-table.json) whenever
+4. [Training and transfer playbook](references/training-and-transfer.md) for provider
+   selection, reference energy/force/stress conventions, loss/LR/checkpoint planning,
+   foundation-model heads/tasks, and fine-tuning. Preserve its explicit separation of
+   official facts from operational heuristics.
+5. [Evaluation and deployment rules](references/evaluation-and-deployment.md),
+   including domain shift, calibrated uncertainty, adapter compatibility, MD pilots,
+   and failure response.
+6. [Official-source boundary](references/official-sources.md)
+7. [Task evidence profiles](references/task-evidence-profiles.json)
+8. [Weak-model decision table](references/weak-model-decision-table.json) whenever
    selecting an action state or minimum next action; interpret it as
    `candidate-decision-table@1.0`, evaluate increasing `priority`, stop at the first
    match, and use the final fail-closed `default_case_id` if no earlier row matches
    uniquely. Never infer execution or promotion authorization
-8. [Exact provider workflow catalog](references/provider-workflow-catalog.json) for
+9. [Exact provider workflow catalog](references/provider-workflow-catalog.json) for
    MACE 0.3.16, NequIP 0.19.0, FairChem v1 1.10.0, and FairChem v2 2.21.0.
-9. [Calling and recipe boundary](references/calling-and-recipes.md) plus exactly one
+10. [Calling and recipe boundary](references/calling-and-recipes.md) plus exactly one
    entry from [provider recipes](references/provider-recipes.json) before describing
    a native CLI/API handoff. Every recipe is unauthorized and native-not-run.
 
@@ -68,6 +74,9 @@ FairChem v1 GemNet-OC and MACE LAMMPS-export recipes remain explicitly blocked.
   test results for tuning invalidates the independent-test claim.
 - Low average MAE/RMSE does not establish low worst-case error, force stability,
   energy conservation, phase transferability, reaction-path validity, or safe MD.
+- Provider terms that sound similar are not interchangeable: MACE heads, UMA task
+  embeddings, NequIP output fields, and a generic workflow mode have different
+  identities and reference conventions.
 
 ## Fixed workflow for low-reasoning models
 
@@ -123,6 +132,11 @@ policy, target metrics and tolerances, evaluation slice categories plus exact
 predeclared slice IDs, and environment identity.
 Do not fill provider defaults. The provider matrix separates trainable-framework
 profiles from pretrained-evaluation profiles.
+
+Before freezing a plan, use `training-and-transfer.md` to resolve reference energies,
+force sign, stress/virial convention, provider-specific head/task, checkpoint mode,
+and fine-tuning parent. Narrative provider support never expands the combinations
+accepted by the current deterministic matrix.
 
 ### 4. Audit model lineage without loading the model
 

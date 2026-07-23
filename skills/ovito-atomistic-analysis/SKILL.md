@@ -32,7 +32,10 @@ Choose exactly one primary route:
 - Refuse to execute coordination, CNA, strain, dislocation, export, or rendering routes; they are
   plan-only in this candidate.
 
-Read [pipeline-workflow.md](references/pipeline-workflow.md) before planning. Read
+Read [analysis-recipes.md](references/analysis-recipes.md) for official 3.15.5 import/mapping,
+pipeline order, selections, CNA/PTM/DXA/Wigner-Seitz/displacement/strain/RDF, averaging, rendering,
+export, and validation behavior. It separates provider facts from operational heuristics. Read
+[pipeline-workflow.md](references/pipeline-workflow.md) before planning. Read
 [fail-closed-contract.md](references/fail-closed-contract.md) before any external execution. Read
 [official-sources-and-environment.md](references/official-sources-and-environment.md) before
 selecting Basic or Pro. For mechanical routing, parse the machine-readable
@@ -69,8 +72,9 @@ its `minimum_next_action`.
    python3 scripts/ovito_analysis.py probe
    ```
 
-7. Execute only after the user explicitly authorizes local external execution, only with
-   `ovito-basic==3.15.5`, and only when every operation is `compute-frame-metadata`:
+7. Execute only after the user explicitly authorizes local external execution, only with the
+   `ovito` Python distribution at exact version `3.15.5` (the candidate's internal
+   `ovito-basic` profile), and only when every operation is `compute-frame-metadata`:
 
    ```bash
    python3 scripts/ovito_analysis.py execute --source TRAJECTORY.extxyz \
@@ -96,8 +100,8 @@ its `minimum_next_action`.
 - Require periodic frames to have a finite nonsingular `Lattice`; do not infer missing PBC.
 - Bind pipeline source hash and format to the inventory; refuse out-of-range or duplicate frames.
 - Require exact parameter keys and operation-specific evidence roles.
-- Refuse Pro-only operations under Basic. Do not infer a Pro entitlement from installation,
-  package metadata, a user account, or Basic availability.
+- Keep standalone-module availability, Basic desktop features, and Pro desktop entitlement
+  separate. Do not infer a Pro entitlement from installation, package metadata, or a user account.
 - Refuse every plan-only operation at execution, even if an OVITO module happens to provide it.
 - Refuse unpinned/mismatched distribution or imported versions, missing or mismatched bound
   authorization scope, source hash drift, existing/evidence-alias output, and symlinked output

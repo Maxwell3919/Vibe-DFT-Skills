@@ -115,7 +115,7 @@ Run the same command with `--output`:
 
 ```bash
 python3 "$QE_GUARD" audit \
-  --input scf.in --output scf.out \
+  --input scf.in --output scf.out --stderr scf.err \
   --run-dir /runtime/job-working-directory \
   --pseudo-dir /runtime/pseudopotentials \
   --pseudo-manifest pseudo-manifest.json \
@@ -123,17 +123,17 @@ python3 "$QE_GUARD" audit \
   --out qe_output_audit.json
 ```
 
-The automated output gate is limited to `scf`, `relax`, and `vc-relax`. It requires exactly one version banner and one `JOB DONE.`, task-appropriate convergence markers, no fatal/nonconvergence marker, and agreement between echoed `ibrav`, atom/type counts, `ecutwfc`, and `ecutrho` and the audited input. Other `pw.x` calculation modes are `not automated` for completion even when their input core is parsed. Concatenated runs, a scheduler exit code, or `JOB DONE.` alone are insufficient.
+The automated output gate is limited to `scf`, `relax`, and `vc-relax`. It requires exactly one version banner and one `JOB DONE.`, task-appropriate convergence markers, no fatal/nonconvergence marker, and agreement between echoed `ibrav`, atom/type counts, `ecutwfc`, and `ecutrho` and the audited input. It also requires the separately captured stderr artifact. Signalling IEEE floating-point flags or fatal runtime markers in stderr block `runtime_diagnostics`; other nonempty stderr is surfaced as a warning for case-level review. Other `pw.x` calculation modes are `not automated` for completion even when their input core is parsed. Concatenated runs, a scheduler exit code, omitted stderr, or `JOB DONE.` alone are insufficient.
 
 ## 5. Check one convergence dimension
 
 Use a CSV with exactly these columns:
 
 ```text
-setting,observable,protocol_id,audit_report,input_file,output_file
+setting,observable,protocol_id,audit_report,input_file,output_file,stderr_file
 ```
 
-Paths may be absolute or relative to the CSV. Every row must use the same protocol and point to a distinct `qe_guard audit` report created with both `--input` and `--output`. The underlying files must still exist. The convergence gate recomputes their hashes, binds them to the unchanged `qe_plan.json`, and compares the CSV setting and observable to values extracted by the audit. Copying one audit, input, or output to another setting is blocked.
+Paths may be absolute or relative to the CSV. Every row must use the same protocol and point to a distinct `qe_guard audit` report created with `--input`, `--output`, and `--stderr`. The underlying files must still exist. The convergence gate recomputes their hashes, binds them to the unchanged `qe_plan.json`, and compares the CSV setting and observable to values extracted by the audit. Copying one audit, input, or output to another setting is blocked; changing stderr after the audit is also blocked.
 
 ```bash
 python3 "$QE_GUARD" convergence \

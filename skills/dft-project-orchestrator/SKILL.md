@@ -65,6 +65,7 @@ Every command is a dry-run inspection: require `dry_run=true`, `side_effect_perf
 
 ## Additional references
 
+- Use [references/practical-playbooks.md](references/practical-playbooks.md) for new-campaign, convergence, restart, failure-triage, and publication-evidence workflows.
 - Use [references/fail-closed-contract.md](references/fail-closed-contract.md) and [references/decision-table.md](references/decision-table.md) for candidate-local gate order.
 - Use [references/weak-model-decision-table.json](references/weak-model-decision-table.json) for deterministic first-match response routing.
 - Use [references/finding-catalog.json](references/finding-catalog.json) for stable finding meanings.

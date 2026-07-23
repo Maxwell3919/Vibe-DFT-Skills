@@ -504,13 +504,16 @@ def require_pass(value: dict[str, Any], command: str) -> list[dict[str, str]]:
 
 
 def expected_arrays(nframes: int, natoms: int, periodic: bool, virial: bool) -> dict[str, list[int]]:
+    # DeePMD's version-matched raw_to_set.sh writes the canonical NPY payloads
+    # with one row per frame. Atomic/cartesian and box tensors are flattened on
+    # disk; the provider loader restores their logical tensor dimensions.
     result = {
-        "coord.npy": [nframes, natoms, 3],
+        "coord.npy": [nframes, natoms * 3],
         "energy.npy": [nframes],
-        "force.npy": [nframes, natoms, 3],
+        "force.npy": [nframes, natoms * 3],
     }
     if periodic:
-        result["box.npy"] = [nframes, 3, 3]
+        result["box.npy"] = [nframes, 9]
     if virial:
         result["virial.npy"] = [nframes, 9]
     return result

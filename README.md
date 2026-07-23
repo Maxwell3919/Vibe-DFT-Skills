@@ -5,7 +5,7 @@
   <strong>面向可重复 DFT 与原子模拟工作流的可移植、证据门禁 Skill 集合</strong>
 </p>
 
-> **最后更新 / Last updated:** 2026-07-19 (Asia/Shanghai)
+> **最后更新 / Last updated:** 2026-07-23 (Asia/Shanghai)
 > **仓库状态 / Repository scope:** 26 source-backed Skills = 7 `active` + 19 `development`; 4 active calculation-code integrations; 19 planned software identities
 
 > **项目声明 / Project statement**
@@ -50,15 +50,71 @@ The figures are generated from synthetic fixtures by repository code. They demon
 
 Status reporting separates source presence, lifecycle registration, deterministic repository tests, environment availability, and native execution. `active` means repository-installable and routable; it does not mean QE, VASP, CP2K, or SIESTA is installed locally. Unless explicitly recorded otherwise, tests use synthetic fixtures, redistributable recorded artifacts, and offline material rather than native third-party runs.
 
+## 官方网站与上游资料索引 / Official websites and upstream sources
+
+下列链接于 2026-07-22 现场核验，覆盖本库直接关联的科学软件、标准和执行基础设施。这个索引只用于定位第一方资料：列出官网不表示本机已安装、仓库已支持、上游项目为本库背书或已经完成原生验证。精确 lifecycle 以 [`registry/software-registry.yaml`](registry/software-registry.yaml) 和 [`registry/skill-registry.yaml`](registry/skill-registry.yaml) 为准；版本、平台、许可和阻断项以 [`registry/environment-profiles.yaml`](registry/environment-profiles.yaml) 及各 Skill 的 version-pinned references 为准。通用 Python/构建依赖见 `requirements-dev.txt`，不在这里逐项罗列。
+
+The links below were checked on 2026-07-22 and cover the scientific upstreams, standards, and execution infrastructure directly represented by this repository. This is a provenance and navigation index, not an installation, support, endorsement, or native-validation claim. The registries remain authoritative for lifecycle and environment state; version-specific deep links remain in each Skill's references.
+
+### Active 计算代码集成 / Active calculation-code integrations
+
+这四个 `active` 软件身份具有仓库路由，但仍不能据此推导当前机器存在可执行程序或某个任务已经通过科学验收。
+
+| Registry ID | 软件 / Software | 关联 Skill / Related Skill | 官方入口 / Official entry points |
+|---|---|---|---|
+| `qe` | Quantum ESPRESSO | `qe-rigorous-calculations` | [官网](https://www.quantum-espresso.org/) · [官方文档索引](https://www.quantum-espresso.org/Doc/) · [7.5 `pw.x` 输入文档](https://www.quantum-espresso.org/Doc/INPUT_PW.html) |
+| `vasp` | VASP | `vasp-rigorous-calculations` | [官网](https://vasp.at/) · [VASP Wiki / official manual](https://vasp.at/wiki/Main_page) |
+| `cp2k` | CP2K | `cp2k-rigorous-calculations` | [官网](https://www.cp2k.org/) · [2026.2 官方手册](https://manual.cp2k.org/cp2k-2026_2-branch/) |
+| `siesta` | SIESTA | `siesta-rigorous-calculations` | [官网](https://siesta-project.org/siesta/) · [5.4 官方文档](https://docs.siesta-project.org/projects/siesta/en/5.4/) |
+
+### Development Skill 对应的软件身份 / Planned software identities for development Skills
+
+以下 19 个 registry identity 均为 `software: planned`，其关联 Skill 均为 `development`：不可安装、不可路由、不会启动外部软件，也没有原生验证或正向科学声明。这里的 rolling 官网入口用于发现当前资料；本库采用的精确版本仍由 profile 和 Skill reference 固定。
+
+| Registry ID | 软件与关联 Skill / Software and Skill | 官方入口 / Official entry points | 许可或访问边界 / License or access boundary |
+|---|---|---|---|
+| `gaussian` | Gaussian · `gaussian-rigorous-calculations` | [Gaussian, Inc.](https://gaussian.com/) · [User's Reference](https://gaussian.com/man/) · [release notes](https://gaussian.com/relnotes/) | 专有商业软件；公开网页不授予二进制、源码或安装介质的再分发权。 / Proprietary and licensed. |
+| `gromacs` | GROMACS · `gromacs-rigorous-simulations` | [官网](https://www.gromacs.org/) · [官方手册](https://manual.gromacs.org/) · [官方 GitLab](https://gitlab.com/gromacs/gromacs) | `LGPL-2.1-or-later`；手册 major/minor 应匹配安装版本。 |
+| `lammps` | LAMMPS · `lammps-rigorous-simulations` | [官网](https://www.lammps.org/) · [官方手册](https://docs.lammps.org/) · [官方 GitHub](https://github.com/lammps/lammps) | 普通发行版为 `GPL-2.0-only`；build packages 和势文件另行核验。 |
+| `deepmd` | DeePMD-kit · `deepmd-rigorous-workflows` | [官方文档](https://docs.deepmodeling.com/projects/deepmd/en/stable/) · [官方 GitHub](https://github.com/deepmodeling/deepmd-kit) | 框架为 `LGPL-3.0-or-later`；数据、模型和第三方 backend 单独授权。 |
+| `multiwfn` | Multiwfn · `multiwfn-wavefunction-analysis` | [作者官网](http://sobereva.com/multiwfn/) · [下载与许可](http://sobereva.com/multiwfn/download.html) | 当前官方站可靠入口为 HTTP；使用自定义许可与引用要求，不自行改写为 SPDX 许可。 |
+| `phonopy` | Phonopy · `phonopy-rigorous-workflows` | [官方文档](https://phonopy.github.io/phonopy/) · [安装](https://phonopy.github.io/phonopy/install.html) · [官方 GitHub](https://github.com/phonopy/phonopy) | `BSD-3-Clause`；force calculator、赝势和输入数据仍有独立来源。 |
+| `vaspkit` | VASPKIT · `vaspkit-postprocess` | [项目官网](https://vaspkit.com/) · [官方文档源码](https://github.com/vaspkit/vaspkit.github.io) · [官方二进制发布](https://sourceforge.net/projects/vaspkit/files/Binaries/) | 官网当前存在 TLS/DNS 不稳定，后两项为官方备用入口；免费使用不等于开源或可再分发。 |
+| `catmap` | CatMAP · `catmap-microkinetics` | [官方文档](https://catmap.readthedocs.io/en/latest/) · [SUNCAT 官方 GitHub](https://github.com/SUNCAT-Center/catmap) | `GPL-3.0`；输入能量、数据库和可执行 `.mkm` 配置另行审查。 |
+| `lobster` | LOBSTER · `lobster-bonding-analysis` | [RWTH 官方主页](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=1) · [下载/版本入口](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6) | 受限、实名注册、非营利科研许可；二进制、手册和随包资源不得提交。 |
+| `ovito` | OVITO · `ovito-atomistic-analysis` | [官网](https://www.ovito.org/) · [官方文档](https://docs.ovito.org/) · [许可与版本边界](https://docs.ovito.org/licenses/index.html) | Basic/Python module 与 Pro 是不同许可面；Pro 需要付费 entitlement。 |
+| `pymatgen` | pymatgen · `dft-structure-preparation` | [官网与文档](https://pymatgen.org/) · [Materials Project 官方 GitHub](https://github.com/materialsproject/pymatgen) | `MIT`；wrapper/core 版本拆分记录，但仍是一个 registry software identity。 |
+| `rdkit` | RDKit · `dft-structure-preparation` | [官网](https://www.rdkit.org/) · [官方文档](https://www.rdkit.org/docs/) · [官方 GitHub](https://github.com/rdkit/rdkit) | `BSD-3-Clause`；官网可能对自动化客户端返回 406，分子清洗、立体化学和构象结果仍需任务门禁。 |
+| `mace` | MACE · `ml-potential-workflows` | [官方文档](https://mace-docs.readthedocs.io/en/latest/) · [ACEsuit 官方 GitHub](https://github.com/ACEsuit/mace) | 框架为 `MIT`；foundation-model/checkpoint 许可逐个核验。 |
+| `nequip` | NequIP · `ml-potential-workflows` | [项目门户](https://www.nequip.net/) · [官方文档](https://nequip.readthedocs.io/en/latest/) · [官方 GitHub](https://github.com/mir-group/nequip) | 框架为 `MIT`；模型、扩展和编译产物可采用不同许可。 |
+| `gpumd` | GPUMD · `gpumd-rigorous-simulations` | [官方文档](https://gpumd.org/) · [官方 GitHub](https://github.com/brucefan1983/GPUMD) | `GPL-3.0-or-later`；NEP 势、训练集和第三方接口独立核验。 |
+| `lasp` | LASP · `lasp-rigorous-simulations` | [LASP Hub 下载页](http://www.lasphub.com/#/lasp/download) · [复旦大学课题组官方页](https://faculty.fudan.edu.cn/fdzpliu/zh_CN/zhym/644124/list/index.htm) | 商业版权软件；LASP Hub 当前可靠入口为 HTTP，未发现可核验的官方公共 GitHub 仓库。 |
+| `gemnet-oc` | GemNet-OC · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [v1 model catalog](https://fair-chem.github.io/models-1/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) | 预留的 FairChem v1 路线；代码许可不能替代具体 checkpoint 许可。 |
+| `equiformer-v2` | EquiformerV2 · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [v1 model catalog](https://fair-chem.github.io/models-1/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) | 预留的 FairChem v1 路线；模型身份、任务头和工件哈希必须独立绑定。 |
+| `fairchem-uma` | FAIR-Chem UMA · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [UMA 文档](https://fair-chem.github.io/uma/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) | 代码为 `MIT`；UMA checkpoint 是 gated model，并受独立模型许可约束。 |
+
+### 标准、直接依赖与执行基础设施 / Standards, direct dependencies, and execution infrastructure
+
+这些项目直接支撑 active Skill 或 development 设计，但不是额外的 active calculation-code route。
+
+| 上游项目 / Upstream | 本库关系 / Repository relationship | 官方入口 / Official entry points |
+|---|---|---|
+| IUCr CIF | `cif-structure-analysis` 的晶体学标准权威；自动化客户端可能被 IUCr WAF 阻断。 | [CIF resources](https://www.iucr.org/resources/cif) · [CIF 1.1 syntax](https://www.iucr.org/resources/cif/spec/version1.1/cifsyntax) |
+| ASE | `cif-structure-analysis` 的直接依赖，并为 `dft-structure-preparation` 提供结构 API。 | [官网](https://ase-lib.org/) · [官方文档](https://docs.ase-lib.org/) |
+| Gemmi | CIF 解析与交叉核对依赖。 | [官方 GitHub](https://github.com/project-gemmi/gemmi) · [官方文档](https://gemmi.readthedocs.io/en/stable/) |
+| PyCifRW | CIF parser 依赖；PyPI 当前元数据指向项目官方仓库。 | [官方 GitHub](https://github.com/jamesrhester/pycifrw) · [PyPI release channel](https://pypi.org/project/PyCifRW/) |
+| spglib | `cif-structure-analysis` 的对称性依赖；在 `dft-structure-preparation` 中仅是 reference-only cross-check。 | [官方 GitHub](https://github.com/spglib/spglib) · [官方文档](https://spglib.readthedocs.io/en/stable/) |
+| Slurm | `dft-hpc-execution` 的文档来源；当前没有真实集群 adapter 或 active route。 | [官方概览](https://slurm.schedmd.com/overview.html) · [官方文档](https://slurm.schedmd.com/documentation.html) |
+
 ## 当前 active 模块 / Active modules
 
 | Skill | 软件与官网 / Software and official site | 功能 / Function | 优点、局限与采用理由 / Strengths, limits, and why included |
 |---|---|---|---|
-| `cif-structure-analysis` | [IUCr CIF](https://www.iucr.org/resources/cif), [ASE](https://ase-lib.org/), [Gemmi](https://gemmi.readthedocs.io/), [PyCifRW](https://pypi.org/project/PyCifRW/), [spglib](https://spglib.readthedocs.io/) | 解析 CIF1/CIF2、数据块与原始标签；保留不确定度和占位警告；分析周期近邻、配位、目标元素对/键长、对称性和静态投影。 / Parse CIF metadata and structures; inspect uncertainty, occupancy, periodic neighbors, coordination, target bond lengths, symmetry, and static projections. | 多解析器交叉保留晶体学证据，适合作为结构入口；无序、部分占位和“键”的化学含义仍需人工/方法判断。 / Traceable multi-parser entry point; disorder, partial occupancy, and chemical bond meaning remain explicit limitations. |
+| `cif-structure-analysis` | [IUCr CIF](https://www.iucr.org/resources/cif), [ASE](https://docs.ase-lib.org/), [Gemmi](https://gemmi.readthedocs.io/en/stable/), [PyCifRW](https://github.com/jamesrhester/pycifrw), [spglib](https://spglib.readthedocs.io/en/stable/) | 解析 CIF1/CIF2、数据块与原始标签；保留不确定度和占位警告；分析周期近邻、配位、目标元素对/键长、对称性和静态投影。 / Parse CIF metadata and structures; inspect uncertainty, occupancy, periodic neighbors, coordination, target bond lengths, symmetry, and static projections. | 多解析器交叉保留晶体学证据，适合作为结构入口；无序、部分占位和“键”的化学含义仍需人工/方法判断。 / Traceable multi-parser entry point; disorder, partial occupancy, and chemical bond meaning remain explicit limitations. |
 | `qe-rigorous-calculations` | [Quantum ESPRESSO](https://www.quantum-espresso.org/) · [official input documentation](https://www.quantum-espresso.org/Doc/INPUT_PW.html) | `pw.x`、`ph.x`、`neb.x` 等平面波/赝势 DFT 工作流的输入设计、官方参数解析、运行审计、重启谱系和可观测量收敛。 / Evidence-gated input design, official-parameter resolution, run auditing, restart lineage, and observable-specific convergence for QE. | 开源、方法和后处理生态广，便于复现与扩展；输入程序多、单位/默认值和赝势选择复杂。选作开放周期 DFT 主路线。 / Open and extensible with broad methods; multi-program semantics and pseudopotential/convergence choices require strict gates. |
 | `vasp-rigorous-calculations` | [VASP](https://vasp.at/) · [VASP Wiki](https://vasp.at/wiki/) | 审计 INCAR、POSCAR、KPOINTS、POTCAR 元数据、OUTCAR/`vasprun.xml`、完成性、收敛及高级方法。 / Audit inputs, outputs, completion, convergence, and advanced VASP workflows. | 固体材料工作流成熟、应用广；软件和 POTCAR 受许可约束，参数相互作用复杂。因实际材料计算覆盖率高而保留，但永不提交 POTCAR 内容。 / Mature and widely used, but proprietary and parameter-coupled; licensed content never enters Git. |
 | `cp2k-rigorous-calculations` | [CP2K](https://www.cp2k.org/) · [2026.2 manual](https://manual.cp2k.org/cp2k-2026_2-branch/) | Quickstep、GPW/GAPW、基组/赝势、周期与分子体系、优化、MD、振动和高级方法的设计与审计。 / Plan and audit CP2K GPW/GAPW calculations across molecular, periodic, optimization, MD, and response tasks. | 对混合体系、分子动力学和多种理论层级灵活，开源且并行能力强；输入树、基组和网格组合复杂。用于补足纯平面波路线。 / Flexible open framework for mixed systems and MD; input hierarchy and basis/grid convergence are demanding. |
-| `siesta-rigorous-calculations` | [SIESTA](https://siesta-project.org/siesta/) · [documentation](https://docs.siesta-project.org/projects/siesta/) | FDF 输入、数值原子轨道、PSF/PSML/VPS、完成性、父任务/重启、能带/DOS/声子/输运等任务边界。 / Audit SIESTA FDF, localized bases, pseudopotentials, lineage, completion, and task-specific evidence. | 局域基组适合较大体系并提供 TranSIESTA/TBtrans 方向；基组依赖和 mesh/k 点收敛不能照搬平面波经验。用于覆盖局域轨道和输运路线。 / Efficient localized-orbital route for larger systems and transport; basis dependence requires separate convergence evidence. |
+| `siesta-rigorous-calculations` | [SIESTA](https://siesta-project.org/siesta/) · [5.4 documentation](https://docs.siesta-project.org/projects/siesta/en/5.4/) | FDF 输入、数值原子轨道、PSF/PSML/VPS、完成性、父任务/重启、能带/DOS/声子/输运等任务边界。 / Audit SIESTA FDF, localized bases, pseudopotentials, lineage, completion, and task-specific evidence. | 局域基组适合较大体系并提供 TranSIESTA/TBtrans 方向；基组依赖和 mesh/k 点收敛不能照搬平面波经验。用于覆盖局域轨道和输运路线。 / Efficient localized-orbital route for larger systems and transport; basis dependence requires separate convergence evidence. |
 | `dft-postprocess` | Repository Python tools; optional adapters to the calculation codes and external analysis packages | 盘点、抽取、归一化、验证、分析与绘图，输出 postprocess plan、tool execution、normalized dataset 和 artifact manifest。 / Inventory, extract, normalize, validate, analyze, and plot DFT outputs with provenance-bearing artifacts. | 统一数据/图件接口并减少重复脚本；成熟度必须按 `code × observable × backend` 单独检查，图画出来不等于科学结论成立。 / Shared deterministic data and figure layer; every backend/observable route remains independently maturity-gated. |
 | `dft-campaign-efficiency` | Repository Python tools | 记录 wall time、core-hours、存储、失败、重跑和关键路径，形成隐私安全的 campaign record 与证据分级建议。 / Normalize campaign cost and failure evidence into comparable records and recommendations. | 把计算经验变成可审计建议且不改动计算；跨体系可迁移性有限，建议不得降低科学验收标准。 / Turns experience into traceable advice without editing calculations; recommendations remain evidence-ranked and system-specific. |
 
@@ -67,6 +123,10 @@ Status reporting separates source presence, lifecycle registration, deterministi
 这些模块已有详细源码、参考资料、门禁和测试，但在完成匹配版本的官方资料审查、合法真实产物、原生执行、科学边界和端到端验收前保持不可路由。目录丰富不等于软件已经可用。
 
 These modules have source, references, gates, and tests, but remain non-routable until version-matched primary documentation, legally reusable real artifacts, native execution, scientific limits, and end-to-end acceptance are complete. Source depth is not a support claim.
+
+2026-07-22 的内容优先回填为全部 19 个 `development` Skills 增加了可直接用于规划、审查和故障定位的实操 playbook：包括任务分解、关键输入、父任务谱系、单位与格式、restart、输出验收、常见失效、收敛与科学边界。软件命令和版本行为优先绑定官网手册或官方源码；公开资料不足的 LASP、受许可约束的 LOBSTER/Gaussian 等路线保持 fail closed。此次回填没有改变任何 lifecycle、路由、安装、action、native-validation 或 claim-ceiling 状态。
+
+The 2026-07-22 content-first pass adds planning, audit, and troubleshooting playbooks to all 19 `development` Skills, covering task decomposition, decisive inputs, parent lineage, units and formats, restart semantics, output acceptance, common failures, convergence, and scientific limits. Commands and version behavior are tied to official manuals or upstream source where available; sparsely documented or licensed surfaces remain fail closed. This pass changes no lifecycle, routing, installation, action, native-validation, or claim-ceiling state.
 
 ### 跨软件协作 / Cross-cutting modules
 
@@ -203,15 +263,19 @@ Version, platform, license, and blocker notes for development software live in [
 
 ## 安装与使用 / Install and use
 
-有仓库权限的用户可通过 GitHub CLI 或 Git 获取私有仓库：
+本公开仓库可通过 GitHub CLI 或 Git 获取：
 
-Authorized users may clone the private repository with GitHub CLI or Git:
+This public repository can be cloned with GitHub CLI or Git:
 
 ```bash
 gh repo clone Maxwell3919/Vibe-DFT-Skills
 # or: git clone https://github.com/Maxwell3919/Vibe-DFT-Skills.git
 cd Vibe-DFT-Skills
 ```
+
+公开可见性不改变第三方软件许可、受限内容边界或科学证据门槛；本仓库当前未声明顶层开源许可证。
+
+Public visibility does not change third-party licensing, restricted-content boundaries, or scientific evidence gates. The repository currently declares no top-level open-source license.
 
 安装器只暴露 7 个 `active` Skills，并以符号链接安装到显式目标目录。它不会覆盖已有真实目录或指向其他位置的链接。
 

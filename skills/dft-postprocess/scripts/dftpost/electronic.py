@@ -10,6 +10,7 @@ from typing import Any, Iterable
 from . import __version__
 from .manifests import validation_errors
 from .utils import sha256_file, utc_now, write_json_atomic
+from strict_json import StrictJSONError, load_object
 
 
 FLOAT = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?"
@@ -157,6 +158,77 @@ def parse_qe_bands_gnu(path: Path) -> tuple[list[float], list[list[float]]]:
     return kpoints, [[item[1] for item in block] for block in blocks]
 
 
+def _validated_symmetry_points(
+    symmetry_points: list[dict[str, Any]] | None,
+    sampled_kpoints: list[float],
+) -> list[dict[str, Any]]:
+    if symmetry_points is None:
+        return []
+    if not isinstance(symmetry_points, list):
+        raise ValueError("high-symmetry points must be a list")
+    if not sampled_kpoints:
+        raise ValueError("cannot validate high-symmetry points without sampled k-points")
+    tolerance = max(1.0, max(abs(value) for value in sampled_kpoints)) * 1.0e-8
+    lower = min(sampled_kpoints)
+    upper = max(sampled_kpoints)
+    normalized: list[dict[str, Any]] = []
+    previous_distance: float | None = None
+    for index, point in enumerate(symmetry_points, start=1):
+        if not isinstance(point, dict) or set(point) != {"label", "k_distance"}:
+            raise ValueError(
+                f"high-symmetry point {index} must contain exactly label and k_distance"
+            )
+        label = point["label"]
+        if not isinstance(label, str) or not label.strip() or any(
+            character in label for character in "\r\n\t"
+        ):
+            raise ValueError(f"high-symmetry point {index} has an invalid label")
+        try:
+            distance = float(point["k_distance"])
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"high-symmetry point {index} has a non-numeric k_distance"
+            ) from exc
+        if not math.isfinite(distance):
+            raise ValueError(f"high-symmetry point {index} has a non-finite k_distance")
+        if distance < lower - tolerance or distance > upper + tolerance:
+            raise ValueError(
+                f"high-symmetry point {label.strip()!r} is outside the band path range"
+            )
+        closest = min(sampled_kpoints, key=lambda value: abs(value - distance))
+        if abs(closest - distance) > tolerance:
+            raise ValueError(
+                f"high-symmetry point {label.strip()!r} does not match a sampled k-point"
+            )
+        if previous_distance is not None and closest <= previous_distance + tolerance:
+            raise ValueError("high-symmetry point distances must be strictly increasing")
+        normalized.append({"label": label.strip(), "k_distance": closest})
+        previous_distance = closest
+    return normalized
+
+
+def _symmetry_points_from_plot_metadata(
+    metadata_path: Path,
+    sampled_kpoints: list[float],
+) -> list[dict[str, Any]]:
+    try:
+        payload = load_object(
+            metadata_path,
+            metadata_path.name,
+            max_bytes=4 * 1024 * 1024,
+            max_nodes=100_000,
+            max_depth=64,
+        )
+    except StrictJSONError as exc:
+        raise ValueError(f"could not read bands plot metadata: {metadata_path.name}") from exc
+    points = payload.get("high_symmetry_points")
+    if points is None:
+        raise ValueError(
+            f"{metadata_path.name}: bands plot metadata has no high_symmetry_points"
+        )
+    return _validated_symmetry_points(points, sampled_kpoints)
+
+
 def _sampled_band_analysis(bands: list[list[float]], reference: float) -> dict[str, Any]:
     relative = [[energy - reference for energy in band] for band in bands]
     occupied = [energy for band in relative for energy in band if energy <= 0.0]
@@ -235,6 +307,7 @@ def _plot_bands(
         "band_color": "#7f1d1d",
         "x_limits": [kpoints[0], kpoints[-1]],
         "energy_window_ev": list(energy_window_ev) if energy_window_ev is not None else None,
+        "high_symmetry_points": symmetry_points or [],
         "output": _output_record(output, "figure", "image/png"),
     }
 
@@ -247,6 +320,7 @@ def normalize_qe_bands(
     *,
     figure_output: Path | None = None,
     energy_window_ev: tuple[float, float] | None = None,
+    symmetry_points: list[dict[str, Any]] | None = None,
     maturity: str = "format-fixture-validated",
     overwrite: bool = False,
 ) -> dict[str, Path]:
@@ -263,6 +337,7 @@ def normalize_qe_bands(
     )
 
     kpoints, bands = parse_qe_bands_gnu(bands_path)
+    validated_symmetry_points = _validated_symmetry_points(symmetry_points, kpoints)
     reference = parse_qe_fermi_energy(energy_reference_path)
     rows = (
         {
@@ -281,9 +356,22 @@ def normalize_qe_bands(
         rows,
     )
     analysis = _sampled_band_analysis(bands, reference)
-    analysis.update({"schema_version": "1.0", "bands": len(bands), "kpoints": len(kpoints)})
+    analysis.update({
+        "schema_version": "1.0",
+        "bands": len(bands),
+        "kpoints": len(kpoints),
+        "high_symmetry_points": validated_symmetry_points,
+        "path_label_source": "caller-supplied" if validated_symmetry_points else "not-supplied",
+    })
     write_json_atomic(analysis_path, analysis)
-    plot_metadata = _plot_bands(kpoints, bands, reference, figure_path, energy_window_ev)
+    plot_metadata = _plot_bands(
+        kpoints,
+        bands,
+        reference,
+        figure_path,
+        energy_window_ev,
+        symmetry_points=validated_symmetry_points,
+    )
     write_json_atomic(plot_metadata_path, plot_metadata)
 
     dataset = {
@@ -316,7 +404,16 @@ def normalize_qe_bands(
                 "parameters": {"energy_reference_ev": reference, "source_label": energy_reference_path.name},
                 "input_columns": ["energy_raw_ev"],
                 "output_columns": ["energy_relative_ev"],
-            }
+            },
+            *([{
+                "operation": "annotate-high-symmetry-points",
+                "parameters": {
+                    "source": "caller-supplied",
+                    "high_symmetry_points": validated_symmetry_points,
+                },
+                "input_columns": ["k_distance"],
+                "output_columns": ["k_distance"],
+            }] if validated_symmetry_points else []),
         ],
         "validation": {
             "status": "pass",
@@ -475,7 +572,10 @@ def _aggregate_projected_dos(paths: list[Path], grid: list[float], group_by: str
         comments, rows = _read_numeric_table(path)
         candidate = _strict_energy_grid(rows, path.name)
         if len(candidate) != len(grid) or any(abs(left - right) > tolerance for left, right in zip(candidate, grid)):
-            raise ValueError(f"{path.name}: projected DOS grid is not aligned with the total DOS grid")
+            raise ValueError(
+                f"{path.name}: projected DOS grid is not aligned with the total DOS grid; "
+                "for QE projwfc outputs, use the matching prefix.pdos_tot as --total and keep a differently sampled dos.x table separate"
+            )
         header = " ".join(comments).lower()
         width = len(rows[0])
         label = _pdos_group(metadata, group_by)
@@ -718,6 +818,7 @@ def plot_bands_dos(
     *,
     energy_window_ev: tuple[float, float] | None = None,
     pdos_channel_labels: list[str] | None = None,
+    bands_metadata_path: Path | None = None,
     overwrite: bool = False,
 ) -> dict[str, Any]:
     _refuse_existing_outputs((output_path,), overwrite)
@@ -816,6 +917,12 @@ def plot_bands_dos(
         raise ValueError("DOS channels have a zero-width value range")
     if energy_window_ev is not None and energy_window_ev[0] >= energy_window_ev[1]:
         raise ValueError("energy window must be increasing")
+    sampled_kpoints = sorted(set(all_band_x))
+    symmetry_points = (
+        _symmetry_points_from_plot_metadata(bands_metadata_path, sampled_kpoints)
+        if bands_metadata_path is not None
+        else []
+    )
 
     import matplotlib
 
@@ -846,8 +953,17 @@ def plot_bands_dos(
                 linewidth=0.9,
             )
         band_axis.axhline(0.0, color="black", linewidth=0.8, linestyle="--")
-        band_axis.set_xlabel("Path coordinate")
+        band_axis.set_xlabel("Wave vector" if symmetry_points else "Path coordinate")
         band_axis.set_ylabel(r"Energy - $E_\mathrm{ref}$ (eV)")
+        if symmetry_points:
+            for point in symmetry_points:
+                band_axis.axvline(
+                    point["k_distance"], color="#b8b8b8", linewidth=0.55, zorder=0
+                )
+            band_axis.set_xticks(
+                [point["k_distance"] for point in symmetry_points],
+                [point["label"] for point in symmetry_points],
+            )
         band_axis.set_xlim(*band_limits)
         band_axis.margins(x=0)
 
@@ -914,6 +1030,7 @@ def plot_bands_dos(
         "band_x_limits": band_limits,
         "dos_x_limits": dos_limits,
         "energy_window_ev": list(energy_window_ev) if energy_window_ev is not None else None,
+        "high_symmetry_points": symmetry_points,
         "dos_content": "tdos+pdos",
         "tdos_channel_labels": tdos_labels,
         "pdos_channel_labels": selected_pdos_labels,
@@ -925,6 +1042,11 @@ def plot_bands_dos(
         "inputs": [
             {"role": "bands-table", "label": bands_table_path.name, "sha256": sha256_file(bands_table_path)},
             {"role": "dos-table", "label": dos_table_path.name, "sha256": sha256_file(dos_table_path)},
+            *([{
+                "role": "bands-plot-metadata",
+                "label": bands_metadata_path.name,
+                "sha256": sha256_file(bands_metadata_path),
+            }] if bands_metadata_path is not None else []),
         ],
         "output": _output_record(output_path, "figure", "image/png"),
     }

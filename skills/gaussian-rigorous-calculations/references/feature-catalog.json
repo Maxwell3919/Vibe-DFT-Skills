@@ -1,6 +1,6 @@
 {
   "catalog_contract": "provider-feature-catalog@1.0",
-  "retrieved_on": "2026-07-19",
+  "retrieved_on": "2026-07-22",
   "product": {
     "provider": "Gaussian, Inc.",
     "product_name": "Gaussian 16",
@@ -31,6 +31,16 @@
       "version_scope": "public Gaussian 16 route-section specification"
     },
     {
+      "source_id": "g16-molspec",
+      "url": "https://gaussian.com/molspec/",
+      "version_scope": "public Gaussian 16 molecule-specification reference"
+    },
+    {
+      "source_id": "g16-geom",
+      "url": "https://gaussian.com/geom/",
+      "version_scope": "public Gaussian 16 Geom and GIC reference, reviewed after the 2026 page update"
+    },
+    {
       "source_id": "g16-link0",
       "url": "https://gaussian.com/link0/",
       "version_scope": "Gaussian 16 Rev. C.01 public page; C.02 revision boundary is separate"
@@ -44,6 +54,31 @@
       "source_id": "g16-options",
       "url": "https://gaussian.com/options/",
       "version_scope": "public Gaussian 16 options index"
+    },
+    {
+      "source_id": "g16-basissets",
+      "url": "https://gaussian.com/basissets/",
+      "version_scope": "public Gaussian 16 basis-set reference"
+    },
+    {
+      "source_id": "g16-chkbasis",
+      "url": "https://gaussian.com/chkbasis/",
+      "version_scope": "public Gaussian 16 checkpoint-basis reference"
+    },
+    {
+      "source_id": "g16-scf",
+      "url": "https://gaussian.com/scf/",
+      "version_scope": "public Gaussian 16 SCF reference"
+    },
+    {
+      "source_id": "g16-guess",
+      "url": "https://gaussian.com/guess/",
+      "version_scope": "public Gaussian 16 initial-guess reference"
+    },
+    {
+      "source_id": "g16-stable",
+      "url": "https://gaussian.com/stable/",
+      "version_scope": "public Gaussian 16 HF/DFT wavefunction-stability reference"
     },
     {
       "source_id": "g16-sp",
@@ -64,6 +99,31 @@
       "source_id": "g16-irc",
       "url": "https://gaussian.com/irc/",
       "version_scope": "public Gaussian 16 IRC page"
+    },
+    {
+      "source_id": "g16-td",
+      "url": "https://gaussian.com/td/",
+      "version_scope": "public Gaussian 16 TD-HF/TD-DFT page"
+    },
+    {
+      "source_id": "g16-dft",
+      "url": "https://gaussian.com/dft/",
+      "version_scope": "public Gaussian 16 DFT methods and accuracy guidance"
+    },
+    {
+      "source_id": "g16-scrf",
+      "url": "https://gaussian.com/scrf/",
+      "version_scope": "public Gaussian 16 SCRF and excited-state solvation reference"
+    },
+    {
+      "source_id": "g16-vibrational-analysis",
+      "url": "https://gaussian.com/wp-content/uploads/dl/vib.pdf",
+      "version_scope": "public first-party Gaussian vibrational-analysis white paper"
+    },
+    {
+      "source_id": "g16-thermochemistry",
+      "url": "https://gaussian.com/wp-content/uploads/dl/thermo.pdf",
+      "version_scope": "public first-party Gaussian thermochemistry white paper"
     },
     {
       "source_id": "g16-formchk",
@@ -107,6 +167,24 @@
       "source_ids": ["g16-input", "g16-route"]
     },
     {
+      "feature_id": "input.molecule-specification",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "The molecule section begins with total charge and spin multiplicity and can use Cartesian, Z-matrix, mixed, fragment, isotope, ghost-atom, or periodic forms.",
+      "failure_semantics": "Wrong electron count, spin, atom identity/order, unit, fragment definition, or geometry source invalidates the molecular problem even if syntax is accepted.",
+      "scientific_gate": "Bind structure provenance and intended electronic state; the guard supports only explicit Cartesian atoms without the documented extensions.",
+      "source_ids": ["g16-molspec", "g16-geom"]
+    },
+    {
+      "feature_id": "input.model-chemistry-basis-and-grid",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-supported-synthetic-only",
+      "summary": "A route selects method, basis and task; general basis/ECP sections, pure/Cartesian conventions, density fitting and DFT grids require separate complete identities.",
+      "failure_semantics": "Implicit defaults, missing element coverage, wrong ECP core, conflicting ChkBasis, or inconsistent grids block comparison and may block execution.",
+      "scientific_gate": "Converge and justify method, basis/ECP, integration grid and other numerical controls for the intended observable.",
+      "source_ids": ["g16-route", "g16-basissets", "g16-chkbasis", "g16-dft"]
+    },
+    {
       "feature_id": "input.link0-resources-and-checkpoints",
       "state": "official-documented-native-not-run",
       "guard_support": "guard-supported-synthetic-only",
@@ -114,6 +192,15 @@
       "failure_semantics": "Resource and checkpoint directives are not scientific defaults and checkpoint paths require explicit lineage.",
       "scientific_gate": "A checkpoint name is not checkpoint identity; bind its bytes and ancestry separately.",
       "source_ids": ["g16-link0"]
+    },
+    {
+      "feature_id": "checkpoint.geometry-guess-basis-and-hessian",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "Geom=Checkpoint/AllCheck, Guess=Read/Restart, ChkBasis, ReadFC/RCFC and task restarts consume different checkpoint records with different compatibility rules.",
+      "failure_semantics": "A filename without exact producer, hash, revision, geometry, state, basis and record-role compatibility breaks lineage.",
+      "scientific_gate": "Audit each consumed record independently and reapply all downstream state, task and numerical gates.",
+      "source_ids": ["g16-link0", "g16-geom", "g16-guess", "g16-chkbasis", "g16-opt", "g16-freq", "g16-scf", "g16-td"]
     },
     {
       "feature_id": "cli.g16-job-name",
@@ -143,6 +230,24 @@
       "source_ids": ["g16-sp", "g16-route"]
     },
     {
+      "feature_id": "solver.scf-convergence-and-restart",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "SCF documents conventional, QC/XQC/YQC, damping, level-shifting, symmetry, iteration-limit and restart controls with method-specific restrictions.",
+      "failure_semantics": "More iterations or a different algorithm can still converge to a wrong or unstable electronic solution; SCF=Restart and Guess=Restart are not interchangeable.",
+      "scientific_gate": "Diagnose the iteration/state failure, change one justified control, then recheck occupations, spin, stability, energy and all downstream tasks.",
+      "source_ids": ["g16-scf", "g16-guess"]
+    },
+    {
+      "feature_id": "solver.wavefunction-stability",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "Stable tests whether an HF/DFT determinant is a local minimum under selected orbital/spin/symmetry relaxations; Stable=Opt may reoptimize an instability.",
+      "failure_semantics": "An unstable reference invalidates analytic-frequency and other reference-dependent interpretations even when SCF and the job terminate normally.",
+      "scientific_gate": "Bind the stable solution and its state identity before re-running energies, gradients, frequencies or post-HF analysis.",
+      "source_ids": ["g16-stable", "g16-scf", "g16-freq"]
+    },
+    {
       "feature_id": "job.optimization-minimum",
       "state": "official-documented-native-not-run",
       "guard_support": "guard-supported-synthetic-only",
@@ -152,6 +257,15 @@
       "source_ids": ["g16-opt"]
     },
     {
+      "feature_id": "job.relaxed-scan-and-constraints",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "ModRedundant and GIC routes can freeze, activate or scan atom-indexed coordinates while optimizing the remaining degrees of freedom.",
+      "failure_semantics": "Wrong atom map, coordinate periodicity, unit/sign, constraint, step count or a failed point breaks the scan; a scan is not automatically an IRC.",
+      "scientific_gate": "Bind every point and constraint, inspect path continuity and characterize any claimed stationary structures independently.",
+      "source_ids": ["g16-opt", "g16-geom", "g16-input"]
+    },
+    {
       "feature_id": "job.frequency",
       "state": "official-documented-native-not-run",
       "guard_support": "guard-supported-synthetic-only",
@@ -159,6 +273,15 @@
       "failure_semantics": "A frequency job at a nonstationary or different-level geometry cannot establish the intended stationary-point type.",
       "scientific_gate": "Minimum candidates require zero meaningful imaginary modes; transition-state candidates require one intended mode, with near-zero modes examined.",
       "source_ids": ["g16-freq"]
+    },
+    {
+      "feature_id": "analysis.frequency-thermochemistry",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "Freq reports harmonic modes, intensities and thermochemical quantities whose interpretation depends on a same-model stationary point, masses, temperature, pressure and molecular conventions.",
+      "failure_semantics": "Wrong-level geometry, unstable wavefunction, incomplete derivatives, unexpected modes or unstated thermal conventions block interpretation.",
+      "scientific_gate": "Audit mode vectors/counts and declare scaling, standard state, symmetry and low-frequency treatment; preserve raw and derived values separately.",
+      "source_ids": ["g16-freq", "g16-vibrational-analysis", "g16-thermochemistry", "g16-stable"]
     },
     {
       "feature_id": "job.optimization-frequency",
@@ -186,6 +309,33 @@
       "failure_semantics": "A missing Hessian, unconverged path, one-sided path, or wrong endpoints blocks connectivity evidence.",
       "scientific_gate": "Endpoint structures must be optimized/identified independently and the path must correspond to the intended mode.",
       "source_ids": ["g16-irc", "g16-freq"]
+    },
+    {
+      "feature_id": "job.td-vertical-excitations",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "TD-HF/TD-DFT solves a declared state manifold with NStates/Root controls and reports excitation energies, oscillator strengths, spin/symmetry and leading configurations.",
+      "failure_semantics": "Ground-state failure, too few states, checkpoint/basis mismatch, wrong spin manifold, root reordering or inadequate model chemistry blocks the intended state assignment.",
+      "scientific_gate": "Converge the state window and identify state character beyond its root number; audit basis diffuseness, functional and solvent convention for the target transition.",
+      "source_ids": ["g16-td", "g16-dft", "g16-scrf"]
+    },
+    {
+      "feature_id": "job.td-excited-state-optimization-frequency",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "Gaussian 16 documents TD analytic gradients and frequencies for supported HF/DFT cases, enabling state-specific optimization and vibrational analysis.",
+      "failure_semantics": "Root flipping, changing state character, unsupported functional derivatives, inconsistent solvent response or a wrong-level geometry invalidates the path/result.",
+      "scientific_gate": "Track the same physical state across every geometry and revalidate stationary-point, spectrum and solvent-state assumptions.",
+      "source_ids": ["g16-td", "g16-freq", "g16-release-notes", "g16-scrf"]
+    },
+    {
+      "feature_id": "model.solvation-ground-and-excited-states",
+      "state": "official-documented-native-not-run",
+      "guard_support": "guard-not-supported",
+      "summary": "SCRF documents PCM/SMD choices and distinct equilibrium/non-equilibrium response for ground-state, vertical-excitation and excited-state-geometry workflows.",
+      "failure_semantics": "An implicit solvent default, wrong response regime, unbound cavity/radii or inconsistent gas/solution states breaks a solvation comparison.",
+      "scientific_gate": "Declare solvent model, response regime, cavity parameters, structures, thermal/standard-state corrections and model limitations.",
+      "source_ids": ["g16-scrf", "g16-td"]
     },
     {
       "feature_id": "restart.opt",

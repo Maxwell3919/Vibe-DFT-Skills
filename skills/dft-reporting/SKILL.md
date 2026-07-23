@@ -63,6 +63,7 @@ Exit codes are `0` candidate-local gate passed, `2` invalid/privacy-unsafe input
 
 ## Additional references
 
+- Use [references/report-content-playbook.md](references/report-content-playbook.md) to assemble claim-first methods, results, validation, figures/tables, negative results, and reproducibility content.
 - Use [references/workflow-and-roles.md](references/workflow-and-roles.md) for author/tool/reviewer role separation.
 - Use [references/fail-closed-contract.md](references/fail-closed-contract.md) and [references/weak-model-decision-table.json](references/weak-model-decision-table.json) for local gate order.
 - Use [references/finding-catalog.json](references/finding-catalog.json) for findings and [references/maturity-matrix.json](references/maturity-matrix.json) for activation gaps.

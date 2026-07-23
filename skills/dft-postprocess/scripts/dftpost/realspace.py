@@ -54,9 +54,12 @@ def _finite_array(values: Any, label: str) -> Any:
     return array
 
 
-def _read_cube(path: Path) -> tuple[Any, list[list[float]], dict[str, Any]]:
+def _read_cube_payload(path: Path) -> tuple[Any, list[int], dict[str, Any]]:
     import numpy as np
 
+    path = Path(path).resolve()
+    if not path.is_file():
+        raise ValueError(f"cube source file is missing: {path}")
     with path.open("r", encoding="utf-8", errors="replace") as handle:
         comments = [handle.readline().rstrip("\n"), handle.readline().rstrip("\n")]
         atom_line = handle.readline().split()
@@ -92,17 +95,22 @@ def _read_cube(path: Path) -> tuple[Any, list[list[float]], dict[str, Any]]:
                     "position": [float(value) for value in fields[2:5]],
                 }
             )
+        orbital_ids: list[int] = []
         if atom_count_raw < 0:
             orbital_fields = handle.readline().split()
             if not orbital_fields:
                 raise ValueError(f"{path.name}: missing cube orbital-id row")
-        expected = math.prod(dimensions)
-        flat_values = np.fromfile(handle, dtype=float, count=expected + 1, sep=" ")
-    if flat_values.size != expected:
-        raise ValueError(f"{path.name}: expected {expected} grid values, found {flat_values.size}")
-    values = flat_values.reshape(dimensions)
-    if not np.isfinite(values).all():
-        raise ValueError(f"{path.name}: cube grid contains non-finite values")
+            try:
+                orbital_count = int(orbital_fields[0])
+                orbital_ids = [int(value) for value in orbital_fields[1:]]
+            except ValueError as exc:
+                raise ValueError(f"{path.name}: malformed cube orbital-id row") from exc
+            if orbital_count < 1 or len(orbital_ids) != orbital_count:
+                raise ValueError(
+                    f"{path.name}: cube orbital-id row declares {orbital_count} fields "
+                    f"but lists {len(orbital_ids)} ids"
+                )
+        flat_values = np.fromfile(handle, dtype=float, sep=" ")
     coordinate_unit = axis_units[0]
     factor = BOHR_TO_ANGSTROM if coordinate_unit == "bohr" else 1.0
     origin_angstrom = [component * factor for component in origin]
@@ -132,15 +140,91 @@ def _read_cube(path: Path) -> tuple[Any, list[list[float]], dict[str, Any]]:
     metadata = {
         "format": "gaussian-cube",
         "comments": comments,
+        "atom_count_raw": atom_count_raw,
         "atom_count": atom_count,
         "atoms": normalized_atoms,
+        "grid_shape": dimensions,
         "origin_native": origin,
         "origin_angstrom": origin_angstrom,
         "coordinate_unit_native": coordinate_unit,
         "step_vectors_angstrom": step_vectors_angstrom,
         "lattice_vectors_angstrom": lattice_vectors_angstrom,
+        "orbital_ids": orbital_ids,
     }
-    return values, step_vectors_angstrom, metadata
+    return flat_values, dimensions, metadata
+
+
+def _read_cube(path: Path) -> tuple[Any, list[list[float]], dict[str, Any]]:
+    import numpy as np
+
+    flat_values, dimensions, metadata = _read_cube_payload(path)
+    expected = math.prod(dimensions)
+    observed = int(flat_values.size)
+    if observed != expected:
+        if (
+            int(metadata["atom_count_raw"]) >= 0
+            and observed > expected
+            and observed % expected == 0
+        ):
+            field_count = observed // expected
+            raise ValueError(
+                f"{Path(path).name}: header declares one field with {expected} values but payload "
+                f"contains {observed} values ({field_count} complete fields); use cube-inspect "
+                "and cube-split explicitly before normalization"
+            )
+        if int(metadata["atom_count_raw"]) < 0:
+            raise ValueError(
+                f"{Path(path).name}: standard orbital/multi-dataset Cube payloads are not supported "
+                f"by grid-field (expected {expected} values, found {observed})"
+            )
+        raise ValueError(f"{Path(path).name}: expected {expected} grid values, found {observed}")
+    values = flat_values.reshape(dimensions)
+    if not np.isfinite(values).all():
+        raise ValueError(f"{Path(path).name}: cube grid contains non-finite values")
+    return values, metadata["step_vectors_angstrom"], metadata
+
+
+def inspect_cube_fields(path: Path) -> dict[str, Any]:
+    import numpy as np
+
+    path = Path(path).resolve()
+    flat_values, dimensions, metadata = _read_cube_payload(path)
+    expected = math.prod(dimensions)
+    observed = int(flat_values.size)
+    divisible = expected > 0 and observed % expected == 0
+    complete_field_count = observed // expected if divisible else None
+    if int(metadata["atom_count_raw"]) < 0:
+        status = "standard-orbital-cube-unsupported"
+    elif observed == expected:
+        status = "single-field"
+    elif observed > expected and divisible:
+        status = "legacy-concatenated-fields"
+    else:
+        status = "malformed-payload"
+    return {
+        "schema_version": "1.0",
+        "status": status,
+        "source": _source_record(path, "cube-source"),
+        "grid_shape": dimensions,
+        "declared_grid_value_count": expected,
+        "observed_grid_value_count": observed,
+        "complete_field_count": complete_field_count,
+        "atom_count": int(metadata["atom_count"]),
+        "negative_atom_count_convention": int(metadata["atom_count_raw"]) < 0,
+        "orbital_ids": list(metadata["orbital_ids"]),
+        "all_values_finite": bool(np.isfinite(flat_values).all()),
+        "field_semantics": "unknown",
+        "limitations": [
+            "A positive atom count plus multiple complete payload fields is treated only as a legacy concatenation pattern.",
+            "Field order and physical meaning are not inferred from comments, filenames, value ranges, or field count.",
+            "Standard negative-atom-count orbital or multi-dataset Cube payloads are reported but are not split by this route.",
+        ],
+        "provenance": {
+            "producer": "dftpost.cube-inspect",
+            "producer_version": __version__,
+            "generated_utc": utc_now(),
+        },
+    }
 
 
 def _read_vasp_grid(path: Path) -> tuple[Any, list[list[float]], dict[str, Any]]:
@@ -612,8 +696,8 @@ def normalize_grid_field(
     import numpy as np
 
     _check_maturity(maturity)
-    if code not in {"qe", "vasp", "mixed"}:
-        raise ValueError("code must be qe, vasp, or mixed")
+    if code not in {"qe", "vasp", "siesta", "mixed"}:
+        raise ValueError("code must be qe, vasp, siesta, or mixed")
     if field_kind not in FIELD_KINDS:
         raise ValueError(f"unknown field_kind: {field_kind}")
     if not field_unit.strip():
@@ -877,7 +961,14 @@ def normalize_grid_field(
     }
 
 
-def _write_cube_atomic(path: Path, values: Any, source_metadata: dict[str, Any]) -> None:
+def _write_cube_atomic(
+    path: Path,
+    values: Any,
+    source_metadata: dict[str, Any],
+    *,
+    title: str = "dftpost linear combination",
+    description: str = "coordinates are written in bohr; coefficients and hashes are in companion metadata",
+) -> None:
     import numpy as np
 
     array = _finite_array(values, path.name)
@@ -894,8 +985,8 @@ def _write_cube_atomic(path: Path, values: Any, source_metadata: dict[str, Any])
             "w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
         ) as handle:
             temporary = Path(handle.name)
-            handle.write("dftpost linear combination\n")
-            handle.write("coordinates are written in bohr; coefficients and hashes are in companion metadata\n")
+            handle.write(title.rstrip("\n") + "\n")
+            handle.write(description.rstrip("\n") + "\n")
             handle.write(f"{len(atoms):5d} {origin[0]: .10e} {origin[1]: .10e} {origin[2]: .10e}\n")
             for dimension, vector in zip(array.shape, step_vectors):
                 handle.write(f"{int(dimension):5d} {vector[0]: .10e} {vector[1]: .10e} {vector[2]: .10e}\n")
@@ -913,6 +1004,105 @@ def _write_cube_atomic(path: Path, values: Any, source_metadata: dict[str, Any])
     finally:
         if temporary is not None and temporary.exists():
             temporary.unlink()
+
+
+def split_cube_fields(
+    source: Path,
+    output_directory: Path,
+    *,
+    overwrite: bool = False,
+) -> dict[str, Any]:
+    import numpy as np
+
+    source = Path(source).resolve()
+    flat_values, dimensions, metadata = _read_cube_payload(source)
+    expected = math.prod(dimensions)
+    observed = int(flat_values.size)
+    if int(metadata["atom_count_raw"]) < 0:
+        raise ValueError(
+            "cube-split does not support the standard negative-atom-count orbital or "
+            "multi-dataset Cube convention"
+        )
+    if observed == expected:
+        raise ValueError(f"{source.name}: payload contains exactly one field; no split is needed")
+    if expected < 1 or observed <= expected or observed % expected != 0:
+        raise ValueError(
+            f"{source.name}: payload has {observed} values for a {expected}-value grid and is "
+            "not an integer number of complete fields"
+        )
+    if not np.isfinite(flat_values).all():
+        raise ValueError(f"{source.name}: cube payload contains non-finite values")
+
+    field_count = observed // expected
+    output_directory = Path(output_directory).resolve()
+    field_paths = [output_directory / f"field-{index:03d}.cube" for index in range(field_count)]
+    manifest_path = output_directory / "cube-split.manifest.json"
+    _refuse_existing_outputs((*field_paths, manifest_path), overwrite)
+    output_directory.mkdir(parents=True, exist_ok=True)
+
+    for index, field_path in enumerate(field_paths):
+        start = index * expected
+        values = flat_values[start:start + expected].reshape(dimensions)
+        _write_cube_atomic(
+            field_path,
+            values,
+            metadata,
+            title=f"dftpost extracted field {index:03d}",
+            description=(
+                "field semantics are unknown; source identity, index, and hashes are in "
+                "cube-split.manifest.json"
+            ),
+        )
+
+    manifest = {
+        "schema_version": "1.0",
+        "operation": "legacy-concatenated-cube-split",
+        "source": _source_record(source, "cube-source"),
+        "grid_shape": dimensions,
+        "values_per_field": expected,
+        "observed_grid_value_count": observed,
+        "field_count": field_count,
+        "field_semantics": "unknown",
+        "outputs": [
+            {
+                "field_index": index,
+                **_output_record(path, "extracted-grid-field", "chemical/x-gaussian-cube"),
+            }
+            for index, path in enumerate(field_paths)
+        ],
+        "validation": {
+            "status": "pass",
+            "checks": [
+                {
+                    "id": "exact-field-division",
+                    "status": "pass",
+                    "message": "The payload divides exactly into complete fields using the declared grid shape.",
+                },
+                {
+                    "id": "finite-values",
+                    "status": "pass",
+                    "message": "Every extracted field value is finite.",
+                },
+                {
+                    "id": "semantic-neutrality",
+                    "status": "pass",
+                    "message": "Outputs retain neutral numeric indices and no physical field meaning is inferred.",
+                },
+            ],
+        },
+        "limitations": [
+            "This compatibility route accepts only positive-atom-count Cube headers followed by an exact multiple of the declared grid size.",
+            "The output field order is the payload order; field semantics and units remain caller-supplied evidence.",
+            "Use grid-combine only after independently establishing coefficients, units, and the physical meaning of every component.",
+        ],
+        "provenance": {
+            "producer": "dftpost.cube-split",
+            "producer_version": __version__,
+            "generated_utc": utc_now(),
+        },
+    }
+    write_json_atomic(manifest_path, manifest)
+    return {"manifest": manifest_path, "fields": field_paths}
 
 
 def _cube_geometry_aligns(reference_values: Any, reference_metadata: dict[str, Any], values: Any, metadata: dict[str, Any]) -> bool:

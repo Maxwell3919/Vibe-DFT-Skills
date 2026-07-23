@@ -29,9 +29,10 @@ Requirements:
 - Resolve all metadata fields; reject placeholders and private absolute paths/hosts/accounts.
 - Use `nonrelativistic`, `scalar-relativistic`, or `fully-relativistic` for `relativistic_treatment`.
 - Match `xc_family` to explicit `XC.Functional` plus `XC.Authors`.
+- For PSML, require readable XML and cross-check the embedded LibXC functional ids against `xc_family`; a hash-matched manifest cannot override contradictory embedded metadata.
 - A plan declaring `soc`, `spin-orbit`, or `spinorbit` requires `fully-relativistic` for every species.
 - Make `validation_id` point to real external evidence; a label alone does not prove transferability.
 
-The auditor reports local hash/format, public scientific classifications, and hashes of source/version/validation identities. It does not expose the source string, private location, valence text, or pseudopotential content.
+The auditor reports local hash/format, recognized PSML XC class, public scientific classifications, and hashes of source/version/validation identities. It does not expose the source string, private location, valence text, or pseudopotential content. Legacy VPS/PSF XC identity remains manifest-bound unless a separately tested parser is added.
 
 A passing manifest gate proves identity and recorded compatibility metadata only. Scientific review must still assess semicore/valence choice, cutoff radii, ghost states, transferability, nonlinear core correction, and observable-specific validation.
