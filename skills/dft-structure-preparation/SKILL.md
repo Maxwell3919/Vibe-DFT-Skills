@@ -38,6 +38,13 @@ is unresolved. For mechanical routing, parse the machine-readable
 [decision table](references/weak-model-decision-table.json) and never take an action stronger than
 its `minimum_next_action`.
 
+For provider-facing work, read
+[practical-provider-recipes.md](references/practical-provider-recipes.md). It gives
+official-manual-backed ASE, pymatgen, spglib, and RDKit calls; explicit unit, mapping, and DFT
+handoff checks; and separately labeled operational heuristics. Those recipes remain planning and
+review guidance until the named provider route has native fixtures and promotion evidence.
+Spglib is reference-only here, not an independently registered provider or activation route.
+
 ## Execute the low-reasoning workflow
 
 1. Inventory inputs. Record only a content-derived source label, raw-byte SHA-256, and byte count;
@@ -110,10 +117,12 @@ reclassifying a finding. Do not raise a task above its weakest evidence axis.
 Run `probe-backends` only as a metadata probe. A detected distribution is not an imported module,
 a successful operation, a license decision, or integration evidence. Read
 [official-sources-and-environment.md](references/official-sources-and-environment.md) before any
-pymatgen, ASE, or RDKit work. Consult the machine-readable
+pymatgen, ASE, spglib, or RDKit work. Consult the machine-readable
 [provider capability catalog](references/provider-capabilities.json) for exact API signatures,
 tested invariants, format/unit/PBC/order boundaries, and per-provider evidence state. Refuse an
-unpinned or mismatched provider for activation evidence.
+unpinned or mismatched provider for activation evidence. Spglib is currently documentation-backed
+only, is not an executable catalog route, and cannot supply activation evidence unless a future
+reviewed change first registers it.
 
 ## Validate this candidate
 

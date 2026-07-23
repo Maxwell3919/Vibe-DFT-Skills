@@ -19,7 +19,7 @@ python3 -B "$GROMACS_MANUAL" recipes --category restart
 python3 -B "$GROMACS_MANUAL" show-recipe continue-from-checkpoint
 ```
 
-Use [official-command-catalog.json](references/official-command-catalog.json) for command discovery, [task-recipes.json](references/task-recipes.json) for exact argv/stdin/input/output/restart/failure/scientific recipes, and [core-file-formats.json](references/core-file-formats.json) for native file semantics. The states are deliberately separate:
+Use [official-command-catalog.json](references/official-command-catalog.json) for command discovery, [task-recipes.json](references/task-recipes.json) for exact argv/stdin/input/output/restart/failure/scientific recipes, [core-file-formats.json](references/core-file-formats.json) for native file semantics, and [operational-workflows.md](references/operational-workflows.md) for the content-level preparation, MDP, restart, failure, trajectory, and performance audit. The states are deliberately separate:
 
 - `official-index-listed`: the pinned command index lists it;
 - `official-manual-recipe`: exact syntax has a pinned official recipe;
@@ -49,6 +49,8 @@ For a requested real run, apply this sequence:
 7. Apply observable-specific convergence, sampling, uncertainty, model-domain, finite-size, cutoff/PME, time-step, ensemble and replica gates. Provider completion is never scientific acceptance.
 
 The typical accepted route is explicit preparation → minimization → NVT equilibration → NPT equilibration when physically appropriate → immutable production → native integrity checks → declared analysis. Each arrow is a separate artifact/lineage boundary. Do not reuse desired test/OOD outcomes to tune the protocol.
+
+Before drafting or auditing any conventional workflow, read the relevant section of [operational-workflows.md](references/operational-workflows.md). It labels exact-version official behavior, operational heuristics, project decisions, and observed evidence separately; none of its command families attest native execution.
 
 ## Resolve the candidate tool
 

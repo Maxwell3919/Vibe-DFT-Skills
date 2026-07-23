@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "software": "VASPKIT",
   "documentation_series": "1.5",
-  "checked_date": "2026-07-18",
+  "checked_date": "2026-07-22",
   "scope": "Paraphrased task index from the official VASPKIT feature page; a listed task is not automatically recipe-verified or native-executed.",
   "source_snapshot": {
     "html_url": "https://vaspkit.com/features.html",
@@ -391,6 +391,12 @@
       "feature_page": "Separates 2D/bulk spectra and assigns 713 to a WAVECAR transition-dipole route",
       "tutorial_page": "Shows 711 as linear spectra, 712 as single-k-point transition dipole, and 713 as band-path transition dipole",
       "required_action": "Treat optical task numbers as version-sensitive and confirm against the installed binary."
+    },
+    {
+      "task": "722",
+      "feature_page": "Mean Squared Displacement Using FFT (Recommend)",
+      "tutorial_page": "Radial Distribution Function based on VASP MD results",
+      "required_action": "Treat task 722 as version-sensitive and inspect the exact binary menu, prompts, trajectory source, and outputs before use."
     },
     {
       "task": "926",

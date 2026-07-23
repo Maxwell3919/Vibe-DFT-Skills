@@ -285,10 +285,10 @@ observables:
         required_parameters: [field-kind, field-unit]
         backends: [python.cp2k-text]
       siesta:
-        maturity: design-only
+        maturity: format-fixture-validated
         required_evidence: [grid-field]
         required_parameters: [field-kind, field-unit]
-        backends: [python.siesta-text]
+        backends: [python.grid]
   neb:
     title: Minimum-energy path and barrier
     scope: Normalize image order, reaction coordinate, energies, forces, convergence, and reference-energy transformations.

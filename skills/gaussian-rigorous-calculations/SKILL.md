@@ -1,6 +1,6 @@
 ---
 name: gaussian-rigorous-calculations
-description: Design and audit fail-closed Gaussian 16 molecular electronic-structure calculations with explicit revision, licensed-environment, model-chemistry, charge/multiplicity, checkpoint-lineage, termination, optimization, and frequency evidence. Use for Gaussian input planning, offline input or log inspection, restart provenance, and deciding what a Gaussian result can support; this development Skill never launches Gaussian or treats natural-language claims as evidence.
+description: Design, troubleshoot, and audit fail-closed Gaussian 16 molecular electronic-structure workflows with explicit revision, licensed-environment, model-chemistry, charge/multiplicity, checkpoint lineage, SCF, optimization, frequency, TD excited-state, IRC, and thermochemistry evidence. Use for Gaussian Link 0/route/molecule-specification planning, input or log inspection, restart and formatted-checkpoint handoff, failure diagnosis, and deciding what a Gaussian result can support; this development Skill never launches Gaussian or treats natural-language claims as evidence.
 ---
 
 # Gaussian rigorous calculations
@@ -32,6 +32,13 @@ independently accepted.
    [calling and recipe boundary](references/calling-and-recipes.md) and select exactly
    one entry from [task recipes](references/task-recipes.json). Every provider recipe
    is `execution_authorized=false` and `native-not-run` in this development state.
+9. Read [input and checkpoint workflows](references/input-and-checkpoint-workflows.md)
+   whenever drafting or auditing Link 0, route, molecule, basis/ECP, `Geom`, `Guess`,
+   `ChkBasis`, restart, `formchk`, or `cubegen` lineage.
+10. Read [calculation workflows](references/calculation-workflows.md) for single-point,
+    optimization, frequency/thermochemistry, TD, transition-state, or IRC work.
+11. Read [troubleshooting and audit](references/troubleshooting-and-audit.md) before
+    proposing any SCF, geometry, frequency, TD-state, or checkpoint recovery action.
 
 Do not substitute model memory, a user statement, a GaussView screenshot, a smooth
 curve, or an unbound checkpoint for those records.
@@ -66,8 +73,11 @@ not call them and does not assume an undocumented `g16 --version` flag.
 - Do not infer method, basis, charge, multiplicity, task completion, stationary-point
   type, or scientific acceptance from a filename or prose.
 - Block multi-step `--Link1--`, ONIOM, External, Counterpoise, `Gen`/`GenECP`,
-  periodic, excited-state, solvent, IRC, scan, NMR, composite, and post-HF claims
-  until a dedicated task profile and real licensed fixture exist.
+  periodic, excited-state, solvent, IRC, scan, NMR, composite, and post-HF inputs
+  from the deterministic guard and block positive claims until a dedicated task
+  profile and real licensed fixture exist. You may still produce a
+  `provider-documented/guard-not-supported/native-not-run` planning or audit handoff
+  from the references; never describe that handoff as locally validated support.
 - The only registered model-chemistry parser profile is synthetic
   `B3LYP/6-31G(d)`. Any other method/basis blocks at planning time until public-source
   and licensed real-fixture evidence extend the profile.
@@ -84,15 +94,34 @@ Follow the numbered order. Do not skip a failed or missing gate.
 
 ### 1. Classify the request
 
-Choose exactly one supported candidate task:
+Classify first by support surface.
+
+Choose exactly one deterministic synthetic candidate task:
 
 - `single_point`
 - `optimization`
 - `frequency`
 - `optimization_frequency`
 
-If the requested terminal task is outside this set, return `local_gate_blocked` and
-name the unsupported task. Do not quietly reduce it to a single point.
+If a requested terminal deterministic audit or execution is outside this set, return
+`local_gate_blocked` and name the unsupported task. Do not quietly reduce it to a
+single point. If the request is explicitly for content-only planning or diagnosis,
+continue with one provider workflow below while preserving that local block.
+
+For content-only planning or audit, choose exactly one documented provider workflow:
+
+- `input_or_checkpoint_handoff`
+- `single_point_provider_plan`
+- `minimum_or_scan_provider_plan`
+- `frequency_or_thermochemistry_provider_plan`
+- `transition_state_or_irc_provider_plan`
+- `td_vertical_or_excited_state_provider_plan`
+- `scf_or_geometry_recovery_plan`
+
+These workflow names are not accepted by `gaussian_guard.py`. Return
+`guard_support=guard-not-supported`, keep `native_validation=native-not-run`, cite the
+resolved source IDs, and use the relevant reference checklist. Do not fabricate a
+guard command for them.
 
 ### 2. Freeze a plan
 
@@ -176,17 +205,43 @@ The deterministic pass is at most a future technical candidate. While lifecycle 
 Return these fields, in this order:
 
 1. `route`: `gaussian-rigorous-calculations`
-2. `action_state`: `local_gate_blocked`, `needs_evidence`,
+2. `support_state`: one of `guard-supported-synthetic-only` or
+   `provider-documented-guard-not-supported`
+3. `action_state`: `local_gate_blocked`, `needs_evidence`,
    `needs_authorization`, or `local_gate_passed_limited`
-3. `claim_ceiling`: always `no_positive_claim` while in development
-4. `passed_gates`
-5. `blocking_findings`
-6. `smallest_next_action`
-7. `evidence_refs`: safe label plus SHA-256 only
-8. `limitations`
+4. `claim_ceiling`: always `no_positive_claim` while in development
+5. `provider_source_ids`
+6. `passed_gates`
+7. `blocking_findings`
+8. `smallest_next_action`
+9. `evidence_refs`: safe label plus SHA-256 only
+10. `limitations`
 
 Use the report's finding codes verbatim. Do not replace a missing record with an
 explanation.
+
+## Content-first planning and audit
+
+For a provider-documented workflow that is outside the guard:
+
+1. Freeze the scientific question, target observable, charge/multiplicity, molecular
+   identity, method, basis/ECP, environment, and required comparison set.
+2. Build the complete section map before drafting bytes. Include every keyword-driven
+   additional section and blank-line terminator; never infer an omitted section.
+3. Declare every checkpoint edge by role: geometry source, wavefunction guess, basis,
+   Hessian, TD vectors, restart state, or derived-file parent. One filename may serve
+   several roles, but each role needs compatible producer evidence.
+4. Select the narrow workflow checklist in `calculation-workflows.md`. Record
+   provider defaults only as observed facts, then replace all scientifically material
+   defaults with explicit choices or unresolved decisions.
+5. Apply `troubleshooting-and-audit.md` to the exact failed stage. Preserve failed
+   bytes and propose one causally motivated change per new child run.
+6. Separate syntax readiness, executable authorization, technical completion,
+   numerical convergence, physical validity, and scientific acceptance.
+
+Any `operational heuristic` in the references is experience-informed triage, not a
+Gaussian default, a universal remedy, or native evidence. State that label when using
+one.
 
 ## Environment probe
 

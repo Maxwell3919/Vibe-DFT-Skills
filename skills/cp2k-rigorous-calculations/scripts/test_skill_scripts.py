@@ -139,6 +139,22 @@ class AuditTests(unittest.TestCase):
             self.assertNotIn(directory, json.dumps(result))
             self.assertNotIn("anonymous", json.dumps(result))
 
+    def test_unambiguous_cp2k_fixed_width_data_file_echo_passes_binding(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(Path(directory))
+            fixture.output.write_text(
+                cp2k_output().replace("BASIS_MOLOPT", "BASIS_M").replace("GTH_POTENTIALS", "GTH_POT"),
+                encoding="utf-8",
+            )
+            result = audit_cp2k_case.audit(
+                fixture.input,
+                mode="run",
+                task_type="static",
+                output_path=fixture.output,
+                data_files=fixture.data,
+            )
+            self.assertEqual(result["gates"]["input_output_binding"], "pass")
+
     def test_missing_data_hash_evidence_blocks_reproducibility(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             fixture = Fixture(Path(directory))

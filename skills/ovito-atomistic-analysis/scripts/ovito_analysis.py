@@ -57,7 +57,7 @@ OPERATION_CATALOG = {
         "output_kinds": {"json-data", "data-table"},
     },
     "atomic-strain": {
-        "minimum_profile": "ovito-pro",
+        "minimum_profile": "ovito-basic",
         "candidate_execution": "plan-only",
         "evidence_role": "numerical-analysis",
         "allowed_parameters": {"cutoff_source_units", "reference_frame"},
@@ -65,7 +65,7 @@ OPERATION_CATALOG = {
         "output_kinds": {"json-data", "data-table"},
     },
     "dislocation-analysis": {
-        "minimum_profile": "ovito-pro",
+        "minimum_profile": "ovito-basic",
         "candidate_execution": "plan-only",
         "evidence_role": "numerical-analysis",
         "allowed_parameters": {"crystal_structure"},

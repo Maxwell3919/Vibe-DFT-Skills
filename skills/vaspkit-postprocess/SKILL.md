@@ -30,7 +30,11 @@ The catalog contains 174 task ids in 25 feature-page families and records four
 additional top-level-only families. Read
 [official-task-catalog.json](references/official-task-catalog.json) for the
 complete map and [calling-and-recipes.md](references/calling-and-recipes.md) for
-actual calls, inputs, outputs, checks, and scientific limits.
+actual calls, inputs, outputs, checks, and scientific limits. Read
+[practical-workflows.md](references/practical-workflows.md) before planning
+input/structure generation, Fermi surfaces, work functions, optical/TDM, or MD;
+it separates official task facts from operational heuristics and supplies the
+parent-run and observable acceptance gates.
 
 Use these high-level routes:
 
@@ -51,9 +55,10 @@ Use these high-level routes:
 | MD analysis | 721–737 |
 | Gap, effective mass, 2D band alignment | 911–917, 927 |
 
-Task 109, 604, 710–713, and 926 have conflicting labels across current official
-pages. Stop batch planning for these ids until the installed binary banner,
-menu label, help, prompts, and outputs are captured.
+Task 109, 604, 710–713, 722, and 926 have conflicting labels across current
+official pages. In particular, the feature page calls 722 FFT-MSD while the
+tutorial calls it RDF. Stop batch planning for these ids until the installed
+binary banner, menu label, help, prompts, and outputs are captured.
 
 ## Check the actual environment
 
@@ -128,16 +133,25 @@ stdin:
 - **212–216:** add projection-bearing `PROCAR` and exact atom/orbital selectors.
 - **251/252:** build a weighted mesh plus zero-weight path from `KPATH.in`,
   run accepted hybrid VASP, then extract with stdin `252,0`.
+- **261/262:** generate a converged dense primitive-cell mesh, run accepted
+  VASP, then extract `FERMISURFACE.bxsf`; tasks 263–267 remain catalog-only
+  until an exact-version dialogue is captured.
 - **311–314:** derive charge/spin/difference grids; subtraction requires
   identical cell, grid, coordinates, ordering, and calculation convention.
 - **426/427:** `LOCPOT` → planar/macroscopic averages; work functions require a
   matching Fermi level and a converged vacuum plateau.
 - **503:** `INCAR`, `DOSCAR`, `POSCAR` → `D_BAND_CENTER`; record integration
   window and unoccupied-band convergence.
-- **711:** exact-version inspection first; tutorial route reads
-  `vasprun.xml` when `REAL.in` and `IMAG.in` are absent.
-- **721:** `POSCAR.ref` plus VASP MD output → `MSD.dat`; validate periodic
-  unwrapping, timestep, equilibration, selection, and fit window.
+- **710–713:** exact-version inspection first; the tutorial's 711 route reads
+  `vasprun.xml` when `REAL.in` and `IMAG.in` are absent, while its 712/713 TDM
+  routes read matching `WAVECAR` and use a different menu map from the feature
+  page.
+- **721–737:** only task 721 has a pinned public output recipe
+  (`POSCAR.ref` plus VASP MD output → `MSD.dat` and
+  `ATOM_DISPLACEMENT.dat`). Treat 722 as a documentation conflict and the
+  remaining MD prompt/output surfaces as catalog-only; validate periodic
+  unwrapping, timestep, equilibration, selection, statistics, and fit/transform
+  windows for the requested observable.
 - **911/912:** gap/effective-mass workflows; prove extrema sampling and stable
   parabolic fits. Task 912 is documented as experimental.
 - **923/927:** standardize a 2D cell and align band edges to vacuum; preserve

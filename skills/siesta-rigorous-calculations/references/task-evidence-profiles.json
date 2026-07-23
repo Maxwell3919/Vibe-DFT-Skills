@@ -56,7 +56,12 @@
       "input_maturity": "automated-core",
       "run_maturity": "automated-core",
       "task_validity_maturity": "manual",
-      "extra_automated_labels": [],
+      "extra_automated_labels": [
+        "SaveRho",
+        "SaveDeltaRho",
+        "SaveGridFunc.Format",
+        "Write.Denchar"
+      ],
       "requires_parent": false,
       "allowed_parent_tasks": [],
       "required_parent_roles": [],

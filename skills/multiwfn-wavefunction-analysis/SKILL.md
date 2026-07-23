@@ -80,6 +80,44 @@ the official download page; this Skill never accepts them for the user.
 - Direct converter or external-program routes are separate adapters and require
   separate authorization, versioning, and failure semantics.
 
+Read [formats-and-handoffs.md](references/formats-and-handoffs.md) for the
+full capability matrix. Prefer `.mwfn` or a verified basis-bearing export when
+the task needs basis identity or virtual orbitals. Treat `.wfn/.wfx` as
+real-space GTF sources, not general replacements for `.fch/.fchk`. For ECP
+sources, record whether core density is absent, represented by EDF, or handled
+another way; electron-count and topology claims depend on that convention.
+
+For periodic work, choose explicitly between a finite cluster with
+size/boundary convergence and a manual-supported periodic route. Do not infer
+periodicity from a filename. Direct periodic wavefunction support is limited;
+periodic ESP is not established by the pinned manual route.
+
+## Apply the observable playbook
+
+- For density, ELF/LOL, RDG/NCI/IGMH, grids, QTAIM critical points, paths, and
+  basins, follow
+  [real-space-and-topology.md](references/real-space-and-topology.md). Record
+  mathematical conventions, box/spacing, search settings, topology closure,
+  ECP/EDF handling, and numerical refinement. A BCP or colored surface is not
+  by itself proof of a bond or interaction energy.
+- For atomic charges, populations, orbital composition, Mayer/fuzzy/
+  multicenter orders, localization, and aromaticity descriptors, follow
+  [population-orbital-and-bond.md](references/population-orbital-and-bond.md).
+  Require charge/population closure, exact atom/orbital maps, basis and
+  partition sensitivity, and compatible references. These descriptors are not
+  unique observables or formal oxidation states.
+- For TDOS/PDOS/OPDOS, IR/Raman/UV/ECD/NMR spectra, transition assignments, and
+  hole/electron grids, follow
+  [dos-spectra-and-excitation.md](references/dos-spectra-and-excitation.md).
+  Preserve raw levels/transitions, broadening and energy reference, paired-file
+  identity, coefficient completeness, and whole-space closure. A molecular
+  broadened level plot is not a periodic solid-state DOS.
+- For batch preparation, prompt sentinels, fixed-output isolation, artifact
+  checks, EOF handling, version-sensitive defects, and failure codes, follow
+  [output-audit-and-troubleshooting.md](references/output-audit-and-troubleshooting.md).
+  Report the highest evidence layer actually passed rather than the process
+  exit status alone.
+
 ## Use only established recipes
 
 The manual-backed recipe catalog currently covers:
@@ -144,6 +182,18 @@ calculation has passed its own gates.
   supported claims.
 - [environment-and-license.md](references/environment-and-license.md):
   distribution, settings, platform, and terms boundary.
+- [formats-and-handoffs.md](references/formats-and-handoffs.md): input-format
+  capabilities, converters, ECP/EDF and periodic rules, and paired-file
+  handoffs.
+- [real-space-and-topology.md](references/real-space-and-topology.md): fields,
+  grids, weak-interaction methods, QTAIM searches, and basin closure.
+- [population-orbital-and-bond.md](references/population-orbital-and-bond.md):
+  charge models, compositions, bond orders, and interpretation limits.
+- [dos-spectra-and-excitation.md](references/dos-spectra-and-excitation.md): DOS,
+  spectra, parser boundaries, excitation coefficients, and grid closure.
+- [output-audit-and-troubleshooting.md](references/output-audit-and-troubleshooting.md):
+  run manifests, prompt and artifact auditing, failure taxonomy, and version
+  drift.
 - [version-matrix.yaml](references/version-matrix.yaml): exact program/manual
   profile and native-validation state.
 - [weak-model-decision-table.json](references/weak-model-decision-table.json):

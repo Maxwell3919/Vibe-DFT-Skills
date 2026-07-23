@@ -203,35 +203,37 @@ profiles:
 
   ovito-basic:
     provider_id: ovito-basic
-    profile_type: desktop-application
+    profile_type: python-package
     role: visualization-tool
     source_tier: first-party-official
     software:
-      name: OVITO Basic and Python module
+      name: OVITO standalone Python module distribution
       version: "3.15.5"
-      release_date: unknown
+      release_date: "2026-06-19"
     official_urls:
       - https://www.ovito.org/
       - https://www.ovito.org/docs/current/python/introduction/installation.html
       - https://www.ovito.org/manual/licenses/index.html
+      - https://pypi.org/project/ovito/3.15.5/
     license:
-      category: mixed
-      identifier: MIT and GPL-3.0-only components
-      redistribution: component-dependent
+      category: open-source
+      identifier: MIT
+      redistribution: allowed-with-license
       obligations:
-        - Preserve the notice for each redistributed component and distinguish Basic from Pro.
+        - Preserve the module notice and review bundled third-party components separately.
+        - Do not treat the standalone module as an OVITO Pro desktop entitlement.
     environment:
       targets:
         - platform: linux
           architectures: [x86_64]
         - platform: macos
-          architectures: [x86_64, arm64]
+          architectures: [arm64]
         - platform: windows
           architectures: [x86_64]
       python:
-        required: false
-        min_inclusive: null
-        max_exclusive: null
+        required: true
+        min_inclusive: "3.10"
+        max_exclusive: "3.15"
       compiler:
         required: false
         requirements: []
@@ -247,20 +249,22 @@ profiles:
       notes:
         - Trajectories and generated figures retain source and artifact provenance.
     runtime_probe:
-      kind: application-metadata
-      target: OVITO Basic application or Python module metadata
-      expected_identity: OVITO 3.15.5 Basic
+      kind: python-metadata
+      target: ovito distribution metadata and imported module identity
+      expected_identity: ovito 3.15.5 standalone Python module
       execution_policy: documentary-read-only
     known_exclusions:
-      - The exact 3.15.5 release date is not publicly stated on the selected first-party pages.
-      - Pro-only modifiers and rendering features are excluded.
+      - The date records the exact PyPI 3.15.5 publication; vendor changelog dating may differ by one day.
+      - OVITO Basic desktop, OVITO Pro desktop, and the integrated ovitos interpreter are separate surfaces.
+      - The generic profile uses the conservative common Python 3.10 through 3.14 range; channel-specific wheel constraints still require exact artifact review.
+      - Module API availability does not establish renderer availability or scientific validity.
     current_machine:
       status: not-installed-compatible
       observations:
-        - The application and Python module are absent.
-        - First-party documentation supports macOS 11 or newer and Apple Silicon.
+        - The standalone Python distribution is absent.
+        - Exact 3.15.5 artifacts support macOS arm64; vendor conda requires macOS 11 or newer and PyPI wheels require macOS 12 or newer.
     planned_blockers:
-      - Basic-only numerical, rendering, and artifact provenance regressions remain unexecuted.
+      - Exact-version module import, numerical, rendering, and artifact provenance regressions remain unexecuted.
     maximum_validation_level: planned
 
   ovito-pro:
@@ -947,7 +951,7 @@ profiles:
       - https://gpumd.org/installation.html
     license:
       category: open-source
-      identifier: GPL-3.0-only
+      identifier: GPL-3.0-or-later
       redistribution: allowed-with-license
       obligations:
         - Preserve GPL obligations and audit NEP models and datasets separately.
@@ -1006,7 +1010,7 @@ profiles:
       - https://gpumd.org/installation.html
     license:
       category: open-source
-      identifier: GPL-3.0-only
+      identifier: GPL-3.0-or-later
       redistribution: allowed-with-license
       obligations:
         - Preserve GPL obligations and audit NEP models and datasets separately.
@@ -1059,8 +1063,8 @@ profiles:
       provenance: declared-requires-external-trust
       receipt: null
     software:
-      name: LASP
-      version: "3.7"
+      name: LASP academic/professional edition
+      version: "3.7.3"
       release_date: unknown
     official_urls:
       - https://www.lasphub.com/
@@ -1080,13 +1084,13 @@ profiles:
         min_inclusive: null
         max_exclusive: null
       compiler:
-        required: false
+        required: true
         requirements:
-          - Public first-party build requirements were not located.
+          - The public 3.7.3 download page states Intel Compiler 2017 or newer; exact compiler and runtime compatibility remain unverified.
       mpi:
-        required: false
+        required: true
         requirements:
-          - Public first-party parallel runtime requirements were not located.
+          - The public 3.7.3 download page states Intel MPI and gives a four-rank mpirun example; exact MPI ABI and supported rank topology remain unverified.
       gpu:
         required: false
         backends: []
@@ -1098,10 +1102,12 @@ profiles:
     runtime_probe:
       kind: manual-attestation
       target: user-supplied LASP edition, license, and build metadata
-      expected_identity: LASP 3.7 exact edition
+      expected_identity: LASP 3.7.3-ac or 3.7.3-pro exact edition and build
       execution_policy: documentary-read-only
     known_exclusions:
-      - The exact release date and public version-matched platform matrix were not located.
+      - The exact 3.7.3 release date remains unknown in the selected public sources.
+      - The public page states Linux but does not provide a complete architecture, compiler-runtime, or MPI compatibility matrix.
+      - The academic one-month and professional no-expiry summaries are not complete license terms.
       - Input defaults, completion, restart, and model grammar cannot be inferred from papers.
     current_machine:
       status: restricted-unavailable

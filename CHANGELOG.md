@@ -8,12 +8,19 @@ The format follows Keep a Changelog principles, with additional sections for lif
 
 ### Added
 
+- A centralized README index of first-party websites, manuals, source repositories, release channels, and license/access boundaries for 4 active calculation codes, 19 planned software identities, and direct standards/infrastructure dependencies.
+- Content-first planning, audit, troubleshooting, restart, output-acceptance, convergence, and scientific-boundary playbooks across all 19 development Skills, grounded in version-matched official manuals or upstream source where public evidence permits.
 - Architecture baseline records for source commit `33dc893ad7dee6cdab8d645f7e25ff44f345c899`.
 - Repository contribution and review policy.
 - Security reporting and containment policy.
 - Release policy.
 - Lifecycle promotion policy.
 - CODEOWNERS coverage for governance, contracts, registries, tools, and Skill source.
+
+### Changed
+
+- Reconciled the planned environment authority with the content review: the internal `ovito-basic` profile now means the standalone `ovito` Python module, GPUMD v5.3 records `GPL-3.0-or-later`, and LASP records the publicly visible 3.7.3 academic/professional edition and Intel compiler/MPI baseline without treating them as native execution evidence.
+- Updated repository-facing documentation for public GitHub visibility without changing Skill lifecycles, scientific evidence gates, third-party license boundaries, or the absence of a top-level repository license.
 
 ### Lifecycle
 
@@ -23,6 +30,7 @@ The format follows Keep a Changelog principles, with additional sections for lif
 
 ### Evidence boundary
 
+- Content depth now supports preliminary planning and audit use; it does not establish installed-software availability, native execution, end-to-end numerical validity, or scientific acceptance.
 - The baseline records architecture and declared lifecycle state only.
 - No native third-party software execution, numerical convergence, physical validity, or scientific acceptance claim is added.
 - Cross-record semantic lineage, privacy scanning, development behavior tests, active-only distribution, activation evidence, and the QE two-dimensional EPC golden bundle remain explicit blockers.

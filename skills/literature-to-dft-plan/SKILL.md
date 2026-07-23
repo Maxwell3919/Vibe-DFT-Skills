@@ -62,6 +62,7 @@ Exit codes are `0` candidate-local check passed, `2` malformed/privacy-unsafe in
 
 ## Additional references
 
+- Use [references/evidence-extraction-playbook.md](references/evidence-extraction-playbook.md) for source extraction, method comparability, conflicting literature, parameter transfer, and calculation translation.
 - Use [references/classification-and-lineage.md](references/classification-and-lineage.md) for the five semantic classes.
 - Use [references/source-and-license-policy.md](references/source-and-license-policy.md) for source boundaries.
 - Use [references/fail-closed-contract.md](references/fail-closed-contract.md), [references/weak-model-decision-table.json](references/weak-model-decision-table.json), and [references/finding-catalog.json](references/finding-catalog.json) for deterministic local gates.

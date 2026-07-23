@@ -15,7 +15,13 @@ from .parsers import extract_summary
 from .planning import build_postprocess_plan
 from .plotting import plot_table
 from .phonon_epc import normalize_qe_epc, normalize_qe_phonon
-from .realspace import combine_cube_grids, normalize_bader_acf, normalize_grid_field
+from .realspace import (
+    combine_cube_grids,
+    inspect_cube_fields,
+    normalize_bader_acf,
+    normalize_grid_field,
+    split_cube_fields,
+)
 from .registry import load_registry, registered_aggregate_codes, registered_codes, validate_registry
 from .runtrace import normalize_run_trace
 from .structure_views import render_structure_views
@@ -77,6 +83,22 @@ def _float_mapping(specifications: list[str], label: str) -> dict[str, float]:
             result[key] = float(value)
         except ValueError as exc:
             raise ValueError(f"{label} value must be numeric: {key}={value}") from exc
+    return result
+
+
+def _symmetry_points(specifications: list[str]) -> list[dict[str, object]]:
+    result: list[dict[str, object]] = []
+    for specification in specifications:
+        if "=" not in specification:
+            raise ValueError("symmetry-point specifications must use LABEL=DISTANCE")
+        label, distance_text = specification.rsplit("=", 1)
+        if not label.strip() or not distance_text:
+            raise ValueError("symmetry-point specifications require a label and distance")
+        try:
+            distance = float(distance_text)
+        except ValueError as exc:
+            raise ValueError(f"invalid symmetry-point distance: {distance_text}") from exc
+        result.append({"label": label.strip(), "k_distance": distance})
     return result
 
 
@@ -149,6 +171,13 @@ def build_parser() -> argparse.ArgumentParser:
     qe_bands.add_argument("--energy-reference", type=Path, required=True)
     qe_bands.add_argument("--dataset-id", required=True)
     qe_bands.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
+    qe_bands.add_argument(
+        "--symmetry-point",
+        action="append",
+        default=[],
+        metavar="LABEL=DISTANCE",
+        help="caller-supplied high-symmetry label and sampled native path coordinate; repeat in path order",
+    )
     qe_bands.add_argument("--figure", type=Path)
     qe_bands.add_argument("--overwrite", action="store_true")
     qe_bands.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
@@ -261,9 +290,19 @@ def build_parser() -> argparse.ArgumentParser:
     qe_epc.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
     qe_epc.add_argument("--out-dir", type=Path, required=True)
 
+    cube_inspect = subparsers.add_parser("cube-inspect")
+    cube_inspect.add_argument("cube", type=Path)
+    cube_inspect.add_argument("--out", type=Path, required=True)
+    cube_inspect.add_argument("--overwrite", action="store_true")
+
+    cube_split = subparsers.add_parser("cube-split")
+    cube_split.add_argument("cube", type=Path)
+    cube_split.add_argument("--out-dir", type=Path, required=True)
+    cube_split.add_argument("--overwrite", action="store_true")
+
     grid_field = subparsers.add_parser("grid-field")
     grid_field.add_argument("grid", type=Path)
-    grid_field.add_argument("--code", choices=("qe", "vasp", "mixed"), required=True)
+    grid_field.add_argument("--code", choices=("qe", "vasp", "siesta", "mixed"), required=True)
     grid_field.add_argument("--field-kind", choices=("charge-density", "charge-density-difference", "electron-localization", "electrostatic-potential", "other"), required=True)
     grid_field.add_argument("--field-unit", required=True)
     grid_field.add_argument("--axis", type=int, choices=(0, 1, 2), default=2)
@@ -368,6 +407,11 @@ def build_parser() -> argparse.ArgumentParser:
     bands_dos = subparsers.add_parser("bands-dos")
     bands_dos.add_argument("--bands-table", type=Path, required=True)
     bands_dos.add_argument("--dos-table", type=Path, required=True)
+    bands_dos.add_argument(
+        "--bands-metadata",
+        type=Path,
+        help="bands.plot.json containing validated high_symmetry_points",
+    )
     bands_dos.add_argument(
         "--pdos-channel",
         action="append",
@@ -485,6 +529,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.dataset_id,
                 figure_output=args.figure,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
+                symmetry_points=_symmetry_points(args.symmetry_point),
                 maturity=args.maturity,
                 overwrite=args.overwrite,
             )
@@ -621,6 +666,24 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
             return 0
+        elif args.command == "cube-inspect":
+            if args.out.exists() and not args.overwrite:
+                raise ValueError(f"refusing to overwrite output: {args.out}")
+            write_json_atomic(args.out, inspect_cube_fields(args.cube))
+            print(json.dumps({"inspection": str(args.out)}, sort_keys=True))
+            return 0
+        elif args.command == "cube-split":
+            outputs = split_cube_fields(args.cube, args.out_dir, overwrite=args.overwrite)
+            print(
+                json.dumps(
+                    {
+                        "manifest": str(outputs["manifest"]),
+                        "fields": [str(path) for path in outputs["fields"]],
+                    },
+                    sort_keys=True,
+                )
+            )
+            return 0
         elif args.command == "grid-field":
             outputs = normalize_grid_field(
                 args.grid,
@@ -748,6 +811,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.out,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
                 pdos_channel_labels=args.pdos_channel or None,
+                bands_metadata_path=args.bands_metadata,
                 overwrite=args.overwrite,
             )
             metadata["command"] = list(sys.argv if argv is None else ["dftpost", *argv])

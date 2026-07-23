@@ -149,9 +149,10 @@ python3 scripts/vaspkit_catalog.py plan 211
 ```
 
 `official-task-catalog.json` is a discovery index, not a menu transcript.
-Tasks 109, 604, 710–713, and 926 have conflicts between official pages in the
-current snapshot. The catalog CLI must return the conflict and require exact
-binary inspection rather than choosing a meaning.
+Tasks 109, 604, 710–713, 722, and 926 have conflicts between official pages in
+the current snapshot. For task 722, the feature page says FFT-based MSD while
+the tutorial prose says RDF. The catalog CLI must return the conflict and
+require exact-binary inspection rather than choosing a meaning.
 
 ## 4. Practical recipes
 
@@ -300,6 +301,28 @@ basis-dependent descriptors, not unique oxidation states or chemical bonds.
 Tasks 253–257 provide projected hybrid variants analogous to 212–216 and need
 projection-bearing VASP output. Do not assume their prompt sequences from the
 conventional tasks without an exact-version transcript.
+
+### Tasks 261–267 — Fermi surface
+
+**Status:** official-recipe for the 261/262 bulk route; catalog-only for
+263–267; native-not-run.
+
+The official bulk tutorial uses an optimized primitive-cell `POSCAR`, task 261
+to write a dense reciprocal-space `KPOINTS`, an accepted VASP calculation, and
+then task 262. The task-261 resolution is in `2*pi/angstrom`; the tutorial's
+`0.008` is only an example. Task 262 reads matching `INCAR`, `POSCAR`, `DOSCAR`,
+and `EIGENVAL` and writes `FERMISURFACE.bxsf`.
+
+Tasks 263–267 advertise FermiSurfer, projected, summed-projection, and 2D
+variants, but the pinned public tutorial does not establish their prompts or
+output names. Discover them interactively on the exact version.
+
+Check primitive-cell/site mapping, dense-mesh convergence of topology and
+extremal dimensions, Fermi-reference sensitivity, spin/SOC semantics,
+reciprocal units, symmetry expansion, band indices, and representative parent
+eigenvalues. Viewer band selection and a plausible surface are not scientific
+acceptance. See [practical-workflows.md](practical-workflows.md) for the full
+gate.
 
 ### Tasks 111–115 — DOS and selected PDOS
 
@@ -451,7 +474,8 @@ Task 721 requires a reference structure named `POSCAR.ref` and VASP MD results;
 the official tutorial says it writes `MSD.dat` with directional displacement,
 MSD, and RMSD columns.
 
-Related catalog tasks:
+The tutorial also states that `ATOM_DISPLACEMENT.dat` contains per-atom
+displacement/RMSD information. Related feature-catalog tasks are:
 
 - `722`: FFT-based MSD;
 - `723`: diffusion coefficient and ionic mobility from `MSD.dat`;
@@ -460,10 +484,18 @@ Related catalog tasks:
 - `727`: velocity autocorrelation;
 - `728`: vibrational DOS from the velocity autocorrelation.
 
+Task 722 is documentation-conflicted: the feature catalog labels it FFT-based
+MSD, while the tutorial prose labels 722 as RDF. Do not run 722 from either
+label without capturing the exact binary menu and prompt. Tasks 730/731 and
+736/737 additionally advertise bond-length/angle distributions and selected
+trajectory exports but remain catalog-only here.
+
 For any MD task, confirm exact trajectory source, atom selection, timestep,
 temperature ensemble, equilibration discard, periodic-boundary unwrapping,
 origin averaging, fitting window, and units. A linear fit to a short or
-non-diffusive MSD segment is not a valid diffusion coefficient.
+non-diffusive MSD segment is not a valid diffusion coefficient. Use the
+observable-specific acceptance gates in
+[practical-workflows.md](practical-workflows.md).
 
 ### Tasks 911 and 912 — gap and effective mass
 

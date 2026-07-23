@@ -58,7 +58,7 @@ MaxSCFIterations 100
 SCF.MustConverge true
 SCF.DM.Tolerance 1e-5
 SCF.H.Tolerance 1e-3 eV
-Spin unpolarized
+Spin non-polarized
 SolutionMethod diagon
 OccupationFunction FD
 ElectronicTemperature 300 K
@@ -85,6 +85,19 @@ timer: Elapsed wall time (sec) = 1.250
 Job completed
 """
     return run + (run if duplicate else "")
+
+
+def minimal_pbe_psml() -> str:
+    return """<?xml version="1.0" encoding="UTF-8"?>
+<psml version="1.1">
+  <exchange-correlation>
+    <libxc-info number-of-functionals="2">
+      <functional name="Perdew, Burke &amp; Ernzerhof (GGA)" type="exchange" id="101" />
+      <functional name="Perdew, Burke &amp; Ernzerhof (GGA)" type="correlation" id="130" />
+    </libxc-info>
+  </exchange-correlation>
+</psml>
+"""
 
 
 class CaseBuilder:
@@ -115,7 +128,8 @@ class CaseBuilder:
         input_path = root / "input.fdf"
         input_path.write_text(text, encoding="utf-8")
         for pseudo in pseudos:
-            (root / pseudo).write_text("SYNTHETIC TEST PSEUDOPOTENTIAL CONTENT\n", encoding="utf-8")
+            content = minimal_pbe_psml() if Path(pseudo).suffix.casefold() == ".psml" else "SYNTHETIC TEST PSEUDOPOTENTIAL CONTENT\n"
+            (root / pseudo).write_text(content, encoding="utf-8")
         if manifest and pseudos:
             selected = root / pseudos[0]
             expected = hashlib.sha256(selected.read_bytes()).hexdigest()
@@ -182,6 +196,39 @@ class SiestaAuditTests(unittest.TestCase, CaseBuilder):
             self.assertEqual(report["gates"]["scientific_acceptance"], "blocked")
             self.assertEqual(report["evidence"]["convergence_parameters"]["mesh_cutoff"]["value"], 250.0)
 
+    def test_scf_charge_density_output_labels_pass_input_gates(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            extra = (
+                "SaveRho true\n"
+                "SaveDeltaRho true\n"
+                "SaveGridFunc.Format binary\n"
+                "Write.Denchar true\n"
+            )
+            input_path, plan = self.make_case(
+                Path(temporary),
+                fdf_text(extra=extra),
+            )
+            report, status = self.run_audit(input_path, plan)
+            self.assertEqual(status, 0)
+            self.assertEqual(report["decision"], "pass")
+            finding_codes = {
+                item["code"]
+                for item in report.get("findings", [])
+                if isinstance(item, dict) and "code" in item
+            }
+            self.assertNotIn("FDF_LABEL_NOT_AUTOMATED", finding_codes)
+
+    def test_invalid_spin_value_blocks_before_runtime(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            invalid = fdf_text().replace("Spin non-polarized", "Spin unpolarized")
+            input_path, plan = self.make_case(Path(temporary), invalid)
+            report, status = self.run_audit(input_path, plan)
+            self.assertEqual(status, 2)
+            self.assertIn(
+                "SPIN_VALUE_INVALID",
+                {item["code"] for item in report["findings"]},
+            )
+
     def test_valid_run_binds_input_echo_output_and_observable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -194,6 +241,22 @@ class SiestaAuditTests(unittest.TestCase, CaseBuilder):
             self.assertEqual(report["evidence"]["input_echo"]["status"], "exact_normalized_match")
             self.assertEqual(report["evidence"]["observables"]["total_energy"]["value"], -10.25)
             self.assertEqual(report["maximum_conclusion"], "technical_run_gates_passed_scientific_claim_blocked")
+
+    def test_runtime_version_header_from_siesta_5_4_2_is_recognized(self) -> None:
+        parsed = parse_output_text("Version         : 5.4.2\n")
+        self.assertEqual(parsed["versions"], ["5.4.2"])
+
+    def test_psml_embedded_xc_disagreement_blocks_false_manifest_claim(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            input_path, plan = self.make_case(root, fdf_text())
+            manifest_path = root / "pseudopotential-manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["pseudopotentials"][0]["xc_family"] = "LDA-PW92"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report, status = self.run_audit(input_path, plan)
+            self.assertEqual(status, 2)
+            self.assertIn("PSEUDO_PSML_XC_MISMATCH", {item["code"] for item in report["findings"]})
 
     def test_atom_count_mismatch_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -314,6 +377,24 @@ class SiestaAuditTests(unittest.TestCase, CaseBuilder):
             report, status = self.run_audit(input_path, plan, mode="run", output_path=output)
             self.assertEqual(status, 2)
             self.assertIn("WARNING_MARKER", {item["code"] for item in report["findings"]})
+
+    def test_known_basis_enthalpy_deprecation_is_advisory(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); text = fdf_text()
+            input_path, plan = self.make_case(root, text)
+            deprecation = (
+                "WARNING: BASIS_ENTHALPY and BASIS_HARRIS_ENTHALPY files are "
+                "deprecated. They will be removed in future releases."
+            )
+            output = root / "run.out"
+            output.write_text(
+                output_text(text).replace("Job completed", f"{deprecation}\nJob completed"),
+                encoding="utf-8",
+            )
+            report, status = self.run_audit(input_path, plan, mode="run", output_path=output)
+            self.assertEqual(status, 0)
+            self.assertEqual(report["output_summary"]["warning_count"], 0)
+            self.assertEqual(report["output_summary"]["advisory_warnings"], [deprecation])
 
     def test_fixed_cell_relaxation_passes_force_and_marker_gate(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

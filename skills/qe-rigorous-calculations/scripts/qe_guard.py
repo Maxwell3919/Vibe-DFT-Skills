@@ -27,7 +27,7 @@ import urllib.error
 import urllib.request
 
 
-TOOL_VERSION = "1.0.0"
+TOOL_VERSION = "1.1.0"
 REPORT_SCHEMA_VERSION = "1.0"
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 REFERENCES = SKILL_ROOT / "references"
@@ -124,6 +124,7 @@ CONVERGENCE_AUDIT_GATES = (
     "parent_ancestry",
     "runtime_paths",
     "execution_completion",
+    "runtime_diagnostics",
 )
 
 
@@ -1255,6 +1256,52 @@ def validate_output(
     return status, summary
 
 
+def validate_stderr(text: str, findings: list[Finding]) -> tuple[str, dict[str, Any]]:
+    """Audit separately captured runtime diagnostics without exposing their text."""
+    nonempty_lines = [line for line in text.splitlines() if line.strip()]
+    floating_point_exception_lines = sum(
+        1
+        for line in nonempty_lines
+        if re.search(
+            r"floating-point exceptions? are signalling|IEEE_(?:INVALID|DIVIDE_BY_ZERO|OVERFLOW|UNDERFLOW|DENORMAL)_FLAG",
+            line,
+            flags=re.I,
+        )
+    )
+    fatal_lines = sum(
+        1
+        for line in nonempty_lines
+        if re.search(r"Error in routine|%%%%+|SIG(?:SEGV|ABRT)|segmentation fault", line, flags=re.I)
+    )
+    warning_lines = sum(1 for line in nonempty_lines if re.search(r"\b(?:warning|warn)\b", line, flags=re.I))
+    if floating_point_exception_lines:
+        findings.append(
+            Finding(
+                "QE.STDERR.FLOATING_POINT_EXCEPTION",
+                "error",
+                "Separate stderr reports signalling IEEE floating-point exception flags",
+            )
+        )
+    if fatal_lines:
+        findings.append(
+            Finding("QE.STDERR.FATAL", "error", "Separate stderr contains a fatal QE/runtime marker")
+        )
+    if nonempty_lines and not floating_point_exception_lines and not fatal_lines:
+        findings.append(
+            Finding(
+                "QE.STDERR.NONEMPTY",
+                "warning",
+                "Separate stderr is nonempty and requires case-level review even though no deterministic fatal marker matched",
+            )
+        )
+    return gate_status(findings, ("QE.STDERR.",)), {
+        "nonempty_lines": len(nonempty_lines),
+        "floating_point_exception_lines": floating_point_exception_lines,
+        "fatal_lines": fatal_lines,
+        "warning_lines": warning_lines,
+    }
+
+
 def convergence_parameter_evidence(summary: dict[str, Any]) -> dict[str, dict[str, float | str]]:
     """Return only scalar settings that the deterministic input parser actually verified."""
 
@@ -1460,11 +1507,13 @@ def command_audit(args: argparse.Namespace) -> int:
         raise ValueError("--input must identify a readable file")
     input_text = input_path.read_text(encoding="utf-8", errors="strict")
     summary, findings = validate_pw_input(input_text)
+    if args.stderr and not args.output:
+        raise ValueError("--stderr is only valid together with --output")
     if args.out:
         report_path = args.out.resolve()
         protected_paths = {
             path.resolve()
-            for path in [args.input, args.output, args.plan, args.parent_manifest, args.pseudo_manifest]
+            for path in [args.input, args.output, args.stderr, args.plan, args.parent_manifest, args.pseudo_manifest]
             if path is not None
         }
         if args.pseudo_dir:
@@ -1519,6 +1568,9 @@ def command_audit(args: argparse.Namespace) -> int:
     output_summary = None
     output_status = "not_requested"
     output_sha = None
+    stderr_summary = None
+    stderr_status = "not_requested"
+    stderr_sha = None
     if args.output:
         output_path = args.output.resolve()
         if not output_path.is_file():
@@ -1534,6 +1586,24 @@ def command_audit(args: argparse.Namespace) -> int:
             if output_version and normalize_version(output_version) != expected_version:
                 findings.append(Finding("QE.VERSION.OUTPUT_MISMATCH", "error", "Output QE version differs from --expected-version"))
                 version_status = "fail"
+        if args.stderr is None:
+            findings.append(
+                Finding(
+                    "QE.STDERR.NOT_PROVIDED",
+                    "error",
+                    "A completion audit requires the separately captured stderr artifact",
+                )
+            )
+            stderr_status = "fail"
+        else:
+            stderr_path = args.stderr.resolve()
+            if not stderr_path.is_file():
+                findings.append(Finding("QE.STDERR.FILE", "error", "--stderr is not a readable file"))
+                stderr_status = "fail"
+            else:
+                stderr_text = stderr_path.read_text(encoding="utf-8", errors="replace")
+                stderr_sha = sha256_file(stderr_path)
+                stderr_status, stderr_summary = validate_stderr(stderr_text, findings)
 
     gates = {
         "plan": plan_status,
@@ -1543,25 +1613,28 @@ def command_audit(args: argparse.Namespace) -> int:
         "parent_ancestry": ancestry_status,
         "runtime_paths": runtime_status,
         "execution_completion": output_status,
+        "runtime_diagnostics": stderr_status,
         "observable_convergence": "not_assessed",
         "physical_validity": "not_assessed",
     }
     requested = [plan_status, input_status, pseudo_status, version_status, ancestry_status, runtime_status]
     if args.output:
-        requested.append(output_status)
+        requested.extend([output_status, stderr_status])
     scope_decision = "pass" if all(status == "pass" for status in requested) else "blocked"
     public_summary = {key: value for key, value in summary.items() if not key.startswith("_")}
     payload = {
         "schema_version": REPORT_SCHEMA_VERSION,
-        "scope": "pw.x input" + (" and output" if args.output else ""),
+        "scope": "pw.x input" + (", stdout, and stderr" if args.output else ""),
         "decision": scope_decision,
         "scientific_claim_decision": "blocked",
         "gates": gates,
         "summary": public_summary,
         "output_summary": output_summary,
+        "stderr_summary": stderr_summary,
         "evidence": {
             "input": {"role": "pw_input", "sha256": sha256_file(input_path)},
             "output": None if not args.output else {"role": "pw_output", "sha256": output_sha},
+            "stderr": None if not args.output else {"role": "runtime_stderr", "sha256": stderr_sha},
             "plan": None if not args.plan else {"role": "qe_plan", "sha256": sha256_file(args.plan)},
             "convergence_parameters": convergence_parameter_evidence(public_summary),
             "observables": {} if output_summary is None else output_summary.get("observables", {}),
@@ -1633,10 +1706,18 @@ def command_convergence(args: argparse.Namespace) -> int:
     rows: list[dict[str, str]] = []
     with args.csv.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
-        required = ["setting", "observable", "protocol_id", "audit_report", "input_file", "output_file"]
+        required = [
+            "setting",
+            "observable",
+            "protocol_id",
+            "audit_report",
+            "input_file",
+            "output_file",
+            "stderr_file",
+        ]
         if reader.fieldnames != required:
             raise ValueError(
-                "CSV requires exactly setting, observable, protocol_id, audit_report, input_file, and output_file columns"
+                "CSV requires exactly setting, observable, protocol_id, audit_report, input_file, output_file, and stderr_file columns"
             )
         rows = list(reader)
     if args.out:
@@ -1644,7 +1725,7 @@ def command_convergence(args: argparse.Namespace) -> int:
         protected_paths = {args.csv.resolve(), args.plan.resolve()}
         csv_root = args.csv.resolve().parent
         for row in rows:
-            for field in ["audit_report", "input_file", "output_file"]:
+            for field in ["audit_report", "input_file", "output_file", "stderr_file"]:
                 raw = row.get(field)
                 if not isinstance(raw, str) or not raw.strip():
                     continue
@@ -1686,7 +1767,8 @@ def command_convergence(args: argparse.Namespace) -> int:
         audit_path = evidence_path(row["audit_report"], number, "audit_report")
         input_path = evidence_path(row["input_file"], number, "input_file")
         output_path = evidence_path(row["output_file"], number, "output_file")
-        if audit_path is None or input_path is None or output_path is None:
+        stderr_path = evidence_path(row["stderr_file"], number, "stderr_file")
+        if audit_path is None or input_path is None or output_path is None or stderr_path is None:
             continue
         try:
             audit = load_json(audit_path, f"row {number} QE audit report")
@@ -1697,6 +1779,7 @@ def command_convergence(args: argparse.Namespace) -> int:
         audit_sha = sha256_file(audit_path)
         input_sha = sha256_file(input_path)
         output_sha = sha256_file(output_path)
+        stderr_sha = sha256_file(stderr_path)
         audit_hashes.append(audit_sha)
         input_hashes.append(input_sha)
         output_hashes.append(output_sha)
@@ -1706,8 +1789,8 @@ def command_convergence(args: argparse.Namespace) -> int:
             findings.append(
                 Finding("QE.CONVERGENCE.AUDIT_PROVENANCE", "error", f"Row {number} was not produced by qe_guard {TOOL_VERSION}")
             )
-        if audit.get("schema_version") != REPORT_SCHEMA_VERSION or audit.get("scope") != "pw.x input and output":
-            findings.append(Finding("QE.CONVERGENCE.AUDIT_SCOPE", "error", f"Row {number} is not a current pw.x input/output audit"))
+        if audit.get("schema_version") != REPORT_SCHEMA_VERSION or audit.get("scope") != "pw.x input, stdout, and stderr":
+            findings.append(Finding("QE.CONVERGENCE.AUDIT_SCOPE", "error", f"Row {number} is not a current pw.x input/stdout/stderr audit"))
         if audit.get("decision") != "pass":
             findings.append(Finding("QE.CONVERGENCE.AUDIT_BLOCKED", "error", f"Row {number} audit decision is not pass"))
         gates = audit.get("gates")
@@ -1729,6 +1812,7 @@ def command_convergence(args: argparse.Namespace) -> int:
 
         recorded_input = evidence.get("input")
         recorded_output = evidence.get("output")
+        recorded_stderr = evidence.get("stderr")
         if (
             not isinstance(recorded_input, dict)
             or not SHA256_RE.fullmatch(str(recorded_input.get("sha256", "")))
@@ -1741,6 +1825,12 @@ def command_convergence(args: argparse.Namespace) -> int:
             or recorded_output.get("sha256") != output_sha
         ):
             findings.append(Finding("QE.CONVERGENCE.OUTPUT_HASH", "error", f"Row {number} output does not match its audit"))
+        if (
+            not isinstance(recorded_stderr, dict)
+            or not SHA256_RE.fullmatch(str(recorded_stderr.get("sha256", "")))
+            or recorded_stderr.get("sha256") != stderr_sha
+        ):
+            findings.append(Finding("QE.CONVERGENCE.STDERR_HASH", "error", f"Row {number} stderr does not match its audit"))
 
         parameters = evidence.get("convergence_parameters")
         parameter_evidence = parameters.get(args.parameter) if isinstance(parameters, dict) else None
@@ -1777,6 +1867,7 @@ def command_convergence(args: argparse.Namespace) -> int:
                 "audit_sha256": audit_sha,
                 "input_sha256": input_sha,
                 "output_sha256": output_sha,
+                "stderr_sha256": stderr_sha,
             }
         )
     if len({point["setting"] for point in points}) != len(points):
@@ -1869,6 +1960,7 @@ def build_parser() -> argparse.ArgumentParser:
     audit = subparsers.add_parser("audit", help="Fail-closed pw.x input/output audit")
     audit.add_argument("--input", type=Path, required=True)
     audit.add_argument("--output", type=Path)
+    audit.add_argument("--stderr", type=Path, help="Separately captured stderr; required with --output.")
     audit.add_argument("--run-dir", type=Path, required=True)
     audit.add_argument("--pseudo-dir", type=Path)
     audit.add_argument("--pseudo-manifest", type=Path)

@@ -13,7 +13,7 @@ Separate objective definition, official behavior, input integrity, pseudopotenti
 - Resolve the bundled `scripts/qe_guard.py` from this skill directory; never assume the user's calculation directory is the skill directory.
 - Create `qe_plan.json` before scientific calculation design. Do not invent an observable, tolerance, version, or protocol id.
 - Run `reference` for every decisive official parameter. Use `--live-check` when network access is available; use `--offline` only with an explicit cached-source limitation.
-- Run `audit` before calling a `pw.x` input ready and again with `--output` before calling its execution complete.
+- Run `audit` before calling a `pw.x` input ready and again with both `--output` and the separately captured `--stderr` before calling its execution complete.
 - Run `convergence` only on fixed-protocol tables whose rows bind the unchanged plan, distinct audit reports, and matching input/output content hashes; keep every untested convergence dimension explicit.
 - Treat any nonzero exit, `decision != pass`, `fail`, `incomplete`, `not_assessed`, or `scientific_claim_decision: blocked` as a hard stop for the corresponding positive claim.
 - Never edit a generated report or omit adverse evidence to make a gate pass.

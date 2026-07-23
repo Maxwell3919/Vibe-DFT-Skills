@@ -2,7 +2,7 @@ schema_version: "1.0"
 software: multiwfn
 program_version_reviewed: "2026.7.15"
 manual_version_reviewed: "2026.7.10"
-checked_utc: "2026-07-19T00:00:00Z"
+checked_utc: "2026-07-22T00:00:00Z"
 sources:
   - id: official-download
     authority: official-project-site
@@ -13,12 +13,20 @@ sources:
       - source-package-availability
       - macos-community-build-boundary
       - license-and-citation-terms
+      - current-program-version-2026.7.15
   - id: official-update-history
     authority: official-project-site
     url: "http://sobereva.com/multiwfn/update.html"
     supports:
       - update-date-specific-change-history
       - version-sensitive-behavior
+      - current-bug-fix-boundaries
+  - id: official-overview
+    authority: official-project-site
+    url: "http://sobereva.com/multiwfn/overview.html"
+    supports:
+      - official-capability-overview
+      - program-and-manual-routing
   - id: official-manual
     authority: official-project-site
     url: "http://sobereva.com/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf"
@@ -30,12 +38,47 @@ sources:
       - stdin-and-batch-examples
       - menu-function-families
       - tutorial-menu-sequences
+      - input-capability-matrix
+      - periodic-wavefunction-boundaries
+      - observable-specific-interpretation
+    retrieved_evidence:
+      retrieved_utc: "2026-07-22T00:00:00Z"
+      bytes: 36639888
+      pages: 1150
+      sha256: "81de19c5c9d0fcbdcc03705b94301ab08e0bd2455e81db0e31651ffcdab6bd37"
   - id: official-quick-start
     authority: official-project-site
     url: "http://sobereva.com/multiwfn/misc/Multiwfn%20quick%20start.pdf"
     supports:
       - official-site-identity
       - manual-routing
+      - common-runtime-failure-classes
+    retrieved_evidence:
+      document_update_date: "2026-07-05"
+      retrieved_utc: "2026-07-22T00:00:00Z"
+      bytes: 371599
+      pages: 10
+      sha256: "6fe307a8794d3e34cac2e8d22ccee64290d83f2df76ba4b86f811678aa21afec"
+  - id: primary-method-paper-2012
+    authority: publisher-doi
+    url: "https://doi.org/10.1002/jcc.22885"
+    supports:
+      - current-required-general-citation-identity
+  - id: primary-method-paper-2024
+    authority: publisher-doi
+    url: "https://doi.org/10.1063/5.0216272"
+    supports:
+      - current-required-general-citation-identity
+  - id: community-macos-build
+    authority: community-secondary-not-official
+    url: "https://github.com/digital-chemistry-laboratory/multiwfn-mac-build"
+    supports:
+      - community-build-provenance-boundary
+      - independent-no-guarantee-disclaimer
+    does_not_support:
+      - official-distribution-identity
+      - current-version-equivalence
+      - native-validation
 policy:
   no_mirror_committed: true
   refresh_requires_manual_review: true
@@ -44,3 +87,7 @@ policy:
   function_listing_is_not_recipe: true
   tutorial_values_are_not_transferable_defaults: true
   native_validation_state: not-run
+  current_general_citations_from_official_download_page:
+    - "Lu and Chen, J. Comput. Chem. 33, 580-592 (2012), DOI 10.1002/jcc.22885"
+    - "Tian Lu, J. Chem. Phys. 161, 082503 (2024), DOI 10.1063/5.0216272"
+  function_specific_citation_review_required: true

@@ -13,6 +13,9 @@ The candidate pins **CatMAP v0.4.1**, released 2024-10-08. Primary sources:
 - Solver residual definition: https://catmap.readthedocs.io/en/latest/reference/catmap.solvers.html
 - Thermochemistry architecture: https://catmap.readthedocs.io/en/latest/reference/catmap.thermodynamics.html
 - Input/reference-energy guidance: https://catmap.readthedocs.io/en/latest/tutorials/generating_an_input_file.html
+- Model construction and reaction notation: https://catmap.readthedocs.io/en/latest/tutorials/creating_a_microkinetic_model.html
+- Solver refinement and sensitivity guidance: https://catmap.readthedocs.io/en/latest/tutorials/refining_a_microkinetic_model.html
+- Output definitions and label handling: https://catmap.readthedocs.io/en/latest/topics/output_variables.html and https://catmap.readthedocs.io/en/latest/topics/accessing_reformatting_output.html
 - Original method paper: A. J. Medford et al., *Catalysis Letters* 2015, 145, 794–807, https://doi.org/10.1007/s10562-015-1495-6
 
 The v0.4.1 repository README states that the current default uses a number-of-sites-based solver and that behavior from versions at or below 0.3.2 can be requested separately. This is version-sensitive solver behavior, not a portable default.

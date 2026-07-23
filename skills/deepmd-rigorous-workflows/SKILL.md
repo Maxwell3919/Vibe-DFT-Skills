@@ -18,18 +18,22 @@ environment adapter, and real-artifact tests are atomically promoted.
 1. [Fail-closed contract](references/fail-closed-contract.md)
 2. [Dataset layout contract](references/dataset-layout.md)
 3. [Training projection contract](references/training-projection.md)
-4. [Run and model lineage](references/run-and-model-lineage.md)
-5. [Official-source and backend boundary](references/official-sources.md)
-6. [Task evidence profiles](references/task-evidence-profiles.json)
-7. [Weak-model decision table](references/weak-model-decision-table.json) whenever
+4. [Provider operational workflow](references/operational-workflow.md) for dataset
+   construction, loss/LR choices, checkpoint/restart/fine-tune distinctions,
+   freeze/compress/test, committee uncertainty, and LAMMPS handoff. Preserve its
+   explicit split between official facts and operational heuristics.
+5. [Run and model lineage](references/run-and-model-lineage.md)
+6. [Official-source and backend boundary](references/official-sources.md)
+7. [Task evidence profiles](references/task-evidence-profiles.json)
+8. [Weak-model decision table](references/weak-model-decision-table.json) whenever
    selecting an action state or minimum next action; interpret it as
    `candidate-decision-table@1.0`, evaluate increasing `priority`, stop at the first
    match, and use the final fail-closed `default_case_id` if no earlier row matches
    uniquely. Never infer execution or promotion authorization
-8. [Provider workflow catalog](references/workflow-catalog.json) for discoverable
+9. [Provider workflow catalog](references/workflow-catalog.json) for discoverable
    DeePMD-kit 3.1.3, dpdata 1.0.2, and DP-GEN 0.13.3 operations. `listed` means only
    first-party documented.
-9. [Calling boundary](references/calling-and-recipes.md) and the selected exact entry
+10. [Calling boundary](references/calling-and-recipes.md) and the selected exact entry
    in [workflow recipes](references/workflow-recipes.json) before describing any
    native CLI/API handoff. Every recipe remains unauthorized and native-not-run.
 
@@ -66,7 +70,11 @@ for a PyTorch plan.
   headers. A future trusted adapter must resolve and inspect exact bytes.
 - A `type_map` index mismatch can silently change chemistry; any mismatch blocks.
 - Frames derived from the same trajectory/relaxation/query group stay in one split.
+- DeePMD `set.*` directories are storage chunks, not statistical splits. Keep whole
+  correlation groups in one train/validation/test/OOD role before rendering systems.
 - Validation controls training decisions; test and OOD sets remain independent.
+- Restart, fine-tuning, freezing, compression, testing and deployment are different
+  operations with different parents and outputs; never collapse them into “continue”.
 - A completed training step count or low learning-curve error does not prove an
   accurate, stable, transferable, or deployable potential.
 - Framework license does not establish backend, model, dataset, or reference-data
@@ -111,6 +119,10 @@ The projection is deliberately not an executable provider config. It freezes:
 - training seed, step count, display/checkpoint cadence and batch sizes;
 - checkpoint restart parent and exact provider-schema evidence hash;
 - predeclared evaluation metrics and thresholds.
+
+Before freezing these choices, follow the official-fact/operational-heuristic split
+in `operational-workflow.md`. Tutorial values are examples, not defaults or
+convergence evidence.
 
 No field is filled from a DeePMD default. A future version-bound adapter must render
 private filesystem paths and validate the rendered config against the official
