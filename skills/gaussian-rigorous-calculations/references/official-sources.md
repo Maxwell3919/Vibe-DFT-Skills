@@ -8,11 +8,17 @@ installation is licensed.
 |---|---|---|
 | Product identity and revision boundary | <https://gaussian.com/g16/>, <https://gaussian.com/relnotes/> | Gaussian 16 is the product family; the revision notes identify C.02. |
 | Input and route grammar | <https://gaussian.com/input/>, <https://gaussian.com/route/>, <https://gaussian.com/link0/> | Establishes ordered input sections, blank-line termination, route syntax, and Link 0 vocabulary. |
+| Molecule specification and geometry retrieval | <https://gaussian.com/molspec/>, <https://gaussian.com/geom/> | Establishes charge/multiplicity, Cartesian/Z-matrix/fragment forms, `Geom=Checkpoint`/`AllCheck`, atom-indexed modifications, and GIC/ModRedundant vocabulary. |
+| Basis and checkpoint basis | <https://gaussian.com/basissets/>, <https://gaussian.com/chkbasis/> | Establishes built-in/general basis routes and that `ChkBasis` retrieves basis/ECP and function conventions from the checkpoint. Scientific basis adequacy remains external. |
 | Unix entry points and environment setup | <https://gaussian.com/running/> | Documents `g16 job-name`, stdin/stdout redirection, shell setup, scratch-directory behavior, and job file naming. |
 | Single-point job | <https://gaussian.com/sp/> | Documents the SP job type. No-keyword HF/STO-3G behavior is a provider default, never a scientific default here. |
+| SCF, guess, and stability controls | <https://gaussian.com/scf/>, <https://gaussian.com/guess/>, <https://gaussian.com/stable/> | Documents distinct SCF algorithms/restarts, guess sources/occupation controls, and HF/DFT determinant stability tests. No option is a universal convergence recipe. |
 | Optimization and transition structures | <https://gaussian.com/opt/> | Documents Opt, Restart, TS, QST2, and QST3 behavior and prerequisites. |
-| Frequency calculations | <https://gaussian.com/freq/>, <https://gaussian.com/wp-content/uploads/dl/vib.pdf> | Documents Freq/ReadFC behavior, the stationary-point requirement, and the limited meaning of negative modes. |
+| Frequency calculations and thermochemistry | <https://gaussian.com/freq/>, <https://gaussian.com/wp-content/uploads/dl/vib.pdf>, <https://gaussian.com/wp-content/uploads/dl/thermo.pdf> | Documents Freq/ReadFC behavior, same-level stationary-point requirements, mode/numerical concerns, and the quantities/assumptions reported by harmonic thermochemistry. |
 | Reaction paths | <https://gaussian.com/irc/> | Documents the transition-structure and force-constant prerequisites for IRC. |
+| TD excited states | <https://gaussian.com/td/> | Documents TD-HF/TD-DFT state options, `Root`, `NStates`, checkpoint read/restart semantics, energies, oscillator strengths, and supported gradients/frequencies. State identity and model adequacy remain scientific gates. |
+| DFT numerical accuracy | <https://gaussian.com/dft/> | Documents the numerical integration-grid dependence and Gaussian 16 grid guidance. A documented default is not an observable-specific convergence study. |
+| Ground/excited-state solvation | <https://gaussian.com/scrf/> | Documents PCM/SMD controls and equilibrium versus non-equilibrium excited-state solvation behavior. Solvent-model adequacy remains external. |
 | Formatted checkpoint utility | <https://gaussian.com/formchk/> | Documents `formchk [options] chkpt-file [formatted-file]`; this candidate does not run it. |
 | Cube utility | <https://gaussian.com/cubegen/> | Documents the `cubegen` argument order, quantity selectors, automatic grid, and primarily atomic-unit output convention. |
 | Apple platform profile | <https://gaussian.com/g16/g16_plat.pdf> | The C.02 list dated 2025-03-18 publishes Apple M-series support for macOS 12-15, shared memory, and no Linda. |
@@ -34,11 +40,14 @@ installation is licensed.
 5. `feature-catalog.json` records the access date and stable source IDs. A URL or
    access date is still not a content hash, local installation probe, or scientific
    result.
+6. Label experience-informed recovery advice as `operational heuristic`. Do not cite
+   an official keyword page as proof that a heuristic will converge or preserve the
+   intended electronic state.
 
 ## Known uncertainty
 
 The public platform information and the current host profile may change. As of the
-recorded 2026-07-19 review, current macOS 26.5.2 is outside the public C.02 Apple
+recorded 2026-07-22 review, current macOS 26.5.2 is outside the public C.02 Apple
 M-series range (12-15), and no licensed binary evidence was supplied. This candidate
 therefore remains offline and non-executing. Public keyword pages labeled C.01 are
 used only with the separate C.02 revision-notes boundary; installed help and a real

@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "software": "GROMACS",
   "pinned_version": "2026.3",
-  "checked_date": "2026-07-19",
+  "checked_date": "2026-07-22",
   "execution_validation": "native-not-run",
   "execution_validation_reason": "No common GROMACS executable resolved on the maintainer Darwin arm64 host.",
   "policy": {
@@ -269,6 +269,80 @@
       "failure_modes": ["wrong group", "molecules split because topology is absent/wrong", "apparent jumps introduced/hidden", "time/frame loss"],
       "scientific_checks": ["PBC treatment must match the observable", "centering is not unwrapping", "diffusion/MSD requires continuous/unwrapped displacement semantics rather than a display transform"],
       "sources": ["https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-trjconv.html"]
+    },
+    "spatial-density-profile": {
+      "title": "Compute a one-dimensional spatial density profile with explicit groups and normalization",
+      "category": "analysis",
+      "catalog_state": "official-manual-recipe",
+      "recipe_state": "official-manual-recipe",
+      "native_state": "native-not-run",
+      "argv_templates": [
+        ["gmx", "density", "-f", "analysis-pbc.xtc", "-s", "production.tpr", "-n", "density-groups.ndx", "-o", "density.xvg", "-d", "<X-or-Y-or-Z>", "-sl", "<positive-slice-count>", "-dens", "<mass-number-or-charge>", "-ng", "<positive-density-group-count>", "-b", "<analysis-start-ps>", "-e", "<analysis-end-ps>", "-dt", "<frame-stride-ps>", "<-center-or-nocenter>", "<-symm-or-nosymm>", "-xvg", "none"],
+        ["gmx", "density", "-f", "analysis-pbc.xtc", "-s", "production.tpr", "-n", "density-groups.ndx", "-ei", "electrons.dat", "-o", "electron-density.xvg", "-d", "<X-or-Y-or-Z>", "-sl", "<positive-slice-count>", "-dens", "electron", "-ng", "<positive-density-group-count>", "-b", "<analysis-start-ps>", "-e", "<analysis-end-ps>", "-dt", "<frame-stride-ps>", "<-center-or-nocenter>", "<-symm-or-nosymm>", "-xvg", "none"]
+      ],
+      "stdin_lines": {
+        "gmx density": [
+          "<centering-group-first-if-center-or-symm; omit otherwise>",
+          "<density-group-1>",
+          "<additional-density-groups-in-order-until-ng-selections>"
+        ]
+      },
+      "unresolved_parameters": [
+        "accepted PBC-preprocessed trajectory identity",
+        "profile axis X/Y/Z",
+        "positive slice count and resolution rationale",
+        "density kind: mass, number, charge, or electron",
+        "positive group count and exact ordered group selections",
+        "analysis start/end/stride in ps",
+        "center boolean and centering group when enabled",
+        "symmetrization boolean and physical symmetry justification",
+        "electron-count file with one entry per unique atom name when density kind is electron"
+      ],
+      "required_inputs": [
+        "accepted trajectory/TPR/index lineage with box and topology",
+        "PBC preprocessing command, selections, raw-source hash, and transformed-trajectory hash",
+        "predeclared axis, slice count, group order, time window, frame stride, centering, and symmetry policy",
+        "group atom composition plus TPR masses and partial charges",
+        "for electron density, electrons.dat whose first line is the entry count and whose remaining entries cover every unique atom name"
+      ],
+      "expected_outputs": [
+        "density.xvg or electron-density.xvg with one coordinate column and exactly ng density columns",
+        "captured stderr/frame-count and ordered interactive group-selection transcript",
+        "metadata binding input hashes, argv, density kind, axis, slice count, time window, center/symm choices, output units, and output hash"
+      ],
+      "restart_checkpoint": "Not a restart action. Prove trajectory segment continuity, consistent atom/group identity, box semantics, and no overlapping or missing frames before profiling concatenated production data.",
+      "exit_and_log_semantics": [
+        "Any nonzero exit, empty time window, missing group, atom-name lookup failure, or empty/non-finite output blocks.",
+        "When center or symm is enabled, select the centering group first, then exactly ng density groups; retain the prompt and responses.",
+        "Mass output is kg/m^3; number output is nm^-3; charge and electron output are e nm^-3. Preserve this mapping when -xvg none omits descriptive metadata.",
+        "Require exactly sl finite data rows, monotonically spaced axis coordinates, and 1+ng numeric columns; reconcile the observed axis spacing/range with the average box length and centering mode.",
+        "A clean profile is technical analysis output only; it does not establish equilibration, symmetry, adequate sampling, or model validity."
+      ],
+      "failure_modes": [
+        "axis does not match the physical interface normal",
+        "centering group is split across PBC so its frame-wise center of mass is wrong",
+        "ng does not match the number or order of interactive density-group selections",
+        "slice count is too coarse to resolve the feature or too fine for supported sampling",
+        "symmetrization is applied to an asymmetric system or asymmetric claim",
+        "time window includes equilibration, mixed protocols, gaps, overlaps, or too few effective frames",
+        "mass/number/charge/electron normalization or units are relabeled incorrectly",
+        "electron file omits an atom name or confuses atom names with atom types",
+        "an older command example uses the legacy -relative option, which is absent from the 2026.3 synopsis; current -symm behavior already uses relative-coordinate binning",
+        "spatial profile is substituted for total NPT density, for which the manual directs users to gmx energy"
+      ],
+      "scientific_checks": [
+        "Preserve the raw trajectory; if centering is requested, first use a recorded PBC preprocessing transform that makes the centering group whole and coherent, because gmx density does not apply special periodicity when finding that center of mass.",
+        "Choose X, Y, or Z from the actual box/interface geometry and verify that the box representation supports the intended normal.",
+        "Vary sl to test bin-width sensitivity and report the resulting spatial resolution and per-bin sampling.",
+        "Use mass for mass density, number for per-atom number density, charge for partial-charge density, and electron for electron density computed from atom-name electron counts minus atomic partial charge.",
+        "Treat -center as per-frame binning about the selected group in absolute box coordinates; since GROMACS 5.0 this is not the older static-bin-and-shift behavior.",
+        "Treat -symm as a scientific averaging assumption: it automatically enables center, bins in relative coordinates for changing box dimensions, mirrors the profile, and scales the axis to the average box length.",
+        "For electron density, record that GROMACS 2026.3 maps electrons by atom names rather than atom types, an official known issue that can make ambiguous naming unsupported.",
+        "Check normalization against the group composition and the per-frame slice-volume convention; do not integrate a volume-density ordinate as a line density without the correct cross-sectional area and box averaging.",
+        "Test analysis-window, frame-stride, centering-group, slice-count, PBC-transform, and replica sensitivity; report autocorrelation/effective samples and uncertainty.",
+        "For bilayers, distinguish center drift smearing from physical undulation smearing and do not remove the latter without an explicit claim-dependent method."
+      ],
+      "sources": ["https://manual.gromacs.org/documentation/2026.3/onlinehelp/gmx-density.html"]
     },
     "rmsd-analysis": {
       "title": "Compute RMSD with explicit fit and measurement groups",

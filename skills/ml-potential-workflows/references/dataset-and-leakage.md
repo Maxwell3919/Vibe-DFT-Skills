@@ -32,6 +32,11 @@ This catches the mechanically provable case where frames from the same relaxatio
 trajectory were assigned different group IDs. Near-related runs still require a
 conservative externally generated grouping policy.
 
+Build groups before format conversion or provider shuffling. Preserve an ordered
+row-to-source index so that extxyz, ASE-LMDB, NequIP data modules, and provider caches
+cannot silently redefine frame identity. Provider-generated random fractions are
+acceptable only after the correlation groups have already been made indivisible.
+
 ## Split roles
 
 - `train`: optimizer input.
@@ -41,6 +46,12 @@ conservative externally generated grouping policy.
 
 The manifest must contain all four for a deployment-oriented workflow. A narrower
 training experiment may omit OOD, but then deployment audit is blocked.
+
+Choose OOD axes from the intended deployment envelope: unseen composition or element
+combination, phase/coordination, defect/surface/adsorbate class, density/volume/strain,
+temperature/pressure, charge/spin, reaction coordinate, short-range geometry, and
+system size. One arbitrary “OOD” file does not cover every axis. Keep selection and
+active-learning pools separate from both test and OOD.
 
 ## Label and unit policy
 
@@ -52,3 +63,9 @@ schema and provider profile.
 All frames share one reference protocol hash. Mixing functionals, pseudopotentials,
 cutoffs, spin conventions, charge states, isolated-atom references, stress sign
 conventions, or energy offsets under one protocol is blocked.
+
+Provider files need an explicit field map. Record the source keys for energy, forces,
+stress/virial, configuration class, head/task, charge, spin, cell and PBC; verify
+`F=-dE/dR` and stress/virial conversion on fixed fixtures. A provider parser accepting
+the file is not evidence that these semantics are correct. See
+[training and transfer playbook](training-and-transfer.md).

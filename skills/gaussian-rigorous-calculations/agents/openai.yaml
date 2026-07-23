@@ -1,4 +1,4 @@
 interface:
   display_name: "Gaussian Rigorous Calculations"
-  short_description: "Resolve, plan, and audit Gaussian 16 evidence safely"
-  default_prompt: "Use $gaussian-rigorous-calculations to resolve this Gaussian 16 request against the public first-party feature catalog, select a documented recipe when needed, and apply the offline evidence gates. Keep native execution unauthorized and distinguish documented, guard-supported, and native-validated states."
+  short_description: "Plan, troubleshoot, and audit Gaussian 16 evidence safely"
+  default_prompt: "Use $gaussian-rigorous-calculations to resolve this Gaussian 16 input, SCF, optimization, frequency, TD, IRC, or checkpoint request against public first-party sources, select one documented workflow or recipe, and apply the available offline evidence gates. Keep native execution unauthorized and distinguish provider-documented, guard-supported, native-validated, and scientific-acceptance states."

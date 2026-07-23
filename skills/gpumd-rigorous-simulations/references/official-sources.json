@@ -5,7 +5,7 @@
     "release_date": "2026-05-15",
     "version": "5.3"
   },
-  "reviewed_on": "2026-07-19",
+  "reviewed_on": "2026-07-22",
   "sources": [
     {
       "authority": "GPUMD official versioned repository",
@@ -33,12 +33,28 @@
       "url": "https://github.com/brucefan1983/GPUMD/tree/f2b46c5d528e985a5bf68becd442b18c0e04396c/doc"
     },
     {
+      "authority": "GPUMD v5.3 thermal-transport documentation",
+      "purpose": "Green-Kubo compute_hac/hac.out, HNEMD compute_hnemd/kappa.out, heat-current scope, thermostat guidance, and linear-response requirements",
+      "url": "https://github.com/brucefan1983/GPUMD/blob/f2b46c5d528e985a5bf68becd442b18c0e04396c/doc/theory/heat_transport.rst"
+    },
+    {
+      "authority": "GPUMD v5.3 NEP documentation",
+      "purpose": "nep.in, train.xyz/test.xyz units and labels, loss.out, nep.restart, nep.txt, and the v5.3 internal NEP-version/deprecation inconsistency",
+      "url": "https://github.com/brucefan1983/GPUMD/tree/f2b46c5d528e985a5bf68becd442b18c0e04396c/doc/nep"
+    },
+    {
+      "authority": "GPUMD authors' package paper",
+      "purpose": "package architecture, performance context, NEP construction, and atomistic-simulation capability claims; not a substitute for version-matched syntax",
+      "url": "https://doi.org/10.1063/5.0106617"
+    },
+    {
       "authority": "GPUMD official rolling installation documentation",
       "purpose": "current CUDA and ROCm/HIP environment discovery and the make -f makefile.hip command; rolling content cannot by itself prove v5.3 behavior, while the exact v5.3 tag confirms that the referenced makefile exists",
       "url": "https://gpumd.org/installation.html"
     }
   ],
   "native_validation": {
+    "checked_on": "2026-07-22",
     "gpumd_executable_available": false,
     "host": "Darwin arm64",
     "supported_gpu_stack_available": false

@@ -2,7 +2,7 @@
 
 ## Scope
 
-This private repository is the single source of truth for portable, maintainable DFT calculation, postprocessing, campaign-efficiency, and structure-analysis skills.
+This repository is the single source of truth for portable, maintainable DFT calculation, postprocessing, campaign-efficiency, and structure-analysis skills.
 
 ## Boundaries
 

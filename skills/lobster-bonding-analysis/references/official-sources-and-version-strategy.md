@@ -13,6 +13,8 @@ Primary sources:
 - LOBSTER framework: S. Maintz et al., *J. Comput. Chem.* 2013, 34, 2557–2567, https://doi.org/10.1002/jcc.23424
 - Projection-quality developments: S. Maintz et al., *J. Comput. Chem.* 2016, 37, 1030–1035, https://doi.org/10.1002/jcc.24300
 - Time-reversal, population analysis, and k-dependent COHP: R. Nelson et al., *J. Comput. Chem.* 2020, 41, 1931–1940, https://doi.org/10.1002/jcc.26353
+- COBI/ICOBI definition: P. C. Müller et al., *J. Phys. Chem. C* 2021, 125, 7959–7970, https://doi.org/10.1021/acs.jpcc.1c00718
+- Automated VASP/LOBSTER basis-testing and COHP-analysis experience: J. George et al., *ChemPlusChem* 2022, 87, e202200123, https://doi.org/10.1002/cplu.202200123
 
 The first-party download page documents that LOBSTER can derive projected COHP, COOP, and atom-projected DOS from VASP, ABINIT, or Quantum ESPRESSO plane-wave results. That statement establishes software capability, not adapter maturity. Public first-party pages do not publish the exact executable argv, complete `lobsterin` grammar, provider-specific file/settings contract, 5.1.1 completion/fatal markers, or complete output schemas; the download page directs authorized users to the bundled manual and examples. Those fields are `manual-required` and must not be filled from memory or third-party tutorials.
 
@@ -23,6 +25,13 @@ The first-party download page documents that LOBSTER can derive projected COHP, 
 3. The cited primary method papers for definitions and limitations.
 4. Version-matched, legally reusable real artifacts with recorded hashes.
 5. Community parsers only as independent comparison evidence, never as first-party syntax authority.
+
+Current public pymatgen, LobsterPy, and atomate2 documentation is retained as a
+separate adapter-observation layer. It supports practical preparation fields,
+file-role maps, and postprocessing calls, but it cannot establish native
+LOBSTER 5.1.1 defaults, complete grammar, required runtime files, completion
+markers, or output compatibility. See
+[practical-workflows.md](practical-workflows.md) for that explicit separation.
 
 If these sources disagree, stop and record `LOB.VERSION.SOURCE_CONFLICT`. Do not resolve a conflict from memory or a newer/older manual.
 

@@ -20,6 +20,12 @@ On 2026-07-19, metadata-only probes found no `lobster`, `lobster-5.1.1`, or
 `lobster-5.1.0` executable. No help/version command or native example was run.
 The native-validation state is `native-not-run`.
 
+Read [practical-workflows.md](practical-workflows.md) for the content-oriented
+VASP parent checklist, basis-candidate pilot, adapter-observed `lobsterin`
+field map, COHP/COOP/COBI/DOS/charge output-role map, bond-selection policy,
+and failure triage. Those adapter observations and operational heuristics do
+not override the authorized manual requirement.
+
 ## Safe discovery layer
 
 The catalog helper reads static JSON and searches candidate executable names
@@ -154,6 +160,17 @@ COOP partitions electron number, not band energy. Integrated COOP is an electron
 population-like quantity and cannot be substituted for ICOHP. Require the same
 selector, sign, Fermi, energy-grid, spin, and integral evidence.
 
+#### COBI
+
+The 2021 primary COBI paper introduces an energy-resolved crystal orbital bond
+index and its integral as a solid-state covalent bond-index descriptor. Public
+pymatgen and LobsterPy documentation expose `COBICAR.lobster` and
+`ICOBILIST.lobster` roles, but this candidate has no genuine 5.1.1 COBI parser
+fixture. Keep two-/multi-center definition, basis/orthogonalization, selector,
+spin, Fermi reference, and integration window explicit. Do not turn ICOBI into
+an automatic unique bond order across ionic, metallic, multi-center, or
+non-comparable systems.
+
 #### projected DOS
 
 DOS shows where electronic states occur; it does not itself give bonding or
@@ -166,6 +183,12 @@ only under an explicitly defined electron-count and projection convention.
 Method papers establish population/charge capability, but no automatic charge
 partition is an oxidation-state proof. Preserve method, basis, spin, and parent
 identity and require independent chemical review.
+
+Public adapter documentation commonly exposes `GROSSPOP.lobster`,
+`CHARGE.lobster`, `SitePotentials.lobster`, and
+`MadelungEnergies.lobster`. Treat those names as adapter-observed file roles,
+not a complete 5.1.1 schema. Preserve Mulliken versus Loewdin partition,
+structure mapping, charge sum, Ewald convention, and basis sensitivity.
 
 ### 7. Declarative audit
 

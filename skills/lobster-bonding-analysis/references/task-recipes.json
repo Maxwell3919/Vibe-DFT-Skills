@@ -77,6 +77,19 @@
       "source_ids": ["LOB-DOWNLOAD-511", "LOB-FAQ"]
     },
     {
+      "id": "recipe.cobi-analysis",
+      "title": "Request and validate crystal orbital bond-index evidence",
+      "recipe_state": "manual-required",
+      "surfaces": ["lobsterin", "native output"],
+      "inputs": ["passing parent/projection plan", "explicit two- or multi-center interaction definition", "basis and orthogonalization convention", "energy window and Fermi reference", "authorized 5.1.1 syntax evidence"],
+      "calls": [],
+      "outputs": ["version-bound COBI curves and integrated interaction list", "selector and label mapping", "projection-quality evidence"],
+      "units_and_semantics": ["COBI is an energy-resolved solid-state bond-index descriptor", "ICOBI interpretation depends on basis, center definition, spin, and integration window", "ICOBI is not an automatic unique experimental bond order"],
+      "scientific_checks": ["two-/multi-center definition", "selector and periodic-image completeness", "basis/orthogonalization", "spin and Fermi alignment", "energy-grid/integral consistency", "basis/spilling sensitivity"],
+      "failure_modes": ["ICOBI called universal bond order", "COBI confused with COHP or COOP", "two- and multi-center values mixed", "manual syntax inferred from a public parser", "ionic/metallic/delocalized context ignored"],
+      "source_ids": ["LOB-PAPER-2021-COBI", "LOB-PYMATGEN-IO", "LOB-LOBSTERPY-CLI"]
+    },
+    {
       "id": "recipe.projected-dos",
       "title": "Request and validate projected density of states",
       "recipe_state": "manual-required",
@@ -88,6 +101,19 @@
       "scientific_checks": ["energy/Fermi alignment", "finite monotonic grid", "spin convention", "orbital labels", "total/projected closure within predeclared tolerance", "basis/spilling"],
       "failure_modes": ["DOS used as COHP", "spin channels merged silently", "PDOS closure assumed without integration", "energy zero shifted after parsing"],
       "source_ids": ["LOB-DOWNLOAD-511", "LOB-COHP-OVERVIEW"]
+    },
+    {
+      "id": "recipe.population-charge-analysis",
+      "title": "Request and validate orbital populations, charges, and optional site-potential evidence",
+      "recipe_state": "manual-required",
+      "surfaces": ["lobsterin", "native output"],
+      "inputs": ["passing parent/projection plan", "declared Mulliken and/or Loewdin partition", "matching structure and atom map", "authorized 5.1.1 syntax evidence"],
+      "calls": [],
+      "outputs": ["version-bound population/charge artifacts", "optional site-potential/Madelung artifacts", "basis and projection-quality evidence"],
+      "units_and_semantics": ["Mulliken and Loewdin values are basis-partitioned descriptors", "site potentials and Madelung energies require a declared Ewald/charge convention", "none is an automatic oxidation-state or total-energy decomposition"],
+      "scientific_checks": ["atom mapping", "partition method", "charge sum and neutrality context", "basis/spilling sensitivity", "spin handling", "Ewald convention and units when applicable"],
+      "failure_modes": ["charge called formal oxidation state", "Mulliken and Loewdin values mixed", "structure detached", "basis dependence hidden", "Madelung descriptor called phase stability"],
+      "source_ids": ["LOB-PAPER-2020", "LOB-PYMATGEN-IO", "LOB-ATOMATE2-OUTPUTS"]
     },
     {
       "id": "recipe.declarative-audit",

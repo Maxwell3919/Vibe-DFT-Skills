@@ -5,7 +5,7 @@
 - Python 3.10+ standard library is sufficient for offline inventory.
 - No LASP executable, scheduler, MPI/GPU stack, compiler, package manager, network, or credential is used.
 - Author literature describes LASP 3.7 and points readers to the LASP Hub.
-- The public LASP Hub download page reviewed on 2026-07-19 identifies LASP `3.7.3-ac` and `3.7.3-pro`, Linux, Intel MPI and Intel Compiler 2017 or newer, and executable `Src/lasp`.
+- The public LASP Hub download page reviewed on 2026-07-22 identifies LASP `3.7.3-ac` and `3.7.3-pro`, Linux, Intel MPI and Intel Compiler 2017 or newer, and executable `Src/lasp`.
 - The same page gives direct `[LASP Installation DIR]/Src/lasp` and `mpirun -np 4 [LASP Installation DIR]/Src/lasp` examples, advertises a manual/examples, and distinguishes expiring academic and non-expiring professional editions.
 
 Read [execution-and-executable-map.md](execution-and-executable-map.md) before discussing installation or execution.

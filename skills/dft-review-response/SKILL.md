@@ -64,6 +64,7 @@ Exit codes are `0` candidate-local gate passed, `2` invalid/privacy-unsafe input
 
 ## Additional references
 
+- Use [references/point-by-point-playbook.md](references/point-by-point-playbook.md) to classify comments, select evidence routes, scope new work, draft responses, and verify claimed changes.
 - Use [references/linkage-and-role-boundaries.md](references/linkage-and-role-boundaries.md) for one-to-one linkage and author/tool roles.
 - Use [references/fail-closed-contract.md](references/fail-closed-contract.md), [references/weak-model-decision-table.json](references/weak-model-decision-table.json), and [references/finding-catalog.json](references/finding-catalog.json) for local gates.
 - Use [references/maturity-matrix.json](references/maturity-matrix.json) before any activation discussion.

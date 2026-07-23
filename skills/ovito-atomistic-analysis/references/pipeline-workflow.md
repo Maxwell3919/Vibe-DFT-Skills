@@ -58,13 +58,16 @@ authorize itself.
 | `compute-frame-metadata` | Basic | implemented | technical-metadata |
 | `coordination-analysis` | Basic | plan-only | numerical-analysis |
 | `common-neighbor-analysis` | Basic | plan-only | numerical-analysis |
-| `atomic-strain` | Pro | plan-only | numerical-analysis |
-| `dislocation-analysis` | Pro | plan-only | numerical-analysis |
+| `atomic-strain` | Basic desktop or standalone Python module | plan-only | numerical-analysis |
+| `dislocation-analysis` | Basic desktop or standalone Python module | plan-only | numerical-analysis |
 | `render-image` | Pro in this conservative profile | plan-only | visual-only |
 | `export-table` | Basic | plan-only | technical-export |
 
-The profile is intentionally conservative. Reclassify an edition boundary only after checking
-the exact official 3.15.5 documentation and adding an edition-specific integration test.
+The internal `ovito-basic` provider label denotes the standalone `ovito` Python distribution for
+candidate execution; it is not a package named `ovito-basic`. Atomic strain and DXA have no Pro
+badge in the official 3.15.5 desktop manual and are exposed by the standalone module. Rendering
+remains conservatively policy-restricted to the candidate's Pro planning profile pending a
+renderer-specific integration test, even though the standalone Python module exposes rendering.
 
 ## Execute
 

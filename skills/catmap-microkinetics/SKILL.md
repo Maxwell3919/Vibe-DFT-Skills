@@ -10,12 +10,15 @@ This is a **development, non-routable Skill**. It validates a safe declarative J
 ## Start here
 
 1. Read [official-sources-and-version-strategy.md](references/official-sources-and-version-strategy.md) and [version-matrix.yaml](references/version-matrix.yaml) before relying on a version string, behavior, or default.
-2. Use [calling-and-recipes.md](references/calling-and-recipes.md), [software-capability-catalog.json](references/software-capability-catalog.json), and [task-recipes.json](references/task-recipes.json) for documented Python/CLI calls, inputs, outputs, and failure semantics.
-3. Use `scripts/catmap_catalog.py` to search calls, emit a non-executing documentation plan, or probe metadata without importing CatMAP. A plan never authorizes execution.
-4. Read [fail-closed-contract.md](references/fail-closed-contract.md), choose one task from [task-evidence-profiles.json](references/task-evidence-profiles.json), then use `scripts/catmap_guard.py` only on the declarative JSON interchange.
-5. Resolve stable codes through [finding-catalog.json](references/finding-catalog.json) and task/provider maturity through [maturity-matrix.json](references/maturity-matrix.json).
-6. Treat [weak-model-decision-table.json](references/weak-model-decision-table.json) as the only machine routing source: evaluate ascending priority, select the first match, and use its evidence-free final default when no earlier case is established.
-7. Check [environment-license-boundary.md](references/environment-license-boundary.md) before proposing an actual environment. Never execute an untrusted `.mkm`, `.log`, Python, or pickle artifact.
+2. Read [modeling-and-validation.md](references/modeling-and-validation.md) for reaction notation,
+   thermochemistry, descriptor/scaler/solver/mapper behavior, labeled outputs, stiffness,
+   sensitivity, and acceptance checks. It separates official behavior from operational heuristics.
+3. Use [calling-and-recipes.md](references/calling-and-recipes.md), [software-capability-catalog.json](references/software-capability-catalog.json), and [task-recipes.json](references/task-recipes.json) for documented Python/CLI calls, inputs, outputs, and failure semantics.
+4. Use `scripts/catmap_catalog.py` to search calls, emit a non-executing documentation plan, or probe metadata without importing CatMAP. A plan never authorizes execution.
+5. Read [fail-closed-contract.md](references/fail-closed-contract.md), choose one task from [task-evidence-profiles.json](references/task-evidence-profiles.json), then use `scripts/catmap_guard.py` only on the declarative JSON interchange.
+6. Resolve stable codes through [finding-catalog.json](references/finding-catalog.json) and task/provider maturity through [maturity-matrix.json](references/maturity-matrix.json).
+7. Treat [weak-model-decision-table.json](references/weak-model-decision-table.json) as the only machine routing source: evaluate ascending priority, select the first match, and use its evidence-free final default when no earlier case is established.
+8. Check [environment-license-boundary.md](references/environment-license-boundary.md) before proposing an actual environment. Never execute an untrusted `.mkm`, `.log`, Python, or pickle artifact.
 
 ## Candidate task matrix
 

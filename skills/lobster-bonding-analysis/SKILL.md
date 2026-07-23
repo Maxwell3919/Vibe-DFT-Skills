@@ -1,6 +1,6 @@
 ---
 name: lobster-bonding-analysis
-description: Plan and audit provenance-bound LOBSTER 5.1.1 projection, COHP, COOP, and projected-DOS analyses from eligible plane-wave DFT parents; use when basis identity, charge spilling, parent wavefunction lineage, curve conventions, or bonding-claim limits must be checked without trusting filenames or successful process exit alone.
+description: Plan and audit provenance-bound LOBSTER 5.1.1 basis projection, COHP, COOP, COBI, projected-DOS, population, and charge analyses from eligible plane-wave DFT parents; use when preparing a VASP/QE/ABINIT handoff, selecting basis functions, energy windows or bonds, mapping lobsterin/lobsterout and output files, checking spilling and curve conventions, or limiting bonding claims without trusting filenames or process exit alone.
 ---
 
 # LOBSTER Bonding Analysis
@@ -10,7 +10,7 @@ This is a **development, non-routable Skill**. It provides deterministic plannin
 ## Start here
 
 1. Read [official-sources-and-version-strategy.md](references/official-sources-and-version-strategy.md), [official-sources.yaml](references/official-sources.yaml), and [version-matrix.yaml](references/version-matrix.yaml) before making a version, syntax, output-format, provider, or license statement.
-2. Use [calling-and-recipes.md](references/calling-and-recipes.md), [software-capability-catalog.json](references/software-capability-catalog.json), and [task-recipes.json](references/task-recipes.json) for public capabilities, manual-required native surfaces, handoffs, and failure semantics.
+2. Use [calling-and-recipes.md](references/calling-and-recipes.md), [practical-workflows.md](references/practical-workflows.md), [software-capability-catalog.json](references/software-capability-catalog.json), and [task-recipes.json](references/task-recipes.json) for public capabilities, parent/basis preparation, `lobsterin` review fields, output-role maps, manual-required native surfaces, handoffs, and failure semantics.
 3. Use `scripts/lobster_catalog.py` to search the evidence catalog, emit a non-executing plan, or probe candidate executable names. Exact native argv and `lobsterin` syntax remain blocked without the authorized 5.1.1 manual/examples.
 4. Read [fail-closed-contract.md](references/fail-closed-contract.md), select one task from [task-evidence-profiles.json](references/task-evidence-profiles.json), and run `scripts/lobster_guard.py` only on the declarative interchange.
 5. Interpret findings through [finding-catalog.json](references/finding-catalog.json) and maturity through [maturity-matrix.json](references/maturity-matrix.json).
@@ -28,6 +28,13 @@ This is a **development, non-routable Skill**. It provides deterministic plannin
 | `bonding-package-audit` | All preceding technical gates in one lineage-bound package | synthetic-validated | no positive claim |
 
 VASP is the only parent route represented by a candidate fixture. Quantum ESPRESSO and ABINIT are documented LOBSTER inputs, but remain `design-only` here until provider/version-specific parent records and legally reusable real artifacts pass forward tests. A software name or a `WAVECAR`-like filename never establishes parent eligibility.
+
+COBI/ICOBI, Mulliken/Loewdin populations and charges, site potentials, and
+Madelung outputs are documented planning surfaces, not current deterministic
+guard tasks. Review them through
+[practical-workflows.md](references/practical-workflows.md) and the authorized
+manual. Do not represent their absence from the guard as absence from LOBSTER,
+or their appearance in a public parser as validated 5.1.1 format support.
 
 ## Non-negotiable gates
 
@@ -84,9 +91,12 @@ Every report contains `status`, `maturity`, `maximum_claim`, gate states, stable
 ## Interpretation boundary
 
 - COHP and plotted `-COHP` use opposite signs. Never label bonding/antibonding regions until the stored convention is explicit.
-- COOP, COHP, and DOS answer different questions; one cannot stand in for another.
+- COHP, COOP, COBI, and DOS answer different questions; one cannot stand in for another. ICOBI is a basis- and convention-bound bond-index descriptor, not an automatic experimental bond order.
 - Integrated values are bound to an energy window and Fermi reference. Curve and `lobsterout` references must agree without an after-the-fact shift; a number without both is not comparable evidence.
 - Low charge spilling is necessary evidence for projection quality, not proof that the chosen basis is chemically complete or uniquely appropriate.
+- Mulliken and Loewdin populations/charges are basis-partitioned descriptors;
+  neither is an automatic oxidation-state assignment or a substitute for
+  charge-density analysis.
 - Relative bond-strength comparisons require comparable parents, basis families, structures, spin treatment, energy windows, interaction selectors, and numerical settings.
 - No automated result from this candidate can declare a bond, bond order, oxidation state, phase stability, or causal structure-property mechanism. The strongest future automated state remains `eligible_for_expert_review`; human scientific acceptance is separate.
 

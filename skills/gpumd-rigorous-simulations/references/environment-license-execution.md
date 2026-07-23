@@ -16,7 +16,7 @@ Execution must be explicitly authorized for the named host, software, command cl
 
 ## Legal boundary
 
-Exact v5.3 source headers state GNU GPL version 3 or later. The repository README abbreviates this as GPL version 3. Preserve the more specific source-header result as `GPL-3.0-or-later` and reconcile the planned registry's `GPL-3.0-only` entry before activation.
+Exact v5.3 source headers state GNU GPL version 3 or later. The environment profiles preserve this as `GPL-3.0-or-later`; every NEP model and dataset still requires an independent terms review.
 
 Potential files, NEP models, datasets, reference structures, and output data have independent rights. Require a source URL or internal authority record and explicit license status for each. Do not redistribute proprietary or unknown-license model contents in fixtures.
 

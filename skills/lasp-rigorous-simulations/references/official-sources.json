@@ -2,7 +2,7 @@
   "engine": "lasp",
   "distribution_version_context": "3.7.3",
   "literature_version_context": "3.7",
-  "reviewed_on": "2026-07-19",
+  "reviewed_on": "2026-07-22",
   "sources": [
     {
       "authority": "LASP authors' peer-reviewed review",
@@ -23,6 +23,21 @@
       "authority": "LASP official hub",
       "purpose": "software access and account route; not a retained syntax or license snapshot",
       "url": "http://www.lasphub.com/"
+    },
+    {
+      "authority": "LASP authors' software overview",
+      "purpose": "SSW global PES exploration, G-NN, and LASP workflow context; not a version-3.7.3 operational contract",
+      "url": "https://doi.org/10.1002/wcms.1415"
+    },
+    {
+      "authority": "LASP authors' primary SSW-NN material-discovery paper",
+      "purpose": "global optimization plus neural-network potential workflow and validation context; not a version-3.7.3 syntax source",
+      "url": "https://doi.org/10.1039/C7SC01459G"
+    },
+    {
+      "authority": "LASP authors' G-MBNN method paper",
+      "purpose": "many-body-corrected global neural-network potential method and complex-PES motivation; not proof for a particular trained model",
+      "url": "https://doi.org/10.1021/acs.jctc.3c00873"
     }
   ],
   "verified_public_operational_facts": {
@@ -31,6 +46,8 @@
     "direct_command": "[LASP Installation DIR]/Src/lasp",
     "environment_summary": "Linux; Intel MPI and Compiler (intel2017 or above)",
     "executable_basename": "lasp",
+    "gpunn_hub_status": "no longer released or maintained on LASP Hub; public page routes users to laspai.com",
+    "manual_examples_access": "advertised publicly but retrieval requires an authorized LASP Hub session",
     "mpi_example": "mpirun -np 4 [LASP Installation DIR]/Src/lasp",
     "professional_distribution_label": "LASP 3.7.3-pro",
     "professional_expiry_summary": "no expiration time limit"
@@ -49,6 +66,7 @@
     "native execution"
   ],
   "native_validation": {
+    "checked_on": "2026-07-22",
     "host": "Darwin arm64",
     "lasp_executable_available": false,
     "mpi_available": false

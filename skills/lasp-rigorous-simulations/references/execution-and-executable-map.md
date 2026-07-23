@@ -3,7 +3,7 @@
 ## Public evidence and native-validation state
 
 The LASP authors' 2024 review identifies LASP 3.7 and its high-level
-capabilities. On 2026-07-19 the official LASP Hub public download page identified
+capabilities. On 2026-07-22 the official LASP Hub public download page identified
 the distributed CPU package more specifically as LASP `3.7.3-ac` and
 `3.7.3-pro`, for Linux with Intel MPI and Intel Compiler 2017 or newer. It also
 displayed the direct and four-rank MPI commands below.

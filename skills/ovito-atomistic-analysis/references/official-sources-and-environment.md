@@ -12,25 +12,32 @@
 
 | Profile | Expected identity | License boundary | Candidate behavior |
 |---|---|---|---|
-| `ovito-basic` | OVITO Basic/Python module 3.15.5 | Mixed MIT and GPL-3.0-only components; obligations and redistribution are component-dependent | metadata probe; exact-version Basic frame-metadata execution only |
-| `ovito-pro` | OVITO Pro 3.15.5 | Restricted proprietary EULA; entitlement required; activation material must not be redistributed | planning only; execution always refused |
+| `ovito-basic` | internal label for the standalone `ovito` Python distribution 3.15.5, not a package named `ovito-basic` | module distributed under MIT; bundled third-party notices still apply | metadata probe; exact-version frame-metadata execution only |
+| `ovito-pro` | OVITO Pro desktop/`ovitos` 3.15.5 | restricted proprietary EULA; entitlement required; activation material must not be redistributed | planning only; execution always refused |
 
-Package or application presence does not establish edition, entitlement, or permission to
-redistribute. Do not infer Pro-only capability from Basic. Treat user trajectories and generated
-artifacts under their own data/license attestations.
+OVITO Basic desktop is a separate MIT-distributed binary surface. The vendor `ovito` conda package
+contains the Python module and Pro desktop application; only the desktop requires a paid license.
+The conda-forge `ovito` package contains Basic desktop but not the Python module. The standalone
+Python module exposes all analysis and rendering APIs, including capabilities marked Pro-only in
+the desktop GUI. Package or application presence does not establish edition, entitlement, or
+permission to redistribute. Treat user trajectories and generated artifacts under their own
+data/license attestations.
 
 ## Primary official references
 
 - OVITO home and downloads: https://www.ovito.org/
 - OVITO Python installation: https://www.ovito.org/docs/current/python/introduction/installation.html
+- OVITO 3.15.5 exact PyPI release and wheel metadata: https://pypi.org/project/ovito/3.15.5/
 - OVITO file I/O API (`import_file`, `export_file`): https://www.ovito.org/docs/current/python/modules/ovito_io.html
 - OVITO pipeline API (`Pipeline.compute`, `FileSource.load`): https://www.ovito.org/docs/current/python/modules/ovito_pipeline.html
 - OVITO data API (`DataCollection`, `SimulationCell`, particle properties): https://www.ovito.org/docs/current/python/modules/ovito_data.html
 - OVITO modifiers API: https://www.ovito.org/manual/python/modules/ovito_modifiers.html
+- OVITO Python-module scope: https://www.ovito.org/docs/current/python/introduction/introduction.html
 - OVITO input formats: https://www.ovito.org/docs/current/reference/file_formats/file_formats_input.html
 - OVITO output formats: https://www.ovito.org/docs/current/reference/file_formats/file_formats_output.html
 - OVITO XYZ/extxyz semantics: https://www.ovito.org/manual/reference/file_formats/input/xyz.html
 - OVITO displacement mapping: https://www.ovito.org/docs/current/reference/pipelines/modifiers/displacement_vectors.html
+- OVITO Basic/Pro feature boundary: https://www.ovito.org/manual/ovito_pro.html
 - OVITO licenses: https://www.ovito.org/manual/licenses/index.html
 
 Official API semantics used by this candidate are version-bound: `import_file()` returns a
@@ -54,13 +61,16 @@ the candidate therefore blocks missing explicit PBC rather than adopting that re
 - `ovito.io.export_file(data, file, format, **params)` exports frame zero by default. Multi-frame
   bounds and format-specific particle columns must be explicit; text precision and identifier
   regeneration policies belong in provenance and require an output reparse before acceptance.
-- The integrated command shape is `ovitos [-o FILE.ovito] [-g] [SCRIPT.py] [args]`; edition,
-  license, interpreter, and environment remain distinct evidence. Neither `ovitos` nor the Python
-  distribution was present in the checked environment, so no native command or API was run.
+- Install the standalone module into a regular Python interpreter with `pip install -U ovito`, or
+  use the vendor conda channel command pinned in the official installation page. The integrated
+  command shape `ovitos [-o FILE.ovito] [-g] [SCRIPT.py] [args]` belongs to OVITO Pro; edition,
+  license, interpreter, and environment remain distinct evidence. This content review did not
+  install, import, or execute OVITO, so native validation remains `native-not-run`.
 
-For extxyz, `Lattice` stores row-like vectors `a,b,c` as nine flattened values, whereas OVITO's
-3x4 `SimulationCell` exposes the three vectors as matrix columns. The executor performs that
-explicit transpose and compares every component. XYZ/extxyz itself does not establish a physical
+For extxyz, `Lattice` is a 3x3 matrix whose vectors are columns, flattened in Fortran column-major
+order as `ax ay az bx by bz cx cy cz`. OVITO's 3x4 `SimulationCell` also exposes the three vectors
+as matrix columns. The inventory stores `[a,b,c]`; the bounded executor reads those columns into
+the same vector list and compares every component. XYZ/extxyz itself does not establish a physical
 length unit; OVITO modifiers use the simulation/source unit, not an implicit angstrom contract.
 
 Check exact 3.15.5 documentation before integration. The repository's authority record for OVITO
@@ -68,9 +78,12 @@ is still planned, so live official pages are not a frozen version-matched docume
 
 ## Platform preparation
 
-The repository provider profile targets Linux x86_64, macOS x86_64/arm64, and Windows x86_64.
-Prepare an isolated environment, verify package/application and edition identity, record OS and
-architecture, preserve component notices, and keep entitlement receipts outside artifacts.
+The conservative standalone-module profile targets Linux x86_64, macOS arm64, and Windows x86_64
+with Python 3.10 through 3.14. Exact 3.15.5 PyPI wheels require macOS 12 or newer; vendor conda
+artifacts use a distinct matrix and permit macOS 11 or newer. No exact 3.15.5 macOS x86_64 artifact
+was found in either reviewed channel. Prepare an isolated environment, verify the exact artifact,
+channel, package/application and edition identity, record OS and architecture, preserve component
+notices, and keep entitlement receipts outside artifacts.
 
 The current candidate's no-overwrite atomic file publisher additionally requires POSIX-style
 `dir_fd` support for `open`, `stat`, `link`, and `unlink`. Linux/macOS are the tested publication

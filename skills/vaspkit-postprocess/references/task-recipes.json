@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "software": "VASPKIT",
   "documentation_series": "1.5",
-  "checked_date": "2026-07-18",
+  "checked_date": "2026-07-22",
   "execution_validation": "not_run",
   "execution_validation_reason": "No vaspkit executable was available in the maintainer PATH.",
   "policy": {
@@ -12,6 +12,15 @@
     "exact_binary_menu_overrides_conflicting_web_labels": true
   },
   "recipes": {
+    "101": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-task-token",
+      "required_files": ["POSCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["INCAR"],
+      "source": "https://vaspkit.com/tutorials.html#generate-incar",
+      "caution": "The official tutorial warns that generated tags require manual adjustment; capture task tokens and SET_INCAR_WRITE_MODE, then validate every active tag independently."
+    },
     "102": {
       "status": "official-tutorial-documented",
       "mode": "flags-or-stdin",
@@ -21,6 +30,69 @@
       "expected_outputs": ["KPOINTS"],
       "source": "https://vaspkit.com/tutorials.html#ways-to-run-vaspkit",
       "caution": "The official 0.04 example is not a convergence guarantee."
+    },
+    "103": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["POSCAR", "<authorized-configured-potential-library>"],
+      "stdin_template": null,
+      "expected_outputs": ["POTCAR"],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Do not expose or commit POTCAR bytes or private library paths; verify functional, ordered potential labels, and structure element order."
+    },
+    "104": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["POSCAR", "<authorized-configured-potential-library>"],
+      "stdin_template": null,
+      "expected_outputs": ["POTCAR"],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Retain the user selector transcript and apply the same license, functional, order, and compatibility checks as task 103."
+    },
+    "105": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<source-cif>"],
+      "stdin_template": null,
+      "expected_outputs": ["<converted-POSCAR>"],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "The feature explicitly excludes fractional occupations; block disorder, mixed occupancy, or ambiguous species and preserve conversion provenance."
+    },
+    "106": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<source-xsd>"],
+      "stdin_template": null,
+      "expected_outputs": ["<converted-POSCAR>"],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Verify cell, coordinate convention, atom order, and every retained selective-dynamics flag."
+    },
+    "107": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["POSCAR"],
+      "stdin_template": null,
+      "expected_outputs": ["<reordered-POSCAR>"],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Re-map all companion atom-indexed data and selective-dynamics/velocity fields; a reordered structure cannot be mixed with old index-based files."
+    },
+    "108": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["POSCAR"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Audit every generated or checked component independently; a successful chained procedure is not scientific acceptance."
+    },
+    "109": {
+      "status": "official-documentation-conflict",
+      "mode": "exact-binary-inspection-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "The feature page says job submission while the tutorial says input checking; never automate task 109 from the number alone."
     },
     "301": {
       "status": "official-workflow-documented",
@@ -213,6 +285,69 @@
       "source": "https://vaspkit.com/features.html",
       "caution": "Projected hybrid-band prompt and output contract are not established here."
     },
+    "261": {
+      "status": "official-tutorial-documented",
+      "mode": "interactive-resolution",
+      "required_files": ["POSCAR"],
+      "stdin_template": ["261", "<converged-resolution-in-2pi-per-angstrom>"],
+      "expected_outputs": ["KPOINTS"],
+      "source": "https://vaspkit.com/tutorials.html#fermi-surface",
+      "caution": "Use the intended primitive cell and converge Fermi-surface topology; the tutorial's 0.008 value is only an example."
+    },
+    "262": {
+      "status": "official-tutorial-documented",
+      "mode": "stdin-after-menu-confirmation",
+      "required_files": ["INCAR", "POSCAR", "DOSCAR", "EIGENVAL"],
+      "stdin_template": ["262"],
+      "expected_outputs": ["FERMISURFACE.bxsf"],
+      "source": "https://vaspkit.com/tutorials.html#fermi-surface",
+      "caution": "Bind all files to the task-261 mesh run; retain Fermi, spin/SOC, reciprocal-unit, symmetry, and band-crossing evidence."
+    },
+    "263": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "FermiSurfer format is advertised, but prompts and output names are not established here."
+    },
+    "264": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<projection-bearing-VASP-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Retain exact atom/orbital selectors and projection/spin semantics; do not infer the dialogue from task 262."
+    },
+    "265": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<projection-bearing-VASP-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Capture every atom/orbital selector and summation convention from the exact version."
+    },
+    "266": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Prove the 2D reciprocal convention, nonperiodic direction, energy reference, and exact prompt/output contract."
+    },
+    "267": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<projection-bearing-VASP-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Both projected-surface and 2D dimensionality gates apply; no prompt/output recipe is established here."
+    },
     "311": {
       "status": "official-tutorial-documented",
       "mode": "interactive-until-version-pinned",
@@ -321,24 +456,168 @@
       "source": "https://vaspkit.com/features.html",
       "caution": "The feature page and tutorial assign different meanings to task 604."
     },
+    "710": {
+      "status": "official-documentation-conflict",
+      "mode": "exact-binary-inspection-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "The feature page labels 710 as 2D linear spectra while the tutorial optical menu omits it; do not substitute the bulk 711 recipe."
+    },
     "711": {
       "status": "official-documentation-conflict-with-tutorial-recipe",
       "mode": "exact-binary-inspection-required",
-      "required_files": ["vasprun.xml"],
-      "stdin_template": null,
+      "required_files": ["vasprun.xml-or-matching-REAL.in-and-IMAG.in"],
+      "stdin_template": ["711", "<energy-unit:1-eV,2-nm,3-THz>"],
       "argv_template": ["vaspkit", "-task", "711"],
       "expected_outputs": [],
       "source": "https://vaspkit.com/tutorials.html#linear-optical-properties",
-      "caution": "Official pages disagree on optical task mapping; the tutorial says its 711 route is unsuitable for low-dimensional materials."
+      "caution": "Confirm the installed menu; the tutorial says its 711 route is unsuitable for low-dimensional materials and does not make the parent optical calculation converged."
+    },
+    "713": {
+      "status": "official-documentation-conflict-with-tutorial-recipe",
+      "mode": "exact-binary-inspection-required",
+      "required_files": ["WAVECAR", "KPOINTS", "<matching-VASP-inputs>"],
+      "stdin_template": ["713", "<band-mode:1-conventional-or-2-hybrid>", "<initial-band-index> <final-band-index>"],
+      "expected_outputs": ["TDM.dat"],
+      "source": "https://vaspkit.com/tutorials.html#transition-dipole-moment",
+      "caution": "The feature and tutorial labels differ; the tutorial warns about standard-VASP support and compatible VASPKIT-created hybrid KPOINTS."
+    },
+    "714": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["WAVEDER", "<matching-VASP-inputs>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "The feature lists dipole-moment elements from WAVEDER; exact version, prompts, schema, gauge, band, and polarization conventions are not established here."
+    },
+    "716": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": [],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Total joint DOS is catalog-only; establish parent files, normalization, broadening, units, and outputs on the exact binary."
+    },
+    "717": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<projection-bearing-optical-parent>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Partial joint DOS is catalog-only; retain projection, selector, spin, normalization, and energy-reference semantics."
+    },
+    "719": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<accepted-optical-spectrum>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Spectroscopic limited maximum efficiency is catalog-only and requires a separate physical model, units, thickness, illumination, and convergence audit."
     },
     "721": {
       "status": "official-tutorial-documented",
       "mode": "interactive-until-version-pinned",
       "required_files": ["POSCAR.ref", "<VASP-MD-output>"],
       "stdin_template": ["721"],
-      "expected_outputs": ["MSD.dat"],
+      "expected_outputs": ["MSD.dat", "ATOM_DISPLACEMENT.dat"],
       "source": "https://vaspkit.com/tutorials.html#molecular-dynamics-process",
       "caution": "Validate timestep, equilibration, atom selection, periodic unwrapping, and fitting window."
+    },
+    "722": {
+      "status": "official-documentation-conflict",
+      "mode": "exact-binary-inspection-required",
+      "required_files": ["<VASP-MD-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "The feature page says FFT-based MSD while the tutorial says RDF; capture the exact menu, prompts, trajectory source, and outputs before use."
+    },
+    "723": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["MSD.dat"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Predeclare dimensionality, diffusive fit window, Einstein/mobility conventions, units, block uncertainty, and minimum sampling."
+    },
+    "725": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["PCDAT"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Record pair semantics, cutoff, binning, normalization, cell fluctuations, and discarded equilibration."
+    },
+    "726": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<VASP-MD-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Capture element selectors, pair order, trajectory source, normalization, binning, and finite-cell limits."
+    },
+    "727": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<velocity-bearing-VASP-MD-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Record velocity source, species/component selection, sampling interval, correlation length, and normalization."
+    },
+    "728": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<validated-velocity-autocorrelation>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Record transform/window/zero-padding convention and frequency units; spectral peaks are not automatically normal modes or phonons."
+    },
+    "730": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<VASP-MD-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Retain element/atom selectors, periodic-neighbor and cutoff logic, binning, and trajectory interval."
+    },
+    "731": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<VASP-MD-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Retain center/neighbor selectors, periodic images, cutoff logic, angle definition, binning, and trajectory interval."
+    },
+    "736": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<VASP-MD-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Confirm atom order, cell, time metadata, selection, units, and wrapped/unwrapped coordinates in every exported POSCAR frame."
+    },
+    "737": {
+      "status": "official-feature-only",
+      "mode": "interactive-discovery-required",
+      "required_files": ["<VASP-MD-output>"],
+      "stdin_template": null,
+      "expected_outputs": [],
+      "source": "https://vaspkit.com/features.html",
+      "caution": "Confirm atom order, cell/time preservation limits, selectors, units, and periodic-coordinate semantics in the PDB export."
     },
     "911": {
       "status": "official-tutorial-documented",

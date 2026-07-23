@@ -1,6 +1,6 @@
 {
   "recipe_contract": "provider-task-recipes@1.0",
-  "retrieved_on": "2026-07-19",
+  "retrieved_on": "2026-07-22",
   "execution_policy": {
     "execution_authorized": false,
     "native_validation": "native-not-run",
@@ -56,6 +56,98 @@
       "restart_semantics": "Preserve the failed log and checkpoint identities; restart into new bound outputs.",
       "scientific_acceptance": ["Never accept from process status alone"],
       "source_ids": ["g16-running"]
+    },
+    {
+      "recipe_id": "gaussian.sp.audited@G16-C.02",
+      "purpose": "Evaluate one declared electronic state at one immutable geometry with an explicit model chemistry.",
+      "guard_support": "guard-supported-synthetic-only",
+      "execution_authorized": false,
+      "preconditions": ["Structure, charge, multiplicity, method, basis/ECP, grid, solvent and target observable are explicit", "The selected method-specific energy and convergence evidence are defined before execution"],
+      "input_contract": {
+        "required_route_tokens": ["<method>/<basis>", "SP or no other job-type keyword"],
+        "required_identity": ["structure-manifest SHA-256", "input SHA-256", "electronic-state definition", "environment and authorization hashes"]
+      },
+      "invocation": {
+        "kind": "provider-input-plus-run-recipe",
+        "argv": ["g16"],
+        "stdin_path": "single-point.gjf",
+        "stdout_path": "single-point.log"
+      },
+      "expected_outputs": ["immutable bound log", "checkpoint when explicitly requested", "method-specific final energy and requested properties"],
+      "success_signals": ["matching provider revision", "converged intended electronic solution", "requested final energy/property present", "normal termination"],
+      "failure_semantics": ["An empty-route provider default is not an accepted scientific plan", "SCF or correlated-solver failure, wrong state, missing property or detached geometry blocks use"],
+      "restart_semantics": "Preserve the failed run; use SCF/Guess restart only with exact compatible checkpoint records and a new authorized output.",
+      "scientific_acceptance": ["Converge method, basis/ECP, grid, solvent and geometry choices for the observable", "A single point establishes neither a stationary geometry nor a stable/global electronic state"],
+      "source_ids": ["g16-sp", "g16-route", "g16-molspec", "g16-scf", "g16-stable", "g16-dft"]
+    },
+    {
+      "recipe_id": "gaussian.opt.minimum@G16-C.02",
+      "purpose": "Optimize one local-minimum candidate while preserving coordinate, constraint, Hessian and state evidence.",
+      "guard_support": "guard-supported-synthetic-only",
+      "execution_authorized": false,
+      "preconditions": ["Initial structure and electronic state are plausible and hash-bound", "Optimization goal, coordinate system, constraints, convergence policy and model chemistry are explicit"],
+      "input_contract": {
+        "required_route_tokens": ["<method>/<basis>", "Opt"],
+        "required_identity": ["structure and atom-order hashes", "input SHA-256", "constraint/GIC section hash when present", "checkpoint output label"]
+      },
+      "invocation": {
+        "kind": "provider-input-plus-run-recipe",
+        "argv": ["g16"],
+        "stdin_path": "minimum-opt.gjf",
+        "stdout_path": "minimum-opt.log"
+      },
+      "expected_outputs": ["bound optimization trajectory/log", "final geometry evidence", "checkpoint when requested"],
+      "success_signals": ["SCF/state convergence at every accepted step", "all provider force/displacement criteria pass", "Optimization completed", "normal termination"],
+      "failure_semantics": ["MaxCycles exhaustion, coordinate/Hessian pathology, SCF failure, constraint mismatch or wrong stationary target blocks completion", "Optimization completion alone does not identify a minimum"],
+      "restart_semantics": "Use Opt=Restart with the exact parent checkpoint, original optimization intent and a new immutable output; reapply every final gate.",
+      "scientific_acceptance": ["Run a same-model frequency analysis", "Search relevant conformer, protonation and spin alternatives before a global-minimum claim"],
+      "source_ids": ["g16-opt", "g16-geom", "g16-scf", "g16-stable"]
+    },
+    {
+      "recipe_id": "gaussian.freq.same-model@G16-C.02",
+      "purpose": "Characterize a same-model stationary-point candidate and produce bounded harmonic/thermochemical evidence.",
+      "guard_support": "guard-supported-synthetic-only",
+      "execution_authorized": false,
+      "preconditions": ["Geometry is optimized at the same method, basis, core, grid and solvent definition", "Stationary-point intent, derivative route, masses, temperature, pressure and requested spectra are explicit"],
+      "input_contract": {
+        "required_route_tokens": ["<same method>/<same basis>", "Freq"],
+        "required_identity": ["optimized-geometry hash", "input SHA-256", "wavefunction/state identity", "checkpoint/Hessian lineage when read"]
+      },
+      "invocation": {
+        "kind": "provider-input-plus-run-recipe",
+        "argv": ["g16"],
+        "stdin_path": "frequency.gjf",
+        "stdout_path": "frequency.log"
+      },
+      "expected_outputs": ["complete force-constant/mode evidence", "frequencies and requested intensities", "raw thermochemistry under declared conditions"],
+      "success_signals": ["all derivative subcalculations and SCF solutions converge", "expected mode count is present", "stationary-point mode rule matches intent", "normal termination"],
+      "failure_semantics": ["Different-level/nonstationary geometry, unstable wavefunction, failed numerical displacement or unexplained mode blocks interpretation", "Freq=ReadFC does not create or repair force constants"],
+      "restart_semantics": "Repeat failed derivative work only under a provider-documented exact checkpoint route; preserve the original output and identify every changed control.",
+      "scientific_acceptance": ["Inspect negative and near-zero eigenvectors", "Declare scaling, symmetry, standard-state and low-frequency policies while preserving raw output"],
+      "source_ids": ["g16-freq", "g16-vibrational-analysis", "g16-thermochemistry", "g16-stable"]
+    },
+    {
+      "recipe_id": "gaussian.scf.recovery-plan@G16-C.02",
+      "purpose": "Diagnose one failed or suspect SCF/state solution and plan one causally motivated recovery child run.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["Failed input/log/checkpoint and last valid geometry are immutable and hash-bound", "Charge, multiplicity, electron count, intended state, method/basis and failure pattern have been reviewed"],
+      "input_contract": {
+        "diagnostics": ["iteration energy/density trend", "oscillation or monotonic progress", "occupation/spin/symmetry evidence", "checkpoint compatibility"],
+        "required_identity": ["failed input/output hashes", "parent checkpoint hash when used", "one selected recovery change"]
+      },
+      "invocation": {
+        "kind": "planning-only-no-provider-command",
+        "argv": [],
+        "stdin_path": null,
+        "stdout_path": null
+      },
+      "expected_outputs": ["classified failure cause", "one proposed child input delta", "required state/stability/task revalidation checklist"],
+      "success_signals": ["recovery proposal maps to the observed failure", "official keyword behavior and operational heuristic are labeled separately", "no execution is authorized"],
+      "failure_semantics": ["Blindly stacking MaxCycle, XQC/QC, damping, shifting, Guess and NoSymm controls obscures causality", "Convergence to a different/unstable state is not recovery"],
+      "restart_semantics": "Distinguish SCF=Restart, Guess=Restart and Guess=Read; select only the documented compatible path and retain parent-child lineage.",
+      "scientific_acceptance": ["Recheck occupations, spin, stability, energy, gradients and downstream observables after technical convergence"],
+      "source_ids": ["g16-scf", "g16-guess", "g16-stable"]
     },
     {
       "recipe_id": "gaussian.opt-freq.minimum@G16-C.02",
@@ -127,6 +219,98 @@
       "restart_semantics": "Use each task's documented restart with exact checkpoint ancestry; do not convert a partial path into a complete one by prose.",
       "scientific_acceptance": ["Endpoint identities and competing paths require independent assessment", "Kinetic claims require additional thermodynamic/dynamic assumptions"],
       "source_ids": ["g16-opt", "g16-freq", "g16-irc"]
+    },
+    {
+      "recipe_id": "gaussian.irc.both-directions@G16-C.02",
+      "purpose": "Follow both declared IRC branches from one frequency-verified transition structure and identify endpoint basins.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["The input geometry has exactly one intended imaginary mode", "Exact Cartesian force constants are available through RCFC or will be computed through CalcFC", "Direction/phase, point count, step size and model chemistry are explicit"],
+      "input_contract": {
+        "required_route_tokens": ["IRC=(RCFC or CalcFC, declared controls)"],
+        "required_identity": ["transition-structure geometry hash", "frequency/Hessian checkpoint hash", "mode/eigenvector identity", "per-branch input/output hashes"]
+      },
+      "invocation": {
+        "kind": "multi-job-handoff-plan",
+        "argv": ["g16"],
+        "stdin_path": "one or two audited IRC stages",
+        "stdout_path": "immutable branch log(s)"
+      },
+      "expected_outputs": ["forward and reverse path points with energies/reaction coordinates", "per-branch technical completion", "endpoint candidate structures"],
+      "success_signals": ["every path point has a converged intended state", "both branches are continuous and long enough to enter endpoint basins", "endpoint optimizations identify the intended structures"],
+      "failure_semantics": ["Missing/mismatched Hessian, wrong phase/mode, unconverged point, too-short path, state discontinuity or unidentified endpoint blocks connectivity"],
+      "restart_semantics": "Use IRC=Restart only with the exact branch checkpoint and a new authorization/output identity; do not merge partial branches by prose.",
+      "scientific_acceptance": ["Optimize and frequency-characterize endpoints independently", "One IRC does not establish all mechanisms or kinetic control"],
+      "source_ids": ["g16-irc", "g16-freq", "g16-opt"]
+    },
+    {
+      "recipe_id": "gaussian.td.vertical@G16-C.02",
+      "purpose": "Compute and audit a bounded manifold of vertical TD-HF/TD-DFT excited states at one geometry.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["Ground-state reference is converged and its stability requirements are addressed", "Spin manifold, NStates/energy window, target Root if any, basis diffuseness, functional and solvent response are explicit"],
+      "input_contract": {
+        "required_route_tokens": ["<HF or DFT method>/<basis>", "TD=(declared state options)"],
+        "required_identity": ["ground-state geometry/wavefunction hashes", "input SHA-256", "state-window definition", "solvent-response convention"]
+      },
+      "invocation": {
+        "kind": "provider-input-plus-run-recipe",
+        "argv": ["g16"],
+        "stdin_path": "td-vertical.gjf",
+        "stdout_path": "td-vertical.log"
+      },
+      "expected_outputs": ["converged requested state manifold", "excitation energies, oscillator strengths, spin/symmetry and configuration evidence", "checkpoint when requested"],
+      "success_signals": ["all requested states converge", "state count covers the target window", "target state character is identified beyond root number", "normal termination"],
+      "failure_semantics": ["Too few states, wrong manifold, root reordering, checkpoint-basis mismatch, ground-state failure or detached solvent convention blocks interpretation", "A dark state is not automatically a solver failure"],
+      "restart_semantics": "Use TD=Read/Restart only with the exact compatible basis/state-space checkpoint and re-audit state identities after completion.",
+      "scientific_acceptance": ["Converge state window, functional, basis and solvent for the transition character", "Separate vertical excitation from adiabatic, vibronic and emission observables"],
+      "source_ids": ["g16-td", "g16-dft", "g16-scrf", "g16-stable"]
+    },
+    {
+      "recipe_id": "gaussian.td.excited-state-opt-freq@G16-C.02",
+      "purpose": "Optimize and characterize one intended TD excited state while auditing state continuity across geometries.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["A vertical calculation identifies the target state character", "Root, NStates, method/basis/grid, solvent regime and state-tracking diagnostics are declared", "The selected functional supports the requested derivative route"],
+      "input_contract": {
+        "stages": ["TD state-specific optimization", "same-state same-model frequency calculation"],
+        "required_identity": ["vertical parent-state evidence", "per-stage input/output/checkpoint hashes", "per-geometry state-character observations"]
+      },
+      "invocation": {
+        "kind": "multi-job-handoff-plan",
+        "argv": ["g16"],
+        "stdin_path": "one audited TD stage at a time",
+        "stdout_path": "one immutable log per stage"
+      },
+      "expected_outputs": ["state-tracked optimization trajectory", "excited-state stationary geometry", "same-state frequencies and requested spectra"],
+      "success_signals": ["target state character remains continuous", "optimization and derivative tasks complete", "stationary-point mode rule is satisfied", "normal termination per stage"],
+      "failure_semantics": ["Root flipping, near-degenerate character exchange, unsupported derivatives, state/solvent mismatch or wrong stationary type blocks the result"],
+      "restart_semantics": "Restart only with exact TD/geometry checkpoint lineage and re-establish the same physical state; an unchanged Root number is insufficient.",
+      "scientific_acceptance": ["Separate vertical, adiabatic, zero-point and solvent-relaxation contributions", "Converge state window and model chemistry for geometry and spectrum"],
+      "source_ids": ["g16-td", "g16-freq", "g16-release-notes", "g16-scrf"]
+    },
+    {
+      "recipe_id": "gaussian.checkpoint.followup-plan@G16-C.02",
+      "purpose": "Plan one checkpoint-consuming follow-up by resolving geometry, guess, basis, Hessian, TD-vector or restart roles explicitly.",
+      "guard_support": "guard-not-supported",
+      "execution_authorized": false,
+      "preconditions": ["Parent checkpoint bytes, producer input/output, revision and environment are hash-bound", "Every requested checkpoint record has a declared compatible consumer role"],
+      "input_contract": {
+        "allowed_role_examples": ["Geom=Checkpoint or AllCheck", "Guess=Read or Restart", "ChkBasis", "ReadFC or RCFC", "SCF/Opt/TD/IRC Restart"],
+        "required_identity": ["parent checkpoint SHA-256 and byte count", "producer run hashes", "consumer input hash", "new checkpoint/output labels"]
+      },
+      "invocation": {
+        "kind": "planning-only-no-provider-command",
+        "argv": [],
+        "stdin_path": null,
+        "stdout_path": null
+      },
+      "expected_outputs": ["role-by-role compatibility table", "complete consumer input section map", "parent-child lineage and revalidation plan"],
+      "success_signals": ["no consumer relies on filename-only identity", "all retrieved fields and omitted input sections are explicit", "no execution is authorized"],
+      "failure_semantics": ["Wrong geometry/state/basis/Hessian/restart role, stale revision, detached producer or conflicting explicit input blocks the handoff"],
+      "restart_semantics": "Use the task-specific provider restart semantics; never generalize one Restart keyword across SCF, Guess, Opt, TD and IRC.",
+      "scientific_acceptance": ["Checkpoint reuse transfers data, not scientific acceptance; rerun every downstream task and model gate"],
+      "source_ids": ["g16-link0", "g16-geom", "g16-guess", "g16-chkbasis", "g16-scf", "g16-opt", "g16-freq", "g16-td", "g16-irc"]
     },
     {
       "recipe_id": "gaussian.formchk@G16-C.02",

@@ -96,6 +96,26 @@ class EnvironmentProfileTests(unittest.TestCase):
         self.assertEqual(set(self.registry["profiles"]), EXPECTED_PROVIDERS)
         self.assertEqual(len(EXPECTED_PROVIDERS), 24)
 
+    def test_standalone_python_visualization_profile_is_modeled_separately(self) -> None:
+        profile = self.registry["profiles"]["ovito-basic"]
+        self.assertEqual(profile["profile_type"], "python-package")
+        self.assertEqual(profile["role"], "visualization-tool")
+        self.assertIn(
+            "visualization-tool",
+            environment_profiles.PROFILE_ROLE_COMPATIBILITY["python-package"],
+        )
+        self.assertIn("standalone Python module", profile["software"]["name"])
+        self.assertEqual(profile["software"]["release_date"], "2026-06-19")
+        self.assertEqual(
+            profile["environment"]["python"],
+            {"required": True, "min_inclusive": "3.10", "max_exclusive": "3.15"},
+        )
+        self.assertEqual(
+            next(target for target in profile["environment"]["targets"] if target["platform"] == "macos"),
+            {"platform": "macos", "architectures": ["arm64"]},
+        )
+        self.assertIn("https://pypi.org/project/ovito/3.15.5/", profile["official_urls"])
+
     def test_load_registry_has_a_shared_strict_yaml_loader_injection_seam(self) -> None:
         selected = ROOT / "registry" / "environment-profiles.yaml"
         loaded_paths: list[Path] = []

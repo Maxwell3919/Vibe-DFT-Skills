@@ -3,7 +3,7 @@
   "software": "Multiwfn",
   "program_version": "2026.7.15",
   "manual_version": "2026.7.10",
-  "checked_date": "2026-07-19",
+  "checked_date": "2026-07-22",
   "official_sources": {
     "download": "http://sobereva.com/multiwfn/download.html",
     "update_history": "http://sobereva.com/multiwfn/update.html",
@@ -12,7 +12,7 @@
   },
   "native_validation": {
     "state": "not_run",
-    "checked_date": "2026-07-19",
+    "checked_date": "2026-07-22",
     "platform": "Darwin arm64",
     "reason": "Neither Multiwfn nor multiwfn resolved in PATH and no Python distribution named multiwfn was present.",
     "banner_or_help_executed": false,

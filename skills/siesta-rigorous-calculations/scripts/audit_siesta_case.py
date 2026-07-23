@@ -14,6 +14,7 @@ import re
 import sys
 import tempfile
 from typing import Any
+from xml.etree import ElementTree
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -22,7 +23,7 @@ if str(SCRIPT_DIR) not in sys.path:
 from create_siesta_plan import normalize_version, validate_plan
 
 
-TOOL_VERSION = "2.0.0"
+TOOL_VERSION = "2.2.0"
 SCHEMA_VERSION = "2.0"
 SKILL_ROOT = SCRIPT_DIR.parent
 REFERENCES = SKILL_ROOT / "references"
@@ -54,6 +55,45 @@ def official_key(label: str) -> str:
 def digest(path: Path) -> dict[str, Any]:
     data = path.read_bytes()
     return {"sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+
+
+def psml_xc_identity(path: Path) -> dict[str, Any] | None:
+    """Read the XC identity embedded in a PSML file without trusting its manifest."""
+    try:
+        root = ElementTree.parse(path).getroot()
+    except (ElementTree.ParseError, OSError):
+        return None
+    names: list[str] = []
+    ids: list[int] = []
+    for element in root.iter():
+        if element.tag.rsplit("}", 1)[-1].casefold() != "functional":
+            continue
+        name = str(element.attrib.get("name", "")).strip()
+        if name:
+            names.append(name)
+        try:
+            ids.append(int(element.attrib["id"]))
+        except (KeyError, TypeError, ValueError):
+            pass
+    id_set = set(ids)
+    canonical_names = canonical(" ".join(names))
+    family = None
+    if {101, 130}.issubset(id_set) or "perdewburkeernzerhof" in canonical_names:
+        family = "GGA-PBE"
+    elif {1, 12}.issubset(id_set) or "pw92" in canonical_names:
+        family = "LDA-PW92"
+    return {"family": family, "functional_ids": sorted(id_set)}
+
+
+def xc_family_class(value: str) -> str:
+    normalized = canonical(value)
+    if "pbesol" in normalized:
+        return "pbesol"
+    if "pbe" in normalized:
+        return "pbe"
+    if "pw92" in normalized or "lda" in normalized:
+        return "lda-pw92"
+    return normalized
 
 
 def load_object(path: Path, label: str) -> dict[str, Any]:
@@ -281,7 +321,7 @@ def parse_force_block(text: str) -> tuple[float | None, int]:
 
 
 def parse_output_text(text: str) -> dict[str, Any]:
-    versions = re.findall(r"^\s*Siesta\s+Version\s*:\s*(\S+)", text, re.IGNORECASE | re.MULTILINE)
+    versions = re.findall(r"^\s*(?:Siesta\s+)?Version\s*:\s*(\S+)", text, re.IGNORECASE | re.MULTILINE)
     starts = len(re.findall(r"^\s*>>\s*Start of run\s*:", text, re.IGNORECASE | re.MULTILINE))
     ends = len(re.findall(r"^\s*>>\s*End of run\s*:", text, re.IGNORECASE | re.MULTILINE))
     completions = len(re.findall(r"^\s*Job\s+completed\s*$", text, re.IGNORECASE | re.MULTILINE))
@@ -298,7 +338,27 @@ def parse_output_text(text: str) -> dict[str, Any]:
         "ERROR_MARKER": r"^\s*(?:siesta:\s*)?ERROR\b",
     }
     fatal = [code for code, pattern in fatal_patterns.items() if re.search(pattern, text, re.IGNORECASE | re.MULTILINE)]
-    warnings = len(re.findall(r"^\s*(?:siesta:\s*)?WARNING\b", text, re.IGNORECASE | re.MULTILINE))
+    warning_lines = [
+        match.group(1).strip()
+        for match in re.finditer(
+            r"^\s*(?:siesta:\s*)?(WARNING\b[^\r\n]*)",
+            text,
+            re.IGNORECASE | re.MULTILINE,
+        )
+    ]
+    known_advisory_warnings = {
+        "warning: basis_enthalpy and basis_harris_enthalpy files are deprecated. they will be removed in future releases."
+    }
+    advisory_warnings = [
+        line
+        for line in warning_lines
+        if line.casefold() in known_advisory_warnings
+    ]
+    unresolved_warnings = [
+        line
+        for line in warning_lines
+        if line.casefold() not in known_advisory_warnings
+    ]
     observables: dict[str, dict[str, Any]] = {}
     if total_values and total_values[-1] is not None:
         observables["total_energy"] = {"value": total_values[-1], "unit": "eV", "source": "final_energy_block"}
@@ -318,7 +378,9 @@ def parse_output_text(text: str) -> dict[str, Any]:
         "scf_cycle_count": len(scf_iterations),
         "scf_iterations": scf_iterations,
         "fatal_markers": fatal,
-        "warning_count": warnings,
+        "warning_count": len(unresolved_warnings),
+        "unresolved_warnings": unresolved_warnings,
+        "advisory_warnings": advisory_warnings,
         "relaxed_coordinates": bool(re.search(r"outcoor:\s*Relaxed atomic coordinates", text, re.IGNORECASE)),
         "unrelaxed_coordinates": bool(re.search(r"outcoor:\s*Final \(unrelaxed\)", text, re.IGNORECASE)),
         "force_rows": force_rows,
@@ -564,6 +626,26 @@ def audit(
         add("numerical_controls", "SCF_MUST_CONVERGE_NOT_TRUE", "SCF.MustConverge must be explicitly true.")
     if (as_int(scalars.get("maxscfiterations")) or 0) <= 0:
         add("numerical_controls", "SCF_ITERATION_LIMIT_INVALID", "MaxSCFIterations must be positive.")
+    spin_tokens = scalars.get("spin")
+    supported_spin_values = {
+        "non-polarized",
+        "polarized",
+        "non-colinear",
+        "spin-orbit",
+        "spin-orbit+onsite",
+    }
+    if (
+        spin_tokens is not None
+        and (
+            len(spin_tokens) != 1
+            or spin_tokens[0].casefold() not in supported_spin_values
+        )
+    ):
+        add(
+            "numerical_controls",
+            "SPIN_VALUE_INVALID",
+            "Spin must use a SIESTA 5.4.2 value: non-polarized, polarized, non-colinear, spin-orbit, or spin-orbit+onsite.",
+        )
     if "paobasis" not in blocks and not ({"paobasissize", "paoenergyshift"} <= set(scalars)):
         add("numerical_controls", "BASIS_DEFINITION_INCOMPLETE", "Provide PAO.Basis or both PAO.BasisSize and PAO.EnergyShift.")
 
@@ -625,7 +707,17 @@ def audit(
             add("pseudopotential_provenance", "PSEUDO_PRECEDENCE_AMBIGUOUS", "Multiple implicit pseudopotential formats exist.")
             continue
         selected = existing[0]
-        pseudo_records.append({"species_index": species_id, "atomic_number": atomic_number, "format": selected.suffix.casefold().lstrip("."), **digest(selected)})
+        record = {"species_index": species_id, "atomic_number": atomic_number, "format": selected.suffix.casefold().lstrip("."), **digest(selected)}
+        if selected.suffix.casefold() == ".psml":
+            embedded_xc = psml_xc_identity(selected)
+            if embedded_xc is None:
+                add("pseudopotential_provenance", "PSEUDO_PSML_XC_UNREADABLE", "A PSML file is not readable XML, so its embedded XC identity cannot be verified.")
+            elif embedded_xc["family"] is None:
+                add("pseudopotential_provenance", "PSEUDO_PSML_XC_UNRESOLVED", "A PSML file does not expose a recognized embedded LibXC identity.")
+            else:
+                record["embedded_xc_family"] = embedded_xc["family"]
+                record["embedded_xc_functional_ids"] = embedded_xc["functional_ids"]
+        pseudo_records.append(record)
 
     manifest_path = pseudopotential_manifest_path or input_path.with_name("pseudopotential-manifest.json")
     manifest_info: dict[str, Any] | None = None
@@ -676,6 +768,9 @@ def audit(
             if expected["expected_sha256"] != record["sha256"] or expected["format"] != record["format"]:
                 add("pseudopotential_provenance", "PSEUDO_MANIFEST_IDENTITY_MISMATCH", "A local pseudopotential differs from its declared format/hash.")
                 continue
+            embedded_family = record.get("embedded_xc_family")
+            if embedded_family and xc_family_class(expected["xc_family"]) != xc_family_class(embedded_family):
+                add("pseudopotential_provenance", "PSEUDO_PSML_XC_MISMATCH", "The manifest XC family differs from the XC identity embedded in the PSML file.")
             if input_xc and not all(token in canonical(expected["xc_family"]) for token in filter(None, (canonical(" ".join(scalars.get("xcfunctional", []))), canonical(" ".join(scalars.get("xcauthors", [])))))):
                 add("pseudopotential_provenance", "PSEUDO_XC_MISMATCH", "Pseudopotential XC family differs from explicit XC.Functional/XC.Authors.")
             if requires_soc and expected["relativistic_treatment"].casefold() != "fully-relativistic":

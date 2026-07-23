@@ -274,6 +274,48 @@ H 1 0 0 7
         )
         self.assertEqual(strict.returncode, 2)
 
+    def test_atomic_strain_and_dxa_are_basic_plan_only_operations(self) -> None:
+        operations = [
+            (
+                "atomic-strain",
+                {"cutoff_source_units": 3.0, "reference_frame": 0},
+            ),
+            (
+                "dislocation-analysis",
+                {"crystal_structure": "fcc"},
+            ),
+        ]
+        for operation_kind, parameters in operations:
+            with self.subTest(operation=operation_kind), tempfile.TemporaryDirectory() as directory:
+                directory_path = Path(directory)
+                inventory = make_inventory(directory_path)
+                spec = json.loads((FIXTURES / "metadata-pipeline.json").read_text(encoding="utf-8"))
+                spec["pipeline_id"] = f"{operation_kind}-basic-plan"
+                spec["source_length_unit"] = "angstrom"
+                spec["operations"] = [{
+                    "operation_id": f"{operation_kind}-0",
+                    "kind": operation_kind,
+                    "parameters": parameters,
+                    "evidence_role": "numerical-analysis",
+                }]
+                spec["outputs"] = [{
+                    "output_id": f"{operation_kind}-table-0",
+                    "kind": "data-table",
+                    "label": f"{operation_kind}.txt",
+                }]
+                spec_path = directory_path / "pipeline.json"
+                spec_path.write_text(json.dumps(spec), encoding="utf-8")
+                planned = run_cli("plan", "--inventory", inventory, "--pipeline", spec_path)
+
+            self.assertEqual(planned.returncode, 0, planned.stderr)
+            report = json.loads(planned.stdout)
+            self.assertEqual(report["execution_readiness"], "blocked")
+            self.assertEqual(report["operations"][0]["minimum_profile"], "ovito-basic")
+            self.assertEqual(
+                {item["finding_id"] for item in report["findings"]},
+                {"OPERATION_PLAN_ONLY"},
+            )
+
     def test_pipeline_source_hash_and_unknown_operations_are_refused(self) -> None:
         spec = json.loads((FIXTURES / "metadata-pipeline.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
