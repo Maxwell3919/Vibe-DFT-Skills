@@ -82,6 +82,8 @@ class PostprocessTests(unittest.TestCase):
         self.assertEqual(registry["observables"]["bands"]["codes"]["vasp"]["maturity"], "real-artifact-validated")
         self.assertEqual(registry["observables"]["run-trace"]["codes"]["cp2k"]["maturity"], "design-only")
         self.assertEqual(registry["observables"]["run-trace"]["codes"]["siesta"]["maturity"], "design-only")
+        self.assertEqual(registry["observables"]["real-space"]["codes"]["siesta"]["maturity"], "format-fixture-validated")
+        self.assertEqual(registry["observables"]["real-space"]["codes"]["siesta"]["backends"], ["python.grid"])
 
     def test_registry_rejects_unknown_maturity_and_special_case_content(self) -> None:
         from copy import deepcopy
@@ -1018,6 +1020,127 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(epc_dataset["dimensions"]["q_mode_rows"], 2)
             self.assertEqual(epc_analysis["q_weight_closure_status"], "not-run")
 
+    def test_cube_field_inspection_and_split_are_exact_and_semantically_neutral(self) -> None:
+        from dftpost.realspace import _read_cube, inspect_cube_fields, split_cube_fields
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            concatenated = root / "legacy.cube"
+            concatenated.write_text(
+                "synthetic legacy payload\n"
+                "three concatenated fields with unknown semantics\n"
+                "0 0 0 0\n"
+                "2 1 0 0\n"
+                "1 0 1 0\n"
+                "1 0 0 1\n"
+                "1 2 10 20 100 200\n",
+                encoding="utf-8",
+            )
+
+            inspection = inspect_cube_fields(concatenated)
+            self.assertEqual(inspection["status"], "legacy-concatenated-fields")
+            self.assertEqual(inspection["declared_grid_value_count"], 2)
+            self.assertEqual(inspection["observed_grid_value_count"], 6)
+            self.assertEqual(inspection["complete_field_count"], 3)
+            self.assertEqual(inspection["field_semantics"], "unknown")
+            self.assertNotIn(str(root), json.dumps(inspection))
+            with self.assertRaisesRegex(
+                ValueError,
+                r"payload contains 6 values \(3 complete fields\).*cube-inspect.*cube-split",
+            ):
+                _read_cube(concatenated)
+
+            cli_inspection_path = root / "cube-inspection.json"
+            cli_inspection = subprocess.run(
+                [
+                    sys.executable,
+                    str(POST_SCRIPTS / "dftpost_cli.py"),
+                    "cube-inspect",
+                    str(concatenated),
+                    "--out",
+                    str(cli_inspection_path),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(cli_inspection.returncode, 0, cli_inspection.stderr)
+            self.assertEqual(
+                json.loads(cli_inspection_path.read_text(encoding="utf-8"))["complete_field_count"],
+                3,
+            )
+
+            outputs = split_cube_fields(concatenated, root / "split")
+            manifest = json.loads(outputs["manifest"].read_text(encoding="utf-8"))
+            self.assertEqual(manifest["field_semantics"], "unknown")
+            self.assertEqual(manifest["field_count"], 3)
+            self.assertEqual([item["field_index"] for item in manifest["outputs"]], [0, 1, 2])
+            self.assertEqual(len(outputs["fields"]), 3)
+            expected_values = ([1.0, 2.0], [10.0, 20.0], [100.0, 200.0])
+            for path, expected in zip(outputs["fields"], expected_values):
+                values, _, _ = _read_cube(path)
+                self.assertEqual(values.reshape(-1).tolist(), list(expected))
+
+            with self.assertRaisesRegex(ValueError, "refusing to overwrite"):
+                split_cube_fields(concatenated, root / "split")
+
+            cli_split = subprocess.run(
+                [
+                    sys.executable,
+                    str(POST_SCRIPTS / "dftpost_cli.py"),
+                    "cube-split",
+                    str(concatenated),
+                    "--out-dir",
+                    str(root / "cli-split"),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(cli_split.returncode, 0, cli_split.stderr)
+            cli_outputs = json.loads(cli_split.stdout)
+            self.assertEqual(len(cli_outputs["fields"]), 3)
+
+            malformed = root / "malformed.cube"
+            malformed.write_text(
+                "synthetic malformed payload\n"
+                "not an integer number of fields\n"
+                "0 0 0 0\n"
+                "2 1 0 0\n"
+                "1 0 1 0\n"
+                "1 0 0 1\n"
+                "1 2 3\n",
+                encoding="utf-8",
+            )
+            malformed_inspection = inspect_cube_fields(malformed)
+            self.assertEqual(malformed_inspection["status"], "malformed-payload")
+            self.assertIsNone(malformed_inspection["complete_field_count"])
+            with self.assertRaisesRegex(ValueError, "not an integer number of complete fields"):
+                split_cube_fields(malformed, root / "malformed-split")
+
+            orbital = root / "orbital.cube"
+            orbital.write_text(
+                "synthetic standard multi-dataset payload\n"
+                "negative atom count convention\n"
+                "-1 0 0 0\n"
+                "1 1 0 0\n"
+                "1 0 1 0\n"
+                "1 0 0 1\n"
+                "1 1.0 0 0 0\n"
+                "2 7 8\n"
+                "1 2\n",
+                encoding="utf-8",
+            )
+            orbital_inspection = inspect_cube_fields(orbital)
+            self.assertEqual(orbital_inspection["status"], "standard-orbital-cube-unsupported")
+            self.assertEqual(orbital_inspection["orbital_ids"], [7, 8])
+            with self.assertRaisesRegex(ValueError, "negative-atom-count"):
+                split_cube_fields(orbital, root / "orbital-split")
+
+            single = outputs["fields"][0]
+            with self.assertRaisesRegex(ValueError, "exactly one field"):
+                split_cube_fields(single, root / "single-split")
+
     def test_real_space_grid_and_bader_require_explicit_physical_references(self) -> None:
         from dftpost.realspace import normalize_bader_acf, normalize_grid_field
 
@@ -1053,6 +1176,18 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(grid_dataset["dimensions"]["grid_z"], 3)
             self.assertAlmostEqual(grid_analysis["work_function"]["work_function_ev"], 4.0)
             self.assertEqual(grid_plot["x_limits"], [0.0, 2 * 0.529177210903])
+            siesta_grid = normalize_grid_field(
+                cube,
+                "siesta",
+                root / "siesta-grid-out",
+                "dataset-real-space-siesta-grid-001",
+                field_kind="charge-density",
+                field_unit="e/bohr^3",
+                axis=2,
+            )
+            siesta_dataset = json.loads(siesta_grid["dataset"].read_text())
+            self.assertEqual(validation_errors("dataset", siesta_dataset), [])
+            self.assertEqual(siesta_dataset["code"], "siesta")
             with self.assertRaisesRegex(ValueError, "requires potential_to_ev"):
                 normalize_grid_field(
                     cube,

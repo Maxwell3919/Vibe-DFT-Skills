@@ -15,7 +15,13 @@ from .parsers import extract_summary
 from .planning import build_postprocess_plan
 from .plotting import plot_table
 from .phonon_epc import normalize_qe_epc, normalize_qe_phonon
-from .realspace import combine_cube_grids, normalize_bader_acf, normalize_grid_field
+from .realspace import (
+    combine_cube_grids,
+    inspect_cube_fields,
+    normalize_bader_acf,
+    normalize_grid_field,
+    split_cube_fields,
+)
 from .registry import load_registry, registered_aggregate_codes, registered_codes, validate_registry
 from .runtrace import normalize_run_trace
 from .structure_views import render_structure_views
@@ -284,9 +290,19 @@ def build_parser() -> argparse.ArgumentParser:
     qe_epc.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
     qe_epc.add_argument("--out-dir", type=Path, required=True)
 
+    cube_inspect = subparsers.add_parser("cube-inspect")
+    cube_inspect.add_argument("cube", type=Path)
+    cube_inspect.add_argument("--out", type=Path, required=True)
+    cube_inspect.add_argument("--overwrite", action="store_true")
+
+    cube_split = subparsers.add_parser("cube-split")
+    cube_split.add_argument("cube", type=Path)
+    cube_split.add_argument("--out-dir", type=Path, required=True)
+    cube_split.add_argument("--overwrite", action="store_true")
+
     grid_field = subparsers.add_parser("grid-field")
     grid_field.add_argument("grid", type=Path)
-    grid_field.add_argument("--code", choices=("qe", "vasp", "mixed"), required=True)
+    grid_field.add_argument("--code", choices=("qe", "vasp", "siesta", "mixed"), required=True)
     grid_field.add_argument("--field-kind", choices=("charge-density", "charge-density-difference", "electron-localization", "electrostatic-potential", "other"), required=True)
     grid_field.add_argument("--field-unit", required=True)
     grid_field.add_argument("--axis", type=int, choices=(0, 1, 2), default=2)
@@ -649,6 +665,24 @@ def main(argv: list[str] | None = None) -> int:
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
+            return 0
+        elif args.command == "cube-inspect":
+            if args.out.exists() and not args.overwrite:
+                raise ValueError(f"refusing to overwrite output: {args.out}")
+            write_json_atomic(args.out, inspect_cube_fields(args.cube))
+            print(json.dumps({"inspection": str(args.out)}, sort_keys=True))
+            return 0
+        elif args.command == "cube-split":
+            outputs = split_cube_fields(args.cube, args.out_dir, overwrite=args.overwrite)
+            print(
+                json.dumps(
+                    {
+                        "manifest": str(outputs["manifest"]),
+                        "fields": [str(path) for path in outputs["fields"]],
+                    },
+                    sort_keys=True,
+                )
+            )
             return 0
         elif args.command == "grid-field":
             outputs = normalize_grid_field(

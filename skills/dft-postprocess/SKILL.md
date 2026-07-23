@@ -61,6 +61,8 @@ The bundled CLI routes all implemented workflows through normalized CSV/JSON, se
 | Combined bands + TDOS/PDOS | `bands-dos` | normalized bands/DOS tables with typed total and projected channels; optional PDOS filters/window |
 | Crystal top/side views | `structure-views` | one or more ASE-readable structures; explicit or recorded covalent graphical-connectivity mode and optional element display overrides |
 | QE phonon/EPC | `qe-phonon`, `qe-epc` | frequency unit; alpha2F/lambda inputs and explicit smearing selections |
+| Cube payload diagnosis | `cube-inspect` | one Cube file; reports the declared grid size, exact payload count, field count when divisible, and unsupported standard multi-dataset convention without assigning field semantics |
+| Legacy concatenated Cube split | `cube-split` | a positive-atom-count Cube whose payload is an exact multiple greater than one of the declared grid size; outputs neutral indexed fields plus a hash-bearing manifest |
 | Grid/ELF/potential/2D section | `grid-field` | code, field kind/unit, averaging axis; optional explicit `(hkl)`, offset, in-plane origin/window, atom overlay, colormap/range; work function additionally needs conversion, Fermi reference, and vacuum window |
 | Linear grid combination | `grid-combine` | at least two explicit `coefficient=path` Cube components, common geometry, field unit, and structure-source component |
 | Structure + 3D isosurfaces | `vesta-isosurface` | VESTA CLI, grid, field and isovalue units, positive/negative mode, explicit isovalue, colors/opacity, scale, and view rotation |
@@ -68,6 +70,8 @@ The bundled CLI routes all implemented workflows through normalized CSV/JSON, se
 | Generic NEB/optical | `neb-table`, `optical-table` | caller-mapped columns, units/reference or component/broadening declarations |
 
 Use `--overwrite` only for an intentional atomic replacement of derived files. Raw inputs are never overwrite targets.
+
+Run `cube-inspect` before normalizing any Cube whose payload length does not match its header. `grid-field` fails closed on concatenated payloads and reports the exact observed value count. `cube-split` is only a compatibility route for a positive-atom-count legacy file containing two or more complete fields; it does not split the standard negative-atom-count orbital/multi-dataset convention. Keep the generated `field-NNN.cube` names and manifest semantically neutral until independent calculation evidence establishes each field's meaning and unit. Only then use `grid-combine` with explicit coefficients.
 
 For a machine-generated plan, supply file evidence with `--evidence role=relative/path` and non-file semantics with `--parameter name=value`. Missing required parameters block the plan; the planner must not emit placeholders that look executable.
 

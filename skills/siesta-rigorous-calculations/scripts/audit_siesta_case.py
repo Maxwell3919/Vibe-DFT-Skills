@@ -23,7 +23,7 @@ if str(SCRIPT_DIR) not in sys.path:
 from create_siesta_plan import normalize_version, validate_plan
 
 
-TOOL_VERSION = "2.1.0"
+TOOL_VERSION = "2.2.0"
 SCHEMA_VERSION = "2.0"
 SKILL_ROOT = SCRIPT_DIR.parent
 REFERENCES = SKILL_ROOT / "references"
@@ -338,7 +338,27 @@ def parse_output_text(text: str) -> dict[str, Any]:
         "ERROR_MARKER": r"^\s*(?:siesta:\s*)?ERROR\b",
     }
     fatal = [code for code, pattern in fatal_patterns.items() if re.search(pattern, text, re.IGNORECASE | re.MULTILINE)]
-    warnings = len(re.findall(r"^\s*(?:siesta:\s*)?WARNING\b", text, re.IGNORECASE | re.MULTILINE))
+    warning_lines = [
+        match.group(1).strip()
+        for match in re.finditer(
+            r"^\s*(?:siesta:\s*)?(WARNING\b[^\r\n]*)",
+            text,
+            re.IGNORECASE | re.MULTILINE,
+        )
+    ]
+    known_advisory_warnings = {
+        "warning: basis_enthalpy and basis_harris_enthalpy files are deprecated. they will be removed in future releases."
+    }
+    advisory_warnings = [
+        line
+        for line in warning_lines
+        if line.casefold() in known_advisory_warnings
+    ]
+    unresolved_warnings = [
+        line
+        for line in warning_lines
+        if line.casefold() not in known_advisory_warnings
+    ]
     observables: dict[str, dict[str, Any]] = {}
     if total_values and total_values[-1] is not None:
         observables["total_energy"] = {"value": total_values[-1], "unit": "eV", "source": "final_energy_block"}
@@ -358,7 +378,9 @@ def parse_output_text(text: str) -> dict[str, Any]:
         "scf_cycle_count": len(scf_iterations),
         "scf_iterations": scf_iterations,
         "fatal_markers": fatal,
-        "warning_count": warnings,
+        "warning_count": len(unresolved_warnings),
+        "unresolved_warnings": unresolved_warnings,
+        "advisory_warnings": advisory_warnings,
         "relaxed_coordinates": bool(re.search(r"outcoor:\s*Relaxed atomic coordinates", text, re.IGNORECASE)),
         "unrelaxed_coordinates": bool(re.search(r"outcoor:\s*Final \(unrelaxed\)", text, re.IGNORECASE)),
         "force_rows": force_rows,
@@ -604,6 +626,26 @@ def audit(
         add("numerical_controls", "SCF_MUST_CONVERGE_NOT_TRUE", "SCF.MustConverge must be explicitly true.")
     if (as_int(scalars.get("maxscfiterations")) or 0) <= 0:
         add("numerical_controls", "SCF_ITERATION_LIMIT_INVALID", "MaxSCFIterations must be positive.")
+    spin_tokens = scalars.get("spin")
+    supported_spin_values = {
+        "non-polarized",
+        "polarized",
+        "non-colinear",
+        "spin-orbit",
+        "spin-orbit+onsite",
+    }
+    if (
+        spin_tokens is not None
+        and (
+            len(spin_tokens) != 1
+            or spin_tokens[0].casefold() not in supported_spin_values
+        )
+    ):
+        add(
+            "numerical_controls",
+            "SPIN_VALUE_INVALID",
+            "Spin must use a SIESTA 5.4.2 value: non-polarized, polarized, non-colinear, spin-orbit, or spin-orbit+onsite.",
+        )
     if "paobasis" not in blocks and not ({"paobasissize", "paoenergyshift"} <= set(scalars)):
         add("numerical_controls", "BASIS_DEFINITION_INCOMPLETE", "Provide PAO.Basis or both PAO.BasisSize and PAO.EnergyShift.")
 

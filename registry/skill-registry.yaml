@@ -61,7 +61,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/siesta-rigorous-calculations
-    source_tree_sha256: "3cdd302af0889c6e46dbc932313ed89c8eaa9e7eb9c0058782266354d33ccc03"
+    source_tree_sha256: "b024392ae1fa790019020ec85f113b63165c921cba67b5f88b1ccee9dd6bc5ec"
     side_effects: [network-read, local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -73,7 +73,7 @@ skills:
     kind: postprocess
     lifecycle: active
     path: skills/dft-postprocess
-    source_tree_sha256: "f4dde262a2e86968388c1e2b802d4cb4b8a31e1e9a9a18b6fb58284c1df19ef7"
+    source_tree_sha256: "d70ac3507092fc4dc6fb05a6c9c4133f0b19600a3f50e652736a66dba03bd8dc"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0
