@@ -25,7 +25,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/qe-rigorous-calculations
-    source_tree_sha256: "19c333f8cdbb126684cec26b44947c6c2b13fcf835713063bae896848182a142"
+    source_tree_sha256: "efad6e79af6c31de57d15bdae0541201e3b024ea118b93d6f332a91fa9e3b73c"
     side_effects: [network-read, local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -49,7 +49,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/cp2k-rigorous-calculations
-    source_tree_sha256: "142367b77fd10f7355eb9495e1d9fb54f3eaf650fd5428a5e3847f34d12c2be6"
+    source_tree_sha256: "c363355d6e32542edcd00aea34f13d9b26233c452434894982fbb0c1c9fec84a"
     side_effects: [network-read, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -61,7 +61,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/siesta-rigorous-calculations
-    source_tree_sha256: "5298399befeaf42ab7dfdb36e7d63a48a363c80c5ee223724554e7d677c9bf27"
+    source_tree_sha256: "3cdd302af0889c6e46dbc932313ed89c8eaa9e7eb9c0058782266354d33ccc03"
     side_effects: [network-read, local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -73,7 +73,7 @@ skills:
     kind: postprocess
     lifecycle: active
     path: skills/dft-postprocess
-    source_tree_sha256: "a4449f5d63f4aade8a9061a571aabce834ecc90990c08c7846424b51bed59a27"
+    source_tree_sha256: "f4dde262a2e86968388c1e2b802d4cb4b8a31e1e9a9a18b6fb58284c1df19ef7"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0

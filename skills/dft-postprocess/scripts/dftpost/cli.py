@@ -80,6 +80,22 @@ def _float_mapping(specifications: list[str], label: str) -> dict[str, float]:
     return result
 
 
+def _symmetry_points(specifications: list[str]) -> list[dict[str, object]]:
+    result: list[dict[str, object]] = []
+    for specification in specifications:
+        if "=" not in specification:
+            raise ValueError("symmetry-point specifications must use LABEL=DISTANCE")
+        label, distance_text = specification.rsplit("=", 1)
+        if not label.strip() or not distance_text:
+            raise ValueError("symmetry-point specifications require a label and distance")
+        try:
+            distance = float(distance_text)
+        except ValueError as exc:
+            raise ValueError(f"invalid symmetry-point distance: {distance_text}") from exc
+        result.append({"label": label.strip(), "k_distance": distance})
+    return result
+
+
 def _bond_mapping(specifications: list[str]) -> dict[frozenset[str], float]:
     result: dict[frozenset[str], float] = {}
     for pair, value in _float_mapping(specifications, "bond").items():
@@ -149,6 +165,13 @@ def build_parser() -> argparse.ArgumentParser:
     qe_bands.add_argument("--energy-reference", type=Path, required=True)
     qe_bands.add_argument("--dataset-id", required=True)
     qe_bands.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
+    qe_bands.add_argument(
+        "--symmetry-point",
+        action="append",
+        default=[],
+        metavar="LABEL=DISTANCE",
+        help="caller-supplied high-symmetry label and sampled native path coordinate; repeat in path order",
+    )
     qe_bands.add_argument("--figure", type=Path)
     qe_bands.add_argument("--overwrite", action="store_true")
     qe_bands.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
@@ -369,6 +392,11 @@ def build_parser() -> argparse.ArgumentParser:
     bands_dos.add_argument("--bands-table", type=Path, required=True)
     bands_dos.add_argument("--dos-table", type=Path, required=True)
     bands_dos.add_argument(
+        "--bands-metadata",
+        type=Path,
+        help="bands.plot.json containing validated high_symmetry_points",
+    )
+    bands_dos.add_argument(
         "--pdos-channel",
         action="append",
         default=[],
@@ -485,6 +513,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.dataset_id,
                 figure_output=args.figure,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
+                symmetry_points=_symmetry_points(args.symmetry_point),
                 maturity=args.maturity,
                 overwrite=args.overwrite,
             )
@@ -748,6 +777,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.out,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
                 pdos_channel_labels=args.pdos_channel or None,
+                bands_metadata_path=args.bands_metadata,
                 overwrite=args.overwrite,
             )
             metadata["command"] = list(sys.argv if argv is None else ["dftpost", *argv])

@@ -44,6 +44,7 @@ The parser does not evaluate CP2K preprocessing, defaults, unit expressions, top
 ## Evidence handling
 
 - Hash inputs, outputs, and external basis/potential data without emitting absolute paths.
+- Bind basis/potential declarations to exact output basenames or to an unambiguous basename prefix when CP2K's fixed-width `GLOBAL|` echo truncates a long absolute path; still require separate full-file hash evidence.
 - Emit safe enum/numeric summaries, finding codes, counts, hashes, and gate states rather than raw lines.
 - Redact warning and error text. Never execute strings found in an input or output.
 - Treat duplicated start markers, input-output identity mismatches, runtime/MPI warnings, nonzero CP2K warning counts, nonconverged SCF markers, fatal markers, missing version identity, and absent supported completion markers as blockers.

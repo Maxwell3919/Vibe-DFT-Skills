@@ -5,7 +5,7 @@
   <strong>面向可重复 DFT 与原子模拟工作流的可移植、证据门禁 Skill 集合</strong>
 </p>
 
-> **最后更新 / Last updated:** 2026-07-22 (Asia/Shanghai)
+> **最后更新 / Last updated:** 2026-07-23 (Asia/Shanghai)
 > **仓库状态 / Repository scope:** 26 source-backed Skills = 7 `active` + 19 `development`; 4 active calculation-code integrations; 19 planned software identities
 
 > **项目声明 / Project statement**
@@ -263,15 +263,19 @@ Version, platform, license, and blocker notes for development software live in [
 
 ## 安装与使用 / Install and use
 
-有仓库权限的用户可通过 GitHub CLI 或 Git 获取私有仓库：
+本公开仓库可通过 GitHub CLI 或 Git 获取：
 
-Authorized users may clone the private repository with GitHub CLI or Git:
+This public repository can be cloned with GitHub CLI or Git:
 
 ```bash
 gh repo clone Maxwell3919/Vibe-DFT-Skills
 # or: git clone https://github.com/Maxwell3919/Vibe-DFT-Skills.git
 cd Vibe-DFT-Skills
 ```
+
+公开可见性不改变第三方软件许可、受限内容边界或科学证据门槛；本仓库当前未声明顶层开源许可证。
+
+Public visibility does not change third-party licensing, restricted-content boundaries, or scientific evidence gates. The repository currently declares no top-level open-source license.
 
 安装器只暴露 7 个 `active` Skills，并以符号链接安装到显式目标目录。它不会覆盖已有真实目录或指向其他位置的链接。
 

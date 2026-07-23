@@ -14,7 +14,7 @@ import sys
 from typing import Any, Iterable
 
 
-AUDITOR_VERSION = "2.0.0"
+AUDITOR_VERSION = "2.1.0"
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 TASK_PROFILE_PATH = SKILL_ROOT / "references" / "task-evidence-profiles.json"
 METHOD_PROFILE_PATH = SKILL_ROOT / "references" / "method-evidence-profiles.json"
@@ -418,6 +418,21 @@ def input_output_identity(sections: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def file_identity_sets_match(observed: set[str], expected: set[str]) -> bool:
+    """Match exact basenames or CP2K's unambiguous fixed-width truncations."""
+    if observed == expected:
+        return True
+    if len(observed) != len(expected) or not observed:
+        return False
+    remaining = set(expected)
+    for value in sorted(observed):
+        candidates = {item for item in remaining if len(value) >= 7 and item.startswith(value)}
+        if len(candidates) != 1:
+            return False
+        remaining.remove(candidates.pop())
+    return not remaining
+
+
 def data_evidence(paths: Iterable[Path], declared: set[str], findings: list[dict[str, str]]) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     by_name: dict[str, Path] = {}
@@ -542,8 +557,8 @@ def inspect_output(
         findings.append({"severity": "error", "code": "run-type-echo-mismatch", "message": "Input and output run types differ"})
 
     project_match = len(project_matches) == 1 and project_matches[0] == expected_identity.get("project")
-    basis_match = bool(output_basis) and output_basis == expected_identity.get("basis_files")
-    potential_match = bool(output_potential) and output_potential == expected_identity.get("potential_files")
+    basis_match = file_identity_sets_match(output_basis, expected_identity.get("basis_files", set()))
+    potential_match = file_identity_sets_match(output_potential, expected_identity.get("potential_files", set()))
     run_type_match = bool(input_run_type and run_type and input_run_type == run_type)
     if len(project_matches) != 1 or not output_basis or not output_potential:
         findings.append(
@@ -775,6 +790,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", type=Path)
     parser.add_argument("--data-file", action="append", type=Path, default=[])
     parser.add_argument("--evidence", action="append", default=[], metavar="ROLE=PATH")
+    parser.add_argument("--out", type=Path, help="Write the same JSON report to this path.")
     parser.add_argument("--pretty", action="store_true")
     return parser
 
@@ -795,7 +811,10 @@ def main() -> int:
         data_files=args.data_file,
         evidence_files=evidence_files,
     )
-    print(json.dumps(result, ensure_ascii=False, indent=2 if args.pretty else None, sort_keys=True))
+    payload = json.dumps(result, ensure_ascii=False, indent=2 if args.pretty else None, sort_keys=True) + "\n"
+    if args.out is not None:
+        args.out.write_text(payload, encoding="utf-8")
+    print(payload, end="")
     return 0 if result["decision"] == "pass" else 2
 
 

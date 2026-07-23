@@ -87,6 +87,19 @@ Job completed
     return run + (run if duplicate else "")
 
 
+def minimal_pbe_psml() -> str:
+    return """<?xml version="1.0" encoding="UTF-8"?>
+<psml version="1.1">
+  <exchange-correlation>
+    <libxc-info number-of-functionals="2">
+      <functional name="Perdew, Burke &amp; Ernzerhof (GGA)" type="exchange" id="101" />
+      <functional name="Perdew, Burke &amp; Ernzerhof (GGA)" type="correlation" id="130" />
+    </libxc-info>
+  </exchange-correlation>
+</psml>
+"""
+
+
 class CaseBuilder:
     def make_plan(self, root: Path, *, task: str = "scf", observable: str = "total_energy", abs_tol: float = 0.003, case_id: str = "case-siesta") -> Path:
         plan = build_plan(
@@ -115,7 +128,8 @@ class CaseBuilder:
         input_path = root / "input.fdf"
         input_path.write_text(text, encoding="utf-8")
         for pseudo in pseudos:
-            (root / pseudo).write_text("SYNTHETIC TEST PSEUDOPOTENTIAL CONTENT\n", encoding="utf-8")
+            content = minimal_pbe_psml() if Path(pseudo).suffix.casefold() == ".psml" else "SYNTHETIC TEST PSEUDOPOTENTIAL CONTENT\n"
+            (root / pseudo).write_text(content, encoding="utf-8")
         if manifest and pseudos:
             selected = root / pseudos[0]
             expected = hashlib.sha256(selected.read_bytes()).hexdigest()
@@ -194,6 +208,22 @@ class SiestaAuditTests(unittest.TestCase, CaseBuilder):
             self.assertEqual(report["evidence"]["input_echo"]["status"], "exact_normalized_match")
             self.assertEqual(report["evidence"]["observables"]["total_energy"]["value"], -10.25)
             self.assertEqual(report["maximum_conclusion"], "technical_run_gates_passed_scientific_claim_blocked")
+
+    def test_runtime_version_header_from_siesta_5_4_2_is_recognized(self) -> None:
+        parsed = parse_output_text("Version         : 5.4.2\n")
+        self.assertEqual(parsed["versions"], ["5.4.2"])
+
+    def test_psml_embedded_xc_disagreement_blocks_false_manifest_claim(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            input_path, plan = self.make_case(root, fdf_text())
+            manifest_path = root / "pseudopotential-manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["pseudopotentials"][0]["xc_family"] = "LDA-PW92"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report, status = self.run_audit(input_path, plan)
+            self.assertEqual(status, 2)
+            self.assertIn("PSEUDO_PSML_XC_MISMATCH", {item["code"] for item in report["findings"]})
 
     def test_atom_count_mismatch_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

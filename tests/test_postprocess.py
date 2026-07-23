@@ -15,12 +15,60 @@ sys.path.insert(0, str(POST_SCRIPTS))
 
 from dftpost.capabilities import detect_capabilities  # noqa: E402
 from dftpost.inventory import build_inventory  # noqa: E402
-from dftpost.manifests import build_artifact_manifest, validation_errors  # noqa: E402
+from dftpost.manifests import build_artifact_manifest, validate_manifest, validation_errors  # noqa: E402
 from dftpost.parsers import extract_summary  # noqa: E402
 from dftpost.plotting import plot_table  # noqa: E402
 
 
 class PostprocessTests(unittest.TestCase):
+    def test_campaign_validation_resolves_local_common_definition_urn(self) -> None:
+        source_sha = "a" * 64
+        campaign = {
+            "schema_version": "1.0",
+            "record_id": "campaign-validation-001",
+            "run_manifest_id": "run-validation-001",
+            "source_run_ref": {
+                "contract_name": "run-manifest",
+                "schema_version": "1.0",
+                "record_id": "run-validation-001",
+                "sha256": source_sha,
+                "role": "source-run",
+            },
+            "code": "qe",
+            "code_version": "7.5",
+            "task_type": "scf",
+            "system_class": "anonymous-small-system",
+            "atom_count": 9,
+            "scientific_protocol_id": "protocol-validation-001",
+            "configuration_id": "configuration-validation-001",
+            "configuration": {"mpi_ranks": 4},
+            "metrics": {"wall_time_s": 1.0, "core_hours": 0.001},
+            "outcome": {
+                "scientifically_accepted": False,
+                "scientific_acceptance": "not_assessed",
+                "status": "completed-unreviewed",
+                "accuracy_metrics": {},
+                "failure_code": None,
+            },
+            "acceptance_evidence": {
+                "calculation_record_ref": None,
+                "decision_ref": None,
+                "postdecision_claim_map_ref": None,
+            },
+            "source_manifest_sha256": source_sha,
+            "recorded_utc": "2026-07-23T00:00:00+00:00",
+        }
+        self.assertEqual(validation_errors("campaign", campaign), [])
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "campaign.json"
+            path.write_text(json.dumps(campaign), encoding="utf-8")
+            self.assertEqual(validate_manifest("campaign", path), [])
+
+            path.write_text('{"schema_version":"1.0","schema_version":"1.0"}', encoding="utf-8")
+            errors = validate_manifest("campaign", path)
+            self.assertTrue(any("duplicate" in item.lower() for item in errors))
+
     def test_observable_registry_is_machine_validated(self) -> None:
         from dftpost.registry import load_registry, validate_registry
 
@@ -393,6 +441,7 @@ class PostprocessTests(unittest.TestCase):
                 [
                     sys.executable, str(POST_SCRIPTS / "dftpost_cli.py"), "qe-bands", str(bands),
                     "--energy-reference", str(reference), "--dataset-id", "dataset-cli-bands-001",
+                    "--symmetry-point", "Γ=0", "--symmetry-point", "X=1",
                     "--out-dir", str(root / "bands-out"),
                 ],
                 capture_output=True,
@@ -417,6 +466,7 @@ class PostprocessTests(unittest.TestCase):
                 [
                     sys.executable, str(POST_SCRIPTS / "dftpost_cli.py"), "bands-dos",
                     "--bands-table", str(root / "bands-out" / "bands.csv"),
+                    "--bands-metadata", str(root / "bands-out" / "bands.plot.json"),
                     "--dos-table", str(root / "dos-out" / "dos.csv"),
                     "--pdos-channel", "projected-total",
                     "--out", str(root / "bands-tdos-pdos.png"),
@@ -432,6 +482,14 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(combined_metadata["dos_content"], "tdos+pdos")
             self.assertEqual(combined_metadata["tdos_channel_labels"], ["total"])
             self.assertEqual(combined_metadata["pdos_channel_labels"], ["projected-total"])
+            self.assertEqual(
+                combined_metadata["high_symmetry_points"],
+                [{"label": "Γ", "k_distance": 0.0}, {"label": "X", "k_distance": 1.0}],
+            )
+            self.assertIn(
+                "bands-plot-metadata",
+                [item["role"] for item in combined_metadata["inputs"]],
+            )
 
     def test_qe_dos_normalizer_aggregates_standard_projected_files(self) -> None:
         from dftpost.electronic import normalize_qe_dos
@@ -466,6 +524,30 @@ class PostprocessTests(unittest.TestCase):
             self.assertAlmostEqual(projected["value_at_reference"], 1.0)
             self.assertAlmostEqual(projected["window_integral"], 1.5)
             self.assertGreater(result["figure"].stat().st_size, 0)
+
+    def test_qe_projected_dos_grid_mismatch_recommends_matching_pdos_total(self) -> None:
+        from dftpost.electronic import normalize_qe_dos
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            total = root / "sample.dos"
+            total.write_text(
+                "# E (eV) dos(E) Int dos(E) EFermi = 0.000 eV\n-1 1 0\n0 2 1\n1 1 2\n",
+                encoding="utf-8",
+            )
+            projected = root / "sample.pdos_atm#1(A)_wfc#1(s)"
+            projected.write_text(
+                "# E (eV) ldos(E) pdos(E)\n-1 0.2 0.2\n0.5 0.4 0.4\n1 0.2 0.2\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, r"matching prefix\.pdos_tot"):
+                normalize_qe_dos(
+                    total,
+                    [projected],
+                    root / "derived",
+                    "dataset-dos-grid-mismatch-001",
+                    maturity="format-fixture-validated",
+                )
 
     def test_qe_filproj_fatband_requires_and_applies_selector(self) -> None:
         from dftpost.electronic import (
@@ -571,6 +653,71 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(metadata["pdos_channel_labels"], ["A:s"])
             self.assertEqual(metadata["dos_channel_labels"], ["total", "A:s"])
             self.assertGreater((root / "bands-dos.png").stat().st_size, 0)
+
+    def test_qe_symmetry_points_propagate_to_combined_bands_dos(self) -> None:
+        from dftpost.electronic import normalize_qe_bands, plot_bands_dos
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bands_source = root / "bands.gnu"
+            bands_source.write_text("0 -1\n1 -0.5\n2 -1\n\n0 1\n1 0.5\n2 1\n")
+            reference = root / "nscf.out"
+            reference.write_text("the Fermi energy is 0.0 ev\n")
+            symmetry_points = [
+                {"label": "Γ", "k_distance": 0.0},
+                {"label": "X", "k_distance": 1.0},
+                {"label": "M", "k_distance": 2.0},
+            ]
+            bands_result = normalize_qe_bands(
+                bands_source,
+                reference,
+                root / "bands-out",
+                "dataset-labeled-bands-001",
+                symmetry_points=symmetry_points,
+            )
+            bands_plot = json.loads(bands_result["plot_metadata"].read_text())
+            bands_analysis = json.loads(bands_result["analysis"].read_text())
+            self.assertEqual(bands_plot["high_symmetry_points"], symmetry_points)
+            self.assertEqual(bands_analysis["high_symmetry_points"], symmetry_points)
+
+            dos_table = root / "dos.csv"
+            dos_table.write_text(
+                "energy_relative_ev,channel_label,channel_type,dos_states_per_ev\n"
+                "-1,total,total,0.5\n0,total,total,2.0\n1,total,total,0.5\n"
+                "-1,A:s,projected,0.2\n0,A:s,projected,0.8\n1,A:s,projected,0.2\n"
+            )
+            combined = plot_bands_dos(
+                bands_result["table"],
+                dos_table,
+                root / "bands-dos.png",
+                bands_metadata_path=bands_result["plot_metadata"],
+            )
+            self.assertEqual(combined["high_symmetry_points"], symmetry_points)
+            self.assertIn(
+                "bands-plot-metadata",
+                [item["role"] for item in combined["inputs"]],
+            )
+
+            duplicate_metadata = root / "duplicate-bands.plot.json"
+            duplicate_metadata.write_text(
+                '{"high_symmetry_points": [], "high_symmetry_points": []}\n'
+            )
+            with self.assertRaisesRegex(ValueError, "could not read bands plot metadata"):
+                plot_bands_dos(
+                    bands_result["table"],
+                    dos_table,
+                    root / "duplicate-metadata-must-fail.png",
+                    bands_metadata_path=duplicate_metadata,
+                )
+
+            with self.assertRaisesRegex(ValueError, "outside the band path range"):
+                normalize_qe_bands(
+                    bands_source,
+                    reference,
+                    root / "invalid-bands-out",
+                    "dataset-invalid-labeled-bands-001",
+                    symmetry_points=[{"label": "Γ", "k_distance": 3.0}],
+                )
 
     def test_combined_bands_dos_keeps_tdos_when_pdos_is_filtered(self) -> None:
         from dftpost.electronic import normalize_qe_bands, plot_bands_dos

@@ -25,6 +25,8 @@ Evaluate in order; later observations never repair an earlier failed gate.
 
 The auditor automates 1–14 for its SCF/direct-FDF surface and 16 for fixed-cell relaxation. Input mode marks run-only gates not applicable. A single audit leaves 15 and 17 not assessed and 18 blocked. The convergence analyzer can support 15 only; it does not upgrade 16–18.
 
+SIESTA 5.4.2 writes a separate effective `fdf.*.log` containing defaults but exposes no CLI switch that embeds the direct input in standard output. A run wrapper must therefore prepend the exact direct FDF between the auditor's unique input-dump markers before appending SIESTA stdout. Do not substitute the expanded effective-FDF log for direct-input equality.
+
 ## Failure precedence
 
 - Any error finding blocks the whole audit, even if it belongs to a gate outside the normal positive core.

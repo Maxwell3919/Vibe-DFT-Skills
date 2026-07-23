@@ -20,6 +20,7 @@ The format follows Keep a Changelog principles, with additional sections for lif
 ### Changed
 
 - Reconciled the planned environment authority with the content review: the internal `ovito-basic` profile now means the standalone `ovito` Python module, GPUMD v5.3 records `GPL-3.0-or-later`, and LASP records the publicly visible 3.7.3 academic/professional edition and Intel compiler/MPI baseline without treating them as native execution evidence.
+- Updated repository-facing documentation for public GitHub visibility without changing Skill lifecycles, scientific evidence gates, third-party license boundaries, or the absence of a top-level repository license.
 
 ### Lifecycle
 
