@@ -1,0 +1,82 @@
+{
+  "authorities": [
+    {
+      "authority_id": "lammps-release-source-docs-patch-4jul2026",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "b54f0e7b0fb0003d6cec2e53c3b222211f4915c0"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/lammps/lammps/b54f0e7b0fb0003d6cec2e53c3b222211f4915c0/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "lammps-release-source-docs-patch-4jul2026",
+        "binding_id": "lammps-rigorous-simulations-lammps-docs",
+        "claim_effect": "none",
+        "provider_input_id": "lammps-docs",
+        "required_disposition": "blocked",
+        "skill_id": "lammps-rigorous-simulations"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "GPL-2.0-only",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/lammps/lammps/b54f0e7b0fb0003d6cec2e53c3b222211f4915c0/LICENSE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact release source documentation does not prove the local binary build, compiled package/style availability, potential identity, runtime behavior, convergence, or scientific acceptance."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "lammps",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "4Jul2026",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "A blocked development consumer and lifecycle-decoupled authority must pass central authority/consumer validation before pack generation.",
+    "Keep examples, potential files, binary help, and compiled package/style identities outside the manual authority unless separately inventoried and licensed."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "lammps-rigorous-simulations"
+}

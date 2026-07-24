@@ -220,6 +220,34 @@ def valid_qe_envelope() -> dict[str, object]:
                     "limitations": [],
                 },
                 {
+                    "id": "ev-official",
+                    "role": "official-source-snapshot",
+                    "status": "present",
+                    "sha256": "f" * 64,
+                    "record_ref": record_ref(
+                        "official-source-record",
+                        "qe-official-source",
+                        "f" * 64,
+                        "official-source",
+                    ),
+                    "source_label": "qe-official-source.json",
+                    "limitations": [],
+                },
+                {
+                    "id": "ev-reference",
+                    "role": "official-source-resolution-report",
+                    "status": "present",
+                    "sha256": "9" * 64,
+                    "record_ref": record_ref(
+                        "tool-execution",
+                        "tool-reference",
+                        "9" * 64,
+                        "tool-report",
+                    ),
+                    "source_label": "qe-reference-report.json",
+                    "limitations": [],
+                },
+                {
                     "id": "ev-audit",
                     "role": "input-audit",
                     "status": "present",
@@ -243,9 +271,27 @@ def valid_qe_envelope() -> dict[str, object]:
                 "report_sha256": "c" * 64,
                 "gate_ids": ["input-integrity"],
                 "finding_codes": [],
+            },
+            {
+                "id": "tool-reference",
+                "action_id": "qe.reference",
+                "tool": "qe_guard.py reference --live-check",
+                "required": True,
+                "status": "succeeded",
+                "exit_code": 0,
+                "report_sha256": "9" * 64,
+                "gate_ids": ["official-source-coverage"],
+                "finding_codes": [],
             }
         ],
         "gates": [
+            {
+                "id": "official-source-coverage",
+                "native_status": "pass",
+                "status": "pass",
+                "evidence_ids": ["ev-official", "ev-reference"],
+                "finding_codes": [],
+            },
             {
                 "id": "input-integrity",
                 "native_status": "pass",
@@ -399,30 +445,17 @@ def documented_qe_envelope() -> dict[str, object]:
         "evidence_ids": ["ev-official"],
         "limitations": ["No input, execution, convergence, or scientific result is claimed."],
     }
-    data["evidence"]["items"].append(  # type: ignore[index]
-        {
-            "id": "ev-official",
-            "role": "official-source-snapshot",
-            "status": "present",
-            "sha256": "f" * 64,
-            "record_ref": record_ref(
-                "official-source-record",
-                "qe-official-source",
-                "f" * 64,
-                "official-source",
-            ),
-            "source_label": "qe-official-source.json",
-            "limitations": [],
-        }
-    )
     data["tool_runs"] = []
-    data["gates"][0] = {  # type: ignore[index]
-        "id": "official-source-coverage",
-        "native_status": "pass",
-        "status": "pass",
-        "evidence_ids": ["ev-official"],
-        "finding_codes": [],
-    }
+    data["gates"] = [  # type: ignore[index]
+        {
+            "id": "official-source-coverage",
+            "native_status": "pass",
+            "status": "pass",
+            "evidence_ids": ["ev-official"],
+            "finding_codes": [],
+        },
+        data["gates"][-1],  # type: ignore[index]
+    ]
     data["supported_facts"] = [
         {
             "id": "fact-documented",
@@ -503,6 +536,17 @@ def accepted_qe_envelope() -> dict[str, object]:
             "finding_codes": [],
         },
         {
+            "id": "tool-reference",
+            "action_id": "qe.reference",
+            "tool": "qe_guard.py reference --live-check",
+            "required": True,
+            "status": "succeeded",
+            "exit_code": 0,
+            "report_sha256": "9" * 64,
+            "gate_ids": ["official-source-coverage"],
+            "finding_codes": [],
+        },
+        {
             "id": "tool-validate-handoff",
             "action_id": "qe.validate-handoff",
             "tool": "validate_contract.py run",
@@ -521,6 +565,13 @@ def accepted_qe_envelope() -> dict[str, object]:
         },
     ]
     data["gates"] = [
+        {
+            "id": "official-source-coverage",
+            "native_status": "pass",
+            "status": "pass",
+            "evidence_ids": ["ev-official", "ev-reference"],
+            "finding_codes": [],
+        },
         {
             "id": "input-integrity",
             "native_status": "pass",
@@ -674,6 +725,236 @@ class RouteRegistryTests(unittest.TestCase):
         canonical = tuple(COMMON["$defs"]["claimCeiling"]["enum"])
         self.assertEqual(operation_routes.CLAIM_CEILINGS, canonical)
         self.assertEqual(tuple(SCHEMA["$defs"]["claim_ceiling"]["enum"]), canonical)
+
+    def test_active_claim_profiles_monotonically_inherit_all_of_gates(self) -> None:
+        """A stronger claim may add mandatory gates, but must not discard one."""
+
+        for skill_name, route in ROUTES["routes"].items():
+            if route["lifecycle"] != "active":
+                continue
+            maximum_index = operation_routes.CLAIM_CEILINGS.index(route["maximum_claim"])
+            inherited: set[str] = set()
+            for level in operation_routes.CLAIM_CEILINGS[: maximum_index + 1]:
+                profile = route["claim_gate_profile"][level]
+                # No structured waiver exists in schema 1.0. Adding one must be
+                # an explicit contract change rather than an unreviewed escape.
+                self.assertEqual(set(profile), {"all_of", "any_of"})
+                current = set(profile["all_of"])
+                self.assertFalse(
+                    inherited - current,
+                    (
+                        f"{skill_name} {level} dropped mandatory gates "
+                        f"{sorted(inherited - current)} from a weaker claim profile"
+                    ),
+                )
+                inherited.update(current)
+
+    def test_stronger_profiles_preserve_documented_behavior_prerequisites(self) -> None:
+        """Higher claims must still satisfy the documented-behavior gate."""
+
+        targeted_routes = {
+            "cif-structure-analysis",
+            "qe-rigorous-calculations",
+            "vasp-rigorous-calculations",
+            "cp2k-rigorous-calculations",
+            "dft-postprocess",
+            "dft-campaign-efficiency",
+        }
+        for skill_name in sorted(targeted_routes):
+            route = ROUTES["routes"][skill_name]
+            documented = route["claim_gate_profile"]["documented_behavior_only"]
+            documented_all = set(documented["all_of"])
+            documented_any = set(documented["any_of"])
+            maximum_index = operation_routes.CLAIM_CEILINGS.index(route["maximum_claim"])
+            stronger_levels = operation_routes.CLAIM_CEILINGS[2 : maximum_index + 1]
+            for level in stronger_levels:
+                with self.subTest(skill=skill_name, level=level):
+                    stronger = route["claim_gate_profile"][level]
+                    stronger_all = set(stronger["all_of"])
+                    stronger_any = set(stronger["any_of"])
+                    self.assertTrue(
+                        documented_all <= stronger_all,
+                        (
+                            f"{skill_name} {level} dropped documented-behavior "
+                            f"all_of gates {sorted(documented_all - stronger_all)}"
+                        ),
+                    )
+                    if documented_any:
+                        # An earlier any_of remains mandatory only if the same
+                        # (or a narrower) choice set remains, or one option is
+                        # promoted to an unconditional all_of requirement.
+                        preserved = bool(documented_any & stronger_all) or (
+                            bool(stronger_any) and stronger_any <= documented_any
+                        )
+                        self.assertTrue(
+                            preserved,
+                            (
+                                f"{skill_name} {level} no longer requires any "
+                                "documented-behavior alternative from "
+                                f"{sorted(documented_any)}"
+                            ),
+                        )
+
+    def test_action_templates_include_conditionally_required_arguments(self) -> None:
+        expected_pairs = {
+            ("qe-rigorous-calculations", "qe.audit-run"): ("--stderr", "<stderr>"),
+            ("qe-rigorous-calculations", "qe.convergence"): ("--direction", "<direction>"),
+            ("vasp-rigorous-calculations", "vasp.audit-run"): (
+                "--expected-vasp-version",
+                "<expected_vasp_version>",
+            ),
+        }
+        for (skill_name, action_id), (flag, placeholder) in expected_pairs.items():
+            with self.subTest(skill=skill_name, action=action_id):
+                actions = ROUTES["routes"][skill_name]["actions"]
+                argv = actions[action_id]["argv"]
+                self.assertEqual(argv.count(flag), 1)
+                index = argv.index(flag)
+                self.assertLess(index + 1, len(argv))
+                self.assertEqual(argv[index + 1], placeholder)
+
+    def test_stronger_calculation_modes_register_official_source_resolver(self) -> None:
+        """Require a resolver step; exact-set coverage remains a separate contract."""
+
+        resolvers = {
+            "qe-rigorous-calculations": "qe.reference",
+            "vasp-rigorous-calculations": "vasp.reference",
+            "cp2k-rigorous-calculations": "cp2k.reference",
+        }
+        for skill_name, resolver in resolvers.items():
+            route = ROUTES["routes"][skill_name]
+            for mode, sequence in route["tool_sequence"].items():
+                maximum = max(
+                    (
+                        route["actions"][action_id]["maximum_claim"]
+                        for action_id in sequence
+                    ),
+                    key=operation_routes.CLAIM_CEILINGS.index,
+                )
+                if operation_routes.CLAIM_CEILINGS.index(maximum) <= 1:
+                    continue
+                with self.subTest(skill=skill_name, mode=mode):
+                    self.assertIn(
+                        resolver,
+                        sequence,
+                        f"{skill_name} {mode} cannot satisfy its inherited official-source gate",
+                    )
+
+    def test_siesta_run_and_stronger_profiles_require_output_observables(self) -> None:
+        profiles = ROUTES["routes"]["siesta-rigorous-calculations"]["claim_gate_profile"]
+        for level in (
+            "technical_run_gates_only",
+            "numerical_candidate_only",
+            "eligible_for_expert_review",
+        ):
+            with self.subTest(level=level):
+                self.assertIn("output-observables", profiles[level]["all_of"])
+
+    def test_vasp_run_and_stronger_profiles_require_input_output_consistency(self) -> None:
+        route = ROUTES["routes"]["vasp-rigorous-calculations"]
+        profiles = route["claim_gate_profile"]
+        self.assertNotIn("input-output-consistency", profiles["input_gates_only"]["all_of"])
+        for level in (
+            "technical_run_gates_only",
+            "numerical_candidate_only",
+            "eligible_for_expert_review",
+        ):
+            with self.subTest(level=level):
+                self.assertIn("input-output-consistency", profiles[level]["all_of"])
+
+        # The VASP auditor emits snake_case gate IDs. The central profile uses
+        # kebab-case, and the answer validator must normalize the exact pair
+        # while retaining a succeeded audit report as gate evidence.
+        audit_gate_ids = {
+            "input_integrity",
+            "input_reproducibility",
+            "input_output_consistency",
+            "execution_completion",
+            "electronic_convergence",
+            "output_warnings",
+            "version_identity",
+        }
+        data = valid_qe_envelope()
+        data["request"]["mode"] = "audit_run"  # type: ignore[index]
+        data["route"].update(  # type: ignore[union-attr]
+            {
+                "skill": "vasp-rigorous-calculations",
+                "software": "vasp",
+                "task": "static",
+            }
+        )
+        data["authorization"]["side_effects"] = ["local-execution"]  # type: ignore[index]
+        data["claim_ceiling"] = "technical_run_gates_only"
+        data["claim_scope"] = {
+            "claim_id": "scope-vasp-run",
+            "scope_kind": "computed-fact",
+            "statement": "The VASP technical run gates passed for the exact audited case.",
+            "observable": "technical-run-gates",
+            "unit": None,
+            "absolute_tolerance": None,
+            "relative_tolerance": None,
+            "evidence_ids": ["ev-audit"],
+            "limitations": ["Numerical convergence and scientific acceptance remain unproved."],
+        }
+        data["tool_runs"][0].update(  # type: ignore[index]
+            {
+                "action_id": "vasp.audit-run",
+                "tool": "audit_vasp_case.py --mode run",
+                "gate_ids": sorted(audit_gate_ids),
+            }
+        )
+        data["tool_runs"][1].update(  # type: ignore[index]
+            {
+                "action_id": "vasp.reference",
+                "tool": "resolve_official_sources.py",
+                "gate_ids": ["official_source_coverage"],
+            }
+        )
+        data["gates"] = [
+            {
+                "id": "official_source_coverage",
+                "native_status": "pass",
+                "status": "pass",
+                "evidence_ids": ["ev-official", "ev-reference"],
+                "finding_codes": [],
+            },
+            *[
+                {
+                    "id": gate_id,
+                    "native_status": "pass",
+                    "status": "pass",
+                    "evidence_ids": ["ev-audit"],
+                    "finding_codes": [],
+                }
+                for gate_id in sorted(audit_gate_ids)
+            ],
+            {
+                "id": "scientific_claim",
+                "native_status": "blocked",
+                "status": "blocked",
+                "evidence_ids": ["ev-audit"],
+                "finding_codes": ["SCIENTIFIC_CLAIM_BLOCKED"],
+            },
+        ]
+        data["supported_facts"] = [
+            {
+                "id": "fact-vasp-run",
+                "statement": "The implemented deterministic VASP technical-run gates passed.",
+                "claim_level": "technical_run_gates_only",
+                "evidence_ids": ["ev-audit"],
+            }
+        ]
+        data["blocked_claims"] = [
+            {
+                "id": "claim-vasp-science",
+                "statement": "Scientific acceptance is not established.",
+                "gate_ids": ["scientific_claim"],
+                "finding_codes": ["SCIENTIFIC_CLAIM_BLOCKED"],
+            }
+        ]
+        data["smallest_next_action"]["gate_id"] = "scientific_claim"  # type: ignore[index]
+        data["evidence"]["missing"] = ["observable-specific numerical convergence evidence"]  # type: ignore[index]
+        self.assertEqual(finding_codes(data), set())
 
     def test_side_effect_vocabulary_and_registry_sets_match_common_contract(self) -> None:
         canonical = tuple(COMMON["$defs"]["sideEffect"]["enum"])
@@ -1331,14 +1612,17 @@ class MutationAndNegativeTests(unittest.TestCase):
 
     def test_tool_report_hash_must_be_bound_to_evidence_inventory(self) -> None:
         data = valid_qe_envelope()
-        data["tool_runs"][0]["report_sha256"] = "9" * 64  # type: ignore[index]
+        data["tool_runs"][0]["report_sha256"] = "8" * 64  # type: ignore[index]
         codes = finding_codes(data)
         self.assertIn("ANSWER_TOOL_REPORT_EVIDENCE_MISSING", codes)
         self.assertIn("ANSWER_POSITIVE_FACT_TOOL_EVIDENCE_MISSING", codes)
 
     def test_tool_report_record_type_and_role_must_align(self) -> None:
         data = valid_qe_envelope()
-        data["evidence"]["items"][1]["record_ref"]["role"] = "source"  # type: ignore[index]
+        audit = next(  # type: ignore[index]
+            item for item in data["evidence"]["items"] if item["id"] == "ev-audit"
+        )
+        audit["record_ref"]["role"] = "source"
         codes = finding_codes(data)
         self.assertIn("ANSWER_TOOL_EVIDENCE_RECORD_INVALID", codes)
         self.assertIn("ANSWER_TOOL_REPORT_EVIDENCE_MISSING", codes)
@@ -1440,7 +1724,10 @@ class MutationAndNegativeTests(unittest.TestCase):
         data["supported_facts"][0].update(  # type: ignore[index]
             {"claim_level": "documented_behavior_only", "evidence_ids": ["ev-audit"]}
         )
-        data["evidence"]["items"][1]["role"] = "official-source-snapshot"  # type: ignore[index]
+        audit = next(  # type: ignore[index]
+            item for item in data["evidence"]["items"] if item["id"] == "ev-audit"
+        )
+        audit["role"] = "official-source-snapshot"
         codes = finding_codes(data)
         self.assertIn("ANSWER_OFFICIAL_EVIDENCE_RECORD_INVALID", codes)
         self.assertIn("ANSWER_POSITIVE_FACT_TOOL_EVIDENCE_MISSING", codes)
@@ -1524,14 +1811,20 @@ class MutationAndNegativeTests(unittest.TestCase):
 
     def test_fact_requires_present_hashed_evidence(self) -> None:
         data = valid_qe_envelope()
-        data["evidence"]["items"][1]["status"] = "missing"  # type: ignore[index]
-        data["evidence"]["items"][1]["sha256"] = None  # type: ignore[index]
+        audit = next(  # type: ignore[index]
+            item for item in data["evidence"]["items"] if item["id"] == "ev-audit"
+        )
+        audit["status"] = "missing"
+        audit["sha256"] = None
         codes = finding_codes(data)
         self.assertIn("ANSWER_EVIDENCE_NOT_USABLE", codes)
 
     def test_native_status_cannot_be_silently_remapped(self) -> None:
         data = valid_qe_envelope()
-        data["gates"][1]["status"] = "pass"  # type: ignore[index]
+        scientific_claim = next(  # type: ignore[index]
+            gate for gate in data["gates"] if gate["id"] == "scientific-claim"
+        )
+        scientific_claim["status"] = "pass"
         self.assertIn("ANSWER_NATIVE_STATUS_MISMATCH", finding_codes(data))
 
     def test_unknown_native_status_is_rejected(self) -> None:
@@ -1629,7 +1922,11 @@ class MutationAndNegativeTests(unittest.TestCase):
             # This test isolates handoff routing, so remove the fixture's
             # higher-precedence scientific hard blocker first.
             data["evidence"]["missing"] = []  # type: ignore[index]
-            data["gates"] = [data["gates"][0]]  # type: ignore[index]
+            data["gates"] = [  # type: ignore[index]
+                gate
+                for gate in data["gates"]  # type: ignore[index]
+                if gate["id"] != "scientific-claim"
+            ]
             data["blocked_claims"] = []
             data["smallest_next_action"] = None
             data["action_state"] = "handoff_ready"

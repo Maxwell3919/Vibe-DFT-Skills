@@ -1,0 +1,568 @@
+{
+  "contract_name": "official-document-scope-catalog",
+  "extractor_id": "reviewed-semantic-scope-v1",
+  "schema_version": "1.0",
+  "skill_id": "ovito-atomistic-analysis",
+  "subjects": [
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs",
+        "ovito-pypi"
+      ],
+      "statement": "The standalone ovito Python distribution 3.15.5 is a distinct module execution surface with exact artifact, Python, platform, license, and imported-version requirements.",
+      "subject_id": "provider.python-module",
+      "subject_kind": "executable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "OVITO Basic desktop 3.15.5 is a separate MIT/open-source distribution surface and does not imply availability of the standalone Python module.",
+      "subject_id": "provider.basic-desktop",
+      "subject_kind": "executable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "OVITO Pro desktop and ovitos 3.15.5 are proprietary entitlement-bound surfaces; installation metadata or an account does not establish authorization.",
+      "subject_id": "provider.pro-desktop",
+      "subject_kind": "executable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs",
+        "ovito-pypi"
+      ],
+      "statement": "Python module, Basic desktop, Pro desktop, source documentation, third-party notices, user data, and generated artifacts have distinct identity and license boundaries.",
+      "subject_id": "provider.edition-license-separation",
+      "subject_kind": "limitation"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "ovito.io.import_file(location, **params) returns a Pipeline and has exact source, format, sequence, and sort_particles semantics.",
+      "subject_id": "api.import-file",
+      "subject_kind": "capability"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Pipeline.compute(frame) evaluates a zero-based frame and returns an independent DataCollection snapshot.",
+      "subject_id": "api.pipeline-compute",
+      "subject_kind": "capability"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "FileSource.load replaces a pipeline source and must be recorded as an input-identity change.",
+      "subject_id": "api.file-source-load",
+      "subject_kind": "capability"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "ovito.io.export_file has frame, format, column, precision, identifier, and output-reparse semantics that must be explicit.",
+      "subject_id": "api.export-file",
+      "subject_kind": "capability"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "DataCollection, SimulationCell, particle properties, cell-vector column conventions, and frame metadata are version-bound API surfaces.",
+      "subject_id": "api.data-collection-cell",
+      "subject_kind": "capability"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "OVITO 3.15.5 XYZ/extxyz import has explicit property, coordinate, lattice, PBC, source-unit, frame, and parser mapping semantics.",
+      "subject_id": "input.xyz-extxyz",
+      "subject_kind": "input-keyword"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Particle Identifier enables traceable cross-frame mapping; otherwise equal count and storage order remain assumptions, and sort_particles changes order.",
+      "subject_id": "mapping.particle-identifiers-order",
+      "subject_kind": "limitation"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Lattice, PBC, simulation-cell vectors, coordinate conventions, and source-native length units must be explicit before geometric analysis.",
+      "subject_id": "mapping.pbc-lattice-units",
+      "subject_kind": "limitation"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "OVITO pipeline modifier order, selections, deletion, derived properties, and frame dependence affect results and must be recorded.",
+      "subject_id": "workflow.pipeline-order",
+      "subject_kind": "workflow"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Coordination analysis and radial distribution functions require cutoff, pair/selection, PBC, normalization, binning, units, frame, and convergence evidence.",
+      "subject_id": "analysis.coordination-rdf",
+      "subject_kind": "observable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Common-neighbor analysis has version-bound mode, cutoff/adaptive behavior, structure labels, and validation limits.",
+      "subject_id": "analysis.common-neighbor",
+      "subject_kind": "observable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Polyhedral template matching has template, RMSD, orientation, deformation, selection, and validation semantics.",
+      "subject_id": "analysis.polyhedral-template-matching",
+      "subject_kind": "observable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Displacement vectors depend on reference configuration, cell deformation, mapping, PBC, affinity, and frame identity.",
+      "subject_id": "analysis.displacement-vectors",
+      "subject_kind": "observable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Atomic strain depends on reference mapping, cutoff/neighbors, cell deformation, least-squares conditioning, and output tensor conventions.",
+      "subject_id": "analysis.atomic-strain",
+      "subject_kind": "observable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Wigner-Seitz defect analysis requires a validated reference lattice, mapping, occupancy interpretation, PBC, and cell compatibility.",
+      "subject_id": "analysis.wigner-seitz",
+      "subject_kind": "observable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Dislocation extraction analysis has crystal structure, circuit, line, Burgers-vector, smoothing, edition, and validation requirements.",
+      "subject_id": "analysis.dislocation-extraction",
+      "subject_kind": "observable"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Trajectory averaging requires explicit frame range, transient handling, property continuity, time weights, and uncertainty interpretation.",
+      "subject_id": "analysis.time-averaging",
+      "subject_kind": "workflow"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/visual-and-numerical-boundaries.md",
+          "sha256": "c6dba0c91ab255a0de1abf513b575b0d210051af1ac77c3cfc8ca41d2d83c774"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Rendering requires exact edition, renderer, camera, scene, colors, particle/box settings, fonts, codec, headless environment, frame range, and visual QA.",
+      "subject_id": "rendering.static-animation",
+      "subject_kind": "workflow"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Export requires explicit object, format, frames, columns, precision, mapping, units, overwrite policy, and output reparse.",
+      "subject_id": "export.tables-trajectories",
+      "subject_kind": "workflow"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/visual-and-numerical-boundaries.md",
+          "sha256": "c6dba0c91ab255a0de1abf513b575b0d210051af1ac77c3cfc8ca41d2d83c774"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/analysis-recipes.md",
+          "sha256": "f3916b0d287e7dce3186a20fb77551e7e1dfc4c05189fcb20e246b2fbf7dced5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "Images and animations are visual artifacts and cannot establish numerical defect, coordination, strain, topology, convergence, or physical correctness.",
+      "subject_id": "validation.visual-numerical-boundary",
+      "subject_kind": "limitation"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-pypi"
+      ],
+      "statement": "PyPI release metadata identifies ovito 3.15.5, Python requirement, project links, MIT license expression, and 18 exact release-file names, sizes, and SHA-256 digests; artifact bytes and imports remain external.",
+      "subject_id": "distribution.pypi-3-15-5",
+      "subject_kind": "documented-claim"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-pypi"
+      ],
+      "statement": "OVITO 3.15.5 wheel availability is platform, architecture, Python-version, and minimum-OS specific; metadata does not prove installability or runtime behavior.",
+      "subject_id": "platform.python-wheel-matrix",
+      "subject_kind": "documented-claim"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/references/official-sources-and-environment.md",
+          "sha256": "314c2664dda16cf3b7a9305c99ca2afe1e5016a437b7100ffd3cce6f951a82e5"
+        }
+      ],
+      "provider_input_ids": [
+        "ovito-docs"
+      ],
+      "statement": "The exact v3.15.5 source repository declares OVITO user documentation under GFDL-1.2-or-later while software and third-party components have separate terms.",
+      "subject_id": "license.documentation-gfdl",
+      "subject_kind": "documented-claim"
+    },
+    {
+      "evidence_class": "deterministic-tool-behavior",
+      "expected_disposition": "not-applicable",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/scripts/ovito_analysis.py",
+          "sha256": "cd9a5d26c8e10578c45b8095c3d01b571b366d6690bd9dbd5aec66eff5e0dd8e"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/SKILL.md",
+          "sha256": "e620542b35a88e564db22ae90d74bccf3f4714533f02d5657e945e90fc53ccd9"
+        }
+      ],
+      "provider_input_ids": [],
+      "statement": "ovito_analysis.py inventory performs repository-defined standard-library XYZ/extxyz parsing and never imports OVITO.",
+      "subject_id": "local.inventory.xyz-extxyz",
+      "subject_kind": "task"
+    },
+    {
+      "evidence_class": "deterministic-tool-behavior",
+      "expected_disposition": "not-applicable",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/scripts/ovito_analysis.py",
+          "sha256": "cd9a5d26c8e10578c45b8095c3d01b571b366d6690bd9dbd5aec66eff5e0dd8e"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/pipeline-workflow.md",
+          "sha256": "e167db78c7762d101a4565c32ca9c73c37aa166a7e5f56fcf7b367b42e2ca7ee"
+        }
+      ],
+      "provider_input_ids": [],
+      "statement": "ovito_analysis.py plan validates the candidate schema and policy without importing or executing OVITO.",
+      "subject_id": "local.plan.pipeline-policy",
+      "subject_kind": "task"
+    },
+    {
+      "evidence_class": "deterministic-tool-behavior",
+      "expected_disposition": "not-applicable",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/scripts/ovito_analysis.py",
+          "sha256": "cd9a5d26c8e10578c45b8095c3d01b571b366d6690bd9dbd5aec66eff5e0dd8e"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/pipeline-workflow.md",
+          "sha256": "e167db78c7762d101a4565c32ca9c73c37aa166a7e5f56fcf7b367b42e2ca7ee"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/fail-closed-contract.md",
+          "sha256": "6282069c7f51dd83291a60b6520a2c09fc6e5e296c580314fe525cf8e20d2d36"
+        }
+      ],
+      "provider_input_ids": [],
+      "statement": "The candidate executor allows only explicitly authorized compute-frame-metadata with an exact module identity and refuses every plan-only operation.",
+      "subject_id": "local.execute.frame-metadata-route",
+      "subject_kind": "task"
+    },
+    {
+      "evidence_class": "repository-policy",
+      "expected_disposition": "not-applicable",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/SKILL.md",
+          "sha256": "e620542b35a88e564db22ae90d74bccf3f4714533f02d5657e945e90fc53ccd9"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/task-profiles-and-maturity.md",
+          "sha256": "88d426d1b1e563e1c3bb81ef4cf8e943f4942d421f05afd2e2234f590e583a2d"
+        }
+      ],
+      "provider_input_ids": [],
+      "statement": "The Skill remains development, non-routable, promotion_authorized=false, and claim_ceiling=no_positive_claim regardless of parser, plan, probe, or bounded execution results.",
+      "subject_id": "policy.development-claim-ceiling",
+      "subject_kind": "limitation"
+    },
+    {
+      "evidence_class": "scientific-methodology",
+      "expected_disposition": "excluded",
+      "origin_refs": [
+        {
+          "path": "skills/ovito-atomistic-analysis/SKILL.md",
+          "sha256": "e620542b35a88e564db22ae90d74bccf3f4714533f02d5657e945e90fc53ccd9"
+        },
+        {
+          "path": "skills/ovito-atomistic-analysis/references/visual-and-numerical-boundaries.md",
+          "sha256": "c6dba0c91ab255a0de1abf513b575b0d210051af1ac77c3cfc8ca41d2d83c774"
+        }
+      ],
+      "provider_input_ids": [],
+      "statement": "A technically emitted frame metadata record, modifier output, image, animation, or table does not establish convergence or physical correctness.",
+      "subject_id": "science.atomistic-analysis-validity",
+      "subject_kind": "limitation"
+    }
+  ]
+}

@@ -1,0 +1,1303 @@
+{
+  "authority_id": "dpgen-release-source-docs-0-13-3",
+  "commit_id": "66232e5f05f90d6e399b1c25fd0d914ea3e40af8",
+  "documentation_roots": [
+    {
+      "path": "doc",
+      "tree_object_id": "b8026e338f9707dd49d33a335a9d1cdc91082f12"
+    },
+    {
+      "path": "examples",
+      "tree_object_id": "a2e0a9938a19720b6150375c5b7c356c6864629b"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "d4bb2cbb9eddb1bb1b4f366623044af8e4830919",
+      "object_type": "blob",
+      "path": "doc/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ac71c813b0dc8142d3f1660141a7b5a751740c5",
+      "object_type": "blob",
+      "path": "doc/_static/css/custom.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "80b706fa177b66a88e7f6571ad0d1395124d5a92",
+      "object_type": "blob",
+      "path": "doc/_static/logo-dark.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "09764a8dc9b946097793d2bc457cbfe584cf87a9",
+      "object_type": "blob",
+      "path": "doc/_static/logo.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3676a293ae138f04656b2f42e6968c5f482feb75",
+      "object_type": "blob",
+      "path": "doc/autotest/Auto-test.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d18a0b55ea2545959ede6b0509d5ba4f141093a",
+      "object_type": "blob",
+      "path": "doc/autotest/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6b0a411191f3298c94cfa9493a8aa8242b0b3c94",
+      "object_type": "blob",
+      "path": "doc/autotest/property/Property-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "39ee46ce97a634cb660d7e90d7b28537e53825ba",
+      "object_type": "blob",
+      "path": "doc/autotest/property/Property-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "919f25b8a55abe070f4332ae36333d2e75617996",
+      "object_type": "blob",
+      "path": "doc/autotest/property/Property-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0771e641a150178aa9a145d78f2ce166e8987f0",
+      "object_type": "blob",
+      "path": "doc/autotest/property/Property-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a2798fa6dcdda3aeef60ed10fe88cee332c37e44",
+      "object_type": "blob",
+      "path": "doc/autotest/property/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bbad908593ab236cad7cabd2141b99a968fa9332",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/EOS-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "77a9889168c5f7bf6e8eff81923d93702eede6b3",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/EOS-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "da79412b518c35991a44c37244188f129f8a8495",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/EOS-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2800e13ed488ffef1072272d4298066a8470808",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/EOS-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c794ab41baf1983a63acf099eb3bf467c5dd55e9",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Elastic-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70a7e96d03757c0f152e063b64473842947719cb",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Elastic-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a66ade8227b491867fef19ff1c6fdf4b940c381b",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Elastic-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42c48e2c92f9d5999565c8c41b68f6521a427e6a",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Elastic-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "44709173ba54928e96f53d4a2582c657b361d289",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Interstitial-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d732e6d2d8344108ce45b31b402ea325ec5f69f",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Interstitial-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "38c37cf9874af01c9b47bf7f1572390c73887760",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Interstitial-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "454e2e76e6a06e4a94e25ed7ef3c3d19a88728b6",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Interstitial-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c0b2f7b53c24753d617585d979bdd7377e6e2207",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Surface-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d43f50819374bb320dc51d34ab8c92b3e25e4b80",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Surface-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "77d2fcba437460e2b2caffe9897a3642142c3010",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Surface-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c32f6d5d7f6114277668acc482200b7decae4824",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Surface-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1a9013da0e0dd1cb7345031eaf189e9b66000a9",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Vacancy-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ea906b75dc0586dc63a208ec74506fa79549260",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Vacancy-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8870bc8be0f658095e56a66528cf3cc3dae63c46",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Vacancy-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ce902346b9f2cf999208536c7cf5d63da685fdb",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/Vacancy-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a62719af9a54d41328fa73b832ec339ea295b693",
+      "object_type": "blob",
+      "path": "doc/autotest/property/properties/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ec77e68a82730129edaa5b13311f13f601896eca",
+      "object_type": "blob",
+      "path": "doc/autotest/refine/Refine-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b8ce1adb0e66246a2368450f9fefeb78f3614d98",
+      "object_type": "blob",
+      "path": "doc/autotest/refine/Refine-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "087b7288507860203e51064e329946285319bea1",
+      "object_type": "blob",
+      "path": "doc/autotest/refine/Refine-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c23edb97ec8a61e1a5e1ecaceb201d8ef50b0906",
+      "object_type": "blob",
+      "path": "doc/autotest/refine/Refine-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4893d829ca2fe4f15e0910da56bc6894c6e36c0e",
+      "object_type": "blob",
+      "path": "doc/autotest/refine/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "814774035942f4fa6ecc7d1412c758a1cf8dac0f",
+      "object_type": "blob",
+      "path": "doc/autotest/relaxation/Relaxation-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c0e354eb26867d7f79d5e59ff2cfe7e321d858e1",
+      "object_type": "blob",
+      "path": "doc/autotest/relaxation/Relaxation-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c24183f7538b917ea67612b65d7d85e5bb2c62bd",
+      "object_type": "blob",
+      "path": "doc/autotest/relaxation/Relaxation-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "57d06ed580162238466d91970115d8ebef745536",
+      "object_type": "blob",
+      "path": "doc/autotest/relaxation/Relaxation-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fbad3815c2495e4aa526d2b6dc9696c6e611db84",
+      "object_type": "blob",
+      "path": "doc/autotest/relaxation/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2460a73e7d233803623bbcdccf0437f07dedc55a",
+      "object_type": "blob",
+      "path": "doc/autotest/reproduce/Reproduce-get-started-and-input-examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7513483a9c3ceb9ad453e2d0e054e2260dd2688f",
+      "object_type": "blob",
+      "path": "doc/autotest/reproduce/Reproduce-make.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8752a4119920be204aff9b8e086748eb5e3184e4",
+      "object_type": "blob",
+      "path": "doc/autotest/reproduce/Reproduce-post.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d43e436229f3b4eaa5a5119c75d472793fae141e",
+      "object_type": "blob",
+      "path": "doc/autotest/reproduce/Reproduce-run.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29c00bd7e77b54c92e44a097c3e4057aadc05db4",
+      "object_type": "blob",
+      "path": "doc/autotest/reproduce/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3f82ac7c68a57bd0d0db63af0126d5165a640ce5",
+      "object_type": "blob",
+      "path": "doc/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2e342ed2609befcfc40577f0a80e4404abff3465",
+      "object_type": "blob",
+      "path": "doc/contributing-guide/contributing-guide.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c47f2001ff956b426e17af25ef112de446fec28d",
+      "object_type": "blob",
+      "path": "doc/contributing-guide/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54fd988423a56e2bd579765fcaa9a1744dbfc093",
+      "object_type": "blob",
+      "path": "doc/credits.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d3416a6fa3977b6945b83dcb109c5760bccd873",
+      "object_type": "blob",
+      "path": "doc/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1d22ae222454f3b2e4f2442669ca56d3934c90f9",
+      "object_type": "blob",
+      "path": "doc/init/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6d1e16295df19382c97d84ca5262a8b49122433d",
+      "object_type": "blob",
+      "path": "doc/init/init-bulk-jdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a721d998482a7998598c225ee12d45d555c16811",
+      "object_type": "blob",
+      "path": "doc/init/init-bulk-mdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "65f19ab95c60323f751148e7cdab50c191ca56db",
+      "object_type": "blob",
+      "path": "doc/init/init-bulk.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6b17cb662758a9af51ece20cbd1edb9f006a2db8",
+      "object_type": "blob",
+      "path": "doc/init/init-reaction-jdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2d7426b9cb326f869e492399697468722844c55f",
+      "object_type": "blob",
+      "path": "doc/init/init-reaction-mdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fbc346464ec36fa331fb5997f4f3d0b068722d6a",
+      "object_type": "blob",
+      "path": "doc/init/init-reaction.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "86bbe93a2da46d53946fba90daa9093299b993af",
+      "object_type": "blob",
+      "path": "doc/init/init-surf-jdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3b88266abd4d9bd4c3bbb010b513505082354c69",
+      "object_type": "blob",
+      "path": "doc/init/init-surf-mdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "88bda416f92618d12a65b069a64593efb24e38a8",
+      "object_type": "blob",
+      "path": "doc/init/init_surf.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2119f51099bf37e4fdb6071dce9f451ea44c62dd",
+      "object_type": "blob",
+      "path": "doc/make.bat"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2d04b5bbe86b3a20c3bdde9d70adc6366626a96",
+      "object_type": "blob",
+      "path": "doc/overview/cli.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0d103ea87741a94bcba05f0016dfb6bbc72be50",
+      "object_type": "blob",
+      "path": "doc/overview/code-structure.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cfb00fab0035f65cf0a7ad55727cc20646dcd2be",
+      "object_type": "blob",
+      "path": "doc/overview/overview.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9d0ade2307e52ee591ea45cc2ae9e9ea697fadf",
+      "object_type": "blob",
+      "path": "doc/overview/supported-software.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dcb203c17ee9ea9313a20b03e11ce54e0695b848",
+      "object_type": "blob",
+      "path": "doc/requirements.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9f78cb24e4316ebcdf7dd523609e94da13b98efb",
+      "object_type": "blob",
+      "path": "doc/run/example-of-machine.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "92d22c07db8d837cea1cec9294a3167ff5a6062b",
+      "object_type": "blob",
+      "path": "doc/run/example-of-param.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04e30489273e65f539e9bd18e28e03e32bb1fa3b",
+      "object_type": "blob",
+      "path": "doc/run/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f06109bb59327967f035b766bf8eb0668e967e41",
+      "object_type": "blob",
+      "path": "doc/run/mdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b763d5cb9c5aaed64517e0b3fe64299da1afc97b",
+      "object_type": "blob",
+      "path": "doc/run/overview-of-the-run-process.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74772253e9c2174c0e587501909fe4d98c1d0220",
+      "object_type": "blob",
+      "path": "doc/run/param.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "45bfbee89423a808a1d5bd22cbd1ecba8c54a501",
+      "object_type": "blob",
+      "path": "doc/simplify/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "39360ce79ff7c20d19fda074ed4d21368c286732",
+      "object_type": "blob",
+      "path": "doc/simplify/simplify-jdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d34bef1ca2a32ada43a774bb4801da59eb5d84b8",
+      "object_type": "blob",
+      "path": "doc/simplify/simplify-mdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0bb2f8f2dfcc42ba4079a0cd29340523c0f61594",
+      "object_type": "blob",
+      "path": "doc/simplify/simplify.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cfaff6e38b6770769ff6d1180cef36a2db07ccc9",
+      "object_type": "blob",
+      "path": "doc/toymodels/black.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04cae53667dd9bba8e729bbd4f61a4791ec988fb",
+      "object_type": "blob",
+      "path": "doc/user-guide/common-errors.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60738f35a5d3f0561f4d2aac1a24580d1fb90250",
+      "object_type": "blob",
+      "path": "doc/user-guide/get-help-from-com.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e984461151d7c094e9acfc67bc05a49f76a018d9",
+      "object_type": "blob",
+      "path": "doc/user-guide/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1c39d5abc8c2b76b2eb17cda943e12c8d09fe876",
+      "object_type": "blob",
+      "path": "doc/user-guide/troubleshooting.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5bc4a91c288dec14183c2e9830a0a620cdae01db",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/CH4.POSCAR"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e5e21d9f905a4730486d5689e2bc65cf15d16843",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/INCAR_methane"
+    },
+    {
+      "mode": "100644",
+      "object_id": "342cf9984b751aa2272ea90d4ba199e2f7a8c784",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/INCAR_methane.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "53ffea28a241f4a463ede40f8d41943358be3507",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/INCAR_methane.rlx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b4c5654422db7f6cd469bf62848e196873d6f156",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4dd430a26cab4d8eb80aceda45e6594baae79c8",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/init.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b5350300516b1778d98feb4455149bce298e47d0",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/lebesgue_v2_machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1acefee06567d6b9ad590403c160437e3dea7be7",
+      "object_type": "blob",
+      "path": "examples/CH4-lebesgue/param_CH4_deepmd-kit-2.0.1.json"
+    },
+    {
+      "mode": "120000",
+      "object_id": "2f9def780c835dc76b96cb8e0024bd187714fd97",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/CH4.POSCAR"
+    },
+    {
+      "mode": "120000",
+      "object_id": "72cc77ef5f2ee4b7351ccc46694e6a61ec73f558",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/CH4_init_bulk.json"
+    },
+    {
+      "mode": "120000",
+      "object_id": "4d1d7d03941f9d151e05696da5538fe9565620cf",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/INCAR_methane"
+    },
+    {
+      "mode": "120000",
+      "object_id": "4c48cdd8660c51dd7960cee9a32c8f69bc909023",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/INCAR_methane.md"
+    },
+    {
+      "mode": "120000",
+      "object_id": "e44202f43efe9529edacb28ea9d754314e588783",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/INCAR_methane.rlx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "372545587fc1918baa2cf9c8303647d6eb751da2",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/machine-ali-ehpc.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d3a1c9db1942ef60ef5f6cd9966d63f0a8877671",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/machine-dpcloudserver.json"
+    },
+    {
+      "mode": "120000",
+      "object_id": "3f11d42a74bead8054c17046f4b55662d747a3fc",
+      "object_type": "blob",
+      "path": "examples/CH4-refact-dpdispatcher/param_CH4_deepmd-kit-2.x.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ed2e6b556df69f03bb86150ff84f4ccd290ca36a",
+      "object_type": "blob",
+      "path": "examples/database/param_Ti.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1322fbd865fdf3b4abcc9606cef45e428f388450",
+      "object_type": "blob",
+      "path": "examples/init/CH4.POSCAR"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a0e3ca29b8175b81876b20a8be0a0057fd811f86",
+      "object_type": "blob",
+      "path": "examples/init/INCAR_methane.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c40294fe780d90bc1a3a9806004b5b76cd9b7ad4",
+      "object_type": "blob",
+      "path": "examples/init/INCAR_methane.rlx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0703bfb21427bc665658e5d96f272c02c6bb5a2b",
+      "object_type": "blob",
+      "path": "examples/init/abacus/CuW/CuW.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5087da7c539e87edbe8489c0e75769c53311ca80",
+      "object_type": "blob",
+      "path": "examples/init/abacus/CuW/INPUT"
+    },
+    {
+      "mode": "100644",
+      "object_id": "33533afe37e04717563527962840454fb1cc134c",
+      "object_type": "blob",
+      "path": "examples/init/abacus/CuW/INPUT.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "caa7923df84e8bfbc6a7b2e67a051f0c6666cbac",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/Al.STRU"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7f3c9e3d8b3c69eb7b71bda9dffa83864e75bb84",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/Al_ONCV_PBE-1.0.upf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6313b3ffef5cd90be9b0190202ee6e64691cae47",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/Al_gga_9au_100Ry_4s4p1d.orb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29fb24cc1163a2452cf13420d47ba0f248a13bfe",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/INPUT.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d5baae3489900047a88b58806d87487f7131180c",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/INPUT.rlx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c289c0158aae156b859e94d68a89c8fc3741b1be",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/KPT.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f5f7f4ec34cc7a3a00cebd0519301bbea34ca1ea",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/KPT.rlx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1095fa54b4bbc365132d23f33f7beb530bbe5e2e",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/init.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1a35c7107a6cd543bd52032d63dd5364d8962c62",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-lcao/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2ce85c2a4f78be9452ef4e84b839af36ba4edcb",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-pw/Al.STRU"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7f3c9e3d8b3c69eb7b71bda9dffa83864e75bb84",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-pw/Al_ONCV_PBE-1.0.upf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d70a6e5bf9bc360855260ccdd54ee2facaf19cd2",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-pw/INPUT.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "65b8ec1ed6f1448947476ad091e0cd29f758229d",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-pw/INPUT.rlx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d90cef3bd4f5014e841fb3cf9c36ce5fb8f3bf3a",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-pw/init.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1a35c7107a6cd543bd52032d63dd5364d8962c62",
+      "object_type": "blob",
+      "path": "examples/init/abacus/fcc-Al-pw/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "846267d9e9e2520c4812a96644b90065458d2724",
+      "object_type": "blob",
+      "path": "examples/init/al.POSCAR"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6f1fbb2ab069eff22949b1d22dcc640ee6f9ecc9",
+      "object_type": "blob",
+      "path": "examples/init/al.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3869912d2191f648e6552b57a7dc9e75d8c6f5ff",
+      "object_type": "blob",
+      "path": "examples/init/al.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "622b74b5fc9d4bebdf04164bf8836d3bf6f1eb93",
+      "object_type": "blob",
+      "path": "examples/init/ch4.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "778f3d455f47431b0ecd7ca96d03a55149456542",
+      "object_type": "blob",
+      "path": "examples/init/ch4.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ed24507ffb5d49617273f24ece0303cb77a37b8",
+      "object_type": "blob",
+      "path": "examples/init/cu.surf.hcp.111.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8bf070726349b1772cba61ad070c55f5d2e27f64",
+      "object_type": "blob",
+      "path": "examples/init/reaction.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "08ec0f05a9036e5ed21106728455319a8c9adcf6",
+      "object_type": "blob",
+      "path": "examples/init/surf.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e598872a8f815be65345dd5c72ac092932a6fdb5",
+      "object_type": "blob",
+      "path": "examples/init/surf.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "854ee01ba7642783424eafd390ef2ebf5a432fa0",
+      "object_type": "blob",
+      "path": "examples/machine/DeePMD-kit-1.0/machine-local-4GPU.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eaac4cb5d5839d3d7d19ad7e9d62b2dbdf3ccb5d",
+      "object_type": "blob",
+      "path": "examples/machine/DeePMD-kit-1.x/machine-local.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0fab6e8b97927f0259aeff26cbca96d9ffed2fef",
+      "object_type": "blob",
+      "path": "examples/machine/DeePMD-kit-1.x/machine-lsf-slurm-cp2k.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cc8eca8166ead26f99c31ed148f4c847f0d69245",
+      "object_type": "blob",
+      "path": "examples/machine/DeePMD-kit-1.x/machine-pbs-gaussian.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "40ed0974643b0baa4c58faf52d8da256ec3e83ab",
+      "object_type": "blob",
+      "path": "examples/machine/DeePMD-kit-1.x/machine-slurm-qe.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8fdd1db35cbee277fb479ff8ba274f33802d50bb",
+      "object_type": "blob",
+      "path": "examples/machine/DeePMD-kit-2.x/lebesgue_v2_machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9f6cbabb9db70dd7f6c5b173f05bd991e8160f66",
+      "object_type": "blob",
+      "path": "examples/machine/DeePMD-kit-2.x/lebesgue_v2_machine_README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7bf2af366823c2da6ea256f7c386f4a68a47f77f",
+      "object_type": "blob",
+      "path": "examples/qe-cpx/POSCAR_SiO2-phosph"
+    },
+    {
+      "mode": "100644",
+      "object_id": "899e1739f6cd266f240948ef3a3d561c2170e511",
+      "object_type": "blob",
+      "path": "examples/qe-cpx/POSCAR_phosphorene"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3bdb0744c57b14102548840dbd88eedbf541aab6",
+      "object_type": "blob",
+      "path": "examples/qe-cpx/qe_template_P.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c3114d3314ac2ed73d7294fc57646f50ca9d77d1",
+      "object_type": "blob",
+      "path": "examples/qe-cpx/qe_template_SiO2P.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0c4b2479afbf773aa5f3463cdd1ea6e63b8408bf",
+      "object_type": "blob",
+      "path": "examples/qe-cpx/run_machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a2cde93501faf9306f8a71ae4b4e045cca1656fc",
+      "object_type": "blob",
+      "path": "examples/qe-cpx/run_param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70b8ee67af61818252ee2118cc8f524eb223c507",
+      "object_type": "blob",
+      "path": "examples/run/ch4/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "57c6a52e695809071565dfc95d3b624e81064860",
+      "object_type": "blob",
+      "path": "examples/run/ch4/param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2447d319f015d4e2718e2ab8bd7cb7ed7d5268bc",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-gromacs-gaussian/param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6df60d287102f2661c4f9ae295ca3fddfa4698d8",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-cp2k/CH4/param_CH4.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a01cd040679dab7ea0c6e3bb1081cb6516b4d6a",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-cp2k/CH4/param_CH4.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "be8a6b027ac0397d21c3070967dbf944237bc4ab",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-pwmat/machine-slurm-pwmat-single.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1d8237af871440b8ac3137db3cdd620677aa0496",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-pwmat/param_CH4.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "23444dd3627808251bbb71b4a95f53381813d900",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-siesta/dp-lammps-siesta/CH4/param_CH4.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ffb1e3e7ad4af63af040eaf266ad480b8a7e736a",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-siesta/dp-lammps-siesta/CH4/param_CH4.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2e89cdc8cb6eae30e444b9d9c2a8c0a2e581744e",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-vasp/Al/param_al_all_gpu.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "197c870fa444481e21da4aa55904f5dd13014719",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-vasp/Al/param_al_all_gpu.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bff30af98ddd5c25e0eb87209b05f9ab3035d794",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-vasp/CH4/param_CH4.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0933ba4743cc8edbe51fba8e6fd7df7f0acb1b02",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/dp2.x-lammps-vasp/CH4/param_CH4.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d78fffef551685dbf0a40cea84b8dcf8ede5a20e",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/param-h2oscan-vasp.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f9d57515361946f8b9ee1f23f6f5f46e0f544017",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/param-mg-vasp-ucloud.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ee15ab453ead26be33c1b5fc4faf765bbeeae4dd",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/param-mg-vasp.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cbf919a70853d050ff764d2937515fdf005521c5",
+      "object_type": "blob",
+      "path": "examples/run/deprecated/param-pyridine-pwscf.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b563d27c4db351b5b01fe1be10dc2319b29eccd6",
+      "object_type": "blob",
+      "path": "examples/run/dp-calypso-vasp/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d0d988d84e59e97bb11f58bbb4867834f1baf9e",
+      "object_type": "blob",
+      "path": "examples/run/dp-calypso-vasp/param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "19ca3b3fe9deb2c9a38b6ad29075e06e93c859bc",
+      "object_type": "blob",
+      "path": "examples/run/dp-lammps-enhance_sampling/lmp/input.lammps"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3af865be62a2cfd2049770b0815a41d150b4704b",
+      "object_type": "blob",
+      "path": "examples/run/dp-lammps-enhance_sampling/lmp/input.plumed"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0908043c9e8750053707b6d9e12cd1b348f9a619",
+      "object_type": "blob",
+      "path": "examples/run/dp-lammps-enhance_sampling/param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3371cda380c7f797e9b4c4237b71e0b441d61ae7",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-gromacs-gaussian/param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0ff48364016911404bbc27f41d04ee6773ed0e65",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-lcao-dpks/methane/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bea2c78b39374873e2bbf12e1616c083272b48c6",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-lcao-dpks/methane/param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "92e6fba991fc3612bd1856ae3102dabd8ee42d77",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-lcao/fcc-al/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "59b0f22c93694c74370eb48ee975d30302ab40df",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-lcao/fcc-al/run_param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7370e0a0e3380a28d084e05efee6c89eae717bbf",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-pw/fcc-al/INPUT.run"
+    },
+    {
+      "mode": "100644",
+      "object_id": "92e6fba991fc3612bd1856ae3102dabd8ee42d77",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-pw/fcc-al/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e295f1db05baa8bf0361044fe471ff054b0ca4f1",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-pw/fcc-al/run_param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0ff48364016911404bbc27f41d04ee6773ed0e65",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-pw/methane/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1636358de2e109f94ebd4fab8166db9a690119e",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-ABACUS-pw/methane/param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8e733f2d89ed2122e66f6144c9c6f344005b8d59",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-cp2k/methane/param-ch4.json"
+    },
+    {
+      "mode": "100755",
+      "object_id": "47fb5c715f71e141169babeaf8f518481f227e77",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-cp2k/methane/template.inp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4323c9735e7b9fd1133b0afbf0a20ed64818b692",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-cp2k/param_CH4_deepmd-kit-2.0.1.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "450baa944bb2471d10743d00b9ce6f1d6a361ecb",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-gaussian/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ffb12a8a7499bb69dd6173595d3f6815dbe73671",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-gaussian/param_C4H16N4_deepmd-kit-2.0.1.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e819ad1231eada94a5d94790546d6863882a5636",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-pwscf/Al/Al_ONCV_PBE_sr.upf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e84e04fa83c580dbfcc85e324b46d2d6ed202f12",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-pwscf/Al/param_al_all_gpu-deepmd-kit-2.x.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e819ad1231eada94a5d94790546d6863882a5636",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-pwscf/CH4/H_ONCV_PBE_sr.upf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e819ad1231eada94a5d94790546d6863882a5636",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-pwscf/CH4/O_ONCV_PBE_sr.upf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "541030ace403b40ff4acf169daacf2dc1b0eb840",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-pwscf/CH4/param_CH4_deepmd-kit-2.x.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7cfc1484e58a61040dd40aefa31730cb89ad46e6",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-pwscf/param_CH4_deepmd-kit-2.0.1.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5ff0e8bc9fed7bbcddf57b673b5a32fa1285e720",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-vasp-et/param_elet.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50ac588c51d36d3ad0ab057341dfd5fa888d3e69",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-vasp/Al/param_al_all_gpu-deepmd-kit-2.x.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ab780e689c252c06b76b9f8adc34cece83f07e5",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-vasp/CH4/INCAR_methane"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c6399dc08c20af4eb3d76fa8d37d6052c466597",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-vasp/CH4/POT_C"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c6399dc08c20af4eb3d76fa8d37d6052c466597",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-vasp/CH4/POT_H"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a844924d58d399aa6df6a6d48bc8d6231d935796",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-vasp/CH4/param_CH4_deepmd-kit-2.x.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b60db241a496b6eb340588ec31e832d39655617f",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x-lammps-vasp/param_CH4_deepmd-kit-2.0.1.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "472042593e8eaad2f4e7e50a93185840bad6b8ce",
+      "object_type": "blob",
+      "path": "examples/run/dp2.x_lammps_gaussian/dodecane/dodecane.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "016e2785040d49f04f6c2a01b16c5995896269bc",
+      "object_type": "blob",
+      "path": "examples/run/dprc/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "44fe4e8518911a184cdf3961b56f81b076f59485",
+      "object_type": "blob",
+      "path": "examples/run/dprc/generator.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "41a8bff084e5af01252634e3439bd5944281761b",
+      "object_type": "blob",
+      "path": "examples/run/dprc/generator.yaml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70f18feba70ce49368a850eaf2a1c544d0f49ed5",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "49ffb50119e6be328fe7d5927bc52b0ce4dc4907",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/data/sys.000/set.000/box.npy"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a7f72b96f15f8e5c7b1ac32718ef64ca33b48d1e",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/data/sys.000/set.000/coord.npy"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54a258af8dcc2500c23a1215eca5c099bad9ad8d",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/data/sys.000/set.000/energy.npy"
+    },
+    {
+      "mode": "100644",
+      "object_id": "234b9597b9d16edea8873c209b8b6049ab38b062",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/data/sys.000/set.000/force.npy"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b5984939c1983f761691baa39dd3d1b06357380d",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/data/sys.000/set.000/virial.npy"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4725c1539e5ea79306d558e867e13da5543238f6",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/data/sys.000/type.raw"
+    },
+    {
+      "mode": "100644",
+      "object_id": "98e46fed2c4f3b8c9f9b3eb84d25f799c582e618",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/data/sys.000/type_map.raw"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c151f1a797c7925978b1bfd3a54005d99bbea08",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/simplify_example/INCAR"
+    },
+    {
+      "mode": "100644",
+      "object_id": "967735fb5c372d31d148794a42082a5743e9ec4d",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/simplify_example/machine.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "05217f4d2d312731af735f27279283545777ac1c",
+      "object_type": "blob",
+      "path": "examples/simplify-MAPbI3-scan-lebesgue/simplify_example/simplify.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aff194951e8a1c7a8255c6197818fb0057daf78a",
+      "object_type": "blob",
+      "path": "examples/simplify/qm7.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d04afc6698c0344d8d319ffc406a24c4df74b55",
+      "object_type": "blob",
+      "path": "examples/test/deepmd_param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7eeec66d2027fb38418c6bbf698c3bbde70bbf08",
+      "object_type": "blob",
+      "path": "examples/test/meam_param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "981b78f02b36d3c5fd315a40c3bc5658218d3c2e",
+      "object_type": "blob",
+      "path": "examples/test/vasp_param.json"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9acf0928ede96b3f2034757a3ed45d6311b8c7db",
+      "object_type": "blob",
+      "path": "examples/test/vasp_param_from_incar.json"
+    }
+  ],
+  "entry_count": 213,
+  "inventory_scope": "Complete Git object inventory for the exact release documentation and example roots; file bodies and model/data payloads are intentionally not embedded.",
+  "provider_id": "dpgen",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v0.13.3",
+  "repository_url": "https://github.com/deepmodeling/dpgen",
+  "root_tree_object_id": "8d66ef30f286a1825533bd4a2f1e941886f85290",
+  "schema_version": "1.0",
+  "tag_object_id": null
+}

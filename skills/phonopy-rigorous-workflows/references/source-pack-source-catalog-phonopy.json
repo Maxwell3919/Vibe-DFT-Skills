@@ -1,0 +1,855 @@
+{
+  "blockers": [
+    {
+      "code": "DOC.BODY.BYTES.EXTERNAL",
+      "dimensions": ["corpus","slices"],
+      "description": "Official v4.3.1 document bodies and per-page content hashes are not retained."
+    },
+    {
+      "code": "DOC.BUILD.REPLAY.MISSING",
+      "dimensions": ["slices"],
+      "description": "Generated Sphinx/API documentation has not been reproduced from the exact release."
+    },
+    {
+      "code": "DOC.ROLLING.VERSION.DRIFT",
+      "dimensions": ["corpus","slices"],
+      "description": "Rolling-site statements and documented command conflicts are not resolved into the exact v4.3.1 source authority."
+    }
+  ],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://github.com/phonopy/phonopy/tree/v4.3.1/doc",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only"
+    ],
+    "assessment": "conditional",
+    "identity": {
+      "identifier": "BSD-3-Clause",
+      "terms_urls": [
+        "https://raw.githubusercontent.com/phonopy/phonopy/baf530aed09071e1221b3c191918a168fc5f1d9b/LICENSE"
+      ],
+      "verification": "verified"
+    },
+    "limitations": [
+      "The project license does not establish rights or safe handling for calculator outputs, pseudopotentials, datasets, third-party dependencies, or generated execution artifacts."
+    ],
+    "official_terms_locator": "https://raw.githubusercontent.com/phonopy/phonopy/baf530aed09071e1221b3c191918a168fc5f1d9b/LICENSE"
+  },
+  "limitations": [
+    "The exact source-document inventory does not establish the installed phonopy version, calculator executable behavior, force identity, numerical convergence, or scientific acceptance.",
+    "External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\\t<path>\\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "phonopy-exact-document-tree-inventory"
+      ],
+      "description": "Only exact Git path and object metadata are retained; documentation bodies remain external.",
+      "disposition": "external-only",
+      "loss_id": "document-bodies-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "phonopy-exact-document-tree-inventory"
+      ],
+      "description": "The Sphinx/API build and generated command-reference surface have not been reproduced from the exact v4.3.1 release.",
+      "disposition": "blocked",
+      "loss_id": "rendered-build-not-replayed",
+      "materiality": "material",
+      "stage": "extraction"
+    },
+    {
+      "affected_source_ids": [
+        "phonopy-exact-document-tree-inventory"
+      ],
+      "description": "The current rolling website may describe versions newer than v4.3.1; rolling pages are not normalized into the exact-release authority.",
+      "disposition": "blocked",
+      "loss_id": "rolling-site-drift-unresolved",
+      "materiality": "material",
+      "stage": "mapping"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "c77dde096ed772d7c3885a7a6a0e82a9c9b9281453fa777bfb66931aa032c85f",
+        "kind": "revision",
+        "raw_bytes": 6246,
+        "raw_sha256": "77b7be59ae26c8a40ccf233eae9815057a1e57dff69513d09aa2b487bf35d862",
+        "retrieved_utc": "2026-07-23T20:17:38Z",
+        "value": "commit:baf530aed09071e1221b3c191918a168fc5f1d9b;root-tree:fb8a461b44f555924b77b932725c238c4b372268"
+      },
+      "locator": "https://github.com/phonopy/phonopy/tree/v4.3.1/doc",
+      "metadata_evidence_ref": {
+        "bytes": 14941,
+        "path": "skills/phonopy-rigorous-workflows/references/source-pack-inventory-phonopy.json",
+        "sha256": "c77dde096ed772d7c3885a7a6a0e82a9c9b9281453fa777bfb66931aa032c85f"
+      },
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 6246,
+            "raw_sha256": "77b7be59ae26c8a40ccf233eae9815057a1e57dff69513d09aa2b487bf35d862",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-23T20:17:38Z",
+            "selected_bytes": 6246,
+            "selected_sha256": "77b7be59ae26c8a40ccf233eae9815057a1e57dff69513d09aa2b487bf35d862"
+          },
+          "loss_ids": [
+            "document-bodies-not-retained",
+            "rendered-build-not-replayed",
+            "rolling-site-drift-unresolved"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "phonopy-exact-document-tree-inventory.whole",
+          "subject_ids": [
+            "entrypoint.phonopy",
+            "entrypoint.phonopy-init",
+            "entrypoint.phonopy-load",
+            "entrypoint.phonopy-bandplot",
+            "entrypoint.phonopy-calc-convert",
+            "entrypoint.phonopy-crystal-born",
+            "entrypoint.phonopy-gruneisen",
+            "entrypoint.phonopy-gruneisenplot",
+            "entrypoint.phonopy-pdosplot",
+            "entrypoint.phonopy-propplot",
+            "entrypoint.phonopy-qha",
+            "entrypoint.phonopy-tdplot",
+            "entrypoint.phonopy-vasp-born",
+            "entrypoint.phonopy-vasp-efe",
+            "entrypoint.phonopy-qe-born",
+            "capability.init-displacements",
+            "capability.init-random-displacements",
+            "capability.init-collect-forces",
+            "capability.init-subtract-residual-forces",
+            "capability.init-import-vasp-force-constants",
+            "capability.init-symmetry",
+            "capability.calc-band",
+            "capability.calc-mesh",
+            "capability.calc-dos",
+            "capability.calc-pdos",
+            "capability.calc-thermal-properties",
+            "capability.calc-thermal-displacements",
+            "capability.calc-irreps",
+            "capability.calc-modulation",
+            "capability.calc-nac",
+            "capability.volume-gruneisen",
+            "capability.volume-qha",
+            "capability.plot-band",
+            "capability.plot-pdos",
+            "capability.born-vasp",
+            "option-group.calculator-selection",
+            "option-group.setup-and-collection",
+            "option-group.property-selection",
+            "option-group.force-constants",
+            "option-group.sampling-projection-and-nac",
+            "option-group.frequency-temperature-and-output",
+            "option-group.deprecated-or-removed",
+            "calculator.vasp",
+            "calculator.wien2k",
+            "calculator.qe",
+            "calculator.abinit",
+            "calculator.siesta",
+            "calculator.elk",
+            "calculator.crystal",
+            "calculator.dftb",
+            "calculator.turbomole",
+            "calculator.cp2k",
+            "calculator.fhi-aims",
+            "calculator.fleur",
+            "calculator.castep",
+            "calculator.abacus",
+            "calculator.lammps",
+            "calculator.questaal",
+            "calculator.pwmat",
+            "documentation-conflict.main-cli-nac",
+            "documentation-conflict.force-collection-command",
+            "documentation-conflict.example-output-version",
+            "documentation-conflict.propplot-spelling",
+            "documentation-conflict.pypolymlp-version-and-options",
+            "documentation-conflict.random-displacement-legacy-cli",
+            "documentation-conflict.qe-born-nac",
+            "documentation-conflict.vasp-born-st",
+            "documentation-conflict.pdos-filename",
+            "documentation-conflict.qha-exclude-imaginary",
+            "documentation-conflict.calculator-index-lag",
+            "documentation-conflict.bandplot-gnuplot-exit",
+            "documentation-conflict.installation-scipy",
+            "documentation-conflict.no-console-version-flag",
+            "documentation-conflict.removed-shortcuts",
+            "recipe.symmetry-inspection",
+            "recipe.vasp-finite-displacement",
+            "recipe.qe-finite-displacement",
+            "recipe.random-displacements",
+            "recipe.vasp-dfpt-force-constants",
+            "recipe.band-auto",
+            "recipe.band-explicit-with-nac",
+            "recipe.total-dos",
+            "recipe.projected-dos",
+            "recipe.thermal-properties",
+            "recipe.irreducible-representations",
+            "recipe.bandplot-text",
+            "recipe.pdos-plot",
+            "recipe.vasp-born",
+            "recipe.qha",
+            "recipe.mode-gruneisen-mesh"
+          ],
+          "title": "Complete exact-release documentation-tree metadata inventory"
+        }
+      ],
+      "source_id": "phonopy-exact-document-tree-inventory",
+      "source_kind": "index",
+      "title": "Phonopy v4.3.1 complete documentation-tree metadata inventory"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy' (core): Calculate phonon properties from a phonopy YAML-like input."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-init",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-init' (core): Generate displacements, collect calculator forces, import force constants, and inspect symmetry."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-load",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-load' (core): Deprecated alias of phonopy."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-bandplot",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-bandplot' (plot): Plot or convert band.yaml data."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-calc-convert",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-calc-convert' (converter): Calculator-format conversion helper."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-crystal-born",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-crystal-born' (born): CRYSTAL Born-charge conversion helper."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-gruneisen",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-gruneisen' (volume-series): Calculate mode Gruneisen parameters from volume-varied phonon calculations."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-gruneisenplot",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-gruneisenplot' (plot): Plot Gruneisen results."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-pdosplot",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-pdosplot' (plot): Plot projected DOS tables."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-propplot",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-propplot' (plot): Plot thermal_properties.yaml data."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-qha",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-qha' (volume-series): Fit quasi-harmonic thermodynamic properties from volume-energy and thermal-property series."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-tdplot",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-tdplot' (plot): Plot thermal-displacement data."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-vasp-born",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-vasp-born' (born): Create BORN-style data from VASP vasprun.xml or OUTCAR/POSCAR."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-vasp-efe",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-vasp-efe' (volume-series): Collect VASP electronic-state/free-energy data for QHA workflows."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "entrypoint.phonopy-qe-born",
+      "title": "Phonopy v4.3.1 documented entry point 'phonopy-qe-born' (born): Quantum ESPRESSO Born-charge conversion helper."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.init-displacements",
+      "title": "Phonopy v4.3.1 documented capability 'init.displacements' through 'phonopy-init', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.init-random-displacements",
+      "title": "Phonopy v4.3.1 documented capability 'init.random-displacements' through 'phonopy-init', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.init-collect-forces",
+      "title": "Phonopy v4.3.1 documented capability 'init.collect-forces' through 'phonopy-init', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.init-subtract-residual-forces",
+      "title": "Phonopy v4.3.1 documented capability 'init.subtract-residual-forces' through 'phonopy-init', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.init-import-vasp-force-constants",
+      "title": "Phonopy v4.3.1 documented capability 'init.import-vasp-force-constants' through 'phonopy-init', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.init-symmetry",
+      "title": "Phonopy v4.3.1 documented capability 'init.symmetry' through 'phonopy-init', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-band",
+      "title": "Phonopy v4.3.1 documented capability 'calc.band' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-mesh",
+      "title": "Phonopy v4.3.1 documented capability 'calc.mesh' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-dos",
+      "title": "Phonopy v4.3.1 documented capability 'calc.dos' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-pdos",
+      "title": "Phonopy v4.3.1 documented capability 'calc.pdos' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-thermal-properties",
+      "title": "Phonopy v4.3.1 documented capability 'calc.thermal-properties' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-thermal-displacements",
+      "title": "Phonopy v4.3.1 documented capability 'calc.thermal-displacements' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-irreps",
+      "title": "Phonopy v4.3.1 documented capability 'calc.irreps' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-modulation",
+      "title": "Phonopy v4.3.1 documented capability 'calc.modulation' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.calc-nac",
+      "title": "Phonopy v4.3.1 documented capability 'calc.nac' through 'phonopy', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.volume-gruneisen",
+      "title": "Phonopy v4.3.1 documented capability 'volume.gruneisen' through 'phonopy-gruneisen', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.volume-qha",
+      "title": "Phonopy v4.3.1 documented capability 'volume.qha' through 'phonopy-qha', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.plot-band",
+      "title": "Phonopy v4.3.1 documented capability 'plot.band' through 'phonopy-bandplot', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.plot-pdos",
+      "title": "Phonopy v4.3.1 documented capability 'plot.pdos' through 'phonopy-pdosplot', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "capability.born-vasp",
+      "title": "Phonopy v4.3.1 documented capability 'born.vasp' through 'phonopy-vasp-born', with exact options, prerequisites, and outputs requiring provider evidence."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "option-group.calculator-selection",
+      "title": "Phonopy v4.3.1 parser option group 'calculator-selection' contains the cataloged options; help output and migration rules must be checked for the exact entry point."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "option-group.setup-and-collection",
+      "title": "Phonopy v4.3.1 parser option group 'setup-and-collection' contains the cataloged options; help output and migration rules must be checked for the exact entry point."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "option-group.property-selection",
+      "title": "Phonopy v4.3.1 parser option group 'property-selection' contains the cataloged options; help output and migration rules must be checked for the exact entry point."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "option-group.force-constants",
+      "title": "Phonopy v4.3.1 parser option group 'force-constants' contains the cataloged options; help output and migration rules must be checked for the exact entry point."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "option-group.sampling-projection-and-nac",
+      "title": "Phonopy v4.3.1 parser option group 'sampling-projection-and-nac' contains the cataloged options; help output and migration rules must be checked for the exact entry point."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "option-group.frequency-temperature-and-output",
+      "title": "Phonopy v4.3.1 parser option group 'frequency-temperature-and-output' contains the cataloged options; help output and migration rules must be checked for the exact entry point."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "option-group.deprecated-or-removed",
+      "title": "Phonopy v4.3.1 parser option group 'deprecated-or-removed' contains the cataloged options; help output and migration rules must be checked for the exact entry point."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.vasp",
+      "title": "Phonopy v4.3.1 calculator interface 'VASP' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.wien2k",
+      "title": "Phonopy v4.3.1 calculator interface 'WIEN2k' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.qe",
+      "title": "Phonopy v4.3.1 calculator interface 'QE' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.abinit",
+      "title": "Phonopy v4.3.1 calculator interface 'ABINIT' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.siesta",
+      "title": "Phonopy v4.3.1 calculator interface 'SIESTA' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.elk",
+      "title": "Phonopy v4.3.1 calculator interface 'Elk' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.crystal",
+      "title": "Phonopy v4.3.1 calculator interface 'CRYSTAL' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.dftb",
+      "title": "Phonopy v4.3.1 calculator interface 'DFTB+' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.turbomole",
+      "title": "Phonopy v4.3.1 calculator interface 'TURBOMOLE' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.cp2k",
+      "title": "Phonopy v4.3.1 calculator interface 'CP2K' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.fhi-aims",
+      "title": "Phonopy v4.3.1 calculator interface 'FHI-AIMS' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.fleur",
+      "title": "Phonopy v4.3.1 calculator interface 'Fleur' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.castep",
+      "title": "Phonopy v4.3.1 calculator interface 'CASTEP' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.abacus",
+      "title": "Phonopy v4.3.1 calculator interface 'ABACUS' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.lammps",
+      "title": "Phonopy v4.3.1 calculator interface 'LAMMPS' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.questaal",
+      "title": "Phonopy v4.3.1 calculator interface 'Questaal' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "calculator.pwmat",
+      "title": "Phonopy v4.3.1 calculator interface 'PWmat' maps selection, cell, force, and unit conventions that require exact official interface documentation."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.main-cli-nac",
+      "title": "Phonopy documentation conflict 'main-cli-nac' (blocking-for-command-generation): The generic command-options and some interface pages still list --nac, while the v4 migration page says it was removed from the main phonopy CLI; NAC is automatic and --nonac is the opt-out."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.force-collection-command",
+      "title": "Phonopy documentation conflict 'force-collection-command' (blocking-for-stale-example): Interface subsections on the command-options page retain phonopy -f examples, but v4 rejects setup flags on phonopy."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.example-output-version",
+      "title": "Phonopy documentation conflict 'example-output-version' (nonblocking-with-disclosure): The current 4.3.1 Examples page embeds output banners from 2.26.6 and warns that website examples can lag package examples."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.propplot-spelling",
+      "title": "Phonopy documentation conflict 'propplot-spelling' (nonblocking-typo): The auxiliary-tools page heading and source entrypoint say phonopy-propplot, while its example says phonopy-proplot."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.pypolymlp-version-and-options",
+      "title": "Phonopy documentation conflict 'pypolymlp-version-and-options' (blocking-for-mlp-recipe): A temperature-dependent-force-constants page contains dependency and option text that does not match the v4.3.1 pyproject/parser baseline."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.random-displacement-legacy-cli",
+      "title": "Phonopy documentation conflict 'random-displacement-legacy-cli' (blocking-for-stale-example): The random-displacement page retains setup examples with phonopy --rd ... -c --dim even though v4 moved initial setup to phonopy-init."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.qe-born-nac",
+      "title": "Phonopy documentation conflict 'qe-born-nac' (blocking-for-stale-example): QE/BORN prose retains phonopy --nac examples although the v4 main parser removed --nac."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.vasp-born-st",
+      "title": "Phonopy documentation conflict 'vasp-born-st' (blocking-for-option-generation): VASP prose refers to phonopy-vasp-born --st, but the pinned helper defaults to symmetrization and exposes --nost instead."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.pdos-filename",
+      "title": "Phonopy documentation conflict 'pdos-filename' (nonblocking-with-explicit-input): Output documentation names projected_dos.dat while helper source/help may use partial_dos.dat as a default."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.qha-exclude-imaginary",
+      "title": "Phonopy documentation conflict 'qha-exclude-imaginary' (blocking-without-volume-accounting): The pinned QHA parser contains --exclude-imaginary but the official QHA prose does not fully document its scientific consequences."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.calculator-index-lag",
+      "title": "Phonopy documentation conflict 'calculator-index-lag' (nonblocking-discovery-drift): The official interface navigation does not match all 17 calculator selectors in the pinned parser, including PWmat."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.bandplot-gnuplot-exit",
+      "title": "Phonopy documentation conflict 'bandplot-gnuplot-exit' (adapter-special-case): The pinned phonopy-bandplot --gnuplot path can emit requested data and then exit with status 1."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.installation-scipy",
+      "title": "Phonopy documentation conflict 'installation-scipy' (nonblocking-environment-drift): The install page lists SciPy, but the v4.3.1 core dependency manifest does not."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.no-console-version-flag",
+      "title": "Phonopy documentation conflict 'no-console-version-flag' (blocking-for-version-probe): The pinned console parsers do not register --version, and phonopy -v means verbose."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.removed-shortcuts",
+      "title": "Phonopy documentation conflict 'removed-shortcuts' (blocking-for-option-generation): Common tutorial-era shortcuts --symfc and --br are absent from the v4.3.1 parser."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.symmetry-inspection",
+      "title": "Phonopy repository recipe 'symmetry-inspection' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.vasp-finite-displacement",
+      "title": "Phonopy repository recipe 'vasp-finite-displacement' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.qe-finite-displacement",
+      "title": "Phonopy repository recipe 'qe-finite-displacement' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.random-displacements",
+      "title": "Phonopy repository recipe 'random-displacements' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.vasp-dfpt-force-constants",
+      "title": "Phonopy repository recipe 'vasp-dfpt-force-constants' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.band-auto",
+      "title": "Phonopy repository recipe 'band-auto' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.band-explicit-with-nac",
+      "title": "Phonopy repository recipe 'band-explicit-with-nac' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.total-dos",
+      "title": "Phonopy repository recipe 'total-dos' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.projected-dos",
+      "title": "Phonopy repository recipe 'projected-dos' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.thermal-properties",
+      "title": "Phonopy repository recipe 'thermal-properties' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.irreducible-representations",
+      "title": "Phonopy repository recipe 'irreducible-representations' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.bandplot-text",
+      "title": "Phonopy repository recipe 'bandplot-text' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.pdos-plot",
+      "title": "Phonopy repository recipe 'pdos-plot' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.vasp-born",
+      "title": "Phonopy repository recipe 'vasp-born' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.qha",
+      "title": "Phonopy repository recipe 'qha' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.mode-gruneisen-mesh",
+      "title": "Phonopy repository recipe 'mode-gruneisen-mesh' contains official-example or official-source grounded sequencing whose exact v4.3.1 syntax, prerequisites, and calculator conventions require provider evidence."
+    }
+  ],
+  "upstream_universe_complete": true,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": null,
+    "snapshot_identity": null,
+    "value": "4.3.1"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "authorities": [
+    {
+      "authority_id": "catmap-release-source-docs-0-4-1",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "ed04f9146a787b0e63b6febd96d8fe3b314c251b"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/SUNCAT-Center/catmap/ed04f9146a787b0e63b6febd96d8fe3b314c251b/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "catmap-release-source-docs-0-4-1",
+        "binding_id": "catmap-microkinetics-catmap-docs",
+        "claim_effect": "none",
+        "provider_input_id": "catmap-docs",
+        "required_disposition": "blocked",
+        "skill_id": "catmap-microkinetics"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "GPL-3.0-only",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/SUNCAT-Center/catmap/ed04f9146a787b0e63b6febd96d8fe3b314c251b/COPYING.txt"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "The tag is exact but tagged setup/module version strings and the rolling manual label conflict; the authority cannot resolve that conflict or prove native behavior."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "catmap",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "0.4.1",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "Replace the planned placeholder only after lifecycle-decoupled authority and consumer validation accepts a blocked development consumer.",
+    "Preserve the v0.4.1 tag, 0.3.1 package/module strings, and 0.2.79 rolling-manual label as distinct evidence."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "catmap-microkinetics"
+}

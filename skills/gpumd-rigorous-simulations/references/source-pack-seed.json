@@ -1,0 +1,30 @@
+{
+  "blockers": [
+    "Provider-required subjects remain blocked until exact document bodies, generated documentation replay, and semantic slices exist.",
+    "Native GPU build/runtime identity and independent model/data license and provenance closure remain absent."
+  ],
+  "contract_name": "official-document-pack-seed",
+  "limitations": [
+    "The exact v5.3 doc and examples trees are inventoried as metadata only; document/example bodies, models, datasets, trained weights, and outputs remain external."
+  ],
+  "providers": [
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "gpumd-release-source-docs-5-3",
+      "input_id": "gpumd-docs",
+      "provider_id": "gpumd",
+      "source_ref": {
+        "path": "skills/gpumd-rigorous-simulations/references/source-pack-source-catalog-gpumd.json",
+        "sha256": "e8a29211072a0e8a1bc50da650bd249eca1326d6ca24a45d18cc9d0bccb5a51e"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "scope_catalog_ref": {
+    "path": "skills/gpumd-rigorous-simulations/references/source-pack-scope-catalog.json",
+    "sha256": "81e1369cea401c5d557b1e058156e87ab923d8aefc6d728ef1a38bbcb53cfc27"
+  },
+  "scope_extractor_id": "reviewed-semantic-scope-v1",
+  "skill_id": "gpumd-rigorous-simulations",
+  "status_ceiling": "blocked"
+}

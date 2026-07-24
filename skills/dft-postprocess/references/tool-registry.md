@@ -36,6 +36,7 @@ CP2K tools remain unimplemented backends until their adapters pass synthetic, fo
 
 ## VESTA CLI adapter boundary
 
+- The current backend route is `design-only`: repository tests exercise internal project rewriting and fail-closed return-code classification, but do not execute the complete public adapter, and no immutable end-to-end executable receipt is registered. Finding or successfully running a local VESTA executable does not activate or promote the route.
 - Discover `VESTA`/`vesta` on `PATH` or the standard macOS application-bundle executable; do not auto-install it.
 - Convert a grid with `-nogui -i ... -o ...`, then validate the saved project header, density import, and isosurface block before rendering.
 - The tested macOS build may return 255 after a successful conversion. Accept that result only when the output project is nonempty and parseable and the log contains `Saved data to:`; all other nonzero results fail closed.

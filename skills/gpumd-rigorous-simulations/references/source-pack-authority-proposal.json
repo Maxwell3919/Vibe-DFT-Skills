@@ -1,0 +1,82 @@
+{
+  "authorities": [
+    {
+      "authority_id": "gpumd-release-source-docs-5-3",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "f2b46c5d528e985a5bf68becd442b18c0e04396c"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/brucefan1983/GPUMD/f2b46c5d528e985a5bf68becd442b18c0e04396c/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "gpumd-release-source-docs-5-3",
+        "binding_id": "gpumd-rigorous-simulations-gpumd-docs",
+        "claim_effect": "none",
+        "provider_input_id": "gpumd-docs",
+        "required_disposition": "blocked",
+        "skill_id": "gpumd-rigorous-simulations"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "GPL-3.0-or-later",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/brucefan1983/GPUMD/f2b46c5d528e985a5bf68becd442b18c0e04396c/LICENCE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact release source documentation does not prove local build/runtime identity, GPU compatibility, model/data rights, native behavior, convergence, or scientific validity."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "gpumd",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "5.3",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "A blocked development consumer and lifecycle-decoupled authority must pass central authority/consumer validation before pack generation.",
+    "Models, trained weights, datasets, example outputs, and GPU/runtime artifacts remain separate authorities and must not inherit source-code licensing or provenance."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "gpumd-rigorous-simulations"
+}

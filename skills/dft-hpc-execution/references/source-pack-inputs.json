@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "skill_id": "dft-hpc-execution",
+  "seed": {
+    "status_ceiling": "blocked",
+    "limitations": [
+      "The pack is metadata-only: scheduler manuals, specifications, and repository contract bodies remain external.",
+      "Slurm receipts identify rolling 26.05 pages at retrieval, not an installed cluster version or site policy.",
+      "OpenPBS v23.06.06 sources cover a synthetic candidate surface only; they do not activate an OpenPBS operational route."
+    ],
+    "blockers": [
+      "No live cluster version, site policy, scheduler client, accounting configuration, or native execution was validated.",
+      "Slurm documentation licensing, the OpenPBS ngpus rendering assumption, repository licensing, and central processor attestation remain unresolved."
+    ]
+  },
+  "providers": [
+    {
+      "input_id": "repository-contracts-hpc",
+      "authority_id": "vibe-dft-skills-repository-contracts",
+      "provider_id": "vibe-dft-skills",
+      "catalog_file": "source-catalog-repository-interfaces.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {"kind": "revision", "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315", "retrieved_utc": "2026-07-23T20:02:38Z", "snapshot_identity": null},
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills/tree/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/contracts",
+        "sources": [
+          {
+            "source_id": "hpc-repository-source-index",
+            "title": "dft-hpc-execution repository and Slurm source index",
+            "source_kind": "index",
+            "locator": "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-hpc-execution/references/official-source-index.json",
+            "disposition": "included",
+            "receipt": {"path": "skills/dft-hpc-execution/references/official-source-index.json", "kind": "revision", "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315:skills/dft-hpc-execution/references/official-source-index.json", "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "git-object"},
+            "slices": [
+              {"slice_id": "hpc-repository-source-index-whole", "order": 0, "title": "Exact repository source index", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": [], "loss_ids": ["repository-bodies-external"]}
+            ]
+          }
+        ],
+        "subjects": [],
+        "reviewed_exclusions": [],
+        "losses": [
+          {"loss_id": "repository-bodies-external", "stage": "storage", "description": "Repository contracts and policies remain exact local refs and are not copied into this catalog.", "materiality": "non-material", "disposition": "external-only", "affected_source_ids": ["hpc-repository-source-index"]}
+        ],
+        "license": {
+          "identity": {"identifier": null, "terms_urls": [], "verification": "unknown"},
+          "assessment": "unresolved",
+          "allowed_storage_modes": ["metadata-only", "excluded"],
+          "official_terms_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills",
+          "limitations": ["No root repository license was found; exact revision identity grants no redistribution right."]
+        },
+        "limitations": ["Repository policy remains local and cannot earn external-provider coverage."],
+        "blockers": []
+      }
+    },
+    {
+      "input_id": "json-schema-2020-12",
+      "authority_id": "json-schema-standard-2020-12",
+      "provider_id": "json-schema",
+      "catalog_file": "source-catalog-json-schema-2020-12.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {"kind": "exact", "value": "2020-12", "retrieved_utc": "2026-07-23T20:02:38Z", "snapshot_identity": null},
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://json-schema.org/draft/2020-12",
+        "sources": [
+          {
+            "source_id": "json-schema-core-2020-12",
+            "title": "JSON Schema Core 2020-12",
+            "source_kind": "reference-page",
+            "locator": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+            "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://json-schema.org/draft/2020-12/json-schema-core.html", "raw_sha256": "f8b080be1d8b8eb318ea712c7bad4bf83734b3ee81379baf0c0290292ab5e652", "raw_bytes": 342564, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "json-schema-core-2020-12-whole", "order": 0, "title": "Core dialect specification", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["jsonschema.draft202012.dialect"], "loss_ids": ["json-schema-bodies-external"]}]
+          },
+          {
+            "source_id": "json-schema-validation-2020-12",
+            "title": "JSON Schema Validation 2020-12",
+            "source_kind": "reference-page",
+            "locator": "https://json-schema.org/draft/2020-12/json-schema-validation.html",
+            "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://json-schema.org/draft/2020-12/json-schema-validation.html", "raw_sha256": "ad91ab6839d7b1f1209c496663c90e406a4530fe333d3e7aade0968e8c590f2f", "raw_bytes": 169423, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "json-schema-validation-2020-12-whole", "order": 0, "title": "Validation vocabulary specification", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["jsonschema.draft202012.validation-vocabulary"], "loss_ids": ["json-schema-bodies-external"]}]
+          }
+        ],
+        "subjects": [
+          {"subject_id": "jsonschema.draft202012.dialect", "title": "Draft 2020-12 dialect and core vocabulary", "category": "validation-rule", "requirement_strength": "supporting", "evidence_class": "official-provider-required"},
+          {"subject_id": "jsonschema.draft202012.validation-vocabulary", "title": "Draft 2020-12 validation vocabulary", "category": "validation-rule", "requirement_strength": "supporting", "evidence_class": "official-provider-required"}
+        ],
+        "reviewed_exclusions": [],
+        "losses": [
+          {"loss_id": "json-schema-bodies-external", "stage": "storage", "description": "Specification bodies remain external and only exact HTTPS receipts are retained.", "materiality": "material", "disposition": "external-only", "affected_source_ids": ["json-schema-core-2020-12", "json-schema-validation-2020-12"]}
+        ],
+        "license": {
+          "identity": {"identifier": "IETF-Trust-Legal-Provisions", "terms_urls": ["https://trustee.ietf.org/license-info"], "verification": "verified"},
+          "assessment": "conditional",
+          "allowed_storage_modes": ["metadata-only", "external-runtime-only", "excluded"],
+          "official_terms_locator": "https://trustee.ietf.org/license-info",
+          "limitations": ["Only metadata is stored; derivative and code-component obligations are not assessed."]
+        },
+        "limitations": ["This provider covers the external dialect used by central contract validators, not the candidate CLI's hand-written checks."],
+        "blockers": []
+      }
+    },
+    {
+      "input_id": "slurm-26-05-live",
+      "authority_id": "slurm-live-manual-26-05",
+      "provider_id": "slurm",
+      "catalog_file": "source-catalog-slurm-26-05-live.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {"kind": "latest-at-retrieval", "value": "26.05-live-at-retrieval", "retrieved_utc": "2026-07-23T20:02:38Z", "snapshot_identity": null},
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://slurm.schedmd.com/",
+        "sources": [
+          {
+            "source_id": "slurm-sbatch", "title": "Slurm sbatch manual", "source_kind": "manual-page", "locator": "https://slurm.schedmd.com/sbatch.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/sbatch.html", "raw_sha256": "eef4f830c8e61d29a2345c17e77a28c99318b70a77bf73076d5a267d8aba23b8", "raw_bytes": 171162, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-sbatch-whole", "order": 0, "title": "sbatch submission and options", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.sbatch.submission-options"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-squeue", "title": "Slurm squeue manual", "source_kind": "manual-page", "locator": "https://slurm.schedmd.com/squeue.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/squeue.html", "raw_sha256": "633095ca7312d5d7f1af1d016b014a4496b0525e5b923762868830717363ddc5", "raw_bytes": 83657, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-squeue-whole", "order": 0, "title": "squeue active observation", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.squeue.active-observation"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-sacct", "title": "Slurm sacct manual", "source_kind": "manual-page", "locator": "https://slurm.schedmd.com/sacct.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/sacct.html", "raw_sha256": "eecc25696877c8ea6af68315c96db8160c6eb387ace46e7608134e7f2b7aef60", "raw_bytes": 76547, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-sacct-whole", "order": 0, "title": "sacct accounting observation", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.sacct.accounting-observation"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-scontrol", "title": "Slurm scontrol manual", "source_kind": "manual-page", "locator": "https://slurm.schedmd.com/scontrol.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/scontrol.html", "raw_sha256": "1617b8066c81d432911f93f15e22c891c2574c0127bbce823a6cc775fdaf00f8", "raw_bytes": 162436, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-scontrol-whole", "order": 0, "title": "scontrol detailed observation", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.scontrol.detailed-observation"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-scancel", "title": "Slurm scancel manual", "source_kind": "manual-page", "locator": "https://slurm.schedmd.com/scancel.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/scancel.html", "raw_sha256": "397b36c13a72034aaa5920427ce9b1f3e3880ccc4d66bb88090b9b2aa4c4bd93", "raw_bytes": 22315, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-scancel-whole", "order": 0, "title": "scancel cancellation semantics", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.scancel.cancellation"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-job-state-codes", "title": "Slurm job state codes", "source_kind": "reference-page", "locator": "https://slurm.schedmd.com/job_state_codes.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/job_state_codes.html", "raw_sha256": "b8685a6f1afb73580bc176a1e64a780fa63b29b730077807e6e17cc7de4254e6", "raw_bytes": 9309, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-job-state-codes-whole", "order": 0, "title": "Native job state codes", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.job-state-codes"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-job-exit-code", "title": "Slurm job exit codes", "source_kind": "reference-page", "locator": "https://slurm.schedmd.com/job_exit_code.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/job_exit_code.html", "raw_sha256": "b48309fbfa9e6497d7bd10ed548244a4fedd4f873088eb8f7feb54e0f1c2fc14", "raw_bytes": 8633, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-job-exit-code-whole", "order": 0, "title": "Job and step exit-code semantics", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.job-exit-code"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-job-array", "title": "Slurm job arrays", "source_kind": "guide", "locator": "https://slurm.schedmd.com/job_array.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/job_array.html", "raw_sha256": "e44eb5aca44d62c9ebab2316b80e90598226fbba8426ef3447a4c45b1ac9e05b", "raw_bytes": 18649, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-job-array-whole", "order": 0, "title": "Job-array identity and behavior", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.job-array"], "loss_ids": ["slurm-bodies-external"]}]
+          },
+          {
+            "source_id": "slurm-gres", "title": "Slurm generic resources", "source_kind": "guide", "locator": "https://slurm.schedmd.com/gres.html", "disposition": "included",
+            "receipt": {"kind": "external-receipt", "value": "https://slurm.schedmd.com/gres.html", "raw_sha256": "b54efd1e6021b97acb112f6bdfc2e9038a4cb765d83057d973ed73d33fb1b8db", "raw_bytes": 42066, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "https-get"},
+            "slices": [{"slice_id": "slurm-gres-whole", "order": 0, "title": "GRES and GPU allocation semantics", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["slurm.gres"], "loss_ids": ["slurm-bodies-external"]}]
+          }
+        ],
+        "subjects": [
+          {"subject_id": "slurm.sbatch.submission-options", "title": "sbatch submission, directives, options, and precedence", "category": "workflow", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.squeue.active-observation", "title": "squeue active-state observation", "category": "workflow", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.sacct.accounting-observation", "title": "sacct accounting and terminal observation", "category": "workflow", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.scontrol.detailed-observation", "title": "scontrol detailed job observation", "category": "workflow", "requirement_strength": "supporting", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.scancel.cancellation", "title": "scancel side-effect semantics", "category": "workflow", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.job-state-codes", "title": "Native Slurm job states", "category": "output-observable", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.job-exit-code", "title": "Slurm job and step exit codes", "category": "output-observable", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.job-array", "title": "Slurm job-array identity", "category": "workflow", "requirement_strength": "supporting", "evidence_class": "official-provider-required"},
+          {"subject_id": "slurm.gres", "title": "Slurm GRES and GPU semantics", "category": "input-parameter", "requirement_strength": "supporting", "evidence_class": "official-provider-required"}
+        ],
+        "reviewed_exclusions": [],
+        "losses": [
+          {"loss_id": "slurm-bodies-external", "stage": "storage", "description": "Rolling manual bodies remain external; exact retrieval receipts are retained for nine pages used by the Skill.", "materiality": "material", "disposition": "external-only", "affected_source_ids": ["slurm-sbatch", "slurm-squeue", "slurm-sacct", "slurm-scontrol", "slurm-scancel", "slurm-job-state-codes", "slurm-job-exit-code", "slurm-job-array", "slurm-gres"]}
+        ],
+        "license": {
+          "identity": {"identifier": null, "terms_urls": [], "verification": "unknown"},
+          "assessment": "unresolved",
+          "allowed_storage_modes": ["metadata-only", "external-runtime-only", "excluded"],
+          "official_terms_locator": "https://slurm.schedmd.com/",
+          "limitations": ["The pages identify Slurm 26.05 but no documentation-wide redistribution license was established."]
+        },
+        "limitations": [
+          "Rolling live pages may drift and do not identify an installed cluster version.",
+          "Official syntax does not determine account, partition, QoS, modules, launcher, filesystem, accounting, or site policy."
+        ],
+        "blockers": [
+          {"code": "SLURM.ROLLING.NO.EXACT.SNAPSHOT", "description": "The live 26.05 pages are retrieval receipts, not a versioned immutable documentation corpus.", "dimensions": ["corpus", "slices"]},
+          {"code": "SLURM.SITE.UNVALIDATED", "description": "No installed version or site policy was matched and no cluster command was executed.", "dimensions": ["coverage"]}
+        ]
+      }
+    },
+    {
+      "input_id": "openpbs-23-06-06",
+      "authority_id": "openpbs-release-docs-23-06-06",
+      "provider_id": "openpbs",
+      "catalog_file": "source-catalog-openpbs-23-06-06.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {"kind": "exact", "value": "23.06.06", "retrieved_utc": "2026-07-23T20:02:38Z", "snapshot_identity": null},
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://github.com/openpbs/openpbs/tree/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1",
+        "sources": [
+          {
+            "source_id": "openpbs-qsub", "title": "OpenPBS qsub manual source", "source_kind": "source-documentation", "locator": "https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/qsub.1B", "disposition": "included",
+            "receipt": {"kind": "revision", "value": "be361a18ef37652bece0811ec709f0fe4fc52710:doc/man1/qsub.1B", "raw_sha256": "629bc7b4b2c557d568ade2fe2b9e0d4c543ea4f19d23a066feffeed81f364b3d", "raw_bytes": 42599, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "git-object"},
+            "slices": [{"slice_id": "openpbs-qsub-whole", "order": 0, "title": "qsub submission syntax", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["openpbs.qsub.rendering"], "loss_ids": ["openpbs-bodies-external"]}]
+          },
+          {
+            "source_id": "openpbs-resources", "title": "OpenPBS resource manual source", "source_kind": "source-documentation", "locator": "https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/pbs_resources.7B", "disposition": "included",
+            "receipt": {"kind": "revision", "value": "be361a18ef37652bece0811ec709f0fe4fc52710:doc/man1/pbs_resources.7B", "raw_sha256": "0ce89940a1f3d46f4de5b95a615bf1b6c8b71bf54400444f1b30aca4a5a9a3f5", "raw_bytes": 33416, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "git-object"},
+            "slices": [{"slice_id": "openpbs-resources-whole", "order": 0, "title": "Resource request vocabulary", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["openpbs.resources.syntax"], "loss_ids": ["openpbs-bodies-external"]}]
+          },
+          {
+            "source_id": "openpbs-qstat", "title": "OpenPBS qstat manual source", "source_kind": "source-documentation", "locator": "https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/qstat.1B", "disposition": "included",
+            "receipt": {"kind": "revision", "value": "be361a18ef37652bece0811ec709f0fe4fc52710:doc/man1/qstat.1B", "raw_sha256": "3f67d6e100a6766a053ef702087bbb5b03299bed7fca1d2548b71c9dc01e92db", "raw_bytes": 29342, "retrieved_utc": "2026-07-23T20:02:38Z", "retrieval_method": "git-object"},
+            "slices": [{"slice_id": "openpbs-qstat-whole", "order": 0, "title": "qstat job-state observation", "selector": {"layer": "raw-source", "kind": "whole-source", "value": "*"}, "subject_ids": ["openpbs.qstat.state-observation"], "loss_ids": ["openpbs-bodies-external"]}]
+          }
+        ],
+        "subjects": [
+          {"subject_id": "openpbs.qsub.rendering", "title": "OpenPBS qsub submission and directive syntax", "category": "workflow", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "openpbs.resources.syntax", "title": "OpenPBS resource request vocabulary", "category": "input-parameter", "requirement_strength": "required", "evidence_class": "official-provider-required"},
+          {"subject_id": "openpbs.qstat.state-observation", "title": "OpenPBS qstat job states", "category": "output-observable", "requirement_strength": "required", "evidence_class": "official-provider-required"}
+        ],
+        "reviewed_exclusions": [],
+        "losses": [
+          {"loss_id": "openpbs-bodies-external", "stage": "storage", "description": "Exact release manpage bodies remain external and only git-object receipts are stored.", "materiality": "material", "disposition": "external-only", "affected_source_ids": ["openpbs-qsub", "openpbs-resources", "openpbs-qstat"]}
+        ],
+        "license": {
+          "identity": {"identifier": "AGPL-3.0-or-later", "terms_urls": ["https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/LICENSE"], "verification": "verified"},
+          "assessment": "allowed",
+          "allowed_storage_modes": ["metadata-only", "external-runtime-only", "excluded"],
+          "official_terms_locator": "https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/LICENSE",
+          "limitations": ["OpenPBS source licensing does not remove PBS Professional commercial or trademark boundaries."]
+        },
+        "limitations": [
+          "The exact release source does not validate any installed site version or policy.",
+          "The candidate's ngpus rendering assumption is not closed by the selected pbs_resources source and remains blocked."
+        ],
+        "blockers": [
+          {"code": "OPENPBS.NGPUS.UNRESOLVED", "description": "The selected exact resource manual does not close the candidate ngpus assumption.", "dimensions": ["coverage"]},
+          {"code": "OPENPBS.ROUTE.SYNTHETIC", "description": "The OpenPBS branch is a synthetic regression surface, not an externally validated operational route.", "dimensions": ["coverage"]}
+        ]
+      }
+    }
+  ],
+  "scope_subjects": [
+    {"subject_id": "hpc.lifecycle.development-only", "subject_kind": "limitation", "evidence_class": "repository-policy", "origin_paths": ["skills/dft-hpc-execution/SKILL.md", "skills/dft-hpc-execution/references/maturity-matrix.json"], "statement": "The Skill remains development, non-routable, and no-positive-claim; no scheduler route is activated.", "expected_disposition": "not-applicable", "provider_input_ids": []},
+    {"subject_id": "hpc.boundary.no-external-side-effect", "subject_kind": "limitation", "evidence_class": "deterministic-tool-behavior", "origin_paths": ["skills/dft-hpc-execution/scripts/hpc_execution_cli.py", "skills/dft-hpc-execution/SKILL.md"], "statement": "The candidate validates local JSON, renders stdout intent, and classifies supplied observations without network, SSH, scheduler, process, file-staging, or scientific-executable side effects.", "expected_disposition": "not-applicable", "provider_input_ids": []},
+    {"subject_id": "hpc.identity.request-decision-lease", "subject_kind": "workflow", "evidence_class": "deterministic-tool-behavior", "origin_paths": ["skills/dft-hpc-execution/scripts/hpc_execution_cli.py", "skills/dft-hpc-execution/references/fail-closed-contract.md"], "statement": "Request, decision, and lease use strict bounded JSON, exact raw-byte bindings, non-broadening grants, and local single-use checks.", "expected_disposition": "not-applicable", "provider_input_ids": []},
+    {"subject_id": "hpc.openpbs.template-divisibility-local", "subject_kind": "parameter", "evidence_class": "deterministic-tool-behavior", "origin_paths": ["skills/dft-hpc-execution/scripts/hpc_execution_cli.py"], "statement": "OpenPBS ranks-per-node, GPUs-per-node divisibility, walltime formatting, and emitted ngpus text are candidate-local template rules, not official OpenPBS requirements.", "expected_disposition": "not-applicable", "provider_input_ids": []},
+    {"subject_id": "hpc.state.separate-layers", "subject_kind": "limitation", "evidence_class": "scientific-methodology", "origin_paths": ["skills/dft-hpc-execution/SKILL.md", "skills/dft-hpc-execution/references/fail-closed-contract.md"], "statement": "Scheduler state, process exit, application completion, numerical convergence, and scientific acceptance remain separate layers.", "expected_disposition": "not-applicable", "provider_input_ids": []},
+    {"subject_id": "hpc.site-policy.external", "subject_kind": "limitation", "evidence_class": "repository-policy", "origin_paths": ["skills/dft-hpc-execution/references/operational-playbooks.md", "skills/dft-hpc-execution/SKILL.md"], "statement": "Account, partition, QoS, modules, launcher, filesystem, charging, and site scheduler policy must be resolved at the target cluster.", "expected_disposition": "not-applicable", "provider_input_ids": []},
+    {"subject_id": "hpc.cancel.separate-authorization", "subject_kind": "limitation", "evidence_class": "repository-policy", "origin_paths": ["skills/dft-hpc-execution/references/slurm-operations.md", "skills/dft-hpc-execution/references/repository-interface-manual.md"], "statement": "Cancellation is a separate external side effect requiring fresh human confirmation and post-cancel observation.", "expected_disposition": "not-applicable", "provider_input_ids": []},
+    {"subject_id": "hpc.jsonschema.cli-conformance-excluded", "subject_kind": "limitation", "evidence_class": "deterministic-tool-behavior", "origin_paths": ["skills/dft-hpc-execution/scripts/hpc_execution_cli.py", "skills/dft-hpc-execution/references/repository-interface-manual.md"], "statement": "The candidate CLI does not itself import or implement a Draft 2020-12 validator; JSON Schema authority applies only to central contract-validation handoffs named in the manual.", "expected_disposition": "excluded", "provider_input_ids": []},
+    {"subject_id": "jsonschema.draft202012.dialect", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/repository-interface-manual.md", "skills/dft-hpc-execution/references/source-catalog-json-schema-2020-12.json"], "statement": "Central validation of the execution-request contract consumes the JSON Schema Draft 2020-12 dialect and core vocabulary.", "expected_disposition": "partial", "provider_input_ids": ["json-schema-2020-12"]},
+    {"subject_id": "jsonschema.draft202012.validation-vocabulary", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/repository-interface-manual.md", "skills/dft-hpc-execution/references/source-catalog-json-schema-2020-12.json"], "statement": "Central validation of execution contracts consumes the Draft 2020-12 validation vocabulary.", "expected_disposition": "partial", "provider_input_ids": ["json-schema-2020-12"]},
+    {"subject_id": "slurm.sbatch.submission-options", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/slurm-operations.md", "skills/dft-hpc-execution/references/operational-playbooks.md"], "statement": "The external Slurm handoff uses documented sbatch submission, directive, option, and precedence behavior.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.squeue.active-observation", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/slurm-operations.md"], "statement": "The external Slurm handoff uses squeue for active-state observation while treating absence as ambiguous.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.sacct.accounting-observation", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/slurm-operations.md", "skills/dft-hpc-execution/references/operational-playbooks.md"], "statement": "The external Slurm handoff uses sacct for accounting and terminal observation without equating scheduler completion with scientific success.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.scontrol.detailed-observation", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/slurm-operations.md"], "statement": "The external Slurm handoff uses scontrol for bounded detailed job inspection.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.scancel.cancellation", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/slurm-operations.md"], "statement": "The manual records scancel as an external cancellation side effect and requires separate authorization.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.job-state-codes", "subject_kind": "output-field", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/scheduler-status-mapping.json", "skills/dft-hpc-execution/references/official-source-index.json"], "statement": "Native Slurm job states provide the documented input to the candidate's local normalized status mapping.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.job-exit-code", "subject_kind": "output-field", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/operational-playbooks.md"], "statement": "Slurm job and step exit-code semantics are kept separate from application and scientific evidence.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.job-array", "subject_kind": "workflow", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/operational-playbooks.md"], "statement": "Slurm job-array identities and element mapping are used only in the external operational playbook.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "slurm.gres", "subject_kind": "parameter", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/operational-playbooks.md"], "statement": "Slurm GRES and GPU allocation semantics support external review of GPU resource intent.", "expected_disposition": "partial", "provider_input_ids": ["slurm-26-05-live"]},
+    {"subject_id": "openpbs.qsub.rendering", "subject_kind": "documented-claim", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/scripts/hpc_execution_cli.py", "skills/dft-hpc-execution/SKILL.md"], "statement": "Exact OpenPBS release qsub source is the proposed authority for the candidate's synthetic qsub rendering surface.", "expected_disposition": "blocked", "provider_input_ids": ["openpbs-23-06-06"]},
+    {"subject_id": "openpbs.resources.syntax", "subject_kind": "parameter", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/scripts/hpc_execution_cli.py"], "statement": "Exact OpenPBS resource documentation is required for select, ncpus, mpiprocs, ompthreads, memory, walltime, and GPU request syntax; ngpus remains unresolved.", "expected_disposition": "blocked", "provider_input_ids": ["openpbs-23-06-06"]},
+    {"subject_id": "openpbs.qstat.state-observation", "subject_kind": "output-field", "evidence_class": "official-provider-required", "origin_paths": ["skills/dft-hpc-execution/references/scheduler-status-mapping.json", "skills/dft-hpc-execution/scripts/hpc_execution_cli.py"], "statement": "Exact OpenPBS qstat source is required to review the candidate's synthetic native-state mapping.", "expected_disposition": "blocked", "provider_input_ids": ["openpbs-23-06-06"]}
+  ],
+  "authority_proposal": {
+    "schema_version": "1.0",
+    "proposal_type": "central-official-source-authority-and-consumer-bindings",
+    "skill_id": "dft-hpc-execution",
+    "lifecycle_effect": "none",
+    "authority_entries": {
+      "vibe-dft-skills-repository-contracts": {
+        "display_name": "Vibe DFT Skills exact repository contracts and policies", "lifecycle": "active", "provider_class": "repository", "provider_id": "vibe-dft-skills",
+        "allowed_https_origins": ["https://raw.githubusercontent.com"],
+        "version_policy": {"allowed_scopes": ["exact"], "registered_scopes": [{"scope": "exact", "exact_version": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315", "minimum_version": null, "maximum_version": null, "release_series": null}]},
+        "content_policy": {"source_kinds": ["official-repository"], "allowed_path_prefixes": ["/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/"], "query_policy": "forbidden", "allowed_query_urls": [], "fragment_policy": "forbidden", "resolution_mode": "platform-verified-only"},
+        "content_identity_policy": {"mode": "platform-adapter-only", "unpinned_action": "adapter-required"}, "canonical_snapshot": null,
+        "license_policy": {"status": "unknown", "identifier": null, "terms_urls": [], "verification_status": "unresolved"},
+        "redistribution_policy": {"allowed_values": ["unknown"], "bundle_content": "forbidden", "external_runtime_content": "platform-verification-required"},
+        "limitations": ["Exact repository identity cannot establish scheduler behavior, cluster configuration, execution, or scientific acceptance."],
+        "provenance": {"verified_utc": "2026-07-23T20:02:38Z", "official_fact_urls": ["https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-hpc-execution/references/official-source-index.json"]}
+      },
+      "json-schema-standard-2020-12": {
+        "display_name": "JSON Schema Draft 2020-12 Core and Validation specifications", "lifecycle": "active", "provider_class": "standard", "provider_id": "json-schema",
+        "allowed_https_origins": ["https://json-schema.org"],
+        "version_policy": {"allowed_scopes": ["exact"], "registered_scopes": [{"scope": "exact", "exact_version": "2020-12", "minimum_version": null, "maximum_version": null, "release_series": null}]},
+        "content_policy": {"source_kinds": ["official-reference"], "allowed_path_prefixes": ["/draft/2020-12/"], "query_policy": "forbidden", "allowed_query_urls": [], "fragment_policy": "forbidden", "resolution_mode": "platform-verified-only"},
+        "content_identity_policy": {"mode": "platform-adapter-only", "unpinned_action": "adapter-required"}, "canonical_snapshot": null,
+        "license_policy": {"status": "unknown", "identifier": null, "terms_urls": [], "verification_status": "unresolved"},
+        "redistribution_policy": {"allowed_values": ["unknown"], "bundle_content": "forbidden", "external_runtime_content": "platform-verification-required"},
+        "limitations": ["The authority covers central schema validation only and grants no conformance claim to the candidate CLI."],
+        "provenance": {"verified_utc": "2026-07-23T20:02:38Z", "official_fact_urls": ["https://json-schema.org/draft/2020-12/json-schema-core.html", "https://json-schema.org/draft/2020-12/json-schema-validation.html"]}
+      },
+      "slurm-live-manual-26-05": {
+        "display_name": "Slurm 26.05 live official manuals at retrieval", "lifecycle": "active", "provider_class": "platform", "provider_id": "slurm",
+        "allowed_https_origins": ["https://slurm.schedmd.com"],
+        "version_policy": {"allowed_scopes": ["latest-at-retrieval"], "registered_scopes": [{"scope": "latest-at-retrieval", "exact_version": null, "minimum_version": null, "maximum_version": null, "release_series": null}]},
+        "content_policy": {"source_kinds": ["official-manual", "official-reference"], "allowed_path_prefixes": ["/"], "query_policy": "forbidden", "allowed_query_urls": [], "fragment_policy": "forbidden", "resolution_mode": "platform-verified-only"},
+        "content_identity_policy": {"mode": "platform-adapter-only", "unpinned_action": "adapter-required"}, "canonical_snapshot": null,
+        "license_policy": {"status": "unknown", "identifier": null, "terms_urls": [], "verification_status": "unresolved"},
+        "redistribution_policy": {"allowed_values": ["unknown"], "bundle_content": "forbidden", "external_runtime_content": "platform-verification-required"},
+        "limitations": ["Rolling pages and official syntax do not identify the installed cluster version or site policy."],
+        "provenance": {"verified_utc": "2026-07-23T20:02:38Z", "official_fact_urls": ["https://slurm.schedmd.com/sbatch.html", "https://slurm.schedmd.com/squeue.html", "https://slurm.schedmd.com/sacct.html", "https://slurm.schedmd.com/scontrol.html", "https://slurm.schedmd.com/scancel.html", "https://slurm.schedmd.com/job_state_codes.html", "https://slurm.schedmd.com/job_exit_code.html", "https://slurm.schedmd.com/job_array.html", "https://slurm.schedmd.com/gres.html"]}
+      },
+      "openpbs-release-docs-23-06-06": {
+        "display_name": "OpenPBS 23.06.06 exact release manpage sources", "lifecycle": "active", "provider_class": "platform", "provider_id": "openpbs",
+        "allowed_https_origins": ["https://raw.githubusercontent.com"],
+        "version_policy": {"allowed_scopes": ["exact"], "registered_scopes": [{"scope": "exact", "exact_version": "23.06.06", "minimum_version": null, "maximum_version": null, "release_series": null}]},
+        "content_policy": {"source_kinds": ["official-manual", "official-repository"], "allowed_path_prefixes": ["/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/"], "query_policy": "forbidden", "allowed_query_urls": [], "fragment_policy": "forbidden", "resolution_mode": "platform-verified-only"},
+        "content_identity_policy": {"mode": "platform-adapter-only", "unpinned_action": "adapter-required"}, "canonical_snapshot": null,
+        "license_policy": {"status": "known-open", "identifier": "AGPL-3.0-or-later", "terms_urls": ["https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/LICENSE"], "verification_status": "verified"},
+        "redistribution_policy": {"allowed_values": ["redistributable"], "bundle_content": "forbidden", "external_runtime_content": "platform-verification-required"},
+        "limitations": ["Exact release source does not validate an installed site and does not close the candidate ngpus assumption."],
+        "provenance": {"verified_utc": "2026-07-23T20:02:38Z", "official_fact_urls": ["https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/qsub.1B", "https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/pbs_resources.7B", "https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/qstat.1B", "https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/LICENSE"]}
+      }
+    },
+    "consumer_bindings": [
+      {"binding_id": "dft-hpc-execution-repository-contracts", "consumer_skill_id": "dft-hpc-execution", "consumer_lifecycle": "development", "consumer_path": "skills/dft-hpc-execution", "authority_id": "vibe-dft-skills-repository-contracts", "provider_id": "vibe-dft-skills", "purpose": "official-document-coverage", "claim_ceiling": "registered-skill-scope"},
+      {"binding_id": "dft-hpc-execution-json-schema-2020-12", "consumer_skill_id": "dft-hpc-execution", "consumer_lifecycle": "development", "consumer_path": "skills/dft-hpc-execution", "authority_id": "json-schema-standard-2020-12", "provider_id": "json-schema", "purpose": "official-document-coverage", "claim_ceiling": "registered-skill-scope"},
+      {"binding_id": "dft-hpc-execution-slurm-26-05", "consumer_skill_id": "dft-hpc-execution", "consumer_lifecycle": "development", "consumer_path": "skills/dft-hpc-execution", "authority_id": "slurm-live-manual-26-05", "provider_id": "slurm", "purpose": "official-document-coverage", "claim_ceiling": "registered-skill-scope"},
+      {"binding_id": "dft-hpc-execution-openpbs-23-06-06", "consumer_skill_id": "dft-hpc-execution", "consumer_lifecycle": "development", "consumer_path": "skills/dft-hpc-execution", "authority_id": "openpbs-release-docs-23-06-06", "provider_id": "openpbs", "purpose": "official-document-coverage", "claim_ceiling": "registered-skill-scope"}
+    ],
+    "central_blockers": [
+      "All four authority entries and development consumer bindings remain unapplied.",
+      "Slurm rolling identity/license/site policy and OpenPBS ngpus/site validation remain unresolved.",
+      "No authority entry changes the candidate lifecycle or permits scheduler side effects."
+    ],
+    "invariants": [
+      "The proposal cannot change development lifecycle, routing, installability, execution permission, or no_positive_claim.",
+      "Repository, standard, and platform authorities remain separate; no scheduler fact establishes application or scientific success."
+    ]
+  }
+}

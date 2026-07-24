@@ -1,0 +1,187 @@
+{
+  "contract_name": "official-document-scope-catalog",
+  "extractor_id": "gaussian-document-scope-v1",
+  "schema_version": "1.0",
+  "skill_id": "gaussian-rigorous-calculations",
+  "subjects": [
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/official-sources.md",
+          "sha256": "bbe989f5f61bcf8eafdf38a76f004a049640471c89519a031c6724018add445a"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+          "sha256": "d7a15b26bdc91dd2193a638f8724b89a9acc2f3923806219bf3e2553ff63fa10"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c01-public"
+      ],
+      "statement": "The public Gaussian documentation navigation boundary requires the separately bounded C.01 provider input.",
+      "subject_id": "g16-c01-navigation",
+      "subject_kind": "documented-claim"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/official-sources.md",
+          "sha256": "bbe989f5f61bcf8eafdf38a76f004a049640471c89519a031c6724018add445a"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+          "sha256": "d7a15b26bdc91dd2193a638f8724b89a9acc2f3923806219bf3e2553ff63fa10"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c01-public"
+      ],
+      "statement": "Public Gaussian 16 user-reference, input, keyword, and IOp pages used by this Skill require the separately bounded C.01 provider input.",
+      "subject_id": "g16-c01-user-reference",
+      "subject_kind": "documented-claim"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/SKILL.md",
+          "sha256": "19d3369ff86541df28599bd8e8ae42640ddde9698d860c46437fc2a249a5d95d"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+          "sha256": "d7a15b26bdc91dd2193a638f8724b89a9acc2f3923806219bf3e2553ff63fa10"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c01-public"
+      ],
+      "statement": "The Gaussian keyword universe requires the bounded C.01 keyword index and cannot be inferred from a runtime fixture.",
+      "subject_id": "g16-c01-keywords",
+      "subject_kind": "input-keyword"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/official-sources.md",
+          "sha256": "bbe989f5f61bcf8eafdf38a76f004a049640471c89519a031c6724018add445a"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+          "sha256": "d7a15b26bdc91dd2193a638f8724b89a9acc2f3923806219bf3e2553ff63fa10"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c01-public"
+      ],
+      "statement": "The Gaussian internal-option overlay boundary requires the bounded C.01 IOp index.",
+      "subject_id": "g16-c01-iops",
+      "subject_kind": "parameter"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/SKILL.md",
+          "sha256": "19d3369ff86541df28599bd8e8ae42640ddde9698d860c46437fc2a249a5d95d"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+          "sha256": "d7a15b26bdc91dd2193a638f8724b89a9acc2f3923806219bf3e2553ff63fa10"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c01-public"
+      ],
+      "statement": "Input-section ordering, route syntax, Link 0 vocabulary, and blank-line termination require public first-party reference evidence.",
+      "subject_id": "g16-c01-input-grammar",
+      "subject_kind": "workflow"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/official-sources.md",
+          "sha256": "bbe989f5f61bcf8eafdf38a76f004a049640471c89519a031c6724018add445a"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+          "sha256": "d7a15b26bdc91dd2193a638f8724b89a9acc2f3923806219bf3e2553ff63fa10"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c02-delta"
+      ],
+      "statement": "Gaussian 16 Rev. C.02 release and platform statements require a C.02-specific provider input and do not re-version the C.01 reference.",
+      "subject_id": "g16-c02-release-delta",
+      "subject_kind": "documented-claim"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/official-sources.md",
+          "sha256": "bbe989f5f61bcf8eafdf38a76f004a049640471c89519a031c6724018add445a"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/feature-catalog.json",
+          "sha256": "d7a15b26bdc91dd2193a638f8724b89a9acc2f3923806219bf3e2553ff63fa10"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c02-delta"
+      ],
+      "statement": "Gaussian 16 Rev. C.02 platform statements require the bounded C.02 platform-list source and remain separate from C.01 syntax.",
+      "subject_id": "g16-c02-platform-profile",
+      "subject_kind": "documented-claim"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/environment-and-license.md",
+          "sha256": "975141afb26793f168a00b10daf51cff3b34ebf9d82590944a897b55bae94b68"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/SKILL.md",
+          "sha256": "19d3369ff86541df28599bd8e8ae42640ddde9698d860c46437fc2a249a5d95d"
+        }
+      ],
+      "provider_input_ids": [
+        "gaussian-g16-c01-public",
+        "gaussian-g16-c02-delta"
+      ],
+      "statement": "A public reference cannot establish a licensed executable, private manual, checkpoint, basis payload, or execution authorization.",
+      "subject_id": "g16-licensed-runtime",
+      "subject_kind": "executable"
+    },
+    {
+      "evidence_class": "repository-policy",
+      "expected_disposition": "excluded",
+      "origin_refs": [
+        {
+          "path": "skills/gaussian-rigorous-calculations/SKILL.md",
+          "sha256": "19d3369ff86541df28599bd8e8ae42640ddde9698d860c46437fc2a249a5d95d"
+        },
+        {
+          "path": "skills/gaussian-rigorous-calculations/references/environment-and-license.md",
+          "sha256": "975141afb26793f168a00b10daf51cff3b34ebf9d82590944a897b55bae94b68"
+        }
+      ],
+      "provider_input_ids": [],
+      "statement": "The development guard remains offline, non-executing, and unable to issue a positive scientific claim.",
+      "subject_id": "gaussian-offline-guard-boundary",
+      "subject_kind": "limitation"
+    }
+  ]
+}

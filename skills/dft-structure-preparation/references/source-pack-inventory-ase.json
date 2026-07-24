@@ -1,0 +1,1999 @@
+{
+  "authority_id": "ase-release-source-docs-3-29-0",
+  "commit_id": "f27c0005ae6a67ea419f996e728668865bfc1f86",
+  "documentation_roots": [
+    {
+      "path": "doc",
+      "tree_object_id": "5b95b5d06405b240ca269534a6e0aa422500b630"
+    },
+    {
+      "path": "examples",
+      "tree_object_id": "40c80d3803f3efb3a278ff4760015d1927691473"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "432be74b12dc0da33d813576e75dc974cc024669",
+      "object_type": "blob",
+      "path": "doc/.gitignore"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b226b278a4059c86cd9bd1977c814537c607b82",
+      "object_type": "blob",
+      "path": "doc/ASE.bib"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9b4f51e2513c532c73bee0330f609ce11bba7d19",
+      "object_type": "blob",
+      "path": "doc/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fb40ebb37e48ae8e84b170846a4e1b8c1eb29ab4",
+      "object_type": "blob",
+      "path": "doc/about.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d990eef8e6a248cbfa87cc09171061b5243d4033",
+      "object_type": "blob",
+      "path": "doc/ase-gui.desktop"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9d669d37c8779986812ceb2e0422135ad38e91b9",
+      "object_type": "blob",
+      "path": "doc/ase/ase.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9b2bde9239f332ecdc93a86b9ca7d4e3ef4a338b",
+      "object_type": "blob",
+      "path": "doc/ase/atom.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb601fa8c98eb0d44e8dcfe14adda9cdb28764f1",
+      "object_type": "blob",
+      "path": "doc/ase/atoms.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e7c8a2e1ca732a3d826687a91b7185724df0aa34",
+      "object_type": "blob",
+      "path": "doc/ase/atoms.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "817017b4b430599d998f10b48978ce2116db8cba",
+      "object_type": "blob",
+      "path": "doc/ase/build/build.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e61c35657ac60788eb3c81d3d5b195b18cd2b830",
+      "object_type": "blob",
+      "path": "doc/ase/build/connected.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28ea82690e1213548c7a46d0eed2a6a9e4a18894",
+      "object_type": "blob",
+      "path": "doc/ase/build/general_surface.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1677849e90611eed56365dd455b0b7bd8fc72ea4",
+      "object_type": "blob",
+      "path": "doc/ase/build/general_surface.tex"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f3e7dc5f89fb183fc8f61451203b8375797d4b37",
+      "object_type": "blob",
+      "path": "doc/ase/build/structure.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "44d76cfda2a4c54ef31c06ed8be4622b68c9b91a",
+      "object_type": "blob",
+      "path": "doc/ase/build/surface.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eb63026b8ddae7e9bd61ffff012b94c58f5c8732",
+      "object_type": "blob",
+      "path": "doc/ase/build/surface.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "df192b3fa18ac4b192d676cd92038390d130790e",
+      "object_type": "blob",
+      "path": "doc/ase/build/tools.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "07cbe0923c0b4bbdd1d7e12805241978537a8cfb",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/FHI-aims.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71efbfc51fe92d0c554bdfd3ecb7c3242a30896b",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/INCAR_NaCl"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fb622784c4bf74e9218b2584255a6337f4994422",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/NaCl.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4d97fe5eee1afa49e69123e500aa09a964225728",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/abinit.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "77d4a78c63b72ade3ac356f236a0195b717fa3f0",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/ace.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9969fca7a15e5bb8a90e9f9252ecb03b600d40e",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/amber.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "421e5a58d7b3e46033a78f927b21a2778ef06456",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/ase_castep_demo.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a8dacee078ea56cb63d3c3f8e21638bb9ee137e2",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/calculators.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60ca1e30429817b8e0174eeac4ce98e460b37218",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/castep.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "57836d157320d500412cc6b4bb80231a26ae067d",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/checkpointing.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "75a4ffc8edb50c0ac04d9b01f7357fc455518f59",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/cp2k.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8110d4fcddfe5b609dd65731ca324456cbcee74e",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/crystal.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2e5928a28915e28329e35ed3f7fb144e6d9fc86",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/demon.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e27109bc18292136958d2e600eb7f62b933660f1",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/demonnano.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42c97c184b8144284d90d75104d8538d44f4de09",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/demonnano_ex1_relax.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "18d81c4a8219f617e3aa3b551e470a5c1e7df975",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dftb.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b6dd442fe25b3cdf790571fe6408718b32bd3001",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dftb_ex1_relax.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "58573c68fb78fef6f84cc82134625b6513d16c46",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dftb_ex2_relaxbyDFTB.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "40dbcc4eac36bfa890f76869c9150f16a607f8b8",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dftb_ex3_make_2h2o.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "237add2e93db3b51f37f5545b4abe10e609d1df9",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dftd3.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "991b96e23c5a8591093a750911fe9a0aad87ca11",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dftd3_alone.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f22af7af6278b2ad99af7be2dd3ca7dccee6a2a6",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dftd3_gpaw.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c95c97179eb9aa305ef0e3d314ac361f16ff823b",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/dmol.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d12c0fe056a48e4133c8e5839c931969dce1693",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/eam.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "695105f588a3369279eae314607ffa9444942e54",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/elk.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "577ecfe38b38c29d8c913557475578604ca9e4b6",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/emt.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eefe4f4fc89665a5fe59fcb1489868f58b7b5e68",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/espresso.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "590e4aa74573ae22d8b56e5fb93c4232aefb7b3d",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/exciting.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74a1bec23e80995fa789631fd2d74cf1376bae3c",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/exciting.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6c72217e240e9f6ace0112b65e1d23743f4ed583",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/fd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2343e57a1c67525c21db379b84475291eea87c3",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/fleur.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5af9af1af380232e882a1d6982e2e0cdd55b0de4",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/gamess_us.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c085d95d34b69f195b250f581d44ce7ffb522d1f",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/gaussian.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "15bb8c8525e544db9a2b5214b872ea611b5e9b36",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/gromacs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "012cf8b3eedb7c1ad832b532aa47b118efcd999c",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/gromacs_example_mm_relax.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "66054149c34b2a70df4a3b36df8217e1c47e814e",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/gromacs_example_mm_relax2.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2d78dc5b245e4d6b8e01b877f878f5c7a48f11c7",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/gulp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "37cb6cc0fe844132770d23d82343c9a4231209e5",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/gulp_example.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e0bec8f97d14c3d0f9e8e1d77a2b2dc98d72aa21",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/harmonic.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bd727c0be2bc0ea98451bb6a146b0702aeda2839",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/his.pdb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f963c3d6ad8ca690607709ad5f9dde7f1d175998",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/jacapo.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c01c127d9f103a2067f5e305e180ebd09aa297bc",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/kim.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c55787d0f46c3344b50a286d4fe713bd0c4821e",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/lammps.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8093fdfb8679d54c443bac08fe88f02fda32209a",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/lammpslib.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d5d0d1b9826e95a687e93d1ce6d665b05275ebfe",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/lammpsrun.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2dfcc661c0cc0bcecf514080fafd2c63af518493",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/loggingcalc.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1f8397061ce95d9147060644ed8ab492e4a9f709",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/mixing.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7f10469161c0d13eb1f5452fd37ddb1b385374a6",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/mopac.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "586aa2b66b480b3fd3b7f7da45caa39a8be56ad0",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/nwchem.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3eeb05f267fcb5d9c960c75718cea0da93236c3e",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/octopus.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dce910088a6640ed018b14ca7d07f5c96cc6d536",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/octopus_h2o.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "127915f56cfa5070ef9a532ab1ac76e0e1f9cdab",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/octopus_silicon.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1faa23d451510a8b746c6b1e5795f79e0739bbf",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/onetep.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "12c205a8e647601d8b3f44f42c7bd2c6edb55291",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/openmx.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "11fd568a0fd325ab3b721ff4b6e62f8b336093c7",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/orca.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "47a7f6a5baf7bcf0fdeef0e7ba62c7eb90e6033b",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/others.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b3764b5856dcb38e6ca7ff3f0302e4a1c02467ba",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/plumed.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cb280bb66f73a5c5e06f6909f0b995b71a13d4cb",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/psi4.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4e63a2a090692a3411c8246fcc74fc4f4022a41e",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/qchem.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b43cae2b205b93e3cfb14313a9857470592bf2d3",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/qmmm.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a3be8a9d6552c82ac77b05cacd14c84bd07655c2",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/siesta.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "18a44967b75a3ccac65c390754e46fd180dbcf1c",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_abinit.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70c9424ef721c4953af295dda46e4d72237f5df9",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_aims.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "33226a15d0381629550efc63d1bf2841dbcd4280",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_client_gpaw.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "01fc422e0cbb2259059959f591b08e60d7d89022",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_dftb.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "43a82ffe614d28961ca75420e4d93f75080df2a3",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_espresso.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e6632202f13aba9f85343bdb7ae3782ab8745763",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_nwchem.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1cf57ece7ad76afc75e13cd13e4c6d4453a22499",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_server.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c321a912678528694321b8089d56e12bdfb5cee3",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/example_siesta.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cd09b16151c576e69cfa5573366048842bc86f7f",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/socketio/socketio.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "49449af97c444b86da85658573d69b753b859335",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/spc216.gro"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5bd4405a588e636a0c627cfbe0093af94ad9bd61",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/tersoff.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "127f50247c9dd26226f08df26c3108b24c406b53",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/test.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e16a56efba90c620efdc40e4f5c8377532238c51",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/turbomole.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "315d077c6e74c4c1f6892aeae72597b73dd73f0e",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/vasp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b7a41c4e19d9fbb48058fb80075af6af1be321f0",
+      "object_type": "blob",
+      "path": "doc/ase/calculators/vasp_si_bandstructure.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ab174eebb65e80a726bf34d9efb2c0c5f49c58e",
+      "object_type": "blob",
+      "path": "doc/ase/cell.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "09626bd238d16b9247e8069993929c1f8c32f901",
+      "object_type": "blob",
+      "path": "doc/ase/cluster/cluster.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4834ea080d33d5d607d621eb13c68b8883eee554",
+      "object_type": "blob",
+      "path": "doc/ase/collections.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "58ba3537833ae33658d1193a2faf994229eca8cd",
+      "object_type": "blob",
+      "path": "doc/ase/constraints.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04a458cbc87962df3f666961eafa0fcf900fe74c",
+      "object_type": "blob",
+      "path": "doc/ase/data.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "161048110b108f8ffabf8681066b2911430cdde9",
+      "object_type": "blob",
+      "path": "doc/ase/db/db.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9115396443036eb171c5b76b5683eecb1f87b82c",
+      "object_type": "blob",
+      "path": "doc/ase/db/db.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa564b7ca604e93a1c15c673eb7eef7bb0ff1064",
+      "object_type": "blob",
+      "path": "doc/ase/dft/bader.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0cb0935560f1f4d4d4fb2720dc46cc03a1b4c9ff",
+      "object_type": "blob",
+      "path": "doc/ase/dft/bandgap.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fed97731eaf83c3b5ab1793913330d1b29d1e465",
+      "object_type": "blob",
+      "path": "doc/ase/dft/bz.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0174eb0f819d403e775dbb28379557a1581db3e7",
+      "object_type": "blob",
+      "path": "doc/ase/dft/dft.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7b36690d6e3cb7532a4fffa067ca37eef250c46e",
+      "object_type": "blob",
+      "path": "doc/ase/dft/dos.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d954af4d093b7bfb4e4efc1cdb7fc3bd342794b2",
+      "object_type": "blob",
+      "path": "doc/ase/dft/dos.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a50ad70e9deeac34048123a10c5c7a39c35b9e00",
+      "object_type": "blob",
+      "path": "doc/ase/dft/kpoints.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8165b0365d12d44d35fb3cf0592f0864b5e6aabf",
+      "object_type": "blob",
+      "path": "doc/ase/dft/kpoints.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4207e316770c3757f4a4f61964c68d7569feac06",
+      "object_type": "blob",
+      "path": "doc/ase/dft/stm.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "506ef739ca0b1e0b74f6ae6e914911f2b454f345",
+      "object_type": "blob",
+      "path": "doc/ase/dft/wannier.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8fd2b5e50f0e3e39be885fa20fda386c64c8bd01",
+      "object_type": "blob",
+      "path": "doc/ase/dimer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ba5ba49ef60548b84f71ce1ce159968711100d98",
+      "object_type": "blob",
+      "path": "doc/ase/eos.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "472a227690767299f231d11d9458a95b5713e29d",
+      "object_type": "blob",
+      "path": "doc/ase/filters.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "98b1651e98903f1ae8e27c89f0c0385a7e8d73da",
+      "object_type": "blob",
+      "path": "doc/ase/fix_symmetry_example.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8811e9d3ed9b9a7caa89cd5cb227a4fa415d199e",
+      "object_type": "blob",
+      "path": "doc/ase/formats.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5b5bc77266c04cf56645b57e252bd8a1692ec770",
+      "object_type": "blob",
+      "path": "doc/ase/formula.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "420601c1d6b03b875ab3ccd8eaa1a4bf9ac0f030",
+      "object_type": "blob",
+      "path": "doc/ase/geometry.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0c41a15640413dd818c8d93e1fabc123d8e47171",
+      "object_type": "blob",
+      "path": "doc/ase/gui/basics.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16be5d8c0b1b75734ac03b3f7f4371350eab49dc",
+      "object_type": "blob",
+      "path": "doc/ase/gui/calculate.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "be7884f8c61fb77ff144db881803b7397932ad33",
+      "object_type": "blob",
+      "path": "doc/ase/gui/edit.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bcda7d39b8a464a8f3c3ec94b76a9dbbc71c5abf",
+      "object_type": "blob",
+      "path": "doc/ase/gui/gui.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3fa87539d1823489eb3c5528eae8ca0003168bfe",
+      "object_type": "blob",
+      "path": "doc/ase/gui/setup.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a7f3cde663a357c535e8223840cf7dac6e626e70",
+      "object_type": "blob",
+      "path": "doc/ase/gui/tools.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3a81c8f7e1ff33eb03f6742ed0ce69009703ee59",
+      "object_type": "blob",
+      "path": "doc/ase/gui/view.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "831b9085ecba0137b7554de315b9ab7c19d3f096",
+      "object_type": "blob",
+      "path": "doc/ase/io/172_ext.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0ec4531e6df5370a04829a6658225cc431f12aa",
+      "object_type": "blob",
+      "path": "doc/ase/io/io.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9342014c852a27f07c4a015ffefd962d985dfed3",
+      "object_type": "blob",
+      "path": "doc/ase/io/io_csv.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dee40c1bf7fb390c09d7afa657090551c7102bfe",
+      "object_type": "blob",
+      "path": "doc/ase/io/io_formats.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "253dc4d6e520739f8f5e53c842ceb250dbe2ec23",
+      "object_type": "blob",
+      "path": "doc/ase/io/iopng.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f5bc92864eb5818eadb2ee977fb973a155176679",
+      "object_type": "blob",
+      "path": "doc/ase/io/opls.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "295a14489a36319a6a7fb6d387959ba5b23d1e57",
+      "object_type": "blob",
+      "path": "doc/ase/io/opls.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1a0224dddaab07001b8f686c0278edb33614c14",
+      "object_type": "blob",
+      "path": "doc/ase/io/save_C2H4.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c59aed6b1a9d4aa368bfed360e85812cb4988725",
+      "object_type": "blob",
+      "path": "doc/ase/io/save_pov.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "890d709f9753bf3a1b57baceff05bb91a7a0cafe",
+      "object_type": "blob",
+      "path": "doc/ase/io/trajectory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17636776dea6ad68adb845558f1bccff48a4fb69",
+      "object_type": "blob",
+      "path": "doc/ase/io/ulm.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e7b5ce4050b782fd8032e8e1ca028ad023c272c5",
+      "object_type": "blob",
+      "path": "doc/ase/io/view_172_mod.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5e74eeca02b0d62b108fc028d0acd5452a80e53a",
+      "object_type": "blob",
+      "path": "doc/ase/io/write_lammps.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0af5eeaf3b7eb1fe79f4e786413c39196868b03e",
+      "object_type": "blob",
+      "path": "doc/ase/lattice.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e3a1c956baa1d46123f8b760c26cd6efbeb75ce5",
+      "object_type": "blob",
+      "path": "doc/ase/md.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "90e052fd9bfce5ef6ee270378c836877d5ed6e04",
+      "object_type": "blob",
+      "path": "doc/ase/mep.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0adc2c292aeed723b6ecf90b58bdd6c4c74fb22b",
+      "object_type": "blob",
+      "path": "doc/ase/neb.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e2303d4b5cdfa17134981fed505182a24df6f20",
+      "object_type": "blob",
+      "path": "doc/ase/neighborlist.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04265949ad6a347667270cbf47599f08158ef99e",
+      "object_type": "blob",
+      "path": "doc/ase/optimize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "15c225d5c10cb6037f54ebb92a4629332cab3c38",
+      "object_type": "blob",
+      "path": "doc/ase/parallel.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8e178eb00f4e21f62f991bc8399f06a97cc9af76",
+      "object_type": "blob",
+      "path": "doc/ase/phasediagram/cuau.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "595addb90fb93b2c8581654f7aee19cb18a09b80",
+      "object_type": "blob",
+      "path": "doc/ase/phasediagram/phasediagram.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "20e8d4e8b4142cdbb2ae34c92c230238be2c086f",
+      "object_type": "blob",
+      "path": "doc/ase/phasediagram/zno.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f680387f1d4d0490d3633309fb21d0f1dd800cc3",
+      "object_type": "blob",
+      "path": "doc/ase/phonons.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e1211152ecf2ba6cae283badd936085ad9922cf",
+      "object_type": "blob",
+      "path": "doc/ase/phonons_Al_fcc.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6423db6f4c96857ee9ed013498a7bb1d9f199b66",
+      "object_type": "blob",
+      "path": "doc/ase/plot_radii.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7bf973c92e030271dcf375316177f419e7d44736",
+      "object_type": "blob",
+      "path": "doc/ase/precon.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "85a2f066cb5aaa7e3db871aca3d5459976e1b6ad",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup-al.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a8d80be4232a7e763220b8dfd267ea2aceb314da",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup-diamond.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e11ebb7a1ce8fb08788414897a546e1a713b2682",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup-fe.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e00a6f47a4817098e81538596986f0e0597bc61b",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup-mg.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4853b27878ca4f29d1b6003ea2dad1c55549bb88",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup-nacl.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de93c5574cefeec8aca1918100378e5ae69e726c",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup-rutile.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d0f22f10a4430b834f8786229ca4792fb8e8ce14",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup-skutterudite.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e781e3053e160d31b393b07ab3210a414ae22828",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b23c7184d768ac96f90786721d2aad1148c6e641",
+      "object_type": "blob",
+      "path": "doc/ase/spacegroup/spacegroup.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fe4b88daeabf100df71752d92970b19f0c33a70f",
+      "object_type": "blob",
+      "path": "doc/ase/spectrum/doscollection.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1c33bc1d0e429fb559269a15d19182b29477b25",
+      "object_type": "blob",
+      "path": "doc/ase/spectrum/dosdata.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "947f6849567da1c489f45b410d7360476b1f97bb",
+      "object_type": "blob",
+      "path": "doc/ase/spectrum/spectrum.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d88e6dec52dd0637d25fb2a0a715829013d358f",
+      "object_type": "blob",
+      "path": "doc/ase/symbols.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f6938167f4a0695c5394eb4fb745403f32c8570",
+      "object_type": "blob",
+      "path": "doc/ase/thermochemistry/ethane.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bd6139ae288d9d401d0e93e89e65732a407bca35",
+      "object_type": "blob",
+      "path": "doc/ase/thermochemistry/gold.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eb4d7f7dfc43b8da8ceb2bfaf30c34218efa0b5e",
+      "object_type": "blob",
+      "path": "doc/ase/thermochemistry/nitrogen.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1800328c7107decec6f077c889ad295e8a7139b4",
+      "object_type": "blob",
+      "path": "doc/ase/thermochemistry/thermochemistry.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a06c3f2445783bf2a2d02c8834275bf20ba37482",
+      "object_type": "blob",
+      "path": "doc/ase/thermochemistry/thermochemistry.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "79a4d89567bd1e92a2dfb1d7ba3c6defb9d2b6e9",
+      "object_type": "blob",
+      "path": "doc/ase/transport/transport.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bffa1b040898a031410829c7001cc0b9787f00dc",
+      "object_type": "blob",
+      "path": "doc/ase/transport/transport_setup.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "47d51ffbf90a10685444b8deb4692953feb2d15c",
+      "object_type": "blob",
+      "path": "doc/ase/units.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "612454122f907c42a313bef08d6fb18fdd194306",
+      "object_type": "blob",
+      "path": "doc/ase/utils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c65b22f0de7d658725f0238128dbbe2c6974b08f",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/H2Morse_calc_overlap.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c60c61416bb4619639f5ada125a2b5fe66bb1597",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/H2O_EMT.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d665ab85290799d046741ddac35eb0efff0bbf71",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/H2O_EMT_summary.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5dee370644b3a0957abac1b7992993325924e8ea",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/H2_ir.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "868036de2c9560d919349b1d182bad1487ae141b",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/H2_optical.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2e2ecabeebb5c535692135a9672dbb51719bc087",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/H2_optical_overlap.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29ae04a756700ab199b99fe51dd8c70a4f46d6aa",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/franck_condon.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a97ed37512631ecebb0ee675834a879b7b4c57d2",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/infrared.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "da1db8e3b0aa0e430071c27e48bf5d222e156db9",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/modes.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e64825ceda63b31c2bcf63cce19e269c8e7f414c",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/raman.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a2cae2fdd4f3f0b6c23afe88cb88754c6fc3276e",
+      "object_type": "blob",
+      "path": "doc/ase/vibrations/vibrations.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ccc6829d8144e6ebebb9a5b34390d06bece6e689",
+      "object_type": "blob",
+      "path": "doc/ase/visualize/matplotlib_plot_atoms.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "99a8caf59d42cb7f2def8929c980e934abe5d42e",
+      "object_type": "blob",
+      "path": "doc/ase/visualize/mlab_options.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1c5f5fc57523ffd6331e5ec7de6fedbfe978eeb",
+      "object_type": "blob",
+      "path": "doc/ase/visualize/stem_image.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3cf8df34972e9b42b725d13a600e061d38481329",
+      "object_type": "blob",
+      "path": "doc/ase/visualize/visualize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a70b2253081c6d281c49d34330dcad905c10034b",
+      "object_type": "blob",
+      "path": "doc/ase/xrdebye.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c527f21f6ec5a92110537aac38b2bd0e42aae462",
+      "object_type": "blob",
+      "path": "doc/ase/xrdebye.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5de833a5079863d67ab1822e71b870bc8ca8b8af",
+      "object_type": "blob",
+      "path": "doc/changelog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1dca6d8596596db64bced5042429e6c9f591add",
+      "object_type": "blob",
+      "path": "doc/cmdline.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3320b84f050188c7325c4792103d260952621422",
+      "object_type": "blob",
+      "path": "doc/committee.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "363355bdaf392a1165d660f0f5564b97e526a094",
+      "object_type": "blob",
+      "path": "doc/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3d67cc44a149e9a0a346a6e14317201ae883ce87",
+      "object_type": "blob",
+      "path": "doc/contact.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bfa8512b3edecdb7ea898aae0591205342f6a202",
+      "object_type": "blob",
+      "path": "doc/development/addingexamples.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b9cc6d231357461afd89466ed8bae4b9067713b6",
+      "object_type": "blob",
+      "path": "doc/development/bugs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "959621f693c3543dad49c8e3678e5781a82a54b9",
+      "object_type": "blob",
+      "path": "doc/development/calculators.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "059d2a16fa8f35089508d64bbcdc1ab75316997b",
+      "object_type": "blob",
+      "path": "doc/development/contribute.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e62276e9b6269001932a2550bcb0ebc8cfb8197",
+      "object_type": "blob",
+      "path": "doc/development/development.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6be311bd492be831a1da68fdbfc0ae122bec488a",
+      "object_type": "blob",
+      "path": "doc/development/licenseinfo.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e4b9458d739697adec8751bca68184d17928a171",
+      "object_type": "blob",
+      "path": "doc/development/making_movies.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3149145a9bc9e7b621a1f2f1cd391914e7b2b856",
+      "object_type": "blob",
+      "path": "doc/development/newrelease.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d71e5b1f4bd85fe544705050e1a742aaffd723e9",
+      "object_type": "blob",
+      "path": "doc/development/proposals/calculators.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4213cf51f62d0287422e3e939002b40ed53c31fa",
+      "object_type": "blob",
+      "path": "doc/development/proposals/labels.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "63b7f5b0c88fd965b2cf9c79bda56c597e13c697",
+      "object_type": "blob",
+      "path": "doc/development/proposals/proposals.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e8d0e1011da9427f21f30789a43ea49520b568ba",
+      "object_type": "blob",
+      "path": "doc/development/python_codingstandard.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "43fe15fbc8e60188748668c9ffbb8b838c7eb079",
+      "object_type": "blob",
+      "path": "doc/development/tests.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad1fe5adb470750779cf8050a87f76f9c5891c16",
+      "object_type": "blob",
+      "path": "doc/development/translate.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e4096c1e74e57c9497a8f0847e62febd636e12e",
+      "object_type": "blob",
+      "path": "doc/development/writepngs.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a257cc07b4850bac558f76b0dbfc5a3f34f34f5a",
+      "object_type": "blob",
+      "path": "doc/development/writing_changelog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f5048d16a3b039c8792e3b407d0d1cfbe8f4e253",
+      "object_type": "blob",
+      "path": "doc/development/writing_documentation_ase.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ddb6333325fd1a3bbb66a3687c6bc75c16cabf6f",
+      "object_type": "blob",
+      "path": "doc/easybuild/ASE-3.14.1-foss-2016b-Python-2.7.12.eb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f1012a0f2280344f78a993ef3102312f575238e2",
+      "object_type": "blob",
+      "path": "doc/easybuild/ASE-3.14.1-foss-2016b-Python-3.5.2.eb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2386ca0b7db8ee9d2fb2e5e33e23da876bc2e2a1",
+      "object_type": "blob",
+      "path": "doc/easybuild/ASE-3.15.0-foss-2016b-Python-2.7.12.eb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f6d6a0328a097909bbc3cfe0037e37dceb00e896",
+      "object_type": "blob",
+      "path": "doc/easybuild/ASE-3.15.0-foss-2016b-Python-3.5.2.eb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "32b47624b03914184d4f1593b58f3ea0b9ecf3f9",
+      "object_type": "blob",
+      "path": "doc/easybuild/ASE-3.15.0-foss-2017b-Python-3.6.2.eb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "772b619bc0d808114f2b74d75e7188ab1ec72224",
+      "object_type": "blob",
+      "path": "doc/ecosystem.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1290840b7c8403f50d968519591ba4564fe2f6e9",
+      "object_type": "blob",
+      "path": "doc/events/2019chalmers-workshop.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "06d02ff016ebf22435b1cefe7efa782eec438657",
+      "object_type": "blob",
+      "path": "doc/events/2023daresbury-workshop.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8579d3b0ddd4cdeffa8aa57cc9950a515cd458ce",
+      "object_type": "blob",
+      "path": "doc/events/2025lausanne-workshop.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "79652e1634a4a77d1f9b40e7b2933295b22566d2",
+      "object_type": "blob",
+      "path": "doc/events/2026mainz-workshop.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1c79029fabbc784da185c85706a465cca08b0e1a",
+      "object_type": "blob",
+      "path": "doc/events/events.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "03d1b1e01d63c2a910e46a99a180f17cdef62cb4",
+      "object_type": "blob",
+      "path": "doc/faq.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c1b868a172a30ca66af8c6b1dbd72f9cc69fa25d",
+      "object_type": "blob",
+      "path": "doc/gettingstarted/external_calculators/ext_intro.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6d26b7453d92324fa51831984c2dc7462b071e16",
+      "object_type": "blob",
+      "path": "doc/gettingstarted/gettingstarted.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e5bc5cf5777c835ed2107980008e9c6dd07627d",
+      "object_type": "blob",
+      "path": "doc/gettingstarted/tut02_h2o_structure/h2o.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e79a711689260d6478433cf4a139996010b58e2",
+      "object_type": "blob",
+      "path": "doc/gettingstarted/tut02_h2o_structure/solution/optimise_aims.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "47258f474e33a1af1393b4f8f587b99e4cb5dff5",
+      "object_type": "blob",
+      "path": "doc/gettingstarted/tut02_h2o_structure/solution/optimise_aims_socketio.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "02e2394e53fe23b47af6e8ccdf4a8d1ee135a61f",
+      "object_type": "blob",
+      "path": "doc/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2d9fb93f3c5c1b14987e5d90c26c2c5f5c11744",
+      "object_type": "blob",
+      "path": "doc/install.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "209ef39b0b765585d87d767e3ffec902e499b2a7",
+      "object_type": "blob",
+      "path": "doc/logo.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5315f68ed651a0f7454c311a72dcbc49cd8bb58a",
+      "object_type": "blob",
+      "path": "doc/releasenotes.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b77639847ad512b9769f5b552d4985da1b93d84c",
+      "object_type": "blob",
+      "path": "doc/static/044482-glossy-black-icon-sports-hobbies-film-clapper.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4dbbe9980425b425fe40f2bc619c2962a5c2b0eb",
+      "object_type": "blob",
+      "path": "doc/static/abacus.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28711eab241ec378975d4e7cf41eaba0ba5aed01",
+      "object_type": "blob",
+      "path": "doc/static/abinit.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c5c8fd56357a07a6832a235dc37f8b5091e26eb5",
+      "object_type": "blob",
+      "path": "doc/static/asap.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bcd368194c75b62166ad7810c6faf358f53e17ae",
+      "object_type": "blob",
+      "path": "doc/static/ase.xpm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b397c1c5582e3a02d94b6eed5781f47841ba1f0c",
+      "object_type": "blob",
+      "path": "doc/static/ase256.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f93c2f74dccba13de42bbaae92a5f858fc8a6ca9",
+      "object_type": "blob",
+      "path": "doc/static/atomistica.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "67f5ddb5125dcbadbedafaa52d99da8cbaf37766",
+      "object_type": "blob",
+      "path": "doc/static/bigdft.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e331bc129c496c5670f0822aac127b4b58a6afce",
+      "object_type": "blob",
+      "path": "doc/static/castep.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ee9bf00d93c24b4be0b3a91a84fa928ce2f897f3",
+      "object_type": "blob",
+      "path": "doc/static/cp2k.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fd60f0821473660c35c64cf1b696d0838ae7e59d",
+      "object_type": "blob",
+      "path": "doc/static/crystal.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "73e1a1ac02425cc6b5d50df275393164f5c771cb",
+      "object_type": "blob",
+      "path": "doc/static/deepmd-kit.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1e3bee72e51b0bf3846f13deb4da25dbba9d805",
+      "object_type": "blob",
+      "path": "doc/static/demon.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "23de30b392d30f911d6480f442669aad6de2cf67",
+      "object_type": "blob",
+      "path": "doc/static/dftb.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4b430eb1f037b78d25d38421db99c520c9756f52",
+      "object_type": "blob",
+      "path": "doc/static/dftd4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29dd68971e41414fff9b261940bd7e5b8359c018",
+      "object_type": "blob",
+      "path": "doc/static/dftk.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16e9e7caa068383b7aefc0bfe36aa459fcedee77",
+      "object_type": "blob",
+      "path": "doc/static/elk.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "041f55d22f4f18d5acbd4e49c904a9ebfbb587d5",
+      "object_type": "blob",
+      "path": "doc/static/emt.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "417581a66de3a22faddcbaecff9485c123830acd",
+      "object_type": "blob",
+      "path": "doc/static/espresso.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "144ad605032a2a260b07ab3fd24501231ca4b4d0",
+      "object_type": "blob",
+      "path": "doc/static/exciting.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fceff8ef8e1e7de14f7fb7fd21513724e103d403",
+      "object_type": "blob",
+      "path": "doc/static/fhi-aims.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "44fca17d3fbda0429c30f2924b479341a910de3a",
+      "object_type": "blob",
+      "path": "doc/static/fleur.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e78f87f9dc7406335e3157b003412aef0359e8f4",
+      "object_type": "blob",
+      "path": "doc/static/gamess_us.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16fe63c1f9c32f0a80c5a12042ed8b5015a9f2d8",
+      "object_type": "blob",
+      "path": "doc/static/gpaw.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e915afbce2a282858650ed24543ae301045dfae9",
+      "object_type": "blob",
+      "path": "doc/static/gromacs.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0f3288594cba132b0eb326783cf2cb6b2c28ef3d",
+      "object_type": "blob",
+      "path": "doc/static/hotbit.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "939312c6def780bfd9bc9763ed5b9502ac68c6e3",
+      "object_type": "blob",
+      "path": "doc/static/jdftx.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7edf463ce4ed47ec2a7cae08f3ba571ab99af6d3",
+      "object_type": "blob",
+      "path": "doc/static/kim.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a019896e4a2cc1c61586e971a517644df1e4ad8",
+      "object_type": "blob",
+      "path": "doc/static/lammps.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54987761eca5d3633eebb2a7126cc9cb646ba498",
+      "object_type": "blob",
+      "path": "doc/static/nwchem.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8ad155d1bd208b2be8bd85d10d8541f0512b170c",
+      "object_type": "blob",
+      "path": "doc/static/octopus.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e0ff8f453e6c2f221e64cfd0303aee7a237afa65",
+      "object_type": "blob",
+      "path": "doc/static/onetep.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "512d82e7e03b0f2808c0c69105b604f138405401",
+      "object_type": "blob",
+      "path": "doc/static/openmx.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "55877d2f51d0b606a313d992b46b25801298e25e",
+      "object_type": "blob",
+      "path": "doc/static/orca_logo_mpi.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c83bf27d28efe4d3a4062a01a1c96f291fd03394",
+      "object_type": "blob",
+      "path": "doc/static/plumed.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0338a795043e1cd71c7cd0953d24c9f16224fdec",
+      "object_type": "blob",
+      "path": "doc/static/psi4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f96dab7d3f23e7b07b570b57445280cd7cce933d",
+      "object_type": "blob",
+      "path": "doc/static/qchem.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5c9c789c0edc1de580a76d8d43b322d6182a3fbb",
+      "object_type": "blob",
+      "path": "doc/static/siesta.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cbe8af5d587edc8c850298bdd8a677274b0f6a67",
+      "object_type": "blob",
+      "path": "doc/static/tm_logo_l.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "69e6424cfc44353fc1ae5194512893e762dcfe30",
+      "object_type": "blob",
+      "path": "doc/static/vasp.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c945b528010a5e748cb342ef41d214ebf9516f2",
+      "object_type": "blob",
+      "path": "doc/static/xtb.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dff03bfca6ecf5971c44d47e3a7e75be6ba69d42",
+      "object_type": "blob",
+      "path": "doc/tips.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d5b5014e426514418658ff644173800ad9a36a4",
+      "object_type": "blob",
+      "path": "doc/tutorials/N2Ru-Dissociation1.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7aa9acd81d540afa8c7db04fa6b4d89ffc97692e",
+      "object_type": "blob",
+      "path": "doc/tutorials/N2Ru-Dissociation2.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1c1d72147dcbbb59fd7341e273e78ab120a76b70",
+      "object_type": "blob",
+      "path": "doc/tutorials/saving_graphics.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9b1750218f62a7d17a368d6c668e8a492c8c60b8",
+      "object_type": "blob",
+      "path": "examples/.gitignore"
+    },
+    {
+      "mode": "100644",
+      "object_id": "69b0e08f73fd2555e3e997b194b61c0a08638c4c",
+      "object_type": "blob",
+      "path": "examples/01-gettingstarted/00-n2cu.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "19b09043b150ce5da744e4453d12f2b848eff8dc",
+      "object_type": "blob",
+      "path": "examples/01-gettingstarted/01-atoms-and-calculators.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "687cf8cedaa7c98ce3e30e8dc018af0f120b9028",
+      "object_type": "blob",
+      "path": "examples/01-gettingstarted/02-h2o-structure.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eb2c700ce342be12086aee6e7975f6d189e4a18a",
+      "object_type": "blob",
+      "path": "examples/01-gettingstarted/03-manipulating-atoms.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50e57ffca677a0d554a2008d54681feb0a7e18ff",
+      "object_type": "blob",
+      "path": "examples/01-gettingstarted/06-nanoparticle.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "100aacfea1496c29dee8f1998eeb6c85e58a2045",
+      "object_type": "blob",
+      "path": "examples/01-gettingstarted/README.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c06f39b6e151279bcc59b3579e6bf0c37232c3ee",
+      "object_type": "blob",
+      "path": "examples/02-python/01_whatispython.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f7bb549906aa867f377755a55c7569aa1eb35e09",
+      "object_type": "blob",
+      "path": "examples/02-python/02_numeric-arrays.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "46de4376d14387beca13f2873869220e3b4c4ce9",
+      "object_type": "blob",
+      "path": "examples/02-python/README.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1b90acf8859ec6593b3d72dcd090988a36be17d",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/README.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f1050d8006999e4d77cae72124f2bc9a1786b6a7",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/ase_database.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f250f7b589d5ca0c0a8ada255756bc93c3e8c7b0",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/ase_db_adsorbate.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc5a10c3c1779c9ca1e54161562a0039266d4d63",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/atomization.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "33287455f05e05a2ce844e505c4deef06b548b71",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/band_structure.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0983c4dfaca788267fdc3c5e3c459f2df73be4a3",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/bulk.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e02ae2835921f85db5954487fd5126aecdb80de",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/constraint_diffusion.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "013680b0059f4b39900d71d021cd7e17619b7d76",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/defects.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ee7aef2079e04cf5e3872b27283300a1cab5a346",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/diffusion_neb.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ef618e50a693a13f284ffeb5e92f810fbf64f9f8",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/dimensionality.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0158a9d37c5c6f3afd377044ced74682182a07a2",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/eos_01.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a69b1a1f03c4aea69c437d16849d57195ddf919e",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/eos_delta_values.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "197cb76d823f8002caba6baf19c334d9c20897af",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/equil_acn.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "93e1f59fb82a0dab2d189fdf7b6aab3761d379c2",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/equil_tipnp.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4831a4f4d76167fbcbc6939194a0693dccec0ec1",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/global_optimization_constrained_minima_hopping.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "819231050eeca12355ca653509065ff2b3aa9fcb",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/lattice.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6b0043478c9d2cd30148ae732a4486c56213f0a3",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/md.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60d093472812235a29641e27cb90c0ad580a5c60",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/neb_dissociation.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f09731d86f716d1f6054b2e9f625517799fea324",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/neb_idpp.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ce93ed559c200a2cc0e66f31ad1aa84c53aa5ddc",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/neb_selfdiffusion.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5122f6c0091764721c43fec9fd93deb9edd031a4",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/qmmm.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "422a42d0de9cd278b42515b5957ea52c432da5e2",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/vibrational_modes.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4e29676f463dfb03c43e88471f5e6dcc225c7cea",
+      "object_type": "blob",
+      "path": "examples/03-tutorials/wannier.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c67e3702dfca6df40c187c6c74a071841d1f6f3a",
+      "object_type": "blob",
+      "path": "examples/04-gallery/README.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "40109c685a2540ad38b8b0521c99ca90ce722e7b",
+      "object_type": "blob",
+      "path": "examples/04-gallery/brillouinzone.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "be129391912f9963fd4e03f8614601363bc74874",
+      "object_type": "blob",
+      "path": "examples/04-gallery/bs.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29ec10859730a198dc19be25c9d5fb908e80847e",
+      "object_type": "blob",
+      "path": "examples/04-gallery/cluster.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a6ffdad039dc9dc56850ccb837bfc663a0f3c0b2",
+      "object_type": "blob",
+      "path": "examples/04-gallery/cosb3.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ed400774463685a0961f5239c799ec954f69b7ed",
+      "object_type": "blob",
+      "path": "examples/04-gallery/o2pt100.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7c283bb7e7214ad897707ba8bf43d5ca75ca8432",
+      "object_type": "blob",
+      "path": "examples/04-gallery/phasediagram.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "53889530b00b362614584d35208900c770168dca",
+      "object_type": "blob",
+      "path": "examples/04-gallery/ptable.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6b8cbc5c9b25ed20a7e5dc8fadc7d998bb84a430",
+      "object_type": "blob",
+      "path": "examples/04-gallery/render_povray_isosurface.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "136184be064a94085b20b6169b69a3864a466f1b",
+      "object_type": "blob",
+      "path": "examples/04-gallery/tuning_povray_for_high_quality_images.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de0720b5ba5f066766b2932042a3f3b815540233",
+      "object_type": "blob",
+      "path": "examples/05-external-calculators/README.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2d391b4938be363e530bb80478a38b5dfb542b38",
+      "object_type": "blob",
+      "path": "examples/05-external-calculators/external_calculators_asap.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "89342d9a7d5ccee846a4dc84101f20efad158c4e",
+      "object_type": "blob",
+      "path": "examples/05-external-calculators/external_calculators_asap_prerequisites.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ea3fd048ec0ff6d3f363c9a99ff1d2575e220ef7",
+      "object_type": "blob",
+      "path": "examples/05-external-calculators/external_calculators_cp2k.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d306409e09f48a9b8dcdf1a9f37b48375d646af5",
+      "object_type": "blob",
+      "path": "examples/05-external-calculators/external_calculators_cp2k_prerequisites.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "684fd8bccac77265cc1e762bffd8dd848980d65a",
+      "object_type": "blob",
+      "path": "examples/05-external-calculators/external_calculators_gpaw.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "935bded642a07f03f2431c14096f54281fbe6243",
+      "object_type": "blob",
+      "path": "examples/05-external-calculators/external_calculators_gpaw_prerequisites.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2057d09eebf2b1ee42706a9ecd97ac3556e1e93d",
+      "object_type": "blob",
+      "path": "examples/GALLERY_HEADER.rst"
+    }
+  ],
+  "entry_count": 329,
+  "inventory_scope": "Complete Git object inventory for the exact release documentation and examples roots; file bodies are intentionally not embedded.",
+  "provider_id": "ase",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "3.29.0",
+  "repository_url": "https://gitlab.com/ase/ase",
+  "root_tree_object_id": "8fe6688ac66948af8f4c05bd18ab01a302ad1050",
+  "schema_version": "1.0",
+  "tag_object_id": "dd770c671f2a5cc617cabd1e60fad87c90f803e8"
+}

@@ -1,0 +1,946 @@
+{
+  "authority_id": "vaspkit-documentation-repository-383a710",
+  "commit_id": "383a7103505b5b9436dedbf04df42ebb6e248638",
+  "documentation_roots": [
+    {
+      "path": "_sources",
+      "tree_object_id": "e05c14a52e07182fced9c92741075726e151d24e"
+    },
+    {
+      "path": "_images",
+      "tree_object_id": "eb57b64807036a9a9675dcbf217eaa7c4fc81ead"
+    },
+    {
+      "path": "_static",
+      "tree_object_id": "e1013c29fda771aa524715e386986612aed1e976"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "62b10674eb56d027084003e29dcad7220eb79b70",
+      "object_type": "blob",
+      "path": ".buildinfo"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "object_type": "blob",
+      "path": ".nojekyll"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2da398c2454b63679d0ca2de1f77186066ea0dbf",
+      "object_type": "blob",
+      "path": "CNAME"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1a549b45ae5e4abbbc59303c463ac2a3c3aa523",
+      "object_type": "blob",
+      "path": "README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ae045c0773004a50e6e2b1479af93ac4b1c9b14",
+      "object_type": "blob",
+      "path": "_images/2D_fermisurface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "961e9ba5416807c40e46add12246b97f1644915a",
+      "object_type": "blob",
+      "path": "_images/2D_spintexture.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ae045c0773004a50e6e2b1479af93ac4b1c9b14",
+      "object_type": "blob",
+      "path": "_images/2d_fermisurface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0ccc8a436f51a528fdb7c93cb3209e10cd761c48",
+      "object_type": "blob",
+      "path": "_images/3D_band.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d33112bf7757e0761c6c4cffb9e1dc34e3f1038c",
+      "object_type": "blob",
+      "path": "_images/3d_graphene.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "167f882ec6d7ca6176a66f820fad30c26e5428bc",
+      "object_type": "blob",
+      "path": "_images/EBS.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f3a4065e3103163249999e37f73dff6777970dca",
+      "object_type": "blob",
+      "path": "_images/EMC_anisotropy.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1663e1017b409a9ec28f0adfe804db4cae964fcf",
+      "object_type": "blob",
+      "path": "_images/Fermisurface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d554599bff97892bec99abf1cb9d0b75d72c35f4",
+      "object_type": "blob",
+      "path": "_images/Interp_2D_fermisurface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d6b9fcb2f33c6ac7329121814082c44fdfb1d66",
+      "object_type": "blob",
+      "path": "_images/Interp_bandstructure.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6fd65d0f8a55a5b1ca0b59b4c5159a2e6f810e93",
+      "object_type": "blob",
+      "path": "_images/LDOS.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "310d290f4f462c7780b089443327a88604502117",
+      "object_type": "blob",
+      "path": "_images/MAE.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2cd7dbcf6252591068ead899436941e098dc1ccd",
+      "object_type": "blob",
+      "path": "_images/MO_CO.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a17e1cefb759d8a9781e9d03ca2bae7993d2e532",
+      "object_type": "blob",
+      "path": "_images/MO_TMDs.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "784a9a32ece781f7eaf06a8bc1857e7f90ff5035",
+      "object_type": "blob",
+      "path": "_images/Mechanical_2D.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "df0eb57515bfd15766e83e03ecc3f336b0af6afe",
+      "object_type": "blob",
+      "path": "_images/MoS2_BP.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "545755b4ab867bcf69d25525ff038785ebf66602",
+      "object_type": "blob",
+      "path": "_images/Moire.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ecdbf0b13cbf1121afefe3d62ad0aa2185043d6",
+      "object_type": "blob",
+      "path": "_images/PBAND.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a942a006aa4b80b904e62bf1a47f52f9df596d2",
+      "object_type": "blob",
+      "path": "_images/PBAND_Sz.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "261a87107281515e0af0a3bd2808dd69a1556081",
+      "object_type": "blob",
+      "path": "_images/Projected_2D_fermisurface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f03c010f9491b57037cd28334f3c1c04846eb961",
+      "object_type": "blob",
+      "path": "_images/Projected_Fermisurface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "23eab9ae200da840bb0562e77646884bb1508900",
+      "object_type": "blob",
+      "path": "_images/SLICE_110.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cc7cc46817a13be7223c3798355890e7b0446bb8",
+      "object_type": "blob",
+      "path": "_images/Stacking.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "63f5a778d404b463e743b1bcb519cf1c969bcdd9",
+      "object_type": "blob",
+      "path": "_images/TDM.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7fb5bb204ca0f88f0cf7bd69712ff59ebebfe9d2",
+      "object_type": "blob",
+      "path": "_images/VBZ.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fdd80208488df23cb19ee77d70aa334dc0ff5c7d",
+      "object_type": "blob",
+      "path": "_images/atomkit_features.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c1dfc9d916de506f13b93c7dc234b38202f9d5f",
+      "object_type": "blob",
+      "path": "_images/atomkit_logo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "074c0e2b3883b11054b3bd70ae7a01f3317604d2",
+      "object_type": "blob",
+      "path": "_images/avgpot1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bf1545872ffbad02cc12cec64272ddd20be98601",
+      "object_type": "blob",
+      "path": "_images/avgpot2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6826e74814c43a4c479652dfc688ff46a39d9339",
+      "object_type": "blob",
+      "path": "_images/avgpot3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5856e038ecadc7d4208f025aad248d17301236a4",
+      "object_type": "blob",
+      "path": "_images/avgpot4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c4e46ec200f3902565361701f47d14faeb0e5764",
+      "object_type": "blob",
+      "path": "_images/avgpot5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3db8424bdf90e5e5606bcb39ae4e6a475a20a66b",
+      "object_type": "blob",
+      "path": "_images/band_MoS2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "81f0bf4e898e18bd6c5aa3fdf438a58f1d36eae4",
+      "object_type": "blob",
+      "path": "_images/chgdiff1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "36e64a2e8ff8a0f6b72643d5bdef3d6bed133353",
+      "object_type": "blob",
+      "path": "_images/chgdiff2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ec17a6690b358b5177893a6f5d66a290ae6a6ba",
+      "object_type": "blob",
+      "path": "_images/chgdiff3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c543df94f174194916b970bc0764641557989d2a",
+      "object_type": "blob",
+      "path": "_images/ebs_MoS2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "38871542fdf1d339bdd02041c70530a18176f235",
+      "object_type": "blob",
+      "path": "_images/elastic.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9fb8c69eb736b44a927d043ce3ccafebb8c44ad2",
+      "object_type": "blob",
+      "path": "_images/elastic_3D.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d6210ed98df55ffee4fdcceaac7b2bc49fbe52a3",
+      "object_type": "blob",
+      "path": "_images/emc.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b559765a30e35f6a93770d2ec1faa3f820bbba8",
+      "object_type": "blob",
+      "path": "_images/fermisurface1.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "67686d912847038a70ba0cfe31e1260eedb9e91a",
+      "object_type": "blob",
+      "path": "_images/fermisurface2.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4779afe57e7ba4331f92d7588246d58623bad603",
+      "object_type": "blob",
+      "path": "_images/hse-band1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "975af11df77a854ea884acec92b78bc43fcd5cb2",
+      "object_type": "blob",
+      "path": "_images/hse-band2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7b2d3e0bc685bb63d18655d31bfac7889320806b",
+      "object_type": "blob",
+      "path": "_images/hse-band3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d6b9fcb2f33c6ac7329121814082c44fdfb1d66",
+      "object_type": "blob",
+      "path": "_images/interpbandstructure.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ca51695e9ce56a958e8acc8864a1fc59074a33a6",
+      "object_type": "blob",
+      "path": "_images/kpath_2d.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "659c2d4387e506299f0f6aa5bd2741316fe0a4bb",
+      "object_type": "blob",
+      "path": "_images/kpath_3d_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29fa57c98223b95ad9c62d0b73ead0f259b3e64d",
+      "object_type": "blob",
+      "path": "_images/kpath_3d_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f6b90f37d3b57cd00b1e732f56f404be6e312081",
+      "object_type": "blob",
+      "path": "_images/nanoribbon.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8c4b83090c2695329af13dc7146b0269c5740670",
+      "object_type": "blob",
+      "path": "_images/nanotube.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ac7baee235d6c32409e3bed8bfea96fa8f080313",
+      "object_type": "blob",
+      "path": "_images/optical.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a2b9ef21368949866cdea2a78bf2d03f8682cac3",
+      "object_type": "blob",
+      "path": "_images/pband-graphene.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2840b445aa80f18c1942300ef6922cc5c55c74f",
+      "object_type": "blob",
+      "path": "_images/pband1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cce16faa72f2d2a16ddca61150941fec5d006875",
+      "object_type": "blob",
+      "path": "_images/pband2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ce292795641c8763a93dea0fb501c92b87917e7",
+      "object_type": "blob",
+      "path": "_images/pband3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa25746947408fb4e01976bb87e9d72ad84e3c95",
+      "object_type": "blob",
+      "path": "_images/pband4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "53aefcb4e48974194e452793a086ad8b1ccb4730",
+      "object_type": "blob",
+      "path": "_images/pband5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "373de5650ac38624ea4187bc69276882f5d2d1f4",
+      "object_type": "blob",
+      "path": "_images/pband6.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0961cea33579bf4d5e99900ff6ae58323d3b847",
+      "object_type": "blob",
+      "path": "_images/pband7.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6aff968a0a5592c52ac51daf8ef198ebc522e495",
+      "object_type": "blob",
+      "path": "_images/pband8.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b99a6f97ce24208d8190aff428a2a780cba6c72b",
+      "object_type": "blob",
+      "path": "_images/pdos1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17f4d18a173037f93eab21615c999b2548523dc5",
+      "object_type": "blob",
+      "path": "_images/pdos2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e42fe7a9caab5452a16ec7fb5d855a4b6e6d2e64",
+      "object_type": "blob",
+      "path": "_images/stm.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4bd6f6f8870eed29631b8e571bc0386f01dedac1",
+      "object_type": "blob",
+      "path": "_images/supercell1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f64d4349a7cdb00ac4a888dbe6584c919596aa5c",
+      "object_type": "blob",
+      "path": "_images/unfold_MoS2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f489d6a49dcff138ccd2036253b70924a01adf0c",
+      "object_type": "blob",
+      "path": "_images/xkcd.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "44898d829f9859e1dcced0b3d565dba43a1c248d",
+      "object_type": "blob",
+      "path": "_sources/acknowledgments.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e6162ff9204dc97b4e6b1614df7ffd1bf92741c2",
+      "object_type": "blob",
+      "path": "_sources/atomkit.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6001dbd5c3442fc48ae56d93705f0e79def0d65f",
+      "object_type": "blob",
+      "path": "_sources/changelog.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "33ed9b656889acf161e3bc27317076b21c0cf885",
+      "object_type": "blob",
+      "path": "_sources/citations.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b0a881afdb8e0a852bbdc254d0bab9ea0d1fe4fd",
+      "object_type": "blob",
+      "path": "_sources/database.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "86c449df9f23ac0e957045c224e82374ec228d77",
+      "object_type": "blob",
+      "path": "_sources/features.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dbed0d890334bf8e0095e59f48ca029f386eef6e",
+      "object_type": "blob",
+      "path": "_sources/gallery.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "157ada5a51e3b764a6eae516de84cc5fd882f152",
+      "object_type": "blob",
+      "path": "_sources/index.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1faa2a61175bddd0515f1b8020e43a446cc3c3a",
+      "object_type": "blob",
+      "path": "_sources/installation.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29f661b626eab02b24850874fc9e893a5b766de4",
+      "object_type": "blob",
+      "path": "_sources/resouces.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5c83907194b701992362b27369e7840b60959e44",
+      "object_type": "blob",
+      "path": "_sources/tutorials.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "47134c20010eb8240ba9c00addd43d39be974d17",
+      "object_type": "blob",
+      "path": "_sources/vaspkitpro.rst.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8549469dc29fac0cbf16d10355e3313897cb3752",
+      "object_type": "blob",
+      "path": "_static/_sphinx_javascript_frameworks_compat.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eeb0519a69bacca5e0d1dc516e93d845743dabf0",
+      "object_type": "blob",
+      "path": "_static/basic.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3c33cef5450e1a6e12a4e33928cf2bdcdc4db2e0",
+      "object_type": "blob",
+      "path": "_static/css/badge_only.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aed8cef0668288648615f650e93e648e00e8c4d0",
+      "object_type": "blob",
+      "path": "_static/css/theme.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "527b876ca636d9a23d0cb3cc73ff6355b94fd7da",
+      "object_type": "blob",
+      "path": "_static/doctools.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bfd0994914d1cd65e0b2930311a0d9d5fb87d6bc",
+      "object_type": "blob",
+      "path": "_static/documentation_options.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a858a410e4faa62ce324d814e4b816fff83a6fb3",
+      "object_type": "blob",
+      "path": "_static/file.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3361183a419c188282a8545eaa8d8e298b8ffaab",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bold.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29f691d5ed0c2d3d224423bb0288e6bd59292511",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bold.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c6dff51f063cc732fdb5fe786a8966de85f4ebec",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bold.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb195043cfc07fa52741c6144d7378b5ba8be4c5",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bold.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3d4154936b42522fac84900c689a901ac12875c0",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bolditalic.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f402040b3e5360b90f3a12ca2afab2cd7244e16f",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bolditalic.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "88ad05b9ff413055b4d4e89dd3eec1c193fa20c6",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bolditalic.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c4e3d804b57b625b16a36d767bfca6bbf63d414e",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-bolditalic.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3f826421a1d97b09797fad3d781a666a39eb45c9",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-italic.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b4bfc9b24aa993977662352c881c6e42f99f77e0",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-italic.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "76114bc03362242c3325ecda6ce6d02bb737880f",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-italic.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3404f37e2e312757841abe20343588a7740768ca",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-italic.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "11e3f2a5f0f9b8c7ef6affae8c543d20f7c112be",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-regular.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74decd9ebb8d805201934266b3bda6a9d5831024",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-regular.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ae1307ff5f4c48678621c240f8972d5a6e20b22c",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-regular.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3bf9843328a6359b6bd06e50010319c63da0d717",
+      "object_type": "blob",
+      "path": "_static/fonts/Lato/lato-regular.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "79dc8efed3447d6588baa2bb74122d56f3500038",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-bold.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "df5d1df2730433013f41bf2698cbe249b075aa02",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-bold.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6cb60000181dbd348963953ac8ac54afb46c63d5",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7059e23142aae3d8bad6067fc734a6cffec779c9",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-bold.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2f7ca78a1eb34f0f98feb07ab1231d077b248940",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-regular.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eb52a7907362cc3392eb74892883f5d9e260b638",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-regular.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f815f63f99da80ad2be69e4021023ec2981eaea0",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2c76e5bda18a9842e24cd60d8787257da215ca7",
+      "object_type": "blob",
+      "path": "_static/fonts/RobotoSlab/roboto-slab-v7-regular.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9f60ca953f93e35eab4108bd414bc02ddcf3928",
+      "object_type": "blob",
+      "path": "_static/fonts/fontawesome-webfont.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "855c845e538b65548118279537a04eab2ec6ef0d",
+      "object_type": "blob",
+      "path": "_static/fonts/fontawesome-webfont.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "35acda2fa1196aad98c2adf4378a7611dd713aa3",
+      "object_type": "blob",
+      "path": "_static/fonts/fontawesome-webfont.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "400014a4b06eee3d0c0d54402a47ab2601b2862b",
+      "object_type": "blob",
+      "path": "_static/fonts/fontawesome-webfont.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4d13fc60404b91e398a37200c4a77b645cfd9586",
+      "object_type": "blob",
+      "path": "_static/fonts/fontawesome-webfont.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50937333b99a5e168ac9e8292b22edd7e96c3e6a",
+      "object_type": "blob",
+      "path": "_static/jquery-3.5.1.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc6c299b73e792ef288e785c22393a5df9dded4b",
+      "object_type": "blob",
+      "path": "_static/jquery-3.6.0.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c4c6022f2982e8dae64cebd6b9a2b59f2547faad",
+      "object_type": "blob",
+      "path": "_static/jquery.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f65d47974786ee51c258f680bd9be621629244f5",
+      "object_type": "blob",
+      "path": "_static/js/modernizr.min.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8555d79b71a1a347857e06b8a6223df1ccdd7859",
+      "object_type": "blob",
+      "path": "_static/js/theme.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2e22b06ab13bec689de4d1530b8b625bc6d69ae8",
+      "object_type": "blob",
+      "path": "_static/language_data.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3b8bfa10afadb697dd1e7500677958cc7e8c54e9",
+      "object_type": "blob",
+      "path": "_static/logo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d96755fdaf8bb2214971e0db9c1fd3077d7c419d",
+      "object_type": "blob",
+      "path": "_static/minus.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7107cec93a979b9a5f64843235a16651d563ce2d",
+      "object_type": "blob",
+      "path": "_static/plus.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "84ab3030a9329e5598877502bfa7f8a999af8535",
+      "object_type": "blob",
+      "path": "_static/pygments.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e89e34d4e7729c9cf60e90e97ecc0507ebc398ec",
+      "object_type": "blob",
+      "path": "_static/searchtools.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aae669d7ea6b1dc6edcb5c651f5d095f7a2dc6e6",
+      "object_type": "blob",
+      "path": "_static/sphinx_highlight.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e69f8a6cfa45c70645131b576bb8777e9d4a209",
+      "object_type": "blob",
+      "path": "_static/style.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ffd77af9648a47d389f2d6976d4aa1c44d7ce7ce",
+      "object_type": "blob",
+      "path": "_static/underscore-1.13.1.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "208d4cd890c3183d946092ebe982738ade565061",
+      "object_type": "blob",
+      "path": "_static/underscore-1.3.1.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cf177d4285ab55fbc16406a5ec827b80e7eecd53",
+      "object_type": "blob",
+      "path": "_static/underscore.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7b6b39af673aa4f8e39f993ccf4c664dc3738895",
+      "object_type": "blob",
+      "path": "acknowledgments.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91c050d0312c9ff5e868432c83f6e2348e87086e",
+      "object_type": "blob",
+      "path": "atomkit.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e5c9c8d1740a02042284d5e285985310b0e8154f",
+      "object_type": "blob",
+      "path": "changelog.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6b13f9f0ee440532aaa029c63807c8a4b640487c",
+      "object_type": "blob",
+      "path": "citations.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3545dde75d5f715cb6d5b07a4d922dc9f09a76eb",
+      "object_type": "blob",
+      "path": "contact.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9b28bbc24bb45cf3daff213e6a245bbc416e61b8",
+      "object_type": "blob",
+      "path": "database.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5cd9cf3f8d01415bdeca5658da6953b463f0b69a",
+      "object_type": "blob",
+      "path": "donations.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4ee44867460fa3621470ea72bf2bb043957c887",
+      "object_type": "blob",
+      "path": "features.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d66a23d1e3dc5f98675cd532ad76c60df30c4b56",
+      "object_type": "blob",
+      "path": "gallery.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9a3baec276de5f0c845d6786b24f0e4b673843c5",
+      "object_type": "blob",
+      "path": "genindex.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "938b7af35b83c2eb62502d46a315661f662d5b2a",
+      "object_type": "blob",
+      "path": "index.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "657aaa6a1996c4dd8fe2f006e597146137a667bd",
+      "object_type": "blob",
+      "path": "installation.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cbea82f5249df899b9546902e479dc6623065705",
+      "object_type": "blob",
+      "path": "objects.inv"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c24077f35b4d57d62714024af699caccb740e956",
+      "object_type": "blob",
+      "path": "resouces.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c390416ff542efa8d20b1940833400cdae428f7b",
+      "object_type": "blob",
+      "path": "search.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3cbd6a6df25b76de235bc27bdbf01f7dc36458da",
+      "object_type": "blob",
+      "path": "searchindex.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f67ce2a99de831289d758a59dc49a78e0d6a2812",
+      "object_type": "blob",
+      "path": "tutorials.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6d8dd5447d7f0157497283674b412aea3b5d434a",
+      "object_type": "blob",
+      "path": "vaspkitpro.html"
+    }
+  ],
+  "entry_count": 153,
+  "inventory_scope": "Complete exact documentation-repository tree Git object inventory at the reviewed 1.5-series commit, including source text, generated HTML, images, and static assets; bodies are intentionally not embedded.",
+  "provider_id": "vaspkit",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "docs-383a7103505b5b9436dedbf04df42ebb6e248638",
+  "repository_url": "https://github.com/vaspkit/vaspkit.github.io",
+  "root_tree_object_id": "1f8f8170e945b07cd394858ccd2bf58d0d456178",
+  "schema_version": "1.0"
+}

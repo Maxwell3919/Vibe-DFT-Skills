@@ -16,6 +16,7 @@ from .electronic import (
     _write_csv_atomic,
     parse_qe_fermi_energy,
 )
+from .registry import resolve_backend_maturity
 from .utils import utc_now, write_json_atomic
 
 
@@ -690,14 +691,15 @@ def normalize_grid_field(
     vacuum_window_angstrom: tuple[float, float] | None = None,
     figure_output: Path | None = None,
     slice_figure_output: Path | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
     import numpy as np
 
-    _check_maturity(maturity)
     if code not in {"qe", "vasp", "siesta", "mixed"}:
         raise ValueError("code must be qe, vasp, siesta, or mixed")
+    maturity = resolve_backend_maturity("real-space", code, "python.grid", maturity)
+    _check_maturity(maturity)
     if field_kind not in FIELD_KINDS:
         raise ValueError(f"unknown field_kind: {field_kind}")
     if not field_unit.strip():
@@ -1123,14 +1125,15 @@ def combine_cube_grids(
     field_unit: str,
     structure_component_index: int = 0,
     code: str = "mixed",
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
     import numpy as np
 
-    _check_maturity(maturity)
     if code not in {"qe", "vasp", "mixed"}:
         raise ValueError("code must be qe, vasp, or mixed")
+    maturity = resolve_backend_maturity("real-space", code, "python.grid", maturity)
+    _check_maturity(maturity)
     if len(components) < 2:
         raise ValueError("grid combination requires at least two coefficient=path components")
     if not field_unit.strip():
@@ -1322,12 +1325,13 @@ def normalize_bader_acf(
     reference_electrons: list[float] | None = None,
     electron_closure_tolerance: float = 1.0e-3,
     figure_output: Path | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
-    _check_maturity(maturity)
     if code not in {"qe", "vasp", "mixed"}:
         raise ValueError("code must be qe, vasp, or mixed")
+    maturity = resolve_backend_maturity("real-space", code, "python.bader-acf", maturity)
+    _check_maturity(maturity)
     if electron_closure_tolerance < 0.0:
         raise ValueError("electron_closure_tolerance must be nonnegative")
     records, footer = _parse_bader_acf(acf_path)

@@ -1,0 +1,30 @@
+{
+  "blockers": [
+    "Provider-required subjects remain blocked until exact document bodies, generated manual replay, and semantic slices exist.",
+    "Compiled package/style availability, potential identity, and native binary behavior require separate execution provenance and cannot be inferred from documentation."
+  ],
+  "contract_name": "official-document-pack-seed",
+  "limitations": [
+    "The exact release documentation tree is inventoried as metadata only; document bodies, generated HTML, examples, potentials, and binary help remain external."
+  ],
+  "providers": [
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "lammps-release-source-docs-patch-4jul2026",
+      "input_id": "lammps-docs",
+      "provider_id": "lammps",
+      "source_ref": {
+        "path": "skills/lammps-rigorous-simulations/references/source-pack-source-catalog-lammps.json",
+        "sha256": "8270f0a43106e61ca95ea4314b9f5e89454e45c4f5db895826cdf153b035a3fb"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "scope_catalog_ref": {
+    "path": "skills/lammps-rigorous-simulations/references/source-pack-scope-catalog.json",
+    "sha256": "52df5877037cc3d1d7e149d7789e30c460c3388b817edd60edcd1942e73ea3d0"
+  },
+  "scope_extractor_id": "reviewed-semantic-scope-v1",
+  "skill_id": "lammps-rigorous-simulations",
+  "status_ceiling": "blocked"
+}

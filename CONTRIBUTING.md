@@ -85,6 +85,7 @@ Run before requesting review:
 
 ```text
 python3 tools/run_tests.py
+python3 tools/run_development_tests.py
 python3 tools/validate_all_skills.py
 python3 tools/audit_repository.py
 git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'

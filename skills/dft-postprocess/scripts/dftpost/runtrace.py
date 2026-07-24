@@ -15,6 +15,7 @@ from .electronic import (
     _validated_dataset,
     _write_csv_atomic,
 )
+from .registry import resolve_backend_maturity
 from .utils import utc_now, write_json_atomic
 
 
@@ -315,12 +316,15 @@ def normalize_run_trace(
     dataset_id: str,
     *,
     figure_output: Path | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
-    _check_maturity(maturity)
     if code not in {"qe", "vasp"}:
         raise ValueError("run trace code must be qe or vasp")
+    maturity = resolve_backend_maturity(
+        "run-trace", code, f"python.{code}-text", maturity
+    )
+    _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)
     electronic_path = output_directory / "electronic-iterations.csv"

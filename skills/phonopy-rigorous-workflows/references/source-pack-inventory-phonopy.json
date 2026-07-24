@@ -1,0 +1,542 @@
+{
+  "authority_id": "phonopy-release-source-docs-4-3-1",
+  "commit_id": "baf530aed09071e1221b3c191918a168fc5f1d9b",
+  "documentation_roots": [
+    {
+      "path": "doc",
+      "tree_object_id": "b9c33e16a1900fee759c9b094ec6f0e8d999f1d1"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "8932cb8f5a9ce46e366862f071f217207793508e",
+      "object_type": "blob",
+      "path": "doc/Al-QHA.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b690480e5d1de58aa4eab1f82d093a3317a820bf",
+      "object_type": "blob",
+      "path": "doc/Cu-QHA.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f84d55620da4d726d5f2232ee268e624746eb65e",
+      "object_type": "blob",
+      "path": "doc/Fleur.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d4bb2cbb9eddb1bb1b4f366623044af8e4830919",
+      "object_type": "blob",
+      "path": "doc/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "88162421fbe49c24dcd8cf01c5b0604cf7765a06",
+      "object_type": "blob",
+      "path": "doc/NaCl-PDOS-nac.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "06f032bf025d7190150cf63b2e6ec88fce114f0b",
+      "object_type": "blob",
+      "path": "doc/NaCl-PDOS.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "58da0c97c35b7a45d46ef365cba328ab3a9b9adb",
+      "object_type": "blob",
+      "path": "doc/NaCl-VASPdfpt.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a79e0087c14f274bd484086b6c9a8a940c78c043",
+      "object_type": "blob",
+      "path": "doc/NaCl-band-NAC.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fbe54a156226b64bf82fc8db2d72233c37cae84e",
+      "object_type": "blob",
+      "path": "doc/NaCl-band-PDOS-NAC.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "af1088fdfa0dfaf03078e2757b8763509ad50d2b",
+      "object_type": "blob",
+      "path": "doc/NaCl-band.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "916ba9762e40120a2ec62d0cd31aba1180090f79",
+      "object_type": "blob",
+      "path": "doc/NaCl-crystal-band-NAC.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5f936833d71c1d626e621e3bc2809f2c314773a0",
+      "object_type": "blob",
+      "path": "doc/NaCl-disp-dist.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3b9014d111e6b1464680caa32cb752819c43326e",
+      "object_type": "blob",
+      "path": "doc/NaCl-pwscf-band-NAC.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6d5aa22eb878a681bb2e0beab12a287b6f3c9417",
+      "object_type": "blob",
+      "path": "doc/NaCl-pwscf-band.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7835abb24c1964027e84a1bd86ec0defa9f9c3b4",
+      "object_type": "blob",
+      "path": "doc/NaCl-q2r-band-NAC.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "46ac2adf0efc2d639639141e09040aa644e3eb9f",
+      "object_type": "blob",
+      "path": "doc/QHA.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b49688906ad0c0e5189ffe34a9e6a1eba7dd23e",
+      "object_type": "blob",
+      "path": "doc/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f0ec9c8206ad1c037806ec9f322e4998b3f943a",
+      "object_type": "blob",
+      "path": "doc/Si-DOS.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5cd6e152c634b4b5720c90a7b93a449ac4b08288",
+      "object_type": "blob",
+      "path": "doc/Si-QHA.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3e3ba14aec0251a4a9258dbf8b2126d45af6b577",
+      "object_type": "blob",
+      "path": "doc/Si-TURBOMOLE-band.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ef6e7c98d7ab2cac720f4e0a9daebcbcb900f12a",
+      "object_type": "blob",
+      "path": "doc/Si-crystal-band.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4e6291d77f8d7fa2fd65e41f02c5e1f79909e512",
+      "object_type": "blob",
+      "path": "doc/Si-gruneisen-band.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a7d4c2909e50547ccf5c1b535343c8a902abf897",
+      "object_type": "blob",
+      "path": "doc/Si-gruneisen-mesh.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9c6f2369a6741123fc2b44c15354f1eac4a17f1c",
+      "object_type": "blob",
+      "path": "doc/Si-props.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0bb841ac15d58c36a123a2e2f3f29227df9d760a",
+      "object_type": "blob",
+      "path": "doc/SnO2-GZG-offset.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c8ba36d827a84e20f98a61051a67fe7fc663d1ad",
+      "object_type": "blob",
+      "path": "doc/SnO2-GZG.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7006068499be1b1680e462ad3007f7ebf5a787da",
+      "object_type": "blob",
+      "path": "doc/Ubuntu-install.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "78bb6eb56da9db0bea39db87ecb07d0f1e11b40d",
+      "object_type": "blob",
+      "path": "doc/_static/procedure.dot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "336e79663bb9641b9d62cb69b3e5fcb74496b734",
+      "object_type": "blob",
+      "path": "doc/abacus.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a103dfd4c61a83209e21a61bbbbd6ee04e9a6b5",
+      "object_type": "blob",
+      "path": "doc/abinit.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "914707cb7e1e0f5c043c10459b61c4f1252f66f4",
+      "object_type": "blob",
+      "path": "doc/aims.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1813bd2c9b08d89f2f3f3671e97200ed57968f5a",
+      "object_type": "blob",
+      "path": "doc/animation.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28416d7e65be9dce0a1c049b433429a06e3b3b9b",
+      "object_type": "blob",
+      "path": "doc/api-reference.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "746e5d6f42b3fa37c941deb92f84b9f8f31b012f",
+      "object_type": "blob",
+      "path": "doc/auxiliary-tools.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4a60cf96f7a1c3f5bd6887dbd529b947e84c0fc9",
+      "object_type": "blob",
+      "path": "doc/band-connection.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "76dc7e1be17fc6f15ae664879b0133b29d4e083d",
+      "object_type": "blob",
+      "path": "doc/band-labels.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "34a21ef5033385c11d8c1266e7bbd1438711c76e",
+      "object_type": "blob",
+      "path": "doc/band.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "95d4430ffbcf4b24d87448825e9940ad17d47b5c",
+      "object_type": "blob",
+      "path": "doc/castep.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "73096acefab0b8801cc7e4469b45addf4a1bfed6",
+      "object_type": "blob",
+      "path": "doc/changelog.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8edbd6b26404d9ace5d90a27a78e2bff4258a739",
+      "object_type": "blob",
+      "path": "doc/citation.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d729b49e976d7dd70279a58ff28575759d7b105",
+      "object_type": "blob",
+      "path": "doc/command-options.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "33edf602173096c2ee801bf596027a3f671f4410",
+      "object_type": "blob",
+      "path": "doc/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a3bf1d7bad53561a956145c66a1399e4cdfe764b",
+      "object_type": "blob",
+      "path": "doc/cp2k.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "12f04f7331744fa3d39de693d27a4db8b883d0d9",
+      "object_type": "blob",
+      "path": "doc/crystal.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8a746973c3322284ce16f30f030bda7ee8d54761",
+      "object_type": "blob",
+      "path": "doc/development.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "56d76a06342ce03e97d018cbe0b8b2d7a8dde62e",
+      "object_type": "blob",
+      "path": "doc/dftb+.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad49f667bca916e098d010124e43501a3986df6b",
+      "object_type": "blob",
+      "path": "doc/dynamic-structure-factor.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cc21a0c27d979be17b570caab9fadde1b6e23640",
+      "object_type": "blob",
+      "path": "doc/elk.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d29ac8a971928a5af024725233a54481ad54f096",
+      "object_type": "blob",
+      "path": "doc/examples.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "31e2214acc48a467d0d15bfcb3e2e132645e8d6e",
+      "object_type": "blob",
+      "path": "doc/external-tools.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29a8e175cf3d0572debb156f2a58640b1143329f",
+      "object_type": "blob",
+      "path": "doc/formulation.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "27ea9fd12d5e726012a33da4d9a088c36d682d77",
+      "object_type": "blob",
+      "path": "doc/gruneisen.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "37d7ba5b5ee5b0681f225a586e8b25390a2cbba4",
+      "object_type": "blob",
+      "path": "doc/index.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bac6b05d3e2f2ab1840c21568e07caf88c4aec15",
+      "object_type": "blob",
+      "path": "doc/input-files.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "500aaa54a2d69975e9130ab1bfc0f20cf8c1a5c6",
+      "object_type": "blob",
+      "path": "doc/install.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "64253744e2e7defa36409473e2f91318a8ce9edc",
+      "object_type": "blob",
+      "path": "doc/interfaces.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "046a81384e7f62cbfa86e6760e62096cbd05aecd",
+      "object_type": "blob",
+      "path": "doc/lammps.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "35db20cc0180fd518fcdc2475fa944aaa664d9d5",
+      "object_type": "blob",
+      "path": "doc/migration-v4.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "72047dd5a8ea27694b42fc5fefb0da3d97e65953",
+      "object_type": "blob",
+      "path": "doc/migration-v5.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "106e3d8bb1affe14502a938bb6be00f04eeff512",
+      "object_type": "blob",
+      "path": "doc/mlp-sscha.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6763f23d5b8ed60ce71d9650a14a2ff3d93df5c6",
+      "object_type": "blob",
+      "path": "doc/output-files.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "195b8272cf300607bd436062c48c0b6969b5192a",
+      "object_type": "blob",
+      "path": "doc/pdos.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "885d656d5c71b89324cbda4fa96aea4428a63936",
+      "object_type": "blob",
+      "path": "doc/phonondb-mp-661.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "53d5f8c0d767139330d396692d04972f06c14ba7",
+      "object_type": "blob",
+      "path": "doc/phonopy-init.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a1e3bbdc58ffe94f29941be298e19057899c994b",
+      "object_type": "blob",
+      "path": "doc/phonopy-logo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "983bf786bc4a2171c39417dfa19dd67c1aa56b69",
+      "object_type": "blob",
+      "path": "doc/phonopy-module.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7f6aea75bb610bf84c0e5cb07f25f88245b23c42",
+      "object_type": "blob",
+      "path": "doc/phonopy-slide-top.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50b085dc0e1a57072e92729cdca213cacf666f08",
+      "object_type": "blob",
+      "path": "doc/phonopy-yaml.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a27c55b4f8e6d8c1aee9fa24f2085188b041092",
+      "object_type": "blob",
+      "path": "doc/phonopy.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a55ae3d493c1fb7fb629dd4188fc3577fb759983",
+      "object_type": "blob",
+      "path": "doc/procedure.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e53f0d6175ce2a58c2f7c305c8f8f57625d8bc13",
+      "object_type": "blob",
+      "path": "doc/qe.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "65613f92dd9e5467bab2d7d24723ff3a68aa6bf7",
+      "object_type": "blob",
+      "path": "doc/qha.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f56702f8f2bf48c7ad638cdc106df60b3bb4fc25",
+      "object_type": "blob",
+      "path": "doc/qlm.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "403a0b9f8f19dcbeb5369f1f8a2b3b452a8a3c21",
+      "object_type": "blob",
+      "path": "doc/random-displacements.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c27d7a8bc2add769115aa1089d5e9cb02defbc4e",
+      "object_type": "blob",
+      "path": "doc/reference.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d79164d456bb9284297a7e4fdf0418d9e30782cc",
+      "object_type": "blob",
+      "path": "doc/rotation-C4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "92a0a6136cdc63e25ed096d7d2219beec8c0dc43",
+      "object_type": "blob",
+      "path": "doc/rust-backend.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "800bc38fa783440712978c3c01bdda48f99f5411",
+      "object_type": "blob",
+      "path": "doc/setting-tags.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b439cbca530cef7c51fe385c4429f8d01101930",
+      "object_type": "blob",
+      "path": "doc/siesta.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "951615619a51ccf19166cbe5e6029690eda01ea7",
+      "object_type": "blob",
+      "path": "doc/symmetry.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17f76edeb74b6315276ad9bdfe92861c2f81242d",
+      "object_type": "blob",
+      "path": "doc/thermalprop.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60298b6acf0568f75f6872a99484a00e1ffcfed3",
+      "object_type": "blob",
+      "path": "doc/turbomole.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b88f6a5662880bc8353ad7d5099eb9189ebb7381",
+      "object_type": "blob",
+      "path": "doc/vasp-dfpt.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "103b7cc3fa2ea8423dc771e644f403ffecb90ec6",
+      "object_type": "blob",
+      "path": "doc/vasp.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0bd18891558fe6c200e2d3cfcb2d108ee3d6f270",
+      "object_type": "blob",
+      "path": "doc/vitualbox-fromimage.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c01725038858b841ed99a962cff247b889f3cc4",
+      "object_type": "blob",
+      "path": "doc/wien2k.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "097c344c8e8c10b60daf9c9facf483abf88f5dfc",
+      "object_type": "blob",
+      "path": "doc/workflow.md"
+    }
+  ],
+  "entry_count": 87,
+  "inventory_scope": "Complete exact-release doc tree Git object inventory; document bodies and generated HTML are intentionally not embedded.",
+  "provider_id": "phonopy",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v4.3.1",
+  "repository_url": "https://github.com/phonopy/phonopy",
+  "root_tree_object_id": "fb8a461b44f555924b77b932725c238c4b372268",
+  "schema_version": "1.0"
+}

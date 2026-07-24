@@ -70,5 +70,6 @@ Every command is a dry-run inspection: require `dry_run=true`, `side_effect_perf
 - Use [references/weak-model-decision-table.json](references/weak-model-decision-table.json) for deterministic first-match response routing.
 - Use [references/finding-catalog.json](references/finding-catalog.json) for stable finding meanings.
 - Use [references/maturity-matrix.json](references/maturity-matrix.json) before any promotion discussion.
+- Use [references/source-pack-seed.json](references/source-pack-seed.json) and [references/source-pack-scope-catalog.json](references/source-pack-scope-catalog.json) for the blocked metadata-only repository/JSON-Schema source boundary; refresh or check them with `scripts/extract_official_source_scope.py`.
 
 The maximum claim while this Skill is development/non-routable is `no_positive_claim`.

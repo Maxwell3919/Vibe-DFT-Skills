@@ -1,0 +1,44 @@
+{
+  "blockers": [
+    "The exact first-party LOBSTER 5.1.1 version and license pages require query-bearing HTTPS locators, while the central authority contract keeps query_policy forbidden.",
+    "No authorized exact 5.1.1 manual or example identity is retained; native argv, lobsterin grammar, defaults, basis resources, runtime files, completion markers, output schemas, and entitlement therefore remain blocked.",
+    "Method-literature metadata cannot authenticate software, manuals, examples, basis resources, binaries, parent wavefunctions, or calculation outputs."
+  ],
+  "contract_name": "official-document-pack-seed",
+  "limitations": [
+    "The two active inputs cover only metadata identities for seven provider-required ACS and Wiley publications.",
+    "Publication text, figures, tables, supporting information, scientific interpretation, and native LOBSTER payloads remain external.",
+    "The literature spans method generations and cannot be promoted to an exact LOBSTER 5.1.1 operational contract.",
+    "No central query-policy change is requested by this seed."
+  ],
+  "providers": [
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "lobster-acs-method-literature",
+      "input_id": "lobster-acs-method-literature",
+      "provider_id": "acs",
+      "source_ref": {
+        "path": "skills/lobster-bonding-analysis/references/source-catalog-lobster-acs-literature.json",
+        "sha256": "e8aaeee6d1b5a57812554786c8fe30de14d645b2dd6068852fc75a4c66bb8bea"
+      }
+    },
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "lobster-wiley-method-literature",
+      "input_id": "lobster-wiley-method-literature",
+      "provider_id": "wiley",
+      "source_ref": {
+        "path": "skills/lobster-bonding-analysis/references/source-catalog-lobster-wiley-literature.json",
+        "sha256": "a5104f3350cf2953c0c587f332b1309cfdbf46593b06b63d35a2622a8ac01ca9"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "scope_catalog_ref": {
+    "path": "skills/lobster-bonding-analysis/references/source-pack-scope-catalog.json",
+    "sha256": "0256ac74c6094b2880626da11b97c563f0f0d4498cef7684a15b3c0912575815"
+  },
+  "scope_extractor_id": "lobster-document-scope-v1",
+  "skill_id": "lobster-bonding-analysis",
+  "status_ceiling": "blocked"
+}

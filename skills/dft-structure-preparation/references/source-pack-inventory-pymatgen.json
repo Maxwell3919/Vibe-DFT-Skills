@@ -1,0 +1,463 @@
+{
+  "authority_id": "pymatgen-release-source-docs-2026-5-4",
+  "commit_id": "8495e941504cd5123701635b6572942c78d9589c",
+  "documentation_roots": [
+    {
+      "path": "docs",
+      "tree_object_id": "ba41bb29af79e9ccce73502c94ab636614b2ea93"
+    },
+    {
+      "path": "examples",
+      "tree_object_id": "e722ca65764b6c4f0fd823a210496db94900f048"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "bed291718e83c5de01b0ae1c513df95a70ffcd39",
+      "object_type": "blob",
+      "path": "docs/2023-10-07-top-contributors.csv"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3fd834e5be47c517389576518f07fa089004c941",
+      "object_type": "blob",
+      "path": "docs/CHANGES.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd84ce2c2895c9b1829daa31c458b7e9a3ec22e7",
+      "object_type": "blob",
+      "path": "docs/CNAME"
+    },
+    {
+      "mode": "100644",
+      "object_id": "68a681b41aa984311016219a4ff00d5ab6b9ace9",
+      "object_type": "blob",
+      "path": "docs/Gemfile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "02a7d9b5df3199375200d01b504fbcf36c6e8288",
+      "object_type": "blob",
+      "path": "docs/Gemfile.lock"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9151e2fa0eb61118314de6780578b53863782d57",
+      "object_type": "blob",
+      "path": "docs/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ac16ed04132b43fbe6fa924e1974237978100104",
+      "object_type": "blob",
+      "path": "docs/SECURITY.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c0574e6d484aad283285f91a6f3138a9a54ca061",
+      "object_type": "blob",
+      "path": "docs/_config.yml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f9ceb25b556cba21cc86a9aaf9a607a2a7173f08",
+      "object_type": "blob",
+      "path": "docs/_includes/footer_custom.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "81227d1c9f1b80ba4ea0c82ee7d8e881efb0207f",
+      "object_type": "blob",
+      "path": "docs/_includes/nav_footer_custom.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "36a9cbcfc55f12290cf7ee6b27e4d4ead9416bf3",
+      "object_type": "blob",
+      "path": "docs/_sass/color_schemes/pmg.scss"
+    },
+    {
+      "mode": "100644",
+      "object_id": "178e9c0822e8157d58daa7ab0acbadea974d2a2a",
+      "object_type": "blob",
+      "path": "docs/_templates/layout.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2e3f1cbaa1765aabf7489de958e0f1c3db70e81",
+      "object_type": "blob",
+      "path": "docs/addons.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "997b86a160889a6effe534e18583cd97e152eab0",
+      "object_type": "blob",
+      "path": "docs/apidoc/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "517d0b29cb1193b1211c8853b58c65cddd1fa4d2",
+      "object_type": "blob",
+      "path": "docs/assets/alabaster.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cfc60b86c7c6671bbb7177097c3f01a23f4637d2",
+      "object_type": "blob",
+      "path": "docs/assets/basic.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6cb60000181dbd348963953ac8ac54afb46c63d5",
+      "object_type": "blob",
+      "path": "docs/assets/css/Roboto-Slab-Bold.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7059e23142aae3d8bad6067fc734a6cffec779c9",
+      "object_type": "blob",
+      "path": "docs/assets/css/Roboto-Slab-Bold.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f815f63f99da80ad2be69e4021023ec2981eaea0",
+      "object_type": "blob",
+      "path": "docs/assets/css/Roboto-Slab-Regular.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2c76e5bda18a9842e24cd60d8787257da215ca7",
+      "object_type": "blob",
+      "path": "docs/assets/css/Roboto-Slab-Regular.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "592a019c1d376a51da1c39b332d1863c9dac1a07",
+      "object_type": "blob",
+      "path": "docs/assets/css/badge_only.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9f60ca953f93e35eab4108bd414bc02ddcf3928",
+      "object_type": "blob",
+      "path": "docs/assets/css/fontawesome-webfont.eot"
+    },
+    {
+      "mode": "100644",
+      "object_id": "855c845e538b65548118279537a04eab2ec6ef0d",
+      "object_type": "blob",
+      "path": "docs/assets/css/fontawesome-webfont.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "35acda2fa1196aad98c2adf4378a7611dd713aa3",
+      "object_type": "blob",
+      "path": "docs/assets/css/fontawesome-webfont.ttf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "400014a4b06eee3d0c0d54402a47ab2601b2862b",
+      "object_type": "blob",
+      "path": "docs/assets/css/fontawesome-webfont.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4d13fc60404b91e398a37200c4a77b645cfd9586",
+      "object_type": "blob",
+      "path": "docs/assets/css/fontawesome-webfont.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "88ad05b9ff413055b4d4e89dd3eec1c193fa20c6",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-bold-italic.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c4e3d804b57b625b16a36d767bfca6bbf63d414e",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-bold-italic.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c6dff51f063cc732fdb5fe786a8966de85f4ebec",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-bold.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb195043cfc07fa52741c6144d7378b5ba8be4c5",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-bold.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "76114bc03362242c3325ecda6ce6d02bb737880f",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-normal-italic.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3404f37e2e312757841abe20343588a7740768ca",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-normal-italic.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ae1307ff5f4c48678621c240f8972d5a6e20b22c",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-normal.woff"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3bf9843328a6359b6bd06e50010319c63da0d717",
+      "object_type": "blob",
+      "path": "docs/assets/css/lato-normal.woff2"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9a7740bb9f4f4dd302f0bb52ab2d1dc450efd704",
+      "object_type": "blob",
+      "path": "docs/assets/css/theme.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2a924f1d6a8bc930c5296bdb2d5c2d3e39b04a1c",
+      "object_type": "blob",
+      "path": "docs/assets/custom.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d06a71d7518041301a303697d2a3c372648eb7bf",
+      "object_type": "blob",
+      "path": "docs/assets/doctools.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b57ae3b839367fa9d935da1f51b4ad30e70cb824",
+      "object_type": "blob",
+      "path": "docs/assets/documentation_options.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b9c3e56747a5d6694d88d75d0c907904d40af31e",
+      "object_type": "blob",
+      "path": "docs/assets/examples.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d086b4446eba3586b33a809be99d8f74a3230725",
+      "object_type": "blob",
+      "path": "docs/assets/favicon.ico"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a858a410e4faa62ce324d814e4b816fff83a6fb3",
+      "object_type": "blob",
+      "path": "docs/assets/file.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "526d7234b6538603393d419ae2330b3fd6e57ee8",
+      "object_type": "blob",
+      "path": "docs/assets/js/badge_only.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2b43bd062e9689f9f4016931d08e7143d555539d",
+      "object_type": "blob",
+      "path": "docs/assets/js/html5shiv-printshiv.min.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cd1c674f5e3a290a12386156500df3c50903a46b",
+      "object_type": "blob",
+      "path": "docs/assets/js/html5shiv.min.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1fddb6ee4a60f30b4a4c4b3ad1f1604043f77981",
+      "object_type": "blob",
+      "path": "docs/assets/js/theme.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "250f5665fa64b70c822190199b3b804b10f8b9d8",
+      "object_type": "blob",
+      "path": "docs/assets/language_data.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e661c34bc1c59797742079a5d84d47fdc2ea64fc",
+      "object_type": "blob",
+      "path": "docs/assets/metadata.yml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d96755fdaf8bb2214971e0db9c1fd3077d7c419d",
+      "object_type": "blob",
+      "path": "docs/assets/minus.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1cd80367b9f03c78d9f0297962003ae9b528507",
+      "object_type": "blob",
+      "path": "docs/assets/orcid.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "def4561377dcd7ac95baaac938098904eff7e356",
+      "object_type": "blob",
+      "path": "docs/assets/overview.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cbee076ca1a8f3921fae56cd6935c5814afcb4a3",
+      "object_type": "blob",
+      "path": "docs/assets/phase_diagram.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7107cec93a979b9a5f64843235a16651d563ce2d",
+      "object_type": "blob",
+      "path": "docs/assets/plus.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9abe04ba552e93102be60b10311b288fbc57ab51",
+      "object_type": "blob",
+      "path": "docs/assets/pygments.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "93e585530752789ba789988389ad8ca8482858d3",
+      "object_type": "blob",
+      "path": "docs/assets/pymatgen-white.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de562c9e017eb3aa84457206e2bb6d5e0ab56b63",
+      "object_type": "blob",
+      "path": "docs/assets/pymatgen.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "97d56a74d8207ec36a96a5e24f4a4b42dd51f6b2",
+      "object_type": "blob",
+      "path": "docs/assets/searchtools.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aae669d7ea6b1dc6edcb5c651f5d095f7a2dc6e6",
+      "object_type": "blob",
+      "path": "docs/assets/sphinx_highlight.js"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f3ff6ee4bd4abd6629a8651d4f62a4a418cf2f18",
+      "object_type": "blob",
+      "path": "docs/assets/team-map.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2937143ebfee094601971161ea6757b95faab967",
+      "object_type": "blob",
+      "path": "docs/compatibility.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3eba15c56309af326f38f54203636549383eea65",
+      "object_type": "blob",
+      "path": "docs/contributing.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2dc67768c2be3dea69797d6f52d6e0b7dc1efc9",
+      "object_type": "blob",
+      "path": "docs/index.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "271fdd979395a5754d446b92debad4a41a54e09b",
+      "object_type": "blob",
+      "path": "docs/installation.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3682db764638ae9bc5617e9ed01f979582002974",
+      "object_type": "blob",
+      "path": "docs/make.bat"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b90e2b514c3006afed84daa30342531e8b5cf995",
+      "object_type": "blob",
+      "path": "docs/proBlue/LICENSE.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "51e822ce3ff3b3efda5b04a40d79af6ab142fff6",
+      "object_type": "blob",
+      "path": "docs/proBlue/README.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6e64542780883414346290fd48ec0c86a6dcc48b",
+      "object_type": "blob",
+      "path": "docs/proBlue/static/proBlue.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eea30eb96ab06b4494bffba7fd54bd668f3c2e16",
+      "object_type": "blob",
+      "path": "docs/proBlue/theme.conf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "90f1e934b249f2ac59e33a6f7fd0e94cb76384dc",
+      "object_type": "blob",
+      "path": "docs/pymatgen.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d3d034c3541cc6751c7164c3a3932559961b34fb",
+      "object_type": "blob",
+      "path": "docs/references.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2579e82da56f209c078268390582ee2720fa3f61",
+      "object_type": "blob",
+      "path": "docs/search.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b12fcf42e09713b408ab5f08cf712c127382ec95",
+      "object_type": "blob",
+      "path": "docs/team.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b2a2d2686f6c6a20f0b9cc607a1a78f709c68d85",
+      "object_type": "blob",
+      "path": "docs/usage.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "87e77b3dfc9315c7ea43c5b687e0918caaedd811",
+      "object_type": "blob",
+      "path": "examples/README.md"
+    }
+  ],
+  "entry_count": 73,
+  "inventory_scope": "Complete Git object inventory for the exact release documentation roots; file bodies are intentionally not embedded.",
+  "provider_id": "pymatgen",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v2026.5.4",
+  "repository_url": "https://github.com/materialsproject/pymatgen",
+  "root_tree_object_id": "219bbedf52ecd0b2b4f5d71046185bcab351182b",
+  "schema_version": "1.0",
+  "tag_object_id": null
+}

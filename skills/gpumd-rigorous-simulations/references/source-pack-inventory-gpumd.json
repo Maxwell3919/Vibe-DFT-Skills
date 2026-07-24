@@ -1,0 +1,1566 @@
+{
+  "authority_id": "gpumd-release-source-docs-5-3",
+  "commit_id": "f2b46c5d528e985a5bf68becd442b18c0e04396c",
+  "documentation_roots": [
+    {
+      "path": "doc",
+      "tree_object_id": "81e99b831a3df81e6cf86081bd0b0fedd5f906fa"
+    },
+    {
+      "path": "examples",
+      "tree_object_id": "f54afe60be21870c815b7768a5f29bd77b8b920b"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "fbb3e3259ecd25f303e59184dd7231e6781ce406",
+      "object_type": "blob",
+      "path": "doc/GPUMD-Manual.pdf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f5fb7e8b59660d16ca1ff95420758f6466846700",
+      "object_type": "blob",
+      "path": "doc/_static/custom.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fad7745a59e362375664f88cbfa875af80ad93a0",
+      "object_type": "blob",
+      "path": "doc/_static/logo-2x1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1daac7e691fae27d428fc6746f22aed787fe77f5",
+      "object_type": "blob",
+      "path": "doc/_static/logo-icon.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1c26b761fa9eb39858022e1485b0b3ca4be8e747",
+      "object_type": "blob",
+      "path": "doc/_static/logo.ico"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7af79d2b2569cda4e1605442cb48ea92c73c7041",
+      "object_type": "blob",
+      "path": "doc/_static/logo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "82386aa1b59e5cedba1ff6b741ee807a0f143979",
+      "object_type": "blob",
+      "path": "doc/_static/logo.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7385b2afc7986c3bb18d86341f14356cf3b46fd7",
+      "object_type": "blob",
+      "path": "doc/_templates/breadcrumbs.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f59e0a10dde9f6db1d6f6bbba3260c1ed97fb81c",
+      "object_type": "blob",
+      "path": "doc/_templates/page.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "548f21cf250c48b2251d5f17e8017ca32204412f",
+      "object_type": "blob",
+      "path": "doc/_templates/versions.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c242cad3f6615b7f52055f5a173d572734fd3ae9",
+      "object_type": "blob",
+      "path": "doc/bibliography.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "10f53df47f29934fcbf368ea79433b99ebb9e765",
+      "object_type": "blob",
+      "path": "doc/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e3e29969360cf595a63a092e6c5d4efeba775fe5",
+      "object_type": "blob",
+      "path": "doc/credits.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "76cc03fa7ab4a25fc0a4dcdd1048691fe7b5f464",
+      "object_type": "blob",
+      "path": "doc/genindex.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0767024ed2fcbb9cc687f6884ba19a7b80aa81d4",
+      "object_type": "blob",
+      "path": "doc/glossary.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c0ca6f93ae5ff8c6aacf59cd34a5c29c09d27d79",
+      "object_type": "blob",
+      "path": "doc/gpumd-mdi/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f3e3c97a6b170ca7bcca3551c370f1cafeb44279",
+      "object_type": "blob",
+      "path": "doc/gpumd/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa8591a3345253408012ad20c284bfaf0935b0ff",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_files/eigenvector_in.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4449e520ea2920c259f2c7548e57658c24b897eb",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_files/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b91762db0fa0b6d492870864dd881d5874a836c",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_files/kpoints_in.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b918e4b1a9ec8b49098bf79713867455a1022e91",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_files/model_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0056908761c91afa4579693fe68585ba7042824e",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_files/run_in.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3dde341e36b27a4c4298d41d3cbf9794cf2ed076",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/active.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a69533f1dbbd6fc76a58db668ab8d62532603977",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/add_efield.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c95e7cf328e8681737e989e04efbc20a2cab6e3",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/add_force.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71454c487bc33e1c229f3ccf1dc03c4045d47015",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/add_spring.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7d109a45804f98dce1cdc13cbe3c9f0c6333efbb",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/change_box.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "26ff427fb9b1c7708019e81ca7ca209262abcac7",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4062d2565c996b1e0d0162299aaafcb1f8cff728",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_adf.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "47d408e6a3c9e3e2d2d685515476e8a20a94b103",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_angular_rdf.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ffaa8f29a91b91f678df40fa3f5813105ab57824",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_chunk.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ab6da203bd5e66c04efebfd53a3c27529bedc6b",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_cohesive.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b021e5a2c396f4098e0608ac3b6cdc4e9ffd3b19",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_dos.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "357d14c906374df4ee5535563884b66c740eeb49",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_dpdt.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1c829ecb3252e4c7013861ac57ad0e769819ac3d",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_elastic.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e862240a27ddd62c105c2f5c84a1d39a9051d99",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_extrapolation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de7512683e47235ce46960236e348fbb2b4a7b6b",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_gkma.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7836f9a5a7ab4102196b12633528297d0f7ca95b",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_hac.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "18436dd84916559125222ba90319bea6648a598c",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_hnema.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0f1bb10dc3c949f1869d8b599305e80ef279ca16",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_hnemd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4ac4fbab8c1482b5e229c1abf87ffac108699060",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_hnemdec.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "93d6bff3acf6acd8db6316263cb1e28a6452751b",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_ic.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "feef5373170ab3c13255a71027072d5c5e150084",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_lsqt.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c2e1122a80830e3035d6fd022370b0365a050d84",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_msd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3afb6cb64fa61eea07e3af7085562f7274d24835",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_orientorder.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ecb0d6aa2a50eda181ab5e0a1342953e15d5fb5d",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_phonon.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6e44f7e3568997b8f4326a5eee019b6986e2f2d2",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_rdf.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c78598bfe7ec68400295736dc03f0125b2601eec",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_sdc.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0390e4cd1bb88140fd7e232d89b7b4f0a5ae4990",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_shc.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70afe9fc1f94b01923f869c8102a6927f3959e11",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/compute_viscosity.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b451be44af533d69fd1f36acd1738e7a43939bc9",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/correct_velocity.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4b18fcd798746b46923680e3465ea83601a5062",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/deform.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c29770596b01cef5931ee96300ab4c3c3a489018",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dftd3.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c4d2b4981aedfd63f01cb4a210e3bcb95249dbf5",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_beads.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f56c1c75574680ab2af290b5ca82ec4b24356639",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_dipole.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fe8d0418f4c376e00206a40712af183026160ce1",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_exyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3b447af6e344104ec36ac35aa313aadb7bc6865e",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_force.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ece1b608e055a8463275e6e712f91dcbd0682eca",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_netcdf.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "62ed5082f1cf8973ff64b23eecd3dd5ff86208c1",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_observer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "137e3ebfeb2768c94349007bbace9f4d3ba49fca",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_polarizability.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "15215b1df5567f7e4d334d2013d4b929f9a3b9a4",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_position.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "80242bc36c4e02e5901ed5f2aaa65d60782b1fee",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_restart.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d743471a344deef4ffdda4bf23bbb8325380f720",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_shock_nemd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "010f2043bb6b1ff5104a7c70a70b08857c2ef10b",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_thermo.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c95213be9b2bdd72663ca9696092e2c06c3b6efd",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_velocity.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70af3680a6b439b7962720cdb02ca2932c022d76",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/dump_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d6e626a735ca23256c9202cd7c033813292e164d",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/electron_stop.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5559ecdb8b7556bb8c66d5afaf51456d2da256d6",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e765ab985c93a161841b32d9bfa7b1633720cb8f",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_heat.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "900d4d00f79aace2e55e9b46ca541589b351b7c4",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_msst.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e2a1ef9c85befdf74632112edfa52f76a82ed895",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_mttk.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0cf3d08331fa4235f1e3b14ea81ef0c128eb7f74",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_nphug.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2b6636659f5c385521371622a0131adb904019f6",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_pimd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9deef14029beb212c46f969ebbe83f1b5032125",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_qtb.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0573d625a707bfe829f43fd060b80d1a6d96cf11",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_shock_nemd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7391d0617913fb86810690d7289d1ced4e53be28",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_standard.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "be5c43018fcf0eb5de241927bb63672e4ffaf340",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_ti.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c41700c1c443bbdeed4253e5d983a517f9ee2ff1",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_ti_as.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a77876402ba4ce5eeea4ce9cb552dcab0b0e62f1",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_ti_liquid.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7836309916e9bf6168ac6ccb05fee5bed45dc50f",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_ti_rs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a1394df2ae7f2f4185565c6bfb068544103cfb63",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_ti_spring.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3c1d7c6d3527f48e4e8fd66fdbba6126766f38e0",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/ensemble_ttm.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d50778144248f7d22231903c9bae405d6b44e86",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/fix.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0bbece9e107f877c96f712e31af9f204f3c878b8",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d78913df85a1699d3c308bf842f8251ac07bef9",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/kspace.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "11e5714b4b8ede3f5e4d3e5f5ce2c83b785aeafe",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/mc.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "597c2589a894c839d529ef94a3e8faf0db286973",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/minimize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "52aa3369f89e9379975395b425fd6cef272bfacd",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/move.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0cb8c477e7b528004d4df3c27d3d3662b963712e",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/plumed.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1535a042cb497c42bb9a3f2036d59cf675b5a262",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/potential.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4e7a527d56349ce4c256bc30ec50f64916425d3e",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/replicate.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e401ee8eb1e92ae8ba164c5c75d9bc9eb2639a8b",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/run.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa595487224b170baf7986e9bc13f9fe138411c3",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/time_step.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "69071fbd45bf5dc23c096dd9e348240f2130cf23",
+      "object_type": "blob",
+      "path": "doc/gpumd/input_parameters/velocity.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "023af9886e09fe1848de7f47f451b5fdc606b65e",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/D_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9cb1f3f01adf55a7ae90d0d5ef7ac14468dd227",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/active_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9c07a0054e47755f94a60f5b7a671070edd8246",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/active_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d7b768418b2ab614bb558066b07cb4961943c796",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/adf_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a734781fe2882961dabadaf6abd98f86119ebbd1",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/angular_rdf_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1349dbdf47423108b7fd0d0556e61420cf32539b",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/cohesive_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1a7bc8336ab0e85fde926c8395010ec46011c49c",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/compute_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c20a20e7147b7ccd7133f0d0d8f37ecc9158fb1",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/dipole_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9f31b34ee37bdba3e950917aeff693b18c749b9b",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/dos_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a3058270f73728ece811a8c4bf11093db284cb12",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/dpdt_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "37b5c95a17ba42007c6034c707e7d14c67b3c76a",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/dump_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "003325294f27951cac24da706ea8a2472ecc4990",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/force_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b04fa830bcfe0e2de78df48efcf63cb0f4df8d1e",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/hac_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "898bfd91a5819500f3383fcde8e0799625092bec",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/heatmode_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "734e8eb9794077e15dc610840a807f53f2910e64",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/ic_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "363afecdf92d71e24d3b9d604d614d16f405a761",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c2ad986e6489e07bf3902ac88ba71d1a5609617",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/kappa_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d3785fa34c40f8cd43cd1687c9de83c3a21b2c5f",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/kappamode_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "efaa6ea1a4c9e55314270784fce85c3540855bee",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/lsqt_dos_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54770445055dd5a422a770b456c05becf9a1717e",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/lsqt_sigma_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa45ee10040a4da15718a0213729a2d4304035f8",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/lsqt_velocity_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b88187ece991e6a82d19e837d5cf9b1aecd6e2ff",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/mcmd_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9342a94b937c021e6ec6cfa1f3bc5f52fc91576d",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/movie_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bbe852d0748b26731b0692dcbd6d2b4f3490d599",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/msd_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ef0082f6431040d102c644c0f00c4e487adc41e7",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/mvac_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "67e39cb34165fd8d8b4589e4030748c2be6de214",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/observer_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "928bc977d2c3a7519e46c099db96243b78b87fee",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/observer_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a70912ed405bbc8a31d30ce2fc389ae00d516bbc",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/omega2_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0fbfbf19029651321713c8dcb64fff119831d2e3",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/onsager_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "808c1613eb26ab463f2fb3af431ea63387fb8e7c",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/orientorder_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5469291a95d44c670d15ac368225d3aadca4fc53",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/polarizability_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4fef1e988396180aff76f61ffa06c0678d50340d",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/rdf_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2853ef0c68a4d140d80f6cf0ee2a165616690c00",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/restart_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dde4908de5aa64bd2062736fdddf8255268d13c2",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/sdc_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aec7c99fd8c1f7452cae8f793f6c6c17ef65c4f4",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/shc_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "68625ed7aa27fdf540162af6d02084c143a5e30e",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/thermo_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0524583b06c23a30551eb7e30c4f64a4df8b3a75",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/ttm_electron_temperature_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2075cc8c8df620924d0ced2ab2c494442f6391e9",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/velocity_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "55169ec221e2ab581ec10a051b6dada0a31856bd",
+      "object_type": "blob",
+      "path": "doc/gpumd/output_files/viscosity_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "51533eb7cc0b1b503e934d1c59e782b0c69f634c",
+      "object_type": "blob",
+      "path": "doc/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a383f0773febab63ec3c1ae51ad947eda96559f",
+      "object_type": "blob",
+      "path": "doc/installation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f8189ec5e18e73ca5db4ae476d911fc2c99deff8",
+      "object_type": "blob",
+      "path": "doc/introduction.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d7b1c60cef4044aa7ab158284f47c1b81268e064",
+      "object_type": "blob",
+      "path": "doc/nep/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3f92b746613d7f8e8569eeb1e65cacd9e2ea2c64",
+      "object_type": "blob",
+      "path": "doc/nep/input_files/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "77d155996ae9a99aeca840d786b953a110c6a41a",
+      "object_type": "blob",
+      "path": "doc/nep/input_files/nep_in.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5465d8c3f7b73ff2e50341ab52dacab5d1661eb3",
+      "object_type": "blob",
+      "path": "doc/nep/input_files/train_test_xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a08d9d35093737a983a9baa15ede0f967ed990e8",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/atomic_v.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f548e0f981cb8404f564ba4ab6ed0fe95a60e969",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/basis_size.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e288e0df77748c07f458ead48c8a8e4c92a211a",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/batch.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b617bfe8df31a416e2a21b2eb47f84904cd571a9",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/charge_mode.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a96cf7415fddc57bd9676111e89c6474d75c9f94",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/cutoff.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29d849c1142b3d2710264b3fcb49371cec91afbf",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/fine_tune.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e54ccd8db8e9a50b06590b31520acd79d06cb391",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/force_delta.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "350b090baba58d6de2e4b4f32332b0cd464ecb58",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/generation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "deaeda9f182a80aaeef350f18b42d40e1e9083cc",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a56ccb61f25a8f0dbf626ec9c375f1d5d32a5a7e",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/l_max.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ca18f47b88b26ba4042e75e6841f6c4bb26990c",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_1.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a37037b17cb27c4c25cf41ea9f964e39a6cf3548",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_2.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b18cbf2c3553f819e19409b3b985aa0ddffcecb4",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_e.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "628998bd60cdddf4e7d68041a5b9a5d3cfb2df39",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_f.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74e699f626813ab7aa0e808ab9573cc434eb3435",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_q.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bae4e35e5703ab989244c03b0ae97a827fdc07ff",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_shear.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3391e8c4a10b85fb19dd23c87f2243f77abca6f5",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_v.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1a00a87552603cb442af9d5a732b92602ec4afa6",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/lambda_z.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bd65dcaeaf0b6988fc452c437610c760675dfdc0",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/model_type.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ba604e0889481fbcd879bdcafe376937c9aae918",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/n_max.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "404633ca4ce7d9b1adb9492575f77a57a866a4a8",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/neuron.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc542fd523df9464c167371467e02fe802e66d8d",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/output_descriptor.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aefec9c0d36fcafa51b763037dc5fd0dae2bc618",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/population.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "21b6d5e94e10450c71d2330f2b7358a1cf677482",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/prediction.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74065b86f2341980da8db2ea152358f7fb94fec6",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/save_potential.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e216b9d9971651a2241c3ce26dfec3bd3df98b8",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/type.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "259d93b631ad23854781b6fdf56a3f98c2b6d03f",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/type_weight.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a860b40ea09ae30de74e9c1e8250bc10b78f641d",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/use_typewise_cutoff_zbl.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aff5f552030c229a41d69931f03a925d5a2021e1",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/version.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "97b3aad8a3b5d1988d4046dc00f62d8e461e1aa2",
+      "object_type": "blob",
+      "path": "doc/nep/input_parameters/zbl.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42ca686c238881879c001a21b8bb3af3d7910712",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/bec_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cbafbd8cce9d352c5e4ba12e1b720794b74cf0a1",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/charge_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3380c91361097439bae3cb2c6e39b7cccdcaffb3",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/descriptor_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f473832e22b7a200beff63a8b4e92ad04ed75986",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/dipole_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5832dcda8a6d6e6abcbc9744aaf28cca03a093a9",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/energy_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "64a9c113c3a2260b29108bc4bb68a2c687d49e81",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/force_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "80bb174f42c37a1a4229031d7c15b4c53b0a7820",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9d566c1c6e837be1a745882cc7ae97d21d61f1d",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/loss_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3e5638ec740872b6e5e66c57342e8ee24822a7af",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/nep_restart.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ffff155c636c7217d62cf6e01fbe06a0a831856",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/nep_txt.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "96e3c6a4b7009cd51974fd38c8636b2165c40115",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/polarizability_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "219fda7c46e3112f03dd863e79deba5cb7da5517",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/stress_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "711b18887db11513657352af9bc5c8bea9cce936",
+      "object_type": "blob",
+      "path": "doc/nep/output_files/virial_out.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "844aa34dbcda11e1b253e97aff5e3db849dcff01",
+      "object_type": "blob",
+      "path": "doc/potentials/adp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ac0f409b2d549231a20adbdb0efa7c45586782e0",
+      "object_type": "blob",
+      "path": "doc/potentials/eam.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "296564a1824daeb0a8cd70e5b6223a14ef650142",
+      "object_type": "blob",
+      "path": "doc/potentials/fcp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3c1fad0047440f79cfce8df5ae12456e3f4e9f93",
+      "object_type": "blob",
+      "path": "doc/potentials/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bad34e4a5115073fe08b807c67a2b3729f0c8618",
+      "object_type": "blob",
+      "path": "doc/potentials/lennard_jones.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cce78579bb516818531ad704ff958777aa8dba62",
+      "object_type": "blob",
+      "path": "doc/potentials/nep.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42876dc1cca3c568074f3460ce39959655e8d556",
+      "object_type": "blob",
+      "path": "doc/potentials/nep_ilp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7b9637ed678f7a27a442bf293f996e2b260b8a4c",
+      "object_type": "blob",
+      "path": "doc/potentials/sw_ilp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4488853d2e221e703ceb2f2cfb5493da4642feac",
+      "object_type": "blob",
+      "path": "doc/potentials/tersoff_1988.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ad1d47248e25b206ae5cef79c7a17ca52bfc887",
+      "object_type": "blob",
+      "path": "doc/potentials/tersoff_1989.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "071e304679ddce5e261c0487a6749c2080dbe9e3",
+      "object_type": "blob",
+      "path": "doc/potentials/tersoff_ilp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ceaeb5cf4b752bc71916eb036b8c92803a0f326",
+      "object_type": "blob",
+      "path": "doc/potentials/tersoff_mini.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6d45b55b9c5f7c99203826a274b9b7b0595a797e",
+      "object_type": "blob",
+      "path": "doc/publications.bib"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a825d65f205c8e34bc8c2306bf5d0331ffd6fc96",
+      "object_type": "blob",
+      "path": "doc/publications.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "41664432fc887c521822de6aa76c027e2b1d22b4",
+      "object_type": "blob",
+      "path": "doc/theory/ensembles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d15583af00b5a63aba9fe0e092f2636c7c323411",
+      "object_type": "blob",
+      "path": "doc/theory/forces_and_stresses.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "201804dc54708e588612975d94b828b10224db63",
+      "object_type": "blob",
+      "path": "doc/theory/heat_current.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bae64c05c7f1aaeb9b8c16171738652739181170",
+      "object_type": "blob",
+      "path": "doc/theory/heat_transport.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54caf6218f74aee6a214a1143467709e39b41592",
+      "object_type": "blob",
+      "path": "doc/theory/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7d77718d526de60bd048cb5efd29d26a317ba288",
+      "object_type": "blob",
+      "path": "examples/gpumd_dynamic/model.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9ff79d1d1eeff1e250028394f20c1b61a6e9238",
+      "object_type": "blob",
+      "path": "examples/gpumd_dynamic/neighbor.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "489a88a5569db1c2f9a8eefcb465797ad0eae872",
+      "object_type": "blob",
+      "path": "examples/gpumd_dynamic/plot_thermo.m"
+    },
+    {
+      "mode": "100644",
+      "object_id": "27ee90aebb31ace830167bbbc8ac34f30b63670a",
+      "object_type": "blob",
+      "path": "examples/gpumd_dynamic/run.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ab230e2859b99f291d93100bfe67e658fa0fff8a",
+      "object_type": "blob",
+      "path": "examples/gpumd_dynamic/thermo.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bf1b8d7dffd6388e00c843ea4cbd0423bd6d62b9",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/INCAR_template"
+    },
+    {
+      "mode": "100644",
+      "object_id": "36a8b9a1902dc5f9d1efeab93d018ed754f284df",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/KPOINTS"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d3dca381962b36aaa642ebd2768ad05cef365c09",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/POSCAR_template"
+    },
+    {
+      "mode": "100755",
+      "object_id": "13fa889d46be8b12a676c1063c5e4faede17e89b",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/POTCAR"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4334b5933df02c54486051eac25e99d7a93db377",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/force.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c66f6e8e487f8317df80bf277468876a10e67648",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/gpumd.log"
+    },
+    {
+      "mode": "100644",
+      "object_id": "341913dad1a341a01d2fa210d800dd754fab5af4",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/model.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "abc9e7a1b118b7c66c6331804843ab115a97f742",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/run.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "618638d8b05928dbbd00e2ee8ebc2a7aa12179e6",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/thermo.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa91fa3483dced96f01e08e1ab17a8c092da0c09",
+      "object_type": "blob",
+      "path": "examples/gpumd_mdi/vasp_driver.log"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e96d70c6c7c3010978a1ecad7ace8740688114e6",
+      "object_type": "blob",
+      "path": "examples/gpumd_static/check_force.m"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2e288bb138ca28e6c6c077987f5b8d3db0dea3f",
+      "object_type": "blob",
+      "path": "examples/gpumd_static/force.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4ad091a1c442cfc578454dbe339a46117478431",
+      "object_type": "blob",
+      "path": "examples/gpumd_static/model.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa92bd28b9cb77c950d20e9302f591844c4e767f",
+      "object_type": "blob",
+      "path": "examples/gpumd_static/neighbor.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "474ccdd6435d9d60df70d4a9bf833558795de24b",
+      "object_type": "blob",
+      "path": "examples/gpumd_static/run.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ccb27e4f631cde2ea5ed8cab7cae013664ab6270",
+      "object_type": "blob",
+      "path": "examples/gpumd_static_qnep/check_force.m"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f7d25dcf4f78ec98e0cac2c784826def40d41996",
+      "object_type": "blob",
+      "path": "examples/gpumd_static_qnep/force.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4ad091a1c442cfc578454dbe339a46117478431",
+      "object_type": "blob",
+      "path": "examples/gpumd_static_qnep/model.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa92bd28b9cb77c950d20e9302f591844c4e767f",
+      "object_type": "blob",
+      "path": "examples/gpumd_static_qnep/neighbor.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b3919de26e10b2dcb863c9c53a2987abee7616d",
+      "object_type": "blob",
+      "path": "examples/gpumd_static_qnep/run.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9fc249c2181d9cacfef1a8f06084b02965309257",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/energy_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8185c679adc0cc3ea8d8ed3a7a7c4573cde81b99",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/force_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0dc043c4f32a8adb902d75cc2268a495300e585d",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/nep.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ce7a5899cf9d4225b8a1c957cf14b75faeb63c0f",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/nep.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "55d97595f94fc6d8d9d437651f52a98044ca6e1f",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/plot_results.m"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0b595fd4888985e52633ec37c7455a92b82ec6b6",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/stress_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "95ae7acad0e7cd7e376906f4e663174aea53312e",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/train.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "56eb5d83fd7497c3b4a07695c3c668159a9c2420",
+      "object_type": "blob",
+      "path": "examples/nep_prediction/virial_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9fc249c2181d9cacfef1a8f06084b02965309257",
+      "object_type": "blob",
+      "path": "examples/nep_train/energy_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8039c3d8bcc98145dca43e68a83a963974be8090",
+      "object_type": "blob",
+      "path": "examples/nep_train/force_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d4b185654b3888f21e142f775f4c92d62214608",
+      "object_type": "blob",
+      "path": "examples/nep_train/loss.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9cbd71c8de7f5649d4870be186a34a3e2127cedc",
+      "object_type": "blob",
+      "path": "examples/nep_train/nep.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "840d4a9ac6d5007a13dbbff7155ab77c6910e068",
+      "object_type": "blob",
+      "path": "examples/nep_train/nep.restart"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ce7a5899cf9d4225b8a1c957cf14b75faeb63c0f",
+      "object_type": "blob",
+      "path": "examples/nep_train/nep.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "803971ce0ea780d3b2344c8e5c17ce917df218a5",
+      "object_type": "blob",
+      "path": "examples/nep_train/plot_results.m"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5105b8d335e2f47db84bc408b49ce00f4919610f",
+      "object_type": "blob",
+      "path": "examples/nep_train/stress_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "95ae7acad0e7cd7e376906f4e663174aea53312e",
+      "object_type": "blob",
+      "path": "examples/nep_train/train.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a126a1ea5b469a54f4104539dfd0f8433d3bbde5",
+      "object_type": "blob",
+      "path": "examples/nep_train/virial_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "84752c63ab6a24bedaf2fe5cb6199dfd0f702a86",
+      "object_type": "blob",
+      "path": "examples/qnep_train/charge_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9684abb31e19eef2fa04e499fa462ac144f30f5b",
+      "object_type": "blob",
+      "path": "examples/qnep_train/energy_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3b112e6b8538ac3e3ff19b56e3a1b311dd0e3a8f",
+      "object_type": "blob",
+      "path": "examples/qnep_train/force_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2825d05b20ca5e2731740617aad59c7bb80222d3",
+      "object_type": "blob",
+      "path": "examples/qnep_train/loss.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d4ca00564a75994800bf0f06042220e62643b6d",
+      "object_type": "blob",
+      "path": "examples/qnep_train/nep.in"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f9a0ecfad0857e7bcd601c3868a027c72722d925",
+      "object_type": "blob",
+      "path": "examples/qnep_train/nep.restart"
+    },
+    {
+      "mode": "100644",
+      "object_id": "561cd03a2991c6e11250e170cdf11a92f77da4e3",
+      "object_type": "blob",
+      "path": "examples/qnep_train/nep.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "803971ce0ea780d3b2344c8e5c17ce917df218a5",
+      "object_type": "blob",
+      "path": "examples/qnep_train/plot_results.m"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e95173f6fe28a97f026d123879b1e8cdb215453a",
+      "object_type": "blob",
+      "path": "examples/qnep_train/stress_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "95ae7acad0e7cd7e376906f4e663174aea53312e",
+      "object_type": "blob",
+      "path": "examples/qnep_train/train.xyz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7b7bbd1df78c78c2463efc8344554d0669b324cd",
+      "object_type": "blob",
+      "path": "examples/qnep_train/virial_train.out"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a4fa8ebe7f6e96c0a4442c9acd78928ce426854",
+      "object_type": "blob",
+      "path": "examples/readme.md"
+    }
+  ],
+  "entry_count": 257,
+  "inventory_scope": "Complete exact-release doc and examples tree Git object inventory; bodies, executable examples, model weights, and datasets are intentionally not embedded.",
+  "provider_id": "gpumd",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v5.3",
+  "repository_url": "https://github.com/brucefan1983/GPUMD",
+  "root_tree_object_id": "34632185aebed0c19d9ef8931c074afbffd32637",
+  "schema_version": "1.0"
+}

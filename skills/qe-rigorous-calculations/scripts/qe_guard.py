@@ -1420,27 +1420,228 @@ def live_fetch(url: str, timeout: float) -> bytes:
         return completed.stdout
 
 
+REFERENCE_PAYLOAD_HASH_BASIS = (
+    "utf-8 bytes of the fenced text payload after removing the single wrapper separator newline"
+)
+
+
+def safe_local_reference_path(relative: str, label: str) -> Path:
+    """Resolve one manifest/index path without permitting traversal or symlink substitution."""
+    if not isinstance(relative, str) or not relative:
+        raise ValueError(f"{label} path is missing")
+    relative_path = Path(relative)
+    if relative_path.is_absolute() or ".." in relative_path.parts:
+        raise ValueError(f"{label} path escapes the references directory")
+    try:
+        root = REFERENCES.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("references directory is unavailable") from exc
+    candidate = REFERENCES
+    for part in relative_path.parts:
+        candidate = candidate / part
+        if candidate.is_symlink():
+            raise ValueError(f"{label} path uses a symlink")
+    try:
+        resolved = candidate.resolve(strict=True)
+        resolved.relative_to(root)
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"{label} path is missing or escapes the references directory") from exc
+    if not resolved.is_file():
+        raise ValueError(f"{label} path is not a regular file")
+    return resolved
+
+
+def extract_local_reference_payload(text: str) -> str:
+    """Extract the exact payload hashed by sync_official_manuals.py."""
+    source_match = re.search(r"(?m)^- Official source SHA-256: `([0-9a-f]{64})`$", text)
+    extracted_match = re.search(r"(?m)^- Extracted text SHA-256: `([0-9a-f]{64})`$", text)
+    fence_match = re.search(r"(?m)^(`{3,})text$", text)
+    if not source_match or not extracted_match or not fence_match:
+        raise ValueError("local entry is missing provenance metadata or its text fence")
+    fence = fence_match.group(1)
+    payload_start = fence_match.end() + 1
+    closing = re.search(rf"(?m)^{re.escape(fence)}$", text[payload_start:])
+    if closing is None:
+        raise ValueError("local entry is missing its closing text fence")
+    closing_start = payload_start + closing.start()
+    closing_end = payload_start + closing.end()
+    fenced_text = text[payload_start:closing_start]
+    if not fenced_text.endswith("\n"):
+        raise ValueError("local entry payload is missing the wrapper separator newline")
+    if text[closing_end:] != "\n":
+        raise ValueError("local entry contains content outside its canonical closing fence")
+    return fenced_text[:-1]
+
+
+def render_expected_local_reference(record: dict[str, Any], section: dict[str, Any], payload: str) -> str:
+    """Reconstruct the generated input-section wrapper to reject unmanifested local additions."""
+    source_format = record.get("source_format")
+    if source_format == "txt":
+        content_status = "official TXT text split without substantive additions"
+    elif source_format == "html":
+        content_status = "official text extracted from official HTML without substantive additions"
+    else:
+        raise ValueError("input manual source_format is not txt or html")
+    required_record_strings = ["name", "url", "retrieved_utc", "sha256"]
+    if any(not isinstance(record.get(field), str) or not record[field] for field in required_record_strings):
+        raise ValueError("input manual provenance metadata is incomplete")
+    if not isinstance(section.get("title"), str) or not section["title"]:
+        raise ValueError("input section title is missing")
+    fence = "```"
+    while fence in payload:
+        fence += "`"
+    lines = [
+        f"# {record['name']} — {section['title']}",
+        "",
+        f"- Official source: {record['url']}",
+        f"- Retrieved: {record['retrieved_utc']}",
+        f"- Official source SHA-256: `{record['sha256']}`",
+        f"- Extracted text SHA-256: `{section['sha256']}`",
+    ]
+    if record.get("last_modified"):
+        lines.append(f"- Official Last-Modified: {record['last_modified']}")
+    lines.extend(
+        [
+            f"- Content status: {content_status}; wrapper metadata added by the mirror script.",
+            "",
+            f"{fence}text",
+            payload,
+            fence,
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def verified_local_reference_entry(
+    record: dict[str, Any],
+    title: str,
+    relative: str,
+) -> tuple[str | None, dict[str, Any]]:
+    """Bind an indexed entry to one manifest section and its exact generated local payload."""
+    verification: dict[str, Any] = {
+        "status": "fail",
+        "hash_basis": REFERENCE_PAYLOAD_HASH_BASIS,
+        "manifest_payload": {"sha256": None, "bytes": None},
+        "observed_payload": {"sha256": None, "bytes": None},
+        "canonical_wrapper_match": False,
+    }
+    try:
+        sections = record.get("sections")
+        if not isinstance(sections, list):
+            raise ValueError("input manual sections metadata is missing")
+        matches = [section for section in sections if isinstance(section, dict) and section.get("file") == relative]
+        if len(matches) != 1:
+            raise ValueError("indexed entry does not map to exactly one manifest section")
+        section = matches[0]
+        if section.get("title") != title:
+            raise ValueError("indexed entry title differs from its manifest section")
+        expected_sha256 = section.get("sha256")
+        expected_bytes = section.get("bytes")
+        if not isinstance(expected_sha256, str) or re.fullmatch(r"[a-f0-9]{64}", expected_sha256) is None:
+            raise ValueError("manifest section payload SHA-256 is invalid")
+        if not isinstance(expected_bytes, int) or isinstance(expected_bytes, bool) or expected_bytes < 0:
+            raise ValueError("manifest section payload byte count is invalid")
+        verification["manifest_payload"] = {"sha256": expected_sha256, "bytes": expected_bytes}
+        path = safe_local_reference_path(relative, "input section")
+        text = path.read_text(encoding="utf-8", errors="strict")
+        payload = extract_local_reference_payload(text)
+        payload_bytes = payload.encode("utf-8")
+        observed_sha256 = hashlib.sha256(payload_bytes).hexdigest()
+        observed_bytes = len(payload_bytes)
+        verification["observed_payload"] = {"sha256": observed_sha256, "bytes": observed_bytes}
+        if observed_sha256 != expected_sha256 or observed_bytes != expected_bytes:
+            raise ValueError("local fenced payload differs from manifest SHA-256 or byte count")
+        if text != render_expected_local_reference(record, section, payload):
+            raise ValueError("local entry wrapper differs from its canonical generated form")
+    except (OSError, UnicodeError, ValueError, KeyError) as exc:
+        verification["reason"] = str(exc)
+        return None, verification
+    verification["status"] = "verified"
+    verification["canonical_wrapper_match"] = True
+    verification["reason"] = None
+    return text, verification
+
+
+def reference_entry_page(
+    text: str,
+    relative: str,
+    max_chars: int,
+    continuation_token: str | None,
+    full_entry: bool,
+) -> dict[str, Any]:
+    """Return one content-addressed page without implying that a partial page is the full entry."""
+    if max_chars <= 0:
+        raise ValueError("--max-chars must be a positive integer")
+    if full_entry and continuation_token is not None:
+        raise ValueError("--full-entry cannot be combined with --continuation-token")
+
+    content_bytes = text.encode("utf-8")
+    content_sha256 = hashlib.sha256(content_bytes).hexdigest()
+    entry_identity = hashlib.sha256(f"references/{relative}\0{content_sha256}".encode("utf-8")).hexdigest()
+    start_character = 0
+    if continuation_token is not None:
+        match = re.fullmatch(r"qe-reference-v1:([a-f0-9]{64}):([1-9][0-9]*)", continuation_token)
+        if match is None:
+            raise ValueError("invalid --continuation-token format")
+        token_identity, token_offset = match.groups()
+        start_character = int(token_offset)
+        if token_identity != entry_identity or start_character >= len(text):
+            raise ValueError("--continuation-token does not identify a remaining page of this reference entry")
+
+    end_character = len(text) if full_entry else min(len(text), start_character + max_chars)
+    excerpt = text[start_character:end_character]
+    byte_start = len(text[:start_character].encode("utf-8"))
+    byte_end = byte_start + len(excerpt.encode("utf-8"))
+    truncated = end_character < len(text)
+    next_token = f"qe-reference-v1:{entry_identity}:{end_character}" if truncated else None
+    complete_entry_returned = start_character == 0 and end_character == len(text)
+    return {
+        "excerpt": excerpt,
+        "total_bytes": len(content_bytes),
+        "returned_range": {
+            "unit": "utf-8-bytes",
+            "start": byte_start,
+            "end_exclusive": byte_end,
+        },
+        "content_sha256": content_sha256,
+        "truncated": truncated,
+        "continuation_token": next_token,
+        "complete_entry_returned": complete_entry_returned,
+    }
+
+
 def command_reference(args: argparse.Namespace) -> int:
     record = manual_record(args.executable)
     version_match = normalize_version(args.qe_version) == normalize_version(str(record.get("version", "")))
-    index_path = REFERENCES / record["index_file"]
+    index_path = safe_local_reference_path(record["index_file"], "input manual index")
     links = re.findall(r"^- \[([^]]+)\]\(([^)]+)\)$", index_path.read_text(encoding="utf-8"), flags=re.M)
     query = normalize_text(args.term)
     matches = [(title, file) for title, file in links if query in normalize_text(title)]
+    if (args.continuation_token is not None or args.full_entry) and len(matches) != 1:
+        raise ValueError("--continuation-token and --full-entry require exactly one reference match")
     result_matches: list[dict[str, Any]] = []
     for title, relative in matches:
-        path = REFERENCES / relative
-        text = path.read_text(encoding="utf-8")
-        result_matches.append(
-            {
-                "title": title,
-                "reference_file": f"references/{relative}",
-                "official_url": record["url"],
-                "manual_version": record.get("version"),
-                "retrieved_utc": record.get("retrieved_utc"),
-                "excerpt": text[: args.max_chars],
-            }
-        )
+        text, entry_verification = verified_local_reference_entry(record, title, relative)
+        result_match = {
+            "title": title,
+            "reference_file": f"references/{relative}",
+            "official_url": record["url"],
+            "manual_version": record.get("version"),
+            "retrieved_utc": record.get("retrieved_utc"),
+            "entry_verification": entry_verification,
+        }
+        if text is not None:
+            result_match.update(
+                reference_entry_page(
+                    text,
+                    relative,
+                    args.max_chars,
+                    args.continuation_token,
+                    args.full_entry,
+                )
+            )
+        result_matches.append(result_match)
 
     live_status = "offline_cache" if args.offline else "not_checked"
     live_sha = None
@@ -1463,10 +1664,14 @@ def command_reference(args: argparse.Namespace) -> int:
         decision = "blocked_not_found"
     elif len(matches) != 1:
         decision = "blocked_ambiguous"
+    elif result_matches[0]["entry_verification"]["status"] != "verified":
+        decision = "blocked_local_entry_integrity"
     elif not (args.live_check or args.offline):
         decision = "blocked_retrieval_mode_unspecified"
     elif live_status in {"mirror_stale", "unavailable"}:
         decision = "blocked_live_check"
+    elif not result_matches[0]["complete_entry_returned"]:
+        decision = "blocked_partial_entry"
     elif live_status == "offline_cache":
         decision = "cached_only"
     else:
@@ -1487,9 +1692,18 @@ def command_reference(args: argparse.Namespace) -> int:
         "matches": result_matches,
         "decision": decision,
         "required_disclosure": (
-            None
-            if version_match
-            else f"Exact behavior for QE {normalize_version(args.qe_version)} is not verified by a matching official input manual in this mirror."
+            f"Exact behavior for QE {normalize_version(args.qe_version)} is not verified by a matching official input manual in this mirror."
+            if not version_match
+            else (
+                "The matched local entry did not satisfy its manifest payload and canonical-wrapper integrity contract."
+                if len(result_matches) == 1
+                and result_matches[0]["entry_verification"]["status"] != "verified"
+                else (
+                    "Only a partial page of the matched official entry was returned; the complete entry is not verified by this response."
+                    if len(result_matches) == 1 and not result_matches[0]["complete_entry_returned"]
+                    else None
+                )
+            )
         ),
         "provenance": {"collector": "qe_guard", "collector_version": TOOL_VERSION, "generated_utc": generated_utc()},
     }
@@ -1954,6 +2168,8 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--offline", action="store_true")
     reference.add_argument("--timeout", type=float, default=20.0)
     reference.add_argument("--max-chars", type=int, default=6000)
+    reference.add_argument("--continuation-token")
+    reference.add_argument("--full-entry", action="store_true")
     reference.add_argument("--out", type=Path)
     reference.set_defaults(handler=command_reference)
 

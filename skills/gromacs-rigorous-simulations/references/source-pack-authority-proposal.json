@@ -1,0 +1,82 @@
+{
+  "authorities": [
+    {
+      "authority_id": "gromacs-release-source-docs-2026-3",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "121090014570a53a17ea391bcddae45e5ea05eb4"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/gromacs/gromacs/121090014570a53a17ea391bcddae45e5ea05eb4/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "gromacs-release-source-docs-2026-3",
+        "binding_id": "gromacs-rigorous-simulations-gromacs-docs",
+        "claim_effect": "none",
+        "provider_input_id": "gromacs-docs",
+        "required_disposition": "blocked",
+        "skill_id": "gromacs-rigorous-simulations"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "LGPL-2.1-only",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/gromacs/gromacs/121090014570a53a17ea391bcddae45e5ea05eb4/COPYING"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact release source documentation does not prove local build/runtime identity, optional features, force-field assets, native behavior, convergence, or scientific validity."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "gromacs",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "2026.3",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "A blocked development consumer and lifecycle-decoupled authority must pass central authority/consumer validation before pack generation.",
+    "Generated online help, binary help, MDP/reference pages, force fields, and regression data remain separate build/runtime/asset closure."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "gromacs-rigorous-simulations"
+}

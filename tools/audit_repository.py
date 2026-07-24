@@ -9,6 +9,10 @@ from pathlib import Path
 import sys
 from typing import Any
 
+# The aggregate audit imports the hygiene gate itself; disable bytecode before
+# that first local import so the audit cannot create an artifact it later scans.
+sys.dont_write_bytecode = True
+
 from audit_hygiene import audit_repository as audit_repository_hygiene
 from skill_registry import planned_skill_names, validate_active_sources
 from registry_snapshot import RegistrySnapshot, RegistrySnapshotError, load_registry_snapshot
@@ -19,6 +23,7 @@ import strict_json
 
 
 TARGET_ENV = "VIBE_DFT_SKILLS_TARGET"
+SUPPORTED_CAPABILITY_CATALOG_VERSIONS = frozenset({"1.0", "1.1"})
 
 
 def capability_catalog_errors(path: Path) -> list[str]:
@@ -31,10 +36,43 @@ def capability_catalog_errors(path: Path) -> list[str]:
     except strict_json.StrictJSONError as exc:
         return [str(exc)]
     failures: list[str] = []
-    if value.get("schema_version") != "1.0":
-        failures.append("expected schema_version '1.0'")
+    if value.get("schema_version") not in SUPPORTED_CAPABILITY_CATALOG_VERSIONS:
+        failures.append(
+            "expected a supported schema_version in "
+            f"{sorted(SUPPORTED_CAPABILITY_CATALOG_VERSIONS)!r}"
+        )
     if not isinstance(value.get("profiles"), dict) or not value["profiles"]:
         failures.append("expected a nonempty profiles mapping")
+    return failures
+
+
+def observable_code_coverage_errors(
+    observables: object,
+    *,
+    calculation_codes: tuple[str, ...],
+    aggregate_codes: tuple[str, ...],
+) -> list[str]:
+    """Require every calculation code while permitting registered aggregates."""
+
+    if not isinstance(observables, dict):
+        return []
+    required = set(calculation_codes)
+    allowed = required.union(aggregate_codes)
+    failures: list[str] = []
+    for observable_id, observable in observables.items():
+        if (
+            not isinstance(observable, dict)
+            or not isinstance(observable.get("codes"), dict)
+        ):
+            continue
+        actual = set(observable["codes"])
+        missing = sorted(required.difference(actual))
+        unexpected = sorted(actual.difference(allowed))
+        if missing or unexpected:
+            failures.append(
+                f"observables/{observable_id}/codes missing calculation codes "
+                f"{missing!r}; unexpected unregistered codes {unexpected!r}"
+            )
     return failures
 
 
@@ -128,18 +166,13 @@ def repository_audit(
             observable_registry = load_observables()
             for failure in validate_observables(observable_registry, snapshot=snapshot):
                 failures.append(f"observable-registry: {failure}")
-            expected_codes = set(snapshot.calculation_codes())
             observables = observable_registry.get("observables", {})
-            if isinstance(observables, dict):
-                for observable_id, observable in observables.items():
-                    if not isinstance(observable, dict) or not isinstance(observable.get("codes"), dict):
-                        continue
-                    actual_codes = set(observable["codes"])
-                    if actual_codes != expected_codes:
-                        failures.append(
-                            f"observable-registry: observables/{observable_id}/codes "
-                            f"{sorted(actual_codes)!r} != registered {sorted(expected_codes)!r}"
-                        )
+            for failure in observable_code_coverage_errors(
+                observables,
+                calculation_codes=snapshot.calculation_codes(),
+                aggregate_codes=snapshot.aggregate_codes(),
+            ):
+                failures.append(f"observable-registry: {failure}")
         except (ImportError, OSError, ValueError) as exc:
             failures.append(f"observable-registry: {exc}")
         finally:

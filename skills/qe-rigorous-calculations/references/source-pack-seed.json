@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "official-document-pack-seed",
+  "skill_id": "qe-rigorous-calculations",
+  "status_ceiling": "partial",
+  "scope_extractor_id": "complete-source-tree-v1",
+  "scope_catalog_ref": {
+    "path": "skills/qe-rigorous-calculations/references/source-pack-scope-catalog.json",
+    "sha256": "0fc83565b018398d1f6960b6d751ed9f7a853faa1c3063268d2b5be6007063e4"
+  },
+  "providers": [
+    {
+      "input_id": "qe-input-manuals",
+      "adapter_id": "qe-input-manifest-v1",
+      "authority_id": "qe-official-docs",
+      "provider_id": "qe",
+      "source_ref": {
+        "path": "skills/qe-rigorous-calculations/references/source-pack-input-catalog.json",
+        "sha256": "99175c95595e5848f8539d5f98b405d3b4496347f22e578f85c384a3b1191c60"
+      },
+      "options_ref": {
+        "path": "skills/qe-rigorous-calculations/references/official-manifest.json",
+        "sha256": "e7c682ef755385ecb32a9b02af69e1ae5e58e30d74a8789a8b0a9f992d321bab"
+      }
+    }
+  ],
+  "limitations": [
+    "This metadata-only pack is bounded to the exact QE 7.5 input-manual catalog and remains below complete resolver, processor, license, portal, PDF, link, and asset assurance."
+  ],
+  "blockers": []
+}

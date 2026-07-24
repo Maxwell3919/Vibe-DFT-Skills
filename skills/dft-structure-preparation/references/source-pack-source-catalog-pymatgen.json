@@ -1,0 +1,175 @@
+{
+  "blockers": [
+    {
+      "code": "DOC.BODY.BYTES.EXTERNAL",
+      "dimensions": ["corpus","slices"],
+      "description": "Official document bodies and per-page content hashes are not retained, so provider-required subjects remain blocked."
+    },
+    {
+      "code": "DOC.BUILD.REPLAY.MISSING",
+      "dimensions": ["slices"],
+      "description": "Generated documentation and API build closure have not been deterministically replayed."
+    }
+  ],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://github.com/materialsproject/pymatgen/tree/v2026.5.4",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only"
+    ],
+    "assessment": "conditional",
+    "identity": {
+      "identifier": "MIT",
+      "terms_urls": [
+        "https://raw.githubusercontent.com/materialsproject/pymatgen/v2026.5.4/LICENSE"
+      ],
+      "verification": "verified"
+    },
+    "limitations": [
+      "The repository license notice is verified for the exact source tree, but documentation-specific generated assets and third-party components still require review before body storage."
+    ],
+    "official_terms_locator": "https://raw.githubusercontent.com/materialsproject/pymatgen/v2026.5.4/LICENSE"
+  },
+  "limitations": [
+    "This metadata inventory proves the bounded exact tree and path universe only; it does not prove rendered documentation completeness or provider behavior.",
+    "External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\\t<path>\\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "pymatgen-exact-document-tree-inventory"
+      ],
+      "description": "Only exact Git object and path metadata are retained; official document body bytes remain external.",
+      "disposition": "external-only",
+      "loss_id": "document-bodies-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "pymatgen-exact-document-tree-inventory"
+      ],
+      "description": "The exact documentation build, generated API surfaces, and asset transformations have not been replayed.",
+      "disposition": "blocked",
+      "loss_id": "rendered-build-not-replayed",
+      "materiality": "material",
+      "stage": "extraction"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "92e491f6cc45fef494214cfe2b7291a56ee00eb0c2494a9480afcf553e1f7ecb",
+        "kind": "revision",
+        "raw_bytes": 5854,
+        "raw_sha256": "bada5300c04a6472ac57507bec7ec166b0f1c336dc754b203bead0ea7251769e",
+        "retrieved_utc": "2026-07-23T20:17:38Z",
+        "value": "commit:8495e941504cd5123701635b6572942c78d9589c;root-tree:219bbedf52ecd0b2b4f5d71046185bcab351182b"
+      },
+      "locator": "https://github.com/materialsproject/pymatgen/tree/v2026.5.4",
+      "metadata_evidence_ref": {
+        "bytes": 13407,
+        "path": "skills/dft-structure-preparation/references/source-pack-inventory-pymatgen.json",
+        "sha256": "92e491f6cc45fef494214cfe2b7291a56ee00eb0c2494a9480afcf553e1f7ecb"
+      },
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 5854,
+            "raw_sha256": "bada5300c04a6472ac57507bec7ec166b0f1c336dc754b203bead0ea7251769e",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-23T20:17:38Z",
+            "selected_bytes": 5854,
+            "selected_sha256": "bada5300c04a6472ac57507bec7ec166b0f1c336dc754b203bead0ea7251769e"
+          },
+          "loss_ids": [
+            "document-bodies-not-retained",
+            "rendered-build-not-replayed"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "pymatgen-exact-document-tree-inventory.whole",
+          "subject_ids": [
+            "pymatgen-structure-io",
+            "pymatgen-ase-adaptor",
+            "pymatgen-standardization",
+            "pymatgen-general-supercell",
+            "pymatgen-slab-adsorbate",
+            "pymatgen-core-manual-vacancy",
+            "pymatgen-molecule-box"
+          ],
+          "title": "Complete documentation-tree metadata inventory"
+        }
+      ],
+      "source_id": "pymatgen-exact-document-tree-inventory",
+      "source_kind": "index",
+      "title": "Exact release documentation-tree metadata inventory"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "pymatgen-structure-io",
+      "title": "pymatgen structure io"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "pymatgen-ase-adaptor",
+      "title": "pymatgen ase adaptor"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "pymatgen-standardization",
+      "title": "pymatgen standardization"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "pymatgen-general-supercell",
+      "title": "pymatgen general supercell"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "pymatgen-slab-adsorbate",
+      "title": "pymatgen slab adsorbate"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "pymatgen-core-manual-vacancy",
+      "title": "pymatgen core manual vacancy"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "pymatgen-molecule-box",
+      "title": "pymatgen molecule box"
+    }
+  ],
+  "upstream_universe_complete": true,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": null,
+    "snapshot_identity": null,
+    "value": "2026.5.4"
+  }
+}

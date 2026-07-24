@@ -3,6 +3,12 @@
 
 from __future__ import annotations
 
+import sys
+
+# A hygiene audit must not create the bytecode artifacts it is designed to
+# detect, even when the caller has not set PYTHONDONTWRITEBYTECODE.
+sys.dont_write_bytecode = True
+
 import argparse
 from dataclasses import dataclass
 import hashlib
@@ -10,7 +16,6 @@ import os
 from pathlib import Path
 import re
 import subprocess
-import sys
 from typing import Any, Iterable, Sequence
 
 from registry_yaml import RegistryYAMLError, load_yaml_strict

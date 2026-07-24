@@ -65,6 +65,7 @@ def load_passing_audit(path: Path) -> dict[str, Any]:
     required = {
         "input_integrity": {"pass"},
         "input_reproducibility": {"pass"},
+        "input_output_consistency": {"pass"},
         "execution_completion": {"pass"},
         "electronic_convergence": {"pass"},
         "ionic_convergence": {"pass", "not_applicable"},

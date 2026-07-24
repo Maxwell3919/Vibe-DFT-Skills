@@ -14,6 +14,7 @@ from .electronic import (
     _validated_dataset,
     _write_csv_atomic,
 )
+from .registry import resolve_backend_maturity
 from .utils import utc_now, write_json_atomic
 
 
@@ -94,9 +95,12 @@ def normalize_vaspkit_bands(
     energy_reference_description: str,
     figure_output: Path | None = None,
     energy_window_ev: tuple[float, float] | None = None,
-    maturity: str = "synthetic-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity(
+        "bands", "vasp", "python.vaspkit-table", maturity
+    )
     _check_maturity(maturity)
     if not math.isfinite(energy_offset_ev):
         raise ValueError("VASPKIT energy offset must be finite")

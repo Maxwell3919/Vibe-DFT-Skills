@@ -21,6 +21,15 @@ SKILL_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REGISTRY = SKILL_ROOT / "references" / "official-source-registry.json"
 DEFAULT_SNAPSHOT = SKILL_ROOT / "references" / "official-manual"
 VERSION = re.compile(r"^[0-9]{1,4}\.[0-9]{1,2}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
+POSITIVE_VERIFICATION_STATES = {"cached_exact", "live_matches_cached"}
+VERIFICATION_STATES = {
+    *POSITIVE_VERIFICATION_STATES,
+    "live_changed_from_cached",
+    "live_unavailable_cached_exact",
+    "url_only",
+    "unresolved",
+}
 
 
 def normalize(value: str) -> str:
@@ -79,10 +88,45 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def utc_timestamp(value: Any, label: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be an RFC 3339 timestamp")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError(f"{label} must be an RFC 3339 timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+        raise ValueError(f"{label} must use an explicit UTC offset")
+    return value
+
+
+def live_receipt(value: Any, expected_url: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError("live retrieval receipt must be an object")
+    if value.get("http_status") != 200:
+        raise ValueError("live retrieval did not return HTTP 200")
+    if value.get("final_url") != expected_url:
+        raise ValueError("live retrieval final URL differs from the registered official URL")
+    content_sha256 = value.get("content_sha256")
+    if not isinstance(content_sha256, str) or not SHA256.fullmatch(content_sha256):
+        raise ValueError("live retrieval content hash is invalid")
+    byte_count = value.get("bytes")
+    if isinstance(byte_count, bool) or not isinstance(byte_count, int) or byte_count <= 0:
+        raise ValueError("live retrieval byte count is invalid")
+    return {
+        "http_status": 200,
+        "final_url": expected_url,
+        "content_sha256": content_sha256,
+        "bytes": byte_count,
+        "retrieved_utc": utc_timestamp(value.get("retrieved_utc"), "live retrieval time"),
+    }
+
+
 def cached_source(
     topic: str,
     version: str,
     *,
+    expected_url: str,
     registry_path: Path,
     snapshot_dir: Path,
 ) -> dict[str, Any] | None:
@@ -98,21 +142,41 @@ def cached_source(
     ):
         return None
     record = manifest.get("pages", {}).get(topic)
-    if not isinstance(record, dict) or record.get("path") != f"{topic}.md":
+    if (
+        not isinstance(record, dict)
+        or record.get("path") != f"{topic}.md"
+        or record.get("source_url") != expected_url
+        or not isinstance(record.get("raw_sha256"), str)
+        or not SHA256.fullmatch(record["raw_sha256"])
+        or not isinstance(record.get("snapshot_sha256"), str)
+        or not SHA256.fullmatch(record["snapshot_sha256"])
+        or isinstance(record.get("raw_bytes"), bool)
+        or not isinstance(record.get("raw_bytes"), int)
+        or record["raw_bytes"] <= 0
+        or isinstance(record.get("snapshot_bytes"), bool)
+        or not isinstance(record.get("snapshot_bytes"), int)
+        or record["snapshot_bytes"] <= 0
+    ):
         return None
     path = snapshot_dir / record["path"]
     try:
         snapshot_sha256 = sha256_file(path)
+        snapshot_bytes = path.stat().st_size
+        cached_retrieved_utc = utc_timestamp(manifest.get("retrieved_utc"), "cached retrieval time")
     except OSError:
         return None
-    if snapshot_sha256 != record.get("snapshot_sha256"):
+    except ValueError:
+        return None
+    if snapshot_sha256 != record["snapshot_sha256"] or snapshot_bytes != record["snapshot_bytes"]:
         return None
     return {
-        "verification": "cached_version_matched",
+        "verification": "cached_exact",
         "local_reference": f"references/official-manual/{record['path']}",
-        "source_content_sha256": record.get("raw_sha256"),
+        "source_content_sha256": record["raw_sha256"],
+        "source_content_bytes": record["raw_bytes"],
         "snapshot_sha256": snapshot_sha256,
-        "retrieved_utc": manifest.get("retrieved_utc"),
+        "snapshot_bytes": snapshot_bytes,
+        "cached_retrieved_utc": cached_retrieved_utc,
     }
 
 
@@ -141,15 +205,13 @@ def fetch_url(url: str, timeout: float = 20.0, attempts: int = 3) -> dict[str, A
             if isinstance(exc.reason, ssl.SSLCertVerificationError) or attempt + 1 == attempts:
                 raise
         time.sleep(0.25 * (2**attempt))
-    if not final_url.startswith("https://manual.cp2k.org/"):
-        raise ValueError("official source redirected outside manual.cp2k.org")
-    return {
+    return live_receipt({
         "http_status": status,
         "final_url": final_url,
         "content_sha256": hashlib.sha256(body).hexdigest(),
         "bytes": len(body),
         "retrieved_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-    }
+    }, url)
 
 
 def resolve(
@@ -159,8 +221,10 @@ def resolve(
     live_check: bool,
     registry_path: Path = DEFAULT_REGISTRY,
     snapshot_dir: Path = DEFAULT_SNAPSHOT,
-    fetcher: Callable[[str], dict[str, Any]] = fetch_url,
+    fetcher: Callable[[str], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    if fetcher is None:
+        fetcher = fetch_url
     registry, aliases = load_registry(registry_path)
     branch = manual_branch(version)
     root = registry["manual_root"].rstrip("/")
@@ -180,34 +244,51 @@ def resolve(
             "manual_version": version,
             "manual_branch": branch,
             "url": url,
-            "verification": "url_only_not_live_verified",
+            "verification": "unresolved" if live_check else "url_only",
         }
+        cached = cached_source(
+            topic,
+            version,
+            expected_url=url,
+            registry_path=registry_path,
+            snapshot_dir=snapshot_dir,
+        )
         if live_check:
             try:
-                item.update(fetcher(url))
-                item["verification"] = "live_verified"
+                live = live_receipt(fetcher(url), url)
             except (OSError, ValueError, urllib.error.URLError) as exc:
                 failed.append({"query": query, "reason": type(exc).__name__})
+                if cached is not None:
+                    item.update(cached)
+                    item["verification"] = "live_unavailable_cached_exact"
+            else:
+                item.update(live)
+                if cached is None:
+                    item["verification"] = "unresolved"
+                    failed.append({"query": query, "reason": "MissingCachedBaseline"})
+                else:
+                    item.update(cached)
+                    item.update(live)
+                    if live["content_sha256"] == cached["source_content_sha256"]:
+                        item["verification"] = "live_matches_cached"
+                    else:
+                        item["verification"] = "live_changed_from_cached"
+                        failed.append({"query": query, "reason": "ContentHashMismatch"})
         else:
-            cached = cached_source(
-                topic,
-                version,
-                registry_path=registry_path,
-                snapshot_dir=snapshot_dir,
-            )
             if cached is not None:
                 item.update(cached)
         resolved.append(item)
-    if missing or failed:
+    states = {item["verification"] for item in resolved}
+    if missing or failed or not states <= VERIFICATION_STATES:
         status = "blocked_official_source"
-    elif live_check:
-        status = "pass"
-    elif resolved and all(item["verification"] == "cached_version_matched" for item in resolved):
-        status = "pass_cached_version_matched"
+    elif live_check and resolved and states == {"live_matches_cached"}:
+        status = "pass_live_matches_cached"
+    elif not live_check and resolved and states == {"cached_exact"}:
+        status = "pass_cached_exact"
     else:
         status = "resolved_url_only"
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "status": status,
         "manual_version": version,
         "manual_branch": branch,
@@ -216,8 +297,10 @@ def resolve(
         "failed": failed,
         "source_repository": registry["source_repository"],
         "limitations": [
-            "A cached version-matched page supports documented behavior only as of its recorded retrieval time.",
-            "A URL-only result cannot support a positive version-sensitive official claim.",
+            "Only cached_exact and live_matches_cached records can support a positive version-sensitive official claim.",
+            "A cached-exact page supports documented behavior only as of its recorded retrieval time.",
+            "A live response that changed from, cannot be matched to, or cannot reopen the cached page is fail-closed.",
+            "A URL-only result supports navigation only.",
             "The trunk manual is development documentation and must not be projected backward to a stable release.",
         ],
     }
@@ -250,7 +333,7 @@ def main() -> int:
         print(json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 2
     print(json.dumps(result, ensure_ascii=False, indent=2 if args.pretty else None, sort_keys=True))
-    return 0 if result["status"] in {"pass", "pass_cached_version_matched", "resolved_url_only"} else 2
+    return 0 if result["status"] in {"pass_cached_exact", "pass_live_matches_cached", "resolved_url_only"} else 2
 
 
 if __name__ == "__main__":

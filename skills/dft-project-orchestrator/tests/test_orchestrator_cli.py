@@ -8,11 +8,14 @@ import json
 import os
 from pathlib import Path
 import re
+import runpy
 import subprocess
 import sys
 import tempfile
 import unittest
 from unittest import mock
+
+from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -823,6 +826,196 @@ class CliIntegrationTests(unittest.TestCase):
             "validate_agent_answer.py", "Dry-run, execute, and acceptable workflow",
         ):
             self.assertIn(marker, manual)
+
+
+class OfficialSourcePackMetadataTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.repository = ROOT.parents[1]
+        self.references = ROOT / "references"
+        self.seed_path = self.references / "source-pack-seed.json"
+        self.seed = json.loads(self.seed_path.read_text(encoding="utf-8"))
+        self.scope_path = self.references / "source-pack-scope-catalog.json"
+        self.scope = json.loads(self.scope_path.read_text(encoding="utf-8"))
+
+    @staticmethod
+    def digest(path: Path) -> str:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+
+    def test_source_pack_records_match_frozen_schemas_and_hashes(self) -> None:
+        pairs = [
+            ("official-document-pack-seed.schema.json", self.seed_path),
+            ("official-document-scope-catalog.schema.json", self.scope_path),
+        ]
+        for provider in self.seed["providers"]:
+            pairs.append(
+                (
+                    "official-document-source-catalog.schema.json",
+                    self.repository / provider["source_ref"]["path"],
+                )
+            )
+        for schema_name, instance_path in pairs:
+            schema = json.loads(
+                (self.repository / "contracts" / schema_name).read_text(
+                    encoding="utf-8"
+                )
+            )
+            Draft202012Validator.check_schema(schema)
+            errors = sorted(
+                Draft202012Validator(schema).iter_errors(
+                    json.loads(instance_path.read_text(encoding="utf-8"))
+                ),
+                key=lambda error: tuple(str(item) for item in error.absolute_path),
+            )
+            self.assertEqual([], [error.message for error in errors])
+        refs = [self.seed["scope_catalog_ref"]]
+        refs.extend(provider["source_ref"] for provider in self.seed["providers"])
+        for ref in refs:
+            path = self.repository / ref["path"]
+            path.resolve().relative_to(ROOT.resolve())
+            self.assertEqual(ref["sha256"], self.digest(path))
+
+    def test_scope_separates_external_and_local_authority(self) -> None:
+        provider_ids = {item["input_id"] for item in self.seed["providers"]}
+        external = {}
+        for subject in self.scope["subjects"]:
+            for origin in subject["origin_refs"]:
+                self.assertEqual(
+                    origin["sha256"], self.digest(self.repository / origin["path"])
+                )
+            if subject["evidence_class"] == "official-provider-required":
+                self.assertIn(subject["expected_disposition"], {"partial", "blocked"})
+                self.assertTrue(subject["provider_input_ids"])
+                for provider_id in subject["provider_input_ids"]:
+                    self.assertIn(provider_id, provider_ids)
+                    external.setdefault(provider_id, set()).add(
+                        subject["subject_id"]
+                    )
+            else:
+                self.assertEqual([], subject["provider_input_ids"])
+                self.assertIn(
+                    subject["expected_disposition"],
+                    {"not-applicable", "excluded"},
+                )
+        for provider in self.seed["providers"]:
+            catalog = json.loads(
+                (self.repository / provider["source_ref"]["path"]).read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(
+                {item["subject_id"] for item in catalog["subjects"]},
+                external.get(provider["input_id"], set()),
+            )
+
+    def test_scope_is_complete_and_every_origin_is_skill_local(self) -> None:
+        inputs = json.loads(
+            (self.references / "source-pack-inputs.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(
+            [item["subject_id"] for item in inputs["scope_subjects"]],
+            [item["subject_id"] for item in self.scope["subjects"]],
+        )
+        for subject in inputs["scope_subjects"]:
+            for origin_path in subject["origin_paths"]:
+                (self.repository / origin_path).resolve().relative_to(ROOT.resolve())
+        for subject in self.scope["subjects"]:
+            for origin in subject["origin_refs"]:
+                (self.repository / origin["path"]).resolve().relative_to(
+                    ROOT.resolve()
+                )
+
+    def test_scope_generator_rejects_cross_root_origins(self) -> None:
+        generator = runpy.run_path(
+            str(ROOT / "scripts" / "extract_official_source_scope.py")
+        )
+        with self.assertRaisesRegex(ValueError, "scope origin must remain below"):
+            generator["scope_origin_ref"](
+                "contracts/workflow-plan.schema.json",
+                {},
+            )
+        relative = (
+            "skills/dft-project-orchestrator/references/"
+            "source-catalog-repository-interfaces.json"
+        )
+        planned = b'{"planned":"current-pass"}\n'
+        ref = generator["scope_origin_ref"](
+            relative,
+            {self.repository / relative: planned},
+        )
+        self.assertEqual(hashlib.sha256(planned).hexdigest(), ref["sha256"])
+
+    def test_catalogs_are_metadata_only_whole_source_receipts(self) -> None:
+        for provider in self.seed["providers"]:
+            catalog = json.loads(
+                (self.repository / provider["source_ref"]["path"]).read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertNotIn("content_ref", json.dumps(catalog, sort_keys=True))
+            for source in catalog["sources"]:
+                self.assertIn("external_identity", source)
+                for slice_record in source["slices"]:
+                    self.assertEqual("whole-source", slice_record["selector"]["kind"])
+                    self.assertEqual("*", slice_record["selector"]["value"])
+                    self.assertIn("external_receipt", slice_record)
+
+    def test_authority_proposal_and_generator_preserve_development_ceiling(self) -> None:
+        proposal = json.loads(
+            (self.references / "source-pack-authority-proposal.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual("blocked", self.seed["status_ceiling"])
+        self.assertEqual("none", proposal["lifecycle_effect"])
+        self.assertEqual(
+            {"repository", "standard"},
+            {
+                item["provider_class"]
+                for item in proposal["authority_entries"].values()
+            },
+        )
+        for authority in proposal["authority_entries"].values():
+            self.assertEqual([], authority["content_policy"]["allowed_query_urls"])
+            if authority["license_policy"]["status"] == "unknown":
+                self.assertEqual([], authority["license_policy"]["terms_urls"])
+        self.assertEqual(
+            {"repository-contracts-orchestrator", "json-schema-2020-12"},
+            {item["input_id"] for item in self.seed["providers"]},
+        )
+        json_subjects = {
+            item["subject_id"]
+            for item in self.scope["subjects"]
+            if item["provider_input_ids"] == ["json-schema-2020-12"]
+        }
+        self.assertEqual(
+            {
+                "jsonschema.draft202012.dialect",
+                "jsonschema.draft202012.validation-vocabulary",
+            },
+            json_subjects,
+        )
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-B",
+                str(ROOT / "scripts" / "extract_official_source_scope.py"),
+                "--check",
+            ],
+            cwd=self.repository,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(0, completed.returncode, completed.stderr)
+        table = json.loads(
+            (self.references / "weak-model-decision-table.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual("development", table["lifecycle"])
+        self.assertEqual("no_positive_claim", table["current_claim"])
 
 
 if __name__ == "__main__":

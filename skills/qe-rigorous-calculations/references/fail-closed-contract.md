@@ -61,6 +61,18 @@ For a genuinely offline task, use `--offline`. It returns exit code `3` and `dec
 
 The reference command may route any executable that maps uniquely to a mirrored `INPUT_*` manual. Only a unique, version-matching entry can support an exact software claim.
 
+Before returning content, the resolver maps the index link to exactly one `official-manifest.json` `sections[]` record. It extracts the generated Markdown's fenced text payload, removes only the wrapper separator newline, recomputes its UTF-8 byte count and SHA-256, and compares both with `sections[].bytes` and `sections[].sha256`. It also requires the exact generated wrapper and rejects traversal, symlink substitution, content outside the closing fence, missing metadata, and any payload mismatch. Require `entry_verification.status: verified`; `blocked_local_entry_integrity` returns exit code `2` and does not return an excerpt.
+
+The default response is bounded to 6,000 Unicode characters. Every verified match reports `total_bytes`, the UTF-8 `returned_range`, full-entry `content_sha256`, `truncated`, `continuation_token`, and `complete_entry_returned`. Every continuation request repeats the manifest/payload/wrapper verification before decoding the content-addressed token. A bounded response that does not contain the complete entry returns exit code `2` with `decision: blocked_partial_entry`; a final continuation page has `truncated: false` but still has `complete_entry_returned: false` because that response alone did not contain the entry prefix. Continue deterministically with the returned token:
+
+```bash
+python3 "$QE_GUARD" reference \
+  --executable pw.x --term "<TERM>" --qe-version <VERSION> --offline \
+  --max-chars 6000 --continuation-token '<TOKEN>'
+```
+
+Pages can be concatenated in returned-range order and checked against `content_sha256`. To obtain one response that can support complete-entry review, use `--full-entry`; do not combine it with a continuation token. Large complete entries may produce large JSON output.
+
 ## 3. Audit a pw.x input
 
 ```bash
@@ -155,6 +167,7 @@ Use `--direction decreasing` when smaller settings are stricter, such as a decre
 | `plan` | `0` | required objective fields are structurally present |
 | `reference` | `0` | unique version match and live source hash match |
 | `reference` | `3` | unique version match from cached mirror only; disclosure required |
+| `reference` | `2` | includes a partial matched entry, invalid continuation, or another blocking condition |
 | `audit` | `0` | every gate requested by that audit invocation passed |
 | `convergence` | `0` | the declared stable-tail check passed |
 | any | `2` | blocked, invalid, ambiguous, mismatched, or failed |

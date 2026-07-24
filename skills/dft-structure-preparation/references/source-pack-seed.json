@@ -1,0 +1,60 @@
+{
+  "blockers": [
+    "All provider-required subjects remain blocked until exact document bytes, per-page slicing, and build replay are closed.",
+    "pymatgen wrapper 2026.5.4 and pymatgen-core 2026.5.18 identities remain intentionally unresolved rather than merged."
+  ],
+  "contract_name": "official-document-pack-seed",
+  "limitations": [
+    "Exact release Git-tree path and object identities are retained without official document bodies or generated rendered pages."
+  ],
+  "providers": [
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "ase-release-source-docs-3-29-0",
+      "input_id": "ase-docs",
+      "provider_id": "ase",
+      "source_ref": {
+        "path": "skills/dft-structure-preparation/references/source-pack-source-catalog-ase.json",
+        "sha256": "4aaef0ee9ba0bb930bebc6254c34b2e24c3aefbd4faf360afb269bbbdf03d66e"
+      }
+    },
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "pymatgen-release-source-docs-2026-5-4",
+      "input_id": "pymatgen-docs",
+      "provider_id": "pymatgen",
+      "source_ref": {
+        "path": "skills/dft-structure-preparation/references/source-pack-source-catalog-pymatgen.json",
+        "sha256": "27f535f1139df67dff9a5aedc984cab5d5e06e6bc9159e5ca0e0363e62f0021b"
+      }
+    },
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "spglib-release-source-docs-2-7-0",
+      "input_id": "spglib-docs",
+      "provider_id": "spglib",
+      "source_ref": {
+        "path": "skills/dft-structure-preparation/references/source-pack-source-catalog-spglib.json",
+        "sha256": "92045e77d1c1f42f101d95cbf981004a301732b7d25bc3a76b3b9d0d3c0d0a2f"
+      }
+    },
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "rdkit-release-source-docs-2026-03-4",
+      "input_id": "rdkit-docs",
+      "provider_id": "rdkit",
+      "source_ref": {
+        "path": "skills/dft-structure-preparation/references/source-pack-source-catalog-rdkit.json",
+        "sha256": "0195c49cf2f638808c84d15ea5159534eda1354c5af19bb8f1d835718ec98f3e"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "scope_catalog_ref": {
+    "path": "skills/dft-structure-preparation/references/source-pack-scope-catalog.json",
+    "sha256": "a6ac9a1598d7b0c0efc8d8209abd1f45c26d6ac0911adafebc1efbd8ecf510bd"
+  },
+  "scope_extractor_id": "reviewed-semantic-scope-v1",
+  "skill_id": "dft-structure-preparation",
+  "status_ceiling": "blocked"
+}

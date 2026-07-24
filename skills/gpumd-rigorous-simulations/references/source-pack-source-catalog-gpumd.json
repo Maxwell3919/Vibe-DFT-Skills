@@ -1,0 +1,335 @@
+{
+  "blockers": [
+    {
+      "code": "DOC.BODY.BYTES.EXTERNAL",
+      "dimensions": ["corpus","slices"],
+      "description": "Official v5.3 document and example bodies and per-file content hashes are not retained."
+    },
+    {
+      "code": "DOC.BUILD.REPLAY.MISSING",
+      "dimensions": ["slices"],
+      "description": "Generated documentation has not been reproduced from the exact release."
+    },
+    {
+      "code": "MODEL.DATA.LICENSE.IDENTITY.MISSING",
+      "dimensions": ["coverage"],
+      "description": "Potential/model files, datasets, trained weights, and executable examples require independent identity and license review."
+    },
+    {
+      "code": "RUNTIME.GPU.NATIVE.UNVERIFIED",
+      "dimensions": ["coverage"],
+      "description": "Exact binary, backend, GPU runtime, build flags, and native execution behavior are not validated by this pack."
+    }
+  ],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://github.com/brucefan1983/GPUMD/tree/v5.3/doc",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only"
+    ],
+    "assessment": "conditional",
+    "identity": {
+      "identifier": "GPL-3.0-or-later",
+      "terms_urls": [
+        "https://raw.githubusercontent.com/brucefan1983/GPUMD/f2b46c5d528e985a5bf68becd442b18c0e04396c/LICENCE"
+      ],
+      "verification": "verified"
+    },
+    "limitations": [
+      "The source license does not establish redistribution rights for example datasets, potential/model files, trained weights, GPU runtimes, or third-party dependencies."
+    ],
+    "official_terms_locator": "https://raw.githubusercontent.com/brucefan1983/GPUMD/f2b46c5d528e985a5bf68becd442b18c0e04396c/LICENCE"
+  },
+  "limitations": [
+    "The exact source-tree inventory does not establish a native GPU build, binary behavior, model/data licensing, NEP transferability, transport convergence, or scientific acceptance.",
+    "External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\\t<path>\\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "gpumd-exact-document-tree-inventory"
+      ],
+      "description": "Only exact Git path and object metadata are retained; documentation and example bodies remain external.",
+      "disposition": "external-only",
+      "loss_id": "document-bodies-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "gpumd-exact-document-tree-inventory"
+      ],
+      "description": "The exact v5.3 documentation build and generated navigation/reference surfaces have not been reproduced.",
+      "disposition": "blocked",
+      "loss_id": "rendered-build-not-replayed",
+      "materiality": "material",
+      "stage": "extraction"
+    },
+    {
+      "affected_source_ids": [
+        "gpumd-exact-document-tree-inventory"
+      ],
+      "description": "Executable example inputs, datasets, potential/model files, trained weights, and outputs are retained only as path/object metadata and are never executed or deserialized.",
+      "disposition": "external-only",
+      "loss_id": "executable-examples-and-models-external",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "gpumd-exact-document-tree-inventory"
+      ],
+      "description": "GPU backend, build flags, hardware/runtime compatibility, binary identity, and native behavior are not established by source documentation.",
+      "disposition": "blocked",
+      "loss_id": "native-gpu-runtime-unverified",
+      "materiality": "material",
+      "stage": "mapping"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "658b8e58e2bd39eb9ef669a89eef0d33f14b47c7fa834ab30a92f36059921bd7",
+        "kind": "revision",
+        "raw_bytes": 22949,
+        "raw_sha256": "3b9139bcd71236e2a07fcb0b21f17496b272dca9411acf62fabba2d100a9816c",
+        "retrieved_utc": "2026-07-23T20:17:38Z",
+        "value": "commit:f2b46c5d528e985a5bf68becd442b18c0e04396c;root-tree:34632185aebed0c19d9ef8931c074afbffd32637"
+      },
+      "locator": "https://github.com/brucefan1983/GPUMD/tree/v5.3/doc",
+      "metadata_evidence_ref": {
+        "bytes": 47421,
+        "path": "skills/gpumd-rigorous-simulations/references/source-pack-inventory-gpumd.json",
+        "sha256": "658b8e58e2bd39eb9ef669a89eef0d33f14b47c7fa834ab30a92f36059921bd7"
+      },
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 22949,
+            "raw_sha256": "3b9139bcd71236e2a07fcb0b21f17496b272dca9411acf62fabba2d100a9816c",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-23T20:17:38Z",
+            "selected_bytes": 22949,
+            "selected_sha256": "3b9139bcd71236e2a07fcb0b21f17496b272dca9411acf62fabba2d100a9816c"
+          },
+          "loss_ids": [
+            "document-bodies-not-retained",
+            "rendered-build-not-replayed",
+            "executable-examples-and-models-external",
+            "native-gpu-runtime-unverified"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "gpumd-exact-document-tree-inventory.whole",
+          "subject_ids": [
+            "execution.build-gpu-backend",
+            "execution.working-directory-contract",
+            "execution.failure-semantics",
+            "input.run-in-command-stream",
+            "input.model-xyz-structure",
+            "input.potential-selection",
+            "workflow.staged-md-protocol",
+            "workflow.ensemble-integrator",
+            "output.thermodynamics-trajectory",
+            "workflow.restart-segment-lineage",
+            "workflow.performance-benchmark",
+            "transport.green-kubo-emd",
+            "transport.hnemd",
+            "transport.two-dimensional-fluid-limits",
+            "transport.convergence-uncertainty",
+            "nep.dataset-contract",
+            "nep.training-configuration",
+            "nep.restart-training",
+            "nep.validation",
+            "nep.deployment",
+            "examples.release-workflows",
+            "version.v5-3-source-pin",
+            "license.execution-boundary"
+          ],
+          "title": "Complete exact-release doc and examples tree metadata inventory"
+        }
+      ],
+      "source_id": "gpumd-exact-document-tree-inventory",
+      "source_kind": "index",
+      "title": "GPUMD v5.3 complete doc and examples tree metadata inventory"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "execution.build-gpu-backend",
+      "title": "Build and identify the exact GPUMD v5.3 executable for the selected NVIDIA or AMD GPU backend."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "execution.working-directory-contract",
+      "title": "Invoke GPUMD v5.3 from a closed working directory whose run.in and referenced input identities are recorded."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "execution.failure-semantics",
+      "title": "Interpret GPUMD process state, exit status, output files, and textual diagnostics as separate technical gates."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "input.run-in-command-stream",
+      "title": "The v5.3 run.in command stream defines setup, potential, ensemble, run blocks, outputs, and continuation behavior in order."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "input.model-xyz-structure",
+      "title": "The v5.3 model.xyz structure contract includes atom count, lattice, periodicity, species/type mapping, coordinates, and units."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "input.potential-selection",
+      "title": "Potential selection and model-file identity must match the v5.3 potential command and deployed format."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "workflow.staged-md-protocol",
+      "title": "A v5.3 molecular-dynamics protocol is staged into initialization, equilibration, production, and validation segments."
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "workflow.ensemble-integrator",
+      "title": "Ensemble, thermostat/barostat, timestep, temperature, pressure, and coupling choices follow exact v5.3 command semantics."
+    },
+    {
+      "category": "output-observable",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "output.thermodynamics-trajectory",
+      "title": "Thermodynamic and trajectory output commands have v5.3-specific fields, cadence, units, and append/overwrite behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "workflow.restart-segment-lineage",
+      "title": "State-file continuation and segmented runs require explicit parent, restart, and output lineage under v5.3 semantics."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "workflow.performance-benchmark",
+      "title": "Performance benchmarking preserves the scientific model and records backend, hardware, build, problem size, and timing evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "transport.green-kubo-emd",
+      "title": "The v5.3 Green-Kubo equilibrium-MD route requires heat-current sampling, correlation/integration controls, and replicated uncertainty analysis."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "transport.hnemd",
+      "title": "The v5.3 HNEMD route requires a linear-response driving field, heat-current response, direction conventions, and convergence checks."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "transport.two-dimensional-fluid-limits",
+      "title": "Two-dimensional normalization and fluid/solid heat-current conventions require explicit v5.3 method and dimensionality handling."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "transport.convergence-uncertainty",
+      "title": "Thermal-conductivity acceptance requires correlation time, production length, size, field-strength, sampling, and replicate evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "nep.dataset-contract",
+      "title": "NEP construction closes train/test data identity, extxyz fields, units, species ordering, reference methods, and split provenance."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "nep.training-configuration",
+      "title": "NEP v5.3 training configuration records descriptor, network, loss, regularization, batch, generation, seed, and restart semantics."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "nep.restart-training",
+      "title": "Restarting NEP training preserves parent model, optimizer/evolution state, data identity, and changed hyperparameters."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "nep.validation",
+      "title": "NEP validation extends beyond training loss to held-out energy, force, virial, structures, domains, and failure modes."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "nep.deployment",
+      "title": "Deploying a NEP model in GPUMD v5.3 requires exact model identity, supported format, species mapping, units, cutoff, and smoke evidence."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "examples.release-workflows",
+      "title": "The exact v5.3 examples tree is supporting official workflow material whose executable inputs, data, models, and outputs require separate review."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "version.v5-3-source-pin",
+      "title": "All official behavior claims are bounded to the GPUMD v5.3 release source snapshot rather than the rolling website."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "license.execution-boundary",
+      "title": "Source licensing, external model/data licensing, GPU runtime terms, privacy, and execution authorization are separate boundaries."
+    }
+  ],
+  "upstream_universe_complete": true,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": null,
+    "snapshot_identity": null,
+    "value": "5.3"
+  }
+}

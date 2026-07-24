@@ -9,6 +9,7 @@ from typing import Any, Iterable
 
 from . import __version__
 from .manifests import validation_errors
+from .registry import resolve_backend_maturity
 from .utils import sha256_file, utc_now, write_json_atomic
 from strict_json import StrictJSONError, load_object
 
@@ -321,9 +322,10 @@ def normalize_qe_bands(
     figure_output: Path | None = None,
     energy_window_ev: tuple[float, float] | None = None,
     symmetry_points: list[dict[str, Any]] | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("bands", "qe", "python.qe-bands", maturity)
     _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -667,9 +669,10 @@ def normalize_qe_dos(
     group_by: str = "species-orbital",
     integration_window_ev: tuple[float, float] | None = None,
     energy_window_ev: tuple[float, float] | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("dos-pdos", "qe", "python.qe-dos", maturity)
     _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -1345,9 +1348,10 @@ def normalize_qe_fatband(
     render_mode: str = "line-width",
     projection_label: str | None = None,
     bands_label: str = "Bands",
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("bands", "qe", "python.qe-fatband", maturity)
     _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)
