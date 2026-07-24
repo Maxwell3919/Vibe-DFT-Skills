@@ -9,8 +9,9 @@ The entrypoint is a small repository-local registration record.  It identifies
 every contract record passed to ``validate_official_document_coverage.py``;
 no unregistered or path-only supporting files are permitted in the pack.  This
 module treats that semantic validator as a black-box CLI rather than
-reimplementing the five official-document contracts. Discovery additionally
-checks the scope/coverage ``skill_id`` binding to prevent cross-Skill replay.
+reimplementing the four official-document technical contracts. Discovery
+additionally checks the scope/coverage ``skill_id`` binding to prevent cross-
+Skill replay.
 It is not the portable immutable ``bundle-manifest@1.0`` format.
 
 Normal audit mode reports missing or semantically partial bundles without
@@ -55,7 +56,6 @@ RECORD_FIELDS = frozenset(
     {
         "corpora",
         "slice_manifests",
-        "license_reviews",
         "scope_inventory",
         "coverage",
     }
@@ -94,7 +94,6 @@ class BundleRegistration:
     pack_path: Path
     corpora: tuple[Path, ...]
     slice_manifests: tuple[Path, ...]
-    license_reviews: tuple[Path, ...]
     scope_inventory: Path
     coverage: Path
 
@@ -482,16 +481,12 @@ def _load_registration(skill: SourceSkill, pack: Path) -> BundleRegistration:
         records["slice_manifests"],
         "records/slice_manifests",
     )
-    licenses = _registered_path_list(
-        records["license_reviews"],
-        "records/license_reviews",
-    )
     scope = _single_registered_path(
         records["scope_inventory"],
         "records/scope_inventory",
     )
     coverage = _single_registered_path(records["coverage"], "records/coverage")
-    registered = (*corpora, *slices, *licenses, scope, coverage)
+    registered = (*corpora, *slices, scope, coverage)
     if len(registered) != len(set(registered)):
         raise BundleAuditError("one pack path is registered more than once")
 
@@ -517,7 +512,6 @@ def _load_registration(skill: SourceSkill, pack: Path) -> BundleRegistration:
         pack_path=pack,
         corpora=tuple(absolute(path) for path in corpora),
         slice_manifests=tuple(absolute(path) for path in slices),
-        license_reviews=tuple(absolute(path) for path in licenses),
         scope_inventory=absolute(scope),
         coverage=absolute(coverage),
     )
@@ -597,8 +591,6 @@ def _validator_command(
         command.extend(("--corpus", _argument_path(path, root)))
     for path in registration.slice_manifests:
         command.extend(("--slices", _argument_path(path, root)))
-    for path in registration.license_reviews:
-        command.extend(("--license-review", _argument_path(path, root)))
     command.extend(
         (
             "--scope-inventory",
@@ -689,10 +681,6 @@ def _record_paths(
             (f"slice/{index}", path)
             for index, path in enumerate(registration.slice_manifests)
         ),
-        *tuple(
-            (f"license/{index}", path)
-            for index, path in enumerate(registration.license_reviews)
-        ),
         ("scope", registration.scope_inventory),
         ("coverage", registration.coverage),
     )
@@ -716,7 +704,6 @@ def _immutable_record_snapshot(
         snapshot_paths: dict[str, list[Path]] = {
             "corpus": [],
             "slice": [],
-            "license": [],
         }
         singles: dict[str, Path] = {}
         for label, _, raw in raw_records:
@@ -752,7 +739,6 @@ def _immutable_record_snapshot(
                 pack_path=snapshot_root,
                 corpora=tuple(snapshot_paths["corpus"]),
                 slice_manifests=tuple(snapshot_paths["slice"]),
-                license_reviews=tuple(snapshot_paths["license"]),
                 scope_inventory=singles["scope"],
                 coverage=singles["coverage"],
             ),

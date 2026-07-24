@@ -11,11 +11,11 @@ Discovery and semantic assurance are separate gates:
 
 - `tools/validate_official_document_bundles.py` discovers packs and validates
   their registration boundary;
-- `tools/validate_official_document_coverage.py` validates the five
+- `tools/validate_official_document_coverage.py` validates the four
   official-document contract families and their cross-record semantics.
 
 The discovery tool invokes the semantic validator as a black-box CLI. It does
-not reimplement the five contract schemas. Discovery additionally checks the
+not reimplement the four contract schemas. Discovery additionally checks the
 discovery-owned `skill_id` binding in the scope and coverage records so copied
 records cannot satisfy a different Skill. Changes to other contract fields do
 not silently change the discovery convention.
@@ -38,16 +38,15 @@ The registration record has this exact shape:
   "records": {
     "corpora": ["corpus.json"],
     "slice_manifests": ["slices.json"],
-    "license_reviews": ["license-review.json"],
     "scope_inventory": "scope-inventory.json",
     "coverage": "coverage.json"
   }
 }
 ```
 
-`corpora`, `slice_manifests`, and `license_reviews` are nonempty lists.
+`corpora` and `slice_manifests` are nonempty lists.
 `scope_inventory` and `coverage` identify one record each. A pack may use
-multiple corpus, slice, or license-review records by adding paths to the
+multiple corpus and slice records by adding paths to the
 corresponding list.
 
 Every path is a canonical relative POSIX path below the pack directory.
@@ -61,8 +60,10 @@ arbitrary path-only supporting-file lane is intentionally not available.
 
 This is a repository-local discovery registration, not the portable immutable
 `bundle-manifest@1.0` artifact format. Exact content identity, source
-authority, license/storage rules, scope inventory, loss accounting, and claim
-coverage remain the semantic validator's responsibility.
+authority, scope inventory, loss accounting, and coverage mapping remain the
+semantic validator's responsibility. Legal or licensing judgement is explicitly
+outside this protocol, and this convention does not record any legal/licensing
+judgement.
 
 ## Independent hash domains
 
@@ -82,7 +83,7 @@ exact-tree inventory must include every non-pack Skill file and must not
 include pack records.
 
 The exclusion is not a trust exemption. Pack bytes are independently protected
-by exact registration closure, record hashes, the five official-document
+by exact registration closure, record hashes, the four official-document
 contracts, the semantic coverage validator, migration monotonicity, and the
 strict release gate. A malformed, unregistered, partial, or missing required
 pack still fails according to the status rules below.
@@ -96,7 +97,7 @@ skills/<skill-id>/references/official-source-pack/**
 This is an independent policy domain, not a general `official-*` exclusion.
 `official-source-pack-copy/`, a sibling `official-*` directory, or any other
 near-match remains in the closed legacy-storage audit. Pack metadata and
-content are governed by registration closure plus the corpus, slice, license,
+content are governed by registration closure plus the corpus, slice,
 scope, and coverage contracts. Legacy mirrors and indexes outside the exact
 pack path remain governed by
 `registry/official-document-storage-discovery.yaml`.

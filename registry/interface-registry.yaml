@@ -334,31 +334,52 @@ interfaces:
     producer_policy: mixed
   official-corpus-manifest@1.0:
     display_name: Official documentation corpus manifest
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  official-corpus-manifest@1.1:
+    display_name: Official documentation corpus manifest
     lifecycle: active
     domain: official-documentation
-    schema_path: contracts/official-corpus-manifest.schema.json
-    schema_sha256: dfa235833d49cc5600684fb87a09ff5050a2a272d66cd082ecf40833fd276a73
+    schema_path: contracts/official-corpus-manifest-1.1.schema.json
+    schema_sha256: aeb5877a9e7492ff49d67c4f0760550f5ae95a9867b64ce1a15f139ff00c53cc
     producer_policy: mixed
   document-slice-manifest@1.0:
     display_name: Ordered official document slice manifest
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  document-slice-manifest@1.1:
+    display_name: Ordered official document slice manifest
     lifecycle: active
     domain: official-documentation
-    schema_path: contracts/document-slice-manifest.schema.json
-    schema_sha256: bed8ff7bcda25681f9d28a8cbeb35d380fedf0fdaf1e5f2e224b095c312c906b
+    schema_path: contracts/document-slice-manifest-1.1.schema.json
+    schema_sha256: d524e7e7cb0421d83d9acc093667249c861dbebfb891314e3fe2377315beee5c
     producer_policy: skill
   official-source-license-review@1.0:
     display_name: Official source license and storage review
-    lifecycle: active
+    lifecycle: planned
     domain: official-documentation
-    schema_path: contracts/official-source-license-review.schema.json
-    schema_sha256: 5b41e8983d79a8ef374fcdc9f5f17ffe7bd6a470c7819d98a4f1f69ec0ae8106
+    schema_path: null
+    schema_sha256: null
     producer_policy: mixed
   skill-document-coverage@1.0:
     display_name: Skill official documentation coverage map
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  skill-document-coverage@1.1:
+    display_name: Skill official documentation coverage map
     lifecycle: active
     domain: official-documentation
-    schema_path: contracts/skill-document-coverage.schema.json
-    schema_sha256: d785ed75181a10a12d019c314872f48d968cab335de762ff3df00f742479bdfa
+    schema_path: contracts/skill-document-coverage-1.1.schema.json
+    schema_sha256: 3e216b1d2b097dc75f2b3270ba8c025273bab2ad7f076ebf8457ddcb0b984a70
     producer_policy: skill
   skill-document-scope-inventory@1.0:
     display_name: Canonical Skill documentation scope inventory
@@ -376,10 +397,17 @@ interfaces:
     producer_policy: skill
   official-document-source-catalog@1.0:
     display_name: Declarative official-document source catalog
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  official-document-source-catalog@1.1:
+    display_name: Declarative official-document source catalog
     lifecycle: active
     domain: official-documentation
-    schema_path: contracts/official-document-source-catalog.schema.json
-    schema_sha256: a6937cbfe794d3e8f9f9960b8f877533706697747e5c2ff75d0fa0b79a14fc5b
+    schema_path: contracts/official-document-source-catalog-1.1.schema.json
+    schema_sha256: 3d803252f1e283ff0a3ea82b0e018b7a2d61f4ce106f2ab8a07ec257c7e7664f
     producer_policy: skill
   official-document-scope-catalog@1.0:
     display_name: Extracted official-document semantic scope catalog

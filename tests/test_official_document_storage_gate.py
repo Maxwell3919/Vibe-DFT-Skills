@@ -39,7 +39,7 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
         )
         self.assertEqual(report.artifact_bytes, 13_412_851)
         self.assertEqual(report.forbidden_path_count, 2075)
-        self.assertEqual(len(report.worktree_drift_findings), 3)
+        self.assertEqual(report.worktree_drift_findings, ())
         self.assertEqual(storage_gate.exit_code(report, strict_release=False), 0)
         self.assertEqual(storage_gate.exit_code(report, strict_release=True), 3)
 

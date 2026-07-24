@@ -577,6 +577,7 @@
         "layer",
         "kind",
         "value",
+        "selected_identity",
         "subject_ids",
         "loss_ids"
       ],
@@ -606,6 +607,9 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 1000
+        },
+        "selected_identity": {
+          "$ref": "#/$defs/byteIdentity"
         },
         "subject_ids": {
           "type": "array",

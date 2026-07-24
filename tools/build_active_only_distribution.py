@@ -1846,20 +1846,16 @@ def _validate_packaged_registries(
 
 
 PACK_RECORD_FAMILIES = {
-    "corpora": ("official-corpus-manifest@1.0", "corpus_id"),
+    "corpora": ("official-corpus-manifest@1.1", "corpus_id"),
     "slice_manifests": (
-        "document-slice-manifest@1.0",
+        "document-slice-manifest@1.1",
         "slice_manifest_id",
-    ),
-    "license_reviews": (
-        "official-source-license-review@1.0",
-        "license_review_id",
     ),
     "scope_inventory": (
         "skill-document-scope-inventory@1.0",
         "inventory_id",
     ),
-    "coverage": ("skill-document-coverage@1.0", "coverage_id"),
+    "coverage": ("skill-document-coverage@1.1", "coverage_id"),
 }
 
 
@@ -1922,58 +1918,60 @@ def _scope_enumeration_receipt_valid(
 
 
 def _slice_source_inventory_valid(
-    included_sources: object,
+    source_inventory: object,
     manifest_sources: object,
     *,
     status: object,
 ) -> bool:
-    if not isinstance(included_sources, list) or not isinstance(
-        manifest_sources, list
-    ):
-        return False
-    corpus_identities = {
-        source.get("source_id"): source.get("identity")
-        for source in included_sources
-        if isinstance(source, dict)
-        and isinstance(source.get("source_id"), str)
-    }
-    slice_identities = {
-        source.get("source_id"): source.get("source_identity")
-        for source in manifest_sources
-        if isinstance(source, dict)
-        and isinstance(source.get("source_id"), str)
-    }
     if (
-        len(corpus_identities) != len(included_sources)
-        or len(slice_identities) != len(manifest_sources)
-        or not set(slice_identities).issubset(corpus_identities)
-        or any(
-            identity != corpus_identities[source_id]
-            for source_id, identity in slice_identities.items()
-        )
+        not isinstance(source_inventory, Mapping)
+        or not isinstance(manifest_sources, Mapping)
+        or not isinstance(status, str)
     ):
         return False
-    return status != "complete" or set(slice_identities) == set(
-        corpus_identities
-    )
-
-
-def _corpus_source_partition_valid(
-    included_ids: object,
-    excluded_ids: object,
-    discovered_ids: object,
-) -> bool:
-    if not all(
-        isinstance(items, list)
-        for items in (included_ids, excluded_ids, discovered_ids)
-    ):
+    included_ids: set[str] = set()
+    included_identities: dict[str, object] = {}
+    for source_id, source in source_inventory.items():
+        if not isinstance(source_id, str) or not isinstance(source, dict):
+            return False
+        if source.get("disposition") == "included":
+            included_ids.add(source_id)
+            included_identities[source_id] = source.get("source_identity")
+        elif source.get("disposition") != "excluded":
+            return False
+    if not included_ids:
         return False
-    combined = [*included_ids, *excluded_ids]
-    return (
-        len(combined) == len(set(combined))
-        and len(discovered_ids) == len(set(discovered_ids))
-        and set(combined) == set(discovered_ids)
-    )
+    manifest_ids: set[str] = set()
+    for source_id, source in manifest_sources.items():
+        if (
+            not isinstance(source_id, str)
+            or not isinstance(source, dict)
+            or source_id not in included_identities
+            or source.get("source_identity") != included_identities[source_id]
+        ):
+            return False
+        manifest_ids.add(source_id)
+    if status == "complete":
+        return manifest_ids == included_ids
+    return manifest_ids.issubset(included_ids)
+
+
+def _corpus_source_partition_valid(source_inventory: object) -> bool:
+    if not isinstance(source_inventory, Mapping):
+        return False
+    included = 0
+    excluded = 0
+    for source_id, source in source_inventory.items():
+        if not isinstance(source_id, str) or not isinstance(source, dict):
+            return False
+        disposition = source.get("disposition")
+        if disposition == "included":
+            included += 1
+        elif disposition == "excluded":
+            excluded += 1
+        else:
+            return False
+    return included + excluded > 0 and included + excluded == len(source_inventory)
 
 
 def _schema_validate_pack_record(
@@ -2085,64 +2083,601 @@ def _validate_pack_processor_refs(
     processors: Mapping[str, Any],
     manifest_paths: frozenset[str],
 ) -> None:
-    identifiers = (
-        ("enumerator_id", "enumerator_version", "enumerator"),
-        ("transformer_id", "transformer_version", "transformer"),
-        ("tool_id", "tool_version", "extractor"),
+    ref_fields = (
+        "implementation_ref",
+        "configuration_ref",
+        "dependency_lock_ref",
     )
     observed = 0
-    for record in records:
-        for mapping in _walk_mappings(record):
-            ref_fields = (
-                "implementation_ref",
-                "configuration_ref",
-                "dependency_lock_ref",
+
+    def _verify_file_identity(
+        reference: object,
+        *,
+        label: str,
+        require_bytes: bool,
+    ) -> tuple[str, str, int | None]:
+        if not isinstance(reference, Mapping):
+            raise DistributionError(
+                f"{label}: official-document pack processor ref is invalid"
             )
-            present_refs = {field for field in ref_fields if field in mapping}
-            if not present_refs:
-                continue
-            if present_refs != set(ref_fields):
+        if require_bytes:
+            if set(reference) != {"path", "sha256", "bytes"}:
                 raise DistributionError(
-                    "official-document pack processor reference set is incomplete"
+                    f"{label}: official-document pack processor ref must be a "
+                    "fileIdentity with path/sha256/bytes"
                 )
-            identity = next(
-                (
-                    (mapping[id_field], mapping.get(version_field), kind)
-                    for id_field, version_field, kind in identifiers
-                    if id_field in mapping
-                ),
-                None,
+        elif set(reference) != {"path", "sha256"}:
+            raise DistributionError(
+                f"{label}: official-document pack processor ref is invalid"
             )
-            if identity is None:
-                continue
-            processor_id, version, kind = identity
-            if not isinstance(processor_id, str):
-                raise DistributionError(
-                    "official-document pack processor identity is invalid"
-                )
-            registered = processors.get(processor_id)
+        path = reference.get("path")
+        sha256 = reference.get("sha256")
+        reference_bytes = reference.get("bytes")
+        if not isinstance(path, str) or not isinstance(sha256, str):
+            raise DistributionError(
+                f"{label}: official-document pack processor ref is invalid"
+            )
+        if SHA256_RE.fullmatch(sha256) is None:
+            raise DistributionError(
+                f"{label}: official-document pack processor ref is invalid"
+            )
+        if require_bytes:
             if (
-                not isinstance(registered, dict)
-                or registered.get("kind") != kind
-                or registered.get("version") != version
+                not isinstance(reference_bytes, int)
+                or isinstance(reference_bytes, bool)
+                or reference_bytes < 1
             ):
                 raise DistributionError(
-                    f"official-document pack processor {processor_id} is not "
-                    "centrally registered"
+                    f"{label}: official-document pack processor ref bytes "
+                    "must be a positive integer"
                 )
-            for field in ref_fields:
-                if mapping.get(field) != registered.get(field):
+        elif reference_bytes is not None:
+            raise DistributionError(
+                f"{label}: official-document pack processor ref is invalid"
+            )
+        path = _safe_archive_path(path)
+        payload, _ = _read_regular_file(root / path, path)
+        if _sha256(payload) != sha256:
+            raise DistributionError(
+                f"{label}: official-document pack processor ref does not match "
+                "the canonical local artifact"
+            )
+        if require_bytes and len(payload) != reference_bytes:
+            raise DistributionError(
+                f"{label}: official-document pack processor ref bytes "
+                "must match local file size"
+            )
+        if path not in manifest_paths:
+            raise DistributionError(
+                f"{label}: referenced file is absent from the archive"
+            )
+        return (
+            path,
+            sha256,
+            int(reference_bytes) if reference_bytes is not None else None,
+        )
+
+    def _verify_source_file_ref(
+        reference: object,
+        *,
+        label: str,
+    ) -> tuple[str, str]:
+        path, digest, _ = _verify_file_identity(
+            reference,
+            label=label,
+            require_bytes=False,
+        )
+        return path, digest
+
+    def _resolve_processor_identity(
+        processor: Mapping[str, Any],
+        *,
+        expected_kind: str,
+        label: str,
+        require_registry: bool,
+    ) -> tuple[str, str, Mapping[str, Any] | None]:
+        if expected_kind == "enumerator":
+            id_field, version_field = "processor_id", "processor_version"
+        elif expected_kind == "transformer":
+            id_field, version_field = "processor_id", "processor_version"
+        elif expected_kind == "extractor":
+            id_field, version_field = "tool_id", "tool_version"
+        else:
+            raise DistributionError(f"{label}: unsupported processor kind")
+        if id_field not in processor or version_field not in processor:
+            raise DistributionError(
+                f"{label}: official-document pack processor identity is missing"
+            )
+        processor_id = processor.get(id_field)
+        version = processor.get(version_field)
+        if (
+            not isinstance(processor_id, str)
+            or not isinstance(version, str)
+            or not processor_id
+            or not version
+        ):
+            raise DistributionError(
+                f"{label}: official-document pack processor identity is invalid"
+            )
+        if not require_registry:
+            return processor_id, version, None
+        registered = processors.get(processor_id)
+        if (
+            not isinstance(registered, Mapping)
+            or registered.get("kind") != expected_kind
+            or not isinstance(registered.get("version"), str)
+            or registered.get("version") != version
+        ):
+            raise DistributionError(
+                f"official-document pack processor {processor_id} is not "
+                "centrally registered"
+            )
+        return processor_id, version, registered
+
+    def _iter_processors() -> Iterable[tuple[str, Mapping[str, Any], str, str | None]]:
+        for record in records:
+            if not isinstance(record, Mapping):
+                continue
+            contract_name = record.get("contract_name")
+            status = (
+                record.get("status")
+                if isinstance(record.get("status"), str)
+                else None
+            )
+            if contract_name == "official-corpus-manifest":
+                discovery = record.get("discovery")
+                if not isinstance(discovery, Mapping):
+                    continue
+                corpus_id = record.get("corpus_id")
+                base = (
+                    f"official-document-pack/corpus/{corpus_id}/discovery"
+                    if isinstance(corpus_id, str)
+                    else "official-document-pack/corpus/discovery"
+                )
+                processor = discovery.get("processor")
+                if isinstance(processor, Mapping):
+                    yield "enumerator", processor, f"{base}/processor", status
+            elif contract_name == "document-slice-manifest":
+                manifest_id = record.get("slice_manifest_id")
+                base = (
+                    f"official-document-pack/slice/{manifest_id}"
+                    if isinstance(manifest_id, str)
+                    else "official-document-pack/slice"
+                )
+                sources = record.get("sources")
+                if isinstance(sources, Mapping):
+                    for source_id, source in sources.items():
+                        if (
+                            not isinstance(source_id, str)
+                            or not isinstance(source, Mapping)
+                        ):
+                            continue
+                        processor = source.get("processor")
+                        if isinstance(processor, Mapping):
+                            yield (
+                                "transformer",
+                                processor,
+                                f"{base}/{source_id}/processor",
+                                status,
+                            )
+            elif contract_name == "skill-document-scope-inventory":
+                inventory_id = record.get("inventory_id")
+                enumeration = record.get("enumeration")
+                if not isinstance(enumeration, Mapping):
+                    continue
+                base = (
+                    f"official-document-pack/scope/{inventory_id}"
+                    if isinstance(inventory_id, str)
+                    else "official-document-pack/scope"
+                )
+                extractor = enumeration.get("extractor")
+                if isinstance(extractor, Mapping):
+                    yield "extractor", extractor, f"{base}/enumeration/extractor", status
+
+    def _validate_slice_processor(
+        processor: Mapping[str, Any],
+        *,
+        status: str | None,
+        require_registry: bool,
+        label: str,
+    ) -> None:
+        assurance = processor.get("assurance_mode")
+        if assurance not in {"unverified", "pinned", "attested"}:
+            raise DistributionError(
+                f"{label}: processor assurance_mode is unsupported"
+            )
+        if status == "complete" and assurance != "attested":
+            raise DistributionError(
+                f"{label}: processor complete status requires attested mode"
+            )
+        if any(field in processor for field in ref_fields):
+            raise DistributionError(
+                f"{label}: slice processor cannot use direct refs"
+            )
+        attestations = processor.get("attestations")
+        if assurance == "unverified":
+            if attestations not in (None, []):
+                raise DistributionError(
+                    f"{label}: unverified processor cannot include attestations"
+                )
+            if processor.get("attestation_id") is not None:
+                raise DistributionError(
+                    f"{label}: unverified processor cannot expose attestation_id"
+                )
+            return
+        if not isinstance(attestations, list) or not attestations:
+            raise DistributionError(
+                f"{label}: processor attestation set is required"
+            )
+        required_attestations = {"implementation", "configuration", "dependency-lock"}
+        allowed_attestation_kinds = {
+            "implementation",
+            "configuration",
+            "dependency-lock",
+            "execution",
+        }
+        seen_kinds: set[str] = set()
+        seen_attestation_ids: set[str] = set()
+        execution_artifact: tuple[str, str, int | None] | None = None
+        execution_attestation_id: str | None = None
+        for index, attestation in enumerate(attestations):
+            if not isinstance(attestation, Mapping):
+                raise DistributionError(
+                    f"{label}/attestations/{index}: processor attestation is "
+                    "malformed"
+                )
+            attestation_kind = attestation.get("kind")
+            attestation_id = attestation.get("attestation_id")
+            if (
+                not isinstance(attestation_kind, str)
+                or not attestation_kind
+                or attestation_kind not in allowed_attestation_kinds
+            ):
+                raise DistributionError(
+                    f"{label}/attestations/{index}: processor attestation kind "
+                    "is malformed"
+                )
+            if attestation_kind in seen_kinds:
+                raise DistributionError(
+                    f"{label}/attestations/{index}: processor attestation kind "
+                    "must be unique"
+                )
+            if not isinstance(attestation_id, str) or not attestation_id:
+                raise DistributionError(
+                    f"{label}/attestations/{index}: processor attestation_id "
+                    "must be non-empty"
+                )
+            if attestation_id in seen_attestation_ids:
+                raise DistributionError(
+                    f"{label}/attestations/{index}: processor attestation_id "
+                    "must be unique"
+                )
+            seen_kinds.add(attestation_kind)
+            seen_attestation_ids.add(attestation_id)
+            artifact = attestation.get("artifact")
+            path, digest, artifact_bytes = _verify_file_identity(
+                artifact,
+                label=f"{label}/attestations/{index}/artifact",
+                require_bytes=True,
+            )
+            if attestation_kind in required_attestations and require_registry:
+                expected_key = f"{attestation_kind.replace('-', '_')}_ref"
+                expected = _resolve_processor_identity(
+                    processor,
+                    expected_kind="transformer",
+                    label=label,
+                    require_registry=True,
+                )[2]
+                if expected is None:
                     raise DistributionError(
-                        f"official-document pack processor {processor_id} "
-                        f"{field} differs from the active registry"
+                        f"{label}: processor has no central registration"
                     )
-                _verify_local_hash_ref(
-                    root,
-                    mapping.get(field),
-                    label=f"official-document-pack/{processor_id}/{field}",
-                    manifest_paths=manifest_paths,
+                expected_ref = expected.get(expected_key)
+                if (
+                    not isinstance(expected_ref, Mapping)
+                    or expected_ref.get("path") != path
+                    or expected_ref.get("sha256") != digest
+                ):
+                    raise DistributionError(
+                        f"{label}/attestations/{index}/artifact: "
+                        "processor attestation artifact does not match registry"
+                    )
+            if attestation_kind == "execution":
+                execution_artifact = (path, digest, artifact_bytes)
+                execution_attestation_id = attestation_id
+        missing = required_attestations.difference(seen_kinds)
+        if missing:
+            raise DistributionError(
+                f"{label}: processor attestations are incomplete"
+            )
+        if assurance != "attested":
+            return
+        if execution_artifact is None or execution_attestation_id is None:
+            raise DistributionError(
+                f"{label}: attested processor requires execution attestation"
+            )
+        if not require_registry:
+            raise DistributionError(
+                f"{label}: processor attested mode requires central registration"
+            )
+        processor_id, _, registered = _resolve_processor_identity(
+            processor,
+            expected_kind="transformer",
+            label=label,
+            require_registry=True,
+        )
+        attestation_runs = registered.get("attested_runs")
+        if not isinstance(attestation_runs, list):
+            raise DistributionError(
+                f"{label}: processor attested assurance requires "
+                "attested_runs in registry"
+            )
+        input_sha256 = processor.get("input_sha256")
+        output_sha256 = processor.get("output_sha256")
+        if (
+            not isinstance(input_sha256, str)
+            or SHA256_RE.fullmatch(input_sha256) is None
+            or not isinstance(output_sha256, str)
+            or SHA256_RE.fullmatch(output_sha256) is None
+        ):
+            raise DistributionError(
+                f"{label}: processor input/output identity is malformed"
+            )
+        _validate_single_attested_run(
+            label=label,
+            attestation_runs=attestation_runs,
+            attestation_id=execution_attestation_id,
+            input_sha256=input_sha256,
+            output_sha256=output_sha256,
+            execution_artifact=execution_artifact,
+        )
+        return
+
+    def _validate_single_attested_run(
+        *,
+        label: str,
+        attestation_runs: list[object],
+        attestation_id: str,
+        input_sha256: str,
+        output_sha256: str,
+        execution_artifact: tuple[str, str, int | None] | None = None,
+    ) -> None:
+        expected_run_keys = {
+            "attestation_id",
+            "input_sha256",
+            "output_sha256",
+            "attestation_ref",
+        }
+        matches: list[tuple[str, str]] = []
+        for run in attestation_runs:
+            if not isinstance(run, Mapping):
+                raise DistributionError(f"{label}: attested_runs must contain mappings")
+            if set(run.keys()) != expected_run_keys:
+                raise DistributionError(
+                    f"{label}: central run must include exactly "
+                    "attestation_id, input_sha256, output_sha256, attestation_ref"
+                )
+            if (
+                run.get("attestation_id") != attestation_id
+                or run.get("input_sha256") != input_sha256
+                or run.get("output_sha256") != output_sha256
+            ):
+                continue
+            match_artifact = _verify_file_identity(
+                run.get("attestation_ref"),
+                label=f"{label}/attestation-ref",
+                require_bytes=False,
+            )
+            matches.append((match_artifact[0], match_artifact[1]))
+            if (
+                execution_artifact is not None
+                and (
+                    match_artifact[0] != execution_artifact[0]
+                    or match_artifact[1] != execution_artifact[1]
+                )
+            ):
+                raise DistributionError(
+                    f"{label}: execution artifact must match central run "
+                    "attestation_ref"
+                )
+        if not matches:
+            raise DistributionError(
+                f"{label}: attested processor has no matching central run"
+            )
+        if len(matches) != 1:
+            raise DistributionError(
+                f"{label}: attested processor has duplicate central runs"
+            )
+        if execution_artifact is not None and (
+            matches[0][0] != execution_artifact[0]
+            or matches[0][1] != execution_artifact[1]
+        ):
+            raise DistributionError(
+                f"{label}: execution artifact must match central run attestation_ref"
+            )
+
+    def _validate_non_slice_processor(
+        processor: Mapping[str, Any],
+        *,
+        expected_kind: str,
+        status: str | None,
+        label: str,
+    ) -> None:
+        if expected_kind == "enumerator":
+            assurance_mode = processor.get("assurance_mode")
+            if assurance_mode not in {"unverified", "pinned", "attested"}:
+                raise DistributionError(
+                    f"{label}: processor assurance_mode is unsupported"
+                )
+            if assurance_mode == "unverified":
+                if processor.get("attestation_id") is not None:
+                    raise DistributionError(
+                        f"{label}: unverified processor cannot expose attestation_id"
+                    )
+                for field in ref_fields:
+                    if processor.get(field) is not None:
+                        raise DistributionError(
+                            f"{label}: unverified processor cannot expose direct refs"
+                        )
+                if status == "complete":
+                    raise DistributionError(
+                        f"{label}: processor cannot claim complete under unverified mode"
+                    )
+                return
+            _, _, registered = _resolve_processor_identity(
+                processor,
+                expected_kind=expected_kind,
+                label=label,
+                require_registry=True,
+            )
+            for field in ref_fields:
+                path, digest, _ = _verify_file_identity(
+                    processor.get(field),
+                    label=f"{label}/{field}",
+                    require_bytes=True,
+                )
+                expected = registered.get(field) if registered is not None else None
+                if (
+                    not isinstance(expected, Mapping)
+                    or expected.get("path") != path
+                    or expected.get("sha256") != digest
+                ):
+                    raise DistributionError(
+                        f"{label}: {field} differs from the active registry"
+                    )
+            if assurance_mode == "pinned":
+                if status == "complete":
+                    raise DistributionError(
+                        f"{label}: processor cannot claim complete under pinned mode"
+                    )
+                return
+            attestation_id = processor.get("attestation_id")
+            if not isinstance(attestation_id, str) or not attestation_id:
+                raise DistributionError(
+                    f"{label}: attested processor requires attestation_id"
+                )
+            attested_runs = registered.get("attested_runs")
+            if not isinstance(attested_runs, list):
+                raise DistributionError(
+                    f"{label}: processor attested assurance requires "
+                    "attested_runs in registry"
+                )
+            input_sha256 = processor.get("input_sha256")
+            output_sha256 = processor.get("output_sha256")
+            if (
+                not isinstance(input_sha256, str)
+                or SHA256_RE.fullmatch(input_sha256) is None
+                or not isinstance(output_sha256, str)
+                or SHA256_RE.fullmatch(output_sha256) is None
+            ):
+                raise DistributionError(
+                    f"{label}: processor input/output identity is malformed"
+                )
+            _validate_single_attested_run(
+                label=label,
+                attestation_runs=attested_runs,
+                attestation_id=attestation_id,
+                input_sha256=input_sha256,
+                output_sha256=output_sha256,
+            )
+            return
+        trust_mode = processor.get("trust_mode")
+        if trust_mode not in {"central-pinned", "platform-attested"}:
+            raise DistributionError(
+                f"{label}: processor trust_mode is unsupported"
+            )
+        _, _, registered = _resolve_processor_identity(
+            processor,
+            expected_kind="extractor",
+            label=label,
+            require_registry=True,
+        )
+        for field in ref_fields:
+            path, digest, _ = _verify_file_identity(
+                processor.get(field),
+                label=f"{label}/{field}",
+                require_bytes=False,
+            )
+            expected = registered.get(field) if registered is not None else None
+            if (
+                not isinstance(expected, Mapping)
+                or expected.get("path") != path
+                or expected.get("sha256") != digest
+            ):
+                raise DistributionError(
+                    f"{label}: {field} differs from the active registry"
+                )
+        if trust_mode == "central-pinned":
+            if processor.get("attestation_id") is not None:
+                raise DistributionError(
+                    f"{label}: central-pinned processor cannot expose attestation_id"
+                )
+            if status == "complete":
+                raise DistributionError(
+                    f"{label}: processor complete status requires platform attestation"
+                )
+            return
+        attestation_id = processor.get("attestation_id")
+        if not isinstance(attestation_id, str) or not attestation_id:
+            raise DistributionError(
+                f"{label}: platform-attested processor requires attestation_id"
+            )
+        attested_runs = registered.get("attested_runs")
+        if not isinstance(attested_runs, list):
+            raise DistributionError(
+                f"{label}: processor platform-attested assurance requires "
+                "attested_runs in registry"
+            )
+        input_sha256 = processor.get("input_sha256")
+        output_sha256 = processor.get("output_sha256")
+        if (
+            not isinstance(input_sha256, str)
+            or SHA256_RE.fullmatch(input_sha256) is None
+            or not isinstance(output_sha256, str)
+            or SHA256_RE.fullmatch(output_sha256) is None
+        ):
+            raise DistributionError(
+                f"{label}: processor input/output identity is malformed"
+            )
+        _validate_single_attested_run(
+            label=label,
+            attestation_runs=attested_runs,
+            attestation_id=attestation_id,
+            input_sha256=input_sha256,
+            output_sha256=output_sha256,
+        )
+        return
+
+    for expected_kind, processor, label, status in _iter_processors():
+        if expected_kind == "transformer":
+            assurance = processor.get("assurance_mode")
+            if assurance not in {"unverified", "pinned", "attested"}:
+                raise DistributionError(
+                    f"{label}: processor assurance_mode is unsupported"
+                )
+            _validate_slice_processor(
+                processor,
+                status=status,
+                require_registry=assurance != "unverified",
+                label=label,
+            )
+            if assurance != "unverified":
+                _resolve_processor_identity(
+                    processor,
+                    expected_kind=expected_kind,
+                    label=label,
+                    require_registry=True,
                 )
             observed += 1
+            continue
+        _validate_non_slice_processor(
+            processor,
+            expected_kind=expected_kind,
+            status=status,
+            label=label,
+        )
+        observed += 1
+
     if observed == 0:
         raise DistributionError(
             "official-document pack contains no governed processor references"
@@ -2220,15 +2755,14 @@ def _portable_official_document_pack_audit(
     source_registry_digests: Mapping[str, str],
     externalized_receipts: Mapping[str, Mapping[str, object]],
 ) -> dict[str, object]:
-    """Validate portable pack semantics without redistributing blocked bodies.
+    """Validate portable pack semantics with technical canonical-record closure.
 
-    This is deliberately narrower than the full repository validator.  It
-    validates every packaged JSON record against the five canonical schemas,
-    closes all content-addressed record references, binds the records to exact
-    source-registry snapshots and active authority/processor metadata, and
-    verifies every included local evidence byte.  Legacy official bodies that
-    release policy excludes remain explicit externalized dependencies, so the
-    portable result cannot exceed ``partial``.
+    Validate against four canonical schemas (official corpus, slice manifest,
+    scope inventory, and coverage record), bind all content-addressed references
+    to exact canonical registry and local-byte identities, and track explicit
+    externalization receipts for excluded bodies. The portable result remains
+    explicitly technical and cannot exceed ``partial`` unless every required
+    source record and processor binding is complete and locally replayable.
     """
 
     try:
@@ -2321,22 +2855,8 @@ def _portable_official_document_pack_audit(
             "official-document consumer registry is not the exact active "
             "subset of its source snapshot"
         )
-    bindings_by_id = {
-        binding["binding_id"]: binding
-        for binding in source_bindings
-        if isinstance(binding, dict)
-        and isinstance(binding.get("binding_id"), str)
-    }
-    active_binding_ids = {
-        binding.get("binding_id")
-        for binding in active_bindings
-        if isinstance(binding, dict)
-    }
     source_skill_digest = source_registry_digests[
         _source_snapshot_path("registry/skill-registry.yaml")
-    ]
-    source_consumer_digest = source_registry_digests[
-        _source_snapshot_path("registry/official-document-consumers.yaml")
     ]
     builder_lock_path = "contracts/official-document-pack-builder-lock.json"
     try:
@@ -2398,7 +2918,7 @@ def _portable_official_document_pack_audit(
                 f"{skill_id}: official-document pack record registry is invalid"
             )
         filenames: dict[str, list[str]] = {}
-        for family in ("corpora", "slice_manifests", "license_reviews"):
+        for family in ("corpora", "slice_manifests"):
             values = registrations.get(family)
             if not isinstance(values, list) or not values:
                 raise DistributionError(
@@ -2479,7 +2999,30 @@ def _portable_official_document_pack_audit(
                     canonical_producer = producer
                 indexed[record_id] = (value, _sha256(raw))
                 all_records.append(value)
-                if value.get("status") != "complete":
+                if family == "coverage":
+                    cov_status_vector = value.get("status")
+                    if (
+                        not isinstance(cov_status_vector, Mapping)
+                        or set(cov_status_vector) != {
+                            "overall",
+                            "corpus",
+                            "slices",
+                            "scope",
+                            "mappings",
+                        }
+                        or not all(
+                            isinstance(value, str)
+                            and value in {"blocked", "partial", "complete"}
+                            for value in cov_status_vector.values()
+                        )
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document pack coverage "
+                            "status object is invalid"
+                        )
+                    if cov_status_vector["overall"] != "complete":
+                        incomplete_record_count += 1
+                elif value.get("status") != "complete":
                     incomplete_record_count += 1
             family_records[family] = indexed
 
@@ -2507,7 +3050,7 @@ def _portable_official_document_pack_audit(
             raise DistributionError(
                 f"{skill_id}: official-document scope catalog is not portable"
             )
-        seed_inputs: dict[tuple[str, str], dict[str, str]] = {}
+        seed_catalog_refs: dict[tuple[str, str], dict[str, str]] = {}
         providers = seed.get("providers")
         if not isinstance(providers, list) or not providers:
             raise DistributionError(
@@ -2525,7 +3068,7 @@ def _portable_official_document_pack_audit(
                 or not isinstance(source_ref, dict)
                 or not isinstance(source_ref.get("path"), str)
                 or not isinstance(source_ref.get("sha256"), str)
-                or pair in seed_inputs
+                or pair in seed_catalog_refs
             ):
                 raise DistributionError(
                     f"{skill_id}: official-document pack seed provider "
@@ -2542,7 +3085,7 @@ def _portable_official_document_pack_audit(
                     f"{skill_id}: official-document compact provider catalog "
                     "is not portable"
                 )
-            seed_inputs[pair] = {
+            seed_catalog_refs[pair] = {
                 "path": source_ref["path"],
                 "sha256": source_ref["sha256"],
             }
@@ -2596,101 +3139,275 @@ def _portable_official_document_pack_audit(
                 f"{skill_id}: official-document scope extractor receipt "
                 "does not bind its canonical input and output"
             )
-        if coverage.get("declared_scope") != scope.get("subjects"):
-            raise DistributionError(
-                f"{skill_id}: official-document pack declared scope differs "
-                "from the canonical inventory"
-            )
         scope_subjects = scope.get("subjects")
         coverage_mappings = coverage.get("mappings")
         if (
             not isinstance(scope_subjects, list)
-            or not isinstance(coverage_mappings, list)
+            or not isinstance(coverage_mappings, Mapping)
         ):
             raise DistributionError(
                 f"{skill_id}: official-document subject mappings are invalid"
             )
-        scope_subject_ids = [
-            subject.get("subject_id")
-            for subject in scope_subjects
-            if isinstance(subject, dict)
-        ]
+        scope_subjects_by_id: dict[str, dict[str, Any]] = {}
+        for subject_index, subject in enumerate(scope_subjects):
+            if not isinstance(subject, Mapping):
+                raise DistributionError(
+                    f"{skill_id}: official-document subject {subject_index} "
+                    "is invalid"
+                )
+            subject_id = subject.get("subject_id")
+            if (
+                not isinstance(subject_id, str)
+                or subject_id in scope_subjects_by_id
+            ):
+                raise DistributionError(
+                    f"{skill_id}: official-document subject {subject_index} "
+                    "has an invalid or duplicate subject id"
+                )
+            scope_subjects_by_id[subject_id] = subject
+        scope_subject_ids = list(scope_subjects_by_id)
         mapping_subject_ids = [
-            mapping.get("subject_id")
-            for mapping in coverage_mappings
-            if isinstance(mapping, dict)
+            subject_id
+            for subject_id in coverage_mappings
+            if isinstance(subject_id, str)
         ]
         if (
             len(scope_subject_ids) != len(scope_subjects)
             or len(mapping_subject_ids) != len(coverage_mappings)
-            or len(scope_subject_ids) != len(set(scope_subject_ids))
             or len(mapping_subject_ids) != len(set(mapping_subject_ids))
+            or len(scope_subject_ids) != len(set(scope_subject_ids))
             or set(scope_subject_ids) != set(mapping_subject_ids)
         ):
             raise DistributionError(
                 f"{skill_id}: official-document coverage does not partition "
                 "the exact declared subject set"
             )
-        subjects_by_id = {
-            subject["subject_id"]: subject for subject in scope_subjects
-        }
-        for mapping_index, mapping in enumerate(coverage_mappings):
-            subject = subjects_by_id[mapping["subject_id"]]
+        status_rank = {"blocked": 0, "partial": 1, "complete": 2}
+        slice_subject_ids_by_ref: dict[tuple[str, str], set[str]] = {}
+        for (
+            manifest_id,
+            (slice_manifest, _),
+        ) in family_records["slice_manifests"].items():
+            slice_sources = (
+                slice_manifest.get("sources")
+                if isinstance(slice_manifest, Mapping)
+                else None
+            )
+            if not isinstance(slice_sources, Mapping):
+                continue
+            for slice_source in slice_sources.values():
+                if not isinstance(slice_source, Mapping):
+                    continue
+                for item in slice_source.get("slices", []):
+                    if not isinstance(item, Mapping):
+                        continue
+                    slice_id = item.get("slice_id")
+                    if not isinstance(slice_id, str):
+                        continue
+                    subject_ids = item.get("subject_ids")
+                    if isinstance(subject_ids, list):
+                        slice_subject_ids_by_ref[(manifest_id, slice_id)] = {
+                            subject_id
+                            for subject_id in subject_ids
+                            if isinstance(subject_id, str)
+                        }
+                    else:
+                        slice_subject_ids_by_ref[(manifest_id, slice_id)] = set()
+        for mapping_index, (subject_id, mapping) in enumerate(
+            coverage_mappings.items()
+        ):
+            if not isinstance(subject_id, str):
+                raise DistributionError(
+                    f"{skill_id}: official-document mapping {mapping_index} "
+                    "has an invalid subject id"
+                )
+            subject = scope_subjects_by_id.get(subject_id)
+            if not isinstance(mapping, Mapping):
+                raise DistributionError(
+                    f"{skill_id}: official-document mapping {mapping_index} "
+                    "is invalid"
+                )
+            if subject is None:
+                raise DistributionError(
+                    f"{skill_id}: official-document mapping {mapping_index} "
+                    f"references unknown subject {subject_id}"
+                )
             evidence_class = subject.get("evidence_class")
-            coverage_status = mapping.get("coverage_status")
+            mapping_status = mapping.get("mapping_status")
+            disposition = mapping.get("disposition")
+            slice_refs = mapping.get("slice_refs")
+            rationale = mapping.get("rationale")
+            limitations = mapping.get("limitations")
+            if not isinstance(mapping_status, str) or mapping_status not in status_rank:
+                raise DistributionError(
+                    f"{skill_id}: official-document mapping {mapping_index} "
+                    "has invalid mapping status"
+                )
+            if not isinstance(disposition, str) or not isinstance(slice_refs, list):
+                raise DistributionError(
+                    f"{skill_id}: official-document mapping {mapping_index} "
+                    "has invalid coverage logic"
+                )
             if evidence_class == "official-provider-required":
                 expected_disposition = {
                     "complete": "covered",
                     "partial": "partial",
                     "blocked": "blocked",
-                }.get(coverage_status)
-                if (
-                    mapping.get("official_disposition")
-                    != expected_disposition
-                    or mapping.get("local_evidence_refs") != []
-                    or (
-                        coverage_status in {"complete", "partial"}
-                        and not mapping.get("slice_refs")
+                }.get(mapping_status)
+                if disposition != expected_disposition:
+                    raise DistributionError(
+                        f"{skill_id}: official-document mapping {mapping_index} "
+                        "has invalid coverage logic"
                     )
-                    or (
-                        coverage_status == "blocked"
-                        and (
-                            not mapping.get("rationale")
-                            or not mapping.get("limitations")
+                if mapping_status == "complete":
+                    if not slice_refs or rationale is not None:
+                        raise DistributionError(
+                            f"{skill_id}: official-document mapping {mapping_index} "
+                            "has invalid coverage logic"
                         )
-                    )
+                    if not isinstance(limitations, list) or limitations:
+                        raise DistributionError(
+                            f"{skill_id}: official-document mapping {mapping_index} "
+                            "has invalid limitations"
+                        )
+                elif mapping_status == "partial":
+                    if not slice_refs:
+                        raise DistributionError(
+                            f"{skill_id}: official-document mapping {mapping_index} "
+                            "has invalid coverage logic"
+                        )
+                    if (
+                        not isinstance(rationale, str)
+                        or not rationale
+                        or not isinstance(limitations, list)
+                        or not limitations
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document mapping {mapping_index} "
+                            "has invalid coverage logic"
+                        )
+                else:
+                    if slice_refs:
+                        raise DistributionError(
+                            f"{skill_id}: official-document mapping {mapping_index} "
+                            "has invalid coverage logic"
+                        )
+                    if (
+                        not isinstance(rationale, str)
+                        or not rationale
+                        or not isinstance(limitations, list)
+                        or not limitations
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document mapping {mapping_index} "
+                            "has invalid coverage logic"
+                        )
+            elif evidence_class is not None and evidence_class != "official-provider-required":
+                if (
+                    mapping_status != "complete"
+                    or disposition not in {"not-applicable", "excluded"}
+                    or slice_refs
+                    or not isinstance(rationale, str)
+                    or not rationale
+                    or not isinstance(limitations, list)
+                    or limitations
                 ):
                     raise DistributionError(
-                        f"{skill_id}: official-document mapping "
-                        f"{mapping_index} confuses official and local evidence"
+                        f"{skill_id}: official-document mapping {mapping_index} "
+                        "has invalid coverage logic"
                     )
-            elif (
-                mapping.get("official_disposition")
-                not in {"not-applicable", "excluded"}
-                or mapping.get("slice_refs") != []
-                or not mapping.get("local_evidence_refs")
-                or not mapping.get("rationale")
-            ):
+            else:
                 raise DistributionError(
                     f"{skill_id}: official-document mapping {mapping_index} "
-                    "confuses local and official evidence"
+                    "has invalid evidence class"
                 )
+            for ref_index, reference in enumerate(slice_refs):
+                if not isinstance(reference, Mapping):
+                    raise DistributionError(
+                        f"{skill_id}: official-document mapping {mapping_index}/{ref_index} "
+                        "has invalid slice reference"
+                    )
+                slice_manifest_id = reference.get("slice_manifest_id")
+                slice_id = reference.get("slice_id")
+                if (
+                    not isinstance(slice_manifest_id, str)
+                    or not isinstance(slice_id, str)
+                ):
+                    raise DistributionError(
+                        f"{skill_id}: official-document mapping {mapping_index}/{ref_index} "
+                        "has invalid slice reference"
+                    )
+                slice_subject_ids = slice_subject_ids_by_ref.get(
+                    (slice_manifest_id, slice_id)
+                )
+                if slice_subject_ids is None:
+                    raise DistributionError(
+                        f"{skill_id}: official-document pack coverage slice "
+                        f"reference {mapping_index}/{ref_index} does not resolve"
+                    )
+                if subject_id not in slice_subject_ids:
+                    raise DistributionError(
+                        f"{skill_id}: official-document mapping {mapping_index}/{ref_index} "
+                        "references a slice missing current subject"
+                    )
         status_rank = {"blocked": 0, "partial": 1, "complete": 2}
-        component_statuses = [
-            record.get("status")
-            for family, records in family_records.items()
-            if family != "coverage"
-            for record, _ in records.values()
-        ] + [
-            mapping.get("coverage_status")
-            for mapping in coverage_mappings
-        ]
+        status_dimension_vector = coverage.get("status")
         if (
-            not component_statuses
-            or any(status not in status_rank for status in component_statuses)
-            or coverage.get("status") not in status_rank
-            or status_rank[coverage["status"]]
-            > min(status_rank[status] for status in component_statuses)
+            not isinstance(status_dimension_vector, Mapping)
+            or set(status_dimension_vector) != {
+                "overall",
+                "corpus",
+                "slices",
+                "scope",
+                "mappings",
+            }
+            or not isinstance(status_dimension_vector.get("overall"), str)
+            or status_dimension_vector["overall"] not in status_rank
+            or status_dimension_vector["corpus"] not in status_rank
+            or status_dimension_vector["slices"] not in status_rank
+            or status_dimension_vector["scope"] not in status_rank
+            or status_dimension_vector["mappings"] not in status_rank
+        ):
+            raise DistributionError(
+                f"{skill_id}: official-document coverage status is invalid"
+            )
+        corpus_statuses = [
+            record.get("status")
+            for record, _ in family_records["corpora"].values()
+        ]
+        slice_statuses = [
+            record.get("status")
+            for record, _ in family_records["slice_manifests"].values()
+        ]
+        mapping_statuses = [
+            mapping.get("mapping_status")
+            for mapping in coverage_mappings.values()
+        ]
+        scope_status = scope.get("status")
+        if scope_status is None:
+            raise DistributionError(
+                f"{skill_id}: official-document scope status is missing"
+            )
+        if (
+            any(status not in status_rank for status in corpus_statuses)
+            or any(status not in status_rank for status in slice_statuses)
+            or any(status not in status_rank for status in mapping_statuses)
+            or scope_status not in status_rank
+            or status_rank[status_dimension_vector["corpus"]]
+            > min(status_rank[status] for status in corpus_statuses)
+            or status_rank[status_dimension_vector["slices"]]
+            > min(status_rank[status] for status in slice_statuses)
+            or status_rank[status_dimension_vector["scope"]]
+            > status_rank[scope_status]
+            or status_rank[status_dimension_vector["mappings"]]
+            > min(status_rank[status] for status in mapping_statuses)
+            or status_rank[status_dimension_vector["overall"]]
+            > min(
+                status_rank[status_dimension_vector["corpus"]],
+                status_rank[status_dimension_vector["slices"]],
+                status_rank[status_dimension_vector["scope"]],
+                status_rank[status_dimension_vector["mappings"]],
+            )
         ):
             raise DistributionError(
                 f"{skill_id}: official-document coverage status overclaims "
@@ -2710,18 +3427,12 @@ def _portable_official_document_pack_audit(
             label=f"{skill_id}/coverage/slice_manifest_refs",
         )
         _record_ref_set(
-            coverage.get("license_review_refs"),
-            id_field="license_review_id",
-            records=family_records["license_reviews"],
-            label=f"{skill_id}/coverage/license_review_refs",
-        )
-        _record_ref_set(
             [coverage.get("scope_inventory_ref")],
             id_field="inventory_id",
             records=family_records["scope_inventory"],
             label=f"{skill_id}/coverage/scope_inventory_ref",
         )
-        for family in ("slice_manifests", "license_reviews"):
+        for family in ("slice_manifests",):
             for record, _ in family_records[family].values():
                 _single_record_ref(
                     record.get("corpus_ref"),
@@ -2730,7 +3441,7 @@ def _portable_official_document_pack_audit(
                     label=f"{skill_id}/{family}/corpus_ref",
                 )
         corpus_ids = set(family_records["corpora"])
-        for family in ("slice_manifests", "license_reviews"):
+        for family in ("slice_manifests",):
             referenced_corpora = [
                 record["corpus_ref"]["corpus_id"]
                 for record, _ in family_records[family].values()
@@ -2743,140 +3454,762 @@ def _portable_official_document_pack_audit(
                     f"{skill_id}: official-document pack {family} does not "
                     "partition the exact corpus set"
                 )
-        for manifest, _ in family_records["slice_manifests"].values():
-            corpus = family_records["corpora"][
-                manifest["corpus_ref"]["corpus_id"]
-            ][0]
-            included_sources = corpus.get("included_sources")
+        def _source_identity_projection(
+            source_identity: object,
+            *,
+            label: str,
+        ) -> tuple[str, int]:
+            projection = validate_official_document_coverage._slice_source_identity_projection(
+                source_identity
+            )
+            if projection is None:
+                raise DistributionError(
+                    f"{label}: official-document source identity is invalid"
+                )
+            return projection
+
+        def _loss_accounting_entries(
+            accounting: object,
+            *,
+            label: str,
+            closure_dimension: str,
+        ) -> tuple[str, set[str], dict[str, dict[str, Any]]]:
+            if not isinstance(accounting, Mapping):
+                raise DistributionError(
+                    f"{label}: official-document {closure_dimension} is "
+                    "not an exact object"
+                )
+            closure_status = accounting.get("closure_status")
+            entries = accounting.get("entries")
+            if (
+                closure_status not in {"blocked", "partial", "complete"}
+                or not isinstance(entries, list)
+            ):
+                raise DistributionError(
+                    f"{label}: official-document {closure_dimension} "
+                    "closure_status/entries is invalid"
+                )
+            entry_ids: set[str] = set()
+            loss_entries: dict[str, dict[str, Any]] = {}
+            for entry_index, raw_entry in enumerate(entries):
+                if not isinstance(raw_entry, Mapping):
+                    raise DistributionError(
+                        f"{label}: official-document {closure_dimension} "
+                        f"entry {entry_index} is invalid"
+                    )
+                loss_id = raw_entry.get("loss_id")
+                if not isinstance(loss_id, str) or not loss_id:
+                    raise DistributionError(
+                        f"{label}: official-document {closure_dimension} "
+                        f"entry {entry_index} has invalid loss_id"
+                    )
+                if loss_id in entry_ids:
+                    raise DistributionError(
+                        f"{label}: official-document {closure_dimension} "
+                        f"loss_id {loss_id} is duplicated"
+                    )
+                if closure_status == "complete":
+                    disposition = raw_entry.get("disposition")
+                    severity = raw_entry.get("severity")
+                    if disposition == "unresolved" or severity == "blocking":
+                        raise DistributionError(
+                            f"{label}: official-document {closure_dimension} "
+                            "contains open/blocking losses in complete mode"
+                        )
+                entry_ids.add(loss_id)
+                loss_entries[loss_id] = dict(raw_entry)
+            return closure_status, entry_ids, loss_entries
+
+        def _subject_id_set(value: object, *, label: str) -> set[str]:
+            if not isinstance(value, list):
+                raise DistributionError(
+                    f"{label}: official-document subject id list is invalid"
+                )
+            subjects: set[str] = set()
+            for subject_id in value:
+                if not isinstance(subject_id, str) or not subject_id:
+                    raise DistributionError(
+                        f"{label}: official-document subject id is invalid"
+                    )
+                subjects.add(subject_id)
+            return subjects
+
+        slice_subject_ids_by_ref: dict[tuple[str, str], set[str]] = {}
+        slice_ids: set[tuple[str, str]] = set()
+        observed_slice_ids: set[str] = set()
+
+        for manifest_id, (manifest, _) in family_records[
+            "slice_manifests"
+        ].items():
+            corpus_ref = manifest.get("corpus_ref")
+            if not isinstance(corpus_ref, Mapping):
+                raise DistributionError(
+                    f"{skill_id}: official-document slice manifest does not "
+                    "declare a valid corpus_ref"
+                )
+            _single_record_ref(
+                corpus_ref,
+                id_field="corpus_id",
+                records=family_records["corpora"],
+                label=f"{skill_id}/slice_manifests/{manifest_id}/corpus_ref",
+            )
+            corpus_id = corpus_ref.get("corpus_id")
+            if not isinstance(corpus_id, str):
+                raise DistributionError(
+                    f"{skill_id}: official-document slice manifest corpus id "
+                    "is invalid"
+                )
+            corpus = family_records["corpora"].get(corpus_id)
+            if corpus is None:
+                raise DistributionError(
+                    f"{skill_id}: official-document slice manifest refers to an "
+                    "absent corpus id"
+                )
+            corpus_authority_id = corpus[0].get("authority_id")
+            source_authority = (
+                authorities.get(corpus_authority_id)
+                if isinstance(corpus_authority_id, str)
+                else None
+            )
+            corpus_inventory = corpus[0].get("source_inventory")
             manifest_sources = manifest.get("sources")
             if (
-                not isinstance(included_sources, list)
-                or not isinstance(manifest_sources, list)
+                not isinstance(corpus_inventory, Mapping)
+                or not isinstance(manifest_sources, Mapping)
             ):
                 raise DistributionError(
                     f"{skill_id}: official-document slice source inventory "
                     "is invalid"
                 )
-            if not _slice_source_inventory_valid(
-                included_sources,
-                manifest_sources,
-                status=manifest.get("status"),
-            ):
-                raise DistributionError(
-                    f"{skill_id}: official-document slice sources do not "
-                    "exactly bind corpus source identities"
-                )
-            for source_index, source in enumerate(manifest_sources):
-                transformer = source.get("transformer")
-                source_identity = source.get("source_identity")
-                projection = {
-                    key: source.get(key)
-                    for key in (
-                        "slices",
-                        "reviewed_overlaps",
-                        "preserved_ranges",
-                        "reviewed_orphans",
-                        "loss_ledger",
-                    )
-                }
+
+            included_source_ids: set[str] = set()
+            included_source_identities: dict[str, dict[str, Any]] = {}
+            included_subject_ids_by_source: dict[str, set[str]] = {}
+            expected_source_loss_ids_by_id: dict[str, set[str]] = {}
+            for source_id, source_entry in corpus_inventory.items():
                 if (
-                    not isinstance(transformer, dict)
-                    or not isinstance(source_identity, dict)
-                    or transformer.get("input_raw_sha256")
-                    != source_identity.get("raw_sha256")
-                    or transformer.get("output_sha256")
-                    != _canonical_projection_sha256(projection)
+                    not isinstance(source_id, str)
+                    or not isinstance(source_entry, Mapping)
                 ):
                     raise DistributionError(
-                        f"{skill_id}: official-document slice transformer "
-                        f"receipt {source_index} does not bind its canonical "
-                        "input and output"
+                        f"{skill_id}: official-document corpus source inventory "
+                        "is malformed"
                     )
-        for review, _ in family_records["license_reviews"].values():
-            corpus = family_records["corpora"][
-                review["corpus_ref"]["corpus_id"]
-            ][0]
-            if review.get("authority_id") != corpus.get("authority_id"):
+                disposition = source_entry.get("disposition")
+                if disposition == "included":
+                    source_identity = source_entry.get("source_identity")
+                    if not isinstance(source_identity, Mapping):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus "
+                            "included source entry identity is invalid"
+                        )
+                    included_source_ids.add(source_id)
+                    included_source_identities[source_id] = source_entry[
+                        "source_identity"
+                    ]
+                    loss_ids = source_entry.get("loss_ids")
+                    if not isinstance(loss_ids, list):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            "loss_ids is invalid"
+                        )
+                    normalized_loss_ids: set[str] = set()
+                    for loss_id in loss_ids:
+                        if not isinstance(loss_id, str) or not loss_id:
+                            raise DistributionError(
+                                f"{skill_id}: official-document corpus source "
+                                f"{source_id} loss_id is invalid"
+                            )
+                        if loss_id in normalized_loss_ids:
+                            raise DistributionError(
+                                f"{skill_id}: official-document corpus source "
+                                f"{source_id} loss_ids has duplicates"
+                            )
+                        normalized_loss_ids.add(loss_id)
+                    expected_source_loss_ids_by_id[source_id] = normalized_loss_ids
+                    included_subject_ids_by_source[source_id] = _subject_id_set(
+                        source_entry.get("subject_ids", []),
+                        label=f"{skill_id}/corpus/{corpus_id}/sources/{source_id}/subject_ids",
+                    )
+                elif disposition == "excluded":
+                    source_identity = source_entry.get("source_identity")
+                    if not isinstance(source_identity, Mapping):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus "
+                            "excluded source entry identity is invalid"
+                        )
+                    excluded_locator = source_identity.get("locator")
+                    excluded_entry_identity = source_identity.get(
+                        "inventory_entry_identity"
+                    )
+                    if (
+                        not isinstance(excluded_locator, str)
+                        or not validate_official_document_coverage._url_matches_authority(
+                            excluded_locator,
+                            source_authority,
+                        )
+                        or not isinstance(excluded_entry_identity, Mapping)
+                        or set(excluded_entry_identity) != {"sha256", "bytes"}
+                        or not SHA256_RE.fullmatch(
+                            str(excluded_entry_identity.get("sha256"))
+                        )
+                        or not isinstance(excluded_entry_identity.get("bytes"), int)
+                        or isinstance(excluded_entry_identity.get("bytes"), bool)
+                        or excluded_entry_identity.get("bytes") <= 0
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus "
+                            "excluded source identity is invalid"
+                        )
+                elif disposition != "excluded":
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus source "
+                        f"{source_id} has invalid disposition"
+                    )
+
+            manifest_status = manifest.get("status")
+            manifest_source_ids = set(manifest_sources)
+            if not manifest_source_ids.issubset(included_source_ids):
                 raise DistributionError(
-                    f"{skill_id}: official-document pack license authority "
-                    "differs from its corpus"
+                    f"{skill_id}: official-document slice manifest includes "
+                    "source IDs outside the referenced corpus included set"
                 )
-            source_authority = source_authorities.get(
-                review.get("authority_id")
-            )
-            central_license = (
-                source_authority.get("license_policy")
-                if isinstance(source_authority, dict)
-                else None
-            )
-            redistribution = (
-                source_authority.get("redistribution_policy")
-                if isinstance(source_authority, dict)
-                else None
-            )
-            identity = review.get("license_identity")
-            rules = review.get("storage_rules")
-            if (
-                not isinstance(central_license, dict)
-                or not isinstance(redistribution, dict)
-                or not isinstance(identity, dict)
-                or not isinstance(rules, list)
-            ):
+            if manifest_status == "complete" and manifest_source_ids != included_source_ids:
                 raise DistributionError(
-                    f"{skill_id}: official-document license authority "
-                    "ceiling is invalid"
+                    f"{skill_id}: complete slice manifest must include every "
+                    "included corpus source"
                 )
-            central_status = central_license.get("status")
-            identity_invalid = False
-            if central_status == "unknown":
-                identity_invalid = (
-                    identity.get("verification") == "verified"
-                    or identity.get("identifier") is not None
-                    or bool(identity.get("terms_urls"))
-                )
-            elif identity.get("verification") == "verified":
-                identity_invalid = (
-                    identity.get("identifier")
-                    != central_license.get("identifier")
-                    or set(identity.get("terms_urls", []))
-                    != set(central_license.get("terms_urls", []))
-                )
-            else:
-                identity_invalid = (
-                    identity.get("identifier") is not None
-                    or bool(identity.get("terms_urls"))
-                )
-            embedded_open = any(
-                isinstance(rule, dict)
-                and "embedded-open"
-                in rule.get("allowed_storage_modes", [])
-                for rule in rules
-            )
-            if identity_invalid or (
-                redistribution.get("bundle_content") == "forbidden"
-                and embedded_open
-            ):
+            if manifest_status not in {"complete", "partial", "blocked"}:
                 raise DistributionError(
-                    f"{skill_id}: official-document license review exceeds "
-                    "the central authority ceiling"
+                    f"{skill_id}: official-document slice manifest status is invalid"
                 )
 
-        slice_ids = {
-            (
-                manifest_id,
-                item.get("slice_id"),
-            )
-            for manifest_id, (manifest, _) in family_records[
-                "slice_manifests"
-            ].items()
-            for source in manifest.get("sources", [])
-            if isinstance(source, dict)
-            for item in source.get("slices", [])
-            if isinstance(item, dict)
-        }
-        for mapping_index, mapping in enumerate(coverage.get("mappings", [])):
+            for source_index, (source_id, source) in enumerate(
+                manifest_sources.items()
+            ):
+                if not isinstance(source_id, str):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source id is invalid"
+                    )
+                if not isinstance(source, Mapping):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id} is not an exact object"
+                    )
+
+                source_identity = source.get("source_identity")
+                if not isinstance(source_identity, Mapping):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id}/source_identity is invalid"
+                    )
+                if source_identity != included_source_identities.get(source_id):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id}/source_identity is not exactly corpus identity"
+                    )
+                if not isinstance(source_authority, Mapping):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id} authority binding is invalid"
+                    )
+                source_projection = _source_identity_projection(
+                    source_identity,
+                    label=f"{skill_id}: official-document slice source {source_id}/source_identity",
+                )
+
+                raw_source_extent_bytes = source.get("raw_source_extent_bytes")
+                if (
+                    not isinstance(raw_source_extent_bytes, int)
+                    or isinstance(raw_source_extent_bytes, bool)
+                    or raw_source_extent_bytes <= 0
+                ):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id}/raw_source_extent_bytes is invalid"
+                    )
+                if source_projection[1] != raw_source_extent_bytes:
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id} raw extent does not match source identity bytes"
+                    )
+
+                processor = source.get("processor")
+                if not isinstance(processor, Mapping):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id}/processor is invalid"
+                    )
+                source_loss_accounting = source.get("source_loss_accounting")
+                source_loss_closure, source_loss_ids, source_loss_entries = _loss_accounting_entries(
+                    source_loss_accounting,
+                    label=f"{skill_id}: official-document slice source {source_id}/source_loss_accounting",
+                    closure_dimension="source_loss_accounting",
+                )
+                if expected_source_loss_ids_by_id.get(source_id) != source_loss_ids:
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source {source_id} "
+                        "loss_ids must match corpus source loss_ids exactly"
+                    )
+
+                source_slices = source.get("slices")
+                if not isinstance(source_slices, list):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id}/slices is invalid"
+                    )
+
+                source_identity_mode = source_identity.get("content_mode")
+                source_locator = source_identity.get("locator")
+                source_receipt = source_identity.get("receipt")
+                source_projection_bytes = source_projection[1]
+                source_projection_sha = source_projection[0]
+                source_local_raw: bytes | None = None
+                if source_identity_mode == "embedded-content":
+                    if not isinstance(source_locator, str):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id} embedded source identity missing locator"
+                        )
+                    source_local_path = _safe_archive_path(source_locator)
+                    if source_local_path not in manifest_paths:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id} embedded source locator is missing from manifest"
+                        )
+                    source_local_raw, _ = _read_regular_file(
+                        root / source_local_path,
+                        source_local_path,
+                    )
+                    if len(source_local_raw) != source_projection_bytes:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id} embedded source bytes do not match source identity"
+                        )
+                    if _sha256(source_local_raw) != source_projection_sha:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id} embedded source sha256 does not match source identity"
+                        )
+                elif source_identity_mode == "external-content":
+                    if (
+                        not isinstance(source_locator, str)
+                        or not isinstance(source_receipt, Mapping)
+                        or not validate_official_document_coverage._url_matches_authority(
+                            source_locator,
+                            source_authority,
+                        )
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id} external source identity locator is invalid"
+                        )
+                elif source_identity_mode == "metadata-only":
+                    if (
+                        not isinstance(source_locator, str)
+                        or not validate_official_document_coverage._url_matches_authority(
+                            source_locator,
+                            source_authority,
+                        )
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id} metadata-only source identity locator is invalid"
+                        )
+                else:
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id} has unsupported source_identity.content_mode"
+                    )
+
+                output_projection = _canonical_projection_sha256(
+                    {
+                        "slices": source_slices,
+                        "source_loss_accounting": source_loss_accounting,
+                    }
+                )
+                if (
+                    processor.get("input_sha256") != source_projection_sha
+                    or processor.get("output_sha256") != output_projection
+                ):
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id}/processor does not bind exact IO"
+                    )
+
+                local_slice_subjects: set[str] = set()
+                local_slice_ids: set[str] = set()
+                local_selector_keys: set[str] = set()
+                source_loss_union: set[str] = set()
+                source_subjects = included_subject_ids_by_source.get(source_id, set())
+
+                for slice_index, slice_record in enumerate(source_slices):
+                    if not isinstance(slice_record, Mapping):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id}/slices/{slice_index} is invalid"
+                        )
+                    slice_id = slice_record.get("slice_id")
+                    if not isinstance(slice_id, str) or not slice_id:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id}/slices/{slice_index}/slice_id is "
+                            "invalid"
+                        )
+                    if slice_id in observed_slice_ids or slice_id in local_slice_ids:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice id is not "
+                            "globally unique"
+                        )
+                    observed_slice_ids.add(slice_id)
+                    local_slice_ids.add(slice_id)
+                    selector = slice_record.get("selector")
+                    if not isinstance(selector, Mapping):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice "
+                            f"{source_id}/slices/{slice_id}/selector is invalid"
+                        )
+                    selector_key = json.dumps(
+                        selector,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )
+                    if selector_key in local_selector_keys:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice source "
+                            f"{source_id}/slices/{slice_id} duplicate selector"
+                        )
+                    local_selector_keys.add(selector_key)
+
+                    selector_kind = selector.get("kind")
+                    selector_value = selector.get("value")
+                    raw_range = slice_record.get("raw_byte_range")
+                    if (
+                        not isinstance(raw_range, Mapping)
+                        or not isinstance(raw_range.get("start_byte"), int)
+                        or isinstance(raw_range.get("start_byte"), bool)
+                        or not isinstance(raw_range.get("byte_count"), int)
+                        or isinstance(raw_range.get("byte_count"), bool)
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice {source_id}/"
+                            f"{slice_id}/raw_byte_range is invalid"
+                        )
+                    raw_start = raw_range["start_byte"]
+                    raw_count = raw_range["byte_count"]
+                    if raw_start < 0 or raw_count <= 0:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice {source_id}/"
+                            f"{slice_id} raw_byte_range must be positive"
+                        )
+                    if raw_start + raw_count > source_projection_bytes:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice {source_id}/"
+                            f"{slice_id} raw_byte_range exceeds source extent"
+                        )
+                    if selector_kind == "whole-source":
+                        if raw_start != 0 or raw_count != source_projection_bytes:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} "
+                                "whole-source requires full extent"
+                            )
+                        if selector_value != "*":
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} selector must be '*'"
+                            )
+                    elif selector_kind == "byte-range":
+                        expected = f"{raw_start}:{raw_count}"
+                        if selector_value != expected:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/selector "
+                                "byte-range must be start:count"
+                            )
+
+                    content = slice_record.get("content")
+                    if not isinstance(content, Mapping):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice "
+                            f"{source_id}/slices/{slice_id}/content is invalid"
+                        )
+                    content_mode = content.get("content_mode")
+                    if content_mode == "embedded-content":
+                        if source_local_raw is None:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} embedded content "
+                                "requires embedded source identity"
+                            )
+                        artifact = content.get("artifact")
+                        if not isinstance(artifact, Mapping):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content "
+                                "embedded-content must include artifact"
+                            )
+                        artifact_path = artifact.get("path")
+                        artifact_bytes = artifact.get("bytes")
+                        artifact_sha256 = artifact.get("sha256")
+                        if (
+                            not isinstance(artifact_path, str)
+                            or not isinstance(artifact_bytes, int)
+                            or isinstance(artifact_bytes, bool)
+                            or artifact_bytes <= 0
+                            or SHA256_RE.fullmatch(str(artifact_sha256))
+                            is None
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content/artifact is "
+                                "invalid"
+                            )
+                        if artifact_bytes != raw_count:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} artifact bytes "
+                                "must equal selected raw_byte_range"
+                            )
+                        artifact_local_path = _safe_archive_path(artifact_path)
+                        artifact_raw, _ = _read_regular_file(
+                            root / artifact_local_path,
+                            artifact_local_path,
+                        )
+                        if len(artifact_raw) != artifact_bytes:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} embedded artifact "
+                                "bytes mismatch"
+                            )
+                        if _sha256(artifact_raw) != str(artifact_sha256):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} embedded artifact "
+                                "sha256 mismatch"
+                            )
+                        if artifact_raw != source_local_raw[
+                            raw_start : raw_start + raw_count
+                        ]:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} "
+                                "must match selected raw byte range"
+                            )
+
+                    elif content_mode == "external-content":
+                        receipt = content.get("receipt")
+                        locator = content.get("locator")
+                        if not isinstance(locator, str):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content/locator "
+                                "is invalid"
+                            )
+                        if source_identity_mode != "external-content":
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} external content "
+                                "requires external source identity"
+                            )
+                        if locator != source_locator:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content locator "
+                                "must match corpus source locator"
+                            )
+                        if not validate_official_document_coverage._url_matches_authority(
+                            locator,
+                            source_authority,
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} external locator "
+                                "is outside authority scope"
+                            )
+                        if not isinstance(receipt, Mapping):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content/receipt is invalid"
+                            )
+                        receipt_raw_sha = receipt.get("raw_sha256")
+                        receipt_raw_bytes = receipt.get("raw_bytes")
+                        if (
+                            not SHA256_RE.fullmatch(str(receipt_raw_sha))
+                            or not isinstance(receipt_raw_bytes, int)
+                            or isinstance(receipt_raw_bytes, bool)
+                            or receipt_raw_bytes <= 0
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content/receipt/raw "
+                                "sha256/bytes is invalid"
+                            )
+                        if (
+                            receipt_raw_sha != source_projection_sha
+                            or receipt_raw_bytes != source_projection_bytes
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} external "
+                                "receipt must match source identity bytes/sha256"
+                            )
+                        selected = receipt.get("selected_content")
+                        if not isinstance(selected, Mapping):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content/receipt "
+                                "selected_content is invalid"
+                            )
+                        selected_sha = selected.get("sha256")
+                        selected_bytes = selected.get("bytes")
+                        if (
+                            not SHA256_RE.fullmatch(str(selected_sha))
+                            or not isinstance(selected_bytes, int)
+                            or isinstance(selected_bytes, bool)
+                            or selected_bytes <= 0
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content/receipt "
+                                "selected_content is invalid"
+                            )
+                        if selected_bytes != raw_count:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} selected "
+                                "content bytes must equal raw_byte_range byte_count"
+                            )
+                    elif content_mode == "metadata-only":
+                        locator = content.get("locator")
+                        identity = content.get("identity")
+                        if source_identity_mode not in {"metadata-only", "external-content"}:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} metadata-only "
+                                "requires metadata-only or external source identity"
+                            )
+                        if (
+                            not isinstance(locator, str)
+                            or locator != source_locator
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} metadata-only "
+                                "content does not close to source identity"
+                            )
+                        if not validate_official_document_coverage._url_matches_authority(
+                            locator,
+                            source_authority,
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} metadata-only "
+                                "locator is outside authority scope"
+                            )
+                        if source_identity_mode == "metadata-only" and (
+                            not isinstance(identity, Mapping)
+                            or identity != source_identity.get("identity")
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} metadata-only "
+                                "content does not close to source identity"
+                            )
+                        if not isinstance(locator, str) or not isinstance(identity, Mapping):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} metadata-only "
+                                "content does not close to source identity"
+                            )
+                        if (
+                            not SHA256_RE.fullmatch(str(identity.get("sha256")))
+                            or not isinstance(identity.get("bytes"), int)
+                            or isinstance(identity.get("bytes"), bool)
+                            or identity.get("bytes") <= 0
+                        ):
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id}/content/identity "
+                                "is invalid"
+                            )
+                    else:
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice "
+                            f"{source_id}/slices/{slice_id}/content/content_mode "
+                            "is unsupported"
+                        )
+
+                    source_slice_loss = slice_record.get("loss_accounting")
+                    _slice_loss_closure, source_slice_loss_ids, slice_loss_entries = (
+                        _loss_accounting_entries(
+                            source_slice_loss,
+                            label=f"{skill_id}: official-document slice "
+                            f"{source_id}/slices/{slice_id}/loss_accounting",
+                            closure_dimension="loss_accounting",
+                        )
+                    )
+                    for loss_id, slice_loss_entry in slice_loss_entries.items():
+                        expected_loss = source_loss_entries.get(loss_id)
+                        if expected_loss is None or slice_loss_entry != expected_loss:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} "
+                                "loss entry does not match source loss entry"
+                            )
+                    source_loss_union.update(source_slice_loss_ids)
+
+                    subject_ids = slice_record.get("subject_ids")
+                    if not isinstance(subject_ids, list):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice "
+                            f"{source_id}/slices/{slice_id}/subject_ids is invalid"
+                        )
+                    normalized_subject_ids: set[str] = set()
+                    for subject_id in subject_ids:
+                        if not isinstance(subject_id, str) or not subject_id:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} subject_id is "
+                                "invalid"
+                            )
+                        if subject_id not in source_subjects:
+                            raise DistributionError(
+                                f"{skill_id}: official-document slice "
+                                f"{source_id}/slices/{slice_id} subject_id "
+                                "is not declared by corpus source"
+                            )
+                        normalized_subject_ids.add(subject_id)
+                    local_slice_subjects.update(normalized_subject_ids)
+                    slice_subject_ids_by_ref[(manifest_id, slice_id)] = normalized_subject_ids
+                    slice_ids.add((manifest_id, slice_id))
+
+                if manifest_status == "complete" and source_loss_closure == "complete":
+                    source_subject_set = included_subject_ids_by_source.get(source_id, set())
+                    if source_subject_set and not source_subject_set.issubset(local_slice_subjects):
+                        raise DistributionError(
+                            f"{skill_id}: official-document slice manifest "
+                            f"{source_id} does not cover every source subject"
+                        )
+                if source_loss_union != source_loss_ids:
+                    raise DistributionError(
+                        f"{skill_id}: official-document slice source "
+                        f"{source_id} loss closure is incomplete"
+                    )
+        for mapping_index, (subject_id, mapping) in enumerate(
+            coverage_mappings.items()
+        ):
             if not isinstance(mapping, dict):
-                continue
+                raise DistributionError(
+                    f"{skill_id}: official-document mapping {mapping_index} "
+                    "is invalid"
+                )
+            if not isinstance(subject_id, str) or not subject_id:
+                raise DistributionError(
+                    f"{skill_id}: official-document mapping {mapping_index} "
+                    "is missing a valid subject_id"
+                )
             for ref_index, reference in enumerate(mapping.get("slice_refs", [])):
                 pair = (
                     reference.get("slice_manifest_id")
@@ -2888,52 +4221,51 @@ def _portable_official_document_pack_audit(
                 )
                 if pair not in slice_ids:
                     raise DistributionError(
+                    f"{skill_id}: official-document pack coverage slice "
+                    f"reference {mapping_index}/{ref_index} does not resolve"
+                )
+                if subject_id not in slice_subject_ids_by_ref.get(pair, set()):
+                    raise DistributionError(
                         f"{skill_id}: official-document pack coverage slice "
-                        f"reference {mapping_index}/{ref_index} does not resolve"
+                        f"{mapping_index}/{ref_index} references slice without "
+                        f"current subject {subject_id}"
                     )
 
-        expected_binding_ids: set[str] = set()
-        for index, reference in enumerate(
-            coverage.get("consumer_binding_refs", [])
-        ):
-            if (
-                not isinstance(reference, dict)
-                or reference.get("registry_path")
-                != "registry/official-document-consumers.yaml"
-                or reference.get("registry_sha256")
-                != source_consumer_digest
-                or not isinstance(reference.get("binding_id"), str)
-            ):
-                raise DistributionError(
-                    f"{skill_id}: official-document pack consumer binding "
-                    f"reference {index} is invalid"
-                )
-            binding_id = reference["binding_id"]
-            binding = bindings_by_id.get(binding_id)
+        expected_corpus_bindings = set()
+        for binding in active_bindings:
             if (
                 not isinstance(binding, dict)
                 or binding.get("consumer_skill_id") != skill_id
-                or binding.get("consumer_lifecycle") != "active"
-                or binding_id not in active_binding_ids
-                or binding.get("authority_id") not in authorities
-                or authorities[binding["authority_id"]].get("provider_id")
-                != binding.get("provider_id")
             ):
+                continue
+            if binding.get("consumer_lifecycle") != "active":
                 raise DistributionError(
                     f"{skill_id}: official-document pack consumer binding "
-                    f"{binding_id} is outside the active authority closure"
+                    "is inactive"
                 )
-            expected_binding_ids.add(binding_id)
-        actual_skill_bindings = {
-            binding.get("binding_id")
-            for binding in active_bindings
-            if isinstance(binding, dict)
-            and binding.get("consumer_skill_id") == skill_id
-        }
-        if expected_binding_ids != actual_skill_bindings:
+            pair = (binding.get("authority_id"), binding.get("provider_id"))
+            if not isinstance(pair[0], str) or not isinstance(pair[1], str):
+                raise DistributionError(
+                    f"{skill_id}: official-document pack consumer binding "
+                    "has invalid authority/provider binding"
+                )
+            if pair in expected_corpus_bindings:
+                raise DistributionError(
+                    f"{skill_id}: official-document consumer binding list has "
+                    "duplicate authority/provider pairs"
+                )
+            expected_corpus_bindings.add(pair)
+        if (
+            not expected_corpus_bindings
+            or any(
+                not isinstance(authority_id, str)
+                or not isinstance(provider_id, str)
+                for authority_id, provider_id in expected_corpus_bindings
+            )
+        ):
             raise DistributionError(
-                f"{skill_id}: official-document pack consumer binding set "
-                "is not exact"
+                f"{skill_id}: official-document pack consumer binding set is "
+                "invalid"
             )
 
         for corpus, _ in family_records["corpora"].values():
@@ -2947,45 +4279,25 @@ def _portable_official_document_pack_audit(
                     "does not resolve"
                 )
             pair = (corpus.get("authority_id"), corpus.get("provider_id"))
-            seed_input = seed_inputs.get(pair)
             discovery = corpus.get("discovery")
-            enumerator = (
-                discovery.get("enumerator")
-                if isinstance(discovery, dict)
-                else None
-            )
+            enumerator = None
+            if isinstance(discovery, dict):
+                enumerator = discovery.get("processor")
+                if enumerator is None:
+                    enumerator = discovery.get("enumerator")
             source_authority = source_authorities.get(pair[0])
-            included_sources = corpus.get("included_sources")
-            reviewed_exclusions = corpus.get("reviewed_exclusions")
-            discovered_source_ids = discovery.get("discovered_source_ids")
+            source_inventory = corpus.get("source_inventory")
             if (
                 not isinstance(source_authority, dict)
-                or not isinstance(included_sources, list)
-                or not isinstance(reviewed_exclusions, list)
-                or not isinstance(discovered_source_ids, list)
+                or not isinstance(source_inventory, Mapping)
+                or not isinstance(discovery, dict)
             ):
                 raise DistributionError(
                     f"{skill_id}: official-document corpus source universe "
                     "is invalid"
                 )
-            included_ids = [
-                source.get("source_id")
-                for source in included_sources
-                if isinstance(source, dict)
-            ]
-            excluded_ids = [
-                exclusion.get("source_id")
-                for exclusion in reviewed_exclusions
-                if isinstance(exclusion, dict)
-            ]
             if (
-                len(included_ids) != len(included_sources)
-                or len(excluded_ids) != len(reviewed_exclusions)
-                or not _corpus_source_partition_valid(
-                    included_ids,
-                    excluded_ids,
-                    discovered_source_ids,
-                )
+                not _corpus_source_partition_valid(source_inventory)
                 or not validate_official_document_coverage
                 .authority_version_scope_compatible(
                     corpus.get("version_scope"),
@@ -3003,112 +4315,329 @@ def _portable_official_document_pack_audit(
                     f"{skill_id}: official-document corpus source universe "
                     "or authority scope is not exact"
                 )
-            for source_index, source in enumerate(included_sources):
-                identity = source.get("identity")
-                if (
-                    not isinstance(identity, dict)
-                    or not validate_official_document_coverage
-                    ._url_matches_authority(
-                        source.get("locator"),
-                        source_authority,
-                    )
-                    or not validate_official_document_coverage
-                    .source_version_scope_compatible(
-                        source.get("version_scope"),
-                        corpus.get("version_scope"),
-                        raw_sha256=identity.get("raw_sha256"),
-                    )
-                ):
+            for source_index, (source_id, source) in enumerate(
+                source_inventory.items()
+            ):
+                if not isinstance(source, dict):
                     raise DistributionError(
                         f"{skill_id}: official-document corpus source "
                         f"{source_index} exceeds its authority policy"
                     )
-            canonical_snapshot = (
-                source_authority.get("canonical_snapshot")
-                if isinstance(source_authority, dict)
-                else None
-            )
-            expected_inventory = seed_input
-            if isinstance(canonical_snapshot, dict):
-                manifest_path = canonical_snapshot.get("manifest_path")
-                manifest_sha256 = canonical_snapshot.get(
-                    "manifest_raw_sha256"
+                identity = source.get("source_identity")
+                if not isinstance(identity, dict):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus source "
+                        f"{source_index} exceeds its authority policy"
+                    )
+                content_mode = identity.get("content_mode")
+                locator = identity.get("locator")
+                if not isinstance(locator, str):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus source "
+                        f"{source_index} has invalid locator"
+                    )
+
+                if content_mode == "embedded-content":
+                    if set(identity.keys()) != {
+                        "content_mode",
+                        "locator",
+                        "sha256",
+                        "bytes",
+                    }:
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} embedded-content identity keys are invalid"
+                        )
+                    content_sha256 = identity.get("sha256")
+                    content_bytes = identity.get("bytes")
+                    if (
+                        SHA256_RE.fullmatch(str(content_sha256)) is None
+                        or not isinstance(content_bytes, int)
+                        or isinstance(content_bytes, bool)
+                        or content_bytes <= 0
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} embedded-content identity is invalid"
+                        )
+                    safe_source_locator = _safe_archive_path(locator)
+                    if safe_source_locator not in manifest_paths:
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} embedded locator is not in manifest"
+                        )
+                    source_local_raw, _ = _read_regular_file(
+                        root / safe_source_locator,
+                        safe_source_locator,
+                    )
+                    if len(source_local_raw) != content_bytes:
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} embedded bytes do not match identity"
+                        )
+                    if _sha256(source_local_raw) != content_sha256:
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} embedded hash does not match identity"
+                        )
+                elif content_mode == "external-content":
+                    if set(identity.keys()) != {
+                        "content_mode",
+                        "locator",
+                        "receipt",
+                    }:
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} external-content identity keys are invalid"
+                        )
+                    if not validate_official_document_coverage._url_matches_authority(
+                        locator,
+                        source_authority,
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} external locator is not within authority scope"
+                        )
+                    receipt = identity.get("receipt")
+                    if (
+                        not isinstance(receipt, Mapping)
+                        or set(receipt.keys()) != {"sha256", "bytes"}
+                        or SHA256_RE.fullmatch(str(receipt.get("sha256"))) is None
+                        or not isinstance(receipt.get("bytes"), int)
+                        or isinstance(receipt.get("bytes"), bool)
+                        or receipt.get("bytes") <= 0
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} external-content receipt is invalid"
+                        )
+                elif content_mode == "metadata-only":
+                    if set(identity.keys()) != {
+                        "content_mode",
+                        "locator",
+                        "identity",
+                    }:
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} metadata-only identity keys are invalid"
+                        )
+                    if not validate_official_document_coverage._url_matches_authority(
+                        locator,
+                        source_authority,
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} metadata-only locator is not within "
+                            "authority scope"
+                        )
+                    source_identity = identity.get("identity")
+                    if (
+                        not isinstance(source_identity, Mapping)
+                        or set(source_identity.keys()) != {"sha256", "bytes"}
+                        or SHA256_RE.fullmatch(
+                            str(source_identity.get("sha256"))
+                        ) is None
+                        or not isinstance(source_identity.get("bytes"), int)
+                        or isinstance(source_identity.get("bytes"), bool)
+                        or source_identity.get("bytes") <= 0
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} metadata-only identity is invalid"
+                        )
+                elif content_mode == "excluded":
+                    if set(identity.keys()) != {
+                        "content_mode",
+                        "locator",
+                        "inventory_entry_identity",
+                    }:
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} excluded identity keys are invalid"
+                        )
+                    if not validate_official_document_coverage._url_matches_authority(
+                        locator,
+                        source_authority,
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} excluded locator is not within "
+                            "authority scope"
+                        )
+                    excluded_identity = identity.get("inventory_entry_identity")
+                    if (
+                        not isinstance(excluded_identity, Mapping)
+                        or set(excluded_identity.keys()) != {"sha256", "bytes"}
+                        or SHA256_RE.fullmatch(
+                            str(excluded_identity.get("sha256"))
+                        ) is None
+                        or not isinstance(excluded_identity.get("bytes"), int)
+                        or isinstance(excluded_identity.get("bytes"), bool)
+                        or excluded_identity.get("bytes") <= 0
+                    ):
+                        raise DistributionError(
+                            f"{skill_id}: official-document corpus source "
+                            f"{source_index} excluded identity is invalid"
+                        )
+                else:
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus source "
+                        f"{source_index} has unsupported source_identity.content_mode"
+                    )
+            catalog_ref = seed_catalog_refs.get(pair)
+            if not isinstance(catalog_ref, dict):
+                raise DistributionError(
+                    f"{skill_id}: official-document seed catalog reference is "
+                    "missing for corpus authority/provider closure"
                 )
+            discovery_inventory = discovery.get("inventory")
+            if not isinstance(discovery_inventory, Mapping):
+                raise DistributionError(
+                    f"{skill_id}: official-document corpus inventory metadata "
+                    "is invalid"
+                )
+            inventory_content_mode = discovery_inventory.get("content_mode")
+            inventory_sha256 = None
+            if inventory_content_mode == "embedded-content":
+                inventory_locator = discovery_inventory.get("locator")
+                inventory_bytes = discovery_inventory.get("bytes")
+                inventory_sha256 = discovery_inventory.get("sha256")
                 if (
-                    not isinstance(manifest_path, str)
-                    or SHA256_RE.fullmatch(str(manifest_sha256)) is None
+                    not isinstance(inventory_locator, str)
+                    or SHA256_RE.fullmatch(str(inventory_sha256)) is None
+                    or not isinstance(inventory_bytes, int)
+                    or isinstance(inventory_bytes, bool)
+                    or inventory_bytes <= 0
                 ):
                     raise DistributionError(
-                        f"{skill_id}: canonical authority inventory receipt "
-                        "is invalid"
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory embedded content is invalid"
                     )
-                if discovery.get("upstream_universe_complete") is True:
-                    index_path = (
-                        PurePosixPath(manifest_path).parent / "index.json"
-                    ).as_posix()
-                    index_receipt = externalized_receipts.get(index_path)
-                    if not isinstance(index_receipt, Mapping):
-                        raise DistributionError(
-                            f"{skill_id}: canonical authority index receipt "
-                            "is absent"
-                        )
-                    expected_inventory = {
-                        "path": index_path,
-                        "sha256": index_receipt.get("sha256"),
-                    }
-                else:
-                    expected_inventory = {
-                        "path": manifest_path,
-                        "sha256": manifest_sha256,
-                    }
+                inventory_local = _safe_archive_path(inventory_locator)
+                inventory_raw, _ = _read_regular_file(
+                    root / inventory_local,
+                    inventory_local,
+                )
+                if len(inventory_raw) != inventory_bytes:
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory embedded bytes mismatch"
+                    )
+                if _sha256(inventory_raw) != inventory_sha256:
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory embedded hash mismatch"
+                    )
+            elif inventory_content_mode == "external-content":
+                inventory_locator = discovery_inventory.get("locator")
+                inventory_receipt = discovery_inventory.get("receipt")
+                if not isinstance(inventory_locator, str) or not validate_official_document_coverage._url_matches_authority(
+                    inventory_locator,
+                    source_authority,
+                ):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory locator is not within authority scope"
+                    )
+                if not isinstance(inventory_receipt, Mapping):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory external receipt is invalid"
+                    )
+                inventory_sha256 = inventory_receipt.get("raw_sha256")
+                inventory_bytes = inventory_receipt.get("raw_bytes")
+                if (
+                    SHA256_RE.fullmatch(str(inventory_sha256)) is None
+                    or not isinstance(inventory_bytes, int)
+                    or isinstance(inventory_bytes, bool)
+                    or inventory_bytes <= 0
+                ):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory external receipt is invalid"
+                    )
+            elif inventory_content_mode == "metadata-only":
+                inventory_locator = discovery_inventory.get("locator")
+                inventory_identity = discovery_inventory.get("identity")
+                if not isinstance(inventory_locator, str) or not validate_official_document_coverage._url_matches_authority(
+                    inventory_locator,
+                    source_authority,
+                ):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory metadata locator is not within authority scope"
+                    )
+                if not isinstance(inventory_identity, Mapping):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory metadata identity is invalid"
+                    )
+                inventory_sha256 = inventory_identity.get("sha256")
+                inventory_bytes = inventory_identity.get("bytes")
+                if (
+                    SHA256_RE.fullmatch(str(inventory_sha256)) is None
+                    or not isinstance(inventory_bytes, int)
+                    or isinstance(inventory_bytes, bool)
+                    or inventory_bytes <= 0
+                ):
+                    raise DistributionError(
+                        f"{skill_id}: official-document corpus discovery "
+                        "inventory metadata identity is invalid"
+                    )
+            else:
+                raise DistributionError(
+                    f"{skill_id}: official-document corpus discovery "
+                    "inventory content mode is unsupported"
+                )
             if (
-                expected_inventory is None
-                or discovery.get("inventory_locator")
-                != expected_inventory["path"]
-                or discovery.get("inventory_sha256")
-                != expected_inventory["sha256"]
-                or not isinstance(enumerator, dict)
-                or enumerator.get("input_sha256")
-                != expected_inventory["sha256"]
+                not isinstance(enumerator, Mapping)
+                or not isinstance(inventory_sha256, str)
+                or enumerator.get("input_sha256") != inventory_sha256
             ):
                 raise DistributionError(
                     f"{skill_id}: official-document corpus does not bind its "
-                    "exact packaged seed input"
+                    "exact discovery inventory"
                 )
-            if enumerator.get(
-                "output_sha256"
-            ) != _canonical_projection_sha256(
-                {
-                    "discovered_source_ids": discovery.get(
-                        "discovered_source_ids"
-                    )
-                }
+            if enumerator.get("output_sha256") != _canonical_projection_sha256(
+                source_inventory
             ):
                 raise DistributionError(
                     f"{skill_id}: official-document corpus enumerator receipt "
                     "does not bind its canonical output"
                 )
-        expected_corpus_bindings = [
-            (binding.get("authority_id"), binding.get("provider_id"))
-            for binding in active_bindings
-            if isinstance(binding, dict)
-            and binding.get("consumer_skill_id") == skill_id
-        ]
-        observed_corpus_bindings = [
-            (corpus.get("authority_id"), corpus.get("provider_id"))
-            for corpus, _ in family_records["corpora"].values()
-        ]
-        if (
-            any(
-                not isinstance(authority_id, str)
-                or not isinstance(provider_id, str)
-                for authority_id, provider_id in (
-                    *expected_corpus_bindings,
-                    *observed_corpus_bindings,
+        expected_corpus_bindings_set: set[tuple[str, str]] = set()
+        for binding in active_bindings:
+            if not isinstance(binding, dict) or binding.get("consumer_skill_id") != skill_id:
+                continue
+            pair = (binding.get("authority_id"), binding.get("provider_id"))
+            if not isinstance(pair[0], str) or not isinstance(pair[1], str):
+                raise DistributionError(
+                    f"{skill_id}: official-document pack consumer binding set "
+                    "is invalid"
                 )
-            )
-            or sorted(expected_corpus_bindings)
-            != sorted(observed_corpus_bindings)
+            if pair in expected_corpus_bindings_set:
+                raise DistributionError(
+                    f"{skill_id}: official-document pack consumer binding set "
+                    "has duplicates"
+                )
+            expected_corpus_bindings_set.add(pair)
+
+        observed_corpus_bindings_set: set[tuple[str, str]] = set()
+        for corpus, _ in family_records["corpora"].values():
+            pair = (corpus.get("authority_id"), corpus.get("provider_id"))
+            if not isinstance(pair[0], str) or not isinstance(pair[1], str):
+                raise DistributionError(
+                    f"{skill_id}: official-document pack corpus set is not the "
+                    "exact active consumer binding closure"
+                )
+            if pair in observed_corpus_bindings_set:
+                raise DistributionError(
+                    f"{skill_id}: official-document pack corpus set is not the "
+                    "exact active consumer binding closure"
+                )
+            observed_corpus_bindings_set.add(pair)
+        if (
+            expected_corpus_bindings_set != observed_corpus_bindings_set
         ):
             raise DistributionError(
                 f"{skill_id}: official-document pack corpus set is not the "
@@ -3232,43 +4761,6 @@ def _portable_official_document_pack_audit(
                         f"{skill_id}: official-document subject origin "
                         f"{subject_index}/{origin_index} does not resolve"
                     )
-        for mapping_index, mapping in enumerate(coverage.get("mappings", [])):
-            if not isinstance(mapping, dict):
-                continue
-            for ref_index, reference in enumerate(
-                mapping.get("local_evidence_refs", [])
-            ):
-                reference_path = (
-                    reference.get("path")
-                    if isinstance(reference, dict)
-                    else None
-                )
-                if (
-                    not isinstance(reference_path, str)
-                    or not reference_path.startswith(f"skills/{skill_id}/")
-                    or reference_path.startswith(pack_prefix)
-                    or reference.get("sha256")
-                    != source_ref_hashes.get(reference_path)
-                ):
-                    raise DistributionError(
-                        f"{skill_id}: official-document local evidence "
-                        f"{mapping_index}/{ref_index} is outside the exact "
-                        "Skill source inventory"
-                    )
-                if _verify_optional_externalized_ref(
-                    root,
-                    reference,
-                    label=(
-                        f"{skill_id}/coverage/mappings/{mapping_index}/"
-                        f"local_evidence_refs/{ref_index}"
-                    ),
-                    manifest_paths=manifest_paths,
-                    externalized_receipts=externalized_receipts,
-                ):
-                    raise DistributionError(
-                        f"{skill_id}: official-document local evidence "
-                        f"{mapping_index}/{ref_index} is not packaged"
-                    )
         canonical_result = validate_official_document_coverage.validate_files(
             corpus_paths=[
                 root / f"{pack_prefix}{filename}"
@@ -3277,10 +4769,6 @@ def _portable_official_document_pack_audit(
             slice_paths=[
                 root / f"{pack_prefix}{filename}"
                 for filename in filenames["slice_manifests"]
-            ],
-            license_review_paths=[
-                root / f"{pack_prefix}{filename}"
-                for filename in filenames["license_reviews"]
             ],
             scope_inventory_path=(
                 root / f"{pack_prefix}{filenames['scope_inventory'][0]}"

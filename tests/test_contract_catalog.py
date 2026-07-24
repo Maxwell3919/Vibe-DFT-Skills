@@ -103,10 +103,26 @@ class ContractCatalogTests(unittest.TestCase):
                         contract.document_kind,
                         {"content-addressed-record", "projection"},
                     )
-                    self.assertEqual(
-                        contract.is_record_ref_target,
-                        contract.document_kind == "content-addressed-record",
-                    )
+                self.assertEqual(
+                    contract.is_record_ref_target,
+                    contract.document_kind == "content-addressed-record",
+                )
+
+    def test_official_document_contracts_resolve_by_exact_version_only(self) -> None:
+        catalog = validate_contract.load_catalog(CONTRACTS)
+        for name in (
+            "official-document-source-catalog",
+            "official-corpus-manifest",
+            "document-slice-manifest",
+            "skill-document-coverage",
+        ):
+            with self.subTest(name=name):
+                versions = tuple(item.version for item in catalog.by_name[name])
+                self.assertEqual(versions, ("1.0", "1.1"))
+                self.assertEqual(catalog.resolve(f"{name}@1.0").version, "1.0")
+                self.assertEqual(catalog.resolve(f"{name}@1.1").version, "1.1")
+                with self.assertRaises(validate_contract.ContractSelectionError):
+                    catalog.resolve(name)
 
     def test_document_kind_and_record_id_metadata_fail_closed(self) -> None:
         mutations = {

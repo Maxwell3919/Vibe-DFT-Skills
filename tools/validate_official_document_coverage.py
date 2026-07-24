@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-"""Validate official-document corpus, slices, licensing, and Skill coverage.
+"""Validate official-document corpus, slices, scope, and Skill coverage.
 
-The five JSON contracts are deliberately split so that source discovery,
-document transformation, redistribution review, and Skill claim coverage
-remain separate gates.  This validator closes the cross-record invariants
-which JSON Schema cannot express.  It is offline-only and reads strict JSON.
+This validator validates four technical records, enforces offline technical
+closure, and closes cross-record technical invariants that JSON Schema
+cannot express. It is offline-only and reads strict JSON records.
 """
 
 from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
@@ -55,18 +53,6 @@ SELECTOR_KINDS = {
     "source-symbol",
     "other",
 }
-LICENSE_OBLIGATION_FIELDS = (
-    "attribution_required",
-    "notice_required",
-    "modified_content_marking_required",
-    "share_alike_required",
-    "source_offer_required",
-)
-SOURCE_IDENTITY_AGGREGATE_DOMAIN = (
-    b"VIBE-OFFICIAL-SOURCE-IDENTITY-AGGREGATE-v1\0"
-)
-
-
 def _pack_source_id(*parts: object) -> str:
     """Mirror the bounded builder ID projection for official inventory units."""
 
@@ -76,54 +62,6 @@ def _pack_source_id(*parts: object) -> str:
         suffix = hashlib.sha256(slug.encode("utf-8")).hexdigest()[:16]
         slug = f"{slug[:103].rstrip('-.:')}-{suffix}"
     return slug
-
-
-def _source_identity_aggregate_sha256(
-    corpus: dict[str, Any],
-) -> str:
-    """Recompute a rolling declarative corpus identity from record evidence."""
-
-    projection = {
-        "authority_id": corpus["authority_id"],
-        "provider_id": corpus["provider_id"],
-        "retrieved_utc": corpus["version_scope"]["retrieved_utc"],
-        "included_sources": sorted(
-            (
-                {
-                    "source_id": source["source_id"],
-                    "locator": source["locator"],
-                    "identity": {
-                        "kind": source["identity"]["kind"],
-                        "value": source["identity"]["value"],
-                        "raw_sha256": source["identity"]["raw_sha256"],
-                        "raw_bytes": source["identity"]["raw_bytes"],
-                    },
-                }
-                for source in corpus["included_sources"]
-            ),
-            key=lambda source: source["source_id"],
-        ),
-        "reviewed_exclusions": sorted(
-            (
-                {
-                    "source_id": exclusion["source_id"],
-                    "reason_code": exclusion["reason_code"],
-                }
-                for exclusion in corpus["reviewed_exclusions"]
-            ),
-            key=lambda exclusion: exclusion["source_id"],
-        ),
-    }
-    raw = json.dumps(
-        projection,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-        allow_nan=False,
-    ).encode("utf-8")
-    return hashlib.sha256(
-        SOURCE_IDENTITY_AGGREGATE_DOMAIN + raw
-    ).hexdigest()
 
 
 @dataclass(frozen=True, order=True)
@@ -231,33 +169,6 @@ def authority_version_scope_compatible(
         ):
             return True
     return False
-
-
-def source_version_scope_compatible(
-    source_scope: object,
-    corpus_scope: object,
-    *,
-    raw_sha256: object,
-) -> bool:
-    """Require an exact static scope or a byte-bound rolling source scope."""
-
-    if not isinstance(source_scope, dict) or not isinstance(corpus_scope, dict):
-        return False
-    kind = corpus_scope.get("kind")
-    if kind in {"exact", "revision", "release-line", "unversioned"}:
-        return source_scope == corpus_scope
-    if kind != "latest-at-retrieval":
-        return False
-    snapshot = source_scope.get("snapshot_identity")
-    return (
-        source_scope.get("kind") == "latest-at-retrieval"
-        and source_scope.get("value") is None
-        and source_scope.get("retrieved_utc")
-        == corpus_scope.get("retrieved_utc")
-        and isinstance(snapshot, dict)
-        and isinstance(raw_sha256, str)
-        and snapshot.get("content_sha256") == raw_sha256
-    )
 
 
 def _externalized_artifact(
@@ -449,27 +360,6 @@ def _central_file_ref_errors(
     return errors
 
 
-def _is_license_terms_content_path(value: object) -> bool:
-    if not isinstance(value, str):
-        return False
-    parts = PurePosixPath(value).parts
-    return (
-        len(parts) >= 6
-        and parts[0] == "skills"
-        and bool(parts[1])
-        and all(
-            character.islower()
-            or character.isdigit()
-            or character == "-"
-            for character in parts[1]
-        )
-        and parts[1][0].isalnum()
-        and parts[1][-1].isalnum()
-        and parts[2:5]
-        == ("references", "official-source-pack", "license-terms")
-    )
-
-
 def _consumer_registry_errors(
     data: object,
     *,
@@ -481,16 +371,21 @@ def _consumer_registry_errors(
     errors: list[str] = []
     if not isinstance(data, dict):
         return ["<root>: expected a mapping"]
-    expected_root = {
+    required_root = {
         "schema_version",
         "default_policy",
         "bindings",
         "processors",
         "resolver_trust",
-        "license_trust",
     }
-    if set(data) != expected_root:
-        errors.append("<root>: fields must exactly match the registry contract")
+    allowed_root = set(required_root) | {"license_trust"}
+    for key in data:
+        if not isinstance(key, str) or key not in allowed_root:
+            errors.append(f"<root>: unexpected key '{key}'")
+    for key in sorted(required_root):
+        if key not in data:
+            errors.append(f"<root>: missing required field '{key}'")
+    if len(errors) > 0:
         return errors
     if data["schema_version"] != "1.0":
         errors.append("schema_version: expected '1.0'")
@@ -792,96 +687,6 @@ def _consumer_registry_errors(
                     f"{location}/attested_selections: duplicate attestation IDs"
                 )
 
-    license_trust = data["license_trust"]
-    if not isinstance(license_trust, dict):
-        errors.append("license_trust: expected a mapping")
-    else:
-        expected_trust_fields = {
-            "authority_id",
-            "reviewer_ids",
-            "evidence",
-            "platform_attestation_ref",
-        }
-        for trust_id, trust in license_trust.items():
-            location = f"license_trust/{trust_id}"
-            if (
-                not isinstance(trust_id, str)
-                or not isinstance(trust, dict)
-                or set(trust) != expected_trust_fields
-            ):
-                errors.append(f"{location}: invalid license trust entry")
-                continue
-            if trust["authority_id"] not in authorities:
-                errors.append(f"{location}/authority_id: unknown authority")
-            reviewer_ids = trust["reviewer_ids"]
-            if (
-                not isinstance(reviewer_ids, list)
-                or not reviewer_ids
-                or len(reviewer_ids) != len(set(reviewer_ids))
-                or not all(isinstance(item, str) and item for item in reviewer_ids)
-            ):
-                errors.append(f"{location}/reviewer_ids: expected unique authorized IDs")
-            evidence = trust["evidence"]
-            if (
-                not isinstance(evidence, list)
-                or not evidence
-                or not all(
-                    isinstance(item, dict)
-                    and set(item)
-                    == {
-                        "evidence_id",
-                        "locator",
-                        "revision",
-                        "sha256",
-                        "hash_basis",
-                        "terms_content_ref",
-                    }
-                    and isinstance(item["evidence_id"], str)
-                    and isinstance(item["locator"], str)
-                    and item["locator"].startswith("https://")
-                    and isinstance(item["revision"], str)
-                    and bool(item["revision"])
-                    and _valid_sha256(item["sha256"])
-                    and item["hash_basis"] == "exact-terms-content-bytes"
-                    and isinstance(item["terms_content_ref"], dict)
-                    and item["terms_content_ref"].get("sha256")
-                    == item["sha256"]
-                    for item in evidence
-                )
-            ):
-                errors.append(f"{location}/evidence: invalid pinned evidence")
-            else:
-                for evidence_index, item in enumerate(evidence):
-                    evidence_location = (
-                        f"{location}/evidence/{evidence_index}/"
-                        "terms_content_ref"
-                    )
-                    if not _is_license_terms_content_path(
-                        item["terms_content_ref"]["path"]
-                    ):
-                        errors.append(
-                            f"{evidence_location}/path: exact license terms "
-                            "must live under a skill official-source-pack "
-                            "license-terms directory"
-                        )
-                    errors.extend(
-                        _central_file_ref_errors(
-                            item["terms_content_ref"],
-                            location=evidence_location,
-                            root=root,
-                            portable_context=portable_context,
-                        )
-                    )
-            attestation = trust["platform_attestation_ref"]
-            if attestation is not None:
-                errors.extend(
-                    _central_file_ref_errors(
-                        attestation,
-                        location=f"{location}/platform_attestation_ref",
-                        root=root,
-                        portable_context=portable_context,
-                    )
-                )
     return errors
 
 
@@ -1627,6 +1432,601 @@ def _status_overclaim(
         )
 
 
+def _processor_ceiling_v11(
+    processor: dict[str, Any],
+    *,
+    expected_input_sha256: str,
+    expected_output_sha256: str,
+    declared_status: str,
+    consumer_registry: dict[str, Any],
+    root: Path,
+    location: str,
+    findings: list[Finding],
+    portable_context: PortableValidationContext | None = None,
+) -> str:
+    def _strip_file_bytes(ref: Mapping[str, Any] | None, *, field: str) -> dict[str, Any] | None:
+        if not isinstance(ref, Mapping):
+            return None
+        cleaned = dict(ref)
+        expected_bytes = cleaned.get("bytes")
+        if isinstance(expected_bytes, int) and expected_bytes > 0:
+            raw = _safe_local_bytes(
+                root,
+                cleaned.get("path"),
+                location=f"{location}/{field}/path",
+                findings=findings,
+                failure_code="PROCESSOR_ARTIFACT_UNAVAILABLE",
+                portable_context=portable_context,
+            )
+            if raw is not None and _artifact_size(raw) != expected_bytes:
+                findings.append(
+                    _finding(
+                        "PROCESSOR_ARTIFACT_BYTES_MISMATCH",
+                        f"{location}/{field}/bytes",
+                        "processor artifact byte count does not match local bytes",
+                    )
+                )
+        cleaned.pop("bytes", None)
+        return cleaned
+
+    assurance = processor.get("assurance_mode")
+    if assurance == "unverified":
+        hashes_match = (
+            processor.get("input_sha256") == expected_input_sha256
+            and processor.get("output_sha256") == expected_output_sha256
+        )
+        if not hashes_match:
+            findings.append(
+                _finding(
+                    "PROCESSOR_IO_MISMATCH",
+                    location,
+                    "discovery processor input/output identity does not match the exact "
+                    "validated record projection",
+                )
+            )
+            return "blocked"
+        if declared_status == "complete":
+            findings.append(
+                _finding(
+                    "PROCESSOR_TRUST_UNVERIFIED",
+                    f"{location}/assurance_mode",
+                    "discovery processor has unverified assurance mode",
+                )
+            )
+        return "partial"
+    if assurance not in {"pinned", "attested"}:
+        findings.append(
+            _finding(
+                "CORPUS_PROCESSOR_ASSURANCE_INVALID",
+                f"{location}/assurance_mode",
+                "discovery processor assurance_mode is not supported for corpus v1.1",
+            )
+        )
+        return "blocked"
+    translated = {
+        "enumerator_id": processor["processor_id"],
+        "enumerator_version": processor["processor_version"],
+        "trust_mode": (
+            "central-pinned" if assurance == "pinned" else "platform-attested"
+        ),
+        "implementation_ref": _strip_file_bytes(
+            processor.get("implementation_ref"), field="implementation_ref"
+        ),
+        "configuration_ref": _strip_file_bytes(
+            processor.get("configuration_ref"), field="configuration_ref"
+        ),
+        "dependency_lock_ref": _strip_file_bytes(
+            processor.get("dependency_lock_ref"), field="dependency_lock_ref"
+        ),
+        "input_sha256": processor.get("input_sha256"),
+        "output_sha256": processor.get("output_sha256"),
+        "attestation_id": processor.get("attestation_id"),
+    }
+    return _processor_ceiling(
+        translated,
+        kind="enumerator",
+        expected_input_sha256=expected_input_sha256,
+        expected_output_sha256=expected_output_sha256,
+        declared_status=declared_status,
+        consumer_registry=consumer_registry,
+        root=root,
+        location=location,
+        findings=findings,
+        portable_context=portable_context,
+    )
+
+
+def _corpus_v11_discovery_inventory(
+    discovery: dict[str, Any],
+    *,
+    authority: dict[str, Any],
+    source_root: Path,
+    location: str,
+    findings: list[Finding],
+    portable_context: PortableValidationContext | None = None,
+) -> str | None:
+    inventory = discovery.get("inventory")
+    if not isinstance(inventory, dict):
+        findings.append(
+            _finding(
+                "CORPUS_DISCOVERY_INVENTORY_INVALID",
+                f"{location}/discovery/inventory",
+                "discovery inventory must be an exact embedded/external/metadata identity",
+            )
+        )
+        return None
+    mode = inventory.get("content_mode")
+    if mode == "embedded-content":
+        if set(inventory) != {
+            "content_mode",
+            "locator",
+            "sha256",
+            "bytes",
+        }:
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_INVALID",
+                    f"{location}/discovery/inventory",
+                    "embedded discovery inventory must be exact embedded-content identity",
+                )
+            )
+            return None
+        if (
+            not isinstance(inventory.get("sha256"), str)
+            or not _valid_sha256(inventory["sha256"])
+            or not isinstance(inventory.get("bytes"), int)
+            or isinstance(inventory.get("bytes"), bool)
+            or inventory["bytes"] <= 0
+        ):
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_INVALID",
+                    f"{location}/discovery/inventory",
+                    "embedded discovery inventory requires valid sha256 and bytes",
+                )
+            )
+            return None
+        raw = _safe_local_bytes(
+            source_root,
+            inventory["locator"],
+            location=f"{location}/discovery/inventory/locator",
+            findings=findings,
+            failure_code="CORPUS_DISCOVERY_INVENTORY_UNAVAILABLE",
+            portable_context=portable_context,
+        )
+        if raw is None:
+            return None
+        if _artifact_sha256(raw) != inventory["sha256"]:
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_HASH_MISMATCH",
+                    f"{location}/discovery/inventory/sha256",
+                    "discovery inventory sha256 does not match exact embedded inventory bytes",
+                )
+            )
+            return None
+        if _artifact_size(raw) != inventory["bytes"]:
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_BYTES_MISMATCH",
+                    f"{location}/discovery/inventory/bytes",
+                    "discovery inventory byte count does not match embedded payload",
+                )
+                )
+            return None
+        return inventory["sha256"]
+    if mode == "external-content":
+        if set(inventory) != {"content_mode", "locator", "receipt"}:
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_INVALID",
+                    f"{location}/discovery/inventory",
+                    "external discovery inventory must be exact external-content identity",
+                )
+            )
+            return None
+        if not _url_matches_authority(inventory.get("locator", ""), authority):
+            findings.append(
+                _finding(
+                    "AUTHORITY_DISCOVERY_INVENTORY_LOCATOR_MISMATCH",
+                    f"{location}/discovery/inventory/locator",
+                    "discovery inventory locator is outside authority policy",
+                )
+            )
+            return None
+        receipt = inventory.get("receipt")
+        if (
+            not isinstance(receipt, dict)
+            or set(receipt)
+            != {"retrieval_method", "retrieved_utc", "raw_sha256", "raw_bytes"}
+            or not _valid_sha256(receipt.get("raw_sha256"))
+            or not isinstance(receipt.get("raw_bytes"), int)
+            or isinstance(receipt.get("raw_bytes"), bool)
+            or receipt.get("raw_bytes") <= 0
+        ):
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_INVALID",
+                    f"{location}/discovery/inventory/receipt",
+                    "external discovery inventory requires an exact valid receipt",
+                )
+            )
+            return None
+        return str(receipt["raw_sha256"])
+    if mode == "metadata-only":
+        if set(inventory) != {"content_mode", "locator", "identity"}:
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_INVALID",
+                    f"{location}/discovery/inventory",
+                    "metadata-only discovery inventory must be exact metadata identity",
+                )
+            )
+            return None
+        locator = inventory.get("locator")
+        if authority and not _url_matches_authority(str(locator), authority):
+            findings.append(
+                _finding(
+                    "AUTHORITY_DISCOVERY_INVENTORY_LOCATOR_MISMATCH",
+                    f"{location}/discovery/inventory/locator",
+                    "discovery inventory locator is outside authority policy",
+                )
+            )
+            return None
+        identity = inventory.get("identity")
+        if (
+            not isinstance(identity, dict)
+            or set(identity) != {"sha256", "bytes"}
+            or not _valid_sha256(identity.get("sha256"))
+            or not isinstance(identity.get("bytes"), int)
+            or isinstance(identity.get("bytes"), bool)
+            or identity.get("bytes") <= 0
+        ):
+            findings.append(
+                _finding(
+                    "CORPUS_DISCOVERY_INVENTORY_INVALID",
+                    f"{location}/discovery/inventory/identity",
+                    "metadata discovery inventory requires exact byte identity",
+                )
+            )
+            return None
+        return str(identity["sha256"])
+    findings.append(
+        _finding(
+            "CORPUS_DISCOVERY_INVENTORY_FORMAT_INVALID",
+            f"{location}/discovery/inventory/content_mode",
+            "discovery inventory content mode must be embedded-content, external-content, "
+            "or metadata-only",
+        )
+    )
+    return None
+
+
+def _source_inventory_v11_entries(
+    source_inventory: Mapping[str, Any],
+    *,
+    authority: dict[str, Any],
+    location: str,
+    source_root: Path,
+    findings: list[Finding],
+    portable_context: PortableValidationContext | None = None,
+) -> tuple[set[str], set[str], bool]:
+    if not isinstance(source_inventory, Mapping):
+        findings.append(
+            _finding(
+                "CORPUS_SOURCE_INVENTORY_INVALID",
+                f"{location}/source_inventory",
+                "source_inventory must be a mapping keyed by source_id",
+            )
+        )
+        return set(), set(), False
+    included: set[str] = set()
+    excluded: set[str] = set()
+    valid = True
+    for source_id, source in source_inventory.items():
+        source_location = f"{location}/source_inventory/{source_id}"
+        if not isinstance(source_id, str):
+            findings.append(
+                _finding(
+                    "CORPUS_SOURCE_ID_INVALID",
+                    source_location,
+                    "source_inventory key must be a string source_id",
+                )
+            )
+            valid = False
+            continue
+        if not isinstance(source, dict):
+            findings.append(
+                _finding(
+                    "CORPUS_SOURCE_RECORD_INVALID",
+                    source_location,
+                    "source_inventory entry must be an object",
+                )
+            )
+            valid = False
+            continue
+        disposition = source.get("disposition")
+        if disposition == "included":
+            required = {
+                "disposition",
+                "title",
+                "source_kind",
+                "source_identity",
+                "subject_ids",
+                "loss_ids",
+            }
+            included.add(source_id)
+        elif disposition == "excluded":
+            required = {
+                "disposition",
+                "title",
+                "source_kind",
+                "source_identity",
+                "reason_code",
+                "rationale",
+            }
+            excluded.add(source_id)
+        else:
+            findings.append(
+                _finding(
+                    "CORPUS_SOURCE_DISPOSITION_INVALID",
+                    f"{source_location}/disposition",
+                    "source disposition must be included or excluded",
+                )
+            )
+            valid = False
+            continue
+        if set(source) != required:
+            findings.append(
+                _finding(
+                    "CORPUS_SOURCE_RECORD_INVALID",
+                    source_location,
+                    "source inventory entry must contain the exact technical fields",
+                )
+            )
+            valid = False
+        source_kind = source.get("source_kind")
+        identity = source.get("source_identity")
+        if not isinstance(identity, dict):
+            findings.append(
+                _finding(
+                    "CORPUS_SOURCE_IDENTITY_INVALID",
+                    f"{source_location}/source_identity",
+                    "source_identity must be an explicit identity object",
+                )
+            )
+            valid = False
+            continue
+        content_mode = identity.get("content_mode")
+        if disposition == "excluded":
+            if content_mode != "excluded":
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity/content_mode",
+                        "excluded sources must use excluded content_mode",
+                    )
+                )
+                valid = False
+                continue
+            if set(identity) != {
+                "content_mode",
+                "locator",
+                "inventory_entry_identity",
+            } or not isinstance(identity.get("inventory_entry_identity"), dict):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity",
+                        "excluded source_identity must be exact excluded identity",
+                    )
+                )
+                valid = False
+                continue
+            if authority and not _url_matches_authority(
+                str(identity.get("locator")),
+                authority,
+            ):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_LOCATOR_MISMATCH",
+                        f"{source_location}/source_identity/locator",
+                        "excluded source locator is outside authority policy",
+                    )
+                )
+                valid = False
+            entry_identity = identity["inventory_entry_identity"]
+            if (
+                set(entry_identity) != {"sha256", "bytes"}
+                or not _valid_sha256(entry_identity.get("sha256"))
+                or not isinstance(entry_identity.get("bytes"), int)
+                or isinstance(entry_identity.get("bytes"), bool)
+                or entry_identity.get("bytes") <= 0
+            ):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity/inventory_entry_identity",
+                        "excluded inventory_entry_identity must be exact byte identity",
+                    )
+                )
+                valid = False
+            continue
+        if content_mode not in {
+            "embedded-content",
+            "external-content",
+            "metadata-only",
+        }:
+            findings.append(
+                _finding(
+                    "CORPUS_SOURCE_IDENTITY_INVALID",
+                    f"{source_location}/source_identity/content_mode",
+                    "included sources require embedded/external/metadata-only identity",
+                )
+            )
+            valid = False
+            continue
+        if content_mode == "embedded-content":
+            if set(identity) != {
+                "content_mode",
+                "locator",
+                "sha256",
+                "bytes",
+            }:
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity",
+                        "embedded source_identity must be exact embedded identity",
+                    )
+                )
+                valid = False
+                continue
+            if (
+                not _valid_sha256(identity.get("sha256"))
+                or not isinstance(identity.get("bytes"), int)
+                or isinstance(identity.get("bytes"), bool)
+                or identity.get("bytes") <= 0
+            ):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity",
+                        "embedded source_identity requires valid sha256 and bytes",
+                    )
+                )
+                valid = False
+                continue
+            raw = _safe_local_bytes(
+                source_root,
+                identity["locator"],
+                location=f"{source_location}/source_identity/locator",
+                findings=findings,
+                failure_code="CORPUS_SOURCE_CONTENT_UNAVAILABLE",
+                portable_context=portable_context,
+            )
+            if raw is None:
+                valid = False
+            else:
+                if _artifact_sha256(raw) != identity["sha256"]:
+                    findings.append(
+                        _finding(
+                            "CORPUS_SOURCE_CONTENT_HASH_MISMATCH",
+                            f"{source_location}/source_identity/sha256",
+                            "embedded source content sha256 does not match exact bytes",
+                        )
+                    )
+                    valid = False
+                if _artifact_size(raw) != identity["bytes"]:
+                    findings.append(
+                        _finding(
+                            "CORPUS_SOURCE_CONTENT_BYTES_MISMATCH",
+                            f"{source_location}/source_identity/bytes",
+                            "embedded source bytes does not match exact byte count",
+                        )
+                    )
+                    valid = False
+        elif content_mode == "external-content":
+            if set(identity) != {"content_mode", "locator", "receipt"}:
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity",
+                        "external source_identity must be exact external identity",
+                    )
+                )
+                valid = False
+                continue
+            if authority and not _url_matches_authority(
+                str(identity.get("locator")),
+                authority,
+            ):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_LOCATOR_MISMATCH",
+                        f"{source_location}/source_identity/locator",
+                        "external source locator is outside authority policy",
+                    )
+                )
+                valid = False
+                continue
+            receipt = identity.get("receipt")
+            if (
+                not isinstance(receipt, dict)
+                or set(receipt)
+                != {
+                    "retrieval_method",
+                    "retrieved_utc",
+                    "raw_sha256",
+                    "raw_bytes",
+                }
+                or not _valid_sha256(receipt.get("raw_sha256"))
+                or not isinstance(receipt.get("raw_bytes"), int)
+                or isinstance(receipt.get("raw_bytes"), bool)
+                or receipt.get("raw_bytes") <= 0
+            ):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity/receipt",
+                        "external source identity requires exact valid receipt",
+                    )
+                )
+                valid = False
+        else:
+            locator = identity.get("locator")
+            if authority and not _url_matches_authority(str(locator), authority):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_LOCATOR_MISMATCH",
+                        f"{source_location}/source_identity/locator",
+                        "metadata source locator is outside authority policy",
+                    )
+                )
+                valid = False
+            if set(identity) != {"content_mode", "locator", "identity"}:
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity",
+                        "metadata source_identity must be exact metadata identity",
+                    )
+                )
+                valid = False
+                continue
+            metadata_identity = identity.get("identity")
+            if (
+                not isinstance(metadata_identity, dict)
+                or set(metadata_identity) != {"sha256", "bytes"}
+                or not _valid_sha256(metadata_identity.get("sha256"))
+                or not isinstance(metadata_identity.get("bytes"), int)
+                or isinstance(metadata_identity.get("bytes"), bool)
+                or metadata_identity.get("bytes") <= 0
+            ):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity/identity",
+                        "metadata source_identity requires exact byte identity",
+                    )
+                )
+                valid = False
+        if disposition == "included":
+            if (
+                not isinstance(source.get("subject_ids"), list)
+                or not isinstance(source.get("loss_ids"), list)
+            ):
+                findings.append(
+                    _finding(
+                        "CORPUS_SOURCE_RECORD_INVALID",
+                        source_location,
+                        "included source must include subject_ids and loss_ids arrays",
+                    )
+                )
+                valid = False
+    return included, excluded, valid
+
+
 def _corpus_findings(
     record: LoadedRecord,
     *,
@@ -1640,351 +2040,14 @@ def _corpus_findings(
     portable_context: PortableValidationContext | None = None,
 ) -> None:
     data = record.data
+    if data.get("schema_version") != "1.1":
+        return
+
     location = f"corpus/{data['corpus_id']}"
-    discovered = data["discovery"]["discovered_source_ids"]
-    included = _ids(data["included_sources"], "source_id")
-    excluded = _ids(data["reviewed_exclusions"], "source_id")
-    discovered_set = set(discovered)
-    included_set = set(included)
-    excluded_set = set(excluded)
-
-    _check_unique_ids(
-        data["included_sources"],
-        "source_id",
-        code="CORPUS_SOURCE_ID_DUPLICATE",
-        location=f"{location}/included_sources",
-        findings=findings,
-    )
-    _check_unique_ids(
-        data["reviewed_exclusions"],
-        "source_id",
-        code="CORPUS_SOURCE_ID_DUPLICATE",
-        location=f"{location}/reviewed_exclusions",
-        findings=findings,
-    )
-    if (
-        included_set.intersection(excluded_set)
-        or discovered_set != included_set.union(excluded_set)
-        or len(discovered) != len(discovered_set)
-    ):
-        findings.append(
-            _finding(
-                "CORPUS_PARTITION_INVALID",
-                f"{location}/discovery",
-                "discovered_source_ids must be exactly the disjoint union of "
-                "included source IDs and reviewed exclusion source IDs",
-            )
-        )
-
+    authority = authorities.get(data["authority_id"])
+    projection = authority_projection.get(data["authority_id"])
     discovery = data["discovery"]
-    inventory_ceiling = "complete"
-    if discovery["inventory_format"] == "declarative-source-catalog-v1":
-        if (
-            discovery["upstream_universe_complete"]
-            or discovery["inventory_scope"] != "bounded-authority-subset"
-        ):
-            findings.append(
-                _finding(
-                    "CORPUS_CATALOG_SELF_ASSERTED_UNIVERSE",
-                    f"{location}/discovery/upstream_universe_complete",
-                    "a declarative source catalog is the bounded claim being "
-                    "checked and cannot independently prove an upstream "
-                    "universe",
-                )
-            )
-            inventory_ceiling = "blocked"
-        if data["version_scope"]["kind"] == "latest-at-retrieval":
-            expected_snapshot = _source_identity_aggregate_sha256(data)
-            snapshot = data["version_scope"]["snapshot_identity"]
-            if (
-                not isinstance(snapshot, dict)
-                or snapshot.get("kind") != "sha256"
-                or snapshot.get("value") != expected_snapshot
-                or snapshot.get("content_sha256") != expected_snapshot
-            ):
-                findings.append(
-                    _finding(
-                        "ROLLING_SNAPSHOT_IDENTITY_MISMATCH",
-                        f"{location}/version_scope/snapshot_identity",
-                        "rolling declarative corpus identity must equal the "
-                        "domain-separated aggregate independently recomputed "
-                        "from included source identities and reviewed "
-                        "exclusions",
-                    )
-                )
-                inventory_ceiling = "blocked"
-    processor_ceiling = _processor_ceiling(
-        discovery["enumerator"],
-        kind="enumerator",
-        expected_input_sha256=discovery["inventory_sha256"],
-        expected_output_sha256=_canonical_json_sha256(
-            {"discovered_source_ids": discovered}
-        ),
-        declared_status=data["status"],
-        consumer_registry=consumer_registry,
-        root=repository_root,
-        location=f"{location}/discovery/enumerator",
-        findings=findings,
-        portable_context=portable_context,
-    )
-    if discovery["inventory_storage_mode"] == "embedded-open":
-        inventory_raw = _safe_local_bytes(
-            source_root,
-            discovery["inventory_locator"],
-            location=f"{location}/discovery/inventory_locator",
-            findings=findings,
-            failure_code="CORPUS_INVENTORY_UNAVAILABLE",
-            portable_context=portable_context,
-        )
-        if inventory_raw is None:
-            inventory_ceiling = "blocked"
-        else:
-            actual_inventory_hash = _artifact_sha256(inventory_raw)
-            if actual_inventory_hash != discovery["inventory_sha256"]:
-                findings.append(
-                    _finding(
-                        "CORPUS_INVENTORY_HASH_MISMATCH",
-                        f"{location}/discovery/inventory_sha256",
-                        "inventory_sha256 does not match exact inventory artifact bytes",
-                    )
-                )
-                inventory_ceiling = "blocked"
-            if isinstance(inventory_raw, ExternalizedArtifact):
-                pass
-            else:
-                inventory_ids: set[str] | None = None
-                try:
-                    inventory_data = strict_json.loads_object(
-                        inventory_raw,
-                        discovery["inventory_locator"],
-                        max_bytes=MAX_CONTENT_BYTES,
-                    )
-                except strict_json.StrictJSONError:
-                    inventory_data = {}
-                if (
-                    discovery["inventory_format"]
-                    == "cp2k-canonical-manifest-v1"
-                    and isinstance(inventory_data.get("pages"), dict)
-                ):
-                    if all(
-                        isinstance(item, dict)
-                        and isinstance(item.get("source_path"), str)
-                        for item in inventory_data["pages"].values()
-                    ):
-                        inventory_ids = {
-                            official_source_authorities.cp2k_source_id(
-                                item["source_path"]
-                            )
-                            for item in inventory_data["pages"].values()
-                        }
-                elif (
-                    discovery["inventory_format"] == "cp2k-official-index-v1"
-                    and set(inventory_data)
-                    == official_source_authorities.CP2K_INDEX_FIELDS
-                    and inventory_data.get("schema_version") == "1.0"
-                    and isinstance(inventory_data.get("pages"), list)
-                    and all(
-                        isinstance(item, str)
-                        for item in inventory_data["pages"]
-                    )
-                ):
-                    inventory_ids = {
-                        official_source_authorities.cp2k_source_id(item)
-                        for item in inventory_data["pages"]
-                    }
-                elif (
-                    discovery["inventory_format"] == "source-id-list-v1"
-                    and set(inventory_data) == {"schema_version", "source_ids"}
-                    and inventory_data["schema_version"] == "1.0"
-                    and isinstance(inventory_data["source_ids"], list)
-                    and all(
-                        isinstance(item, str)
-                        for item in inventory_data["source_ids"]
-                    )
-                ):
-                    inventory_ids = set(inventory_data["source_ids"])
-                elif (
-                    discovery["inventory_format"]
-                    == "declarative-source-catalog-v1"
-                    and set(inventory_data)
-                    == {
-                        "schema_version",
-                        "contract_name",
-                        "version_scope",
-                        "upstream_universe_complete",
-                        "inventory_locator",
-                        "sources",
-                        "subjects",
-                        "reviewed_exclusions",
-                        "losses",
-                        "license",
-                        "limitations",
-                        "blockers",
-                    }
-                    and inventory_data.get("schema_version") == "1.0"
-                    and inventory_data.get("contract_name")
-                    == "official-document-source-catalog"
-                    and isinstance(inventory_data.get("sources"), list)
-                    and isinstance(
-                        inventory_data.get("reviewed_exclusions"), list
-                    )
-                    and all(
-                        isinstance(item, dict)
-                        and isinstance(item.get("source_id"), str)
-                        for item in [
-                            *inventory_data["sources"],
-                            *inventory_data["reviewed_exclusions"],
-                        ]
-                    )
-                ):
-                    inventory_ids = {
-                        item["source_id"]
-                        for item in [
-                            *inventory_data["sources"],
-                            *inventory_data["reviewed_exclusions"],
-                        ]
-                    }
-                elif (
-                    discovery["inventory_format"]
-                    == "qe-official-manifest-v1"
-                    and set(inventory_data)
-                    == {
-                        "schema_version",
-                        "contract_name",
-                        "catalog_type",
-                        "skill_id",
-                        "source_root",
-                        "retrieved_utc",
-                        "legacy_manifest_sha256",
-                        "manuals",
-                        "limitations",
-                    }
-                    and inventory_data.get("schema_version") == "1.0"
-                    and inventory_data.get("contract_name")
-                    == "qe-source-pack-input"
-                    and inventory_data.get("catalog_type")
-                    == "qe-input-manifest-metadata-v1"
-                    and isinstance(inventory_data.get("manuals"), list)
-                    and all(
-                        isinstance(item, dict)
-                        and set(item)
-                        == {
-                            "name",
-                            "version",
-                            "url",
-                            "retrieved_utc",
-                            "raw_sha256",
-                            "raw_bytes",
-                            "sections",
-                        }
-                        and isinstance(item.get("name"), str)
-                        for item in inventory_data["manuals"]
-                    )
-                ):
-                    inventory_ids = {
-                        _pack_source_id("qe-input", item["name"])
-                        for item in inventory_data["manuals"]
-                    }
-                elif (
-                    discovery["inventory_format"]
-                    == "vasp-wiki-manifest-v1"
-                    and set(inventory_data)
-                    == {
-                        "schema_version",
-                        "contract_name",
-                        "catalog_type",
-                        "skill_id",
-                        "official_root",
-                        "api_url",
-                        "pages",
-                        "retrieved_utc",
-                        "legacy_manifest_sha256",
-                        "limitations",
-                    }
-                    and inventory_data.get("schema_version") == "1.0"
-                    and inventory_data.get("contract_name")
-                    == "vasp-source-pack-input"
-                    and inventory_data.get("catalog_type")
-                    == "vasp-wiki-page-metadata-v1"
-                    and isinstance(inventory_data.get("pages"), list)
-                    and len(inventory_data["pages"]) == 81
-                    and all(
-                        isinstance(item, dict)
-                        and set(item)
-                        == {
-                            "pageid",
-                            "revid",
-                            "title",
-                            "url",
-                            "api_request_url",
-                            "raw_json_sha256",
-                            "raw_json_bytes",
-                            "wikitext_sha256",
-                            "wikitext_bytes",
-                        }
-                        and isinstance(item.get("pageid"), int)
-                        and not isinstance(item.get("pageid"), bool)
-                        for item in inventory_data["pages"]
-                    )
-                ):
-                    inventory_ids = {
-                        _pack_source_id(
-                            "vasp-page", item["pageid"], representation
-                        )
-                        for item in inventory_data["pages"]
-                        for representation in ("api-json", "wikitext")
-                    }
-                if inventory_ids is None:
-                    findings.append(
-                        _finding(
-                            "CORPUS_INVENTORY_FORMAT_INVALID",
-                            f"{location}/discovery/inventory_locator",
-                            "inventory artifact does not match its declared strict format",
-                        )
-                    )
-                    inventory_ceiling = "blocked"
-                elif inventory_ids != discovered_set:
-                    findings.append(
-                        _finding(
-                            "CORPUS_INVENTORY_SET_MISMATCH",
-                            f"{location}/discovery/discovered_source_ids",
-                            "discovered_source_ids must exactly equal IDs parsed from "
-                            "the hashed inventory artifact",
-                        )
-                    )
-                    inventory_ceiling = "blocked"
-    else:
-        receipt = discovery["inventory_receipt"]
-        if (
-            receipt is None
-            or receipt["canonical_url"] != discovery["inventory_locator"]
-            or receipt["raw_sha256"] != discovery["inventory_sha256"]
-            or receipt["selected_sha256"] != receipt["raw_sha256"]
-            or receipt["selected_bytes"] != receipt["raw_bytes"]
-        ):
-            findings.append(
-                _finding(
-                    "CORPUS_INVENTORY_RECEIPT_INVALID",
-                    f"{location}/discovery/inventory_receipt",
-                    "external inventory locator/hash does not match its resolver receipt",
-                )
-            )
-            inventory_ceiling = "blocked"
-        else:
-            inventory_ceiling = _resolver_receipt_ceiling(
-                receipt,
-                authority_id=data["authority_id"],
-                consumer_registry=consumer_registry,
-                consumer_registry_sha256=consumer_registry_sha256,
-                repository_root=repository_root,
-                location=f"{location}/discovery/inventory_receipt",
-                findings=findings,
-                portable_context=portable_context,
-            )
-
-    authority_id = data["authority_id"]
-    authority = authorities.get(authority_id)
-    projection = authority_projection.get(authority_id)
+    maximum = "complete"
     if authority is None or projection is None:
         findings.append(
             _finding(
@@ -1995,7 +2058,6 @@ def _corpus_findings(
         )
         maximum = "blocked"
     else:
-        maximum = "complete"
         if data["provider_id"] != authority["provider_id"]:
             findings.append(
                 _finding(
@@ -2004,6 +2066,7 @@ def _corpus_findings(
                     "corpus provider_id differs from the registered authority provider",
                 )
             )
+            maximum = "blocked"
         if discovery["authority_root"] not in projection["canonical_urls"]:
             findings.append(
                 _finding(
@@ -2012,26 +2075,11 @@ def _corpus_findings(
                     "discovery authority_root is not a registered canonical root",
                 )
             )
-        if (
-            data["version_scope"]["kind"]
-            in {"exact", "revision", "release-line"}
-            and discovery["authority_revision"]
-            != data["version_scope"]["value"]
+            maximum = "blocked"
+        if not authority_version_scope_compatible(
+            data["version_scope"],
+            projection["version_scopes"],
         ):
-            findings.append(
-                _finding(
-                    "AUTHORITY_DISCOVERY_REVISION_MISMATCH",
-                    f"{location}/discovery/authority_revision",
-                    "discovery revision differs from the static corpus identity",
-                )
-            )
-        version_scope = data["version_scope"]
-        registered = authority["version_policy"]["registered_scopes"]
-        version_match = authority_version_scope_compatible(
-            version_scope,
-            registered,
-        )
-        if not version_match:
             findings.append(
                 _finding(
                     "AUTHORITY_VERSION_SCOPE_MISMATCH",
@@ -2041,223 +2089,65 @@ def _corpus_findings(
             )
             maximum = "blocked"
 
-        canonical = projection["canonical_snapshot"]
-        if canonical is not None:
-            canonical_externalized = (
-                canonical.get("portable_externalized") is True
-            )
-            inventory_format = data["discovery"]["inventory_format"]
-            if inventory_format == "cp2k-official-index-v1":
-                expected_inventory_hash = canonical["index_raw_sha256"]
-                expected_inventory_ids = set(canonical["upstream_sources_by_id"])
-                expected_scope = "upstream-universe"
-            elif inventory_format == "cp2k-canonical-manifest-v1":
-                expected_inventory_hash = canonical["manifest_raw_sha256"]
-                expected_inventory_ids = set(canonical["sources_by_id"])
-                expected_scope = "bounded-authority-subset"
-            else:
-                expected_inventory_hash = None
-                expected_inventory_ids = set()
-                expected_scope = None
-            if (
-                data["discovery"]["inventory_sha256"] != expected_inventory_hash
-                or data["discovery"]["inventory_scope"] != expected_scope
-                or (
-                    not canonical_externalized
-                    and discovered_set != expected_inventory_ids
-                )
-            ):
-                findings.append(
-                    _finding(
-                        "AUTHORITY_CANONICAL_INVENTORY_MISMATCH",
-                        f"{location}/discovery",
-                        "canonical-pinned corpus must use the exact registered "
-                        "upstream index or explicitly bounded curated manifest",
-                    )
-                )
-                maximum = "blocked"
-            if (
-                not canonical_externalized
-                and
-                data["discovery"]["upstream_universe_complete"]
-                and (
-                    expected_scope != "upstream-universe"
-                    or not canonical["upstream_universe_complete"]
-                )
-            ):
-                findings.append(
-                    _finding(
-                        "CORPUS_UPSTREAM_UNIVERSE_OVERCLAIM",
-                        f"{location}/discovery/upstream_universe_complete",
-                        "a bounded curated snapshot cannot be relabeled as the "
-                        "complete upstream source universe",
-                    )
-                )
-                maximum = "blocked"
-
-        canonical_sources = (
-            canonical["sources_by_id"]
-            if canonical is not None
-            and canonical.get("portable_externalized") is not True
-            else {}
+    inventory_ceiling = "complete"
+    inventory_sha = None
+    if authority is not None:
+        inventory_sha = _corpus_v11_discovery_inventory(
+            discovery,
+            authority=authority,
+            source_root=source_root,
+            location=location,
+            findings=findings,
+            portable_context=portable_context,
         )
-        for source_index, source in enumerate(data["included_sources"]):
-            source_location = f"{location}/included_sources/{source_index}"
-            if not _url_matches_authority(source["locator"], authority):
-                findings.append(
-                    _finding(
-                        "AUTHORITY_LOCATOR_MISMATCH",
-                        f"{source_location}/locator",
-                        "source locator is outside the registered authority policy",
-                    )
-                )
-            source_scope = source["version_scope"]
-            version_compatible = source_version_scope_compatible(
-                source_scope,
-                version_scope,
-                raw_sha256=source["identity"]["raw_sha256"],
-            )
-            if not version_compatible:
-                findings.append(
-                    _finding(
-                        "SOURCE_VERSION_SCOPE_MISMATCH",
-                        f"{source_location}/version_scope",
-                        "source version identity is incompatible with the corpus scope",
-                    )
-                )
+        if inventory_sha is None:
+            inventory_ceiling = "blocked"
+    else:
+        inventory_ceiling = "blocked"
 
-            identity = source["identity"]
-            receipt = identity["resolver_receipt"]
-            if (
-                identity["kind"] == "sha256"
-                and identity["value"] != identity["raw_sha256"]
-            ):
-                findings.append(
-                    _finding(
-                        "SOURCE_CONTENT_IDENTITY_INVALID",
-                        f"{source_location}/identity",
-                        "sha256 identity value must equal raw_sha256",
-                    )
-                )
-            source_identity_ceiling = "complete"
-            if identity["kind"] not in {
-                "sha256",
-                "canonical-manifest-metadata",
-            }:
-                if (
-                    receipt is None
-                    or receipt["raw_sha256"] != identity["raw_sha256"]
-                    or receipt["raw_bytes"] != identity["raw_bytes"]
-                    or receipt["selected_sha256"]
-                    != identity["raw_sha256"]
-                    or receipt["selected_bytes"] != identity["raw_bytes"]
-                    or receipt["canonical_url"] != source["locator"]
-                    or (
-                        identity["kind"] == "external-receipt"
-                        and identity["value"] != receipt["receipt_id"]
-                    )
-                ):
-                    findings.append(
-                        _finding(
-                            "SOURCE_RECEIPT_INVALID",
-                            f"{source_location}/identity/resolver_receipt",
-                            "external identity does not match its verified resolver receipt",
-                        )
-                    )
-                    maximum = "blocked"
-                else:
-                    source_identity_ceiling = _resolver_receipt_ceiling(
-                        receipt,
-                        authority_id=authority_id,
-                        selection_binding={
-                            "source_id": source["source_id"],
-                            "raw_sha256": identity["raw_sha256"],
-                            "raw_bytes": identity["raw_bytes"],
-                            "selector": {
-                                "layer": "raw-source",
-                                "kind": "whole-source",
-                                "value": "*",
-                            },
-                            "selected_sha256": identity["raw_sha256"],
-                            "selected_bytes": identity["raw_bytes"],
-                        },
-                        consumer_registry=consumer_registry,
-                        consumer_registry_sha256=consumer_registry_sha256,
-                        repository_root=repository_root,
-                        location=f"{source_location}/identity/resolver_receipt",
-                        findings=findings,
-                        portable_context=portable_context,
-                    )
-            elif identity["kind"] == "canonical-manifest-metadata":
-                source_identity_ceiling = "partial"
+    included, excluded, records_valid = _source_inventory_v11_entries(
+        data.get("source_inventory", {}),
+        authority=authority or {},
+        location=location,
+        source_root=source_root,
+        findings=findings,
+        portable_context=portable_context,
+    )
+    if not records_valid:
+        maximum = "blocked"
 
-            if (
-                canonical is not None
-                and canonical.get("portable_externalized") is not True
-            ):
-                canonical_source = canonical_sources.get(source["source_id"])
-                if (
-                    canonical_source is not None
-                    and identity["raw_sha256"]
-                    == canonical_source["derived_snapshot"]["sha256"]
-                    and identity["raw_sha256"] != canonical_source["raw_sha256"]
-                ):
-                    findings.append(
-                        _finding(
-                            "SOURCE_RAW_DERIVED_IDENTITY_CONFUSED",
-                            f"{source_location}/identity/raw_sha256",
-                            "derived Markdown snapshot bytes cannot stand in for the "
-                            "upstream raw source identity",
-                        )
-                    )
-                    maximum = "blocked"
-                if (
-                    canonical_source is None
-                    or canonical_source["canonical_url"] != source["locator"]
-                    or canonical_source["raw_sha256"]
-                    != identity["raw_sha256"]
-                    or canonical_source["raw_bytes"] != identity["raw_bytes"]
-                ):
-                    findings.append(
-                        _finding(
-                            "AUTHORITY_CANONICAL_SNAPSHOT_MISMATCH",
-                            source_location,
-                            "included source does not match the registered canonical "
-                            "snapshot URL and exact bytes",
-                        )
-                    )
-                    maximum = "blocked"
-                elif (
-                    not canonical_source["raw_integrity_verified"]
-                    and receipt is None
-                ):
-                    # The local Markdown snapshot verifies a derived transform,
-                    # not the exact upstream HTML bytes declared in the manifest.
-                    source_identity_ceiling = "partial"
-            elif (
-                authority["content_identity_policy"]["mode"]
-                == "platform-adapter-only"
-            ):
-                # A record-carried receipt is evidence, not the external adapter
-                # trust root.  Inventory closure may still be represented, but
-                # complete content assurance remains unavailable offline.
-                maximum = "partial"
-            maximum = min(
-                (maximum, source_identity_ceiling),
-                key=STATUS_RANK.__getitem__,
-            )
-
+    processor_ceiling = "blocked"
+    if authority is not None:
+        processor_ceiling = _processor_ceiling_v11(
+            discovery["processor"],
+            expected_input_sha256=inventory_sha if inventory_sha is not None else "",
+            expected_output_sha256=_canonical_json_sha256(
+                data.get("source_inventory", {})
+            ),
+            declared_status=data["status"],
+            consumer_registry=consumer_registry,
+            root=repository_root,
+            location=f"{location}/discovery/processor",
+            findings=findings,
+            portable_context=portable_context,
+        )
+    if not discovery["upstream_universe_complete"]:
+        maximum = min(maximum, "partial", key=STATUS_RANK.__getitem__)
     if data["blockers"]:
         maximum = "blocked"
-    elif (
-        not data["discovery"]["upstream_universe_complete"]
-        or data["reviewed_exclusions"]
-    ):
-        maximum = "partial"
     maximum = min(
         (maximum, inventory_ceiling, processor_ceiling),
         key=STATUS_RANK.__getitem__,
     )
+    if not included and not excluded:
+        findings.append(
+            _finding(
+                "CORPUS_SOURCE_PARTITION_INVALID",
+                f"{location}/source_inventory",
+                "source_inventory must partition into included or excluded source ids",
+            )
+        )
+        maximum = "blocked"
     _status_overclaim(
         data["status"],
         maximum,
@@ -2495,6 +2385,508 @@ def _scope_inventory_findings(
     )
 
 
+def _slice_source_identity_projection(
+    source_identity: Any,
+) -> tuple[str, int] | None:
+    if not isinstance(source_identity, Mapping):
+        return None
+    mode = source_identity.get("content_mode")
+    if mode == "embedded-content":
+        sha256 = source_identity.get("sha256")
+        bytes_value = source_identity.get("bytes")
+    elif mode == "external-content":
+        receipt = source_identity.get("receipt")
+        if not isinstance(receipt, Mapping):
+            return None
+        sha256 = receipt.get("raw_sha256")
+        bytes_value = receipt.get("raw_bytes")
+    elif mode == "metadata-only":
+        identity = source_identity.get("identity")
+        if not isinstance(identity, Mapping):
+            return None
+        sha256 = identity.get("sha256")
+        bytes_value = identity.get("bytes")
+    else:
+        return None
+    if (
+        not _valid_sha256(sha256)
+        or not isinstance(bytes_value, int)
+        or isinstance(bytes_value, bool)
+        or bytes_value <= 0
+    ):
+        return None
+    return str(sha256), int(bytes_value)
+
+
+def _slice_loss_accounting_ceiling(
+    accounting: Mapping[str, Any],
+    *,
+    dimension: str,
+    location: str,
+    findings: list[Finding],
+) -> str:
+    if not isinstance(accounting, Mapping):
+        findings.append(
+            _finding(
+                "SLICE_LOSS_ACCOUNTING_INVALID",
+                location,
+                f"{dimension} loss accounting must be an exact object",
+            )
+        )
+        return "blocked"
+
+    closure_status = accounting.get("closure_status", "partial")
+    if not isinstance(closure_status, str) or closure_status not in STATUS_RANK:
+        findings.append(
+            _finding(
+                "SLICE_LOSS_ACCOUNTING_INVALID",
+                f"{location}/closure_status",
+                f"{dimension} loss accounting closure_status is invalid",
+            )
+        )
+        return "blocked"
+
+    entries = accounting.get("entries", [])
+    if not isinstance(entries, list):
+        findings.append(
+            _finding(
+                "SLICE_LOSS_ACCOUNTING_INVALID",
+                f"{location}/entries",
+                f"{dimension} loss accounting entries must be an exact array",
+            )
+        )
+        return "blocked"
+    if len(entries) == 0:
+        return closure_status
+
+    seen_loss_ids = set[str]()
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, Mapping):
+            findings.append(
+                _finding(
+                    "SLICE_LOSS_ACCOUNTING_ENTRY_INVALID",
+                    f"{location}/entries/{index}",
+                    "loss accounting entry must be an exact object",
+                )
+            )
+            return "blocked"
+        loss_id = entry.get("loss_id")
+        if not isinstance(loss_id, str) or not loss_id:
+            findings.append(
+                _finding(
+                    "SLICE_LOSS_ACCOUNTING_ENTRY_INVALID",
+                    f"{location}/entries/{index}/loss_id",
+                    f"{dimension} loss accounting requires a non-empty loss_id",
+                )
+            )
+            return "blocked"
+        if loss_id in seen_loss_ids:
+            findings.append(
+                _finding(
+                    "SLICE_LOSS_ID_DUPLICATE",
+                    f"{location}/entries",
+                    "loss_id values must be unique",
+                )
+            )
+            return "blocked"
+        seen_loss_ids.add(loss_id)
+        disposition = entry.get("disposition")
+        severity = entry.get("severity")
+        if severity == "blocking":
+            findings.append(
+                _finding(
+                    "SLICE_LOSS_ACCOUNTING_SEVERITY_BLOCKING",
+                    f"{location}/entries/{index}",
+                    f"{dimension} loss accounting includes a blocking loss",
+                )
+            )
+            return "blocked"
+        if closure_status == "complete" and disposition == "unresolved":
+            findings.append(
+                _finding(
+                    "SLICE_LOSS_ACCOUNTING_OPEN",
+                    f"{location}/entries/{index}",
+                    f"{dimension} loss accounting cannot report unresolved losses when "
+                    "closure_status is complete",
+                )
+            )
+            return "partial"
+    return closure_status
+
+
+def _slice_processor_ceiling_v11(
+    processor: Mapping[str, Any],
+    *,
+    expected_input_sha256: str,
+    expected_output_sha256: str,
+    declared_status: str,
+    consumer_registry: dict[str, Any],
+    root: Path,
+    location: str,
+    findings: list[Finding],
+    portable_context: PortableValidationContext | None = None,
+) -> str:
+    if not isinstance(processor, Mapping):
+        findings.append(
+            _finding(
+                "PROCESSOR_TRUST_INVALID",
+                location,
+                "processor must be an exact object",
+            )
+        )
+        return "blocked"
+
+    assurance = processor.get("assurance_mode")
+    processor_id = processor.get("processor_id")
+    processor_version = processor.get("processor_version")
+
+    if processor.get("input_sha256") != expected_input_sha256 or processor.get(
+        "output_sha256"
+    ) != expected_output_sha256:
+        findings.append(
+            _finding(
+                "PROCESSOR_IO_MISMATCH",
+                location,
+                "processor input/output identity does not bind exact source identity "
+                "or canonical projection",
+            )
+        )
+        return "blocked"
+
+    if assurance == "unverified":
+        if processor.get("attestations"):
+            findings.append(
+                _finding(
+                    "SLICE_PROCESSOR_ATTESTATION_INVALID",
+                    f"{location}/assurance_mode",
+                    "unverified processor cannot include attestations",
+                )
+            )
+        if declared_status == "complete":
+            findings.append(
+                _finding(
+                    "PROCESSOR_TRUST_UNVERIFIED",
+                    f"{location}/assurance_mode",
+                    "processor assurance mode is unverified",
+                )
+            )
+        return "partial"
+
+    if assurance not in {"pinned", "attested"}:
+        findings.append(
+            _finding(
+                "PROCESSOR_TRUST_INVALID",
+                f"{location}/assurance_mode",
+                "processor assurance_mode is unsupported for document-slice-manifest v1.1",
+            )
+        )
+        return "blocked"
+
+    processors = consumer_registry.get("processors")
+    if not isinstance(processors, Mapping):
+        findings.append(
+            _finding(
+                "PROCESSOR_TRUST_INVALID",
+                f"{location}/assurance_mode",
+                "processor trust cannot resolve a consumer processor registry",
+            )
+        )
+        return "blocked"
+
+    if not isinstance(processor_id, str) or not processor_id:
+        findings.append(
+            _finding(
+                "PROCESSOR_TRUST_INVALID",
+                f"{location}/processor_id",
+                "processor_id must be a non-empty string",
+            )
+        )
+        return "blocked"
+    if not isinstance(processor_version, str):
+        findings.append(
+            _finding(
+                "PROCESSOR_TRUST_INVALID",
+                f"{location}/processor_version",
+                "processor_version must be a non-empty string",
+            )
+        )
+        return "blocked"
+
+    registered = processors.get(processor_id)
+    if (
+        not isinstance(registered, Mapping)
+        or registered.get("kind") != "transformer"
+        or registered.get("version") != processor_version
+    ):
+        findings.append(
+            _finding(
+                "PROCESSOR_TRUST_INVALID",
+                f"{location}/processor_id",
+                "processor must exactly match a registered transformer entry",
+            )
+        )
+        return "blocked"
+
+    attestations = processor.get("attestations")
+    if not isinstance(attestations, list) or len(attestations) == 0:
+        findings.append(
+            _finding(
+                "PROCESSOR_ATTESTATION_INVALID",
+                f"{location}/attestations",
+                "processor assurance requires non-empty attestations",
+            )
+        )
+        return "blocked"
+
+    required_refs = {
+        "implementation": "implementation_ref",
+        "configuration": "configuration_ref",
+        "dependency-lock": "dependency_lock_ref",
+    }
+    artifact_refs: dict[str, Mapping[str, Any]] = {}
+    seen_kinds = set[str]()
+    seen_attestation_ids = set[str]()
+
+    for index, attestation in enumerate(attestations):
+        att_location = f"{location}/attestations/{index}"
+        if not isinstance(attestation, Mapping):
+            findings.append(
+                _finding(
+                    "SLICE_PROCESSOR_ATTESTATION_INVALID",
+                    att_location,
+                    "processor attestation must be an exact implementation/configuration/dependency-lock/execution entry",
+                )
+            )
+            return "blocked"
+        attestation_kind = attestation.get("kind")
+        if not isinstance(attestation_kind, str) or not attestation_kind:
+            findings.append(
+                _finding(
+                    "SLICE_PROCESSOR_ATTESTATION_INVALID",
+                    f"{att_location}/kind",
+                    "processor attestation kind must be a non-empty string",
+                )
+            )
+            return "blocked"
+        if attestation_kind in seen_kinds:
+            findings.append(
+                _finding(
+                    "SLICE_PROCESSOR_ATTESTATION_DUPLICATE_KIND",
+                    att_location,
+                    "processor attestation kinds must be unique",
+                )
+            )
+            return "blocked"
+        seen_kinds.add(attestation_kind)
+
+        attestation_id = attestation.get("attestation_id")
+        if not isinstance(attestation_id, str) or not attestation_id:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{att_location}/attestation_id",
+                    "processor attestation_id must be a non-empty string",
+                )
+            )
+            return "blocked"
+        if attestation_id in seen_attestation_ids:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{att_location}/attestation_id",
+                    "processor attestation_id values must be unique",
+                )
+            )
+            return "blocked"
+        seen_attestation_ids.add(attestation_id)
+
+        artifact = attestation.get("artifact")
+        if not isinstance(artifact, Mapping):
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{att_location}/artifact",
+                    "processor attestation artifact must be an exact object",
+                )
+            )
+            return "blocked"
+
+        artifact_path = artifact.get("path")
+        artifact_sha256 = artifact.get("sha256")
+        artifact_bytes = artifact.get("bytes")
+        if (
+            not isinstance(artifact_path, str)
+            or not isinstance(artifact_bytes, int)
+            or isinstance(artifact_bytes, bool)
+            or artifact_bytes <= 0
+            or not _valid_sha256(artifact_sha256)
+        ):
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{att_location}/artifact",
+                    "processor attestation artifact must include exact path and sha256 and positive bytes",
+                )
+            )
+            return "blocked"
+
+        raw = _safe_local_bytes(
+            root,
+            artifact_path,
+            location=f"{att_location}/artifact",
+            findings=findings,
+            failure_code="PROCESSOR_ATTESTATION_UNAVAILABLE",
+            portable_context=portable_context,
+        )
+        if raw is None or _artifact_size(raw) != artifact_bytes:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_BYTES_MISMATCH",
+                    f"{att_location}/artifact",
+                    "processor attestation artifact size does not match local bytes",
+                )
+            )
+            return "blocked"
+        if _artifact_sha256(raw) != artifact_sha256:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_HASH_MISMATCH",
+                    f"{att_location}/artifact",
+                    "processor attestation artifact hash does not match local bytes",
+                )
+            )
+            return "blocked"
+
+        artifact_refs[attestation_kind] = artifact
+        registry_key = required_refs.get(attestation_kind)
+        if registry_key is None:
+            continue
+        expected = registered.get(registry_key)
+        if (
+            not isinstance(expected, Mapping)
+            or expected.get("path") != artifact_path
+            or expected.get("sha256") != artifact_sha256
+        ):
+            findings.append(
+                _finding(
+                    "PROCESSOR_TRUST_INVALID",
+                    att_location,
+                    "processor attestation identity must exactly match the "
+                    "registered transformer identity",
+                )
+            )
+            return "blocked"
+
+    for kind in required_refs:
+        if kind not in artifact_refs:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_MISSING",
+                    f"{location}/attestations",
+                    "transformer attestation set must include implementation/configuration/dependency-lock",
+                )
+            )
+            return "blocked"
+
+    if assurance == "attested":
+        execution_artifact = artifact_refs.get("execution")
+        if execution_artifact is None:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{location}/attestations",
+                    "attested processor requires execution attestation",
+                )
+            )
+            return "blocked"
+
+        execution_attestation_id = None
+        for attestation in attestations:
+            if (
+                isinstance(attestation, Mapping)
+                and attestation.get("kind") == "execution"
+            ):
+                execution_attestation_id = attestation.get("attestation_id")
+                break
+        if not isinstance(execution_attestation_id, str) or not execution_attestation_id:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{location}/attestations",
+                    "execution attestation must include non-empty attestation_id",
+                )
+            )
+            return "blocked"
+
+        attested_runs = registered.get("attested_runs")
+        if not isinstance(attested_runs, list):
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{location}/attestations",
+                    "processor attested assurance requires attested_runs in registry",
+                )
+            )
+            return "blocked"
+        run = None
+        for item in attested_runs:
+            if (
+                isinstance(item, Mapping)
+                and item.get("attestation_id") == execution_attestation_id
+                and item.get("input_sha256") == expected_input_sha256
+                and item.get("output_sha256") == expected_output_sha256
+            ):
+                run = item
+                break
+        if run is None:
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{location}/attestations",
+                    "no attested run matches execution attestation_id and exact io",
+                )
+            )
+            return "blocked"
+
+        attestation_ref = run.get("attestation_ref")
+        if not isinstance(attestation_ref, Mapping):
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{location}/attestations",
+                    "matched attestation run must include exact attestation_ref",
+                )
+            )
+            return "blocked"
+        if (
+            attestation_ref.get("path") != execution_artifact.get("path")
+            or attestation_ref.get("sha256") != execution_artifact.get("sha256")
+        ):
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_INVALID",
+                    f"{location}/attestations",
+                    "execution artifact must exactly match run.attestation_ref",
+                )
+            )
+            return "blocked"
+        if (
+            isinstance(attestation_ref.get("bytes"), int)
+            and attestation_ref.get("bytes") > 0
+            and attestation_ref.get("bytes") != execution_artifact.get("bytes")
+        ):
+            findings.append(
+                _finding(
+                    "PROCESSOR_ATTESTATION_BYTES_MISMATCH",
+                    f"{location}/attestations",
+                    "execution artifact bytes must match run.attestation_ref",
+                )
+            )
+            return "blocked"
+
+    return "complete"
+
+
 def _slice_manifest_findings(
     record: LoadedRecord,
     *,
@@ -2508,1105 +2900,1025 @@ def _slice_manifest_findings(
     findings: list[Finding],
     portable_context: PortableValidationContext | None = None,
 ) -> None:
-    data = record.data
-    manifest_id = data["slice_manifest_id"]
+    def _lower_ceiling(current: str, candidate: str) -> str:
+        return candidate if STATUS_RANK[candidate] < STATUS_RANK[current] else current
+
+    data = record.data if isinstance(record.data, Mapping) else {}
+    manifest_id = data.get("slice_manifest_id")
+    if not isinstance(manifest_id, str) or not manifest_id:
+        manifest_id = "<unknown>"
     location = f"slices/{manifest_id}"
-    corpus = _check_ref(
-        data["corpus_ref"],
-        id_field="corpus_id",
-        records=corpora,
-        location=f"{location}/corpus_ref",
-        findings=findings,
-    )
-    sources = data["sources"]
-    _check_unique_ids(
-        sources,
-        "source_id",
-        code="SLICE_SOURCE_ID_DUPLICATE",
-        location=f"{location}/sources",
-        findings=findings,
-    )
-    source_ids = set(_ids(sources, "source_id"))
-    maximum = "complete"
+
+    declared_status = data.get("status")
+    if declared_status not in STATUS_RANK:
+        findings.append(
+            _finding(
+                "SLICE_STATUS_INVALID",
+                f"{location}/status",
+                "slice manifest status must be complete, partial, or blocked",
+            )
+        )
+        declared_status = "blocked"
+
+    corpus_ref = data.get("corpus_ref")
+    if not isinstance(corpus_ref, Mapping):
+        findings.append(
+            _finding(
+                "SLICE_CORPUS_REF_INVALID",
+                f"{location}/corpus_ref",
+                "corpus_ref must be an exact object",
+            )
+        )
+        corpus = None
+        corpus_status = "blocked"
+    else:
+        corpus = _check_ref(
+            corpus_ref,
+            id_field="corpus_id",
+            records=corpora,
+            location=f"{location}/corpus_ref",
+            findings=findings,
+        )
+        if corpus is None:
+            corpus_status = "blocked"
+        else:
+            corpus_ref_sha = corpus_ref.get("sha256")
+            if (
+                isinstance(corpus_ref_sha, str)
+                and corpus_ref_sha != corpus.raw_sha256
+            ):
+                corpus_status = "blocked"
+            else:
+                corpus_status = corpus.data.get("status")
+                if corpus_status not in STATUS_RANK:
+                    findings.append(
+                        _finding(
+                            "SLICE_CORPUS_STATUS_INVALID",
+                            f"corpora/{corpus_ref.get('corpus_id', '<unknown>')}/status",
+                            "corpus status must be complete, partial, or blocked",
+                        )
+                    )
+                    corpus_status = "blocked"
+
+    raw_sources = data.get("sources")
+    if not isinstance(raw_sources, Mapping):
+        findings.append(
+            _finding(
+                "SLICE_SOURCES_INVALID",
+                f"{location}/sources",
+                "sources must be an exact source-id to source mapping",
+            )
+        )
+        raw_sources = {}
+
+    blockers = data.get("blockers", [])
+    if not isinstance(blockers, list):
+        findings.append(
+            _finding(
+                "SLICE_BLOCKERS_INVALID",
+                f"{location}/blockers",
+                "blockers must be an exact array",
+            )
+        )
+        blockers = []
+
     included_by_id: dict[str, dict[str, Any]] = {}
-    authority: dict[str, Any] | None = None
-    projection: dict[str, Any] | None = None
+    corpus_source_ids: set[str] = set()
     if corpus is not None:
-        included_by_id = {
-            item["source_id"]: item
-            for item in corpus.data["included_sources"]
-        }
-        included_ids = set(included_by_id)
-        if not source_ids.issubset(included_ids):
+        source_inventory = corpus.data.get("source_inventory")
+        if not isinstance(source_inventory, Mapping):
+            findings.append(
+                _finding(
+                    "SLICE_CORPUS_SOURCE_INVENTORY_INVALID",
+                    f"corpora/{corpus.data.get('corpus_id', '<unknown>')}/source_inventory",
+                    "corpus source_inventory must be an exact map",
+                )
+            )
+        else:
+            for sid, source_entry in source_inventory.items():
+                if (
+                    isinstance(sid, str)
+                    and isinstance(source_entry, Mapping)
+                    and source_entry.get("disposition") == "included"
+                ):
+                    included_by_id[sid] = source_entry
+                    corpus_source_ids.add(sid)
+
+    sources: dict[str, Any] = {}
+    for sid in raw_sources.keys():
+        if not isinstance(sid, str):
+            findings.append(
+                _finding(
+                    "SLICE_SOURCE_ID_INVALID",
+                    f"{location}/sources",
+                    "source id must be a safe string",
+                )
+            )
+            continue
+        sources[sid] = raw_sources[sid]
+
+    manifest_source_ids = set(sources.keys())
+
+    maximum = min((declared_status, corpus_status), key=STATUS_RANK.__getitem__)
+    if manifest_source_ids != corpus_source_ids and corpus is not None:
+        maximum = _lower_ceiling(maximum, "partial")
+        if declared_status == "complete":
             findings.append(
                 _finding(
                     "SLICE_SOURCE_COVERAGE_INVALID",
                     f"{location}/sources",
-                    "slice sources include IDs which are not included corpus sources",
+                    "complete manifests must include every included corpus source",
                 )
             )
-        if source_ids != included_ids:
-            maximum = "partial"
-            if data["status"] == "complete":
-                findings.append(
-                    _finding(
-                        "SLICE_SOURCE_COVERAGE_INVALID",
-                        f"{location}/sources",
-                        "a complete slice manifest must cover every included corpus source",
-                    )
+    extras = manifest_source_ids - corpus_source_ids
+    if extras:
+        maximum = _lower_ceiling(maximum, "partial")
+        findings.append(
+            _finding(
+                "SLICE_SOURCE_COVERAGE_INVALID",
+                f"{location}/sources",
+                "slice includes source IDs not marked included in referenced corpus",
+            )
+        )
+
+    global_slice_ids: set[str] = set()
+    subject_slice_refs: dict[str, set[str]] = {}
+
+    for source_id, source in sources.items():
+        source_location = f"{location}/sources/{source_id}"
+        if not isinstance(source, Mapping):
+            findings.append(
+                _finding(
+                    "SLICE_SOURCE_INVALID",
+                    source_location,
+                    "slice source entry must be an exact object",
                 )
-        if corpus.data["status"] != "complete":
-            maximum = corpus.data["status"]
-        authority = authorities.get(corpus.data["authority_id"])
-        projection = authority_projection.get(corpus.data["authority_id"])
-        for source_index, source in enumerate(sources):
-            corpus_source = included_by_id.get(source["source_id"])
-            if (
-                corpus_source is not None
-                and source["source_identity"] != corpus_source["identity"]
-            ):
+            )
+            maximum = _lower_ceiling(maximum, "partial")
+            continue
+
+        corpus_source = included_by_id.get(source_id)
+
+        source_identity = source.get("source_identity")
+        if not isinstance(source_identity, Mapping):
+            findings.append(
+                _finding(
+                    "SLICE_SOURCE_IDENTITY_INVALID",
+                    f"{source_location}/source_identity",
+                    "source_identity must be an exact object",
+                )
+            )
+            maximum = _lower_ceiling(maximum, "partial")
+            source_projection = None
+        else:
+            if corpus_source is not None and source_identity != corpus_source.get("source_identity"):
                 findings.append(
                     _finding(
                         "SLICE_SOURCE_IDENTITY_MISMATCH",
-                        f"{location}/sources/{source_index}/source_identity",
-                        "slice source identity differs from the corpus source identity",
+                        f"{source_location}/source_identity",
+                        "source identity must exactly match corpus source identity",
                     )
                 )
-    else:
-        maximum = "blocked"
+                maximum = _lower_ceiling(maximum, "partial")
+            source_projection = _slice_source_identity_projection(source_identity)
+            if source_projection is None:
+                findings.append(
+                    _finding(
+                        "SLICE_SOURCE_IDENTITY_INVALID",
+                        f"{source_location}/source_identity",
+                        "source identity must project to non-empty sha256 and positive bytes",
+                    )
+                )
+                maximum = _lower_ceiling(maximum, "partial")
 
-    global_slice_ids: set[str] = set()
-    material_unresolved = False
-    blocking_loss_present = False
-    external_receipt_ceiling = "complete"
-    non_byte_selector = False
-    derived_selector = False
-    processor_ceiling = "complete"
-    preservation_unverified = False
-    for source_index, source in enumerate(sources):
-        source_location = f"{location}/sources/{source_index}"
-        source_processor_ceiling = _processor_ceiling(
-            source["transformer"],
-            kind="transformer",
-            expected_input_sha256=source["source_identity"]["raw_sha256"],
-            expected_output_sha256=_canonical_json_sha256(
-                {
-                    "slices": source["slices"],
-                    "reviewed_overlaps": source["reviewed_overlaps"],
-                    "preserved_ranges": source["preserved_ranges"],
-                    "reviewed_orphans": source["reviewed_orphans"],
-                    "loss_ledger": source["loss_ledger"],
-                }
-            ),
-            declared_status=data["status"],
-            consumer_registry=consumer_registry,
-            root=repository_root,
-            location=f"{source_location}/transformer",
-            findings=findings,
-            portable_context=portable_context,
-        )
-        processor_ceiling = min(
-            (processor_ceiling, source_processor_ceiling),
-            key=STATUS_RANK.__getitem__,
-        )
-        corpus_source = included_by_id.get(source["source_id"])
+        raw_source_extent = source.get("raw_source_extent_bytes")
         if (
-            corpus_source is not None
-            and source["transformer"]["input_raw_sha256"]
-            != corpus_source["identity"]["raw_sha256"]
+            not isinstance(raw_source_extent, int)
+            or isinstance(raw_source_extent, bool)
+            or raw_source_extent <= 0
         ):
             findings.append(
                 _finding(
-                    "SLICE_TRANSFORMER_INPUT_MISMATCH",
-                    f"{source_location}/transformer/input_raw_sha256",
-                    "transformer input hash differs from the exact corpus source content",
+                    "SLICE_SOURCE_EXTENT_INVALID",
+                    f"{source_location}/raw_source_extent_bytes",
+                    "raw_source_extent_bytes must be a positive integer",
                 )
             )
-        slices = source["slices"]
-        slice_ids = _ids(slices, "slice_id")
-        if len(slice_ids) != len(set(slice_ids)):
-            findings.append(
-                _finding(
-                    "SLICE_ID_DUPLICATE",
-                    f"{source_location}/slices",
-                    "slice_id values must be unique within a source",
-                )
-            )
-        duplicates = global_slice_ids.intersection(slice_ids)
-        if duplicates:
-            findings.append(
-                _finding(
-                    "SLICE_ID_DUPLICATE",
-                    f"{source_location}/slices",
-                    "slice_id values must be globally unique in a slice manifest",
-                )
-            )
-        global_slice_ids.update(slice_ids)
-        ordinals = [item["ordinal"] for item in slices]
-        if ordinals != list(range(len(slices))):
-            findings.append(
-                _finding(
-                    "SLICE_ORDER_INVALID",
-                    f"{source_location}/slices",
-                    "slice ordinals must be contiguous, array-ordered, and start at zero",
-                )
-            )
-
-        selectors = [
-            (
-                item["selector"]["layer"],
-                item["selector"]["kind"],
-                item["selector"]["value"],
-            )
-            for item in slices
-        ]
-        if len(selectors) != len(set(selectors)):
-            findings.append(
-                _finding(
-                    "SLICE_SELECTOR_DUPLICATE",
-                    f"{source_location}/slices",
-                    "slice selectors must be unique within a source",
-                )
-            )
-
-        extent = source["raw_source_extent_bytes"]
-        if extent != source["source_identity"]["raw_bytes"]:
+            raw_source_extent = 0
+            maximum = _lower_ceiling(maximum, "partial")
+        elif source_projection is not None and source_projection[1] != raw_source_extent:
             findings.append(
                 _finding(
                     "SLICE_SOURCE_EXTENT_MISMATCH",
                     f"{source_location}/raw_source_extent_bytes",
-                    "raw source extent differs from the bound corpus raw identity",
+                    "raw_source_extent_bytes must equal source_identity bytes",
                 )
             )
-            maximum = "blocked"
-        valid_ranges: list[tuple[int, int, str]] = []
-        source_raw: bytes | None = None
-        source_bytes_externalized = False
-        source_byte_closure = True
-        for slice_index, item in enumerate(slices):
-            item_location = f"{source_location}/slices/{slice_index}"
-            selector = item["selector"]
-            byte_range = item["byte_range"]
-            start: int | None = None
-            end: int | None = None
-            if selector["kind"] == "byte-range":
-                start = byte_range["start_byte"]
-                end = byte_range["end_byte_exclusive"]
-                if start >= end or (
-                    selector["layer"] == "raw-source" and end > extent
+            maximum = _lower_ceiling(maximum, "partial")
+
+        source_mode = source_identity.get("content_mode") if isinstance(source_identity, Mapping) else None
+        source_locator = source_identity.get("locator") if isinstance(source_identity, Mapping) else None
+
+        source_local_raw = None
+        if source_mode == "embedded-content" and isinstance(source_locator, str):
+            source_local_raw = _safe_local_bytes(
+                source_root,
+                source_locator,
+                location=f"{source_location}/source_identity/locator",
+                findings=findings,
+                failure_code="SLICE_SOURCE_ARTIFACT_UNAVAILABLE",
+                portable_context=portable_context,
+            )
+
+        source_slices = source.get("slices")
+        source_loss_accounting = source.get("source_loss_accounting")
+        source_processor = source.get("processor")
+        source_assurance_mode = (
+            source_processor.get("assurance_mode")
+            if isinstance(source_processor, Mapping)
+            else None
+        )
+        source_is_replayable = isinstance(source_local_raw, bytes)
+
+        source_processor_ceiling = _slice_processor_ceiling_v11(
+            source_processor if isinstance(source_processor, Mapping) else {},
+            expected_input_sha256=source_projection[0] if source_projection else "",
+            expected_output_sha256=_canonical_json_sha256(
+                {
+                    "slices": source_slices if isinstance(source_slices, list) else [],
+                    "source_loss_accounting": source_loss_accounting
+                    if isinstance(source_loss_accounting, Mapping)
+                    else {},
+                }
+            ),
+            declared_status=declared_status,
+            consumer_registry=consumer_registry,
+            root=repository_root,
+            location=f"{source_location}/processor",
+            findings=findings,
+            portable_context=portable_context,
+        )
+        maximum = _lower_ceiling(maximum, source_processor_ceiling)
+
+        source_loss_ceiling = _slice_loss_accounting_ceiling(
+            source_loss_accounting if isinstance(source_loss_accounting, Mapping) else {},
+            dimension=f"sources/{source_id}/source_loss_accounting",
+            location=f"{source_location}/source_loss_accounting",
+            findings=findings,
+        )
+        maximum = _lower_ceiling(maximum, source_loss_ceiling)
+
+        source_loss_entries: dict[str, dict[str, Any]] = {}
+        source_loss_ids: set[str] = set()
+        if isinstance(source_loss_accounting, Mapping):
+            source_loss_raw_entries = source_loss_accounting.get("entries")
+            if isinstance(source_loss_raw_entries, list):
+                for entry in source_loss_raw_entries:
+                    if not isinstance(entry, Mapping):
+                        continue
+                    loss_id = entry.get("loss_id")
+                    if isinstance(loss_id, str) and loss_id:
+                        source_loss_entries[loss_id] = dict(entry)
+                        source_loss_ids.add(loss_id)
+
+            if corpus_source is not None:
+                corpus_loss_ids = {
+                    item for item in corpus_source.get("loss_ids", []) if isinstance(item, str)
+                }
+                if corpus_loss_ids != source_loss_ids:
+                    findings.append(
+                        _finding(
+                            "SLICE_SOURCE_LOSS_LINKAGE_INVALID",
+                            f"{source_location}/source_loss_accounting",
+                            "source.loss_ids must match corpus source.loss_ids exactly",
+                        )
+                    )
+                    maximum = _lower_ceiling(maximum, "partial")
+
+        if not isinstance(source_slices, list):
+            findings.append(
+                _finding(
+                    "SLICE_SOURCE_SLICES_INVALID",
+                    f"{source_location}/slices",
+                    "slices must be an exact array",
+                )
+            )
+            maximum = _lower_ceiling(maximum, "partial")
+            source_slices = []
+
+        local_slice_ids: set[str] = set()
+        local_selector_keys: set[str] = set()
+        source_slice_subjects: set[str] = set()
+        source_loss_union: set[str] = set()
+        valid_ranges: list[tuple[int, int]] = []
+
+        for slice_index, slice_record in enumerate(source_slices):
+            slice_location = f"{source_location}/slices/{slice_index}"
+            if not isinstance(slice_record, Mapping):
+                findings.append(
+                    _finding(
+                        "SLICE_RECORD_INVALID",
+                        slice_location,
+                        "slice entry must be an exact object",
+                    )
+                )
+                maximum = _lower_ceiling(maximum, "partial")
+                continue
+
+            slice_id = slice_record.get("slice_id")
+            if not isinstance(slice_id, str) or not slice_id:
+                findings.append(
+                    _finding(
+                        "SLICE_ID_INVALID",
+                        f"{slice_location}/slice_id",
+                        "slice_id must be a non-empty string",
+                    )
+                )
+                slice_id = f"{source_id}:{slice_index}"
+                maximum = _lower_ceiling(maximum, "partial")
+
+            if slice_id in local_slice_ids or slice_id in global_slice_ids:
+                findings.append(
+                    _finding(
+                        "SLICE_ID_DUPLICATE",
+                        f"{slice_location}/slice_id",
+                        "slice_id values must be globally unique",
+                    )
+                )
+                maximum = _lower_ceiling(maximum, "partial")
+            local_slice_ids.add(slice_id)
+            global_slice_ids.add(slice_id)
+
+            selector = slice_record.get("selector")
+            if not isinstance(selector, Mapping):
+                findings.append(
+                    _finding(
+                        "SLICE_SELECTOR_INVALID",
+                        f"{slice_location}/selector",
+                        "selector must be an exact object",
+                    )
+                )
+                maximum = _lower_ceiling(maximum, "partial")
+                selector = {}
+
+            selector_kind = selector.get("kind")
+            selector_layer = selector.get("layer")
+            selector_value = selector.get("value")
+            selector_key = json.dumps(
+                selector,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            if selector_key in local_selector_keys:
+                findings.append(
+                    _finding(
+                        "SLICE_SELECTOR_DUPLICATE",
+                        f"{slice_location}/selector",
+                        "slice selectors must be unique within source",
+                    )
+                )
+                maximum = _lower_ceiling(maximum, "partial")
+            local_selector_keys.add(selector_key)
+            if selector_layer not in {"raw-source", "derived-artifact"}:
+                findings.append(
+                    _finding(
+                        "SLICE_SELECTOR_LAYER_INVALID",
+                        f"{slice_location}/selector/layer",
+                        "selector.layer must be raw-source or derived-artifact",
+                    )
+                )
+                maximum = _lower_ceiling(maximum, "partial")
+
+            raw_range = slice_record.get("raw_byte_range")
+            if not isinstance(raw_range, Mapping):
+                findings.append(
+                    _finding(
+                        "SLICE_RANGE_INVALID",
+                        f"{slice_location}/raw_byte_range",
+                        "raw_byte_range must be an exact object",
+                    )
+                )
+                raw_start = 0
+                raw_count = 0
+                maximum = _lower_ceiling(maximum, "partial")
+            else:
+                raw_start = raw_range.get("start_byte")
+                raw_count = raw_range.get("byte_count")
+                if (
+                    not isinstance(raw_start, int)
+                    or isinstance(raw_start, bool)
+                    or not isinstance(raw_count, int)
+                    or isinstance(raw_count, bool)
+                    or raw_start < 0
+                    or raw_count <= 0
                 ):
                     findings.append(
                         _finding(
                             "SLICE_RANGE_INVALID",
-                            f"{item_location}/byte_range",
-                            "byte range must be nonempty and within its selected layer",
+                            f"{slice_location}/raw_byte_range",
+                            "start_byte and byte_count must be positive integers",
                         )
                     )
-                elif selector["layer"] == "raw-source":
-                    valid_ranges.append((start, end, item["slice_id"]))
-                if selector["value"] != f"{start}:{end}":
+                    raw_start = 0
+                    raw_count = 0
+                    maximum = _lower_ceiling(maximum, "partial")
+                elif raw_start + raw_count > raw_source_extent:
+                    findings.append(
+                        _finding(
+                            "SLICE_RANGE_INVALID",
+                            f"{slice_location}/raw_byte_range",
+                            "raw byte range must stay within source extent",
+                        )
+                    )
+                    maximum = _lower_ceiling(maximum, "partial")
+                else:
+                    valid_ranges.append((raw_start, raw_start + raw_count))
+
+                if selector_kind == "whole-source":
+                    if raw_start != 0 or raw_count != raw_source_extent:
+                        findings.append(
+                            _finding(
+                                "SLICE_RANGE_INVALID",
+                                f"{slice_location}/raw_byte_range",
+                                "whole-source requires start_byte 0 and byte_count equal source extent",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                    if selector_value != "*":
+                        findings.append(
+                            _finding(
+                                "SLICE_SELECTOR_INVALID",
+                                f"{slice_location}/selector/value",
+                                "whole-source selector value must be '*'",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                if selector_kind == "whole-source" and selector_layer == "derived-artifact":
                     findings.append(
                         _finding(
                             "SLICE_SELECTOR_INVALID",
-                            f"{item_location}/selector",
-                            "byte-range selector must exactly match byte_range",
+                            f"{slice_location}/selector",
+                            "selector kind \"whole-source\" cannot target derived-artifact output",
                         )
                     )
-            else:
-                non_byte_selector = True
-                source_byte_closure = False
-                if (
-                    data["status"] == "complete"
-                    and source_processor_ceiling != "complete"
-                ):
-                    findings.append(
-                        _finding(
-                            "SLICE_SELECTOR_NO_BYTE_CLOSURE",
-                            f"{item_location}/selector",
-                            "non-byte selectors require an exact platform-attested "
-                            "transformer input/output run for complete assurance",
+                    maximum = _lower_ceiling(maximum, "partial")
+                elif selector_kind == "byte-range":
+                    expected_selector = f"{raw_start}:{raw_count}"
+                    if selector_value != expected_selector:
+                        findings.append(
+                            _finding(
+                                "SLICE_SELECTOR_INVALID",
+                                f"{slice_location}/selector/value",
+                                "byte-range selector value must equal start:byte_count",
+                            )
                         )
-                    )
-            if selector["layer"] == "derived-artifact":
-                derived_selector = True
-                source_byte_closure = False
+                        maximum = _lower_ceiling(maximum, "partial")
 
-            storage_mode = item["storage_mode"]
-            if storage_mode == "embedded-open":
-                if authority is None:
-                    findings.append(
-                        _finding(
-                            "AUTHORITY_REF_UNRESOLVED",
-                            f"{item_location}/storage_mode",
-                            "embedded content has no resolved authority policy",
-                        )
+            content = slice_record.get("content")
+            if not isinstance(content, Mapping):
+                findings.append(
+                    _finding(
+                        "SLICE_CONTENT_INVALID",
+                        f"{slice_location}/content",
+                        "content must be an exact object",
                     )
-                else:
-                    bundle_policy = authority["redistribution_policy"][
-                        "bundle_content"
-                    ]
-                    if bundle_policy == "forbidden":
-                        findings.append(
-                            _finding(
-                                "AUTHORITY_STORAGE_CEILING_EXCEEDED",
-                                f"{item_location}/storage_mode",
-                                "central authority policy forbids bundled content; "
-                                "a license review cannot widen that ceiling",
-                            )
-                        )
-                    elif bundle_policy == "canonical-pinned-open-only":
-                        canonical = (
-                            projection["canonical_snapshot"]
-                            if projection is not None
-                            else None
-                        )
-                        canonical_source = (
-                            canonical["sources_by_id"].get(source["source_id"])
-                            if canonical is not None
-                            and canonical.get("portable_externalized") is not True
-                            else None
-                        )
-                        if (
-                            canonical is None
-                            or (
-                                canonical.get("portable_externalized") is not True
-                                and (
-                                    canonical_source is None
-                                    or canonical_source["raw_sha256"]
-                                    != item["artifact_sha256"]
-                                )
-                            )
-                        ):
-                            findings.append(
-                                _finding(
-                                    "AUTHORITY_CANONICAL_SNAPSHOT_MISMATCH",
-                                    item_location,
-                                    "embedded artifact is not an exact registered "
-                                    "canonical-pinned open snapshot",
-                                )
-                            )
-                raw = _safe_local_bytes(
-                    source_root,
-                    item["content_locator"],
-                    location=f"{item_location}/content_locator",
-                    findings=findings,
-                    failure_code="SLICE_ARTIFACT_UNAVAILABLE",
-                    portable_context=portable_context,
                 )
-                if raw is not None:
-                    if (
-                        selector["layer"] == "raw-source"
-                        and isinstance(raw, bytes)
-                    ):
-                        source_raw = raw
-                    elif (
-                        selector["layer"] == "raw-source"
-                        and isinstance(raw, ExternalizedArtifact)
-                    ):
-                        source_bytes_externalized = True
-                    if (
-                        selector["layer"] == "raw-source"
-                        and _artifact_size(raw) != extent
-                    ):
+                maximum = _lower_ceiling(maximum, "partial")
+            else:
+                content_mode = content.get("content_mode")
+                if content_mode == "embedded-content":
+                    artifact = content.get("artifact")
+                    if not isinstance(artifact, Mapping):
                         findings.append(
                             _finding(
-                                "SLICE_SOURCE_EXTENT_MISMATCH",
-                                f"{source_location}/raw_source_extent_bytes",
-                                "raw source extent does not match exact local artifact bytes",
+                                "SLICE_CONTENT_INVALID",
+                                f"{slice_location}/content/artifact",
+                                "embedded-content must define artifact",
                             )
                         )
-                    actual_artifact_hash = _artifact_sha256(raw)
-                    if actual_artifact_hash != item["artifact_sha256"]:
-                        findings.append(
-                            _finding(
-                                "SLICE_ARTIFACT_HASH_MISMATCH",
-                                f"{item_location}/artifact_sha256",
-                                "artifact_sha256 does not match exact local file bytes",
-                            )
-                        )
-                    if isinstance(raw, ExternalizedArtifact):
-                        selection_error = (
-                            _externalized_slice_selection_error(
-                                raw,
-                                selector_kind=selector["kind"],
-                                start=start,
-                                end=end,
-                                content_sha256=item["content_sha256"],
-                            )
-                        )
-                        if selection_error == "SLICE_RANGE_INVALID":
-                            findings.append(
-                                _finding(
-                                    "SLICE_RANGE_INVALID",
-                                    f"{item_location}/byte_range",
-                                    "slice byte range exceeds the externalized "
-                                    "artifact receipt size",
-                                )
-                            )
-                        elif (
-                            selection_error
-                            == "SLICE_CONTENT_HASH_MISMATCH"
-                        ):
-                            findings.append(
-                                _finding(
-                                    "SLICE_CONTENT_HASH_MISMATCH",
-                                    f"{item_location}/content_sha256",
-                                    "whole-source content hash differs from the "
-                                    "externalized artifact receipt",
-                                )
-                            )
-                    elif selector["kind"] == "byte-range":
+                        maximum = _lower_ceiling(maximum, "partial")
+                    else:
+                        artifact_path = artifact.get("path")
+                        artifact_sha = artifact.get("sha256")
+                        artifact_bytes = artifact.get("bytes")
                         if (
-                            start is not None
-                            and end is not None
-                            and end <= len(raw)
-                            and start < end
+                            not isinstance(artifact_path, str)
+                            or not _valid_sha256(artifact_sha)
+                            or not isinstance(artifact_bytes, int)
+                            or isinstance(artifact_bytes, bool)
+                            or artifact_bytes <= 0
                         ):
-                            payload_hash = hashlib.sha256(
-                                raw[start:end]
-                            ).hexdigest()
-                            if payload_hash != item["content_sha256"]:
+                            findings.append(
+                                _finding(
+                                    "SLICE_CONTENT_INVALID",
+                                    f"{slice_location}/content/artifact",
+                                    "embedded-content artifact must include safe path, sha256, and bytes",
+                                )
+                            )
+                            maximum = _lower_ceiling(maximum, "partial")
+                        elif artifact_bytes != raw_count:
+                            findings.append(
+                                _finding(
+                                    "SLICE_CONTENT_RANGE_MISMATCH",
+                                    f"{slice_location}/content/artifact/bytes",
+                                    "artifact bytes must equal raw_byte_range.byte_count",
+                                )
+                            )
+                            maximum = _lower_ceiling(maximum, "partial")
+                        raw_artifact = _safe_local_bytes(
+                            source_root,
+                            artifact_path,
+                            location=f"{slice_location}/content/artifact/path",
+                            findings=findings,
+                            failure_code="SLICE_ARTIFACT_UNAVAILABLE",
+                            portable_context=portable_context,
+                        )
+                        if raw_artifact is None:
+                            maximum = _lower_ceiling(maximum, "partial")
+                        else:
+                            if _artifact_size(raw_artifact) != artifact_bytes:
                                 findings.append(
                                     _finding(
-                                        "SLICE_CONTENT_HASH_MISMATCH",
-                                        f"{item_location}/content_sha256",
-                                        "content_sha256 does not match exact ranged payload bytes",
+                                        "SLICE_ARTIFACT_SIZE_MISMATCH",
+                                        f"{slice_location}/content/artifact/bytes",
+                                        "embedded artifact bytes must match local artifact bytes",
                                     )
                                 )
-                        else:
+                                maximum = _lower_ceiling(maximum, "partial")
+                            elif _artifact_sha256(raw_artifact) != artifact_sha:
+                                findings.append(
+                                    _finding(
+                                        "SLICE_ARTIFACT_HASH_MISMATCH",
+                                        f"{slice_location}/content/artifact/sha256",
+                                        "artifact hash must match local artifact bytes",
+                                    )
+                                )
+                                maximum = _lower_ceiling(maximum, "partial")
+                            if source_projection is not None and raw_start == 0 and raw_count == source_projection[1]:
+                                if artifact_bytes != source_projection[1]:
+                                    findings.append(
+                                        _finding(
+                                            "SLICE_ARTIFACT_SIZE_MISMATCH",
+                                            f"{slice_location}/content/artifact/bytes",
+                                            "embedded whole-source artifact bytes must match source projection bytes",
+                                        )
+                                    )
+                                    maximum = _lower_ceiling(maximum, "partial")
+                                if artifact_sha != source_projection[0]:
+                                    findings.append(
+                                        _finding(
+                                            "SLICE_ARTIFACT_HASH_MISMATCH",
+                                            f"{slice_location}/content/artifact/sha256",
+                                            "embedded whole-source artifact hash must match source projection hash",
+                                        )
+                                    )
+                                    maximum = _lower_ceiling(maximum, "partial")
+
+                            if source_is_replayable:
+                                if raw_start + raw_count > len(source_local_raw):
+                                    findings.append(
+                                        _finding(
+                                            "SLICE_RANGE_INVALID",
+                                            f"{slice_location}/raw_byte_range",
+                                            "raw byte range exceeds source raw bytes",
+                                        )
+                                    )
+                                    maximum = _lower_ceiling(maximum, "partial")
+                                else:
+                                    source_slice = source_local_raw[
+                                        raw_start : raw_start + raw_count
+                                    ]
+                                    if _artifact_size(raw_artifact) != len(source_slice):
+                                        findings.append(
+                                            _finding(
+                                                "SLICE_ARTIFACT_SIZE_MISMATCH",
+                                                f"{slice_location}/content/artifact/bytes",
+                                                "artifact bytes must match selected source byte range",
+                                            )
+                                        )
+                                        maximum = _lower_ceiling(maximum, "partial")
+                                    elif _artifact_sha256(raw_artifact) != _artifact_sha256(
+                                        source_slice
+                                    ):
+                                        findings.append(
+                                            _finding(
+                                                "SLICE_ARTIFACT_HASH_MISMATCH",
+                                                f"{slice_location}/content/artifact/sha256",
+                                                "artifact hash must match selected source byte range",
+                                            )
+                                        )
+                                        maximum = _lower_ceiling(maximum, "partial")
+                            elif selector_kind != "whole-source" and source_assurance_mode != "attested":
+                                maximum = _lower_ceiling(maximum, "partial")
+
+                elif content_mode == "external-content":
+                    locator = content.get("locator")
+                    receipt = content.get("receipt")
+                    if not isinstance(receipt, Mapping):
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_INVALID",
+                                f"{slice_location}/content/receipt",
+                                "external-content must include receipt",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                        receipt = {}
+                    source_raw_sha = None
+                    source_raw_bytes = None
+                    if source_projection is not None:
+                        source_raw_sha, source_raw_bytes = source_projection
+                    if source_raw_sha is not None and source_raw_sha != receipt.get(
+                        "raw_sha256"
+                    ):
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_EXTERNAL_MISMATCH",
+                                f"{slice_location}/content/receipt/raw_sha256",
+                                "external-content raw_sha256 must match source projection raw_sha256",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                    if source_raw_bytes is not None and source_raw_bytes != receipt.get(
+                        "raw_bytes"
+                    ):
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_EXTERNAL_MISMATCH",
+                                f"{slice_location}/content/receipt/raw_bytes",
+                                "external-content raw_bytes must match source projection raw_bytes",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                    if source_mode != "external-content" or locator != source_locator:
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_MODE_MISMATCH",
+                                f"{slice_location}/content/locator",
+                                "external-content slice must reference the external source locator",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+
+                    selected = receipt.get("selected_content") if isinstance(receipt, Mapping) else None
+                    selected_sha = selected.get("sha256") if isinstance(selected, Mapping) else None
+                    selected_bytes = selected.get("bytes") if isinstance(selected, Mapping) else None
+                    if (
+                        not _valid_sha256(selected_sha)
+                        or not isinstance(selected_bytes, int)
+                        or isinstance(selected_bytes, bool)
+                        or selected_bytes <= 0
+                    ):
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_INVALID",
+                                f"{slice_location}/content/receipt/selected_content",
+                                "external receipt must include selected_content sha256 and positive bytes",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                    elif selected_bytes != raw_count:
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_RANGE_MISMATCH",
+                                f"{slice_location}/raw_byte_range",
+                                "selected_content.bytes must equal raw_byte_range.byte_count",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+
+                    if selector_kind == "whole-source":
+                        source_sha = source_projection[0] if source_projection else None
+                        if (
+                            source_projection is None
+                            or source_sha != selected_sha
+                            or (source_projection is not None and source_projection[1] != selected_bytes)
+                        ):
+                            findings.append(
+                                _finding(
+                                    "SLICE_CONTENT_EXTERNAL_MISMATCH",
+                                    f"{slice_location}/content/receipt/selected_content",
+                                    "whole-source selection must match source raw identity",
+                                )
+                            )
+                            maximum = _lower_ceiling(maximum, "partial")
+                    elif source_is_replayable:
+                        if raw_start + raw_count > len(source_local_raw):
                             findings.append(
                                 _finding(
                                     "SLICE_RANGE_INVALID",
-                                    f"{item_location}/byte_range",
-                                    "slice byte range exceeds the local artifact bytes",
+                                    f"{slice_location}/raw_byte_range",
+                                    "raw byte range exceeds source raw bytes",
                                 )
                             )
+                            maximum = _lower_ceiling(maximum, "partial")
+                        else:
+                            source_slice = source_local_raw[
+                                raw_start : raw_start + raw_count
+                            ]
+                            if selected_bytes != len(source_slice):
+                                findings.append(
+                                    _finding(
+                                        "SLICE_CONTENT_RANGE_MISMATCH",
+                                        f"{slice_location}/content/receipt/selected_content/bytes",
+                                        "selected_content.bytes must match source byte range",
+                                    )
+                                )
+                                maximum = _lower_ceiling(maximum, "partial")
+                            elif _artifact_sha256(
+                                source_slice
+                            ) != selected_sha or (
+                                _artifact_size(source_slice) != selected_bytes
+                            ):
+                                findings.append(
+                                    _finding(
+                                        "SLICE_CONTENT_EXTERNAL_MISMATCH",
+                                        f"{slice_location}/content/receipt/selected_content",
+                                        "selected_content must match source byte range",
+                                    )
+                                )
+                                maximum = _lower_ceiling(maximum, "partial")
+                    elif source_assurance_mode != "attested":
+                        maximum = _lower_ceiling(maximum, "partial")
+
+                elif content_mode == "metadata-only":
+                    locator = content.get("locator")
+                    identity = content.get("identity")
+                    metadata_allowed = source_mode in {"metadata-only", "external-content"}
+                    if selector_kind == "whole-source" and source_mode == "external-content":
+                        metadata_allowed = False
+                    maximum = _lower_ceiling(maximum, "partial")
+                    if not metadata_allowed or locator != source_locator:
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_MODE_MISMATCH",
+                                f"{slice_location}/content/locator",
+                                "metadata-only slice must keep the same locator as source metadata",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                    if not isinstance(identity, Mapping):
+                        findings.append(
+                            _finding(
+                                "SLICE_CONTENT_INVALID",
+                                f"{slice_location}/content/identity",
+                                "metadata-only content must include identity",
+                            )
+                        )
+                        maximum = _lower_ceiling(maximum, "partial")
                     else:
-                        payload_hash = hashlib.sha256(raw).hexdigest()
-                        if payload_hash != item["content_sha256"]:
+                        identity_sha = identity.get("sha256")
+                        identity_bytes = identity.get("bytes")
+                        if (
+                            not _valid_sha256(identity_sha)
+                            or not isinstance(identity_bytes, int)
+                            or isinstance(identity_bytes, bool)
+                            or identity_bytes <= 0
+                        ):
                             findings.append(
                                 _finding(
-                                    "SLICE_CONTENT_HASH_MISMATCH",
-                                    f"{item_location}/content_sha256",
-                                    "content_sha256 does not match exact selected artifact bytes",
+                                    "SLICE_CONTENT_INVALID",
+                                    f"{slice_location}/content/identity",
+                                    "metadata-only identity must include valid sha256 and bytes",
                                 )
                             )
-            else:
-                receipt = item["content_receipt"]
-                if (
-                    receipt is None
-                    or receipt["canonical_url"] != item["content_locator"]
-                    or receipt["raw_sha256"]
-                    != source["source_identity"]["raw_sha256"]
-                    or receipt["raw_bytes"]
-                    != source["source_identity"]["raw_bytes"]
-                    or item["content_sha256"]
-                    != receipt["selected_sha256"]
-                    or (
-                        selector["kind"] == "byte-range"
-                        and receipt["selected_bytes"] != end - start
-                    )
-                    or (
-                        selector["kind"] == "whole-source"
-                        and (
-                            receipt["selected_sha256"]
-                            != receipt["raw_sha256"]
-                            or receipt["selected_bytes"]
-                            != receipt["raw_bytes"]
-                        )
-                    )
-                ):
-                    findings.append(
-                        _finding(
-                            "SLICE_EXTERNAL_RECEIPT_INVALID",
-                            f"{item_location}/content_receipt",
-                            "external slice locator and content hash do not match "
-                            "the resolver receipt",
-                        )
-                    )
-                    canonical = (
-                        projection["canonical_snapshot"]
-                        if projection is not None
-                        else None
-                    )
-                    canonical_source = (
-                        canonical["sources_by_id"].get(source["source_id"])
-                        if canonical is not None
-                        else None
-                    )
-                    if (
-                        receipt is not None
-                        and canonical_source is not None
-                        and receipt["raw_sha256"]
-                        == canonical_source["derived_snapshot"]["sha256"]
-                    ):
-                        findings.append(
-                            _finding(
-                                "SOURCE_RAW_DERIVED_IDENTITY_CONFUSED",
-                                f"{item_location}/content_receipt/raw_sha256",
-                                "external source receipt binds derived Markdown bytes "
-                                "instead of upstream raw source bytes",
-                            )
-                        )
-                    external_receipt_ceiling = "blocked"
+                            maximum = _lower_ceiling(maximum, "partial")
+                        else:
+                            # raw-byte selectors tied to raw-source bind to selected
+                            # byte span in the source provenance.
+                            if selector_layer == "raw-source":
+                                if identity_bytes != raw_count:
+                                    findings.append(
+                                        _finding(
+                                            "SLICE_CONTENT_RANGE_MISMATCH",
+                                            f"{slice_location}/content/identity/bytes",
+                                            "raw-source metadata identity bytes must equal "
+                                            "raw_byte_range.byte_count",
+                                        )
+                                    )
+                                    maximum = _lower_ceiling(maximum, "partial")
+                                if source_is_replayable:
+                                    if source_local_raw is None:
+                                        findings.append(
+                                            _finding(
+                                                "SLICE_CONTENT_UNAVAILABLE",
+                                                f"{slice_location}/source_identity/locator",
+                                                "metadata identity cannot verify source byte-range sha256 "
+                                                "without replayable source bytes",
+                                            )
+                                        )
+                                        maximum = _lower_ceiling(maximum, "partial")
+                                    else:
+                                        source_slice = source_local_raw[
+                                            raw_start:raw_start + raw_count
+                                        ]
+                                        if identity_bytes != len(source_slice):
+                                            findings.append(
+                                                _finding(
+                                                    "SLICE_CONTENT_RANGE_MISMATCH",
+                                                    f"{slice_location}/content/identity/bytes",
+                                                    "raw-source metadata identity bytes must match "
+                                                    "source byte range",
+                                                )
+                                            )
+                                            maximum = _lower_ceiling(maximum, "partial")
+                                        elif identity_sha != _artifact_sha256(source_slice):
+                                            findings.append(
+                                                _finding(
+                                                    "SLICE_CONTENT_EXTERNAL_MISMATCH",
+                                                    f"{slice_location}/content/identity/sha256",
+                                                    "raw-source metadata identity sha256 must match "
+                                                    "source byte range",
+                                        )
+                                    )
+                                    maximum = _lower_ceiling(maximum, "partial")
+                            elif selector_layer == "derived-artifact":
+                                if selector_kind == "whole-source":
+                                    findings.append(
+                                        _finding(
+                                            "SLICE_CONTENT_EXTERNAL_MISMATCH",
+                                            f"{slice_location}/content/identity",
+                                            "derived-artifact whole-source identity cannot "
+                                            "represent derived-artifact source slice output",
+                                        )
+                                    )
+                                    maximum = _lower_ceiling(maximum, "partial")
+                            if (
+                                selector_layer == "raw-source"
+                                and selector_kind == "whole-source"
+                                and source_projection is not None
+                                and (
+                                    identity_sha != source_projection[0]
+                                    or identity_bytes != source_projection[1]
+                                )
+                            ):
+                                findings.append(
+                                    _finding(
+                                        "SLICE_CONTENT_EXTERNAL_MISMATCH",
+                                        f"{slice_location}/content/identity",
+                                        "whole-source raw-source metadata identity must match source projection"
+                                        " sha256 and bytes",
+                                    )
+                                )
+                                maximum = _lower_ceiling(maximum, "partial")
+
                 else:
-                    receipt_ceiling = _resolver_receipt_ceiling(
-                        receipt,
-                        authority_id=(
-                            corpus.data["authority_id"]
-                            if corpus is not None
-                            else ""
-                        ),
-                        consumer_registry=consumer_registry,
-                        consumer_registry_sha256=consumer_registry_sha256,
-                        selection_binding={
-                            "source_id": source["source_id"],
-                            "raw_sha256": source["source_identity"][
-                                "raw_sha256"
-                            ],
-                            "raw_bytes": source["source_identity"][
-                                "raw_bytes"
-                            ],
-                            "selector": selector,
-                            "selected_sha256": item["content_sha256"],
-                            "selected_bytes": receipt["selected_bytes"],
-                        },
-                        repository_root=repository_root,
-                        location=f"{item_location}/content_receipt",
-                        findings=findings,
-                        portable_context=portable_context,
-                    )
-                    external_receipt_ceiling = min(
-                        (external_receipt_ceiling, receipt_ceiling),
-                        key=STATUS_RANK.__getitem__,
-                    )
-
-        preserved_ranges: list[tuple[int, int, str]] = []
-        preservation_ids: set[str] = set()
-        for preserved_index, preserved in enumerate(source["preserved_ranges"]):
-            preserved_location = (
-                f"{source_location}/preserved_ranges/{preserved_index}"
-            )
-            preservation_id = preserved["preservation_id"]
-            if preservation_id in preservation_ids:
-                findings.append(
-                    _finding(
-                        "SLICE_PRESERVATION_ID_DUPLICATE",
-                        preserved_location,
-                        "preservation_id values must be unique within a source",
-                    )
-                )
-            preservation_ids.add(preservation_id)
-            start = preserved["start_byte"]
-            end = preserved["end_byte_exclusive"]
-            if start >= end or end > extent:
-                findings.append(
-                    _finding(
-                        "SLICE_PRESERVED_RANGE_INVALID",
-                        preserved_location,
-                        "preserved byte range must be nonempty and within source extent",
-                    )
-                )
-                continue
-            preserved_ranges.append((start, end, preservation_id))
-            if source_raw is None:
-                if not source_bytes_externalized:
-                    preservation_unverified = True
-                if (
-                    data["status"] == "complete"
-                    and not source_bytes_externalized
-                ):
                     findings.append(
                         _finding(
-                            "SLICE_PRESERVED_RANGE_UNVERIFIED",
-                            preserved_location,
-                            "complete preservation requires exact local source bytes",
+                            "SLICE_CONTENT_MODE_INVALID",
+                            f"{slice_location}/content/content_mode",
+                            "content_mode must be embedded-content, external-content, or metadata-only",
                         )
                     )
+                    maximum = _lower_ceiling(maximum, "partial")
+
+            slice_loss_accounting = slice_record.get("loss_accounting")
+            slice_loss_ceiling = _slice_loss_accounting_ceiling(
+                slice_loss_accounting if isinstance(slice_loss_accounting, Mapping) else {},
+                dimension=f"{source_id}/{slice_id}/loss",
+                location=f"{slice_location}/loss_accounting",
+                findings=findings,
+            )
+            maximum = _lower_ceiling(maximum, slice_loss_ceiling)
+
+            if isinstance(slice_loss_accounting, Mapping):
+                raw_loss_entries = slice_loss_accounting.get("entries")
+                if isinstance(raw_loss_entries, list):
+                    for entry in raw_loss_entries:
+                        if not isinstance(entry, Mapping):
+                            continue
+                        loss_id = entry.get("loss_id")
+                        if not isinstance(loss_id, str):
+                            continue
+                        source_loss_union.add(loss_id)
+                        if (
+                            loss_id in source_loss_entries
+                            and source_loss_entries[loss_id] != entry
+                        ):
+                            findings.append(
+                                _finding(
+                                    "SLICE_LOSS_ENTRY_MISMATCH",
+                                    f"{slice_location}/loss_accounting/entries",
+                                    "slice loss entry must exactly equal source loss entry",
+                                )
+                            )
+                            maximum = _lower_ceiling(maximum, "partial")
+                        elif loss_id not in source_loss_entries:
+                            findings.append(
+                                _finding(
+                                    "SLICE_LOSS_ENTRY_MISMATCH",
+                                    f"{slice_location}/loss_accounting/entries",
+                                    "slice loss entry must exactly equal source loss entry",
+                                )
+                            )
+                            maximum = _lower_ceiling(maximum, "partial")
+
+            subject_ids = slice_record.get("subject_ids")
+            if not isinstance(subject_ids, list):
+                findings.append(
+                    _finding(
+                        "SLICE_SUBJECT_IDS_INVALID",
+                        f"{slice_location}/subject_ids",
+                        "subject_ids must be an exact array",
+                    )
+                )
+                maximum = _lower_ceiling(maximum, "partial")
+                subject_ids = []
             else:
-                actual_hash = hashlib.sha256(source_raw[start:end]).hexdigest()
-                if actual_hash != preserved["content_sha256"]:
-                    findings.append(
-                        _finding(
-                            "SLICE_PRESERVED_HASH_MISMATCH",
-                            f"{preserved_location}/content_sha256",
-                            "preserved range hash does not match exact source bytes",
-                        )
-                    )
-
-        for left_index, (left_start, left_end, _left_id) in enumerate(
-            preserved_ranges
-        ):
-            competing = valid_ranges + preserved_ranges[left_index + 1 :]
-            if any(
-                max(left_start, right_start) < min(left_end, right_end)
-                for right_start, right_end, _right_id in competing
-            ):
-                findings.append(
-                    _finding(
-                        "SLICE_PRESERVED_RANGE_INVALID",
-                        f"{source_location}/preserved_ranges/{left_index}",
-                        "preserved ranges must not overlap slices or one another",
-                    )
-                )
-
-        actual_overlaps: set[tuple[str, str]] = set()
-        for left_index, (left_start, left_end, left_id) in enumerate(valid_ranges):
-            for right_start, right_end, right_id in valid_ranges[left_index + 1 :]:
-                if max(left_start, right_start) < min(left_end, right_end):
-                    actual_overlaps.add(tuple(sorted((left_id, right_id))))
-        reviewed_overlaps = {
-            tuple(sorted((item["left_slice_id"], item["right_slice_id"])))
-            for item in source["reviewed_overlaps"]
-        }
-        if (
-            len(reviewed_overlaps) != len(source["reviewed_overlaps"])
-            or actual_overlaps != reviewed_overlaps
-        ):
-            findings.append(
-                _finding(
-                    "SLICE_OVERLAP_INVALID",
-                    f"{source_location}/reviewed_overlaps",
-                    "reviewed overlap pairs must exactly match calculated byte-range overlaps",
-                )
-            )
-
-        actual_orphans: list[tuple[int, int]] = []
-        if source_byte_closure:
-            cursor = 0
-            for start, end, _range_id in sorted(valid_ranges + preserved_ranges):
-                if start > cursor:
-                    actual_orphans.append((cursor, start))
-                cursor = max(cursor, end)
-            if cursor < extent:
-                actual_orphans.append((cursor, extent))
-        elif source["preserved_ranges"] or source["reviewed_orphans"]:
-            findings.append(
-                _finding(
-                    "SLICE_SELECTOR_LAYER_PARTITION_INVALID",
-                    source_location,
-                    "raw-source preservation and orphan ledgers are unavailable "
-                    "when selectors do not establish raw byte closure",
-                )
-            )
-        reviewed_orphans = [
-            (item["start_byte"], item["end_byte_exclusive"])
-            for item in source["reviewed_orphans"]
-        ]
-        if (
-            len(set(reviewed_orphans)) != len(reviewed_orphans)
-            or sorted(set(actual_orphans)) != sorted(set(reviewed_orphans))
-        ):
-            findings.append(
-                _finding(
-                    "SLICE_ORPHAN_RANGE_INVALID",
-                    f"{source_location}/reviewed_orphans",
-                    "reviewed orphan ranges must exactly match uncovered source bytes",
-                )
-            )
-
-        losses = source["loss_ledger"]
-        _check_unique_ids(
-            losses,
-            "loss_id",
-            code="SLICE_LOSS_ID_DUPLICATE",
-            location=f"{source_location}/loss_ledger",
-            findings=findings,
-        )
-        loss_ids = set(_ids(losses, "loss_id"))
-        losses_by_id = {item["loss_id"]: item for item in losses}
-        if source["reviewed_orphans"]:
-            material_unresolved = True
-            if data["status"] == "complete":
-                findings.append(
-                    _finding(
-                        "SLICE_ORPHAN_PRESENT",
-                        f"{source_location}/reviewed_orphans",
-                        "any source-byte orphan limits slicing assurance to partial",
-                    )
-                )
-        for orphan_index, orphan in enumerate(source["reviewed_orphans"]):
-            loss = losses_by_id.get(orphan["loss_id"])
-            if (
-                loss is None
-                or loss["disposition"] != orphan["disposition"]
-                or loss["disposition"] not in {
-                    "external-only",
-                    "omitted",
-                    "unresolved",
-                }
-            ):
-                findings.append(
-                    _finding(
-                        "SLICE_ORPHAN_LOSS_INVALID",
-                        f"{source_location}/reviewed_orphans/{orphan_index}",
-                        "every orphan must resolve to a loss with the same non-preserved "
-                        "disposition",
-                    )
-                )
-            elif loss["severity"] == "blocking":
-                blocking_loss_present = True
-        slice_links_by_loss: dict[str, set[str]] = {}
-        for slice_index, item in enumerate(slices):
-            if not set(item["loss_ids"]).issubset(loss_ids):
-                findings.append(
-                    _finding(
-                        "SLICE_LOSS_REF_INVALID",
-                        f"{source_location}/slices/{slice_index}/loss_ids",
-                        "slice loss_ids contain an unresolved loss ledger reference",
-                    )
-                )
-            for loss_id in item["loss_ids"]:
-                if loss_id in loss_ids:
-                    slice_links_by_loss.setdefault(loss_id, set()).add(
-                        item["slice_id"]
-                    )
-        slice_id_set = set(slice_ids)
-        for loss_index, loss in enumerate(losses):
-            affected_slice_ids = set(loss["affected_slice_ids"])
-            if not affected_slice_ids.issubset(slice_id_set):
-                findings.append(
-                    _finding(
-                        "LOSS_SLICE_REF_INVALID",
-                        f"{source_location}/loss_ledger/{loss_index}/affected_slice_ids",
-                        "loss ledger entry references a slice outside its source",
-                    )
-                )
-            if affected_slice_ids != slice_links_by_loss.get(
-                loss["loss_id"], set()
-            ):
-                findings.append(
-                    _finding(
-                        "SLICE_LOSS_LINKAGE_MISMATCH",
-                        f"{source_location}/loss_ledger/{loss_index}",
-                        "loss affected_slice_ids must exactly equal the reverse "
-                        "slice loss_ids linkage",
-                    )
-                )
-            if loss["severity"] == "blocking":
-                blocking_loss_present = True
-            unresolved = loss["disposition"] in {"omitted", "unresolved"}
-            if unresolved and loss["severity"] == "material":
-                material_unresolved = True
-
-    if data["blockers"] or blocking_loss_present:
-        maximum = "blocked"
-    elif (
-        material_unresolved
-        or preservation_unverified
-        or (
-            non_byte_selector
-            and processor_ceiling != "complete"
-        )
-        or derived_selector
-    ) and maximum == "complete":
-        maximum = "partial"
-    maximum = min(
-        (maximum, processor_ceiling, external_receipt_ceiling),
-        key=STATUS_RANK.__getitem__,
-    )
-    _status_overclaim(
-        data["status"],
-        maximum,
-        location=f"{location}/status",
-        findings=findings,
-    )
-
-
-def _license_review_findings(
-    record: LoadedRecord,
-    *,
-    corpora: dict[str, LoadedRecord],
-    slice_manifests: Iterable[LoadedRecord],
-    authorities: dict[str, dict[str, Any]],
-    consumer_registry: dict[str, Any],
-    consumer_registry_sha256: str,
-    repository_root: Path,
-    findings: list[Finding],
-    portable_context: PortableValidationContext | None = None,
-) -> None:
-    data = record.data
-    review_id = data["license_review_id"]
-    location = f"license/{review_id}"
-    corpus = _check_ref(
-        data["corpus_ref"],
-        id_field="corpus_id",
-        records=corpora,
-        location=f"{location}/corpus_ref",
-        findings=findings,
-    )
-    authority = authorities.get(data["authority_id"])
-    if corpus is not None and data["authority_id"] != corpus.data["authority_id"]:
-        findings.append(
-            _finding(
-                "LICENSE_AUTHORITY_MISMATCH",
-                f"{location}/authority_id",
-                "license review authority_id differs from the corpus authority_id",
-            )
-        )
-    if authority is None:
-        findings.append(
-            _finding(
-                "AUTHORITY_REF_UNRESOLVED",
-                f"{location}/authority_id",
-                "license review authority_id is not active",
-            )
-        )
-
-    evidence_ceiling = "complete"
-    for evidence_index, evidence in enumerate(data["evidence"]):
-        evidence_location = f"{location}/evidence/{evidence_index}"
-        if evidence["hash_basis"] == "unattested-external-locator":
-            evidence_ceiling = "partial"
-            if data["status"] == "complete":
-                findings.append(
-                    _finding(
-                        "LICENSE_TERMS_EVIDENCE_UNATTESTED",
-                        f"{evidence_location}/hash_basis",
-                        "an external terms locator without exact local terms "
-                        "bytes cannot support complete license assurance",
-                    )
-                )
-            continue
-        reference = evidence["terms_content_ref"]
-        if (
-            reference["sha256"] != evidence["sha256"]
-        ):
-            findings.append(
-                _finding(
-                    "LICENSE_TERMS_CONTENT_REF_MISMATCH",
-                    f"{evidence_location}/terms_content_ref/sha256",
-                    "terms_content_ref must bind the same exact terms bytes as "
-                    "the evidence sha256",
-                )
-            )
-            evidence_ceiling = "blocked"
-            continue
-        if not _is_license_terms_content_path(reference["path"]):
-            findings.append(
-                _finding(
-                    "LICENSE_TERMS_CONTENT_NAMESPACE_INVALID",
-                    f"{evidence_location}/terms_content_ref/path",
-                    "exact license terms must live under a skill "
-                    "official-source-pack license-terms directory",
-                )
-            )
-            evidence_ceiling = "blocked"
-            continue
-        raw = _safe_local_bytes(
-            repository_root,
-            reference["path"],
-            location=f"{evidence_location}/terms_content_ref/path",
-            findings=findings,
-            failure_code="LICENSE_TERMS_CONTENT_UNAVAILABLE",
-            portable_context=portable_context,
-        )
-        if (
-            raw is None
-            or _artifact_sha256(raw) != evidence["sha256"]
-        ):
-            findings.append(
-                _finding(
-                    "LICENSE_TERMS_CONTENT_HASH_MISMATCH",
-                    f"{evidence_location}/sha256",
-                    "declared exact terms hash does not match the bytes at "
-                    "terms_content_ref",
-                )
-            )
-            evidence_ceiling = "blocked"
-
-    trust = data["trust_attestation"]
-    trust_ceiling = "complete"
-    if trust["registry_sha256"] != consumer_registry_sha256:
-        findings.append(
-            _finding(
-                "LICENSE_TRUST_REGISTRY_HASH_MISMATCH",
-                f"{location}/trust_attestation/registry_sha256",
-                "license trust does not bind the exact canonical consumer registry bytes",
-            )
-        )
-        trust_ceiling = "blocked"
-    elif trust["trust_mode"] == "unverified":
-        trust_ceiling = "partial"
-        if data["status"] == "complete":
-            findings.append(
-                _finding(
-                    "LICENSE_TRUST_UNVERIFIED",
-                    f"{location}/trust_attestation/trust_mode",
-                    "self-declared evidence and reviewer identity cannot support "
-                    "complete license assurance",
-                )
-            )
-    else:
-        central_trust = consumer_registry["license_trust"].get(trust["trust_id"])
-        if (
-            central_trust is None
-            or central_trust["authority_id"] != data["authority_id"]
-            or data["reviewer"]["reviewer_id"]
-            not in central_trust["reviewer_ids"]
-            or data["evidence"] != central_trust["evidence"]
-        ):
-            findings.append(
-                _finding(
-                    "LICENSE_TRUST_INVALID",
-                    f"{location}/trust_attestation",
-                    "license evidence and reviewer do not exactly match a central "
-                    "pinned trust entry",
-                )
-            )
-            trust_ceiling = "blocked"
-        elif trust["trust_mode"] == "platform-attested":
-            reference = trust["attestation_ref"]
-            if reference != central_trust["platform_attestation_ref"]:
-                findings.append(
-                    _finding(
-                        "LICENSE_TRUST_INVALID",
-                        f"{location}/trust_attestation/attestation_ref",
-                        "platform attestation differs from the central pinned entry",
-                    )
-                )
-                trust_ceiling = "blocked"
-            else:
-                raw = _safe_local_bytes(
-                    repository_root,
-                    reference["path"],
-                    location=f"{location}/trust_attestation/attestation_ref/path",
-                    findings=findings,
-                    failure_code="LICENSE_ATTESTATION_UNAVAILABLE",
-                    portable_context=portable_context,
-                )
-                if (
-                    raw is None
-                    or _artifact_sha256(raw) != reference["sha256"]
-                ):
-                    findings.append(
-                        _finding(
-                            "LICENSE_ATTESTATION_HASH_MISMATCH",
-                            f"{location}/trust_attestation/attestation_ref/sha256",
-                            "platform attestation hash does not match exact local bytes",
-                        )
-                    )
-                    trust_ceiling = "blocked"
-        else:
-            trust_ceiling = "partial"
-            if data["status"] == "complete":
-                findings.append(
-                    _finding(
-                        "LICENSE_PLATFORM_ATTESTATION_REQUIRED",
-                        f"{location}/trust_attestation/trust_mode",
-                        "central pinning without a matching platform "
-                        "attestation cannot support complete license assurance",
-                    )
-                )
-
-    rules = data["storage_rules"]
-    rule_keys = [
-        (item["artifact_kind"], item["source_material_class"])
-        for item in rules
-    ]
-    if len(rule_keys) != len(set(rule_keys)):
-        findings.append(
-            _finding(
-                "LICENSE_STORAGE_RULE_DUPLICATE",
-                f"{location}/storage_rules",
-                "artifact_kind and source_material_class rule keys must be unique",
-            )
-        )
-    _check_unique_ids(
-        data["evidence"],
-        "evidence_id",
-        code="LICENSE_EVIDENCE_ID_DUPLICATE",
-        location=f"{location}/evidence",
-        findings=findings,
-    )
-    evidence_ids = set(_ids(data["evidence"], "evidence_id"))
-    rule_by_kind = {
-        (item["artifact_kind"], item["source_material_class"]): item
-        for item in rules
-    }
-    protected_invalid = False
-    obligation_unknown = False
-    obligation_false_certainty = False
-    for rule_index, rule in enumerate(rules):
-        if not set(rule["license_evidence_refs"]).issubset(evidence_ids):
-            findings.append(
-                _finding(
-                    "LICENSE_EVIDENCE_REF_INVALID",
-                    f"{location}/storage_rules/{rule_index}/license_evidence_refs",
-                    "storage rule references missing license evidence",
-                )
-            )
-        material = rule["source_material_class"]
-        modes = set(rule["allowed_storage_modes"])
-        rule_unknown = any(
-            rule[field] == "unknown"
-            for field in LICENSE_OBLIGATION_FIELDS
-        )
-        obligation_unknown = obligation_unknown or rule_unknown
-        if rule_unknown and not rule["limitations"]:
-            findings.append(
-                _finding(
-                    "LICENSE_OBLIGATION_LIMITATION_MISSING",
-                    f"{location}/storage_rules/{rule_index}/limitations",
-                    "unknown license obligations require an explicit limitation",
-                )
-            )
-        if material in {"credential", "private-artifact"} and modes != {"excluded"}:
-            protected_invalid = True
-        if material == "restricted-potential" and not modes.issubset(
-            {"metadata-only", "external-runtime-only", "excluded"}
-        ):
-            protected_invalid = True
-        if protected_invalid:
-            findings.append(
-                _finding(
-                    "LICENSE_PROTECTED_MATERIAL_INVALID",
-                    f"{location}/storage_rules/{rule_index}",
-                    "restricted potentials, credentials, and private artifacts "
-                    "cannot be generically embedded or cached",
-                )
-            )
-            protected_invalid = False
-
-    authority_ceiling_invalid = False
-    if authority is not None:
-        central_license = authority["license_policy"]
-        identity = data["license_identity"]
-        if central_license["status"] == "unknown":
-            if (
-                identity["verification"] == "verified"
-                or identity["identifier"] is not None
-                or identity["terms_urls"]
-            ):
-                authority_ceiling_invalid = True
-            if trust["trust_mode"] == "unverified":
-                for rule_index, rule in enumerate(rules):
-                    if any(
-                        rule[field] != "unknown"
-                        for field in LICENSE_OBLIGATION_FIELDS
-                    ):
-                        obligation_false_certainty = True
+                for subject_id in subject_ids:
+                    if not isinstance(subject_id, str) or not subject_id:
                         findings.append(
                             _finding(
-                                "LICENSE_OBLIGATION_FALSE_CERTAINTY",
-                                f"{location}/storage_rules/{rule_index}",
-                                "unknown central license evidence cannot support "
-                                "self-declared true or false obligation values",
+                                "SLICE_SUBJECT_ID_INVALID",
+                                f"{slice_location}/subject_ids",
+                                "subject id must be a non-empty string",
                             )
                         )
-        elif identity["verification"] == "verified":
-            if (
-                identity["identifier"] != central_license["identifier"]
-                or set(identity["terms_urls"])
-                != set(central_license["terms_urls"])
-            ):
-                authority_ceiling_invalid = True
-        elif identity["identifier"] is not None or identity["terms_urls"]:
-            authority_ceiling_invalid = True
-        if identity["verification"] == "verified":
-            for evidence_index, evidence in enumerate(data["evidence"]):
-                if (
-                    evidence["hash_basis"] == "exact-terms-content-bytes"
-                    and evidence["locator"] not in identity["terms_urls"]
-                ):
-                    authority_ceiling_invalid = True
-                    findings.append(
-                        _finding(
-                            "LICENSE_TERMS_LOCATOR_IDENTITY_MISMATCH",
-                            f"{location}/evidence/{evidence_index}/locator",
-                            "exact terms bytes must be located by one of the "
-                            "verified license identity terms URLs",
-                        )
+                        maximum = _lower_ceiling(maximum, "partial")
+                        continue
+                    if corpus_source is not None:
+                        valid_subject_ids = corpus_source.get("subject_ids", [])
+                        if isinstance(valid_subject_ids, list) and subject_id not in valid_subject_ids:
+                            findings.append(
+                                _finding(
+                                    "SLICE_SUBJECT_ID_MISMATCH",
+                                    f"{slice_location}/subject_ids",
+                                    "slice subject_ids must be subset of corpus source subject_ids",
+                                )
+                            )
+                            maximum = _lower_ceiling(maximum, "partial")
+                    source_slice_subjects.add(subject_id)
+                    subject_slice_refs.setdefault(subject_id, set()).add(f"{source_id}:{slice_id}")
+
+        if corpus_source is not None and declared_status == "complete":
+            corpus_subjects = {
+                sid for sid in corpus_source.get("subject_ids", []) if isinstance(sid, str)
+            }
+            if not corpus_subjects.issubset(source_slice_subjects):
+                findings.append(
+                    _finding(
+                        "SLICE_SUBJECT_COVERAGE_INVALID",
+                        f"{source_location}/subject_ids",
+                        "complete manifests require every source subject to be covered by at least one slice",
                     )
-        bundle_policy = authority["redistribution_policy"]["bundle_content"]
-        if bundle_policy == "forbidden" and any(
-            "embedded-open" in rule["allowed_storage_modes"] for rule in rules
+                )
+                maximum = _lower_ceiling(maximum, "partial")
+
+        if (
+            isinstance(source_loss_accounting, Mapping)
+            and source_loss_accounting.get("closure_status") == "complete"
+            and source_loss_union != source_loss_ids
         ):
-            authority_ceiling_invalid = True
-        if authority_ceiling_invalid:
             findings.append(
                 _finding(
-                    "LICENSE_AUTHORITY_CEILING_EXCEEDED",
-                    location,
-                    "license review contradicts or widens the central authority "
-                    "license and redistribution ceiling",
+                    "SLICE_LOSS_COVERAGE_INCOMPLETE",
+                    f"{source_location}/source_loss_accounting",
+                    "source loss complete requires slice loss IDs to cover all source losses",
                 )
             )
-
-    corpus_id = data["corpus_ref"]["corpus_id"]
-    for manifest in slice_manifests:
-        if manifest.data["corpus_ref"]["corpus_id"] != corpus_id:
-            continue
-        for source_index, source in enumerate(manifest.data["sources"]):
-            for slice_index, item in enumerate(source["slices"]):
-                slice_location = (
-                    f"slices/{manifest.data['slice_manifest_id']}/sources/"
-                    f"{source_index}/slices/{slice_index}"
-                )
-                rule = rule_by_kind.get(
-                    (item["artifact_kind"], item["source_material_class"])
-                )
-                if rule is None:
+            maximum = _lower_ceiling(maximum, "partial")
+        if declared_status == "complete":
+            merged_ranges = sorted(valid_ranges)
+            if not merged_ranges:
+                if raw_source_extent > 0:
                     findings.append(
                         _finding(
-                            "LICENSE_STORAGE_RULE_MISSING",
-                            f"{slice_location}/artifact_kind",
-                            "used artifact/material lane has no explicit license storage rule",
+                            "SLICE_RANGE_COVERAGE_INCOMPLETE",
+                            f"{source_location}/slices",
+                            "complete slice manifests must cover source raw byte range exactly",
                         )
                     )
-                    continue
-                if item["storage_mode"] not in rule["allowed_storage_modes"]:
+                    maximum = _lower_ceiling(maximum, "partial")
+            else:
+                cursor = 0
+                covered = True
+                for start, end in merged_ranges:
+                    if start > cursor:
+                        covered = False
+                        break
+                    if end > cursor:
+                        cursor = end
+                if merged_ranges[0][0] != 0 or cursor < raw_source_extent or not covered:
                     findings.append(
                         _finding(
-                            "LICENSE_STORAGE_MODE_FORBIDDEN",
-                            f"{slice_location}/storage_mode",
-                            "slice storage mode is not explicitly allowed by the "
-                            "applicable license review rule",
+                            "SLICE_RANGE_COVERAGE_INCOMPLETE",
+                            f"{source_location}/slices",
+                            "complete slice manifests must cover source raw byte range exactly",
                         )
                     )
+                    maximum = _lower_ceiling(maximum, "partial")
 
-    expired = False
-    if data["review_expires_utc"] is not None:
-        expires = datetime.fromisoformat(
-            data["review_expires_utc"]
-            .replace("Z", "+00:00")
-            .replace("z", "+00:00")
-        )
-        expired = expires <= datetime.now(timezone.utc)
-    if data["license_review_id"] in data["supersedes_review_ids"]:
-        findings.append(
-            _finding(
-                "LICENSE_SUPERSESSION_INVALID",
-                f"{location}/supersedes_review_ids",
-                "a license review cannot supersede itself",
-            )
-        )
+    if blockers:
+        maximum = _lower_ceiling(maximum, "blocked")
 
-    if (
-        data["blockers"]
-        or authority_ceiling_invalid
-        or obligation_false_certainty
-    ):
-        maximum = "blocked"
-    elif (
-        data["license_identity"]["verification"] != "verified"
-        or any(rule["assessment"] == "unresolved" for rule in rules)
-        or obligation_unknown
-        or expired
-    ):
-        maximum = "partial"
-    else:
-        maximum = "complete"
-    maximum = min(
-        (maximum, trust_ceiling, evidence_ceiling),
-        key=STATUS_RANK.__getitem__,
-    )
     _status_overclaim(
-        data["status"],
+        declared_status,
         maximum,
         location=f"{location}/status",
         findings=findings,
     )
+
 
 
 def _coverage_findings(
@@ -3614,7 +3926,6 @@ def _coverage_findings(
     *,
     corpora: dict[str, LoadedRecord],
     slice_manifests: dict[str, LoadedRecord],
-    license_reviews: dict[str, LoadedRecord],
     scope_inventories: dict[str, LoadedRecord],
     consumer_registry: dict[str, Any],
     consumer_registry_sha256: str,
@@ -3623,70 +3934,108 @@ def _coverage_findings(
     portable_context: PortableValidationContext | None = None,
 ) -> None:
     data = record.data
-    location = f"coverage/{data['coverage_id']}"
-    binding_valid = True
-    binding_ids: list[str] = []
-    central_bindings = {
-        item["binding_id"]: item for item in consumer_registry["bindings"]
-    }
-    resolved_binding_pairs: set[tuple[str, str]] = set()
-    for index, reference in enumerate(data["consumer_binding_refs"]):
-        binding_id = reference["binding_id"]
-        binding_ids.append(binding_id)
-        if reference["registry_sha256"] != consumer_registry_sha256:
-            findings.append(
-                _finding(
-                    "COVERAGE_CONSUMER_REGISTRY_HASH_MISMATCH",
-                    f"{location}/consumer_binding_refs/{index}/registry_sha256",
-                    "consumer binding does not reference exact canonical registry bytes",
-                )
-            )
-            binding_valid = False
-        binding = central_bindings.get(binding_id)
-        if (
-            binding is None
-            or binding["consumer_skill_id"] != data["skill_id"]
-            or binding["purpose"] != "official-document-coverage"
-            or binding["claim_ceiling"] != "registered-skill-scope"
-        ):
-            findings.append(
-                _finding(
-                    "COVERAGE_CONSUMER_BINDING_INVALID",
-                    f"{location}/consumer_binding_refs/{index}",
-                    "binding does not centrally allow this Skill as a documentation "
-                    "consumer",
-                )
-            )
-            binding_valid = False
-        else:
-            resolved_binding_pairs.add(
-                (binding["authority_id"], binding["provider_id"])
-            )
-    if len(binding_ids) != len(set(binding_ids)):
+    coverage_id = data.get("coverage_id")
+    if not isinstance(coverage_id, str) or not coverage_id:
+        coverage_id = "<unknown>"
         findings.append(
             _finding(
-                "COVERAGE_CONSUMER_BINDING_INVALID",
-                f"{location}/consumer_binding_refs",
-                "consumer binding IDs must be unique",
+                "COVERAGE_ID_INVALID",
+                "coverage/<unknown>",
+                "coverage_id must be a non-empty string",
             )
         )
-        binding_valid = False
+    location = f"coverage/{coverage_id}"
 
-    references = (
-        ("corpus_refs", "corpus_id", corpora),
-        ("slice_manifest_refs", "slice_manifest_id", slice_manifests),
-        ("license_review_refs", "license_review_id", license_reviews),
+    declared_coverage_status = (
+        data["status"] if isinstance(data.get("status"), Mapping) else {}
     )
-    resolved: list[LoadedRecord] = []
-    for field, id_field, records in references:
-        _check_unique_ids(
-            data[field],
-            id_field,
-            code="COVERAGE_RECORD_REF_DUPLICATE",
-            location=f"{location}/{field}",
-            findings=findings,
-        )
-        for index, reference in enumerate(data[field]):
+
+    def _status_declared(dimension: str, location_suffix: str) -> str:
+        value = declared_coverage_status.get(dimension)
+        if value not in STATUS_RANK:
+            findings.append(
+                _finding(
+                    "COVERAGE_STATUS_INVALID",
+                    f"{location}/status/{location_suffix}",
+                    f"{location_suffix} status must be complete, partial, or blocked",
+                )
+            )
+            return "blocked"
+        return value
+
+    def _record_producer_skill(record_ref: LoadedRecord, *, expected: str) -> bool:
+        producer = record_ref.data.get("producer", {})
+        if not isinstance(producer, Mapping):
+            findings.append(
+                _finding(
+                    "COVERAGE_PRODUCER_INVALID",
+                    f"{record_ref.path}:producer",
+                    "producer must be an exact object",
+                )
+            )
+            return False
+        producer_skill_id = producer.get("skill_id")
+        if not isinstance(producer_skill_id, str):
+            findings.append(
+                _finding(
+                    "COVERAGE_PRODUCER_INVALID",
+                    f"{record_ref.path}:producer/skill_id",
+                    "producer.skill_id must be a non-empty string",
+                )
+            )
+            return False
+        if producer_skill_id != expected:
+            findings.append(
+                _finding(
+                    "COVERAGE_PRODUCER_INVALID",
+                    f"{record_ref.path}:producer/skill_id",
+                    "producer.skill_id must match coverage skill_id",
+                )
+            )
+            return False
+        return True
+
+    def _resolve_refs(
+        field: str,
+        id_field: str,
+        records: dict[str, LoadedRecord],
+    ) -> tuple[dict[str, LoadedRecord], set[str], bool]:
+        refs_raw = data.get(field)
+        if not isinstance(refs_raw, list):
+            findings.append(
+                _finding(
+                    "COVERAGE_RECORD_REF_INVALID",
+                    f"{location}/{field}",
+                    f"{field} must be an exact array",
+                )
+            )
+            return {}, set(), True
+        ids: list[str] = []
+        resolved: dict[str, LoadedRecord] = {}
+        hard = False
+        for index, reference in enumerate(refs_raw):
+            if not isinstance(reference, Mapping):
+                findings.append(
+                    _finding(
+                        "COVERAGE_RECORD_REF_INVALID",
+                        f"{location}/{field}/{index}",
+                        f"{field} entry must be an exact object",
+                    )
+                )
+                hard = True
+                continue
+            record_id = reference.get(id_field)
+            if not isinstance(record_id, str):
+                findings.append(
+                    _finding(
+                        "COVERAGE_RECORD_REF_INVALID",
+                        f"{location}/{field}/{index}/{id_field}",
+                        f"{id_field} must be a valid identifier",
+                    )
+                )
+                hard = True
+                continue
+            ids.append(record_id)
             target = _check_ref(
                 reference,
                 id_field=id_field,
@@ -3694,307 +4043,1065 @@ def _coverage_findings(
                 location=f"{location}/{field}/{index}",
                 findings=findings,
             )
-            if target is not None:
-                resolved.append(target)
-        if set(_ids(data[field], id_field)) != set(records):
-            findings.append(
-                _finding(
-                    "COVERAGE_RECORD_SET_INVALID",
-                    f"{location}/{field}",
-                    "coverage references must exactly identify the supplied record set",
-                )
-            )
+            if target is None:
+                hard = True
+            else:
+                resolved[record_id] = target
+        return resolved, set(ids), hard
 
-    scope_inventory = _check_ref(
-        data["scope_inventory_ref"],
-        id_field="inventory_id",
-        records=scope_inventories,
-        location=f"{location}/scope_inventory_ref",
-        findings=findings,
+    coverage_skill_id = data.get("skill_id")
+    if not isinstance(coverage_skill_id, str) or not coverage_skill_id:
+        findings.append(
+            _finding(
+                "COVERAGE_SKILL_ID_INVALID",
+                f"{location}/skill_id",
+                "coverage skill_id must be a non-empty string",
+            )
+        )
+        coverage_skill_id = "<unknown>"
+
+    hard_error = False
+    blockers = data.get("blockers", [])
+    blocked_dimensions: set[str] = set()
+    if not isinstance(blockers, list):
+        findings.append(
+            _finding(
+                "COVERAGE_BLOCKERS_INVALID",
+                f"{location}/blockers",
+                "blockers must be an exact array",
+            )
+        )
+        hard_error = True
+    else:
+        allowed_blocker_dimensions = {"corpus", "slices", "scope", "mappings"}
+        for index, blocker in enumerate(blockers):
+            if not isinstance(blocker, Mapping):
+                findings.append(
+                    _finding(
+                        "COVERAGE_BLOCKERS_INVALID",
+                        f"{location}/blockers/{index}",
+                        "blocker entry must be an exact object",
+                    )
+                )
+                hard_error = True
+                continue
+            raw_dimension = blocker.get("dimension")
+            if not isinstance(raw_dimension, str) or not raw_dimension:
+                findings.append(
+                    _finding(
+                        "COVERAGE_BLOCKERS_INVALID",
+                        f"{location}/blockers/{index}/dimension",
+                        "blocker dimension must be one of corpus, slices, scope, or mappings",
+                    )
+                )
+                hard_error = True
+                continue
+            blocker_dimensions = {raw_dimension}
+            for dimension in blocker_dimensions:
+                if dimension not in allowed_blocker_dimensions:
+                    findings.append(
+                        _finding(
+                            "COVERAGE_BLOCKERS_INVALID",
+                            f"{location}/blockers/{index}/dimension",
+                            "blocker dimension must be one of corpus, slices, scope, or mappings",
+                        )
+                    )
+                    hard_error = True
+                else:
+                    blocked_dimensions.add(dimension)
+
+    resolved_corpora, corpus_ids, refs_hard_error = _resolve_refs(
+        "corpus_refs",
+        "corpus_id",
+        corpora,
     )
-    if set(scope_inventories) != {data["scope_inventory_ref"]["inventory_id"]}:
+    resolved_slices, slice_manifest_ids, hard_error2 = _resolve_refs(
+        "slice_manifest_refs",
+        "slice_manifest_id",
+        slice_manifests,
+    )
+    hard_error = hard_error or refs_hard_error or hard_error2
+
+    if set(corpus_ids) != set(corpora):
         findings.append(
             _finding(
                 "COVERAGE_RECORD_SET_INVALID",
-                f"{location}/scope_inventory_ref",
+                f"{location}/corpus_refs",
+                "coverage must reference exactly the supplied corpus record set",
+            )
+        )
+        hard_error = True
+
+    if set(slice_manifest_ids) != set(slice_manifests):
+        findings.append(
+            _finding(
+                "COVERAGE_RECORD_SET_INVALID",
+                f"{location}/slice_manifest_refs",
+                "coverage must reference exactly the supplied slice manifest record "
+                "set",
+            )
+        )
+        hard_error = True
+
+    scope_inventory = None
+    scope_inventory_id = None
+    scope_ref = data.get("scope_inventory_ref")
+    scope_ref_path = f"{location}/scope_inventory_ref"
+    if not isinstance(scope_ref, Mapping):
+        findings.append(
+            _finding(
+                "COVERAGE_SCOPE_INVENTORY_REF_INVALID",
+                scope_ref_path,
+                "scope_inventory_ref must be an exact object",
+            )
+        )
+        hard_error = True
+    else:
+        scope_inventory_id = scope_ref.get("inventory_id")
+        if not isinstance(scope_inventory_id, str):
+            findings.append(
+                _finding(
+                    "COVERAGE_SCOPE_INVENTORY_REF_INVALID",
+                    f"{scope_ref_path}/inventory_id",
+                    "inventory_id must be a valid identifier",
+                )
+            )
+            hard_error = True
+        else:
+            scope_inventory = _check_ref(
+                scope_ref,
+                id_field="inventory_id",
+                records=scope_inventories,
+                location=scope_ref_path,
+                findings=findings,
+            )
+            if scope_inventory is None:
+                hard_error = True
+    if set(scope_inventories) != {scope_inventory_id}:
+        findings.append(
+            _finding(
+                "COVERAGE_RECORD_SET_INVALID",
+                scope_ref_path,
                 "coverage must reference exactly the supplied scope inventory",
             )
         )
-    if scope_inventory is not None:
-        resolved.append(scope_inventory)
-        if scope_inventory.data["skill_id"] != data["skill_id"]:
-            findings.append(
-                _finding(
-                    "COVERAGE_SCOPE_SKILL_MISMATCH",
-                    f"{location}/skill_id",
-                    "coverage skill_id differs from its canonical scope inventory",
-                )
-            )
-        if data["declared_scope"] != scope_inventory.data["subjects"]:
-            findings.append(
-                _finding(
-                    "COVERAGE_SCOPE_INVENTORY_MISMATCH",
-                    f"{location}/declared_scope",
-                    "declared_scope must exactly equal the independent canonical "
-                    "scope inventory subjects",
-                )
-            )
+        hard_error = True
 
-    corpus_ids = set(_ids(data["corpus_refs"], "corpus_id"))
-    required_binding_pairs = {
-        (item.data["authority_id"], item.data["provider_id"])
-        for item in corpora.values()
-    }
-    if resolved_binding_pairs != required_binding_pairs:
+    # coverage.skill_id must match coverage record and related record producer skill ids.
+    coverage_producer_ok = _record_producer_skill(
+        record,
+        expected=coverage_skill_id,
+    )
+    hard_error = hard_error or not coverage_producer_ok
+
+    if scope_inventory is not None and (
+        not isinstance(scope_inventory.data.get("skill_id"), str)
+        or scope_inventory.data.get("skill_id") != coverage_skill_id
+    ):
+        findings.append(
+            _finding(
+                "COVERAGE_SCOPE_SKILL_MISMATCH",
+                f"{location}/skill_id",
+                "coverage skill_id must equal scope inventory skill_id",
+            )
+        )
+        hard_error = True
+
+    if scope_inventory is not None:
+        scope_producer_ok = _record_producer_skill(
+            scope_inventory,
+            expected=coverage_skill_id,
+        )
+        hard_error = hard_error or not scope_producer_ok
+    for corpus_id, corpus in sorted(resolved_corpora.items()):
+        corpus_producer_ok = _record_producer_skill(
+            corpus,
+            expected=coverage_skill_id,
+        )
+        hard_error = hard_error or not corpus_producer_ok
+    for manifest_id, manifest in sorted(resolved_slices.items()):
+        slice_producer_ok = _record_producer_skill(
+            manifest,
+            expected=coverage_skill_id,
+        )
+        hard_error = hard_error or not slice_producer_ok
+
+    # canonical consumer bindings determine expected authority/provider pair set.
+    raw_bindings = consumer_registry.get("bindings")
+    expected_pairs: set[tuple[str, str]] = set()
+    if not isinstance(raw_bindings, list):
         findings.append(
             _finding(
                 "COVERAGE_CONSUMER_BINDING_INVALID",
-                f"{location}/consumer_binding_refs",
-                "consumer bindings must exactly cover every referenced "
-                "authority/provider pair; default policy is deny",
+                f"{location}/consumer_registry/bindings",
+                "consumer_registry/bindings must be an exact array",
             )
         )
-        binding_valid = False
-    for index, manifest in enumerate(slice_manifests.values()):
-        if manifest.data["corpus_ref"]["corpus_id"] not in corpus_ids:
+        hard_error = True
+    else:
+        seen_pairs: set[tuple[str, str]] = set()
+        for index, binding in enumerate(raw_bindings):
+            if not isinstance(binding, Mapping):
+                findings.append(
+                    _finding(
+                        "COVERAGE_CONSUMER_BINDING_INVALID",
+                        f"{location}/consumer_registry/bindings/{index}",
+                        "consumer binding must be an exact object",
+                    )
+                )
+                hard_error = True
+                continue
+            if (
+                binding.get("consumer_skill_id") == coverage_skill_id
+                and binding.get("purpose") == "official-document-coverage"
+                and binding.get("claim_ceiling") == "registered-skill-scope"
+            ):
+                authority_id = binding.get("authority_id")
+                provider_id = binding.get("provider_id")
+                if not isinstance(authority_id, str) or not isinstance(
+                    provider_id, str
+                ):
+                    findings.append(
+                        _finding(
+                            "COVERAGE_CONSUMER_BINDING_INVALID",
+                            f"{location}/consumer_registry/bindings/{index}",
+                            "consumer binding must expose valid authority_id and "
+                            "provider_id",
+                        )
+                    )
+                    hard_error = True
+                    continue
+                pair = (authority_id, provider_id)
+                if pair in seen_pairs:
+                    findings.append(
+                        _finding(
+                            "COVERAGE_CONSUMER_BINDING_INVALID",
+                            f"{location}/consumer_registry/bindings/{index}",
+                            "consumer binding authority/provider pair is duplicated",
+                        )
+                    )
+                    hard_error = True
+                seen_pairs.add(pair)
+                expected_pairs.add(pair)
+
+    corpus_pairs = []
+    for corpus_id, corpus in resolved_corpora.items():
+        authority_id = corpus.data.get("authority_id")
+        provider_id = corpus.data.get("provider_id")
+        if not isinstance(authority_id, str) or not isinstance(provider_id, str):
             findings.append(
                 _finding(
-                    "COVERAGE_CORPUS_LINK_INVALID",
-                    f"{location}/slice_manifest_refs/{index}",
+                    "COVERAGE_CORPUS_PAIR_INVALID",
+                    f"corpora/{corpus_id}",
+                    "corpus must expose valid authority_id and provider_id",
+                )
+            )
+            hard_error = True
+            continue
+        corpus_pairs.append((authority_id, provider_id))
+    if len(corpus_pairs) != len(set(corpus_pairs)):
+        findings.append(
+            _finding(
+                "COVERAGE_CORPUS_PAIR_INVALID",
+                f"{location}/corpus_refs",
+                "referenced corpora cannot duplicate authority/provider pairs",
+            )
+        )
+        hard_error = True
+
+    referenced_pairs = set(corpus_pairs)
+    if referenced_pairs != expected_pairs:
+        findings.append(
+            _finding(
+                "COVERAGE_CONSUMER_BINDING_INVALID",
+                f"{location}/consumer-registry/bindings",
+                "consumer bindings must exactly match referenced authority/provider pairs",
+            )
+        )
+        hard_error = True
+
+    # exactly one slice manifest per referenced corpus and each manifest must resolve
+    # to one of the referenced corpora.
+    slice_to_corpus: dict[str, str] = {}
+    for manifest_id, manifest in resolved_slices.items():
+        corpus_ref = manifest.data.get("corpus_ref")
+        if not isinstance(corpus_ref, Mapping):
+            findings.append(
+                _finding(
+                    "COVERAGE_SLICE_CORPUS_LINK_INVALID",
+                    f"slices/{manifest_id}/corpus_ref",
+                    "slice manifest corpus_ref must be an exact object",
+                )
+            )
+            hard_error = True
+            continue
+        corpus_id = corpus_ref.get("corpus_id")
+        if not isinstance(corpus_id, str):
+            findings.append(
+                _finding(
+                    "COVERAGE_SLICE_CORPUS_LINK_INVALID",
+                    f"slices/{manifest_id}/corpus_ref/corpus_id",
+                    "slice manifest corpus_ref must include a valid corpus_id",
+                )
+            )
+            hard_error = True
+            continue
+        if corpus_id not in corpus_ids:
+            findings.append(
+                _finding(
+                    "COVERAGE_SLICE_CORPUS_PARTITION_INVALID",
+                    f"slices/{manifest_id}/corpus_ref",
                     "slice manifest points to an unreferenced corpus",
                 )
             )
-    slice_corpus_ids = [
-        manifest.data["corpus_ref"]["corpus_id"]
-        for manifest in slice_manifests.values()
-    ]
-    if (
-        len(slice_corpus_ids) != len(set(slice_corpus_ids))
-        or set(slice_corpus_ids) != corpus_ids
-    ):
+            hard_error = True
+            continue
+        if corpus_id in slice_to_corpus.values():
+            findings.append(
+                _finding(
+                    "COVERAGE_SLICE_CORPUS_PARTITION_INVALID",
+                    f"{location}/slice_manifest_refs",
+                    "each referenced corpus must have exactly one slice manifest",
+                )
+            )
+            hard_error = True
+        slice_to_corpus[manifest_id] = corpus_id
+
+    if set(slice_to_corpus.values()) != set(corpus_ids):
         findings.append(
             _finding(
                 "COVERAGE_SLICE_CORPUS_PARTITION_INVALID",
                 f"{location}/slice_manifest_refs",
-                "coverage requires exactly one slice manifest for every corpus",
+                "coverage requires exactly one slice manifest per referenced corpus",
             )
         )
-    license_corpus_ids = [
-        item.data["corpus_ref"]["corpus_id"] for item in license_reviews.values()
-    ]
-    if len(license_corpus_ids) != len(set(license_corpus_ids)):
-        findings.append(
-            _finding(
-                "COVERAGE_LICENSE_AMBIGUOUS",
-                f"{location}/license_review_refs",
-                "MVP coverage requires exactly one license review per corpus",
-            )
-        )
-    if set(license_corpus_ids) != corpus_ids:
-        findings.append(
-            _finding(
-                "COVERAGE_LICENSE_SET_INVALID",
-                f"{location}/license_review_refs",
-                "license reviews must cover every referenced corpus exactly once",
-            )
-        )
+        hard_error = True
 
-    subjects = data["declared_scope"]
-    mappings = data["mappings"]
+    # Build slice index for subject checks.
+    slice_subject_index: dict[tuple[str, str], set[str]] = {}
+    for manifest_id, manifest in resolved_slices.items():
+        sources = manifest.data.get("sources")
+        if not isinstance(sources, Mapping):
+            findings.append(
+                _finding(
+                    "COVERAGE_SLICE_MANIFEST_SOURCES_INVALID",
+                    f"slices/{manifest_id}/sources",
+                    "slice manifest sources must be an exact mapping",
+                )
+            )
+            hard_error = True
+            continue
+        for source_id, source in sources.items():
+            source_entry = source if isinstance(source, Mapping) else None
+            if source_entry is None:
+                findings.append(
+                    _finding(
+                        "COVERAGE_SLICE_SOURCE_INVALID",
+                        f"slices/{manifest_id}/sources/{source_id}",
+                        "slice source entry must be an exact object",
+                    )
+                )
+                hard_error = True
+                continue
+            raw_slices = source_entry.get("slices")
+            if not isinstance(raw_slices, list):
+                findings.append(
+                    _finding(
+                        "COVERAGE_SLICE_ENTRIES_INVALID",
+                        f"slices/{manifest_id}/sources/{source_id}/slices",
+                        "slice source slices must be an exact array",
+                    )
+                )
+                hard_error = True
+                continue
+            for slice_index, slice_entry in enumerate(raw_slices):
+                if not isinstance(slice_entry, Mapping):
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_ENTRY_INVALID",
+                            f"slices/{manifest_id}/sources/{source_id}/{slice_index}",
+                            "slice entry must be an exact object",
+                        )
+                    )
+                    hard_error = True
+                    continue
+                slice_id = slice_entry.get("slice_id")
+                if not isinstance(slice_id, str):
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_ENTRY_INVALID",
+                            f"slices/{manifest_id}/sources/{source_id}/{slice_index}/slice_id",
+                            "slice entry must include valid slice_id",
+                        )
+                    )
+                    hard_error = True
+                    continue
+                key = (manifest_id, slice_id)
+                if key in slice_subject_index:
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_ENTRY_DUPLICATE",
+                            f"slices/{manifest_id}/{slice_id}",
+                            "slice id must be unique per manifest",
+                        )
+                    )
+                    hard_error = True
+                raw_subjects = slice_entry.get("subject_ids")
+                if not isinstance(raw_subjects, list):
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_ENTRY_INVALID",
+                            f"slices/{manifest_id}/sources/{source_id}/{slice_index}/subject_ids",
+                            "slice subject_ids must be an exact array",
+                        )
+                    )
+                    hard_error = True
+                    raw_subjects = []
+                slice_subject_index[key] = {
+                    sid
+                    for sid in raw_subjects
+                    if isinstance(sid, str)
+                }
+
+    raw_scope_subjects = []
+    scope_subject_ids: list[str] = []
+    scope_subject_by_id: dict[str, Mapping[str, Any]] = {}
+    if scope_inventory is not None:
+        raw_scope_subjects = scope_inventory.data.get("subjects", [])
+        if not isinstance(raw_scope_subjects, list):
+            findings.append(
+                _finding(
+                    "COVERAGE_SCOPE_SUBJECTS_INVALID",
+                    f"{scope_inventory.path}:subjects",
+                    "scope inventory subjects must be an exact array",
+                )
+            )
+            hard_error = True
+            raw_scope_subjects = []
+        for index, subject in enumerate(raw_scope_subjects):
+            if not isinstance(subject, Mapping):
+                findings.append(
+                    _finding(
+                        "COVERAGE_SCOPE_SUBJECT_INVALID",
+                        f"{scope_inventory.path}:subjects/{index}",
+                        "scope subject must be an exact object",
+                    )
+                )
+                hard_error = True
+                continue
+            subject_id = subject.get("subject_id")
+            if not isinstance(subject_id, str):
+                findings.append(
+                    _finding(
+                        "COVERAGE_SCOPE_SUBJECT_INVALID",
+                        f"{scope_inventory.path}:subjects/{index}/subject_id",
+                        "scope subject must include a valid subject_id",
+                    )
+                )
+                hard_error = True
+                continue
+            scope_subject_ids.append(subject_id)
+            scope_subject_by_id[subject_id] = subject
     _check_unique_ids(
-        subjects,
+        [{"subject_id": sid} for sid in scope_subject_ids],
         "subject_id",
         code="COVERAGE_SUBJECT_ID_DUPLICATE",
-        location=f"{location}/declared_scope",
+        location=f"{location}/scope_subjects",
         findings=findings,
     )
-    _check_unique_ids(
-        mappings,
-        "subject_id",
-        code="COVERAGE_SUBJECT_ID_DUPLICATE",
-        location=f"{location}/mappings",
-        findings=findings,
-    )
-    subject_ids = set(_ids(subjects, "subject_id"))
-    mapping_ids = set(_ids(mappings, "subject_id"))
-    if subject_ids != mapping_ids:
+
+    raw_mappings = data.get("mappings")
+    if not isinstance(raw_mappings, Mapping):
+        findings.append(
+            _finding(
+                "COVERAGE_MAPPINGS_INVALID",
+                f"{location}/mappings",
+                "mappings must be an exact subject-keyed map",
+            )
+        )
+        hard_error = True
+        raw_mappings = {}
+    mapping_subject_ids = set(raw_mappings.keys()) if isinstance(raw_mappings, Mapping) else set()
+    if mapping_subject_ids != set(scope_subject_ids):
         findings.append(
             _finding(
                 "COVERAGE_SUBJECT_PARTITION_INVALID",
                 f"{location}/mappings",
-                "every declared scope subject must have exactly one mapping and "
-                "undeclared mapping subjects are forbidden",
+                "mapping subject key set must exactly equal scope subject_id set",
             )
         )
+        hard_error = True
 
-    mapping_valid = True
-    subjects_by_id = {
-        item["subject_id"]: item
-        for item in subjects
-    }
-    official_mappings: list[dict[str, Any]] = []
-    skill_path = (
-        scope_inventory.data["skill_registry_binding"]["skill_path"]
-        if scope_inventory is not None
-        else None
-    )
-    scope_source_pairs = (
-        {
-            (item["path"], item["sha256"])
-            for item in scope_inventory.data["skill_source_refs"]
-        }
-        if scope_inventory is not None
-        else set()
-    )
-    for mapping_index, mapping in enumerate(mappings):
-        mapping_location = f"{location}/mappings/{mapping_index}"
-        subject = subjects_by_id.get(mapping["subject_id"])
-        if subject is None:
+    mapping_status_values: list[str] = []
+    for subject_id, mapping in raw_mappings.items():
+        mapping_location = f"{location}/mappings/{subject_id}"
+        if not isinstance(mapping, Mapping):
+            findings.append(
+                _finding(
+                    "COVERAGE_MAPPING_INVALID",
+                    mapping_location,
+                    "mapping entry must be an exact object",
+                )
+            )
+            mapping_status_values.append("blocked")
+            hard_error = True
             continue
-        evidence_class = subject["evidence_class"]
+        mapping_status = mapping.get("mapping_status")
+        if mapping_status not in STATUS_RANK:
+            findings.append(
+                _finding(
+                    "COVERAGE_MAPPING_STATUS_INVALID",
+                    f"{mapping_location}/mapping_status",
+                    "mapping_status must be complete, partial, or blocked",
+                )
+            )
+            mapping_status = "blocked"
+        mapping_status_values.append(mapping_status)
+
+        disposition = mapping.get("disposition")
+        subject = scope_subject_by_id.get(subject_id)
+        if subject is None:
+            findings.append(
+                _finding(
+                    "COVERAGE_MAPPING_SCOPE_MISMATCH",
+                    mapping_location,
+                    "mapping subject_id must exist in scope inventory",
+                )
+            )
+            hard_error = True
+            continue
+        evidence_class = subject.get("evidence_class")
+
         if evidence_class == "official-provider-required":
-            official_mappings.append(mapping)
             expected_disposition = {
                 "complete": "covered",
                 "partial": "partial",
                 "blocked": "blocked",
-            }[mapping["coverage_status"]]
-            if (
-                mapping["official_disposition"] != expected_disposition
-                or mapping["local_evidence_refs"]
-                or (
-                    mapping["coverage_status"] in {"complete", "partial"}
-                    and not mapping["slice_refs"]
-                )
-                or (
-                    mapping["coverage_status"] == "blocked"
-                    and (
-                        not mapping["rationale"]
-                        or not mapping["limitations"]
-                    )
-                )
-            ):
-                mapping_valid = False
+            }.get(mapping_status)
+            if disposition != expected_disposition:
                 findings.append(
                     _finding(
                         "COVERAGE_EVIDENCE_CLASS_CONFUSION",
-                        mapping_location,
-                        "covered or partial official subjects need official "
-                        "slice references; blocked subjects need an explicit "
-                        "gap rationale; local evidence cannot substitute either",
+                        f"{mapping_location}/disposition",
+                        "official-provider-required mappings must be covered/partial/"
+                        "blocked with aligned disposition",
                     )
                 )
-        else:
-            if (
-                mapping["official_disposition"]
-                not in {"not-applicable", "excluded"}
-                or mapping["slice_refs"]
-                or not mapping["local_evidence_refs"]
-                or not mapping["rationale"]
-            ):
-                mapping_valid = False
+                hard_error = True
+            slice_refs = mapping.get("slice_refs")
+            if not isinstance(slice_refs, list):
                 findings.append(
                     _finding(
-                        "COVERAGE_EVIDENCE_CLASS_CONFUSION",
-                        mapping_location,
-                        "non-official subjects must be explicitly not-applicable or "
-                        "excluded from official coverage and cite local evidence",
+                        "COVERAGE_SLICE_REFS_INVALID",
+                        f"{mapping_location}/slice_refs",
+                        "slice_refs must be an exact array",
                     )
                 )
-            for ref_index, reference in enumerate(mapping["local_evidence_refs"]):
-                ref_location = (
-                    f"{mapping_location}/local_evidence_refs/{ref_index}"
-                )
-                path = PurePosixPath(reference["path"])
-                if (
-                    skill_path is None
-                    or not path.is_relative_to(PurePosixPath(skill_path))
-                    or (reference["path"], reference["sha256"])
-                    not in scope_source_pairs
-                    or skill_registry.source_tree_hash_path_excluded(
-                        path.relative_to(PurePosixPath(skill_path))
-                    )
-                ):
-                    mapping_valid = False
-                    findings.append(
-                        _finding(
-                            "COVERAGE_LOCAL_EVIDENCE_INVALID",
-                            ref_location,
-                            "local evidence must exactly reuse a hashed non-pack "
-                            "scope-source reference",
-                        )
-                    )
-                    continue
-                raw = _safe_local_bytes(
-                    repository_root,
-                    reference["path"],
-                    location=ref_location,
-                    findings=findings,
-                    failure_code="COVERAGE_LOCAL_EVIDENCE_INVALID",
-                    portable_context=portable_context,
-                )
-                if (
-                    raw is None
-                    or _artifact_sha256(raw) != reference["sha256"]
-                ):
-                    mapping_valid = False
-                    findings.append(
-                        _finding(
-                            "COVERAGE_LOCAL_EVIDENCE_INVALID",
-                            ref_location,
-                            "local evidence hash does not match exact repository bytes",
-                        )
-                    )
-
-    slices_by_manifest: dict[str, set[str]] = {}
-    for manifest_id, manifest in slice_manifests.items():
-        slices_by_manifest[manifest_id] = {
-            item["slice_id"]
-            for source in manifest.data["sources"]
-            for item in source["slices"]
-        }
-    for mapping_index, mapping in enumerate(mappings):
-        for ref_index, reference in enumerate(mapping["slice_refs"]):
-            slice_ids = slices_by_manifest.get(reference["slice_manifest_id"])
-            if (
-                slice_ids is None
-                or reference["slice_id"] not in slice_ids
-            ):
+                hard_error = True
+                slice_refs = []
+            if mapping_status in {"complete", "partial"} and not slice_refs:
                 findings.append(
                     _finding(
                         "COVERAGE_SLICE_REF_INVALID",
-                        f"{location}/mappings/{mapping_index}/slice_refs/{ref_index}",
-                        "coverage slice reference does not resolve",
+                        mapping_location,
+                        "official-provider-required complete/partial mappings need slice_refs",
                     )
                 )
+                hard_error = True
+            for ref_index, slice_reference in enumerate(slice_refs):
+                if not isinstance(slice_reference, Mapping):
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_REF_INVALID",
+                            f"{mapping_location}/slice_refs/{ref_index}",
+                            "slice ref must be an exact object",
+                        )
+                    )
+                    hard_error = True
+                    continue
+                slice_manifest_id = slice_reference.get("slice_manifest_id")
+                slice_id = slice_reference.get("slice_id")
+                if not isinstance(slice_manifest_id, str) or not isinstance(
+                    slice_id, str
+                ):
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_REF_INVALID",
+                            f"{mapping_location}/slice_refs/{ref_index}",
+                            "slice ref must include valid slice_manifest_id and slice_id",
+                        )
+                    )
+                    hard_error = True
+                    continue
+                key = (slice_manifest_id, slice_id)
+                slice_subjects = slice_subject_index.get(key)
+                if slice_subjects is None:
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_REF_INVALID",
+                            f"{mapping_location}/slice_refs/{ref_index}",
+                            "coverage slice reference does not resolve",
+                        )
+                    )
+                    hard_error = True
+                elif subject_id not in slice_subjects:
+                    findings.append(
+                        _finding(
+                            "COVERAGE_SLICE_REF_SUBJECT_MISMATCH",
+                            f"{mapping_location}/slice_refs/{ref_index}",
+                            "slice reference must include current subject_id",
+                        )
+                    )
+                    hard_error = True
+        else:
+            if disposition not in {"not-applicable", "excluded"}:
+                findings.append(
+                    _finding(
+                        "COVERAGE_EVIDENCE_CLASS_CONFUSION",
+                        f"{mapping_location}/disposition",
+                        "non-official mappings must be not-applicable or excluded",
+                    )
+                )
+                hard_error = True
 
-    if data["blockers"] or not binding_valid or not mapping_valid:
-        maximum = "blocked"
-    elif any(item.data["status"] == "blocked" for item in resolved) or any(
-        item["coverage_status"] == "blocked" for item in official_mappings
-    ):
-        maximum = "blocked"
-    elif any(item.data["status"] != "complete" for item in resolved) or any(
-        item["coverage_status"] != "complete" for item in official_mappings
-    ):
-        maximum = "partial"
-    elif not official_mappings:
-        maximum = "partial"
-    else:
-        maximum = "complete"
+    corpus_status = min(
+        (
+            corpus.data.get("status", "blocked")
+            if corpus.data.get("status") in STATUS_RANK
+            else "blocked"
+            for corpus in resolved_corpora.values()
+        ),
+        key=STATUS_RANK.__getitem__,
+        default="blocked",
+    )
+    slices_status = min(
+        (
+            manifest.data.get("status", "blocked")
+            if manifest.data.get("status") in STATUS_RANK
+            else "blocked"
+            for manifest in resolved_slices.values()
+        ),
+        key=STATUS_RANK.__getitem__,
+        default="blocked",
+    )
+    scope_status = "blocked"
+    if scope_inventory is not None:
+        raw_status = scope_inventory.data.get("status")
+        if raw_status in STATUS_RANK:
+            scope_status = raw_status
+        else:
+            findings.append(
+                _finding(
+                    "COVERAGE_SCOPE_STATUS_INVALID",
+                    "scope-inventories/scope/status",
+                    "scope status must be complete, partial, or blocked",
+                )
+            )
+    mappings_status = min(
+        mapping_status_values,
+        key=STATUS_RANK.__getitem__,
+        default="blocked",
+    )
+
+    corpus_ceiling = (
+        "blocked" if "corpus" in blocked_dimensions else corpus_status
+    )
+    slices_ceiling = (
+        "blocked" if "slices" in blocked_dimensions else slices_status
+    )
+    scope_ceiling = "blocked" if "scope" in blocked_dimensions else scope_status
+    mappings_ceiling = (
+        "blocked" if "mappings" in blocked_dimensions else mappings_status
+    )
     _status_overclaim(
-        data["status"],
-        maximum,
-        location=f"{location}/status",
+        _status_declared("corpus", "corpus"),
+        corpus_ceiling,
+        location=f"{location}/status/corpus",
         findings=findings,
     )
+    _status_overclaim(
+        _status_declared("slices", "slices"),
+        slices_ceiling,
+        location=f"{location}/status/slices",
+        findings=findings,
+    )
+    _status_overclaim(
+        _status_declared("scope", "scope"),
+        scope_ceiling,
+        location=f"{location}/status/scope",
+        findings=findings,
+    )
+    _status_overclaim(
+        _status_declared("mappings", "mappings"),
+        mappings_ceiling,
+        location=f"{location}/status/mappings",
+        findings=findings,
+    )
+
+    overall_ceiling = min(
+        (
+            corpus_ceiling,
+            slices_ceiling,
+            scope_ceiling,
+            mappings_ceiling,
+            "blocked" if hard_error else "complete",
+        ),
+        key=STATUS_RANK.__getitem__,
+    )
+    _status_overclaim(
+        _status_declared("overall", "overall"),
+        overall_ceiling,
+        location=f"{location}/status/overall",
+        findings=findings,
+    )
+
+
+def _technical_authority_snapshot(
+    authority_data: object,
+    software_data: object,
+    repository_root: Path,
+    *,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
+) -> tuple[
+    list[str],
+    dict[str, dict[str, Any]],
+    dict[str, dict[str, Any]],
+]:
+    errors: list[str] = []
+    active_authorities: dict[str, dict[str, Any]] = {}
+    projection: dict[str, dict[str, Any]] = {}
+
+    if not isinstance(authority_data, dict):
+        return ["canonical authority data must be a mapping"], {}, {}
+    if authority_data.get("schema_version") != official_source_authorities.SCHEMA_VERSION:
+        errors.append("schema_version: expected 1.0")
+    authorities = authority_data.get("authorities")
+    if not isinstance(authorities, dict):
+        errors.append("authorities: expected a mapping")
+        return errors, active_authorities, projection
+
+    if not isinstance(software_data, dict):
+        errors.append("software_data: expected a mapping")
+        return errors, active_authorities, projection
+    software_map = software_data.get("software")
+    if not isinstance(software_map, dict):
+        errors.append("software_data/software: expected a mapping")
+        return errors, active_authorities, projection
+    software_skill_by_provider: dict[str, str] = {}
+    for provider_id, software_entry in software_map.items():
+        if (
+            isinstance(provider_id, str)
+            and official_source_authorities.IDENTIFIER.fullmatch(provider_id)
+            and isinstance(software_entry, dict)
+        ):
+            skill = software_entry.get("calculation_skill")
+            if isinstance(skill, str) and skill:
+                software_skill_by_provider[provider_id] = skill
+
+    seen_active_authority_ids: set[str] = set()
+    for authority_id, entry in authorities.items():
+        location = f"authorities/{authority_id}"
+        if (
+            not isinstance(authority_id, str)
+            or official_source_authorities.IDENTIFIER.fullmatch(authority_id)
+            is None
+        ):
+            errors.append(f"{location}: invalid authority identifier")
+            continue
+        if seen_active_authority_ids and authority_id in seen_active_authority_ids:
+            errors.append(f"{location}: duplicate active authority identifier")
+            continue
+        if not isinstance(entry, dict):
+            errors.append(f"{location}: expected a mapping")
+            continue
+        if entry.get("lifecycle") != "active":
+            continue
+
+        provider_id = entry.get("provider_id")
+        provider_class = entry.get("provider_class")
+        if (
+            not isinstance(provider_id, str)
+            or official_source_authorities.IDENTIFIER.fullmatch(provider_id) is None
+        ):
+            errors.append(f"{location}/provider_id: invalid provider identifier")
+            continue
+        if (
+            not isinstance(provider_class, str)
+            or provider_class not in official_source_authorities.PROVIDER_CLASSES
+        ):
+            errors.append(f"{location}/provider_class: unsupported provider class")
+            continue
+
+        seen_active_authority_ids.add(authority_id)
+
+        allowed_https_origins = entry.get("allowed_https_origins")
+        if (
+            not isinstance(allowed_https_origins, list)
+            or not allowed_https_origins
+        ):
+            errors.append(f"{location}/allowed_https_origins: expected nonempty list")
+            allowed_https_origins = []
+        else:
+            if len(allowed_https_origins) != len(set(allowed_https_origins)):
+                errors.append(
+                    f"{location}/allowed_https_origins: duplicate values are forbidden"
+                )
+            for index, origin in enumerate(allowed_https_origins):
+                if not isinstance(origin, str) or not origin:
+                    errors.append(
+                        f"{location}/allowed_https_origins/{index}: expected nonempty string"
+                    )
+                    continue
+                if (
+                    official_source_authorities._canonical_https_parts(
+                        origin,
+                        require_path=False,
+                    )
+                    is None
+                ):
+                    errors.append(
+                        f"{location}/allowed_https_origins/{index}: expected canonical HTTPS origin"
+                    )
+
+        version_policy = entry.get("version_policy")
+        if not isinstance(version_policy, dict):
+            errors.append(f"{location}/version_policy: expected a mapping")
+            continue
+        allowed_scopes = version_policy.get("allowed_scopes")
+        if not isinstance(allowed_scopes, list) or not allowed_scopes:
+            errors.append(f"{location}/version_policy/allowed_scopes: expected nonempty list")
+            allowed_scopes = []
+        if len(allowed_scopes) != len(set(allowed_scopes)):
+            errors.append(
+                f"{location}/version_policy/allowed_scopes: duplicate values are forbidden"
+            )
+        for index, scope in enumerate(allowed_scopes):
+            if (
+                not isinstance(scope, str)
+                or scope not in official_source_authorities.VERSION_SCOPES
+            ):
+                errors.append(
+                    f"{location}/version_policy/allowed_scopes/{index}: unsupported scope"
+                )
+
+        registered_scopes = version_policy.get("registered_scopes")
+        if not isinstance(registered_scopes, list) or not registered_scopes:
+            errors.append(
+                f"{location}/version_policy/registered_scopes: expected nonempty list"
+            )
+            registered_scopes = []
+        if len(registered_scopes) != len(set(repr(item) for item in registered_scopes)):
+            errors.append(
+                f"{location}/version_policy/registered_scopes: duplicate scopes are forbidden"
+            )
+        for index, scope in enumerate(registered_scopes):
+            official_source_authorities._valid_version_scope(
+                scope,
+                f"{location}/version_policy/registered_scopes/{index}",
+                errors,
+            )
+            if (
+                isinstance(scope, dict)
+                and scope.get("scope") not in allowed_scopes
+                and scope.get("scope") is not None
+            ):
+                errors.append(
+                    f"{location}/version_policy/registered_scopes/{index}: scope is not in allowed_scopes"
+                )
+
+        content_policy = entry.get("content_policy")
+        if not isinstance(content_policy, dict):
+            errors.append(f"{location}/content_policy: expected a mapping")
+            continue
+        source_kinds = content_policy.get("source_kinds")
+        if not isinstance(source_kinds, list) or not source_kinds:
+            errors.append(f"{location}/content_policy/source_kinds: expected nonempty list")
+            source_kinds = []
+        else:
+            if len(source_kinds) != len(set(source_kinds)):
+                errors.append(
+                    f"{location}/content_policy/source_kinds: duplicate values are forbidden"
+                )
+            for index, kind in enumerate(source_kinds):
+                if (
+                    not isinstance(kind, str)
+                    or kind not in official_source_authorities.SOURCE_KINDS
+                ):
+                    errors.append(
+                        f"{location}/content_policy/source_kinds/{index}: unsupported kind"
+                    )
+
+        allowed_path_prefixes = content_policy.get("allowed_path_prefixes")
+        if not isinstance(allowed_path_prefixes, list) or not allowed_path_prefixes:
+            errors.append(
+                f"{location}/content_policy/allowed_path_prefixes: expected nonempty list"
+            )
+            allowed_path_prefixes = []
+        else:
+            if len(allowed_path_prefixes) != len(set(allowed_path_prefixes)):
+                errors.append(
+                    f"{location}/content_policy/allowed_path_prefixes: duplicate values are forbidden"
+                )
+            for index, prefix in enumerate(allowed_path_prefixes):
+                if (
+                    not isinstance(prefix, str)
+                    or not prefix.startswith("/")
+                    or not prefix.endswith("/")
+                ):
+                    errors.append(
+                        f"{location}/content_policy/allowed_path_prefixes/{index}: expected absolute path prefix"
+                    )
+                    continue
+                if (
+                    "%" in prefix
+                    or "\\" in prefix
+                    or "//" in prefix
+                    or any(part in {".", ".."} for part in prefix.split("/"))
+                ):
+                    errors.append(
+                        f"{location}/content_policy/allowed_path_prefixes/{index}: invalid absolute path prefix"
+                    )
+
+        query_policy = content_policy.get("query_policy")
+        if query_policy not in {"forbidden", "exact-allowlist"}:
+            errors.append(f"{location}/content_policy/query_policy: unsupported policy")
+        allowed_query_urls = content_policy.get("allowed_query_urls")
+        if not isinstance(allowed_query_urls, list):
+            errors.append(
+                f"{location}/content_policy/allowed_query_urls: expected list"
+            )
+            allowed_query_urls = []
+        if query_policy == "forbidden":
+            if allowed_query_urls:
+                errors.append(
+                    f"{location}/content_policy/allowed_query_urls: must be empty when query is forbidden"
+                )
+        else:
+            if not allowed_query_urls:
+                errors.append(
+                    f"{location}/content_policy/allowed_query_urls: expected nonempty list"
+                )
+            if allowed_query_urls != sorted(allowed_query_urls):
+                errors.append(
+                    f"{location}/content_policy/allowed_query_urls: must be sorted"
+                )
+        if len(allowed_query_urls) != len(set(allowed_query_urls)):
+            errors.append(
+                f"{location}/content_policy/allowed_query_urls: duplicate values are forbidden"
+            )
+        for index, query_url in enumerate(allowed_query_urls):
+            parsed = official_source_authorities._canonical_query_https_parts(query_url)
+            if parsed is None:
+                errors.append(
+                    f"{location}/content_policy/allowed_query_urls/{index}: expected canonical HTTPS query URL"
+                )
+                continue
+            query_origin, query_path = parsed
+            if query_origin not in allowed_https_origins or not any(
+                query_path.startswith(prefix) for prefix in allowed_path_prefixes
+            ):
+                errors.append(
+                    f"{location}/content_policy/allowed_query_urls/{index}: URL is outside authority locator policy"
+                )
+
+        fragment_policy = content_policy.get("fragment_policy")
+        if fragment_policy != "forbidden":
+            errors.append(f"{location}/content_policy/fragment_policy: must be forbidden")
+        resolution_mode = content_policy.get("resolution_mode")
+        if resolution_mode not in {
+            "platform-verified-only",
+            "canonical-pin-or-platform-verified",
+        }:
+            errors.append(
+                f"{location}/content_policy/resolution_mode: unsupported resolution mode"
+            )
+
+        identity_policy = entry.get("content_identity_policy")
+        if not isinstance(identity_policy, dict):
+            errors.append(f"{location}/content_identity_policy: expected mapping")
+            continue
+        identity_mode = identity_policy.get("mode")
+        if identity_mode not in official_source_authorities.CONTENT_IDENTITY_MODES:
+            errors.append(f"{location}/content_identity_policy/mode: unsupported mode")
+        if identity_policy.get("unpinned_action") != "adapter-required":
+            errors.append(
+                f"{location}/content_identity_policy/unpinned_action: expected 'adapter-required'"
+            )
+
+        canonical_snapshot = None
+        if identity_mode in {
+            "canonical-pinned-snapshot-or-platform-adapter",
+            "canonical-pinned-open-snapshot-or-platform-adapter",
+        }:
+            if provider_class != "software":
+                errors.append(
+                    f"{location}/content_identity_policy/mode: canonical pinning requires software provider class"
+                )
+            else:
+                expected_skill = software_skill_by_provider.get(provider_id)
+                if expected_skill is None:
+                    errors.append(
+                        f"{location}/provider_id: active software authority provider missing calculation_skill in software registry"
+                    )
+                canonical_failures, canonical_projection = (
+                    official_source_authorities._canonical_snapshot_projection(
+                        authority_id,
+                        entry,
+                        repository_root,
+                        expected_skill,
+                        externalized_receipts=externalized_receipts,
+                        used_externalized_paths=used_externalized_paths,
+                    )
+                )
+                errors.extend(canonical_failures)
+                canonical_snapshot = canonical_projection
+                if entry.get("canonical_snapshot") is None:
+                    errors.append(
+                        f"{location}/canonical_snapshot: canonical-pinned mode requires a canonical snapshot"
+                    )
+        elif identity_mode == "platform-adapter-only":
+            if entry.get("canonical_snapshot") is not None:
+                errors.append(
+                    f"{location}/canonical_snapshot: platform-adapter-only mode forbids canonical snapshot"
+                )
+        elif identity_mode == "unresolved":
+            if entry.get("canonical_snapshot") is not None:
+                errors.append(
+                    f"{location}/canonical_snapshot: unresolved mode forbids canonical snapshot"
+                )
+        else:
+            if entry.get("canonical_snapshot") is not None:
+                errors.append(
+                    f"{location}/canonical_snapshot: unsupported identity mode"
+                )
+
+        active_authorities[authority_id] = entry
+        projection[authority_id] = {
+            "lifecycle": "active",
+            "provider_class": provider_class,
+            "provider_id": provider_id,
+            "allowed_https_origins": list(allowed_https_origins),
+            "allowed_path_prefixes": list(allowed_path_prefixes),
+            "allowed_query_urls": list(allowed_query_urls),
+            "canonical_urls": [
+                f"{origin}{prefix}"
+                for origin in allowed_https_origins
+                for prefix in allowed_path_prefixes
+            ],
+            "source_kinds": list(source_kinds),
+            "version_scopes": list(registered_scopes),
+            "content_identity_policy": dict(identity_policy),
+            "canonical_snapshot": canonical_snapshot,
+        }
+
+    return errors, active_authorities, projection
 
 
 def validate_files(
     *,
     corpus_paths: Iterable[Path],
     slice_paths: Iterable[Path],
-    license_review_paths: Iterable[Path],
     scope_inventory_path: Path,
     coverage_path: Path,
     source_root: Path | None = None,
@@ -4005,7 +5112,6 @@ def validate_files(
 
     corpus_path_list = [Path(item) for item in corpus_paths]
     slice_path_list = [Path(item) for item in slice_paths]
-    license_path_list = [Path(item) for item in license_review_paths]
     findings: list[Finding] = []
     if portable_context is None:
         repository_root = repo_root()
@@ -4119,11 +5225,10 @@ def validate_files(
                 assurance_status="invalid",
             )
     selectors = (
-        "official-corpus-manifest@1.0",
-        "document-slice-manifest@1.0",
-        "official-source-license-review@1.0",
+        "official-corpus-manifest@1.1",
+        "document-slice-manifest@1.1",
         "skill-document-scope-inventory@1.0",
-        "skill-document-coverage@1.0",
+        "skill-document-coverage@1.1",
     )
     try:
         catalog = validate_contract.load_catalog(contracts_directory)
@@ -4168,10 +5273,14 @@ def validate_files(
         software_failures = software_registry.validation_errors(software_data)
         if software_failures:
             raise ValueError("; ".join(software_failures))
-        authority_failures = official_source_authorities.validation_errors(
+        (
+            authority_failures,
+            authorities,
+            authority_projection,
+        ) = _technical_authority_snapshot(
             authority_data,
-            software_data=software_data,
-            source_root=repository_root,
+            software_data,
+            repository_root,
             externalized_receipts=(
                 portable_context.externalized_receipts
                 if portable_context is not None
@@ -4185,28 +5294,6 @@ def validate_files(
         )
         if authority_failures:
             raise ValueError("; ".join(authority_failures))
-        authority_projection = (
-            official_source_authorities.active_authority_snapshot(
-                authority_data,
-                software_data=software_data,
-                source_root=repository_root,
-                externalized_receipts=(
-                    portable_context.externalized_receipts
-                    if portable_context is not None
-                    else None
-                ),
-                used_externalized_paths=(
-                    portable_context.used_externalized_paths
-                    if portable_context is not None
-                    else None
-                ),
-            )
-        )
-        authorities = {
-            authority_id: entry
-            for authority_id, entry in authority_data["authorities"].items()
-            if entry["lifecycle"] == "active"
-        }
     except (OSError, ValueError) as exc:
         return ValidationResult(
             findings=(
@@ -4310,19 +5397,11 @@ def validate_files(
                 "at least one slice manifest is required",
             )
         )
-    if not license_path_list:
-        findings.append(
-            _finding(
-                "REQUIRED_RECORD_MISSING",
-                "license_reviews",
-                "at least one license review is required",
-            )
-        )
 
     corpora_loaded, load_findings = _load_records(
         corpus_path_list,
         catalog=catalog,
-        selector="official-corpus-manifest@1.0",
+        selector="official-corpus-manifest@1.1",
         id_field="corpus_id",
         label="corpus",
     )
@@ -4330,17 +5409,9 @@ def validate_files(
     slices_loaded, load_findings = _load_records(
         slice_path_list,
         catalog=catalog,
-        selector="document-slice-manifest@1.0",
+        selector="document-slice-manifest@1.1",
         id_field="slice_manifest_id",
         label="slices",
-    )
-    findings.extend(load_findings)
-    licenses_loaded, load_findings = _load_records(
-        license_path_list,
-        catalog=catalog,
-        selector="official-source-license-review@1.0",
-        id_field="license_review_id",
-        label="license",
     )
     findings.extend(load_findings)
     scope_loaded, load_findings = _load_records(
@@ -4354,7 +5425,7 @@ def validate_files(
     coverage_loaded, load_findings = _load_records(
         [Path(coverage_path)],
         catalog=catalog,
-        selector="skill-document-coverage@1.0",
+        selector="skill-document-coverage@1.1",
         id_field="coverage_id",
         label="coverage",
     )
@@ -4362,7 +5433,6 @@ def validate_files(
 
     corpora = _index(corpora_loaded, "corpus_id")
     slice_manifests = _index(slices_loaded, "slice_manifest_id")
-    license_reviews = _index(licenses_loaded, "license_review_id")
     scope_inventories = _index(scope_loaded, "inventory_id")
 
     for corpus in corpora_loaded:
@@ -4400,24 +5470,11 @@ def validate_files(
             findings=findings,
             portable_context=portable_context,
         )
-    for review in licenses_loaded:
-        _license_review_findings(
-            review,
-            corpora=corpora,
-            slice_manifests=slices_loaded,
-            authorities=authorities,
-            consumer_registry=consumer_registry,
-            consumer_registry_sha256=consumer_registry_sha256,
-            repository_root=repository_root,
-            findings=findings,
-            portable_context=portable_context,
-        )
     if len(coverage_loaded) == 1:
         _coverage_findings(
             coverage_loaded[0],
             corpora=corpora,
             slice_manifests=slice_manifests,
-            license_reviews=license_reviews,
             scope_inventories=scope_inventories,
             consumer_registry=consumer_registry,
             consumer_registry_sha256=consumer_registry_sha256,
@@ -4432,14 +5489,9 @@ def validate_files(
     else:
         statuses = [
             record.data["status"]
-            for record in (
-                *corpora_loaded,
-                *slices_loaded,
-                *licenses_loaded,
-                *scope_loaded,
-                coverage_loaded[0],
-            )
+            for record in (*corpora_loaded, *slices_loaded, *scope_loaded)
         ]
+        statuses.append(coverage_loaded[0].data["status"]["overall"])
         if (
             portable_context is not None
             and portable_context.used_externalized_paths
@@ -4472,13 +5524,6 @@ def main() -> int:
         action="append",
         required=True,
         help="document-slice-manifest JSON; repeat for multiple manifests",
-    )
-    parser.add_argument(
-        "--license-review",
-        type=Path,
-        action="append",
-        required=True,
-        help="official-source-license-review JSON; repeat for multiple reviews",
     )
     parser.add_argument(
         "--scope-inventory",
@@ -4515,7 +5560,6 @@ def main() -> int:
     result = validate_files(
         corpus_paths=args.corpus,
         slice_paths=args.slices,
-        license_review_paths=args.license_review,
         scope_inventory_path=args.scope_inventory,
         coverage_path=args.coverage,
         source_root=args.source_root,
@@ -4536,8 +5580,8 @@ def main() -> int:
         )
         return EXIT_INCOMPLETE
     print(
-        "PASS: official-document corpus partition, ordered slices, loss ledger, "
-        "license storage policy, record hashes, and Skill scope coverage are complete"
+        "PASS: technical corpus partitioning, ordered slices, status closures, "
+        "record hashes, and Skill scope coverage are complete"
     )
     return EXIT_PASS
 

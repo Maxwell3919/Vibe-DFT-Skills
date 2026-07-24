@@ -182,6 +182,23 @@ def synthetic_source_digests(files: dict[str, bytes]) -> dict[str, str]:
 
 
 class ActiveOnlyDistributionTests(unittest.TestCase):
+    def _assert_metadata_only_slice_authority_and_locator(self, *, source_locator: str, slice_locator: str, authority: dict[str, object], selected_identity: dict[str, object]) -> None:
+        if source_locator != slice_locator:
+            raise distribution.DistributionError(
+                "metadata-only slice locator does not match source locator"
+            )
+        if not coverage_validator._url_matches_authority(
+            slice_locator,
+            authority,
+        ):
+            raise distribution.DistributionError(
+                "metadata-only slice locator is outside authority scope"
+            )
+        if not isinstance(selected_identity, dict) or set(selected_identity) != {"sha256", "bytes"}:
+            raise distribution.DistributionError(
+                "metadata-only selected identity is invalid"
+            )
+
     def test_portable_compatibility_semantics_match_canonical_contracts(
         self,
     ) -> None:
@@ -196,34 +213,149 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 subjects=subjects,
             )
         )
+        source_inventory = {
+            "a": {
+                "disposition": "included",
+                "source_identity": {
+                    "content_mode": "external-content",
+                    "locator": "https://docs.example.org/a.rst",
+                    "receipt": {
+                        "sha256": "c" * 64,
+                        "bytes": 1024,
+                    },
+                },
+            },
+            "b": {
+                "disposition": "included",
+                "source_identity": {
+                    "content_mode": "external-content",
+                    "locator": "https://docs.example.org/b.rst",
+                    "receipt": {
+                        "sha256": "d" * 64,
+                        "bytes": 128,
+                    },
+                },
+            },
+            "c": {
+                "disposition": "excluded",
+                "source_identity": {
+                    "content_mode": "metadata-only",
+                    "locator": "https://docs.example.org/c.json",
+                    "identity": {
+                        "sha256": "e" * 64,
+                        "bytes": 16,
+                    },
+                },
+            },
+        }
+        manifest_sources = {
+            "b": {
+                "source_identity": source_inventory["b"]["source_identity"],
+            }
+        }
+        manifest_sources_mismatch = {
+            "b": {
+                "source_identity": {
+                    "content_mode": "external-content",
+                    "locator": "https://docs.example.org/b.rst",
+                    "receipt": {
+                        "sha256": "f" * 64,
+                        "bytes": 128,
+                    },
+                }
+            }
+        }
+        manifest_sources_complete = {
+            "a": {
+                "source_identity": source_inventory["a"]["source_identity"],
+            },
+            "b": {
+                "source_identity": source_inventory["b"]["source_identity"],
+            },
+        }
         self.assertTrue(
             distribution._slice_source_inventory_valid(
-                [
-                    {"source_id": "a", "identity": {"kind": "sha256"}},
-                    {"source_id": "b", "identity": {"kind": "sha256"}},
-                ],
-                [
-                    {
-                        "source_id": "b",
-                        "source_identity": {"kind": "sha256"},
-                    }
-                ],
+                source_inventory,
+                manifest_sources,
                 status="partial",
             )
         )
         self.assertFalse(
             distribution._slice_source_inventory_valid(
-                [
-                    {"source_id": "a", "identity": {"kind": "sha256"}},
-                    {"source_id": "b", "identity": {"kind": "sha256"}},
-                ],
-                [
-                    {
-                        "source_id": "b",
-                        "source_identity": {"kind": "sha256"},
-                    }
-                ],
+                source_inventory,
+                manifest_sources_mismatch,
+                status="partial",
+            )
+        )
+        self.assertTrue(
+            distribution._slice_source_inventory_valid(
+                source_inventory,
+                manifest_sources,
+                status="partial",
+            )
+        )
+        self.assertFalse(
+            distribution._slice_source_inventory_valid(
+                source_inventory,
+                manifest_sources,
                 status="complete",
+            )
+        )
+        self.assertTrue(
+            distribution._slice_source_inventory_valid(
+                source_inventory,
+                {
+                    "a": {
+                        "source_identity": source_inventory["a"]["source_identity"],
+                    },
+                    "b": {
+                        "source_identity": source_inventory["b"]["source_identity"],
+                    },
+                },
+                status="complete",
+            )
+        )
+        self.assertTrue(
+            distribution._corpus_source_partition_valid(
+                {
+                    "a": {
+                        "disposition": "included",
+                        "source_identity": source_inventory["a"]["source_identity"],
+                    },
+                    "b": {
+                        "disposition": "included",
+                        "source_identity": source_inventory["b"]["source_identity"],
+                    },
+                    "c": {
+                        "disposition": "excluded",
+                        "source_identity": source_inventory["c"]["source_identity"],
+                    },
+                },
+            )
+        )
+        self.assertFalse(
+            distribution._corpus_source_partition_valid(
+                {
+                    "a": {
+                        "disposition": "included",
+                        "source_identity": source_inventory["a"]["source_identity"],
+                    },
+                    "b": {
+                        "disposition": "unknown",
+                        "source_identity": source_inventory["b"]["source_identity"],
+                    },
+                },
+            )
+        )
+        # exact identity: included/excluded partition and complete closure
+        self.assertTrue(
+            distribution._corpus_source_partition_valid(
+                {"a": {"disposition": "included"}, "b": {"disposition": "excluded"}},
+            )
+        )
+        self.assertFalse(
+            distribution._corpus_source_partition_valid(
+                {"a": {"disposition": "included"}, "b": {"disposition": "included"}},
             )
         )
         self.assertEqual(
@@ -232,20 +364,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 "compatibility/path",
             ),
             "nested/record.data",
-        )
-        self.assertTrue(
-            distribution._corpus_source_partition_valid(
-                ["included"],
-                ["excluded"],
-                ["excluded", "included"],
-            )
-        )
-        self.assertFalse(
-            distribution._corpus_source_partition_valid(
-                ["included"],
-                ["excluded"],
-                ["included", "included"],
-            )
         )
         oversized_bundle = distribution._json_bytes(
             {"payload": "x" * distribution.MAX_BUNDLE_BYTES}
@@ -283,6 +401,40 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 content_sha256="d" * 64,
             ),
             "SLICE_RANGE_INVALID",
+        )
+        authority = {
+            "allowed_https_origins": ["https://docs.example.org"],
+            "content_policy": {
+                "source_kinds": [],
+                "allowed_path_prefixes": ["/"],
+                "query_policy": "forbidden",
+                "allowed_query_urls": [],
+                "fragment_policy": "forbidden",
+            },
+        }
+        self.assertRaises(
+            distribution.DistributionError,
+            self._assert_metadata_only_slice_authority_and_locator,
+            source_locator="https://docs.example.org/sources/original.rst",
+            slice_locator="https://docs.example.org/sources/mismatch.json",
+            authority=authority,
+            selected_identity={"sha256": "9" * 64, "bytes": 16},
+        )
+        self.assertRaises(
+            distribution.DistributionError,
+            self._assert_metadata_only_slice_authority_and_locator,
+            source_locator="https://docs.example.org/sources/original.rst",
+            slice_locator="https://other.example.org/sources/original.rst",
+            authority=authority,
+            selected_identity={"sha256": "9" * 64, "bytes": 16},
+        )
+        self.assertIsNone(
+            self._assert_metadata_only_slice_authority_and_locator(
+                source_locator="https://docs.example.org/sources/original.rst",
+                slice_locator="https://docs.example.org/sources/original.rst",
+                authority=authority,
+                selected_identity={"sha256": "9" * 64, "bytes": 16},
+            )
         )
 
     def test_portable_canonical_context_tracks_only_consumed_receipts_per_call(
@@ -361,10 +513,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                     slice_paths=[
                         pack_root / name
                         for name in bundle["slice_manifests"]
-                    ],
-                    license_review_paths=[
-                        pack_root / name
-                        for name in bundle["license_reviews"]
                     ],
                     scope_inventory_path=(
                         pack_root / bundle["scope_inventory"]
@@ -1396,7 +1544,7 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             for registry_path in distribution.SOURCE_REGISTRY_PATHS
         }
         interface = loaded["registry/interface-registry.yaml"]["interfaces"][
-            "official-corpus-manifest@1.0"
+            "official-corpus-manifest@1.1"
         ]
         interface["lifecycle"] = "planned"
         interface["schema_path"] = None
@@ -1561,7 +1709,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
         coverage_path = f"{pack_root}coverage.json"
         scope_path = f"{pack_root}scope-inventory.json"
         corpus_path = f"{pack_root}corpus-ase-3-29.json"
-        license_path = f"{pack_root}license-review-ase-3-29.json"
         slice_path = f"{pack_root}slices-ase-3-29.json"
         for case, message in (
             ("official-disposition", "confuses official and local evidence"),
@@ -1570,7 +1717,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             ("cross-skill-local-evidence", "outside the exact Skill source"),
             ("corpus-url", "exceeds its authority policy"),
             ("corpus-partition", "source universe or authority scope"),
-            ("license-storage", "central authority ceiling"),
         ):
             with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
                 files = dict(selection.files)
@@ -1649,27 +1795,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                         if item["slice_manifest_id"]
                         == slices["slice_manifest_id"]
                     )["sha256"] = distribution._sha256(files[slice_path])
-                    review = json.loads(files[license_path])
-                    review["corpus_ref"]["sha256"] = corpus_sha
-                    files[license_path] = distribution._json_bytes(review)
-                    next(
-                        item
-                        for item in coverage["license_review_refs"]
-                        if item["license_review_id"]
-                        == review["license_review_id"]
-                    )["sha256"] = distribution._sha256(files[license_path])
-                else:
-                    review = json.loads(files[license_path])
-                    review["storage_rules"][0][
-                        "allowed_storage_modes"
-                    ] = ["embedded-open"]
-                    files[license_path] = distribution._json_bytes(review)
-                    next(
-                        item
-                        for item in coverage["license_review_refs"]
-                        if item["license_review_id"]
-                        == review["license_review_id"]
-                    )["sha256"] = distribution._sha256(files[license_path])
                 files[coverage_path] = distribution._json_bytes(coverage)
                 archive = Path(temporary) / f"{case}.tar"
                 distribution.write_distribution_archive(
@@ -1700,7 +1825,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
         coverage_path = f"{pack_root}coverage.json"
         scope_path = f"{pack_root}scope-inventory.json"
         corpus_path = f"{pack_root}corpus-ase-3-29.json"
-        license_path = f"{pack_root}license-review-ase-3-29.json"
         slice_path = f"{pack_root}slices-ase-3-29.json"
 
         def update_slice(
@@ -1763,35 +1887,12 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 for item in coverage["slice_manifest_refs"]
                 if item["slice_manifest_id"] == slices["slice_manifest_id"]
             )["sha256"] = distribution._sha256(files[slice_path])
-            review = json.loads(files[license_path])
-            review["corpus_ref"]["sha256"] = corpus_sha
-            files[license_path] = distribution._json_bytes(review)
-            next(
-                item
-                for item in coverage["license_review_refs"]
-                if item["license_review_id"] == review["license_review_id"]
-            )["sha256"] = distribution._sha256(files[license_path])
-
-        def update_license(
-            files: dict[str, bytes],
-            coverage: dict[str, object],
-            review: dict[str, object],
-        ) -> None:
-            files[license_path] = distribution._json_bytes(review)
-            next(
-                item
-                for item in coverage["license_review_refs"]
-                if item["license_review_id"] == review["license_review_id"]
-            )["sha256"] = distribution._sha256(files[license_path])
 
         cases = (
             ("slice-order", "SLICE_ORDER_INVALID"),
             ("slice-receipt-url", "SLICE_EXTERNAL_RECEIPT_INVALID"),
             ("scope-origin-selector", "SCOPE_SUBJECT_ORIGIN_INVALID"),
             ("corpus-blocker-overclaim", "COMPLETENESS_STATUS_OVERCLAIM"),
-            ("license-evidence-ref", "LICENSE_EVIDENCE_REF_INVALID"),
-            ("license-self-supersession", "LICENSE_SUPERSESSION_INVALID"),
-            ("slice-artifact-license-lane", "LICENSE_STORAGE_RULE_MISSING"),
             (
                 "corpus-self-asserted-universe",
                 "CORPUS_CATALOG_SELF_ASSERTED_UNIVERSE",
@@ -1808,7 +1909,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 if case in {
                     "slice-order",
                     "slice-receipt-url",
-                    "slice-artifact-license-lane",
                 }:
                     slices = json.loads(files[slice_path])
                     first_slice = slices["sources"][0]["slices"][0]
@@ -1827,20 +1927,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                         "value"
                     ] = "not-star"
                     update_scope(files, coverage, scope)
-                elif case in {
-                    "license-evidence-ref",
-                    "license-self-supersession",
-                }:
-                    review = json.loads(files[license_path])
-                    if case == "license-evidence-ref":
-                        review["storage_rules"][0][
-                            "license_evidence_refs"
-                        ] = ["missing-license-evidence"]
-                    else:
-                        review["supersedes_review_ids"] = [
-                            review["license_review_id"]
-                        ]
-                    update_license(files, coverage, review)
                 else:
                     corpus = json.loads(files[corpus_path])
                     if case == "corpus-blocker-overclaim":
