@@ -17,7 +17,7 @@ Evaluate in order; later observations never repair an earlier failed gate.
 11. `execution_completion` — exactly one start/end/completion boundary exists and fatal markers are absent.
 12. `electronic_convergence` — SCF convergence is observed and `SCF_NOT_CONV` is absent.
 13. `output_warnings` — no unresolved SIESTA warning marker exists.
-14. `output_observables` — profile-required observables are extracted from the terminal output blocks.
+14. `output_observables` — profile-required and scientific-plan observables are extracted from the terminal output blocks.
 15. `numerical_convergence` — distinct rehashed artifacts support a named observable/tolerance stable tail.
 16. `task_specific_validity` — task prerequisites and consistency tests pass; only fixed-cell relaxation has an automated core.
 17. `physical_validity` — independent physical/model checks pass.

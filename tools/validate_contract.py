@@ -689,6 +689,7 @@ def runtime_interface_lifecycle(
     contract: ContractSchema,
     catalog: ContractCatalog,
     registry_file: Path | None = None,
+    repository_root: Path | None = None,
 ) -> str:
     """Resolve the fixed runtime lifecycle and cross-bind an active schema hash."""
 
@@ -729,7 +730,7 @@ def runtime_interface_lifecycle(
         raise CatalogError(
             [f"active runtime interface '{interface_id}' schema hash does not match catalog bytes"]
         )
-    canonical_path = repo_root() / expected_relative
+    canonical_path = (repository_root or repo_root()) / expected_relative
     if contract.path.resolve() != canonical_path.resolve():
         raise CatalogError(
             [f"active runtime interface '{interface_id}' is not from the canonical catalog"]

@@ -199,26 +199,35 @@ def build_postprocess_plan(
         if value is None or not value.strip():
             blockers.append(f"missing required parameter: {name}")
 
-    maturity = route["maturity"]
-    if maturity == "design-only":
+    if route["maturity"] == "design-only":
         blockers.append(f"workflow maturity is design-only: {observable_id}/{code}")
 
     selected_backend = None
+    available_design_backend = None
     for backend_id in route["backends"]:
         specification = registry["backends"][backend_id]
         if not specification.get("implemented", False):
             continue
         available = _backend_available(specification, capabilities)
         if available:
-            selected_backend = {
+            candidate = {
                 "id": backend_id,
                 "kind": specification["kind"],
-                "maturity": maturity,
+                "maturity": route["backend_routes"][backend_id]["maturity"],
                 "available": True,
             }
+            if candidate["maturity"] == "design-only":
+                available_design_backend = available_design_backend or candidate
+                continue
+            selected_backend = candidate
             break
+    selected_backend = selected_backend or available_design_backend
     if selected_backend is None:
         blockers.append(f"no implemented available backend: {observable_id}/{code}")
+    elif selected_backend["maturity"] == "design-only":
+        blockers.append(
+            f"backend maturity is design-only: {observable_id}/{code}/{selected_backend['id']}"
+        )
 
     steps = []
     if not blockers and selected_backend is not None:

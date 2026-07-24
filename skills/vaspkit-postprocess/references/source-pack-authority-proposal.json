@@ -1,0 +1,106 @@
+{
+  "authorities": [
+    {
+      "allowed_https_origins": [
+        "https://raw.githubusercontent.com",
+        "https://github.com"
+      ],
+      "authority_id": "vaspkit-documentation-repository-383a710",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "383a7103505b5b9436dedbf04df42ebb6e248638"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/"
+        }
+      ],
+      "canonical_snapshot": null,
+      "consumer_binding": {
+        "authority_id": "vaspkit-documentation-repository-383a710",
+        "binding_id": "vaspkit-postprocess-vaspkit-docs",
+        "claim_effect": "none",
+        "provider_input_id": "vaspkit-docs",
+        "required_disposition": "blocked",
+        "skill_id": "vaspkit-postprocess"
+      },
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-manual",
+          "official-reference",
+          "official-release-notes",
+          "official-repository"
+        ]
+      },
+      "display_name": "VASPKIT exact documentation repository commit 383a710",
+      "license_policy": {
+        "identifier": null,
+        "status": "unknown",
+        "terms_urls": [
+          "https://vaspkit.com/installation.html"
+        ],
+        "verification_status": "unresolved"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "The exact docs commit and two raw-page receipts do not prove complete semantic slicing, documentation redistribution rights, exact binary/menu behavior, private configuration, POTCAR identity, parent VASP acceptance, or scientific validity."
+      ],
+      "proposed_lifecycle": "active",
+      "provenance": {
+        "official_fact_urls": [
+          "https://github.com/vaspkit/vaspkit.github.io/tree/383a7103505b5b9436dedbf04df42ebb6e248638",
+          "https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/features.rst.txt",
+          "https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/tutorials.rst.txt"
+        ],
+        "verified_utc": "2026-07-24T00:00:00Z"
+      },
+      "provider_class": "software",
+      "provider_id": "vaspkit",
+      "redistribution_policy": {
+        "allowed_values": [
+          "unknown"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "1.5-docs-383a7103505b5b9436dedbf04df42ebb6e248638",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "Central integration must preserve documentation-series/commit identity separately from exact VASPKIT binary versions.",
+    "Bundle content remains forbidden until full-page/body closure, semantic slices, build provenance, and documentation licensing are resolved."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, usage-agreement acceptance, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "vaspkit-postprocess"
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "official-document-pack-seed",
+  "skill_id": "vasp-rigorous-calculations",
+  "status_ceiling": "partial",
+  "scope_extractor_id": "complete-source-tree-v1",
+  "scope_catalog_ref": {
+    "path": "skills/vasp-rigorous-calculations/references/source-pack-scope-catalog.json",
+    "sha256": "bc71fa9141de30a5c0432909a1dbc15964c7c06b79c10836aa6d707ee796e992"
+  },
+  "providers": [
+    {
+      "input_id": "vasp-wiki-pages",
+      "adapter_id": "vasp-wiki-manifest-v1",
+      "authority_id": "vasp-official-wiki",
+      "provider_id": "vasp",
+      "source_ref": {
+        "path": "skills/vasp-rigorous-calculations/references/source-pack-input-catalog.json",
+        "sha256": "340b0207a3583e7cd981ce20a51ff08a555b31dca8dcadebf8342fad35519a94"
+      },
+      "options_ref": {
+        "path": "skills/vasp-rigorous-calculations/references/official-wiki/manifest.json",
+        "sha256": "2b04eb4c4c144fced3d7e38fc5114ba53bd835dd15662730343b5dadbb988441"
+      }
+    }
+  ],
+  "limitations": [
+    "This metadata-only pack binds 81 exact pageid/revid pairs and separate raw-JSON/wikitext identities, but not full Wiki, Portal, link, template, image, or third-party asset closure."
+  ],
+  "blockers": []
+}

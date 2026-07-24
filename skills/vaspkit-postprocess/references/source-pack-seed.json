@@ -1,0 +1,32 @@
+{
+  "blockers": [
+    "The exact features and tutorials pages have no heading/task/recipe byte-range slices with per-slice hashes.",
+    "Other site-page, image, and generated-HTML bodies and the exact documentation build remain metadata-only.",
+    "Documentation storage and derivative redistribution rights are unresolved.",
+    "Exact VASPKIT binary/menu/help, usage agreement, platform profile, configuration, POTCAR, and accepted parent VASP evidence remain separate."
+  ],
+  "contract_name": "official-document-pack-seed",
+  "limitations": [
+    "The complete exact documentation-repository tree is path/object inventoried and two source pages are hash-verified externally; remaining bodies, heading slices, generated-site replay, binaries, private configuration, and VASP/POTCAR inputs remain external."
+  ],
+  "providers": [
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "vaspkit-documentation-repository-383a710",
+      "input_id": "vaspkit-docs",
+      "provider_id": "vaspkit",
+      "source_ref": {
+        "path": "skills/vaspkit-postprocess/references/source-pack-source-catalog-vaspkit.json",
+        "sha256": "1de9f77a8582b014e1ddb7528ef92c163adcaaea1d1b33082d1cda8d0859ab70"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "scope_catalog_ref": {
+    "path": "skills/vaspkit-postprocess/references/source-pack-scope-catalog.json",
+    "sha256": "f20be6b5bc3726e6e4b49de48e3b1b3220f33eb8a7297c3df4e79d2e45ecffd0"
+  },
+  "scope_extractor_id": "reviewed-semantic-scope-v1",
+  "skill_id": "vaspkit-postprocess",
+  "status_ceiling": "blocked"
+}

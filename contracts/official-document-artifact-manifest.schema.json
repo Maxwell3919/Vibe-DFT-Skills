@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-document-artifact-manifest:1.0",
+  "title": "Official document artifact manifest",
+  "description": "A deterministic in-memory plan for exact-source and exact-byte-range artifacts.",
+  "$comment": "The manifest describes proposed bytes only. It is not evidence that any filesystem mutation occurred.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "manifest_id",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "manifest_id",
+    "adapter_id",
+    "request_id",
+    "request_sha256",
+    "request_hash_basis",
+    "authority_id",
+    "provider_id",
+    "version",
+    "revision",
+    "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {
+      "const": "official-document-artifact-manifest"
+    },
+    "manifest_id": {"$ref": "#/$defs/safeId"},
+    "adapter_id": {"const": "explicit-user-materialization-v1"},
+    "request_id": {"$ref": "#/$defs/safeId"},
+    "request_sha256": {"$ref": "#/$defs/sha256"},
+    "request_hash_basis": {"const": "canonical-json-sort-keys-utf8-v1"},
+    "authority_id": {"$ref": "#/$defs/hyphenId"},
+    "provider_id": {"$ref": "#/$defs/hyphenId"},
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/artifact"}
+    }
+  },
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^(?!/)(?!.*//)(?!.*(?:^|/)\\.\\.?(?:/|$))[A-Za-z0-9][A-Za-z0-9._/-]*$"
+    },
+    "mediaType": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*$",
+      "maxLength": 200
+    },
+    "byteRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 268435456
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 268435456
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_id",
+        "authority_id",
+        "provider_id",
+        "version",
+        "revision",
+        "source_id",
+        "source_locator",
+        "source_raw_sha256",
+        "source_raw_bytes",
+        "byte_range"
+      ],
+      "properties": {
+        "request_id": {"$ref": "#/$defs/safeId"},
+        "authority_id": {"$ref": "#/$defs/hyphenId"},
+        "provider_id": {"$ref": "#/$defs/hyphenId"},
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_id": {"$ref": "#/$defs/safeId"},
+        "source_locator": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "maxLength": 2000
+        },
+        "source_raw_sha256": {"$ref": "#/$defs/sha256"},
+        "source_raw_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 268435456
+        },
+        "byte_range": {
+          "oneOf": [
+            {"$ref": "#/$defs/byteRange"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "role",
+        "path",
+        "sha256",
+        "bytes",
+        "media_type",
+        "mode",
+        "source_id",
+        "segment_id",
+        "lineage"
+      ],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/safeId"},
+        "role": {"enum": ["raw-source", "document-segment"]},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 268435456
+        },
+        "media_type": {"$ref": "#/$defs/mediaType"},
+        "mode": {"enum": ["exact-source-copy", "exact-byte-range"]},
+        "source_id": {"$ref": "#/$defs/safeId"},
+        "segment_id": {
+          "oneOf": [
+            {"$ref": "#/$defs/safeId"},
+            {"type": "null"}
+          ]
+        },
+        "lineage": {"$ref": "#/$defs/lineage"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"role": {"const": "raw-source"}},
+            "required": ["role"]
+          },
+          "then": {
+            "properties": {
+              "mode": {"const": "exact-source-copy"},
+              "segment_id": {"type": "null"},
+              "lineage": {
+                "properties": {"byte_range": {"type": "null"}},
+                "required": ["byte_range"]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "mode": {"const": "exact-byte-range"},
+              "segment_id": {"$ref": "#/$defs/safeId"},
+              "lineage": {
+                "properties": {
+                  "byte_range": {"$ref": "#/$defs/byteRange"}
+                },
+                "required": ["byte_range"]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

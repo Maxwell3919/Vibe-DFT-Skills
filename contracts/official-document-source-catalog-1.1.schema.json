@@ -1,0 +1,987 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1",
+  "title": "Vibe DFT Skills official document source catalog",
+  "description": "A bounded technical catalog whose discovered source map is partitioned by an included or excluded disposition.",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "authority_id",
+    "provider_id",
+    "authority_root",
+    "version_scope",
+    "authority_revision",
+    "upstream_universe_complete",
+    "inventory_locator",
+    "inventory_identity",
+    "discovery_processor",
+    "discovered_sources",
+    "subjects",
+    "losses",
+    "limitations",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1"
+    },
+    "contract_name": {
+      "const": "official-document-source-catalog"
+    },
+    "authority_id": {
+      "$ref": "#/$defs/hyphenId"
+    },
+    "provider_id": {
+      "$ref": "#/$defs/hyphenId"
+    },
+    "authority_root": {
+      "$ref": "#/$defs/httpsUrl"
+    },
+    "version_scope": {
+      "$ref": "#/$defs/versionScope"
+    },
+    "authority_revision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "upstream_universe_complete": {
+      "type": "boolean"
+    },
+    "inventory_locator": {
+      "$ref": "#/$defs/httpsUrl"
+    },
+    "inventory_identity": {
+      "$ref": "#/$defs/byteIdentity"
+    },
+    "discovery_processor": {
+      "$ref": "#/$defs/processor"
+    },
+    "discovered_sources": {
+      "$ref": "#/$defs/discoveredSourceMap"
+    },
+    "subjects": {
+      "$ref": "#/$defs/subjectMap"
+    },
+    "losses": {
+      "$ref": "#/$defs/lossMap"
+    },
+    "limitations": {
+      "$ref": "#/$defs/textList"
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$"
+    },
+    "sourceId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 128
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "maxLength": 2000
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))[A-Za-z0-9][A-Za-z0-9._/-]{0,499}$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "textList": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    },
+    "byteIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "fileIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "versionScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "retrieved_utc",
+        "snapshot_identity"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "exact",
+            "revision",
+            "release-line",
+            "latest-at-retrieval",
+            "unversioned"
+          ]
+        },
+        "value": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retrieved_utc": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 40
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot_identity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/byteIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "unversioned",
+                  "latest-at-retrieval"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "latest-at-retrieval"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "retrieved_utc": {
+                "type": "string",
+                "format": "date-time",
+                "maxLength": 40
+              },
+              "snapshot_identity": {
+                "$ref": "#/$defs/byteIdentity"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "retrieved_utc": {
+                "type": "null"
+              },
+              "snapshot_identity": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "processor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processor_id",
+        "processor_version",
+        "assurance_mode",
+        "implementation_ref",
+        "configuration_ref",
+        "dependency_lock_ref",
+        "input_sha256",
+        "output_sha256",
+        "attestation_id",
+        "deterministic"
+      ],
+      "properties": {
+        "processor_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "processor_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "assurance_mode": {
+          "enum": [
+            "unverified",
+            "pinned",
+            "attested"
+          ]
+        },
+        "implementation_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/fileIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "configuration_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/fileIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dependency_lock_ref": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/fileIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "input_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "output_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "attestation_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/safeId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "deterministic": {
+          "const": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "assurance_mode": {
+                "const": "unverified"
+              }
+            },
+            "required": [
+              "assurance_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "implementation_ref": {
+                "type": "null"
+              },
+              "configuration_ref": {
+                "type": "null"
+              },
+              "dependency_lock_ref": {
+                "type": "null"
+              },
+              "attestation_id": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "implementation_ref": {
+                "$ref": "#/$defs/fileIdentity"
+              },
+              "configuration_ref": {
+                "$ref": "#/$defs/fileIdentity"
+              },
+              "dependency_lock_ref": {
+                "$ref": "#/$defs/fileIdentity"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "assurance_mode": {
+                "const": "attested"
+              }
+            },
+            "required": [
+              "assurance_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "attestation_id": {
+                "$ref": "#/$defs/safeId"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "attestation_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "externalReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retrieval_method",
+        "retrieved_utc",
+        "raw_sha256",
+        "raw_bytes"
+      ],
+      "properties": {
+        "retrieval_method": {
+          "enum": [
+            "https-get",
+            "official-api",
+            "git-object",
+            "other"
+          ]
+        },
+        "retrieved_utc": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 40
+        },
+        "raw_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "raw_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "embeddedContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_mode",
+        "locator",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "content_mode": {
+          "const": "embedded-content"
+        },
+        "locator": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "externalContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_mode",
+        "locator",
+        "receipt"
+      ],
+      "properties": {
+        "content_mode": {
+          "const": "external-content"
+        },
+        "locator": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "receipt": {
+          "$ref": "#/$defs/externalReceipt"
+        }
+      }
+    },
+    "metadataOnlyContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_mode",
+        "locator",
+        "identity"
+      ],
+      "properties": {
+        "content_mode": {
+          "const": "metadata-only"
+        },
+        "locator": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "identity": {
+          "$ref": "#/$defs/byteIdentity"
+        }
+      }
+    },
+    "excludedContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_mode",
+        "locator",
+        "inventory_entry_identity"
+      ],
+      "properties": {
+        "content_mode": {
+          "const": "excluded"
+        },
+        "locator": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "inventory_entry_identity": {
+          "$ref": "#/$defs/byteIdentity"
+        }
+      }
+    },
+    "sourceContent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/embeddedContent"
+        },
+        {
+          "$ref": "#/$defs/externalContent"
+        },
+        {
+          "$ref": "#/$defs/metadataOnlyContent"
+        }
+      ]
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selector_id",
+        "layer",
+        "kind",
+        "value",
+        "subject_ids",
+        "loss_ids"
+      ],
+      "properties": {
+        "selector_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "layer": {
+          "enum": [
+            "raw-source",
+            "derived-artifact"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "heading",
+            "byte-range",
+            "json-pointer",
+            "line-range",
+            "page-range",
+            "whole-source",
+            "source-symbol",
+            "other"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "subject_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          }
+        },
+        "loss_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "whole-source"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "const": "*"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "byte-range"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "pattern": "^(?:0|[1-9][0-9]*):[1-9][0-9]*$",
+                "maxLength": 50
+              }
+            }
+          }
+        }
+      ]
+    },
+    "includedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "title",
+        "source_kind",
+        "content",
+        "selectors",
+        "subject_ids",
+        "loss_ids"
+      ],
+      "properties": {
+        "disposition": {
+          "const": "included"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_kind": {
+          "$ref": "#/$defs/sourceKind"
+        },
+        "content": {
+          "$ref": "#/$defs/sourceContent"
+        },
+        "selectors": {
+          "type": "array",
+          "maxItems": 100000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/selector"
+          }
+        },
+        "subject_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          }
+        },
+        "loss_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "content": {
+                "properties": {
+                  "content_mode": {
+                    "enum": [
+                      "embedded-content",
+                      "external-content"
+                    ]
+                  }
+                },
+                "required": [
+                  "content_mode"
+                ]
+              }
+            },
+            "required": [
+              "content"
+            ]
+          },
+          "then": {
+            "properties": {
+              "selectors": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "selectors": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "excludedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "title",
+        "source_kind",
+        "content",
+        "reason_code",
+        "rationale"
+      ],
+      "properties": {
+        "disposition": {
+          "const": "excluded"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_kind": {
+          "$ref": "#/$defs/sourceKind"
+        },
+        "content": {
+          "$ref": "#/$defs/excludedContent"
+        },
+        "reason_code": {
+          "enum": [
+            "duplicate",
+            "out-of-scope",
+            "navigation-only",
+            "obsolete",
+            "generated-alias",
+            "unavailable",
+            "other"
+          ]
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "discoveredSource": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/includedSource"
+        },
+        {
+          "$ref": "#/$defs/excludedSource"
+        }
+      ]
+    },
+    "discoveredSourceMap": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 100000,
+      "propertyNames": {
+        "$ref": "#/$defs/sourceId"
+      },
+      "patternProperties": {
+        "^[a-z0-9][a-z0-9._-]{0,127}$": {
+          "$ref": "#/$defs/discoveredSource"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sourceKind": {
+      "enum": [
+        "manual-page",
+        "reference-page",
+        "guide",
+        "release-note",
+        "api-record",
+        "source-documentation",
+        "pdf",
+        "index",
+        "other"
+      ]
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "category",
+        "requirement_strength",
+        "statement"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "category": {
+          "enum": [
+            "input-parameter",
+            "workflow",
+            "output-observable",
+            "provenance",
+            "validation-rule",
+            "scientific-limitation",
+            "other"
+          ]
+        },
+        "requirement_strength": {
+          "enum": [
+            "required",
+            "supporting",
+            "informational"
+          ]
+        },
+        "statement": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "subjectMap": {
+      "type": "object",
+      "maxProperties": 10000,
+      "propertyNames": {
+        "$ref": "#/$defs/safeId"
+      },
+      "patternProperties": {
+        "^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$": {
+          "$ref": "#/$defs/subject"
+        }
+      },
+      "additionalProperties": false
+    },
+    "loss": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage",
+        "description",
+        "materiality",
+        "disposition",
+        "affected_source_ids"
+      ],
+      "properties": {
+        "stage": {
+          "enum": [
+            "discovery",
+            "retrieval",
+            "extraction",
+            "normalization",
+            "storage",
+            "mapping",
+            "other"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "materiality": {
+          "enum": [
+            "none",
+            "non-material",
+            "material",
+            "unknown"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "accepted",
+            "preserved",
+            "external-only",
+            "blocked"
+          ]
+        },
+        "affected_source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sourceId"
+          }
+        }
+      }
+    },
+    "lossMap": {
+      "type": "object",
+      "maxProperties": 10000,
+      "propertyNames": {
+        "$ref": "#/$defs/safeId"
+      },
+      "patternProperties": {
+        "^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$": {
+          "$ref": "#/$defs/loss"
+        }
+      },
+      "additionalProperties": false
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "description",
+        "dimensions"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/safeId"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "corpus",
+              "slices",
+              "scope",
+              "coverage"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

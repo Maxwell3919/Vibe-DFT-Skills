@@ -1,0 +1,466 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-corpus-manifest:1.1",
+  "title": "Vibe DFT Skills official corpus manifest",
+  "description": "A content-addressed technical inventory for one version-bounded document corpus.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "corpus_id",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "corpus_id",
+    "authority_id",
+    "provider_id",
+    "version_scope",
+    "status",
+    "discovery",
+    "source_inventory",
+    "blockers",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1"
+    },
+    "contract_name": {
+      "const": "official-corpus-manifest"
+    },
+    "corpus_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "authority_id": {
+      "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/hyphenId"
+    },
+    "provider_id": {
+      "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/hyphenId"
+    },
+    "version_scope": {
+      "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/versionScope"
+    },
+    "status": {
+      "$ref": "#/$defs/completenessStatus"
+    },
+    "discovery": {
+      "$ref": "#/$defs/discovery"
+    },
+    "source_inventory": {
+      "$ref": "#/$defs/sourceInventory"
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    },
+    "limitations": {
+      "$ref": "#/$defs/textList"
+    },
+    "producer": {
+      "$ref": "#/$defs/producer"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "complete"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "version_scope": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "exact",
+                  "revision",
+                  "latest-at-retrieval"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "discovery": {
+            "properties": {
+              "upstream_universe_complete": {
+                "const": true
+              }
+            },
+            "required": [
+              "upstream_universe_complete"
+            ]
+          },
+          "blockers": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "partial"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "limitations": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "completenessStatus": {
+      "enum": [
+        "complete",
+        "partial",
+        "blocked"
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "textList": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "upstream_universe_complete",
+        "inventory_scope",
+        "authority_root",
+        "authority_revision",
+        "inventory_format",
+        "inventory",
+        "processor"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "official-index",
+            "official-api",
+            "release-tree",
+            "source-tree",
+            "manual-inventory",
+            "other"
+          ]
+        },
+        "upstream_universe_complete": {
+          "type": "boolean"
+        },
+        "inventory_scope": {
+          "enum": [
+            "upstream-universe",
+            "bounded-authority-subset"
+          ]
+        },
+        "authority_root": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/httpsUrl"
+        },
+        "authority_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "inventory_format": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,99}$"
+        },
+        "inventory": {
+          "$ref": "#/$defs/inventoryIdentity"
+        },
+        "processor": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/processor"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "upstream_universe_complete": {
+                "const": true
+              }
+            },
+            "required": [
+              "upstream_universe_complete"
+            ]
+          },
+          "then": {
+            "properties": {
+              "inventory_scope": {
+                "const": "upstream-universe"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "inventory_scope": {
+                "const": "bounded-authority-subset"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "inventoryIdentity": {
+      "oneOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/embeddedContent"
+        },
+        {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/externalContent"
+        },
+        {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/metadataOnlyContent"
+        }
+      ]
+    },
+    "sourceIdentity": {
+      "oneOf": [
+        {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/embeddedContent"
+        },
+        {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/externalContent"
+        },
+        {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/metadataOnlyContent"
+        }
+      ]
+    },
+    "includedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "title",
+        "source_kind",
+        "source_identity",
+        "subject_ids",
+        "loss_ids"
+      ],
+      "properties": {
+        "disposition": {
+          "const": "included"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_kind": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/sourceKind"
+        },
+        "source_identity": {
+          "$ref": "#/$defs/sourceIdentity"
+        },
+        "subject_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "loss_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        }
+      }
+    },
+    "excludedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "title",
+        "source_kind",
+        "source_identity",
+        "reason_code",
+        "rationale"
+      ],
+      "properties": {
+        "disposition": {
+          "const": "excluded"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_kind": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/sourceKind"
+        },
+        "source_identity": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/excludedContent"
+        },
+        "reason_code": {
+          "enum": [
+            "duplicate",
+            "out-of-scope",
+            "navigation-only",
+            "obsolete",
+            "generated-alias",
+            "unavailable",
+            "other"
+          ]
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "sourceRecord": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/includedSource"
+        },
+        {
+          "$ref": "#/$defs/excludedSource"
+        }
+      ]
+    },
+    "sourceInventory": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 100000,
+      "propertyNames": {
+        "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/sourceId"
+      },
+      "patternProperties": {
+        "^[a-z0-9][a-z0-9._-]{0,127}$": {
+          "$ref": "#/$defs/sourceRecord"
+        }
+      },
+      "additionalProperties": false
+    },
+    "corpusRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "corpus_id",
+        "sha256"
+      ],
+      "properties": {
+        "corpus_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skill_id",
+        "skill_version",
+        "tool_id",
+        "tool_version",
+        "generated_utc"
+      ],
+      "properties": {
+        "skill_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "skill_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "tool_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "tool_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "generated_utc": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 40
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "description",
+        "dimension"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "dimension": {
+          "enum": [
+            "universe",
+            "version-pin",
+            "inventory",
+            "partition",
+            "source-identity",
+            "processor"
+          ]
+        }
+      }
+    }
+  }
+}

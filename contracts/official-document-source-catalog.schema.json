@@ -1,0 +1,769 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.0",
+  "title": "Vibe DFT Skills declarative official-document source catalog",
+  "description": "Strict input for the declarative-catalog-v1 pack adapter. It records a bounded upstream universe, exact local or external content identities, ordered slices, provider-required subjects, loss, and license-review facts without granting completion.",
+  "$comment": "This input is ordinary Skill source material. The builder validates all local references and independently computes status, central bindings, full Skill source-tree closure, and generated record hashes.",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "version_scope",
+    "upstream_universe_complete",
+    "inventory_locator",
+    "sources",
+    "subjects",
+    "reviewed_exclusions",
+    "losses",
+    "license",
+    "limitations",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "contract_name": {
+      "const": "official-document-source-catalog"
+    },
+    "version_scope": {
+      "$ref": "#/$defs/versionScope"
+    },
+    "upstream_universe_complete": {
+      "type": "boolean"
+    },
+    "inventory_locator": {
+      "$ref": "#/$defs/httpsUrl"
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/includedSource"
+      }
+    },
+    "subjects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/subject"
+      }
+    },
+    "reviewed_exclusions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/reviewedExclusion"
+      }
+    },
+    "losses": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/loss"
+      }
+    },
+    "license": {
+      "$ref": "#/$defs/license"
+    },
+    "limitations": {
+      "$ref": "#/$defs/nonemptyStrings"
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$"
+    },
+    "sourceId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "maxLength": 2000
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)[A-Za-z0-9._/-]+$"
+    },
+    "nonemptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "versionScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "retrieved_utc",
+        "snapshot_identity"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "exact",
+            "revision",
+            "release-line",
+            "latest-at-retrieval",
+            "unversioned"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "retrieved_utc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "snapshot_identity": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/snapshotIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "snapshotIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "content_sha256"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "sha256",
+            "revision",
+            "etag",
+            "manifest"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "content_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "fileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "externalIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "raw_sha256",
+        "raw_bytes",
+        "retrieved_utc"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "external-receipt",
+            "revision",
+            "etag"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "raw_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "raw_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "retrieved_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "externalReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retrieval_method",
+        "retrieved_utc",
+        "raw_sha256",
+        "raw_bytes",
+        "selected_sha256",
+        "selected_bytes"
+      ],
+      "properties": {
+        "retrieval_method": {
+          "enum": [
+            "https-get",
+            "official-api",
+            "git-object",
+            "other"
+          ]
+        },
+        "retrieved_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "raw_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "raw_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "selected_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "selected_bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layer",
+        "kind",
+        "value"
+      ],
+      "properties": {
+        "layer": {
+          "enum": [
+            "raw-source",
+            "derived-artifact"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "heading",
+            "byte-range",
+            "json-pointer",
+            "line-range",
+            "page-range",
+            "whole-source",
+            "source-symbol",
+            "other"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "whole-source"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "const": "*"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slice_id",
+        "order",
+        "title",
+        "selector",
+        "subject_ids"
+      ],
+      "properties": {
+        "slice_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "selector": {
+          "$ref": "#/$defs/selector"
+        },
+        "content_ref": {
+          "$ref": "#/$defs/fileRef"
+        },
+        "external_receipt": {
+          "$ref": "#/$defs/externalReceipt"
+        },
+        "subject_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          }
+        },
+        "loss_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          },
+          "default": []
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "content_ref"
+          ],
+          "not": {
+            "required": [
+              "external_receipt"
+            ]
+          }
+        },
+        {
+          "required": [
+            "external_receipt"
+          ],
+          "not": {
+            "required": [
+              "content_ref"
+            ]
+          }
+        }
+      ]
+    },
+    "includedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "title",
+        "source_kind",
+        "locator",
+        "disposition",
+        "slices"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/sourceId"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "source_kind": {
+          "enum": [
+            "manual-page",
+            "reference-page",
+            "guide",
+            "release-note",
+            "api-record",
+            "source-documentation",
+            "pdf",
+            "index",
+            "other"
+          ]
+        },
+        "locator": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "disposition": {
+          "const": "included"
+        },
+        "content_ref": {
+          "$ref": "#/$defs/fileRef"
+        },
+        "external_identity": {
+          "$ref": "#/$defs/externalIdentity"
+        },
+        "metadata_evidence_ref": {
+          "$ref": "#/$defs/fileRef"
+        },
+        "slices": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/slice"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "content_ref"
+          ],
+          "not": {
+            "required": [
+              "external_identity"
+            ]
+          }
+        },
+        {
+          "required": [
+            "external_identity"
+          ],
+          "not": {
+            "required": [
+              "content_ref"
+            ]
+          }
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "metadata_evidence_ref"
+            ]
+          },
+          "then": {
+            "required": [
+              "external_identity"
+            ],
+            "not": {
+              "required": [
+                "content_ref"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_id",
+        "title",
+        "category",
+        "requirement_strength",
+        "evidence_class"
+      ],
+      "properties": {
+        "subject_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "category": {
+          "enum": [
+            "input-parameter",
+            "workflow",
+            "output-observable",
+            "provenance",
+            "validation-rule",
+            "scientific-limitation",
+            "other"
+          ]
+        },
+        "requirement_strength": {
+          "enum": [
+            "required",
+            "supporting",
+            "informational"
+          ]
+        },
+        "evidence_class": {
+          "const": "official-provider-required"
+        }
+      }
+    },
+    "reviewedExclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "title",
+        "locator",
+        "reason_code",
+        "rationale",
+        "reviewed_utc"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/sourceId"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "locator": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "reason_code": {
+          "enum": [
+            "duplicate",
+            "out-of-scope",
+            "navigation-only",
+            "obsolete",
+            "generated-alias",
+            "unavailable",
+            "other"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "reviewed_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "loss": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loss_id",
+        "stage",
+        "description",
+        "materiality",
+        "disposition",
+        "affected_source_ids"
+      ],
+      "properties": {
+        "loss_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "stage": {
+          "enum": [
+            "discovery",
+            "retrieval",
+            "extraction",
+            "normalization",
+            "storage",
+            "mapping",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "materiality": {
+          "enum": [
+            "none",
+            "non-material",
+            "material",
+            "unknown"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "accepted",
+            "preserved",
+            "external-only",
+            "blocked"
+          ]
+        },
+        "affected_source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sourceId"
+          }
+        }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "assessment",
+        "allowed_storage_modes",
+        "official_terms_locator",
+        "limitations"
+      ],
+      "properties": {
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "identifier",
+            "terms_urls",
+            "verification"
+          ],
+          "properties": {
+            "identifier": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "terms_urls": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/httpsUrl"
+              }
+            },
+            "verification": {
+              "enum": [
+                "verified",
+                "unverified",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "assessment": {
+          "enum": [
+            "allowed",
+            "conditional",
+            "forbidden",
+            "unresolved"
+          ]
+        },
+        "allowed_storage_modes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "metadata-only",
+              "external-runtime-only",
+              "excluded"
+            ]
+          }
+        },
+        "official_terms_locator": {
+          "$ref": "#/$defs/httpsUrl"
+        },
+        "limitations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "description",
+        "dimensions"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/safeId"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "corpus",
+              "slices",
+              "coverage"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

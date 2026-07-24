@@ -332,6 +332,76 @@ interfaces:
     schema_path: contracts/official-source-record.schema.json
     schema_sha256: c0963e4e6e734563fa850356d300db14785c0e3c8e66072ed52f21558b675b95
     producer_policy: mixed
+  official-corpus-manifest@1.0:
+    display_name: Official documentation corpus manifest
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-corpus-manifest.schema.json
+    schema_sha256: dfa235833d49cc5600684fb87a09ff5050a2a272d66cd082ecf40833fd276a73
+    producer_policy: mixed
+  document-slice-manifest@1.0:
+    display_name: Ordered official document slice manifest
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/document-slice-manifest.schema.json
+    schema_sha256: bed8ff7bcda25681f9d28a8cbeb35d380fedf0fdaf1e5f2e224b095c312c906b
+    producer_policy: skill
+  official-source-license-review@1.0:
+    display_name: Official source license and storage review
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-source-license-review.schema.json
+    schema_sha256: 5b41e8983d79a8ef374fcdc9f5f17ffe7bd6a470c7819d98a4f1f69ec0ae8106
+    producer_policy: mixed
+  skill-document-coverage@1.0:
+    display_name: Skill official documentation coverage map
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/skill-document-coverage.schema.json
+    schema_sha256: d785ed75181a10a12d019c314872f48d968cab335de762ff3df00f742479bdfa
+    producer_policy: skill
+  skill-document-scope-inventory@1.0:
+    display_name: Canonical Skill documentation scope inventory
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/skill-document-scope-inventory.schema.json
+    schema_sha256: 5ea913aa333993c767d58f9c1a3013f52eec6c005978df04dd8c6f0ccfdaea59
+    producer_policy: mixed
+  official-document-pack-seed@1.0:
+    display_name: Deterministic official-document pack seed
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-document-pack-seed.schema.json
+    schema_sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
+    producer_policy: skill
+  official-document-source-catalog@1.0:
+    display_name: Declarative official-document source catalog
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-document-source-catalog.schema.json
+    schema_sha256: a6937cbfe794d3e8f9f9960b8f877533706697747e5c2ff75d0fa0b79a14fc5b
+    producer_policy: skill
+  official-document-scope-catalog@1.0:
+    display_name: Extracted official-document semantic scope catalog
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-document-scope-catalog.schema.json
+    schema_sha256: c0fc882cefce30c9d512f69528be8183292a90a3d9bf8556973722e8f3f3f49d
+    producer_policy: skill
+  qe-source-pack-input@1.0:
+    display_name: Quantum ESPRESSO official-document compact pack input
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/qe-source-pack-input.schema.json
+    schema_sha256: 0049a823b2126cfb8b9ff1446e37d986da874c3c4b567aef9f7e4230a41e04f4
+    producer_policy: skill
+  vasp-source-pack-input@1.0:
+    display_name: VASP Wiki official-document compact pack input
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/vasp-source-pack-input.schema.json
+    schema_sha256: e7dc24246fb9f98502fddad64cc391800f7a694f0510e60df8332497a4060ca9
+    producer_policy: skill
   evidence-record@1.0:
     display_name: Generic non-human evidence record
     lifecycle: active
@@ -354,7 +424,7 @@ interfaces:
     lifecycle: active
     domain: bundle-governance
     schema_path: contracts/bundle-validation-report.schema.json
-    schema_sha256: e9d161d142629054cc19f04c9b02a8f80098f66822d1619156cc47591075bf6e
+    schema_sha256: 05cd6d267889179cd57beec5feb70af116652f6f73bfe9a650cdae21f7032c26
     producer_policy: mixed
     classification:
       document_kind: content-addressed-record

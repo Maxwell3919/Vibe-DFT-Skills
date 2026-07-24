@@ -15,6 +15,7 @@ from .electronic import (
     _validated_dataset,
     _write_csv_atomic,
 )
+from .registry import resolve_backend_maturity
 from .utils import utc_now, write_json_atomic
 
 
@@ -104,12 +105,13 @@ def normalize_neb_table(
     force_column: str | None = None,
     force_unit: str | None = None,
     figure_output: Path | None = None,
-    maturity: str = "synthetic-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
-    _check_maturity(maturity)
     if code not in {"qe", "vasp", "mixed"}:
         raise ValueError("code must be qe, vasp, or mixed")
+    maturity = resolve_backend_maturity("neb", code, "python.neb", maturity)
+    _check_maturity(maturity)
     if reference not in {"initial", "minimum", "none"}:
         raise ValueError("reference must be initial, minimum, or none")
     if not coordinate_unit.strip() or not energy_unit.strip():
@@ -268,12 +270,13 @@ def normalize_optical_table(
     components: dict[str, tuple[str, str]],
     broadening_declaration: str,
     figure_output: Path | None = None,
-    maturity: str = "synthetic-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
-    _check_maturity(maturity)
     if code not in {"qe", "vasp", "mixed"}:
         raise ValueError("code must be qe, vasp, or mixed")
+    maturity = resolve_backend_maturity("optical", code, "python.optical", maturity)
+    _check_maturity(maturity)
     if not components:
         raise ValueError("at least one dielectric component mapping is required")
     if not broadening_declaration.strip():

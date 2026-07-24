@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""Offline integrity tests for ovito-atomistic-analysis source-pack inputs."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+import unittest
+
+from jsonschema import Draft202012Validator
+
+
+ROOT = Path(__file__).resolve().parents[3]
+SKILL_ROOT = Path(__file__).resolve().parents[1]
+REFERENCES = SKILL_ROOT / "references"
+INVENTORIES = ["source-pack-inventory-ovito-docs.json","source-pack-inventory-ovito-pypi.json"]
+
+
+def load(path: Path) -> dict:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise AssertionError(f"{path}: JSON root is not an object")
+    return value
+
+
+def digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+class SourcePackMetadataTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.seed_path = REFERENCES / "source-pack-seed.json"
+        self.scope_path = REFERENCES / "source-pack-scope-catalog.json"
+        self.seed = load(self.seed_path)
+        self.scope = load(self.scope_path)
+        self.catalog_paths = [
+            ROOT / provider["source_ref"]["path"]
+            for provider in self.seed["providers"]
+        ]
+        self.catalogs = [load(path) for path in self.catalog_paths]
+
+    def test_strict_schemas(self) -> None:
+        pairs = [
+            ("official-document-pack-seed.schema.json", self.seed_path),
+            ("official-document-scope-catalog.schema.json", self.scope_path),
+        ]
+        pairs.extend(
+            ("official-document-source-catalog.schema.json", path)
+            for path in self.catalog_paths
+        )
+        for schema_name, instance_path in pairs:
+            schema = load(ROOT / "contracts" / schema_name)
+            Draft202012Validator.check_schema(schema)
+            errors = list(
+                Draft202012Validator(schema).iter_errors(load(instance_path))
+            )
+            self.assertEqual([], [error.message for error in errors])
+
+    def test_seed_hashes_are_skill_local_and_exact(self) -> None:
+        refs = [self.seed["scope_catalog_ref"]]
+        refs.extend(provider["source_ref"] for provider in self.seed["providers"])
+        for item in refs:
+            path = ROOT / item["path"]
+            path.resolve().relative_to(SKILL_ROOT.resolve())
+            self.assertFalse(path.is_symlink())
+            self.assertEqual(item["sha256"], digest(path))
+
+    def test_semantic_scope_and_origins_are_closed(self) -> None:
+        expected = {
+            item["subject_id"]
+            for item in self.scope["subjects"]
+            if item["evidence_class"] == "official-provider-required"
+        }
+        cataloged = {
+            item["subject_id"]
+            for catalog in self.catalogs
+            for item in catalog["subjects"]
+        }
+        self.assertEqual(expected, cataloged)
+        provider_ids = {
+            provider["input_id"] for provider in self.seed["providers"]
+        }
+        for item in self.scope["subjects"]:
+            if item["evidence_class"] == "official-provider-required":
+                self.assertTrue(item["provider_input_ids"])
+                self.assertLessEqual(set(item["provider_input_ids"]), provider_ids)
+            else:
+                self.assertEqual([], item["provider_input_ids"])
+            for origin in item["origin_refs"]:
+                self.assertEqual(origin["sha256"], digest(ROOT / origin["path"]))
+
+    def test_actual_sources_are_external_receipts_only(self) -> None:
+        inventory_hashes = {
+            digest(REFERENCES / name) for name in INVENTORIES
+        }
+        for catalog in self.catalogs:
+            for source in catalog["sources"]:
+                self.assertNotIn("content_ref", source)
+                self.assertIn("external_identity", source)
+                evidence = source["external_identity"].get("evidence_sha256")
+                if evidence is not None:
+                    self.assertIn(evidence, inventory_hashes)
+                for slice_ in source["slices"]:
+                    self.assertNotIn("content_ref", slice_)
+                    self.assertIn("external_receipt", slice_)
+                    if slice_["selector"]["kind"] == "whole-source":
+                        self.assertEqual("*", slice_["selector"]["value"])
+                    receipt = slice_["external_receipt"]
+                    self.assertEqual(
+                        source["external_identity"]["raw_sha256"],
+                        receipt["raw_sha256"],
+                    )
+                    self.assertEqual(
+                        source["external_identity"]["raw_bytes"],
+                        receipt["raw_bytes"],
+                    )
+
+    def test_inventory_and_lifecycle_boundaries(self) -> None:
+        proposal = load(REFERENCES / "source-pack-authority-proposal.json")
+        self.assertEqual("none", proposal["lifecycle_effect"])
+        self.assertEqual("blocked", self.seed["status_ceiling"])
+        for authority in proposal["authorities"]:
+            self.assertEqual("software", authority["provider_class"])
+            self.assertEqual([], authority["content_policy"]["allowed_query_urls"])
+            self.assertEqual("forbidden", authority["content_policy"]["query_policy"])
+            self.assertEqual("forbidden", authority["redistribution_policy"]["bundle_content"])
+            self.assertEqual("none", authority["consumer_binding"]["claim_effect"])
+
+        inventory = load(REFERENCES / "source-pack-inventory-ovito-docs.json")
+        self.assertEqual(720, inventory["entry_count"])
+        self.assertEqual("0b2cdccef7452bf28212e15daf9df2dc7a545bcc", inventory["commit_id"])
+        paths = [item["path"] for item in inventory["entries"]]
+        self.assertEqual(paths, sorted(paths))
+        self.assertEqual(len(paths), len(set(paths)))
+        metadata = load(REFERENCES / "source-pack-inventory-ovito-pypi.json")
+        self.assertEqual("3.15.5", metadata["version"])
+        self.assertEqual("MIT", metadata["license_expression"])
+        self.assertEqual(18, len(metadata["release_files"]))
+        self.assertEqual(2, len(proposal["authorities"]))
+
+
+if __name__ == "__main__":
+    unittest.main()

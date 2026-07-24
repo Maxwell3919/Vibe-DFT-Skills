@@ -22,7 +22,14 @@ from .realspace import (
     normalize_grid_field,
     split_cube_fields,
 )
-from .registry import load_registry, registered_aggregate_codes, registered_codes, validate_registry
+from .registry import (
+    MATURITY_LEVELS,
+    load_registry,
+    registered_aggregate_codes,
+    registered_codes,
+    resolve_backend_maturity,
+    validate_registry,
+)
 from .runtrace import normalize_run_trace
 from .structure_views import render_structure_views
 from .utils import write_json_atomic
@@ -115,6 +122,18 @@ def _bond_mapping(specifications: list[str]) -> dict[frozenset[str], float]:
     return result
 
 
+def _add_maturity_ceiling(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--maturity",
+        choices=MATURITY_LEVELS[1:],
+        default=None,
+        help=(
+            "optional backward-compatible claim ceiling; the emitted maturity is derived "
+            "from the validated observable/code/backend registry route and cannot be raised"
+        ),
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="dftpost", description="Deterministic, maturity-gated DFT postprocessing foundation")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -152,7 +171,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_trace.add_argument("--dataset-id", required=True)
     run_trace.add_argument("--figure", type=Path)
     run_trace.add_argument("--overwrite", action="store_true")
-    run_trace.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(run_trace)
     run_trace.add_argument("--out-dir", type=Path, required=True)
 
     plot = subparsers.add_parser("plot-table")
@@ -180,7 +199,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     qe_bands.add_argument("--figure", type=Path)
     qe_bands.add_argument("--overwrite", action="store_true")
-    qe_bands.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(qe_bands)
     qe_bands.add_argument("--out-dir", type=Path, required=True)
 
     qe_dos = subparsers.add_parser("qe-dos")
@@ -193,7 +212,7 @@ def build_parser() -> argparse.ArgumentParser:
     qe_dos.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
     qe_dos.add_argument("--figure", type=Path)
     qe_dos.add_argument("--overwrite", action="store_true")
-    qe_dos.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(qe_dos)
     qe_dos.add_argument("--out-dir", type=Path, required=True)
 
     qe_fatband = subparsers.add_parser("qe-fatband")
@@ -209,7 +228,7 @@ def build_parser() -> argparse.ArgumentParser:
     qe_fatband.add_argument("--bands-label", default="Bands")
     qe_fatband.add_argument("--figure", type=Path)
     qe_fatband.add_argument("--overwrite", action="store_true")
-    qe_fatband.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(qe_fatband)
     qe_fatband.add_argument("--out-dir", type=Path, required=True)
 
     vasp_bands = subparsers.add_parser("vasp-bands")
@@ -221,7 +240,7 @@ def build_parser() -> argparse.ArgumentParser:
     vasp_bands.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
     vasp_bands.add_argument("--figure", type=Path)
     vasp_bands.add_argument("--overwrite", action="store_true")
-    vasp_bands.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(vasp_bands)
     vasp_bands.add_argument("--out-dir", type=Path, required=True)
 
     vasp_dos = subparsers.add_parser("vasp-dos")
@@ -234,7 +253,7 @@ def build_parser() -> argparse.ArgumentParser:
     vasp_dos.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
     vasp_dos.add_argument("--figure", type=Path)
     vasp_dos.add_argument("--overwrite", action="store_true")
-    vasp_dos.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(vasp_dos)
     vasp_dos.add_argument("--out-dir", type=Path, required=True)
 
     vasp_fatband = subparsers.add_parser("vasp-fatband")
@@ -252,7 +271,7 @@ def build_parser() -> argparse.ArgumentParser:
     vasp_fatband.add_argument("--bands-label", default="Bands")
     vasp_fatband.add_argument("--figure", type=Path)
     vasp_fatband.add_argument("--overwrite", action="store_true")
-    vasp_fatband.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(vasp_fatband)
     vasp_fatband.add_argument("--out-dir", type=Path, required=True)
 
     vaspkit_bands = subparsers.add_parser("vaspkit-bands")
@@ -264,7 +283,7 @@ def build_parser() -> argparse.ArgumentParser:
     vaspkit_bands.add_argument("--energy-window", type=float, nargs=2, metavar=("MIN_EV", "MAX_EV"))
     vaspkit_bands.add_argument("--figure", type=Path)
     vaspkit_bands.add_argument("--overwrite", action="store_true")
-    vaspkit_bands.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="synthetic-validated")
+    _add_maturity_ceiling(vaspkit_bands)
     vaspkit_bands.add_argument("--out-dir", type=Path, required=True)
 
     qe_phonon = subparsers.add_parser("qe-phonon")
@@ -274,7 +293,7 @@ def build_parser() -> argparse.ArgumentParser:
     qe_phonon.add_argument("--dataset-id", required=True)
     qe_phonon.add_argument("--figure", type=Path)
     qe_phonon.add_argument("--overwrite", action="store_true")
-    qe_phonon.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(qe_phonon)
     qe_phonon.add_argument("--out-dir", type=Path, required=True)
 
     qe_epc = subparsers.add_parser("qe-epc")
@@ -287,7 +306,7 @@ def build_parser() -> argparse.ArgumentParser:
     qe_epc.add_argument("--figure", type=Path)
     qe_epc.add_argument("--qmode-figure", type=Path)
     qe_epc.add_argument("--overwrite", action="store_true")
-    qe_epc.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(qe_epc)
     qe_epc.add_argument("--out-dir", type=Path, required=True)
 
     cube_inspect = subparsers.add_parser("cube-inspect")
@@ -325,7 +344,7 @@ def build_parser() -> argparse.ArgumentParser:
     grid_field.add_argument("--figure", type=Path)
     grid_field.add_argument("--slice-figure", type=Path)
     grid_field.add_argument("--overwrite", action="store_true")
-    grid_field.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(grid_field)
     grid_field.add_argument("--out-dir", type=Path, required=True)
 
     grid_combine = subparsers.add_parser("grid-combine")
@@ -335,7 +354,7 @@ def build_parser() -> argparse.ArgumentParser:
     grid_combine.add_argument("--code", choices=("qe", "vasp", "mixed"), default="mixed")
     grid_combine.add_argument("--dataset-id", required=True)
     grid_combine.add_argument("--overwrite", action="store_true")
-    grid_combine.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(grid_combine)
     grid_combine.add_argument("--out-dir", type=Path, required=True)
 
     vesta_isosurface = subparsers.add_parser("vesta-isosurface")
@@ -358,11 +377,7 @@ def build_parser() -> argparse.ArgumentParser:
     vesta_isosurface.add_argument("--dataset-id", required=True)
     vesta_isosurface.add_argument("--figure", type=Path)
     vesta_isosurface.add_argument("--overwrite", action="store_true")
-    vesta_isosurface.add_argument(
-        "--maturity",
-        choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated", "tool-integration-validated"),
-        default="tool-integration-validated",
-    )
+    _add_maturity_ceiling(vesta_isosurface)
     vesta_isosurface.add_argument("--out-dir", type=Path, required=True)
 
     bader_acf = subparsers.add_parser("bader-acf")
@@ -373,7 +388,7 @@ def build_parser() -> argparse.ArgumentParser:
     bader_acf.add_argument("--dataset-id", required=True)
     bader_acf.add_argument("--figure", type=Path)
     bader_acf.add_argument("--overwrite", action="store_true")
-    bader_acf.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="format-fixture-validated")
+    _add_maturity_ceiling(bader_acf)
     bader_acf.add_argument("--out-dir", type=Path, required=True)
 
     neb_table = subparsers.add_parser("neb-table")
@@ -389,7 +404,7 @@ def build_parser() -> argparse.ArgumentParser:
     neb_table.add_argument("--dataset-id", required=True)
     neb_table.add_argument("--figure", type=Path)
     neb_table.add_argument("--overwrite", action="store_true")
-    neb_table.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="synthetic-validated")
+    _add_maturity_ceiling(neb_table)
     neb_table.add_argument("--out-dir", type=Path, required=True)
 
     optical_table = subparsers.add_parser("optical-table")
@@ -401,7 +416,7 @@ def build_parser() -> argparse.ArgumentParser:
     optical_table.add_argument("--dataset-id", required=True)
     optical_table.add_argument("--figure", type=Path)
     optical_table.add_argument("--overwrite", action="store_true")
-    optical_table.add_argument("--maturity", choices=("synthetic-validated", "format-fixture-validated", "real-artifact-validated"), default="synthetic-validated")
+    _add_maturity_ceiling(optical_table)
     optical_table.add_argument("--out-dir", type=Path, required=True)
 
     bands_dos = subparsers.add_parser("bands-dos")
@@ -511,7 +526,9 @@ def main(argv: list[str] | None = None) -> int:
                 args.out_dir,
                 args.dataset_id,
                 figure_output=args.figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "run-trace", args.code, f"python.{args.code}-text", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -530,7 +547,9 @@ def main(argv: list[str] | None = None) -> int:
                 figure_output=args.figure,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
                 symmetry_points=_symmetry_points(args.symmetry_point),
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "bands", "qe", "python.qe-bands", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -546,7 +565,9 @@ def main(argv: list[str] | None = None) -> int:
                 group_by=args.group_by,
                 integration_window_ev=tuple(args.integration_window) if args.integration_window else None,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "dos-pdos", "qe", "python.qe-dos", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -565,7 +586,9 @@ def main(argv: list[str] | None = None) -> int:
                 render_mode=args.render_mode,
                 projection_label=args.projection_label,
                 bands_label=args.bands_label,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "bands", "qe", "python.qe-fatband", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -580,7 +603,9 @@ def main(argv: list[str] | None = None) -> int:
                 args.dataset_id,
                 figure_output=args.figure,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "bands", "vasp", "python.vasp-bands", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -596,7 +621,9 @@ def main(argv: list[str] | None = None) -> int:
                 group_by=args.group_by,
                 integration_window_ev=tuple(args.integration_window) if args.integration_window else None,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "dos-pdos", "vasp", "python.vasp-dos", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -617,7 +644,9 @@ def main(argv: list[str] | None = None) -> int:
                 render_mode=args.render_mode,
                 projection_label=args.projection_label,
                 bands_label=args.bands_label,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "bands", "vasp", "python.vasp-fatband", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -632,7 +661,9 @@ def main(argv: list[str] | None = None) -> int:
                 energy_reference_description=args.energy_reference_description,
                 figure_output=args.figure,
                 energy_window_ev=tuple(args.energy_window) if args.energy_window else None,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "bands", "vasp", "python.vaspkit-table", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -645,7 +676,9 @@ def main(argv: list[str] | None = None) -> int:
                 frequency_unit=args.frequency_unit,
                 imaginary_threshold=args.imaginary_threshold,
                 figure_output=args.figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "phonon", "qe", "python.qe-phonon", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -661,7 +694,9 @@ def main(argv: list[str] | None = None) -> int:
                 qmode_smearing_index=args.qmode_smearing_index,
                 figure_output=args.figure,
                 qmode_figure_output=args.qmode_figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "epc", "qe", "python.qe-epc", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -710,7 +745,9 @@ def main(argv: list[str] | None = None) -> int:
                 vacuum_window_angstrom=tuple(args.vacuum_window) if args.vacuum_window else None,
                 figure_output=args.figure,
                 slice_figure_output=args.slice_figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "real-space", args.code, "python.grid", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -723,7 +760,9 @@ def main(argv: list[str] | None = None) -> int:
                 field_unit=args.field_unit,
                 structure_component_index=args.structure_component_index,
                 code=args.code,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "real-space", args.code, "python.grid", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -749,7 +788,9 @@ def main(argv: list[str] | None = None) -> int:
                 executable=args.vesta_executable,
                 timeout_seconds=args.timeout_seconds,
                 figure_output=args.figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "real-space", args.code, "visualization.vesta", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -763,7 +804,9 @@ def main(argv: list[str] | None = None) -> int:
                 reference_electrons=args.reference_electron or None,
                 electron_closure_tolerance=args.electron_closure_tolerance,
                 figure_output=args.figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "real-space", args.code, "python.bader-acf", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -782,7 +825,9 @@ def main(argv: list[str] | None = None) -> int:
                 force_column=args.force_column,
                 force_unit=args.force_unit,
                 figure_output=args.figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "neb", args.code, "python.neb", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))
@@ -797,7 +842,9 @@ def main(argv: list[str] | None = None) -> int:
                 components=_optical_component_mapping(args.component),
                 broadening_declaration=args.broadening,
                 figure_output=args.figure,
-                maturity=args.maturity,
+                maturity=resolve_backend_maturity(
+                    "optical", args.code, "python.optical", args.maturity
+                ),
                 overwrite=args.overwrite,
             )
             print(json.dumps({key: str(value) for key, value in outputs.items()}, sort_keys=True))

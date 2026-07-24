@@ -73,5 +73,6 @@ Exit codes are `0` bounded command completed, `2` malformed/contract-invalid inp
 - Use [references/scheduler-status-mapping.json](references/scheduler-status-mapping.json) only to normalize supplied observations; preserve unknown native states.
 - Use [references/fail-closed-contract.md](references/fail-closed-contract.md), [references/weak-model-decision-table.json](references/weak-model-decision-table.json), and [references/finding-catalog.json](references/finding-catalog.json) for deterministic local gates.
 - Use [references/maturity-matrix.json](references/maturity-matrix.json) before promotion or executor integration.
+- Use [references/source-pack-seed.json](references/source-pack-seed.json) and [references/source-pack-scope-catalog.json](references/source-pack-scope-catalog.json) for the blocked metadata-only repository, JSON Schema, Slurm, and OpenPBS source boundary; refresh or check them with `scripts/extract_official_source_scope.py`.
 
 The maximum claim while this Skill is development/non-routable is `no_positive_claim`.

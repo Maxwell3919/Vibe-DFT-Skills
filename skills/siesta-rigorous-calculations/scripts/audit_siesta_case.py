@@ -21,9 +21,10 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from create_siesta_plan import normalize_version, validate_plan
+from siesta_fdf_labels import matches_official_label
 
 
-TOOL_VERSION = "2.2.0"
+TOOL_VERSION = "2.4.0"
 SCHEMA_VERSION = "2.0"
 SKILL_ROOT = SCRIPT_DIR.parent
 REFERENCES = SKILL_ROOT / "references"
@@ -38,6 +39,38 @@ SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$")
 FLOAT_RE = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
 PLACEHOLDERS = {"", "unknown", "unresolved", "none", "n/a", "not_assessed", "not-assessed"}
+XC_FUNCTIONAL_ALIASES = {
+    "lda": "lda",
+    "lsd": "lda",
+    "gga": "gga",
+    "vdw": "vdw",
+}
+XC_AUTHOR_ALIASES = {
+    "ca": ("lda", "pz"),
+    "pz": ("lda", "pz"),
+    "pw92": ("lda", "pw92"),
+    "pw91": ("gga", "pw91"),
+    "pbe": ("gga", "pbe"),
+    "revpbe": ("gga", "revpbe"),
+    "rpbe": ("gga", "rpbe"),
+    "wc": ("gga", "wc"),
+    "am05": ("gga", "am05"),
+    "pbesol": ("gga", "pbesol"),
+    "pbejsjrlo": ("gga", "pbejsjrlo"),
+    "pbejsjrheg": ("gga", "pbejsjrheg"),
+    "pbegcgxlo": ("gga", "pbegcgxlo"),
+    "pbegcgxheg": ("gga", "pbegcgxheg"),
+    "blyp": ("gga", "blyp"),
+    "lyp": ("gga", "blyp"),
+    "drsll": ("vdw", "drsll"),
+    "df1": ("vdw", "drsll"),
+    "lmkll": ("vdw", "lmkll"),
+    "df2": ("vdw", "lmkll"),
+    "kbm": ("vdw", "kbm"),
+    "c09": ("vdw", "c09"),
+    "bh": ("vdw", "bh"),
+    "vv": ("vdw", "vv"),
+}
 
 
 def generated_utc() -> str:
@@ -46,10 +79,6 @@ def generated_utc() -> str:
 
 def canonical(label: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", label.casefold())
-
-
-def official_key(label: str) -> str:
-    return re.sub(r"[^a-z0-9?]+", "", label.casefold())
 
 
 def digest(path: Path) -> dict[str, Any]:
@@ -85,15 +114,35 @@ def psml_xc_identity(path: Path) -> dict[str, Any] | None:
     return {"family": family, "functional_ids": sorted(id_set)}
 
 
-def xc_family_class(value: str) -> str:
+def resolve_fdf_xc_identity(
+    functional_tokens: list[str] | None,
+    author_tokens: list[str] | None,
+) -> tuple[str, str] | None:
+    """Resolve role-ordered XC.Functional/XC.Authors values from the 5.4 table."""
+    if (
+        not functional_tokens
+        or len(functional_tokens) != 1
+        or not author_tokens
+        or len(author_tokens) != 1
+    ):
+        return None
+    family = XC_FUNCTIONAL_ALIASES.get(canonical(functional_tokens[0]))
+    author = XC_AUTHOR_ALIASES.get(canonical(author_tokens[0]))
+    if family is None or author is None or author[0] != family:
+        return None
+    return family, author[1]
+
+
+def resolve_manifest_xc_identity(value: str) -> tuple[str, str] | None:
+    """Resolve a manifest family-author identity without permitting role reversal."""
     normalized = canonical(value)
-    if "pbesol" in normalized:
-        return "pbesol"
-    if "pbe" in normalized:
-        return "pbe"
-    if "pw92" in normalized or "lda" in normalized:
-        return "lda-pw92"
-    return normalized
+    for functional_alias, family in XC_FUNCTIONAL_ALIASES.items():
+        if not normalized.startswith(functional_alias):
+            continue
+        author = XC_AUTHOR_ALIASES.get(normalized[len(functional_alias) :])
+        if author is not None and author[0] == family:
+            return family, author[1]
+    return None
 
 
 def load_object(path: Path, label: str) -> dict[str, Any]:
@@ -247,9 +296,7 @@ def matrix_determinant(matrix: list[list[int]]) -> int:
 
 
 def pattern_matches(key: str, pattern: str) -> bool:
-    normalized = official_key(pattern)
-    expression = "^" + re.escape(normalized).replace(r"\?", ".+") + "$"
-    return re.fullmatch(expression, key) is not None
+    return matches_official_label(key, pattern)
 
 
 def load_reference_contracts() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
@@ -617,6 +664,20 @@ def audit(
     for label in required_scalars:
         if label not in scalars:
             add("numerical_controls", "REPRODUCIBILITY_CONTROL_MISSING", f"{label} must be explicit in this profile.")
+    input_xc_identity = resolve_fdf_xc_identity(
+        scalars.get("xcfunctional"),
+        scalars.get("xcauthors"),
+    )
+    if (
+        "xcfunctional" in scalars
+        and "xcauthors" in scalars
+        and input_xc_identity is None
+    ):
+        add(
+            "numerical_controls",
+            "XC_FUNCTIONAL_AUTHORS_INVALID",
+            "XC.Functional and XC.Authors must form a role-ordered SIESTA 5.4 combination from the pinned official table.",
+        )
     for label in ("meshcutoff", "paoenergyshift", "scfhtolerance", "electronictemperature"):
         if label in scalars and quantity(scalars[label], require_unit=True) is None:
             add("numerical_controls", "QUANTITY_INVALID", f"{label} must be a positive quantity with a unit.")
@@ -755,12 +816,29 @@ def audit(
             if record["relativistic_treatment"].casefold() not in {"nonrelativistic", "scalar-relativistic", "fully-relativistic"}:
                 add("pseudopotential_provenance", "PSEUDO_RELATIVITY_INVALID", "Relativistic treatment must use the controlled vocabulary.")
                 continue
+            if resolve_manifest_xc_identity(record["xc_family"]) is None:
+                add(
+                    "pseudopotential_provenance",
+                    "PSEUDO_XC_IDENTITY_UNSUPPORTED",
+                    "Pseudopotential xc_family must use a supported role-ordered functional-author identity.",
+                )
             declared[sid] = record
         if set(declared) != set(species):
             add("pseudopotential_provenance", "PSEUDO_MANIFEST_COVERAGE_MISMATCH", "Manifest species coverage differs from ChemicalSpeciesLabel.")
         actual = {record["species_index"]: record for record in pseudo_records}
-        input_xc = canonical(" ".join(scalars.get("xcfunctional", []) + scalars.get("xcauthors", [])))
-        requires_soc = bool({"soc", "spin-orbit", "spinorbit"}.intersection(set(plan.get("declared_features", []))))
+        declared_features = {
+            canonical(feature)
+            for feature in plan.get("declared_features", [])
+            if isinstance(feature, str)
+        }
+        spin_value = (
+            spin_tokens[0].casefold()
+            if spin_tokens is not None and len(spin_tokens) == 1
+            else None
+        )
+        requires_soc = bool(
+            {"soc", "spinorbit", "spinorbitonsite"}.intersection(declared_features)
+        ) or spin_value in {"spin-orbit", "spin-orbit+onsite"}
         for sid, record in actual.items():
             expected = declared.get(sid)
             if expected is None:
@@ -768,10 +846,26 @@ def audit(
             if expected["expected_sha256"] != record["sha256"] or expected["format"] != record["format"]:
                 add("pseudopotential_provenance", "PSEUDO_MANIFEST_IDENTITY_MISMATCH", "A local pseudopotential differs from its declared format/hash.")
                 continue
+            expected_xc_identity = resolve_manifest_xc_identity(
+                expected["xc_family"]
+            )
             embedded_family = record.get("embedded_xc_family")
-            if embedded_family and xc_family_class(expected["xc_family"]) != xc_family_class(embedded_family):
+            embedded_xc_identity = (
+                resolve_manifest_xc_identity(embedded_family)
+                if isinstance(embedded_family, str)
+                else None
+            )
+            if (
+                embedded_family
+                and expected_xc_identity is not None
+                and embedded_xc_identity != expected_xc_identity
+            ):
                 add("pseudopotential_provenance", "PSEUDO_PSML_XC_MISMATCH", "The manifest XC family differs from the XC identity embedded in the PSML file.")
-            if input_xc and not all(token in canonical(expected["xc_family"]) for token in filter(None, (canonical(" ".join(scalars.get("xcfunctional", []))), canonical(" ".join(scalars.get("xcauthors", [])))))):
+            if (
+                input_xc_identity is not None
+                and expected_xc_identity is not None
+                and input_xc_identity != expected_xc_identity
+            ):
                 add("pseudopotential_provenance", "PSEUDO_XC_MISMATCH", "Pseudopotential XC family differs from explicit XC.Functional/XC.Authors.")
             if requires_soc and expected["relativistic_treatment"].casefold() != "fully-relativistic":
                 add("pseudopotential_provenance", "PSEUDO_SOC_INCOMPATIBLE", "A declared SOC workflow requires fully-relativistic pseudopotentials.")
@@ -830,9 +924,19 @@ def audit(
                 add("output_warnings", "WARNING_MARKER", "Unresolved SIESTA WARNING markers were found.")
             if not output_summary["scf_iterations"]:
                 add("electronic_convergence", "SCF_CONVERGENCE_MISSING", "No SCF cycle converged marker was found.")
-            for observable in profile.get("required_output_observables", []):
+            required_observables = set(
+                profile.get("required_output_observables", [])
+            )
+            planned_observable = plan.get("observable", {}).get("name")
+            if isinstance(planned_observable, str) and planned_observable:
+                required_observables.add(planned_observable)
+            for observable in sorted(required_observables):
                 if observable not in output_summary["observables"]:
-                    add("output_observables", "REQUIRED_OBSERVABLE_MISSING", f"The {task_type} profile requires extracted {observable} evidence.")
+                    add(
+                        "output_observables",
+                        "REQUIRED_OBSERVABLE_MISSING",
+                        f"The {task_type} profile or scientific plan requires extracted {observable} evidence.",
+                    )
             if task_type == "relax" and not any(item["gate"] == "task_specific_validity" for item in findings):
                 if not output_summary["relaxed_coordinates"] or output_summary["unrelaxed_coordinates"]:
                     add("task_specific_validity", "RELAXED_GEOMETRY_NOT_DEMONSTRATED", "Fixed-cell relaxation lacks an unambiguous relaxed-coordinate marker.")

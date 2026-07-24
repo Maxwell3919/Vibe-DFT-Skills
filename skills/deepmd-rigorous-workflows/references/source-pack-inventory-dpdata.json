@@ -1,0 +1,153 @@
+{
+  "authority_id": "dpdata-release-source-docs-1-0-2",
+  "commit_id": "bc617b72063d3bd48084a85c1ebbc63c389e17b5",
+  "documentation_roots": [
+    {
+      "path": "docs",
+      "tree_object_id": "e8483ca6b375b17fc137c876ce6350bf11081950"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "5970ce25e7742406a7a80c3e5e9178e81405faaf",
+      "object_type": "blob",
+      "path": "docs/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ebcf19e6273cd377313658c19525f8119c84cfab",
+      "object_type": "blob",
+      "path": "docs/cli.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "263cb5507c5878a3fed0714c45382dae7db6196c",
+      "object_type": "blob",
+      "path": "docs/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f8cfc843985db0a32fc07c6bf3c7ff264dd9b7d8",
+      "object_type": "blob",
+      "path": "docs/credits.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "19cc06196b9649c9309829681dbb7d8245a76a47",
+      "object_type": "blob",
+      "path": "docs/drivers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "89d2e5cade03f0cbf307470c560c434fee601bd3",
+      "object_type": "blob",
+      "path": "docs/environment.yml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "41ca909161183678d7241eee88b54682a8b0b076",
+      "object_type": "blob",
+      "path": "docs/formats.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2be6e75705534b1990f228e6c85524d72321c5cc",
+      "object_type": "blob",
+      "path": "docs/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "603f0aa4e54c3d1ce00ae0e9ad640645ede2b13a",
+      "object_type": "blob",
+      "path": "docs/installation.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9c1f60d31394bee9c092fe739b998caa0839727",
+      "object_type": "blob",
+      "path": "docs/make_format.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "88551081df84f46326f2dc878c08835122bf56df",
+      "object_type": "blob",
+      "path": "docs/minimizers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "15041df5f086af87e8b0d3ed46b7ce7dd8d1beb4",
+      "object_type": "blob",
+      "path": "docs/nb/OUTCAR"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1a0a73280b3bee7343e40b9738ae203b29686c6e",
+      "object_type": "blob",
+      "path": "docs/nb/try_dpdata.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bf3266d5451cf4d012a0b18173e40b864e0c3c51",
+      "object_type": "blob",
+      "path": "docs/plugin.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9704b8ebfc6f8a27db9d6837bd1b53b0b5b09b2",
+      "object_type": "blob",
+      "path": "docs/requirements.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5dc57e5a1c742a63a7cf56f6319bda51b778df00",
+      "object_type": "blob",
+      "path": "docs/rtd_environment.yml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2b450802d7f52e845c712b2a38a60d07376c6c0",
+      "object_type": "blob",
+      "path": "docs/systems/bond_order_system.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dfcbe698e0e1f3a9ffa0bbb4afbf010684cc639a",
+      "object_type": "blob",
+      "path": "docs/systems/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6052c38b3795df95eb863ec4680e260032e11f1f",
+      "object_type": "blob",
+      "path": "docs/systems/mixed.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a3a2c171675ae764b7e52f5a58b0741e83690c44",
+      "object_type": "blob",
+      "path": "docs/systems/multi.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1c1a99cbaf643e37f2bbd7a677dc351a92f7ba73",
+      "object_type": "blob",
+      "path": "docs/systems/system.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fba69153cfafa32c6e23d1bc185da4ca4f9c70ad",
+      "object_type": "blob",
+      "path": "docs/try_dpdata.rst"
+    }
+  ],
+  "entry_count": 22,
+  "inventory_scope": "Complete Git object inventory for the exact release documentation and example roots; file bodies and model/data payloads are intentionally not embedded.",
+  "provider_id": "dpdata",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v1.0.2",
+  "repository_url": "https://github.com/deepmodeling/dpdata",
+  "root_tree_object_id": "767b98094f3a7ad4417a9e89094e49951b86eeb2",
+  "schema_version": "1.0",
+  "tag_object_id": null
+}

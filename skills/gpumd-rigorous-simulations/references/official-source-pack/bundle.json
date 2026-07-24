@@ -1,0 +1,1 @@
+{"bundle_type":"official-document-coverage","records":{"corpora":["corpus-gpumd-docs.json"],"coverage":"coverage.json","license_reviews":["license-review-gpumd-docs.json"],"scope_inventory":"scope-inventory.json","slice_manifests":["slices-gpumd-docs.json"]},"schema_version":"1.0","skill_id":"gpumd-rigorous-simulations"}

@@ -28,9 +28,20 @@ Requirements:
 - Make an implicit basename unambiguous. Multiple `.vps`/`.psf`/`.psml` matches block.
 - Resolve all metadata fields; reject placeholders and private absolute paths/hosts/accounts.
 - Use `nonrelativistic`, `scalar-relativistic`, or `fully-relativistic` for `relativistic_treatment`.
-- Match `xc_family` to explicit `XC.Functional` plus `XC.Authors`.
+- Match `xc_family` to the role-ordered
+  `<XC.Functional>-<XC.Authors>` identity. The pinned 5.4 table permits:
+  - `LDA`/`LSD` with `CA`/`PZ` or `PW92`;
+  - `GGA` with `PW91`, `PBE`, `revPBE`, `RPBE`, `WC`, `AM05`, `PBEsol`,
+    `PBEJsJrLO`, `PBEJsJrHEG`, `PBEGcGxLO`, `PBEGcGxHEG`, or
+    `BLYP`/`LYP`;
+  - `VDW` with `DRSLL`/`DF1`, `LMKLL`/`DF2`, `KBM`, `C09`, `BH`, or
+    `VV`.
+  Role reversal, an incompatible family/author pair, an unknown alias, or an
+  unrecognized manifest identity blocks pseudopotential acceptance.
 - For PSML, require readable XML and cross-check the embedded LibXC functional ids against `xc_family`; a hash-matched manifest cannot override contradictory embedded metadata.
-- A plan declaring `soc`, `spin-orbit`, or `spinorbit` requires `fully-relativistic` for every species.
+- A plan declaring `soc`, `spin-orbit`, or `spinorbit`, or an effective direct
+  FDF with `Spin spin-orbit` or `Spin spin-orbit+onsite`, requires
+  `fully-relativistic` for every species.
 - Make `validation_id` point to real external evidence; a label alone does not prove transferability.
 
 The auditor reports local hash/format, recognized PSML XC class, public scientific classifications, and hashes of source/version/validation identities. It does not expose the source string, private location, valence text, or pseudopotential content. Legacy VPS/PSF XC identity remains manifest-bound unless a separately tested parser is added.

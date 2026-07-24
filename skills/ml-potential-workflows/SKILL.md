@@ -35,6 +35,31 @@ inference, or approve deployment. Every report stays at
 10. [Calling and recipe boundary](references/calling-and-recipes.md) plus exactly one
    entry from [provider recipes](references/provider-recipes.json) before describing
    a native CLI/API handoff. Every recipe is unauthorized and native-not-run.
+11. [Official-document pack seed](references/source-pack-seed.json) together with its
+    hash-bound [scope catalog](references/source-pack-scope-catalog.json) before any
+    source-completeness statement. The seed is deliberately `blocked`: every provider
+    input is metadata-only and no official page body, checkpoint, or dataset is
+    bundled.
+12. [Central authority proposal](references/source-pack-authority-proposal.json) only
+    as a machine-readable review request. It neither activates a registry authority
+    nor raises this Skill's lifecycle or claim ceiling.
+
+## Official-document pack state
+
+The offline maintenance extractor splits seven authorities: exact MACE framework
+source, version-divergent MACE docs, exact NequIP source/docs, FairChem v1, FairChem
+v2, gated UMA model metadata, and FairChem dataset/reference-protocol documentation.
+Check deterministic regeneration with:
+
+```bash
+python3 -B skills/ml-potential-workflows/scripts/extract_official_source_scope.py \
+  --check
+```
+
+This command uses tracked metadata only. It has no network or provider import path
+and cannot download, inspect, deserialize, or load a model or dataset. A successful
+check proves only that the catalog, hashes, scope and proposal reproduce; it does not
+resolve the recorded blockers or authorize central binding.
 
 ## Manual-first provider decision
 

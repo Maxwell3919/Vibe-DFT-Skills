@@ -1,0 +1,30 @@
+{
+  "blockers": [
+    "CAT.VERSION.SOURCE_CONFLICT remains unresolved across the v0.4.1 tag, 0.3.1 setup/module strings, and 0.2.79 rolling manual.",
+    "Provider-required subjects remain blocked until exact document bodies, generated build replay, and semantic slices exist."
+  ],
+  "contract_name": "official-document-pack-seed",
+  "limitations": [
+    "The exact tag documentation/tutorial tree is inventoried as metadata only; executable tutorial artifacts and body bytes remain external."
+  ],
+  "providers": [
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "catmap-release-source-docs-0-4-1",
+      "input_id": "catmap-docs",
+      "provider_id": "catmap",
+      "source_ref": {
+        "path": "skills/catmap-microkinetics/references/source-pack-source-catalog-catmap.json",
+        "sha256": "b25d874f1bc02c947da7bf01d662f2746c20801b1219022a0ce3053a5ee7ab0c"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "scope_catalog_ref": {
+    "path": "skills/catmap-microkinetics/references/source-pack-scope-catalog.json",
+    "sha256": "e055d9f24ebdefc443a195747869ab21fb2575aca79ca90dc7247f29ef789f64"
+  },
+  "scope_extractor_id": "reviewed-semantic-scope-v1",
+  "skill_id": "catmap-microkinetics",
+  "status_ceiling": "blocked"
+}

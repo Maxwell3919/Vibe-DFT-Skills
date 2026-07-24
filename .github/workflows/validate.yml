@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -16,4 +18,72 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes poppler-utils
       - run: python -m pip install -r requirements-dev.txt
       - run: python tools/run_tests.py
-      - run: python tools/validate_all_skills.py
+      - run: python tools/run_development_tests.py
+      - name: Validate skills and official-document migration
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            task_baseline="$PR_BASE_SHA"
+          elif [[ -n "$PUSH_BEFORE_SHA" && ! "$PUSH_BEFORE_SHA" =~ ^0+$ ]]; then
+            task_baseline="$PUSH_BEFORE_SHA"
+          elif git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            task_baseline="HEAD^"
+          else
+            echo "No trustworthy official-document migration baseline is available." >&2
+            exit 2
+          fi
+          task_release_args=()
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            task_release_args+=(--strict-release)
+          fi
+          python tools/validate_all_skills.py \
+            --baseline-ref "$task_baseline" \
+            "${task_release_args[@]}"
+      - name: Build and verify reproducible active-only tag artifact
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          set -euo pipefail
+          task_artifact_dir="${RUNNER_TEMP}/vibe-dft-active-only"
+          mkdir -p "$task_artifact_dir"
+          task_git_status="$(git status --porcelain=v1 --untracked-files=all)"
+          if [[ -n "$task_git_status" ]]; then
+            echo "Tag artifact build requires a clean tracked and untracked Git worktree." >&2
+            exit 1
+          fi
+          python tools/build_active_only_distribution.py build \
+            --root . \
+            --output "$task_artifact_dir/candidate-a.tar" \
+            --require-clean-commit
+          python tools/build_active_only_distribution.py build \
+            --root . \
+            --output "$task_artifact_dir/candidate-b.tar" \
+            --require-clean-commit
+          cmp -- \
+            "$task_artifact_dir/candidate-a.tar" \
+            "$task_artifact_dir/candidate-b.tar"
+          python tools/build_active_only_distribution.py verify \
+            "$task_artifact_dir/candidate-a.tar" \
+            --extract-to "$task_artifact_dir/verified-a"
+          python tools/build_active_only_distribution.py verify \
+            "$task_artifact_dir/candidate-b.tar" \
+            --extract-to "$task_artifact_dir/verified-b"
+          cp -- \
+            "$task_artifact_dir/candidate-a.tar" \
+            "$task_artifact_dir/vibe-dft-active-only.tar"
+          (
+            cd "$task_artifact_dir"
+            sha256sum vibe-dft-active-only.tar | tee SHA256SUMS
+          )
+      - name: Upload verified active-only CI artifact
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: vibe-dft-active-only-${{ github.ref_name }}
+          path: |
+            ${{ runner.temp }}/vibe-dft-active-only/vibe-dft-active-only.tar
+            ${{ runner.temp }}/vibe-dft-active-only/SHA256SUMS
+          if-no-files-found: error

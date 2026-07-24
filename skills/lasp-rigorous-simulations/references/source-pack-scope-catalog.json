@@ -1,0 +1,90 @@
+{
+  "contract_name": "official-document-scope-catalog",
+  "extractor_id": "lasp-document-scope-v1",
+  "schema_version": "1.0",
+  "skill_id": "lasp-rigorous-simulations",
+  "subjects": [
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "partial",
+      "origin_refs": [
+        {
+          "path": "skills/lasp-rigorous-simulations/references/official-sources.json",
+          "sha256": "db65f5ef41c5ef64ae885bd55ced05b95ec952ce8822e2437a1f6bb948c3ca1a"
+        },
+        {
+          "path": "skills/lasp-rigorous-simulations/references/public-capability-workflows.md",
+          "sha256": "63f7560db0d5d10a611c23d17aa356baf778e72047eff648f61f5a38da4e8352"
+        }
+      ],
+      "provider_input_ids": [
+        "lasp-author-literature"
+      ],
+      "statement": "LASP 3.7 PES, SSW, neural-network, reaction-search, and MD capability context requires the HTTPS author-literature input.",
+      "subject_id": "lasp-3-7-capability-context",
+      "subject_kind": "capability"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/lasp-rigorous-simulations/SKILL.md",
+          "sha256": "d02660e25c506bb9ee4363ccd8ef3f504f21b984efe16c7b97de62dff5568607"
+        },
+        {
+          "path": "skills/lasp-rigorous-simulations/references/official-sources.json",
+          "sha256": "db65f5ef41c5ef64ae885bd55ced05b95ec952ce8822e2437a1f6bb948c3ca1a"
+        },
+        {
+          "path": "skills/lasp-rigorous-simulations/references/environment-license-execution.md",
+          "sha256": "cafb3aca29483de67809c2ed239d1f0b7d4422618ba0ed36e8ff4713ea582b88"
+        }
+      ],
+      "provider_input_ids": [
+        "lasp-author-literature"
+      ],
+      "statement": "Exact LASP 3.7.3 input, output, completion, restart, resource, and compatibility contracts remain blocked because HTTPS literature does not substitute for the HTTP-only Hub manual and examples.",
+      "subject_id": "lasp-3-7-3-native-contract",
+      "subject_kind": "workflow"
+    },
+    {
+      "evidence_class": "official-provider-required",
+      "expected_disposition": "blocked",
+      "origin_refs": [
+        {
+          "path": "skills/lasp-rigorous-simulations/references/official-sources.json",
+          "sha256": "db65f5ef41c5ef64ae885bd55ced05b95ec952ce8822e2437a1f6bb948c3ca1a"
+        },
+        {
+          "path": "skills/lasp-rigorous-simulations/references/environment-license-execution.md",
+          "sha256": "cafb3aca29483de67809c2ed239d1f0b7d4422618ba0ed36e8ff4713ea582b88"
+        }
+      ],
+      "provider_input_ids": [
+        "lasp-author-literature"
+      ],
+      "statement": "Complete LASP software, manual, examples, model, interface, and redistribution terms are not established by the HTTPS literature.",
+      "subject_id": "lasp-3-7-3-license-terms",
+      "subject_kind": "limitation"
+    },
+    {
+      "evidence_class": "repository-policy",
+      "expected_disposition": "excluded",
+      "origin_refs": [
+        {
+          "path": "skills/lasp-rigorous-simulations/SKILL.md",
+          "sha256": "d02660e25c506bb9ee4363ccd8ef3f504f21b984efe16c7b97de62dff5568607"
+        },
+        {
+          "path": "skills/lasp-rigorous-simulations/references/environment-license-execution.md",
+          "sha256": "cafb3aca29483de67809c2ed239d1f0b7d4422618ba0ed36e8ff4713ea582b88"
+        }
+      ],
+      "provider_input_ids": [],
+      "statement": "The development guard inventories opaque artifacts and cannot execute LASP or establish a native completion or scientific claim.",
+      "subject_id": "lasp-offline-inventory-boundary",
+      "subject_kind": "limitation"
+    }
+  ]
+}

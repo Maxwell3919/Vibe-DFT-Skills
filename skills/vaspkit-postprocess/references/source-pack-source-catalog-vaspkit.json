@@ -1,0 +1,2522 @@
+{
+  "blockers": [
+    {
+      "code": "DOC.SEMANTIC.SLICES.MISSING",
+      "dimensions": ["slices"],
+      "description": "Exact feature/tutorial bodies are not split into heading/task/recipe byte ranges with per-slice hashes."
+    },
+    {
+      "code": "DOC.SITE.BODY.CLOSURE.MISSING",
+      "dimensions": ["corpus","slices"],
+      "description": "All exact tree paths are inventoried, but other site-page, image, and generated-HTML bodies remain metadata-only."
+    },
+    {
+      "code": "DOC.BUILD.REPLAY.MISSING",
+      "dimensions": ["slices"],
+      "description": "The exact documentation build has not been reproduced."
+    },
+    {
+      "code": "LICENSE.DOCUMENTATION.RIGHTS.UNRESOLVED",
+      "dimensions": ["coverage"],
+      "description": "Documentation storage and derivative redistribution rights are unresolved."
+    },
+    {
+      "code": "RUNTIME.BINARY.PARENT.CLOSURE.MISSING",
+      "dimensions": ["coverage"],
+      "description": "Exact binary/menu/help, terms, configuration, POTCAR, and accepted parent VASP evidence are not covered by the docs authority."
+    }
+  ],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://github.com/vaspkit/vaspkit.github.io/tree/383a7103505b5b9436dedbf04df42ebb6e248638",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only",
+      "excluded"
+    ],
+    "assessment": "unresolved",
+    "identity": {
+      "identifier": null,
+      "terms_urls": [
+        "https://vaspkit.com/installation.html"
+      ],
+      "verification": "unknown"
+    },
+    "limitations": [
+      "The exact documentation repository has no reviewed repository-level license; binary usage terms, article rights, companion-data rights, images, and third-party assets remain separate."
+    ],
+    "official_terms_locator": "https://vaspkit.com/installation.html"
+  },
+  "limitations": [
+    "Two exact raw pages are hash-verified, and the full docs tree is path/object inventoried, but the remaining page bodies, semantic heading slices, build replay, documentation license, exact binary, private configuration, POTCAR, and parent VASP evidence remain external."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "vaspkit-features-exact",
+        "vaspkit-tutorials-exact"
+      ],
+      "description": "The exact features/tutorial Git objects were hash-verified and byte-counted but their bodies are not stored.",
+      "disposition": "external-only",
+      "loss_id": "exact-page-bodies-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "vaspkit-features-exact",
+        "vaspkit-tutorials-exact"
+      ],
+      "description": "Feature/task and tutorial/recipe subjects are mapped to whole-page receipts; heading-level exact byte ranges and slice hashes are not materialized.",
+      "disposition": "blocked",
+      "loss_id": "semantic-heading-slices-not-materialized",
+      "materiality": "material",
+      "stage": "extraction"
+    },
+    {
+      "affected_source_ids": [
+        "vaspkit-exact-documentation-tree-inventory"
+      ],
+      "description": "The complete exact documentation tree is inventoried, but installation, changelog, citations, gallery, images, generated HTML, and other page bodies remain metadata-only.",
+      "disposition": "blocked",
+      "loss_id": "other-site-page-bodies-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "vaspkit-exact-documentation-tree-inventory"
+      ],
+      "description": "The Sphinx/source-to-generated-site build has not been reproduced from the exact commit.",
+      "disposition": "blocked",
+      "loss_id": "documentation-build-not-replayed",
+      "materiality": "material",
+      "stage": "extraction"
+    },
+    {
+      "affected_source_ids": [
+        "vaspkit-exact-documentation-tree-inventory"
+      ],
+      "description": "No repository-level documentation license file was present in the exact documentation tree, and usage agreement does not automatically establish derivative-document rights.",
+      "disposition": "blocked",
+      "loss_id": "documentation-license-unresolved",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "vaspkit-exact-documentation-tree-inventory"
+      ],
+      "description": "Exact VASPKIT binary/menu/help, binary usage terms, platform profile, private configuration, POTCAR libraries, and accepted parent VASP data are separate external authorities.",
+      "disposition": "blocked",
+      "loss_id": "binary-and-parent-vasp-closure-external",
+      "materiality": "material",
+      "stage": "mapping"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "fc98b1341c9488003f537427609ebc328387fdc777647737da1cd324c7732ab6",
+        "kind": "revision",
+        "raw_bytes": 11941,
+        "raw_sha256": "2b004a0b677f16a48162651908150337bb68c3ef5c4047c50146432c8ec816a5",
+        "retrieved_utc": "2026-07-24T00:00:00Z",
+        "value": "git-ls-tree-r:383a7103505b5b9436dedbf04df42ebb6e248638"
+      },
+      "locator": "https://github.com/vaspkit/vaspkit.github.io/tree/383a7103505b5b9436dedbf04df42ebb6e248638",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 11941,
+            "raw_sha256": "2b004a0b677f16a48162651908150337bb68c3ef5c4047c50146432c8ec816a5",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-24T00:00:00Z",
+            "selected_bytes": 11941,
+            "selected_sha256": "2b004a0b677f16a48162651908150337bb68c3ef5c4047c50146432c8ec816a5"
+          },
+          "loss_ids": [
+            "other-site-page-bodies-not-retained",
+            "documentation-build-not-replayed",
+            "documentation-license-unresolved",
+            "binary-and-parent-vasp-closure-external"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "vaspkit-exact-documentation-tree-inventory.whole",
+          "subject_ids": [
+            "site.installation-and-terms",
+            "site.release-and-binary-profiles"
+          ],
+          "title": "Complete exact documentation-repository tree metadata inventory"
+        }
+      ],
+      "source_id": "vaspkit-exact-documentation-tree-inventory",
+      "source_kind": "index",
+      "title": "VASPKIT exact documentation-repository tree metadata inventory"
+    },
+    {
+      "disposition": "included",
+      "external_identity": {
+        "kind": "revision",
+        "raw_bytes": 9954,
+        "raw_sha256": "454271ce1eab377a1a5539dab52e16b8aaec8e1413d0f739fa12840608772ccd",
+        "retrieved_utc": "2026-07-24T00:00:00Z",
+        "value": "383a7103505b5b9436dedbf04df42ebb6e248638:_sources/features.rst.txt"
+      },
+      "locator": "https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/features.rst.txt",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 9954,
+            "raw_sha256": "454271ce1eab377a1a5539dab52e16b8aaec8e1413d0f739fa12840608772ccd",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-24T00:00:00Z",
+            "selected_bytes": 9954,
+            "selected_sha256": "454271ce1eab377a1a5539dab52e16b8aaec8e1413d0f739fa12840608772ccd"
+          },
+          "loss_ids": [
+            "exact-page-bodies-not-retained",
+            "semantic-heading-slices-not-materialized"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "vaspkit-features-exact.whole",
+          "subject_ids": [
+            "category.01",
+            "category.02",
+            "category.03",
+            "category.04",
+            "category.05",
+            "category.06",
+            "category.07",
+            "category.08",
+            "category.11",
+            "category.21",
+            "category.23",
+            "category.25",
+            "category.26",
+            "category.28",
+            "category.31",
+            "category.42",
+            "category.51",
+            "category.62",
+            "category.65",
+            "category.68",
+            "category.71",
+            "category.72",
+            "category.78",
+            "category.91",
+            "category.92",
+            "documentation-conflict.109",
+            "documentation-conflict.604",
+            "documentation-conflict.710-713",
+            "documentation-conflict.722",
+            "documentation-conflict.926",
+            "task.101",
+            "task.102",
+            "task.103",
+            "task.104",
+            "task.105",
+            "task.106",
+            "task.107",
+            "task.108",
+            "task.109",
+            "task.111",
+            "task.112",
+            "task.113",
+            "task.114",
+            "task.115",
+            "task.116",
+            "task.117",
+            "task.118",
+            "task.119",
+            "task.120",
+            "task.123",
+            "task.124",
+            "task.125",
+            "task.126",
+            "task.200",
+            "task.201",
+            "task.202",
+            "task.203",
+            "task.204",
+            "task.205",
+            "task.211",
+            "task.212",
+            "task.213",
+            "task.214",
+            "task.215",
+            "task.216",
+            "task.231",
+            "task.232",
+            "task.233",
+            "task.250",
+            "task.251",
+            "task.252",
+            "task.253",
+            "task.254",
+            "task.255",
+            "task.256",
+            "task.257",
+            "task.261",
+            "task.262",
+            "task.263",
+            "task.264",
+            "task.265",
+            "task.266",
+            "task.267",
+            "task.281",
+            "task.282",
+            "task.283",
+            "task.284",
+            "task.285",
+            "task.301",
+            "task.302",
+            "task.303",
+            "task.304",
+            "task.305",
+            "task.306",
+            "task.309",
+            "task.310",
+            "task.311",
+            "task.312",
+            "task.313",
+            "task.314",
+            "task.315",
+            "task.316",
+            "task.317",
+            "task.318",
+            "task.320",
+            "task.325",
+            "task.328",
+            "task.329",
+            "task.400",
+            "task.401",
+            "task.402",
+            "task.403",
+            "task.404",
+            "task.405",
+            "task.406",
+            "task.407",
+            "task.408",
+            "task.409",
+            "task.410",
+            "task.411",
+            "task.412",
+            "task.416",
+            "task.417",
+            "task.418",
+            "task.419",
+            "task.420",
+            "task.422",
+            "task.425",
+            "task.426",
+            "task.427",
+            "task.428",
+            "task.429",
+            "task.430",
+            "task.501",
+            "task.502",
+            "task.503",
+            "task.504",
+            "task.505",
+            "task.507",
+            "task.508",
+            "task.509",
+            "task.511",
+            "task.512",
+            "task.513",
+            "task.515",
+            "task.516",
+            "task.601",
+            "task.602",
+            "task.603",
+            "task.604",
+            "task.608",
+            "task.609",
+            "task.621",
+            "task.651",
+            "task.652",
+            "task.653",
+            "task.681",
+            "task.682",
+            "task.702",
+            "task.705",
+            "task.710",
+            "task.711",
+            "task.713",
+            "task.714",
+            "task.716",
+            "task.717",
+            "task.719",
+            "task.721",
+            "task.722",
+            "task.723",
+            "task.725",
+            "task.726",
+            "task.727",
+            "task.728",
+            "task.730",
+            "task.731",
+            "task.736",
+            "task.737",
+            "task.781",
+            "task.788",
+            "task.789",
+            "task.800",
+            "task.801",
+            "task.802",
+            "task.803",
+            "task.804",
+            "task.808",
+            "task.821",
+            "task.822",
+            "task.825",
+            "task.826",
+            "task.827",
+            "task.911",
+            "task.912",
+            "task.913",
+            "task.914",
+            "task.917",
+            "task.920",
+            "task.921",
+            "task.922",
+            "task.923",
+            "task.926",
+            "task.927",
+            "task.929",
+            "top-level-only.44",
+            "top-level-only.74",
+            "top-level-only.84",
+            "top-level-only.95"
+          ],
+          "title": "VASPKIT exact features source page exact external bytes"
+        }
+      ],
+      "source_id": "vaspkit-features-exact",
+      "source_kind": "source-documentation",
+      "title": "VASPKIT exact features source page"
+    },
+    {
+      "disposition": "included",
+      "external_identity": {
+        "kind": "revision",
+        "raw_bytes": 149377,
+        "raw_sha256": "5a3f882c267b8da23d029861b9cbde3b9213f31e551b12df5e4bdc86e0bf6c59",
+        "retrieved_utc": "2026-07-24T00:00:00Z",
+        "value": "383a7103505b5b9436dedbf04df42ebb6e248638:_sources/tutorials.rst.txt"
+      },
+      "locator": "https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/tutorials.rst.txt",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 149377,
+            "raw_sha256": "5a3f882c267b8da23d029861b9cbde3b9213f31e551b12df5e4bdc86e0bf6c59",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-24T00:00:00Z",
+            "selected_bytes": 149377,
+            "selected_sha256": "5a3f882c267b8da23d029861b9cbde3b9213f31e551b12df5e4bdc86e0bf6c59"
+          },
+          "loss_ids": [
+            "exact-page-bodies-not-retained",
+            "semantic-heading-slices-not-materialized"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "vaspkit-tutorials-exact.whole",
+          "subject_ids": [
+            "documentation-conflict.109",
+            "documentation-conflict.604",
+            "documentation-conflict.710-713",
+            "documentation-conflict.722",
+            "documentation-conflict.926",
+            "recipe.101",
+            "recipe.102",
+            "recipe.103",
+            "recipe.104",
+            "recipe.105",
+            "recipe.106",
+            "recipe.107",
+            "recipe.108",
+            "recipe.109",
+            "recipe.111",
+            "recipe.112",
+            "recipe.113",
+            "recipe.114",
+            "recipe.115",
+            "recipe.211",
+            "recipe.212",
+            "recipe.213",
+            "recipe.214",
+            "recipe.215",
+            "recipe.216",
+            "recipe.251",
+            "recipe.252",
+            "recipe.253",
+            "recipe.254",
+            "recipe.255",
+            "recipe.256",
+            "recipe.257",
+            "recipe.261",
+            "recipe.262",
+            "recipe.263",
+            "recipe.264",
+            "recipe.265",
+            "recipe.266",
+            "recipe.267",
+            "recipe.301",
+            "recipe.302",
+            "recipe.303",
+            "recipe.311",
+            "recipe.312",
+            "recipe.313",
+            "recipe.314",
+            "recipe.400",
+            "recipe.401",
+            "recipe.426",
+            "recipe.427",
+            "recipe.503",
+            "recipe.601",
+            "recipe.602",
+            "recipe.604",
+            "recipe.710",
+            "recipe.711",
+            "recipe.713",
+            "recipe.714",
+            "recipe.716",
+            "recipe.717",
+            "recipe.719",
+            "recipe.721",
+            "recipe.722",
+            "recipe.723",
+            "recipe.725",
+            "recipe.726",
+            "recipe.727",
+            "recipe.728",
+            "recipe.730",
+            "recipe.731",
+            "recipe.736",
+            "recipe.737",
+            "recipe.911",
+            "recipe.912",
+            "recipe.923",
+            "recipe.926",
+            "recipe.927",
+            "supplemental-tutorial-task.712"
+          ],
+          "title": "VASPKIT exact tutorials source page exact external bytes"
+        }
+      ],
+      "source_id": "vaspkit-tutorials-exact",
+      "source_kind": "source-documentation",
+      "title": "VASPKIT exact tutorials source page"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.01",
+      "title": "VASPKIT documentation-series 1.5 feature family 01: VASP input preparation. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.101",
+      "title": "VASPKIT task 101: Create or customize an INCAR template. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.102",
+      "title": "VASPKIT task 102: Generate an SCF KPOINTS mesh. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.103",
+      "title": "VASPKIT task 103: Assemble POTCAR with configured defaults. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.104",
+      "title": "VASPKIT task 104: Assemble POTCAR with user-selected potentials. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.105",
+      "title": "VASPKIT task 105: Convert CIF to POSCAR when fractional occupancy is absent. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.106",
+      "title": "VASPKIT task 106: Convert Materials Studio XSD to POSCAR while retaining fixed atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.107",
+      "title": "VASPKIT task 107: Reorder species in POSCAR. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.108",
+      "title": "VASPKIT task 108: Run the sequential VASP-input generation and checking workflow. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.109",
+      "title": "VASPKIT task 109: Submit a job queue according to the feature page. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.02",
+      "title": "VASPKIT documentation-series 1.5 feature family 02: Mechanical properties. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.200",
+      "title": "VASPKIT task 200: Obtain elastic constants with stress-strain calculations. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.201",
+      "title": "VASPKIT task 201: Obtain elastic constants with energy-strain calculations. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.202",
+      "title": "VASPKIT task 202: Derive mechanical properties from ELASTIC_TENSOR or ELASTIC_TENSOR_2D input. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.203",
+      "title": "VASPKIT task 203: Derive elastic constants and mechanical properties from OUTCAR. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.204",
+      "title": "VASPKIT task 204: Evaluate direction-dependent mechanical properties from an elastic tensor. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.205",
+      "title": "VASPKIT task 205: Fit an equation of state. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.03",
+      "title": "VASPKIT documentation-series 1.5 feature family 03: Band-structure k paths. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.301",
+      "title": "VASPKIT task 301: Generate a path for a one-dimensional structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.302",
+      "title": "VASPKIT task 302: Generate a path for a two-dimensional structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.303",
+      "title": "VASPKIT task 303: Generate a path for a bulk structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.304",
+      "title": "VASPKIT task 304: Generate a Wannier90 k path. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.305",
+      "title": "VASPKIT task 305: Generate a Phonopy k path. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.306",
+      "title": "VASPKIT task 306: Generate a CP2K k path. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.309",
+      "title": "VASPKIT task 309: Visualize a k path in the first Brillouin zone. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.04",
+      "title": "VASPKIT documentation-series 1.5 feature family 04: Structure editing. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.400",
+      "title": "VASPKIT task 400: Redefine the lattice with a transformation matrix. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.401",
+      "title": "VASPKIT task 401: Build a supercell. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.402",
+      "title": "VASPKIT task 402: Mark selected atoms as fixed. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.403",
+      "title": "VASPKIT task 403: Move selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.404",
+      "title": "VASPKIT task 404: Delete selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.405",
+      "title": "VASPKIT task 405: Swap lattice-vector axes. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.406",
+      "title": "VASPKIT task 406: Sort coordinates along a selected direction. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.407",
+      "title": "VASPKIT task 407: Apply random displacements to selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.408",
+      "title": "VASPKIT task 408: Rotate selected atoms around an axis. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.409",
+      "title": "VASPKIT task 409: Insert an atom at a specified position. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.410",
+      "title": "VASPKIT task 410: Substitute selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.411",
+      "title": "VASPKIT task 411: Copy selected atoms from another structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.412",
+      "title": "VASPKIT task 412: Convert fractional and Cartesian coordinates. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.416",
+      "title": "VASPKIT task 416: Export CIF. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.417",
+      "title": "VASPKIT task 417: Export PDB. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.418",
+      "title": "VASPKIT task 418: Export XSF. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.419",
+      "title": "VASPKIT task 419: Export XYZ. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.05",
+      "title": "VASPKIT documentation-series 1.5 feature family 05: Catalysis and electrochemistry. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.501",
+      "title": "VASPKIT task 501: Evaluate thermal corrections for an adsorbate. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.502",
+      "title": "VASPKIT task 502: Evaluate thermal corrections for a gas molecule. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.503",
+      "title": "VASPKIT task 503: Evaluate a band center using the documented experimental routine. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.504",
+      "title": "VASPKIT task 504: Convert an NEB path to PDB for animation. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.505",
+      "title": "VASPKIT task 505: Linearly interpolate NEB images. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.507",
+      "title": "VASPKIT task 507: Apply the documented imaginary-frequency correction. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.508",
+      "title": "VASPKIT task 508: Convert Bader charges to PQR for VMD display. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.509",
+      "title": "VASPKIT task 509: Evaluate the half-life of a first-order reaction. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.06",
+      "title": "VASPKIT documentation-series 1.5 feature family 06: Symmetry. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.601",
+      "title": "VASPKIT task 601: Determine crystal symmetry. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.602",
+      "title": "VASPKIT task 602: Find a primitive cell. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.603",
+      "title": "VASPKIT task 603: Find a standard conventional cell. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.604",
+      "title": "VASPKIT task 604: Find symmetrically equivalent atoms according to the feature page. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.608",
+      "title": "VASPKIT task 608: Summarize symmetry of a relaxed structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.609",
+      "title": "VASPKIT task 609: Determine molecular or cluster symmetry. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.07",
+      "title": "VASPKIT documentation-series 1.5 feature family 07: Materials databases. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.702",
+      "title": "VASPKIT task 702: Access the documented 2D monolayer semiconductor data. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.705",
+      "title": "VASPKIT task 705: Access the documented 2D semiconductor heterostructure data. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.08",
+      "title": "VASPKIT documentation-series 1.5 feature family 08: Advanced structure models. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.800",
+      "title": "VASPKIT task 800: Build an orthogonal supercell. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.801",
+      "title": "VASPKIT task 801: Add vacuum along a selected direction. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.802",
+      "title": "VASPKIT task 802: Build a random substitutional alloy. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.803",
+      "title": "VASPKIT task 803: Build a surface from Miller indices. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.804",
+      "title": "VASPKIT task 804: Build a heterostructure from two slabs. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.808",
+      "title": "VASPKIT task 808: Build a nanotube from an orthogonal slab. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.821",
+      "title": "VASPKIT task 821: Build symmetry-distinct vacancy defects. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.822",
+      "title": "VASPKIT task 822: Build symmetry-distinct substitution defects. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.825",
+      "title": "VASPKIT task 825: Build a hexagonal moire superlattice. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.826",
+      "title": "VASPKIT task 826: Build a nanoribbon from a chiral vector. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.827",
+      "title": "VASPKIT task 827: Build a nanotube from a chiral vector. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.11",
+      "title": "VASPKIT documentation-series 1.5 feature family 11: Density of states. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.111",
+      "title": "VASPKIT task 111: Extract total and integrated DOS. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.112",
+      "title": "VASPKIT task 112: Extract atom-resolved PDOS for selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.113",
+      "title": "VASPKIT task 113: Extract element-resolved PDOS. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.114",
+      "title": "VASPKIT task 114: Sum PDOS over selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.115",
+      "title": "VASPKIT task 115: Sum PDOS over selected atoms and orbitals. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.116",
+      "title": "VASPKIT task 116: Extract element-resolved local DOS. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.117",
+      "title": "VASPKIT task 117: Derive total DOS from EIGENVAL. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.118",
+      "title": "VASPKIT task 118: Derive projected DOS from EIGENVAL and PROCAR. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.119",
+      "title": "VASPKIT task 119: Select projected DOS by k-point indices. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.120",
+      "title": "VASPKIT task 120: Select projected DOS by band indices. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.123",
+      "title": "VASPKIT task 123: Create a 3D spatially resolved DOS over an energy window. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.124",
+      "title": "VASPKIT task 124: Create a 3D spatially resolved magnetic DOS over an energy window. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.125",
+      "title": "VASPKIT task 125: Create a plane-averaged spatial DOS. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.126",
+      "title": "VASPKIT task 126: Create a plane-averaged spatial magnetic DOS. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.21",
+      "title": "VASPKIT documentation-series 1.5 feature family 21: Band structure. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.211",
+      "title": "VASPKIT task 211: Extract a conventional band structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.212",
+      "title": "VASPKIT task 212: Extract projected bands for one selected atom. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.213",
+      "title": "VASPKIT task 213: Extract projected bands for each element. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.214",
+      "title": "VASPKIT task 214: Sum projected bands over selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.215",
+      "title": "VASPKIT task 215: Express projected bands as element weights. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.216",
+      "title": "VASPKIT task 216: Sum projected bands over selected atoms and orbitals. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.23",
+      "title": "VASPKIT documentation-series 1.5 feature family 23: Three-dimensional band structure. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.231",
+      "title": "VASPKIT task 231: Generate KPOINTS for a 3D band surface. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.232",
+      "title": "VASPKIT task 232: Extract a 3D band surface for a two-dimensional material. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.233",
+      "title": "VASPKIT task 233: Extract HOMO and LUMO 3D band surfaces for ISPIN=1. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.25",
+      "title": "VASPKIT documentation-series 1.5 feature family 25: Hybrid-functional band structure. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.250",
+      "title": "VASPKIT task 250: Generate KPOINTS containing an irreducible mesh and band-edge points. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.251",
+      "title": "VASPKIT task 251: Generate KPOINTS for a hybrid-functional band calculation. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.252",
+      "title": "VASPKIT task 252: Extract a hybrid-functional band structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.253",
+      "title": "VASPKIT task 253: Extract a hybrid projected band for one atom. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.254",
+      "title": "VASPKIT task 254: Extract hybrid projected bands by element. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.255",
+      "title": "VASPKIT task 255: Sum hybrid projected bands over selected atoms. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.256",
+      "title": "VASPKIT task 256: Express hybrid projected bands as element weights. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.257",
+      "title": "VASPKIT task 257: Sum hybrid projected bands over selected atoms and orbitals. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.26",
+      "title": "VASPKIT documentation-series 1.5 feature family 26: Fermi surfaces. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.261",
+      "title": "VASPKIT task 261: Generate KPOINTS for a Fermi-surface calculation. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.262",
+      "title": "VASPKIT task 262: Export a Fermi surface for XCrySDen. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.263",
+      "title": "VASPKIT task 263: Export a Fermi surface for FermiSurfer. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.264",
+      "title": "VASPKIT task 264: Export a projected Fermi surface for FermiSurfer. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.265",
+      "title": "VASPKIT task 265: Sum projected Fermi-surface weights over atoms and orbitals. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.266",
+      "title": "VASPKIT task 266: Create a Fermi surface for a two-dimensional material. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.267",
+      "title": "VASPKIT task 267: Create a projected Fermi surface for a two-dimensional material. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.28",
+      "title": "VASPKIT documentation-series 1.5 feature family 28: Band unfolding. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.281",
+      "title": "VASPKIT task 281: Generate KPOINTS for band unfolding. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.282",
+      "title": "VASPKIT task 282: Extract an effective band structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.283",
+      "title": "VASPKIT task 283: Extract an atom-selected orbital-projected effective band structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.284",
+      "title": "VASPKIT task 284: Extract an element-resolved orbital-projected effective band structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.285",
+      "title": "VASPKIT task 285: Sum orbital-projected effective bands over selected atoms and orbitals. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.31",
+      "title": "VASPKIT documentation-series 1.5 feature family 31: Charge-density analysis. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.310",
+      "title": "VASPKIT task 310: Create a two-dimensional charge-density slice. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.311",
+      "title": "VASPKIT task 311: Export charge density. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.312",
+      "title": "VASPKIT task 312: Export spin density. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.313",
+      "title": "VASPKIT task 313: Separate spin-up and spin-down density. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.314",
+      "title": "VASPKIT task 314: Compute a charge-density difference. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.315",
+      "title": "VASPKIT task 315: Compute a two-dimensional line average of charge density. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.316",
+      "title": "VASPKIT task 316: Compute a one-dimensional planar average of charge density. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.317",
+      "title": "VASPKIT task 317: Compute a one-dimensional macroscopic average of charge density. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.318",
+      "title": "VASPKIT task 318: Sample charge density along a path. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.320",
+      "title": "VASPKIT task 320: Build a charge-density supercell with a transformation matrix. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.325",
+      "title": "VASPKIT task 325: Prepare a scanning-tunneling-microscopy simulation. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.328",
+      "title": "VASPKIT task 328: Export CHGCAR or PARCHG to XSF. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.329",
+      "title": "VASPKIT task 329: Export CHGCAR or PARCHG to Gaussian cube. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.42",
+      "title": "VASPKIT documentation-series 1.5 feature family 42: Potential analysis. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.420",
+      "title": "VASPKIT task 420: Create a two-dimensional potential slice. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.422",
+      "title": "VASPKIT task 422: Compute a two-dimensional line average of potential. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.425",
+      "title": "VASPKIT task 425: Sample potential along a path. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.426",
+      "title": "VASPKIT task 426: Compute a one-dimensional planar average of potential. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.427",
+      "title": "VASPKIT task 427: Compute a one-dimensional macroscopic average of potential. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.428",
+      "title": "VASPKIT task 428: Export LOCPOT or ELFCAR to XSF. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.429",
+      "title": "VASPKIT task 429: Export LOCPOT or ELFCAR to Gaussian cube. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.430",
+      "title": "VASPKIT task 430: Build a potential supercell with a transformation matrix. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.51",
+      "title": "VASPKIT documentation-series 1.5 feature family 51: Wave-function analysis. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.511",
+      "title": "VASPKIT task 511: Export a real-space wave function in CHGCAR format. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.512",
+      "title": "VASPKIT task 512: Export a real-space wave function in cube format. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.513",
+      "title": "VASPKIT task 513: Evaluate wave-function parity with the documented experimental routine. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.515",
+      "title": "VASPKIT task 515: Export squared wave function in CHGCAR format. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.516",
+      "title": "VASPKIT task 516: Export squared wave function in cube format. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.62",
+      "title": "VASPKIT documentation-series 1.5 feature family 62: Magnetic properties. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.621",
+      "title": "VASPKIT task 621: Evaluate magnetic anisotropy energy. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.65",
+      "title": "VASPKIT documentation-series 1.5 feature family 65: Spin texture. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.651",
+      "title": "VASPKIT task 651: Generate KPOINTS for spin texture. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.652",
+      "title": "VASPKIT task 652: Extract a selected-band spin texture for a 2D SOC calculation. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.653",
+      "title": "VASPKIT task 653: Extract a selected-band spin texture for a bulk SOC calculation. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.68",
+      "title": "VASPKIT documentation-series 1.5 feature family 68: Transport. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.681",
+      "title": "VASPKIT task 681: Generate KPOINTS for a transport calculation. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.682",
+      "title": "VASPKIT task 682: Evaluate transport properties with the documented Boltzmann route. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.71",
+      "title": "VASPKIT documentation-series 1.5 feature family 71: Optical properties. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.710",
+      "title": "VASPKIT task 710: Extract linear optical spectra for a two-dimensional semiconductor. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.711",
+      "title": "VASPKIT task 711: Extract linear optical spectra for a bulk semiconductor. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.713",
+      "title": "VASPKIT task 713: Evaluate a transition dipole moment from WAVECAR. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.714",
+      "title": "VASPKIT task 714: Evaluate dipole-moment elements from WAVEDER. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.716",
+      "title": "VASPKIT task 716: Evaluate total joint density of states. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.717",
+      "title": "VASPKIT task 717: Evaluate partial joint density of states. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.719",
+      "title": "VASPKIT task 719: Evaluate spectroscopic limited maximum efficiency. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.72",
+      "title": "VASPKIT documentation-series 1.5 feature family 72: Molecular-dynamics analysis. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.721",
+      "title": "VASPKIT task 721: Compute mean-squared displacement. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.722",
+      "title": "VASPKIT task 722: Compute mean-squared displacement with the documented FFT route. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.723",
+      "title": "VASPKIT task 723: Derive diffusion coefficient and ionic mobility from MSD data. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.725",
+      "title": "VASPKIT task 725: Compute a pair-correlation function from PCDAT. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.726",
+      "title": "VASPKIT task 726: Compute a radial-distribution function for selected elements. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.727",
+      "title": "VASPKIT task 727: Compute a velocity autocorrelation function. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.728",
+      "title": "VASPKIT task 728: Derive vibrational DOS from a velocity autocorrelation function. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.730",
+      "title": "VASPKIT task 730: Compute a bond-length distribution for selected elements. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.731",
+      "title": "VASPKIT task 731: Compute a bond-angle distribution for selected elements. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.736",
+      "title": "VASPKIT task 736: Export selected-atom MD frames as POSCAR files. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.737",
+      "title": "VASPKIT task 737: Export selected-atom MD frames as PDB. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.78",
+      "title": "VASPKIT documentation-series 1.5 feature family 78: VASP interfaces. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.781",
+      "title": "VASPKIT task 781: Prepare the documented VASP-to-BoltzTraP interface. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.788",
+      "title": "VASPKIT task 788: Normalize traces of interatomic force-constant tensors. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.789",
+      "title": "VASPKIT task 789: Sort a Phonopy band structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.91",
+      "title": "VASPKIT documentation-series 1.5 feature family 91: Semiconductor analysis. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.911",
+      "title": "VASPKIT task 911: Extract a band gap. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.912",
+      "title": "VASPKIT task 912: Evaluate carrier effective mass with the documented experimental workflow. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.913",
+      "title": "VASPKIT task 913: Evaluate HOMO and LUMO effective masses for ISPIN=1. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.914",
+      "title": "VASPKIT task 914: Evaluate direction-dependent effective mass and Fermi velocity. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.917",
+      "title": "VASPKIT task 917: Evaluate Fermi velocity. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "category.92",
+      "title": "VASPKIT documentation-series 1.5 feature family 92: Two-dimensional materials. The family listing does not establish prompts or native behavior."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.920",
+      "title": "VASPKIT task 920: Move an atomic layer to the bottom along z. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.921",
+      "title": "VASPKIT task 921: Center an atomic layer along z. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.922",
+      "title": "VASPKIT task 922: Resize vacuum thickness. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.923",
+      "title": "VASPKIT task 923: Standardize a 2D crystal cell. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.926",
+      "title": "VASPKIT task 926: Evaluate stacking-dependent potential energy. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.927",
+      "title": "VASPKIT task 927: Reference 2D band edges to the vacuum level. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "task.929",
+      "title": "VASPKIT task 929: Summarize a relaxed 2D structure. Exact prompts, inputs, outputs, side effects, binary version, and scientific adequacy are separate gates."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "top-level-only.44",
+      "title": "VASPKIT top-level family 44 (Piezoelectric properties) is listed but has no enumerated child tasks in the reviewed feature-page snapshot."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "top-level-only.74",
+      "title": "VASPKIT top-level family 74 (User interface) is listed but has no enumerated child tasks in the reviewed feature-page snapshot."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "top-level-only.84",
+      "title": "VASPKIT top-level family 84 (ABACUS interface) is listed but has no enumerated child tasks in the reviewed feature-page snapshot."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "top-level-only.95",
+      "title": "VASPKIT top-level family 95 (Phonon analysis) is listed but has no enumerated child tasks in the reviewed feature-page snapshot."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "supplemental-tutorial-task.712",
+      "title": "VASPKIT tutorial-only task 712: The official tutorial shows a single-k-point transition-dipole task, but task 712 is absent from the official feature-page catalog snapshot."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.109",
+      "title": "VASPKIT official documentation conflict for task 109: feature and tutorial labels disagree; exact binary menu/transcript inspection is required."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.604",
+      "title": "VASPKIT official documentation conflict for task 604: feature and tutorial labels disagree; exact binary menu/transcript inspection is required."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.710-713",
+      "title": "VASPKIT official documentation conflict for task 710-713: feature and tutorial labels disagree; exact binary menu/transcript inspection is required."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.722",
+      "title": "VASPKIT official documentation conflict for task 722: feature and tutorial labels disagree; exact binary menu/transcript inspection is required."
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "documentation-conflict.926",
+      "title": "VASPKIT official documentation conflict for task 926: feature and tutorial labels disagree; exact binary menu/transcript inspection is required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.101",
+      "title": "VASPKIT recipe 101 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.102",
+      "title": "VASPKIT recipe 102 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.103",
+      "title": "VASPKIT recipe 103 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.104",
+      "title": "VASPKIT recipe 104 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.105",
+      "title": "VASPKIT recipe 105 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.106",
+      "title": "VASPKIT recipe 106 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.107",
+      "title": "VASPKIT recipe 107 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.108",
+      "title": "VASPKIT recipe 108 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.109",
+      "title": "VASPKIT recipe 109 (official-documentation-conflict) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.301",
+      "title": "VASPKIT recipe 301 (official-workflow-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.302",
+      "title": "VASPKIT recipe 302 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.303",
+      "title": "VASPKIT recipe 303 (official-workflow-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.111",
+      "title": "VASPKIT recipe 111 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.112",
+      "title": "VASPKIT recipe 112 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.113",
+      "title": "VASPKIT recipe 113 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.114",
+      "title": "VASPKIT recipe 114 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.115",
+      "title": "VASPKIT recipe 115 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.211",
+      "title": "VASPKIT recipe 211 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.212",
+      "title": "VASPKIT recipe 212 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.213",
+      "title": "VASPKIT recipe 213 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.214",
+      "title": "VASPKIT recipe 214 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.215",
+      "title": "VASPKIT recipe 215 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.216",
+      "title": "VASPKIT recipe 216 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.251",
+      "title": "VASPKIT recipe 251 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.252",
+      "title": "VASPKIT recipe 252 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.253",
+      "title": "VASPKIT recipe 253 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.254",
+      "title": "VASPKIT recipe 254 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.255",
+      "title": "VASPKIT recipe 255 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.256",
+      "title": "VASPKIT recipe 256 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.257",
+      "title": "VASPKIT recipe 257 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.261",
+      "title": "VASPKIT recipe 261 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.262",
+      "title": "VASPKIT recipe 262 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.263",
+      "title": "VASPKIT recipe 263 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.264",
+      "title": "VASPKIT recipe 264 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.265",
+      "title": "VASPKIT recipe 265 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.266",
+      "title": "VASPKIT recipe 266 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.267",
+      "title": "VASPKIT recipe 267 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.311",
+      "title": "VASPKIT recipe 311 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.312",
+      "title": "VASPKIT recipe 312 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.313",
+      "title": "VASPKIT recipe 313 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.314",
+      "title": "VASPKIT recipe 314 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.400",
+      "title": "VASPKIT recipe 400 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.401",
+      "title": "VASPKIT recipe 401 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.426",
+      "title": "VASPKIT recipe 426 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.427",
+      "title": "VASPKIT recipe 427 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.503",
+      "title": "VASPKIT recipe 503 (official-tutorial-documented-experimental) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.601",
+      "title": "VASPKIT recipe 601 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.602",
+      "title": "VASPKIT recipe 602 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.604",
+      "title": "VASPKIT recipe 604 (official-documentation-conflict) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.710",
+      "title": "VASPKIT recipe 710 (official-documentation-conflict) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.711",
+      "title": "VASPKIT recipe 711 (official-documentation-conflict-with-tutorial-recipe) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.713",
+      "title": "VASPKIT recipe 713 (official-documentation-conflict-with-tutorial-recipe) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.714",
+      "title": "VASPKIT recipe 714 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.716",
+      "title": "VASPKIT recipe 716 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.717",
+      "title": "VASPKIT recipe 717 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.719",
+      "title": "VASPKIT recipe 719 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.721",
+      "title": "VASPKIT recipe 721 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.722",
+      "title": "VASPKIT recipe 722 (official-documentation-conflict) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.723",
+      "title": "VASPKIT recipe 723 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.725",
+      "title": "VASPKIT recipe 725 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.726",
+      "title": "VASPKIT recipe 726 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.727",
+      "title": "VASPKIT recipe 727 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.728",
+      "title": "VASPKIT recipe 728 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.730",
+      "title": "VASPKIT recipe 730 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.731",
+      "title": "VASPKIT recipe 731 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.736",
+      "title": "VASPKIT recipe 736 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.737",
+      "title": "VASPKIT recipe 737 (official-feature-only) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.911",
+      "title": "VASPKIT recipe 911 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.912",
+      "title": "VASPKIT recipe 912 (official-tutorial-documented-experimental) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.923",
+      "title": "VASPKIT recipe 923 (official-tutorial-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.926",
+      "title": "VASPKIT recipe 926 (official-documentation-conflict) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "recipe.927",
+      "title": "VASPKIT recipe 927 (official-feature-and-workflow-documented) records official-page-grounded prerequisites, invocation, expected outputs, and cautions; exact prompt and parent-run closure remain required."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "site.installation-and-terms",
+      "title": "VASPKIT installation, binary distribution, platform, dependency, configuration, usage-agreement, and current terms claims require exact review of the installation page and binary archive."
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "site.release-and-binary-profiles",
+      "title": "Documentation series 1.5, exact binary 1.5.0/1.5.1 profiles, release notes, archive identities, and native validation are separate version surfaces."
+    }
+  ],
+  "upstream_universe_complete": true,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": null,
+    "snapshot_identity": null,
+    "value": "1.5-docs-383a7103505b5b9436dedbf04df42ebb6e248638"
+  }
+}

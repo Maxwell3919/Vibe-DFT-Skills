@@ -34,19 +34,40 @@ POTENTIAL_FILE_LINE = re.compile(r"GLOBAL\|\s*Potential file name\s+(\S+)", re.I
 EVIDENCE_ROLE = re.compile(r"^[a-z][a-z0-9-]{0,63}$")
 
 
-def load_profiles(path: Path) -> dict[str, dict[str, Any]]:
+def load_profile_document(path: Path, expected_schema: str) -> dict[str, Any]:
     """Load a checked-in profile document and reject an ambiguous shape."""
     payload = json.loads(path.read_text(encoding="utf-8"))
-    if payload.get("schema_version") != "1.0" or not isinstance(payload.get("profiles"), dict):
+    if payload.get("schema_version") != expected_schema or not isinstance(payload.get("profiles"), dict):
         raise ValueError(f"Unsupported profile document: {path.name}")
     profiles = payload["profiles"]
     if not profiles or any(not isinstance(name, str) or not isinstance(value, dict) for name, value in profiles.items()):
         raise ValueError(f"Invalid profile entries: {path.name}")
-    return profiles
+    return payload
 
 
-TASK_PROFILES = load_profiles(TASK_PROFILE_PATH)
-METHOD_PROFILES = load_profiles(METHOD_PROFILE_PATH)
+def source_topic_list(value: Any, label: str) -> list[str]:
+    if (
+        not isinstance(value, list)
+        or not value
+        or any(not isinstance(topic, str) or not topic for topic in value)
+        or len(set(value)) != len(value)
+    ):
+        raise ValueError(f"{label} must be a nonempty list of unique topic identifiers")
+    return list(value)
+
+
+TASK_PROFILE_DOCUMENT = load_profile_document(TASK_PROFILE_PATH, "1.1")
+METHOD_PROFILE_DOCUMENT = load_profile_document(METHOD_PROFILE_PATH, "1.0")
+TASK_PROFILES = TASK_PROFILE_DOCUMENT["profiles"]
+METHOD_PROFILES = METHOD_PROFILE_DOCUMENT["profiles"]
+QUICKSTEP_BASE_SOURCE_TOPICS = source_topic_list(
+    TASK_PROFILE_DOCUMENT.get("quickstep_base_source_topics"),
+    "quickstep_base_source_topics",
+)
+for _profile_name, _profile in TASK_PROFILES.items():
+    source_topic_list(_profile.get("required_source_topics"), f"{_profile_name}.required_source_topics")
+for _profile_name, _profile in METHOD_PROFILES.items():
+    source_topic_list(_profile.get("source_topics"), f"{_profile_name}.source_topics")
 TASK_RUN_TYPES = {
     name: set(profile.get("run_types", [])) or None
     for name, profile in TASK_PROFILES.items()
@@ -56,6 +77,11 @@ KNOWN_EVIDENCE_ROLES = {
     for profile in TASK_PROFILES.values()
     for role in profile.get("required_run_evidence_roles", [])
 }
+
+
+def task_source_topics(task_type: str) -> list[str]:
+    profile = TASK_PROFILES[task_type]
+    return list(dict.fromkeys([*QUICKSTEP_BASE_SOURCE_TOPICS, *profile["required_source_topics"]]))
 
 
 def sha256_file(path: Path) -> str:
@@ -228,7 +254,9 @@ def evaluate_task_profile(
         "name": task_type,
         "run_audit_maturity": profile.get("run_audit_maturity", "blocked"),
         "required_run_evidence_roles": list(profile.get("required_run_evidence_roles", [])),
-        "required_source_topics": list(profile.get("required_source_topics", [])),
+        "quickstep_base_source_topics": list(QUICKSTEP_BASE_SOURCE_TOPICS),
+        "task_source_topics": list(profile["required_source_topics"]),
+        "required_source_topics": task_source_topics(task_type),
         "scientific_dimensions": list(profile.get("scientific_dimensions", [])),
     }
     return safe_profile, "pass" if errors_after == errors_before else "fail"

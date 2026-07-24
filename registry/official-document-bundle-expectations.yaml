@@ -1,0 +1,89 @@
+schema_version: "1.0"
+
+# Temporary, exact-set migration ledger for repository-local official-document
+# registration packs. A first pack and its `pack-required` transition must land
+# atomically. Once promoted, an entry must never return to `legacy-missing`.
+migration_policy:
+  temporary: true
+  removal_condition: replace-with-pack-required-when-first-pack-is-added
+  downgrade_policy: forbidden
+
+skills:
+  catmap-microkinetics:
+    expectation: pack-required
+    entrypoint: skills/catmap-microkinetics/references/official-source-pack/bundle.json
+  cif-structure-analysis:
+    expectation: pack-required
+    entrypoint: skills/cif-structure-analysis/references/official-source-pack/bundle.json
+  cp2k-rigorous-calculations:
+    expectation: pack-required
+    entrypoint: skills/cp2k-rigorous-calculations/references/official-source-pack/bundle.json
+  deepmd-rigorous-workflows:
+    expectation: pack-required
+    entrypoint: skills/deepmd-rigorous-workflows/references/official-source-pack/bundle.json
+  dft-campaign-efficiency:
+    expectation: pack-required
+    entrypoint: skills/dft-campaign-efficiency/references/official-source-pack/bundle.json
+  dft-hpc-execution:
+    expectation: pack-required
+    entrypoint: skills/dft-hpc-execution/references/official-source-pack/bundle.json
+  dft-postprocess:
+    expectation: pack-required
+    entrypoint: skills/dft-postprocess/references/official-source-pack/bundle.json
+  dft-project-orchestrator:
+    expectation: pack-required
+    entrypoint: skills/dft-project-orchestrator/references/official-source-pack/bundle.json
+  dft-reporting:
+    expectation: pack-required
+    entrypoint: skills/dft-reporting/references/official-source-pack/bundle.json
+  dft-review-response:
+    expectation: pack-required
+    entrypoint: skills/dft-review-response/references/official-source-pack/bundle.json
+  dft-structure-preparation:
+    expectation: pack-required
+    entrypoint: skills/dft-structure-preparation/references/official-source-pack/bundle.json
+  gaussian-rigorous-calculations:
+    expectation: pack-required
+    entrypoint: skills/gaussian-rigorous-calculations/references/official-source-pack/bundle.json
+  gpumd-rigorous-simulations:
+    expectation: pack-required
+    entrypoint: skills/gpumd-rigorous-simulations/references/official-source-pack/bundle.json
+  gromacs-rigorous-simulations:
+    expectation: pack-required
+    entrypoint: skills/gromacs-rigorous-simulations/references/official-source-pack/bundle.json
+  lammps-rigorous-simulations:
+    expectation: pack-required
+    entrypoint: skills/lammps-rigorous-simulations/references/official-source-pack/bundle.json
+  lasp-rigorous-simulations:
+    expectation: pack-required
+    entrypoint: skills/lasp-rigorous-simulations/references/official-source-pack/bundle.json
+  literature-to-dft-plan:
+    expectation: pack-required
+    entrypoint: skills/literature-to-dft-plan/references/official-source-pack/bundle.json
+  lobster-bonding-analysis:
+    expectation: pack-required
+    entrypoint: skills/lobster-bonding-analysis/references/official-source-pack/bundle.json
+  ml-potential-workflows:
+    expectation: pack-required
+    entrypoint: skills/ml-potential-workflows/references/official-source-pack/bundle.json
+  multiwfn-wavefunction-analysis:
+    expectation: pack-required
+    entrypoint: skills/multiwfn-wavefunction-analysis/references/official-source-pack/bundle.json
+  ovito-atomistic-analysis:
+    expectation: pack-required
+    entrypoint: skills/ovito-atomistic-analysis/references/official-source-pack/bundle.json
+  phonopy-rigorous-workflows:
+    expectation: pack-required
+    entrypoint: skills/phonopy-rigorous-workflows/references/official-source-pack/bundle.json
+  qe-rigorous-calculations:
+    expectation: pack-required
+    entrypoint: skills/qe-rigorous-calculations/references/official-source-pack/bundle.json
+  siesta-rigorous-calculations:
+    expectation: pack-required
+    entrypoint: skills/siesta-rigorous-calculations/references/official-source-pack/bundle.json
+  vasp-rigorous-calculations:
+    expectation: pack-required
+    entrypoint: skills/vasp-rigorous-calculations/references/official-source-pack/bundle.json
+  vaspkit-postprocess:
+    expectation: pack-required
+    entrypoint: skills/vaspkit-postprocess/references/official-source-pack/bundle.json

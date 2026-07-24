@@ -1,0 +1,3507 @@
+{
+  "authority_id": "rdkit-release-source-docs-2026-03-4",
+  "commit_id": "8afba32ec539dcb2369bc84549d802aca3f7eb39",
+  "documentation_roots": [
+    {
+      "path": "Docs",
+      "tree_object_id": "2089335ad592a32889dd464d3fabaeae349dc967"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "6c5cf2f04f8d7eefe4cb139d7d21183f058368e7",
+      "object_type": "blob",
+      "path": "Docs/Analysis/Descriptors/Correlations/DrugLikeT80_CorrMat.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5a7dfe8df5dc40683de3d329f9b53152efd0a53b",
+      "object_type": "blob",
+      "path": "Docs/Analysis/Descriptors/Correlations/DrugLikeT80_Correlation.csv"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1991123d043f6e9c97073b90d78ff3258e21cdd6",
+      "object_type": "blob",
+      "path": "Docs/Analysis/Descriptors/Correlations/FragmentLikeT80_CorrMat.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "623b640a83c877eb65159733f6f3ac52746df04b",
+      "object_type": "blob",
+      "path": "Docs/Analysis/Descriptors/Correlations/FragmentLikeT80_Correlation.csv"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60ce2495ce20ef6d2fa0c88cf63bd8a79de05feb",
+      "object_type": "blob",
+      "path": "Docs/Analysis/Descriptors/Correlations/LeadLikeT80_CorrMat.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d08034e173ceb220599267abdc827d6202c5fce0",
+      "object_type": "blob",
+      "path": "Docs/Analysis/Descriptors/Correlations/LeadLikeT80_Correlation.csv"
+    },
+    {
+      "mode": "100644",
+      "object_id": "00254db6283803a18bdae4b2261695130711adbd",
+      "object_type": "blob",
+      "path": "Docs/Analysis/Descriptors/Correlations/README"
+    },
+    {
+      "mode": "100644",
+      "object_id": "290fbb1a83ef5ecb054ca1f072b92a8668e6488b",
+      "object_type": "blob",
+      "path": "Docs/Analysis/ForceField/ForceFieldTerms.new.odt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0eabe086be7a0b0126fb9d52186a16672a037cfd",
+      "object_type": "blob",
+      "path": "Docs/Analysis/ForceField/UFF Parameters.ods"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17defc8ef51ebb87e6a5332c6e5c9d2720525321",
+      "object_type": "blob",
+      "path": "Docs/Book/BackwardsIncompatibleChanges.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d5b67129ab05f6d8bb4854b38882fe5bf4a33d80",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/CMakeLists.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4ff826e1316f969704daea3b09c44642b58e6a2e",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/FindMyRDKit.cmake"
+    },
+    {
+      "mode": "100644",
+      "object_id": "482a54cc37dda4f9e7a51d55e39b7c19cc94a487",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example1.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f84ffc00c06c5e893a2382b19eb291b108b6abec",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example10.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ab7da04f0492c16c21ca29dd2096b919e17d0c9a",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example11.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "282c7f3ced3fabc0ffb0ecb53ee3611afadbb18c",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example12.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "926f76d7b979c0dc4785f9afd8bdc8d2c513e173",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example13.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "025a56567789bf1ce8d9f45dcb338b859bb88e00",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example14.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b63a38e822ea9e131179d07a320fd87cf616ad21",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example15.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d704785735682277618a57b23363d660ada68df6",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example16.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ce76773251208a5086e9f7790a2d83053e261d6f",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example17.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d22fc2d6db77fe270fa58b103cde12155857a2e7",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example2.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f550bfdde410b64528791a6d2e51b917c10767b1",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example3.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3d0a3b8311417bb62ac5738025b9bbcd6d046973",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example4.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d6bf1727ba635ccc3099338a5b52b68c940383a7",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example5.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "90d756a3ecb9c0384e61c31eb4ac2931c7877a85",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example6.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9c565a8001cec6f12016fcc958d2cbbb9679dae1",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example7.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "653c3d308aac1c629587b6df80efcee08fc4d10a",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example8.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "509728274891a2a8f8caa237d39ac53f0f3a4184",
+      "object_type": "blob",
+      "path": "Docs/Book/C++Examples/example9.cpp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42c6faf81fb97aedd9888f29a4037482a645eb57",
+      "object_type": "blob",
+      "path": "Docs/Book/Cartridge.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7620f3ea4a98d2706bdfab0fb3903449fb2857fb",
+      "object_type": "blob",
+      "path": "Docs/Book/Cookbook.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f3cd24997d263fa6bd5ea698d832c59f1a79b095",
+      "object_type": "blob",
+      "path": "Docs/Book/GettingStartedInC++.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c688a7b4cdcb6bde99c9907a1f267903e902cf52",
+      "object_type": "blob",
+      "path": "Docs/Book/GettingStartedInPython.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c19cc8a11b7cf288ae0f3acad5311419caab3b2a",
+      "object_type": "blob",
+      "path": "Docs/Book/GettingStartedWithContributing.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b0df8026dea5a8836a5d364b31179e788c6b144",
+      "object_type": "blob",
+      "path": "Docs/Book/Install.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54835ad49b081dc27f54f5ec25318225b6e46482",
+      "object_type": "blob",
+      "path": "Docs/Book/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ef308f16f4c205f0f796283c4b7129ff0e26cc8b",
+      "object_type": "blob",
+      "path": "Docs/Book/Overview.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "93c274db3c6f4797dba2c6b676c0ef9c8838841d",
+      "object_type": "blob",
+      "path": "Docs/Book/RDKit_Book.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "803f5fb6fa85cd376c8f446d992caa3c0c435c27",
+      "object_type": "blob",
+      "path": "Docs/Book/api-docs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9368f9319f38eb55ee698f30a91850852fab2bda",
+      "object_type": "blob",
+      "path": "Docs/Book/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5ba6cea9ff84691cdf70911c51d7e96f2e052142",
+      "object_type": "blob",
+      "path": "Docs/Book/data/5ht3ligs.sdf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6629a31791de4bbfebf26faac4ccfb26d5bbad1f",
+      "object_type": "blob",
+      "path": "Docs/Book/data/AmideBond.rxn"
+    },
+    {
+      "mode": "100644",
+      "object_id": "184c07666e02f572066a9d56e79aa0faaff6eccf",
+      "object_type": "blob",
+      "path": "Docs/Book/data/CrossLink.mol"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7032488d680a3dc7923bfc6c63a6fd304738c913",
+      "object_type": "blob",
+      "path": "Docs/Book/data/DnaTest3.mol"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4da1ea3971aaf80116fc5aeca3a225c2d9bc510d",
+      "object_type": "blob",
+      "path": "Docs/Book/data/MinimalFeatures.fdef"
+    },
+    {
+      "mode": "100644",
+      "object_id": "26c0be21350387945036891041f2c832ab861623",
+      "object_type": "blob",
+      "path": "Docs/Book/data/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e60f866b951b02d6eaad69d0f2592ef4edbe1773",
+      "object_type": "blob",
+      "path": "Docs/Book/data/actives_5ht3.sdf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f6973de82791a04e9609ee37f5347d315a8378c2",
+      "object_type": "blob",
+      "path": "Docs/Book/data/actives_5ht3.sdf.gz"
+    },
+    {
+      "mode": "100644",
+      "object_id": "968089908d493ecc1c182f648060773c973a842d",
+      "object_type": "blob",
+      "path": "Docs/Book/data/bzr.sdf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a5b531551b1b11c0e9976faebcbcaf89d1d03bd",
+      "object_type": "blob",
+      "path": "Docs/Book/data/bzr.smi"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ecb58c32f9e8845ca3adeb250a72e890c8c85eda",
+      "object_type": "blob",
+      "path": "Docs/Book/data/cdk2.sdf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "10d8873d5c65dd5c09c340cd24ef0b56b0b81137",
+      "object_type": "blob",
+      "path": "Docs/Book/data/chiral.mol"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1af1b75d1421cb0892fef5b4f37c15065846029",
+      "object_type": "blob",
+      "path": "Docs/Book/data/input.mol"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a558f0acf5b39521bfc30d9ca8f5e87c6c7d754e",
+      "object_type": "blob",
+      "path": "Docs/Book/data/invalid.mol"
+    },
+    {
+      "mode": "100644",
+      "object_id": "378534aa95947c36f964b8662cf126e1df7b8b2b",
+      "object_type": "blob",
+      "path": "Docs/Book/data/s1p_chembldoc89753.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9228991b9cfb2d3742ad0b6e861e3504968da65c",
+      "object_type": "blob",
+      "path": "Docs/Book/data/solubility.test.sdf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3aa3d0876abb313f86f49d198137b02c7cc773dc",
+      "object_type": "blob",
+      "path": "Docs/Book/data/solubility.train.sdf"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0ca0524d6db8943cf961652035fb1f8e414e6f96",
+      "object_type": "blob",
+      "path": "Docs/Book/data/test_multi_colours.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e924137123e09dce77100fe1f08163e013359cf4",
+      "object_type": "blob",
+      "path": "Docs/Book/exts/extapi.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f5b4cebf0d611ca300e53ce235e5fdc846b070b",
+      "object_type": "blob",
+      "path": "Docs/Book/images/Cc1ccccc1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a963a86d3f1e17542a39ec8c6d02dc325bc14b4f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/DnaDoubleStrand.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "47dd36894dfbf259cffe96762be5adac9c5608bc",
+      "object_type": "blob",
+      "path": "Docs/Book/images/EnhancedStereoSSS_molA.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f17b30468b78d9ea0001a59d079d927b3c320781",
+      "object_type": "blob",
+      "path": "Docs/Book/images/EnhancedStereoSSS_molB.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d2d021fc6687b029808ec1e453b525dad960642",
+      "object_type": "blob",
+      "path": "Docs/Book/images/EnhancedStereoSSS_molC.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c2cb96d7e1969166b6b6ca697bb795b7d7facaf",
+      "object_type": "blob",
+      "path": "Docs/Book/images/EnhancedStereoSSS_molD.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5bad00df943055a233683bc9e7397727db9a5f83",
+      "object_type": "blob",
+      "path": "Docs/Book/images/EnhancedStereoSSS_molE.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2a7b4812daee947055d53a958de6f324d8c3dc66",
+      "object_type": "blob",
+      "path": "Docs/Book/images/EnhancedStereoSSS_molF.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1aa828aad0e94b668c2ee191c2faabc6105e918f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/EnhancedStereoSSS_molG.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1854f78da06974ca5b44b14458fc3a6a018dbdb1",
+      "object_type": "blob",
+      "path": "Docs/Book/images/PeptideConversion.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc913e3807f4aa8653f8608ff393de917337743f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_0_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "019d783bdb5beeafff5f3fdde8a92561e050b8ff",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_0_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7128efffededc44712c8b13718eacd47a28ce34b",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_0_im2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a5e6d19fe4aafdde7c8550cc99db05cd35099879",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_13_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c64dc51547a3e329c2c1bcf3431a352c1fa8e3f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_13_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e798e419dc360652fa925c680b8aa538569d28c0",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_15_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74d29e90e598c2b60f3648eb0c0374994786951f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_15_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "881626331f3ab3f06b90ffab3812b5c3f3b78af9",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_17_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7cc570990f53e98909093f9e4c6cd14942887a57",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_17_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5db07fd83060220b7014b8b4c158f3dd5fbf8f32",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_19_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d70da5c7bb3b07b5a32ed0e3fdf3217356c52f3e",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_1_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "82696d64b634e6760fb0d8ec8152ea2a17421d33",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_1_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "98722d378f931996908931c4dfe4a716a29b49e8",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_1_im2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1bf0da9563afc3edeb673fdeb39c5f775328cb3b",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_1_im3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "defdd82cad49c0eb878d9cc8a079cdeab683ddc2",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_20_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6ea8ef716b840050a1329cc114f4d17d29436a8a",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_20_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "19bffe0d3909569dad55081e995a4b4fc6c01646",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_21_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8fa00300046c9040a74f6beaeda40442eed609bd",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_21_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "460f3e2e73b5a6aae1b9f7405852d7448daefea1",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_21_im2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7818c56a0195a3c0919d50332403f6a52382bf26",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_21_im3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c013e4a1f29ce45eb7a2d3da8acc0b73be6090d",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_21_im4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8773cbf956418e4afad0b9dbbcf2cbacd73e885b",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_21_im5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "af9612e2dffd4b4392cd384d60754a65d80fe54f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_22_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dbf6651ccee05a3ab6648de60b754e7cb1ef4d12",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_22_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a167fc66e8c36e726f483e64304b75eb2ee3dafd",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_23_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "509af7fde5d1dc12b5d77c93d38b1a196211c443",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_23_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ed632d4837003b807957532fbd54853d10f74102",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_28_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "69751f117acf228279e38c06dc56112bc2faeca9",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_28_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28546ef6df85f5c1c1d7b2215dcf99b41b17b190",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_29_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "58b4ab6f317d34179b8714f80c5c9539cecbbb99",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_2_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "493222eba53cda58f27a02e56eb544955c882750",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_2_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dfcc1a577d4cb778f9bf20dd14a3c8d874d9d308",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_30_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "549a0f8ed58a4d4ab32ea2f827d2f88ccd308a43",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_30_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2eb32ebd1aaedb70d0c1110999de3283a2a2fb7c",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_32_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4b2ef3a0de8869e378a6c1cceb6ab26888a3d2e2",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_32_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4b6e7d0d1024f2387e281735b896981ccb20e421",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_33_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4a384e64b0cb50edc4956bd59e92e2cf0f713bec",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_33_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4b6e7d0d1024f2387e281735b896981ccb20e421",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_33_im2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4e2547536d1712ec524ca7d54600315907374c9a",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_34_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "659eecccd0defee9c3a6f40c1c5666d99152c554",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_34_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d39d0f1a603aae6682bc245bca9704f77b3c22a",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_34_im2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ef326ebdf1936ff523a2f89e001be5efc08afd1",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_35_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d301f2d12d01d261a3c9ccaba7d9f8fee8ddd0df",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_36_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ac4ddd851c1ff91e140019cac80045d242b5a5cf",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_36_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1f7fc19484a1994d1dfd0c577ef84037d3d5b89c",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_37_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0117ce4d72abb15419e2991fdc23c5c91bbeb313",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_37_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0f59b4391b35616e427799043bd4a6ff269237cd",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_37_im2.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c363b68ddef89ab5e2369dffb62dd82e3726f48",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_38_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "608a6e0696d6b8f7e64ae068ea0713d44759903e",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_39_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9d5894060875c3be35aa7665e9f830575429558",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_3_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "888c1b1d61798d997b35fbf927eda6f061f1a0ab",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_40_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "65c535796ad5dcc81253efa161ec5413b7572104",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_40_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c04834805ffac590c1a6888c0b3ad017cc8dccd3",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_6_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "978437be7fe97466b64bd3027f8933055fb0c540",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_6_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c7271911c2fa02f340693e5ef21885a2d7ec7519",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_6_im2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "958a38db1610792e07d21a4e5673a8a0170682cb",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_7_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ba97715bbf84cd8c3ff79ad78ba5a496a83a2431",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_7_im1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f3019f53b2b0c09fdf6c58e634bd8765b1722d7",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_7_im2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c5910494bf45847218c6d8b0c5aba1084d071b7",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_7_im3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d25552e28e3d70397b65ee065152445cbb71d162",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_7_im4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f6f21b968be90b2d2c70f61257fc08a649d6c349",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_7_im5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ae73ab5243d3862bdf068630d843b1ff3dee93b3",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_7_im6.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "faed8e238b68f41c7c0632706f039e6b3aabd217",
+      "object_type": "blob",
+      "path": "Docs/Book/images/RDKitCB_8_im0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ecc883e496f38dcc169c9286f3d389a2124edd26",
+      "object_type": "blob",
+      "path": "Docs/Book/images/WobbleRna.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16f0d719b2ae0a0bb5fa7b60d29e7be2beae57ff",
+      "object_type": "blob",
+      "path": "Docs/Book/images/ary_group.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f8d13d9895fcb1229ba31a641018532b1d8f42f0",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atom_annotation_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "68538bb659d20c5650c07ebb91177c3640806fda",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atom_highlights_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "38133c475f34c72e5b829fb1e1a0c51c9cd7855f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atom_highlights_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "170df27ac9532e1fd130e8ed8e55088ee1de0ba2",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atom_highlights_3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6bcc1e12ce8a54056a246640f5b58d33c24adefd",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atom_labels_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "09329e2119e35752888482d5fa9cb08267cf88ec",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atom_labels_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5178c0582860b38e990d9bf79c23b7a080d23544",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atom_labels_3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bc7e5d21b173ed5d49ab72f8d93b757840228f6e",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atrop_example1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "95d070bcef4d447f983c08eea1236ed8cc0b2bfd",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atrop_example2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a6597477a5c1c723724724bccb95e807ffbff05f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atrop_example3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aaedb159a7e30fa9023c5347f47deb7eb68bb4ba",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atrop_example4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "710d5c69379be92266e5318dcc10c071aa208362",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atrop_example5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28214554a1de7808ecd39283fcd04059d9a32b6f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atrop_representation1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a1c7cd55c08c031f1069f224c4d2eace9c311cd9",
+      "object_type": "blob",
+      "path": "Docs/Book/images/atrop_representation2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "32d58a159f0ccdc47ad3b88d2c2b91bef66aafeb",
+      "object_type": "blob",
+      "path": "Docs/Book/images/cdk2_mol1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2470c8eb68924d5a5a2565266871ec559454d741",
+      "object_type": "blob",
+      "path": "Docs/Book/images/cdk2_mol2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0edb327f9fac473e7796ef418749aed0db4ffb02",
+      "object_type": "blob",
+      "path": "Docs/Book/images/cdk2_molgrid.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "445c0eb82f1a6a629cc96b33d349b68d8add11af",
+      "object_type": "blob",
+      "path": "Docs/Book/images/cdk2_molgrid_aligned.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5430c77ca67a3571869642683aebda30eff07e66",
+      "object_type": "blob",
+      "path": "Docs/Book/images/indole1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4b611e523dab143fdd94db8beaeb9ee09d3519bf",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mcs_example_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "55884be5a3a624804f25415c989bfc846a9e416d",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mcs_example_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2d794b85421b10804c92147c179b879ac7c1b981",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mcs_example_3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b4dfa950eec35189b0e3bda69ba75c52a191e8ee",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mcs_example_4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ae8da05e9788b9d4239abf97a23821d8cfa32011",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mcs_example_5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "39096935f6732c30f3af347d2dd6e2b8bbfa8f41",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mcs_example_6.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7df143f00aa42bc2307aec577bc70c3f763594ef",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mfp2_bit872.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d3fa3f7f0eca94d5de5295325f1f80174012aa18",
+      "object_type": "blob",
+      "path": "Docs/Book/images/mol_metadata1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "365b2f33e98e211f83189ccf218f132cae6890c8",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_ex1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7f3afb6fc648e93b4278f8088e20c8972e1ff210",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_ex2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6069265c1451205ee9aa9ff004f3fd8f0b29feab",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_missing1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "214c89a73b141ca2f0e2dd9e7e61e0b4675b964a",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_oh1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b55b57a8b467417602c9626c10d45b0a17867f6",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_oh2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9581acd8e63436fa8a25dc998e4804c7efd28df9",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_sp1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2b008156bc506073af002576ca2201fd22dbc63d",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_sp2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dcacc9a6bb8489b5b04d0036ef49286f7e7d037d",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_sp3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "db2ce051847a9a8686d2d2333ee84360579a8704",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_sp4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "afd353a49d5070998cc1a9e924be50f34382d466",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_tb1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "251eed6faa34bfb4110d75a09ed64aa23bf67397",
+      "object_type": "blob",
+      "path": "Docs/Book/images/nontetstereo_tb2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "82e1c04c5d8764d241af9d26d7a8852bea586661",
+      "object_type": "blob",
+      "path": "Docs/Book/images/parastereo_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "83799073e0b1deba718adef848ef819b29432ad0",
+      "object_type": "blob",
+      "path": "Docs/Book/images/parastereo_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4d348981cdba55397a0a626ad60863435ce7de08",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a889e3b1b07ed08bcb68fb2fdf16fec3e9e7ce5",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3c8cff45d3dcddb1530ce6e12266f282d22019f7",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_10.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a66a2be7ac3ed4e99baa0e036ab721468c8c87b",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_10.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0de9d1297bf80df24f8c476016ad4a17232841dc",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_11.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "debe12c27697029aa12c84767ca9922d1900c2d7",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_12.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54f697e2f8dea99d498491d9f745352ae7ffd0cf",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d493c4dad333bd178daa527b4790a4f64db9d920",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b525bf284156c60b0cb295561ba46c6b378e26a8",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f36686705e0807eb45620165091f46988810cd53",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f21604c1d6ddc9060744fe33e430d07e2b302993",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_6.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "64d1e0b355e980cdccd92e7aec3dc37bcb1d9d84",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_7.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b2c17882af56b6ee26b313bfecd0a4802f0bb314",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_8.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b9fd49260a10705a47c6713e40731f7138cda5da",
+      "object_type": "blob",
+      "path": "Docs/Book/images/picture_9.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "61853fc5f312c09f0227f3f255ff6f7ad445708f",
+      "object_type": "blob",
+      "path": "Docs/Book/images/potential_stereo_double_bond1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa1e2d1f691d30fa6131e4334141253e17120b02",
+      "object_type": "blob",
+      "path": "Docs/Book/images/potential_stereo_double_bond2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ca875ea3ae65aa36e631cdeb62872b4a651b1e6e",
+      "object_type": "blob",
+      "path": "Docs/Book/images/potential_stereo_double_bond3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "755416488e2bed748fa3e2226e6e22aaad26720b",
+      "object_type": "blob",
+      "path": "Docs/Book/images/pull_req1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "32ad290209f9e5c6d51b1e0da584bd560fff9183",
+      "object_type": "blob",
+      "path": "Docs/Book/images/pull_req2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ceb6341ca9162c030eaadfb119af1b0abac872d3",
+      "object_type": "blob",
+      "path": "Docs/Book/images/query_atoms.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8505a1fb4e7b2f4b487c39d0fe5811022578dcd6",
+      "object_type": "blob",
+      "path": "Docs/Book/images/query_bonds.2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4e7d0a8a8f10c18f8aeefa2ed65b750494d78db",
+      "object_type": "blob",
+      "path": "Docs/Book/images/query_bonds.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6377f4f27af20cb0122720254d14b848b8b41336",
+      "object_type": "blob",
+      "path": "Docs/Book/images/rdk_bit1553.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ff47c2f01c2602d7b1b716e500445e6f36c2232a",
+      "object_type": "blob",
+      "path": "Docs/Book/images/rdk_bit1553_2.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "718a5e66cf436db86edd3fed1e528c3bf664bc56",
+      "object_type": "blob",
+      "path": "Docs/Book/images/rdkit_fork_clone.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "10ac119178c7e560b93b1509a85172349b90ebc7",
+      "object_type": "blob",
+      "path": "Docs/Book/images/reaction1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eab830d4027e0224b008674ca9df82fcf92b8834",
+      "object_type": "blob",
+      "path": "Docs/Book/images/reaction1_highlight.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c1e87498f3a55ae368575231310ca0bd0497abc8",
+      "object_type": "blob",
+      "path": "Docs/Book/images/similarity_map_charges.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eda5c3030fe1744175d8cd5b128dbe18eb8e1e80",
+      "object_type": "blob",
+      "path": "Docs/Book/images/similarity_map_crippen.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c50a8461ff40ec1739e0e9b91a7b22508f082a6b",
+      "object_type": "blob",
+      "path": "Docs/Book/images/similarity_map_fp1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0898f70c9f6437cb261f5b226684d6c0e034a58",
+      "object_type": "blob",
+      "path": "Docs/Book/images/similarity_map_fp2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "99872f0db2e2188e63b7bd7316adf2eeb04300a9",
+      "object_type": "blob",
+      "path": "Docs/Book/images/similarity_map_fp3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "998d1e15ff3374dfcc438834e073c7aea3b57980",
+      "object_type": "blob",
+      "path": "Docs/Book/images/similarity_map_rf.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "581550bb142abac1f0f144045dc80ffc2572fa56",
+      "object_type": "blob",
+      "path": "Docs/Book/images/stereo_annotation.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "84e76d5300f9821c4a5cefc366dce14d8ce9ee2c",
+      "object_type": "blob",
+      "path": "Docs/Book/images/style.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4777c11fb0382a850562629ee67d08a707f950b9",
+      "object_type": "blob",
+      "path": "Docs/Book/images/substruct_search_parameters1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "265629d348da91f156f0ccc234fab8d55814489a",
+      "object_type": "blob",
+      "path": "Docs/Book/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "659673628c09f7b598930fd6102a5ea0b9d4653d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Avalon.pyAvalonTools.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3d7a6f3d8202cbb0d3d92174d25ad321b19e2761",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Avalon.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "548ddf95306c453a17f40f475a387fb77e266cfd",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.AllChem.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "81c7c58f64afcd73c89ba08c74b164151635c239",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.AtomPairs.Pairs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dff90b9229fa1c0e972005707daa1eee3db39b2f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.AtomPairs.Sheridan.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1818dafbd5f7a107142c547e71a8adb14a99d369",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.AtomPairs.Torsions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f9de89c484e6350b308e2b826775b5a1bcb06794",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.AtomPairs.Utils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "90314ebb9597aa8ffdfd49094c42db8e4f605767",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.AtomPairs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e286977c1b398838791e60977eddfc7fc4fc114",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.BRICS.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1d08b563cde9a9b2800471e4cd081f7cb5b3d761",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.BuildFragmentCatalog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ededc7ebfd4f2a6672c4899bc4c47d12e49f8dc2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemUtils.AlignDepict.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b462e9528032ff6fa1c182b5580c8e5060338146",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemUtils.BulkTester.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "51baf5440bad04b7497771d7fb1a99fa3ca608f9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemUtils.DescriptorUtilities.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "01f241299785c2c4785ce9c0f62691653c5e40f0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemUtils.SDFToCSV.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17c5c5b34c32b8ec64f9b00408c46d1484dd7242",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemUtils.TemplateExpand.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8c907d3c136daf4f111b15bb8ad588a5db682841",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9684f3f8e1547c002966bad9ce51e9b50b781ea2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemicalFeatures.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "033e26a1160c7393fc1521c7d0a8fcd490919f57",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ChemicalForceFields.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2acc9b93db06615df120ccabb39d1554bc87a5be",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Crippen.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5d425736427a1cba08bcb3fd2b1c9b35d54ff610",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Descriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2869503cadbbebbd783d3a89d9b6c0abc526a62f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Descriptors3D.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "925127cb7310e212acd7320ccc805f414bf75f88",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Draw.IPythonConsole.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f5a6f3c65e26348d7a2e20656dbb5a5dcafce609",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Draw.MolDrawing.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2295998a3bcc0b8aea3f390689e6816d3e90a95",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Draw.SimilarityMaps.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5a859db12fd32d5f2b32f81455a8a8902f4641d6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Draw.rdMolDraw2D.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e62306804f80699eb297a803deb56413b2bb98ca",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Draw.rdMolDraw2DQt.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a78bdc55554b5af78022ec69e176d45c7ec0f23f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Draw.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ed2df3a61d4da0831d936d0745ad5cb67beb41d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.EState.AtomTypes.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cb60b6e9dea4c36a0e5504d85544b4fb089711d8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.EState.EState.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e20eff11650be23c85173b50fcff6e04aa43f29f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.EState.EState_VSA.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dae676412627742d5239641769f38f5971ae19c0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.EState.Fingerprinter.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dec0b79bbfb230d53893195a4dd20ac4f33786cd",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.EState.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c5bda7d314a0449f1c519b17147a5b085400a2a1",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.EnumerateHeterocycles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fad363553c6394cf879ee382d68b2a69c402b3b6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.EnumerateStereoisomers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "55192e39d43a53c78426ee75e928d898860a3a0b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FastSDMolSupplier.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b2a099be7f9d3f20a2fdda38066aa17d425ab7a2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FeatFinderCLI.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1235a07876c0b8be39a2438fb21909597f14384b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FeatMaps.FeatMapParser.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b329eefc0c9dd30178dcf7a4fc9ffddeb34db91",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FeatMaps.FeatMapPoint.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7bfc5cf87a7f76873017cc3164879e36aa32341a",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FeatMaps.FeatMapUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "40325aaae1a57939df591f466d312146e8a6eac5",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FeatMaps.FeatMaps.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ff87a8072755f0d76eecb841d691b0d2989e3578",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FeatMaps.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa200908655992b139290e57a0d568364091810f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Features.FeatDirUtilsRD.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "68d9e735f9b59b31175ac8b0f9d3f34f46eac4e8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Features.ShowFeats.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9f7b10a0476bb6f26a42593b61f496791f6bb834",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Features.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1fa7599defbebba097efa21634f18225d08e52e6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FilterCatalog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "98bf84d4ddc8dea7b263e01fcbf1c6906293d523",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fingerprints.ClusterMols.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad78b739d6bbae050434f45cc58a05fe986b39cf",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fingerprints.DbFpSupplier.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d83eac827ab407dbc240db595095668e9317e2d1",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fingerprints.FingerprintMols.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0b9006b38ffbddf7ee0b9c43387cfab72ae6272",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fingerprints.MolSimilarity.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c304f0b05587a95d1ef1e60ac4eb1ce8466e3380",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fingerprints.SimilarityScreener.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50198ca3f85df6bf86fc01714aac46658a9b6a56",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fingerprints.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "118af8f8e9a3b049e2912d72cdec9f45933ee6d5",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fraggle.FraggleSim.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ac5edd2dbb7470a195346deb3acec56f9ab5572",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fraggle.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "656af9d60e0e866a590cb459ec799932bfba3453",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FragmentCatalog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "23499f2c021006d1ab661eeecd80b8af6e242a05",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FragmentMatcher.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5979cbab9ee525abe3a28bc372ffb361e9960155",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Fragments.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d91dfa80d1211e68359502fc2ddaa81b0a2c64fe",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.FunctionalGroups.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4a139c2bfadf752be2e55693420732d10d950033",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.GraphDescriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "45ea1a731e56c8886d8c7582a26792b941e2e098",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Graphs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4dda1198432588032f886434b3f0db5dec5a2474",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Lipinski.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ed30605d525d13e3ffafc94225bda46f996aed1",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MACCSkeys.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "93bcdf2c8b2d2a0cb136b739ee0f02e317ee4f7b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolCatalog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71f251ce87886346fd386fe734c4ca028b9d72f7",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolDb.FingerprintUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "00cb2f63b275341dc294410579b83cfdf9844310",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolDb.Loader.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b54eaa74e49c84ea8fdb8105d7f99aa9e5ab344",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolDb.Loader_orig.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d4a8427fe99e848ae9cfd9a997e632a2228b8bc5",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolDb.Loader_sa.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04cc213cbfc16fcf3fdf3d2117f2c96e430c41b3",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolDb.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f077fd65c5fb6ba36e1ae2ff83debc30bc4583f2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolKey.InchiInfo.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c535ab26f58aaa6baa04818135ff513e2ce14bee",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolKey.MolKey.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bc1796daf443e7e4ad9e96082cda53eab2210343",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolKey.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1d076611ae0d6fc87b19b2a89b9e71c29671b1c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolStandardize.rdMolStandardize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a5d425be5957667c8ab0e8623504783e9b50e7b4",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolStandardize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "49809ced589a07014136e9c3c3a392514f3c6014",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.MolSurf.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2d033e96e19a781a1870237035e79d04cd53f51",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.PandasTools.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c865d94719aae63486bbac4f686b4273b5481af9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.PeriodicTable.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "52d5544ff78d4d52a046c2adbcec53a63b7d980d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm2D.Generate.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "95167feb3098b2168dafceb32ff59b5403c3eeb2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm2D.Gobbi_Pharm2D.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "356a9613834fd104c9cb68b5632d4e1091419219",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm2D.Matcher.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2653bf4a60c5acfc60a2e93a6ccc7091aecf9726",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm2D.SigFactory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6dcd4be67052e6ed8e377c8ee06096b39303e37f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm2D.Utils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ded31815d01dfb88a8ae94cdacf602d60c9c2069",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm2D.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e261b628f954e45fe32238cedb338a7b77aab502",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm3D.EmbedLib.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a0f0e86a719b94e3639ea4b571f7e638d6dbadec",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm3D.ExcludedVolume.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b4fb975b350801d3f827758d101d458aa79e4e81",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm3D.Pharmacophore.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd174a49cf99d68c3cb15d971befbcd7e5d731b3",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Pharm3D.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5a3598180e40d4b5f0ac7741dce32c761feaa537",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.PropertyMol.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91f8fe2beede9581abb984aa3c1725ef992dcf03",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.PyMol.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28588cdc0b518946ae5b970f23aba9087817f936",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.QED.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "24084122915d635d8e7da759c83f9f6a8ccd17a9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Randomize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5061c639e486dcd9a34d4fd07d018806d38d9743",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Recap.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e95b0782755bd57bbb2f75152077afd95dfbb06c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ReducedGraphs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d6b9d2043c5d6d34d0b9cbdcf7a8a65721403159",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.RegistrationHash.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ded172c3bfd6199e8674f43a170309f61204a15e",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.SATIS.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c78d551c2f00b611575ca17db7f53349ed05034",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.SaltRemover.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1294022956842b742749e49abded95f5e18e7489",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Scaffolds.MurckoScaffold.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e7b0bf0a76a6b00d0ef8e0e224915475042a3afb",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Scaffolds.rdScaffoldNetwork.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1f5a1677de45ebe477370debd065d00ee1c867d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Scaffolds.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e75393d02a2072ce717cbc61025009a4476c92d9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.ShowMols.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9bf0c7a1e0c54b4a275c5a10999678620373ec91",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.SimpleEnum.Enumerator.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b021ed855b318a09784be4275f9353e20d018e17",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.SimpleEnum.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2746449bcb44d8374c95bdfc3941b7023aef8d7c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.SpacialScore.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b28d919594ed0bcb2db2643ede5a44d7429de34b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Subshape.BuilderUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "efd04724caad66a5332c931d17655cd7956e4213",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Subshape.SubshapeAligner.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "776dde00607b97b201819488ffa60c788be55852",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Subshape.SubshapeBuilder.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad064f3a2b64252ed4ed24ba837f652f466de128",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Subshape.SubshapeObjects.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ce0302cf04680b6ce7f4feb797c04472f0713464",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Subshape.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ffb855c9d6bf1252834554d2a15ac53f7b7aeb8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Suppliers.DbMolSupplier.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "20091964b4f7d1a9309e0c710bc5a2809d7db54c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Suppliers.MolSupplier.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7d0e1477fe1c4c04e12c4624ec98b30ebc49385c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.Suppliers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8320ecb19c87ed16d1a05838e4fd85b73c1fd4b3",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.TemplateAlign.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "df69fdefea69f9dfb9c783f900a2da6e7b864e92",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.TorsionFingerprints.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60267cb899b635e16447273d767c3936f9070fd2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.fmcs.fmcs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f64a3f4687756b83abb1c7e90cf597976cc50520",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.fmcs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "77909b631b2a5398163b44dca412f83d31638704",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.inchi.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "46a17e99156699010ac7ea37d8ba7fcdd5b43fa0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdAbbreviations.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3dda32fcf2020becb4664a5bf5ba8735bfec141b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdCIPLabeler.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa4b756d01fb40ade64b2a0cb63c2b2a50ced13e",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdChemReactions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7dd79fe16f06d9737fd7b5397cb5f2544c5fce45",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdChemicalFeatures.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "10c2016d6fb73f9edd541214d5125bd315079cb9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdCoordGen.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8d8a06daddccd57ee131a5d37a23dacf6c54f7d4",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdDepictor.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "76e027340a5d52490bfef5127240583ea624a338",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdDeprotect.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2129f91f04ad0e995d8461afaf0b2d894b8c01e0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdDetermineBonds.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2eb125cf2cf813b7f0f3c66ba9f3dfbc45dba6db",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdDistGeom.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "03fe6651e76d9d91c2a39dde3a409adb3f6cf363",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdEHTTools.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e0c0a3494df08109aa32283c8ec8b281269a345c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdEnumerateStereoisomers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "adecbc0eb72b7d8934fc7c080cc7277201d6b075",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdFMCS.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5a2ea3ac1bf632db2b0c2d2b2444686a9c607fdd",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdFingerprintGenerator.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a259d4164e6dfd72931682aa82047c4c7047ef9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdForceFieldHelpers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9c4981e4090baa82703ac59e82333ae62e1e08ff",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdFreeSASA.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "67161248fca514563ab05c13c3ba239335d3d673",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdGeneralizedSubstruct.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "172be9010e290bb518888e94ec017a9553942ab0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMHFPFingerprint.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e7b006edd090104f011a28c6db1da2aed49ce040",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMIF.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f7f0720ceb47bb6e0f753bac81ec83414eb134f9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMMPA.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "619b8dcd786a360dea944f13de0bba89eb04cf05",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolAlign.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "83d63b5ebda15701f28a77a61e7b4c69cd62944c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolCatalog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b9676aea97b5169b702c530e107054ba0146c82d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolChemicalFeatures.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5925bfb8dc342f3b7e120bf138659f4f09ec3df0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolDescriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "83f074ae62ef25ba9188dfb54cbca273228463ec",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolEnumerator.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "52fd24291684a816d22452be24d7388d7167968c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolHash.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9841890ad84623be403558f7487ee65916142e5c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolInterchange.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e97c9d71c7caa78021c31cdcc05b20564cb8dfbc",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolProcessing.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ea93f320b4c9c6f7aad6cab008cc9cb1dbc9f0f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdMolTransforms.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d98e611e093febffe93705ec1aeb126fa36f77b4",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdPartialCharges.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a2c09d37fcf0f66b4edc6a5315261f7b7f5cc754",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdRGroupDecomposition.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "41068aeb310c36be48b74c5bf3d1a9505b004253",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdRascalMCES.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91689a894a074f7c51b274e79ef4a45003098c4d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdReducedGraphs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "038fa01933a3c481fce6dfa6c03a19bd718eee4e",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdSLNParse.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "34dc179fd155f9732b6f92e90f0fb7a320f38abb",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdShapeAlign.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b6f43808ffacd79709112300f3280c963a92aea8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdShapeHelpers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "05a5ce9b3a96fc9a1152bbd05619dba2fa5d35c2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdSubstructLibrary.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de34269f040a484badfcbe6cce1ba2ea6dd65e0a",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdSynthonSpaceSearch.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f699d7e24944d9738adc4c446f5de1647fced822",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdTautomerQuery.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa0d7340da535c90404c9ac7b4b7d93986eb0a1c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdchem.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6df01f5275f9473d33d3893ecc149642ea9b4098",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdfiltercatalog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "797f49bcfb38de9298e38da4749ee7dcac0ce0c6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdfragcatalog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ddb6410fdc47a62087a1041f0c19c4995b9abbeb",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdinchi.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "27d875626bac29332ffd1fd90ed17164afc7a9cc",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdmolfiles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "68e61fe13a3e26c222797b08cb8cb8e234b9a8a3",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdmolops.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0887016eb64e20ddd7969f86e3bb5ee5fbe4b20c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdqueries.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e32c4aecfdf6d334b0cb43033ab657e7d9ff74a8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rdtrajectory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3d3fcdb2209afa23453c5b20a44aa884b80c7e0f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Chem.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de376fb0f797fbe6703493c60b787076fde0c7ac",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataManip.Metric.rdMetricMatrixCalc.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "09989b7a083fa223d275c3c977262832665288f6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataManip.Metric.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "39e1557d3ef15a4a507ed4879feacf788850be06",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataManip.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e14b2f0adaf945767d9f42152659043a44ce48d1",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.BitEnsemble.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f87e74a2dbc28881cc0fe557966c5910bbbf58ea",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.BitEnsembleDb.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4a4db035bcbfb79e8cf8a422fa72a02a0ada757d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.BitUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d077824a0dc1f6f88c636d55500cd2f7c9c9f25c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.LazySignature.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1a770d3c9ae1ba6f0b5c0eb7094d80d3d11410f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.TopNContainer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c715e68a92c74376e299f0be29abe7ddac7d20c1",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.VectCollection.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4380c85875b77a3a784661bff2112ce45f4b4bf6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.cDataStructs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "96c04cc9cb5195d1822ab10f830c918ee51f8f7c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DataStructs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5ecd09605ab09a274461c961e2028f798bc1b390",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Dbase.DbConnection.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a0d9d27642f3a021c787a6b6bd59e5060dd5dc84",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Dbase.DbInfo.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b5f924a188d77b8d22c06043b01fcb9590a93e10",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Dbase.DbModule.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e023aeae5b9365dcb70bbd85fb63c4238bc713d1",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Dbase.DbResultSet.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91f0d86a2fb0b6354b840b4016148d442e403a15",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Dbase.DbUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a944d2eaf7e2e29530b8adffe3836c59d45d1c7f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Dbase.StorageUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4800e5ce0f79f502d466cfde7708a90b861a9e7e",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Dbase.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7c1b4c701950e9f0fd73e5a750c90cf686663922",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DistanceGeometry.DistGeom.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a13493b0be12c7cf6476b30ed2556c1ea6b83d90",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.DistanceGeometry.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f09887a381d01beaf951e9322fddee28aee8f8d4",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ForceField.rdForceField.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1fe1b69abd9bb595b0790a0e63e73eee71e920b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ForceField.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "62e80ecab1551c87195bfecd7c35d335f0c882d5",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Geometry.rdGeometry.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1bafb0e9c0a51310b8dde3f341c3361548e68ef6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Geometry.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2538a35f9500bf5820c7f2e928d12fa8c83815bf",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.Butina.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "463279d3f8ee344f46dff8736e8588a97abb0be5",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.ClusterUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aedbf96df9d85b98569466685c71c3bbc2b9334a",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.ClusterVis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b989a9d4f0332907fb1bdbd4bf022b98fbb7cd3c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.Clustering.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4385245c789858d7520d3e4834753291957fdef8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.Clusters.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c1db82b823e98a21f13f030450499be8ba2b5b22",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.Murtagh.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aab5c296be6bfac678c3833d0abfefd00969bd6b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.Resemblance.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f128eadf5ec4752abc393fd487ccf8aff4ad8e98",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.Standardize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c23f1dbfcda653e4bc5b44a264567b6f208362a8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Cluster.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3050740c819bc78b3dc07062e5265d96a2125d73",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.DataUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2febe33b94e403864904098f45849c028b521a4b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.FindQuantBounds.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc573c47e02feee4978b04f9064eb29b9bac2149",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.MLData.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b9ff0e3b5c2a212fbc9ddbe5f6792f274be26337",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.Quantize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e5da4f519712c8cc4879074cf7e392d8e8f31623",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.SplitData.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6970e88b609375342471f7ad29eec87668fb8763",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.Stats.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "21ca31d402dad3a145f92158393f6872a0632722",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.Transforms.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2f2cc9722f1d975d0935d0f3be8bc0201f1b216f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.cQuantize.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b46950ae523aa832c4a86a5c5b5f50db9b01faa9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Data.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0d2d5bbd65ec4b5bd6b9896926ad19ac55986e6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Descriptors.CompoundDescriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2832c8162279083625dd8eea09ebba8547f369b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Descriptors.Descriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cf39362a70512f2cfa384751e26f60277bc522d6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Descriptors.MoleculeDescriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "297ad072b778450445a2ec0faeba12ef2aa95e67",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Descriptors.Parser.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0c21313fe909a905e4ca184c3b3f8a211b0f12c5",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Descriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9d02552fb1f4773021010e257531ada3adc20340",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.InfoTheory.BitClusterer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0e343941beada0f4dbe6069ab4dc292665a441a",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.InfoTheory.BitRank.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "03cab0d742b933bf05cb22ef56a7f4d13e43f631",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.InfoTheory.entropy.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "69a2aab0680893275e46617065535a49e32e12da",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.InfoTheory.rdInfoTheory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "23aacf9823bc52ab374902da4dd99e5bde88cd2b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.InfoTheory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "abb8ea03eabae3badb8ca682b6954f06218c4d50",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.MLUtils.VoteImg.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7469c62ea34f6b15ff39769ed4e527de1ad831f6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.MLUtils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "22b5e986eabfd5dae41ad000e95f46d9763b0119",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.MatOps.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e8c10c6b7a34386ec591abb01d5310f29dd5bdd0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.SLT.Risk.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "085d9ebf6f31cc9911db1da78e20f54c51df8bb6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.SLT.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1d581548f88087523867d97a2fd14eed5292b25f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Scoring.Scoring.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d43150fb62254d69a947e7e9b924ac1baed13e80",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.Scoring.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e05293682ba37cc931f06b8b356c7697ffa4d48",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.files.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e610cb3839a9e16ae29d276c0d7e49cd6b672dde",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.ML.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e873e2b24f1a04aaa79167906d09d2dd67d0fdbf",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Numerics.rdAlignment.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70df1d32cc5b6b3637287812129a0cfa38b15187",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.Numerics.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ed364cfff87dd194a94ffc5233026fc2e4de50c",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.RDConfig.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2cfc8bcdec191df380211ddddb40c147cf8487b2",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.RDLogger.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ea02cf8fc18687326fbce53fa850ed96986f83f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.RDPaths.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74081209e67e3d4bc9b72e6fd561c4c051eb0cb4",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.RDRandom.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "49c56fe3c188a2c3a0b5bc776378f3a91adff174",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.SimDivFilters.SimilarityPickers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91286bb7d411d3bc87b94c32816dffb922bc6bb0",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.SimDivFilters.rdSimDivPickers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "db274e2975c9587aa5b4c622055252c4ff1f2b0b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.SimDivFilters.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ae1a98fa6609c800338e311971dae4c01c689acb",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.TestRunner.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "542cc687efb96a05c9a8c8189086c0933c2d4107",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.Filter.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a067600319a8f9ab0cf86778515ac383ce107afb",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.Node.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a3b1214744384ab2bf2582178cea8bad0000328",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.DbMolSupply.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0fa6cf4b21f64100861919664c262b9e9b9abd3",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.DbPickleSupplier.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aabbbaba56391f7fd526e2feedfa56b5e19cd18f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.SDSupply.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c7a41af574156c5fb68114a43207850f86778e0b",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.SmartsMolFilter.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a775f9950d878d02159ef9b19df1f91d850b903",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.SmartsRemover.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b5268ce02f554810d807c084426cda664e5d7c1e",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.SmilesDupeFilter.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ea4f0f4e3aadf82fd770688e540a89bbf24642d",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.SmilesOutput.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "96470053cc5e1307db5d93afdb7c135d0dc14fcb",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.SmilesSupply.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b84a06f962d115817866be95afd422c61e09e496",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.NodeLib.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "52b38203b799cd1dee5f8dbdf50dd8b5b31d0332",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.Output.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "af60efbcbd361983aab844b9467a46466ce780d8",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.Supply.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "be696903cf783ebac8fb7473409e80db3fc6465a",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.Transform.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "092e2d189e9f794aef2a6ac7908d4585ada254f6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.VLib.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fe2b6e260599e5dd45c370139ff835c94f5015d6",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.rdBase.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c3792a168bb36982890de09047e31dfb094f1c9f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ae49f5bd493a50648f14b4259d8c50ae257d131",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.utils.cactvs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1a3a53b1b7a43c8f568c9309d3610c063b15566f",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.utils.chemutils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "700c592f860bb6a37c6730963f8cb4e60703bb73",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.utils.fileutils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c5fbe9f77146e858cb5a28048b16be2233c917d3",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.utils.listutils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ab6fb976d931c02af457b4817fc94fa868d81ef9",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.utils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "765ea0d8c7935839f5a2466e6fcbf42e308c95fe",
+      "object_type": "blob",
+      "path": "Docs/Book/source/rdkit.utils.spiral.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "43028ec0d494269e436b760a9ed7f7c6aa9f99b8",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/An_overview_of_the_RDKit_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5942cf5daa8f869a8353af75818919f247b83439",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/Backwards_incompatible_changes_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d6466be871703a9e0f8342f6f9ca2da89bf4925a",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/Getting_Started_with_RDKit_in_Python_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4c16b57518a5cf30d08c4ad68a549d5a6f96d6bb",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/Installation_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f7adc44b14fffea0912d3de14273511d5c993afe",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b8aff9102f79e8605c36344cd6b8fa71a7a12890",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/RDKit_cookbook_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7807291f249cee80c270c3070663c018740c6d2a",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/Supplementary_Text_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "639165eafb4ce313424d65aa302744ac5891112d",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/The_RDKit_Book_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f999009cd94481f4bcfc6fa22b41587f992b4603",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/The_RDKit_database_cartridge_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "976a2d24e563e1b636dc74840a3528ec377e9e5a",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b0666450f7a794448dd5bc49b784bbc4daa41fa9",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "db08f15eb943c04f289b794d64ffdd3e21f5b5f0",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/introduction_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0ded324b28d65f93a3b7e38a7d4e4e9af2292c66",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9d92cfe4803ec384dcc6614819e0f240c1144700",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_10.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c731ba5fbc5b48aff4060352bbbce8e03bb5d19c",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_11.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3eb46dea885a402cb465972b79cd204c658a611c",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_12.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4cd25c5adfa5b63f006a09a774c874ecae6dddb1",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_13.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "35ab8f73ede6cfbf691e9d5f6d0a0c78d20b0009",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_14.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17ffa21edb7315dbece9bae5f9e0d9293fab8939",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_15.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "919bb61afcc604d106edad2d7ae54862ea23a192",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_16.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9abe9d51de7ae1e9e6cd4e11d26bb541c5c7f91",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_17.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3f42b65aedc1e28f26f70f0863ff02cf7b0bd37d",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_18.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "67dcce97400f8998614e6e0c06f437e71732e891",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_19.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42bc204ea128b336d314d4cfc26d2f6639fd90df",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1cd349287e078d4ea3579fd839997de8d97fdc7e",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_20.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54e77fb56950e2ded139be8075069b33919b25f3",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_21.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd451f4ab167cf1e20934af21ea82f7945352a02",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_22.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b07de308f6de251db427f6c3caf1a9cb1f1d232e",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_23.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aba51075207cc4e3e94309d3a91c7226f2589f39",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_24.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6aa8a20e5b10fc4f9a10533f212da4f19e75424e",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_25.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a7d23702a1561d873be6aabb177b9b04dba646b6",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_26.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "375c584c3094e9c74c8b60f83c1bb0ace6f83a11",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_27.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ac8d738c6ef29ec9e64f4b0e94dafcc8bd5132d1",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_28.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a0358abe5ca2eef07cd8f9c9c2369814e49ad2d",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_29.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b7ba28c7601d46c3a56313157b44c388bee24a11",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1aec1611b875963489e23a86fd371584d8ce758d",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_30.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "82ea9ef099aded0e1966242dd09d3614dcd33a9c",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_31.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a9a189b01b8fc41d4a6284cab1072e1c993ed983",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_32.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fea8876c4bcee726fe25bcb7d67d7e8e3ee72496",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_33.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0b89c96e480fcad866210f874f95a3ac7c957332",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_34.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b974a21957d5cb0766bd0286df82b931ef8337e7",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_35.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f7e9e116bb478719b3d474f5348249b044eb8213",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_36.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bba255e32c5609087ffd6c9bd943ed1e7e0af7ca",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_37.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e36937138099dd0e5100fc660b6f1f0cc9ebe59",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_38.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "efaf2fe9dd58538a01adfdba544cd810cb6ba8fb",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_39.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c225076f9b1461894be10eea48962e4a44d894c2",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6b630abae1eb63528e686cf4f3dc17e696c26e52",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_40.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "19398f12c859e7e62bbd8c951e0ca6b3b241873d",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_41.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2979f351e993cc11c1af813226bd28eb677692b1",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_42.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5fa70082ac45ffe45cb349f37accdf0cbee1efe4",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_43.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "516093f1de2bdb689e70c285efc31231fc531e67",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_44.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa502f56d5be243af4ecb026f47a9e75f2a394e9",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_45.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "43a54f00daec78e82197b7dfd80bffe313f3e660",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_46.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "652d7d97347453f8b2cb05b76d47f46e4958f704",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_47.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ace37a8493574f9b35351081d438ff4a0bc66359",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_48.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04e256ca6321091601cd6c708276f2ecde971e54",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_49.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1f75a913120f237c5e5b7ea10c11407596492172",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_5.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9da293f46a8a8d264d1ea9d16ad4d9b107849898",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_50.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1796c85d965c674193aeeb3a5317a5bc63ce9a16",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_51.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ffca6d0d531883231404599e6ef44dbc2d60da45",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_52.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70eee455975c1e95044c4949626d495e5ed0c0b8",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_53.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "106b6b53d73fa77cfd3d20bebfa6e9f005c0813a",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_54.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb4eadb142880e0e5a920c0ddcfa8c3de83fee2c",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_55.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e67c9a103c52efc0335161bfddc81c29d235a84f",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_56.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "22c665d6c20947c9d04629293def17dd5a63b267",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_57.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e558ceafee776f3d4159f621816bb8b48d5040a2",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_58.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2948e5d59f997e5521efb33bd41947f627890c0e",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_59.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f6732eaf6875a43f487046c809e42d1eab3683d",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_6.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "af22e16a61eb6097606eadb8986588f14b8846da",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_60.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "618be7799e6ed4af6202ba9a17332301bd6261d7",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_61.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bbea3a8488201c3b8a341df4e71d4364549f748c",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_62.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "64f1ecb32db33f954ce9fc81acd7b2600a90439c",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_7.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cdc8d60f0af1e63e40f0a9c389e8fd210b53663e",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_8.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8307a105e7c3f5ec4c23704200df90d024f5565c",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/supple_images/jp_supple_9.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e316093376fb3774d22d2198198fa4ea5cc4ddb",
+      "object_type": "blob",
+      "path": "Docs/Book_jp/terminology_jp.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "864eb1a6e260f9dbfbf13b8be8c3c38aa4a5f992",
+      "object_type": "blob",
+      "path": "Docs/Code/CIPLabeling.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "81ef130ea3f719ff21cfefd29383f1c46915e87a",
+      "object_type": "blob",
+      "path": "Docs/Code/Chem/FragmentCatalogs.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "131ca5671062673bfc08f8e0555e2132b785023e",
+      "object_type": "blob",
+      "path": "Docs/Code/Chem/Pharm2D.signatures.ai"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3c8cff45d3dcddb1530ce6e12266f282d22019f7",
+      "object_type": "blob",
+      "path": "Docs/Code/Chem/Pharm2D.signatures.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aed3a610411a557c2c69581707231202c8106e23",
+      "object_type": "blob",
+      "path": "Docs/Code/Chem/Pharm2D.triangles.ai"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bc21971d210853011954c61efe6afe021174a11f",
+      "object_type": "blob",
+      "path": "Docs/Code/Chem/Pharm2D.triangles.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6ad3e9de0fb5332a04a5d3034baa7d27be6d6670",
+      "object_type": "blob",
+      "path": "Docs/Code/EnhancedStereo.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "066444e0afb959421b60533274b96d3ef6728560",
+      "object_type": "blob",
+      "path": "Docs/Code/SGroups.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9eef0d92fe2b98edd9a15501bd15050661cc8fa7",
+      "object_type": "blob",
+      "path": "Docs/Code/gsocGeneralFileReader.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa502a8aa9f473bfd12bc5228be55095f739b627",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_abs_and_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b52f7fb39a6dbf9a834f5be1cb2d23e1323ae990",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_abs_and_expand.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3378e6c84c160519f3d1934937132091b5a0f4c6",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_abs_or_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bbd64c5d48c0766e7cf24c7a222161a0228b426d",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_and1_and2_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6912d47fda4220c5afea2d88fcdeb68782c87e64",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_and1_and2_expand.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "33e625c343af1f98db1e4ad70de0cfbe031a9036",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_and1_cis_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ab6f4389fd25722360ac5f51006a73a9f9236586",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_and1_cis_expand.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2e12c247f5f7696c0943b819ff8743c698f0663b",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_and1_trans_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "78a0d3c5b83f60051585ec2ddd753ac24cb41080",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_and1_trans_expand.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9f990ffc6af292edebba77327e72a2b2e9c8428e",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_or1_cis_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2424663ddc15ea0ea8b5c2943b9581f8a529b4ab",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_or1_or2_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6e7d2cdf08999cfaf9ae10ccaeee8182f72a4874",
+      "object_type": "blob",
+      "path": "Docs/Code/images/enhanced_stereo_or1_trans_base.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "872f0b9ad46454e63be48ac914059f043df63696",
+      "object_type": "blob",
+      "path": "Docs/Images/logo.ai"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cae8e514946a3f038ae537361029ee59c6295b73",
+      "object_type": "blob",
+      "path": "Docs/Images/logo.inkscape.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9a73eae4318941111dffe10e038717ba386b152a",
+      "object_type": "blob",
+      "path": "Docs/Images/logo.lrg.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b426c7332d423938adb47900aed76ca743c79321",
+      "object_type": "blob",
+      "path": "Docs/Images/logo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ca06d1a5268b5c9eb2fdd3c98c538fe27ef0cc76",
+      "object_type": "blob",
+      "path": "Docs/Images/logo_plain.inkscape.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b64c51f796168c33d4f478038fa5cd7496bd1aac",
+      "object_type": "blob",
+      "path": "Docs/Images/logo_plain.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ed0001739462480fb123ab1045797226f9688031",
+      "object_type": "blob",
+      "path": "Docs/Images/wiki/morganfp_atomenv1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "983b67bb79a74c3ae8f74c7b65b1afe2884c70c7",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/FingerprintGenerators.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "683e56329048c83cdc4805a0869ee8fc981460d9",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/MolStandardize.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5838e2846b84049ac8426669b26a2fe3f35a7c1b",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-DummyCores.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2176ae4607050619dcb0f72b6346dd667822d7aa",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-GA.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "76b5587aaff65d272e6e0fdd544bf204aea51c29",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-GenericCores.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "32cf0ba579510cb241cf704eeb8d125be94ae85d",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-MutipleCores.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0b6d782ac2a8fc231219ad5ea31032fc38ef3101",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-RingSubstitution.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "877ac7ddc28ca1fdc1bbc1914e851bfe659f97c3",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-StereoChemTest.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2741b402ff32c16f19012ce8e7123c7349cd4ab4",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-Tests.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aba4146ae2726ff293a68e72658c2bf1d76c3a51",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/RGroupDecomposition-example-lactam.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5587c1aa41fee73530145eb632619ae74484e688",
+      "object_type": "blob",
+      "path": "Docs/Notebooks/compounds.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ddd3e8ebb6a44d18ad30c2cbe9756f2c75500381",
+      "object_type": "blob",
+      "path": "Docs/RD.css"
+    }
+  ],
+  "entry_count": 581,
+  "inventory_scope": "Complete Git object inventory for the exact release documentation roots; file bodies are intentionally not embedded.",
+  "provider_id": "rdkit",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "Release_2026_03_4",
+  "repository_url": "https://github.com/rdkit/rdkit",
+  "root_tree_object_id": "be6ea09c02022b940ddd194876bb01ccb2c866d7",
+  "schema_version": "1.0",
+  "tag_object_id": null
+}

@@ -1,0 +1,200 @@
+{
+  "authority_entries": {
+    "lobster-acs-method-literature": {
+      "allowed_https_origins": [
+        "https://doi.org"
+      ],
+      "canonical_snapshot": null,
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/10.1021/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-api-metadata"
+        ]
+      },
+      "display_name": "LOBSTER and COHP provider-required ACS literature metadata",
+      "license_policy": {
+        "identifier": null,
+        "status": "unknown",
+        "terms_urls": [],
+        "verification_status": "unresolved"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "The authority covers content-negotiated DOI metadata identity only and does not authorize storage or redistribution of article text, figures, tables, or supporting information.",
+        "Method literature can define COHP-family concepts but cannot establish native LOBSTER 5.1.1 syntax, defaults, runtime files, completion markers, output schemas, basis resources, or entitlement.",
+        "DOI metadata is mutable and remains subject to platform verification."
+      ],
+      "provenance": {
+        "official_fact_urls": [
+          "https://doi.org/10.1021/j100135a014",
+          "https://doi.org/10.1021/jp202489s",
+          "https://doi.org/10.1021/acs.jpcc.1c00718"
+        ],
+        "verified_utc": "2026-07-23T19:46:29Z"
+      },
+      "provider_class": "publisher",
+      "provider_id": "acs",
+      "redistribution_policy": {
+        "allowed_values": [
+          "unknown"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "unversioned"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": null,
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "unversioned"
+          }
+        ]
+      }
+    },
+    "lobster-wiley-method-literature": {
+      "allowed_https_origins": [
+        "https://doi.org"
+      ],
+      "canonical_snapshot": null,
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/10.1002/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-api-metadata"
+        ]
+      },
+      "display_name": "LOBSTER provider-required Wiley literature metadata",
+      "license_policy": {
+        "identifier": null,
+        "status": "unknown",
+        "terms_urls": [],
+        "verification_status": "unresolved"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "The authority covers content-negotiated DOI metadata identity only and does not authorize storage or redistribution of publication bodies or supplementary assets.",
+        "The papers span method generations and workflows and cannot be substituted for an exact LOBSTER 5.1.1 manual or licensed example set.",
+        "Scientific definitions and limitations require claim-specific reading outside the bundle; metadata identity alone is not scientific evidence."
+      ],
+      "provenance": {
+        "official_fact_urls": [
+          "https://doi.org/10.1002/jcc.23424",
+          "https://doi.org/10.1002/jcc.24300",
+          "https://doi.org/10.1002/jcc.26353",
+          "https://doi.org/10.1002/cplu.202200123"
+        ],
+        "verified_utc": "2026-07-23T19:46:29Z"
+      },
+      "provider_class": "publisher",
+      "provider_id": "wiley",
+      "redistribution_policy": {
+        "allowed_values": [
+          "unknown"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "unversioned"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": null,
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "unversioned"
+          }
+        ]
+      }
+    }
+  },
+  "blocked_native_sources": [
+    {
+      "blocked_material_classes": [
+        "authorized-manual",
+        "licensed-example",
+        "basis-resource",
+        "binary",
+        "parent-wavefunction",
+        "calculation-output"
+      ],
+      "disposition": "blocked",
+      "locators": [
+        "https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6",
+        "https://schmeling.ac.rwth-aachen.de/cohp/index.php?fileID=18&menuID=603"
+      ],
+      "reason": "The exact first-party version and license pages require query-bearing locators. The current central authority contract forbids queries, so they are not proposed as active catalog sources and cannot authenticate an authorized 5.1.1 manual.",
+      "required_to_unblock": [
+        "A reviewed central exact-query policy or an authoritative queryless HTTPS route",
+        "An authorized exact 5.1.1 manual identity and entitlement receipt kept outside Git",
+        "Independent non-redistribution and payload-boundary review"
+      ],
+      "source_id": "lobster-5-1-1-native-manual-and-license"
+    }
+  ],
+  "consumer_bindings": [
+    {
+      "authority_id": "lobster-acs-method-literature",
+      "binding_id": "lobster-skill-acs-method-literature",
+      "claim_ceiling": "registered-skill-scope",
+      "consumer_lifecycle": "development",
+      "consumer_path": "skills/lobster-bonding-analysis",
+      "consumer_skill_id": "lobster-bonding-analysis",
+      "provider_id": "acs",
+      "purpose": "official-document-coverage"
+    },
+    {
+      "authority_id": "lobster-wiley-method-literature",
+      "binding_id": "lobster-skill-wiley-method-literature",
+      "claim_ceiling": "registered-skill-scope",
+      "consumer_lifecycle": "development",
+      "consumer_path": "skills/lobster-bonding-analysis",
+      "consumer_skill_id": "lobster-bonding-analysis",
+      "provider_id": "wiley",
+      "purpose": "official-document-coverage"
+    }
+  ],
+  "proposal_type": "official-source-authority-binding-proposal",
+  "schema_version": "1.0",
+  "seed_provider_bindings": [
+    {
+      "authority_id": "lobster-acs-method-literature",
+      "input_id": "lobster-acs-method-literature",
+      "provider_id": "acs",
+      "source_catalog": "skills/lobster-bonding-analysis/references/source-catalog-lobster-acs-literature.json"
+    },
+    {
+      "authority_id": "lobster-wiley-method-literature",
+      "input_id": "lobster-wiley-method-literature",
+      "provider_id": "wiley",
+      "source_catalog": "skills/lobster-bonding-analysis/references/source-catalog-lobster-wiley-literature.json"
+    }
+  ],
+  "skill_id": "lobster-bonding-analysis"
+}

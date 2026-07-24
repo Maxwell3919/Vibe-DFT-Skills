@@ -3,16 +3,48 @@
 
 from __future__ import annotations
 
+import argparse
 import re
 from pathlib import Path
+import subprocess
 import sys
 
 from registry_yaml import RegistryYAMLError, load_yaml_strict, loads_yaml_strict
 from skill_registry import validate_source_skills
+import validate_official_document_bundles as official_document_bundles
+import validate_official_document_storage as official_document_storage
 
 
 LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 MAX_SKILL_BYTES = 1024 * 1024
+
+
+def check_generated_official_document_packs(root: Path) -> int:
+    """Replay the canonical pack builder in read-only exact-byte check mode."""
+
+    canonical_root = root.resolve()
+    command = [
+        sys.executable,
+        str(Path(__file__).resolve().with_name("build_official_document_packs.py")),
+        "--all",
+        "--check",
+        "--root",
+        str(canonical_root),
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=canonical_root,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(
+            "official-document pack freshness check could not run: "
+            f"{exc.__class__.__name__}: {exc}",
+            file=sys.stderr,
+        )
+        return 2
+    return completed.returncode
 
 
 def validate_skill(path: Path) -> list[str]:
@@ -85,11 +117,30 @@ def validate_skill(path: Path) -> list[str]:
     return failures
 
 
-def main() -> int:
-    root = Path(__file__).resolve().parents[1]
-    skills = sorted(path for path in (root / "skills").iterdir() if path.is_dir())
+def main(argv: list[str] | None = None, *, root: Path | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--strict-release",
+        action="store_true",
+        help=(
+            "require every source-backed Skill official-document bundle "
+            "to have complete semantic coverage"
+        ),
+    )
+    parser.add_argument(
+        "--baseline-ref",
+        help=(
+            "Git commit/ref for monotonic official-document pack and tracked "
+            "storage migration checks"
+        ),
+    )
+    args = parser.parse_args(argv)
+    selected_root = root or Path(__file__).resolve().parents[1]
+    skills = sorted(
+        path for path in (selected_root / "skills").iterdir() if path.is_dir()
+    )
     try:
-        expected = set(validate_source_skills(root))
+        expected = set(validate_source_skills(selected_root))
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 2
@@ -98,13 +149,43 @@ def main() -> int:
         failures.append(f"skill set mismatch: {sorted(path.name for path in skills)}")
     for path in skills:
         failures.extend(validate_skill(path))
-    if (root / "skills" / "qe-rigorous-calculations" / "experience").exists():
+    if (
+        selected_root / "skills" / "qe-rigorous-calculations" / "experience"
+    ).exists():
         failures.append("QE skill must not contain project experience")
     if failures:
         for item in failures:
             print(item, file=sys.stderr)
         return 2
-    print(f"PASS: validated {len(skills)} skills")
+    pack_check_status = check_generated_official_document_packs(selected_root)
+    if pack_check_status != 0:
+        return pack_check_status
+    official_document_status = official_document_bundles.run_audit(
+        selected_root,
+        strict_release=args.strict_release,
+        baseline_ref=args.baseline_ref,
+    )
+    official_storage_status = official_document_storage.run_audit(
+        selected_root,
+        strict_release=args.strict_release,
+        baseline_ref=args.baseline_ref,
+    )
+    statuses = (official_document_status, official_storage_status)
+    if 2 in statuses or any(status not in {0, 2, 3} for status in statuses):
+        return 2
+    if 3 in statuses:
+        return 3
+    if args.strict_release:
+        print(
+            f"PASS: validated {len(skills)} skills and complete official-document "
+            "release coverage/storage policy"
+        )
+    else:
+        print(
+            f"PASS: validated {len(skills)} skills; official-document bundles "
+            "and tracked storage were audited in report mode "
+            "(not a release-completeness claim)"
+        )
     return 0
 
 

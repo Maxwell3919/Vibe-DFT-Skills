@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-document-materialization-request:1.0",
+  "title": "Official document materialization request",
+  "description": "A closed request for external-only handling or deterministic in-memory planning from exact caller-supplied bytes.",
+  "$comment": "This contract records provenance, byte identity, segmentation, and a technical content mode. It does not perform network access or filesystem mutation.",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "request_id",
+    "adapter_id",
+    "authority_id",
+    "provider_id",
+    "version",
+    "revision",
+    "source_root",
+    "discovered_sources",
+    "included_sources",
+    "reviewed_exclusions",
+    "subjects",
+    "losses",
+    "content_mode",
+    "processor_lock"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {
+      "const": "official-document-materialization-request"
+    },
+    "request_id": {"$ref": "#/$defs/safeId"},
+    "adapter_id": {"const": "explicit-user-materialization-v1"},
+    "authority_id": {"$ref": "#/$defs/hyphenId"},
+    "provider_id": {"$ref": "#/$defs/hyphenId"},
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "source_root": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "maxLength": 2000
+    },
+    "discovered_sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/safeId"}
+    },
+    "included_sources": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/includedSource"}
+    },
+    "reviewed_exclusions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/reviewedExclusion"}
+    },
+    "subjects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/subject"}
+    },
+    "losses": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/loss"}
+    },
+    "content_mode": {"enum": ["external-only", "materialize"]},
+    "processor_lock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processor_id",
+        "processor_version",
+        "range_semantics",
+        "byte_transform"
+      ],
+      "properties": {
+        "processor_id": {"const": "explicit-user-materialization-v1"},
+        "processor_version": {"const": "1.0"},
+        "range_semantics": {"const": "zero-based-half-open-v1"},
+        "byte_transform": {"const": "none"}
+      }
+    }
+  },
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+    },
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "pattern": "^(?!/)(?!.*//)(?!.*(?:^|/)\\.\\.?(?:/|$))[A-Za-z0-9][A-Za-z0-9._/-]*$"
+    },
+    "mediaType": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9!#$&^_.+-]*/[a-z0-9][a-z0-9!#$&^_.+-]*$",
+      "maxLength": 200
+    },
+    "byteRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 268435456
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 268435456
+        }
+      }
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "segment_id",
+        "ordinal",
+        "byte_range",
+        "output_path",
+        "subject_ids"
+      ],
+      "properties": {
+        "segment_id": {"$ref": "#/$defs/safeId"},
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "byte_range": {"$ref": "#/$defs/byteRange"},
+        "output_path": {"$ref": "#/$defs/relativePath"},
+        "subject_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/safeId"}
+        }
+      }
+    },
+    "preservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "preserved_ranges"],
+      "properties": {
+        "mode": {"enum": ["full-source", "preserved-ranges"]},
+        "preserved_ranges": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/byteRange"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"mode": {"const": "full-source"}},
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {"preserved_ranges": {"maxItems": 0}}
+          },
+          "else": {
+            "properties": {"preserved_ranges": {"minItems": 1}}
+          }
+        }
+      ]
+    },
+    "includedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "locator",
+        "import_path",
+        "raw_sha256",
+        "raw_bytes",
+        "media_type",
+        "output_path",
+        "preservation",
+        "segments",
+        "subject_ids",
+        "loss_ids"
+      ],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/safeId"},
+        "locator": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "maxLength": 2000
+        },
+        "import_path": {"$ref": "#/$defs/relativePath"},
+        "raw_sha256": {"$ref": "#/$defs/sha256"},
+        "raw_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 268435456
+        },
+        "media_type": {"$ref": "#/$defs/mediaType"},
+        "output_path": {"$ref": "#/$defs/relativePath"},
+        "preservation": {"$ref": "#/$defs/preservation"},
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/segment"}
+        },
+        "subject_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/safeId"}
+        },
+        "loss_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/safeId"}
+        }
+      }
+    },
+    "reviewedExclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "disposition"],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/safeId"},
+        "disposition": {
+          "enum": [
+            "outside-requested-scope",
+            "duplicate-source",
+            "non-document-artifact",
+            "superseded"
+          ]
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject_id", "source_id", "segment_ids"],
+      "properties": {
+        "subject_id": {"$ref": "#/$defs/safeId"},
+        "source_id": {"$ref": "#/$defs/safeId"},
+        "segment_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/safeId"}
+        }
+      }
+    },
+    "loss": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["loss_id", "source_id", "byte_range", "disposition"],
+      "properties": {
+        "loss_id": {"$ref": "#/$defs/safeId"},
+        "source_id": {"$ref": "#/$defs/safeId"},
+        "byte_range": {"$ref": "#/$defs/byteRange"},
+        "disposition": {"const": "excluded-from-segmentation"}
+      }
+    }
+  }
+}

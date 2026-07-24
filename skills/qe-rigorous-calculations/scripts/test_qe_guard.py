@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -65,6 +66,64 @@ class QeGuardTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         return result
+
+    def make_reference_fixture(self, root: Path) -> dict[str, object]:
+        references = root / "references"
+        references.mkdir()
+        manifest = json.loads((qe_guard.MANIFEST_PATH).read_text(encoding="utf-8"))
+        record = next(item for item in manifest["input_manuals"] if item["name"] == "INPUT_PW")
+        record = json.loads(json.dumps(record))
+        section = next(item for item in record["sections"] if "card-k-points" in item["id"])
+        record["sections"] = [section]
+        record["index_file"] = "official-manual-pw-index.md"
+        manifest = {"input_manuals": [record]}
+        (references / "official-manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        (references / record["index_file"]).write_text(
+            f"- [{section['title']}]({section['file']})\n",
+            encoding="utf-8",
+        )
+        source = qe_guard.REFERENCES / section["file"]
+        section_path = references / section["file"]
+        section_path.write_bytes(source.read_bytes())
+        raw_bytes = (qe_guard.REFERENCES / record["raw_file"]).read_bytes()
+        return {
+            "references": references,
+            "record": record,
+            "section": section,
+            "section_path": section_path,
+            "raw_bytes": raw_bytes,
+        }
+
+    def run_reference_fixture(
+        self,
+        fixture: dict[str, object],
+        *,
+        full_entry: bool = True,
+        max_chars: int = 6000,
+        continuation_token: str | None = None,
+    ) -> tuple[int, dict]:
+        references = fixture["references"]
+        assert isinstance(references, Path)
+        output = references.parent / "reference-report.json"
+        args = qe_guard.argparse.Namespace(
+            executable="pw.x",
+            term=fixture["section"]["title"],
+            qe_version="7.5",
+            offline=False,
+            live_check=True,
+            timeout=1.0,
+            max_chars=max_chars,
+            continuation_token=continuation_token,
+            full_entry=full_entry,
+            out=output,
+        )
+        with (
+            mock.patch.object(qe_guard, "REFERENCES", references),
+            mock.patch.object(qe_guard, "MANIFEST_PATH", references / "official-manifest.json"),
+            mock.patch.object(qe_guard, "live_fetch", return_value=fixture["raw_bytes"]),
+        ):
+            status = qe_guard.command_reference(args)
+        return status, json.loads(output.read_text(encoding="utf-8"))
 
     def make_plan(self, root: Path, task_type: str = "scf", absolute_tolerance: float = 1e-5) -> Path:
         plan = root / "qe_plan.json"
@@ -535,6 +594,200 @@ class QeGuardTests(unittest.TestCase):
         self.assertEqual(payload["decision"], "cached_only")
         self.assertEqual(len(payload["matches"]), 1)
         self.assertEqual(payload["matches"][0]["manual_version"], "7.5")
+
+    def test_partial_reference_page_is_explicit_and_fail_closed(self) -> None:
+        result = self.run_cli(
+            "reference",
+            "--executable",
+            "pw.x",
+            "--term",
+            "K_POINTS tpiba automatic crystal gamma tpiba_b crystal_b tpiba_c crystal_c",
+            "--qe-version",
+            "7.5",
+            "--offline",
+            expected=2,
+        )
+        payload = json.loads(result.stdout)
+        match = payload["matches"][0]
+        reference_path = SCRIPT_DIR.parent / match["reference_file"]
+        content = reference_path.read_text(encoding="utf-8")
+        content_bytes = content.encode("utf-8")
+
+        self.assertEqual(payload["decision"], "blocked_partial_entry")
+        self.assertEqual(match["total_bytes"], len(content_bytes))
+        self.assertEqual(match["content_sha256"], hashlib.sha256(content_bytes).hexdigest())
+        self.assertEqual(match["returned_range"]["unit"], "utf-8-bytes")
+        self.assertEqual(match["returned_range"]["start"], 0)
+        self.assertEqual(match["returned_range"]["end_exclusive"], len(match["excerpt"].encode("utf-8")))
+        self.assertTrue(match["truncated"])
+        self.assertFalse(match["complete_entry_returned"])
+        self.assertIsInstance(match["continuation_token"], str)
+        self.assertTrue(match["continuation_token"])
+        self.assertIn("partial", payload["required_disclosure"].lower())
+
+    def test_reference_pages_reconstruct_exact_utf8_content(self) -> None:
+        term = "K_POINTS tpiba automatic crystal gamma tpiba_b crystal_b tpiba_c crystal_c"
+        token: str | None = None
+        pages: list[str] = []
+        ranges: list[tuple[int, int]] = []
+        content_sha256: str | None = None
+        total_bytes: int | None = None
+
+        while True:
+            argv = [
+                "reference",
+                "--executable",
+                "pw.x",
+                "--term",
+                term,
+                "--qe-version",
+                "7.5",
+                "--offline",
+                "--max-chars",
+                "3000",
+            ]
+            if token is not None:
+                argv.extend(["--continuation-token", token])
+            result = self.run_cli(*argv, expected=2)
+            payload = json.loads(result.stdout)
+            match = payload["matches"][0]
+            self.assertEqual(payload["decision"], "blocked_partial_entry")
+            self.assertFalse(match["complete_entry_returned"])
+            pages.append(match["excerpt"])
+            current_range = match["returned_range"]
+            ranges.append((current_range["start"], current_range["end_exclusive"]))
+            content_sha256 = content_sha256 or match["content_sha256"]
+            total_bytes = total_bytes or match["total_bytes"]
+            self.assertEqual(match["content_sha256"], content_sha256)
+            self.assertEqual(match["total_bytes"], total_bytes)
+            token = match["continuation_token"]
+            if token is None:
+                self.assertFalse(match["truncated"])
+                break
+            self.assertTrue(match["truncated"])
+
+        reconstructed = "".join(pages).encode("utf-8")
+        self.assertEqual(ranges[0][0], 0)
+        self.assertTrue(all(left[1] == right[0] for left, right in zip(ranges, ranges[1:])))
+        self.assertEqual(ranges[-1][1], total_bytes)
+        self.assertEqual(len(reconstructed), total_bytes)
+        self.assertEqual(hashlib.sha256(reconstructed).hexdigest(), content_sha256)
+
+    def test_full_reference_entry_can_be_returned_without_pagination(self) -> None:
+        result = self.run_cli(
+            "reference",
+            "--executable",
+            "pw.x",
+            "--term",
+            "K_POINTS tpiba automatic crystal gamma tpiba_b crystal_b tpiba_c crystal_c",
+            "--qe-version",
+            "7.5",
+            "--offline",
+            "--full-entry",
+            expected=3,
+        )
+        payload = json.loads(result.stdout)
+        match = payload["matches"][0]
+        self.assertEqual(payload["decision"], "cached_only")
+        self.assertFalse(match["truncated"])
+        self.assertTrue(match["complete_entry_returned"])
+        self.assertIsNone(match["continuation_token"])
+        self.assertEqual(match["returned_range"]["start"], 0)
+        self.assertEqual(match["returned_range"]["end_exclusive"], match["total_bytes"])
+        self.assertEqual(hashlib.sha256(match["excerpt"].encode("utf-8")).hexdigest(), match["content_sha256"])
+
+    def test_reference_rejects_tampered_payload_and_outside_fence_append(self) -> None:
+        mutations = {
+            "payload": lambda text: text.replace("Default:        tbipa", "Default:        tampered", 1),
+            "outside-fence": lambda text: text + "untracked local appendix\n",
+        }
+        for label, mutate in mutations.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as tempdir:
+                fixture = self.make_reference_fixture(Path(tempdir))
+                section_path = fixture["section_path"]
+                assert isinstance(section_path, Path)
+                original = section_path.read_text(encoding="utf-8")
+                tampered = mutate(original)
+                self.assertNotEqual(tampered, original)
+                section_path.write_text(tampered, encoding="utf-8")
+                status, payload = self.run_reference_fixture(fixture)
+                self.assertEqual(status, 2)
+                self.assertEqual(payload["decision"], "blocked_local_entry_integrity")
+                self.assertEqual(payload["live_check"]["status"], "match")
+                self.assertEqual(payload["matches"][0]["entry_verification"]["status"], "fail")
+                self.assertNotIn("excerpt", payload["matches"][0])
+
+    def test_reference_rejects_wrong_manifest_payload_hash_or_bytes(self) -> None:
+        for field, value in [("sha256", "0" * 64), ("bytes", 1)]:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as tempdir:
+                fixture = self.make_reference_fixture(Path(tempdir))
+                references = fixture["references"]
+                assert isinstance(references, Path)
+                manifest_path = references / "official-manifest.json"
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest["input_manuals"][0]["sections"][0][field] = value
+                manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+                status, payload = self.run_reference_fixture(fixture)
+                self.assertEqual(status, 2)
+                self.assertEqual(payload["decision"], "blocked_local_entry_integrity")
+                self.assertEqual(payload["matches"][0]["entry_verification"]["status"], "fail")
+
+    def test_reference_rejects_section_path_escape_and_symlink(self) -> None:
+        for mode in ["escape", "symlink"]:
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as tempdir:
+                root = Path(tempdir)
+                fixture = self.make_reference_fixture(root)
+                references = fixture["references"]
+                section = fixture["section"]
+                section_path = fixture["section_path"]
+                assert isinstance(references, Path)
+                assert isinstance(section, dict)
+                assert isinstance(section_path, Path)
+                outside = root / "outside-entry.md"
+                outside.write_bytes(section_path.read_bytes())
+                if mode == "escape":
+                    manifest_path = references / "official-manifest.json"
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    manifest["input_manuals"][0]["sections"][0]["file"] = "../outside-entry.md"
+                    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+                    (references / "official-manual-pw-index.md").write_text(
+                        f"- [{section['title']}](../outside-entry.md)\n",
+                        encoding="utf-8",
+                    )
+                else:
+                    section_path.unlink()
+                    section_path.symlink_to(outside)
+                status, payload = self.run_reference_fixture(fixture)
+                self.assertEqual(status, 2)
+                self.assertEqual(payload["decision"], "blocked_local_entry_integrity")
+                self.assertEqual(payload["matches"][0]["entry_verification"]["status"], "fail")
+
+    def test_reference_continuation_revalidates_the_same_local_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            fixture = self.make_reference_fixture(Path(tempdir))
+            status, first = self.run_reference_fixture(fixture, full_entry=False, max_chars=1000)
+            self.assertEqual(status, 2)
+            token = first["matches"][0]["continuation_token"]
+            self.assertIsInstance(token, str)
+            section_path = fixture["section_path"]
+            assert isinstance(section_path, Path)
+            section_path.write_text(
+                section_path.read_text(encoding="utf-8").replace(
+                    "Default:        tbipa",
+                    "Default:        tampered",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            status, second = self.run_reference_fixture(
+                fixture,
+                full_entry=False,
+                max_chars=1000,
+                continuation_token=token,
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(second["decision"], "blocked_local_entry_integrity")
+            self.assertNotIn("excerpt", second["matches"][0])
 
     def test_reference_version_mismatch_is_blocked(self) -> None:
         result = self.run_cli(

@@ -1,0 +1,298 @@
+{
+  "blockers": [],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only",
+      "excluded"
+    ],
+    "assessment": "conditional",
+    "identity": {
+      "identifier": "CC-BY-NC-SA-4.0",
+      "terms_urls": [
+        "https://gitlab.com/siesta-project/documentation/siesta-docs/-/raw/ca6da4c46538bccce34776cdbb075fa4bfc2c6dc/LICENSE"
+      ],
+      "verification": "verified"
+    },
+    "limitations": [
+      "The non-commercial share-alike documentation license and central authority policy prohibit embedding portal bodies."
+    ],
+    "official_terms_locator": "https://gitlab.com/siesta-project/documentation/siesta-docs/-/raw/ca6da4c46538bccce34776cdbb075fa4bfc2c6dc/LICENSE"
+  },
+  "limitations": [
+    "Only the consolidated 5.4 reference page and performance page have exact external receipts; the complete portal toctree is not inventoried.",
+    "Portal documentation authority and 5.4.2 release-source authority remain separate corpora and license reviews."
+  ],
+  "losses": [],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "7074fb66818fbbc771e52bb25b0273a586a4ed42bf21c923b7e880cf1a9597e9",
+        "kind": "external-receipt",
+        "raw_bytes": 18944,
+        "raw_sha256": "41da120fcff558729c51aa13053136e2d94eaf7ba829166907c58e959dc73957",
+        "retrieved_utc": "2026-07-23T19:30:41Z",
+        "value": "sha256:41da120fcff558729c51aa13053136e2d94eaf7ba829166907c58e959dc73957"
+      },
+      "locator": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/performance-options/",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 18944,
+            "raw_sha256": "41da120fcff558729c51aa13053136e2d94eaf7ba829166907c58e959dc73957",
+            "retrieval_method": "https-get",
+            "retrieved_utc": "2026-07-23T19:30:41Z",
+            "selected_bytes": 18944,
+            "selected_sha256": "41da120fcff558729c51aa13053136e2d94eaf7ba829166907c58e959dc73957"
+          },
+          "loss_ids": [],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "siesta.portal.https-docs-siesta-project-org-projects-siesta-en-5-4-reference-performance-options.f1d2fa9b16b2.whole",
+          "subject_ids": [
+            "siesta.portal-topic.performance",
+            "siesta.portal.performance-options"
+          ],
+          "title": "Exact raw bytes of SIESTA 5.4 performance options"
+        }
+      ],
+      "source_id": "siesta.portal.https-docs-siesta-project-org-projects-siesta-en-5-4-reference-performance-options.f1d2fa9b16b2",
+      "source_kind": "reference-page",
+      "title": "SIESTA 5.4 performance options"
+    },
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "7074fb66818fbbc771e52bb25b0273a586a4ed42bf21c923b7e880cf1a9597e9",
+        "kind": "external-receipt",
+        "raw_bytes": 1155549,
+        "raw_sha256": "b2228ffca6ec8a505bab4fcd8caaf9354add02f36fde3fb3d827087f4021926f",
+        "retrieved_utc": "2026-07-23T19:30:41Z",
+        "value": "sha256:b2228ffca6ec8a505bab4fcd8caaf9354add02f36fde3fb3d827087f4021926f"
+      },
+      "locator": "https://docs.siesta-project.org/projects/siesta/en/5.4/reference/siesta.html",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 1155549,
+            "raw_sha256": "b2228ffca6ec8a505bab4fcd8caaf9354add02f36fde3fb3d827087f4021926f",
+            "retrieval_method": "https-get",
+            "retrieved_utc": "2026-07-23T19:30:41Z",
+            "selected_bytes": 1155549,
+            "selected_sha256": "b2228ffca6ec8a505bab4fcd8caaf9354add02f36fde3fb3d827087f4021926f"
+          },
+          "loss_ids": [],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "siesta.portal.https-docs-siesta-project-org-projects-siesta-en-5-4-reference-siesta-html.56afe6eac35d.whole",
+          "subject_ids": [
+            "siesta.portal-topic.documentation",
+            "siesta.portal-topic.fdf",
+            "siesta.portal-topic.kpoints",
+            "siesta.portal-topic.output",
+            "siesta.portal-topic.pseudopotentials",
+            "siesta.portal-topic.relaxation",
+            "siesta.portal-topic.scf",
+            "siesta.portal-topic.transport",
+            "siesta.portal.reference-manual",
+            "siesta.task.bands",
+            "siesta.task.dos",
+            "siesta.task.generic",
+            "siesta.task.md",
+            "siesta.task.optics",
+            "siesta.task.phonon",
+            "siesta.task.relax",
+            "siesta.task.scf",
+            "siesta.task.tbtrans",
+            "siesta.task.tddft",
+            "siesta.task.transiesta"
+          ],
+          "title": "Exact raw bytes of SIESTA 5.4 consolidated reference manual"
+        }
+      ],
+      "source_id": "siesta.portal.https-docs-siesta-project-org-projects-siesta-en-5-4-reference-siesta-html.56afe6eac35d",
+      "source_kind": "reference-page",
+      "title": "SIESTA 5.4 consolidated reference manual"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.documentation",
+      "title": "SIESTA 5.4 portal topic: documentation"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.fdf",
+      "title": "SIESTA 5.4 portal topic: fdf"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.kpoints",
+      "title": "SIESTA 5.4 portal topic: kpoints"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.output",
+      "title": "SIESTA 5.4 portal topic: output"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.performance",
+      "title": "SIESTA 5.4 portal topic: performance"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.pseudopotentials",
+      "title": "SIESTA 5.4 portal topic: pseudopotentials"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.relaxation",
+      "title": "SIESTA 5.4 portal topic: relaxation"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.scf",
+      "title": "SIESTA 5.4 portal topic: scf"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.portal-topic.transport",
+      "title": "SIESTA 5.4 portal topic: transport"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "supporting",
+      "subject_id": "siesta.portal.performance-options",
+      "title": "SIESTA 5.4 performance options"
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "supporting",
+      "subject_id": "siesta.portal.reference-manual",
+      "title": "SIESTA 5.4 consolidated reference manual"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.bands",
+      "title": "SIESTA task profile: bands"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.dos",
+      "title": "SIESTA task profile: dos"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.generic",
+      "title": "SIESTA task profile: generic"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.md",
+      "title": "SIESTA task profile: md"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.optics",
+      "title": "SIESTA task profile: optics"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.phonon",
+      "title": "SIESTA task profile: phonon"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.relax",
+      "title": "SIESTA task profile: relax"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.scf",
+      "title": "SIESTA task profile: scf"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.tbtrans",
+      "title": "SIESTA task profile: tbtrans"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.tddft",
+      "title": "SIESTA task profile: tddft"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "siesta.task.transiesta",
+      "title": "SIESTA task profile: transiesta"
+    }
+  ],
+  "upstream_universe_complete": false,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": "2026-07-23T19:30:41Z",
+    "snapshot_identity": {
+      "content_sha256": "9fb4b83ad130631b6fea86c7fb2ba82972da3fa203b50783dbf682a2aaf83f2f",
+      "kind": "manifest",
+      "value": "siesta-5.4-two-page-external-receipt"
+    },
+    "value": "5.4"
+  }
+}

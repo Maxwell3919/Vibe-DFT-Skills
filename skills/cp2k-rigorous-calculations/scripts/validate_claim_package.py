@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a CP2K evidence package without granting scientific acceptance."""
+"""Validate a CP2K evidence package; trust cached bytes or an explicit in-process live replay."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import re
 import sys
 from typing import Any
 
+import audit_cp2k_case
 import resolve_official_sources
 
 
@@ -70,7 +71,7 @@ def finite_nonnegative(value: Any, label: str) -> float:
 
 def load_task_profile(task_type: str, profiles_path: Path = DEFAULT_PROFILES) -> tuple[bool, set[str]]:
     document = load_object(profiles_path, "task evidence profiles")
-    if document.get("schema_version") != "1.0":
+    if document.get("schema_version") != "1.1":
         raise ValueError("unsupported task evidence profile schema")
     profile = document.get("profiles", {}).get(task_type)
     common = document.get("common_claim_checks")
@@ -122,11 +123,61 @@ def load_passing_audit(path: Path) -> dict[str, Any]:
         raise ValueError("audit CP2K release cannot be normalized")
     if not isinstance(profiles, dict) or not isinstance(profiles.get("task"), dict) or not isinstance(profiles.get("methods"), list):
         raise ValueError("audit evidence has no task/method profiles")
-    required_topics = set(profiles["task"].get("required_source_topics", []))
+    task_type = audit.get("task_type")
+    if not isinstance(task_type, str) or task_type not in audit_cp2k_case.TASK_PROFILES:
+        raise ValueError("audit evidence has an unsupported task profile")
+    expected_base_topics = set(audit_cp2k_case.QUICKSTEP_BASE_SOURCE_TOPICS)
+    expected_task_only = set(audit_cp2k_case.TASK_PROFILES[task_type]["required_source_topics"])
+    expected_task_topics = set(audit_cp2k_case.task_source_topics(task_type))
+    task_profile = profiles["task"]
+    actual_base_topics = set(
+        audit_cp2k_case.source_topic_list(
+            task_profile.get("quickstep_base_source_topics"),
+            "audit quickstep_base_source_topics",
+        )
+    )
+    actual_task_only = set(
+        audit_cp2k_case.source_topic_list(
+            task_profile.get("task_source_topics"),
+            "audit task_source_topics",
+        )
+    )
+    actual_task_topics = set(
+        audit_cp2k_case.source_topic_list(
+            task_profile.get("required_source_topics"),
+            "audit required_source_topics",
+        )
+    )
+    if (
+        task_profile.get("name") != task_type
+        or actual_base_topics != expected_base_topics
+        or actual_task_only != expected_task_only
+        or actual_task_topics != expected_task_topics
+    ):
+        raise ValueError("audit task profile does not inherit the checked-in Quickstep source topics")
+    required_topics = set(expected_task_topics)
+    detected_methods: set[str] = set()
     for method in profiles["methods"]:
-        if not isinstance(method, dict):
+        if not isinstance(method, dict) or not isinstance(method.get("name"), str):
             raise ValueError("audit method profile is malformed")
-        required_topics.update(method.get("source_topics", []))
+        name = method["name"]
+        expected_method = audit_cp2k_case.METHOD_PROFILES.get(name)
+        if (
+            expected_method is None
+            or name in detected_methods
+            or set(
+                audit_cp2k_case.source_topic_list(
+                    method.get("source_topics"),
+                    f"audit {name}.source_topics",
+                )
+            )
+            != set(expected_method["source_topics"])
+        ):
+            raise ValueError("audit method profile differs from the checked-in source requirements")
+        detected_methods.add(name)
+        required_topics.update(expected_method["source_topics"])
+    if "quickstep-core" not in detected_methods:
+        raise ValueError("audit method profile omits the Quickstep core")
     if not required_topics or any(not isinstance(value, str) for value in required_topics):
         raise ValueError("audit official-source requirements are unresolved")
     return {
@@ -138,11 +189,25 @@ def load_passing_audit(path: Path) -> dict[str, Any]:
     }
 
 
-def validate_official_sources(path: Path, version: str, required_topics: set[str]) -> dict[str, Any]:
+def validate_official_sources(
+    path: Path,
+    version: str,
+    required_topics: set[str],
+    *,
+    live_replay: bool = False,
+) -> dict[str, Any]:
     evidence = load_object(path, "official-source evidence")
-    if evidence.get("schema_version") != "1.0" or evidence.get("manual_version") != version:
+    if (
+        evidence.get("schema_version") != "1.1"
+        or evidence.get("manual_version") != version
+        or evidence.get("manual_branch") != resolve_official_sources.manual_branch(version)
+    ):
         raise ValueError("official-source evidence version differs from the audited CP2K release")
-    if evidence.get("status") not in {"pass", "pass_cached_version_matched"}:
+    if evidence.get("status") == "pass_live_matches_cached":
+        raise ValueError(
+            "self-declared live receipt is not a trust root; submit cached_exact evidence and request live replay"
+        )
+    if evidence.get("status") != "pass_cached_exact":
         raise ValueError("official-source evidence is not version-verified")
     resolved = evidence.get("resolved")
     if not isinstance(resolved, list):
@@ -153,15 +218,22 @@ def validate_official_sources(path: Path, version: str, required_topics: set[str
             raise ValueError("official-source evidence contains a malformed record")
         if record["topic"] in by_topic:
             raise ValueError("official-source evidence contains a duplicate topic")
-        if record.get("verification") not in {"cached_version_matched", "live_verified"}:
+        if record.get("verification") != "cached_exact":
             raise ValueError("official-source evidence contains an unverified topic")
         by_topic[record["topic"]] = record
     missing = sorted(required_topics - set(by_topic))
     if missing:
         raise ValueError(f"official-source evidence is missing {len(missing)} required topic(s)")
+    unexpected = sorted(set(by_topic) - required_topics)
+    if unexpected:
+        raise ValueError(f"official-source evidence contains {len(unexpected)} unexpected topic(s)")
+    if {record["verification"] for record in by_topic.values()} != {"cached_exact"}:
+        raise ValueError("official-source evidence mixes incompatible verification states")
+    if evidence["status"] != "pass_cached_exact":
+        raise ValueError("official-source evidence status differs from its verification records")
 
     cached = resolve_official_sources.resolve(sorted(required_topics), version, live_check=False)
-    if cached.get("status") != "pass_cached_version_matched":
+    if cached.get("status") != "pass_cached_exact":
         raise ValueError("the checked-in official snapshot cannot independently verify every required topic")
     expected = {record["topic"]: record for record in cached["resolved"]}
     for topic in required_topics:
@@ -169,16 +241,31 @@ def validate_official_sources(path: Path, version: str, required_topics: set[str
         reference = expected[topic]
         if record.get("url") != reference.get("url"):
             raise ValueError("official-source URL differs from the checked-in registry")
-        if record.get("verification") == "cached_version_matched" and (
+        if (
             record.get("snapshot_sha256") != reference.get("snapshot_sha256")
             or record.get("source_content_sha256") != reference.get("source_content_sha256")
+            or record.get("snapshot_bytes") != reference.get("snapshot_bytes")
+            or record.get("source_content_bytes") != reference.get("source_content_bytes")
+            or record.get("local_reference") != reference.get("local_reference")
+            or record.get("cached_retrieved_utc") != reference.get("cached_retrieved_utc")
         ):
             raise ValueError("official-source snapshot hashes do not match the checked-in manifest")
+    verification_mode = "cached_exact"
+    if live_replay:
+        replay = resolve_official_sources.resolve(
+            sorted(required_topics),
+            version,
+            live_check=True,
+        )
+        if replay.get("status") != "pass_live_matches_cached":
+            raise ValueError("validation-time live replay did not match the checked-in official snapshot")
+        verification_mode = "live_replayed_matches_cached"
     return {
         "sha256": sha256_file(path),
         "manual_version": version,
         "required_topics": sorted(required_topics),
         "verified_topics": len(required_topics),
+        "verification_mode": verification_mode,
     }
 
 
@@ -234,7 +321,12 @@ def validate_checks(value: Any, required: set[str], base: Path) -> dict[str, Any
     }
 
 
-def validate_package(package_path: Path, profiles_path: Path = DEFAULT_PROFILES) -> dict[str, Any]:
+def validate_package(
+    package_path: Path,
+    profiles_path: Path = DEFAULT_PROFILES,
+    *,
+    live_replay: bool = False,
+) -> dict[str, Any]:
     package = load_object(package_path, "claim package")
     missing_keys = sorted(PACKAGE_KEYS - set(package))
     extra_keys = sorted(set(package) - PACKAGE_KEYS)
@@ -262,7 +354,12 @@ def validate_package(package_path: Path, profiles_path: Path = DEFAULT_PROFILES)
     official_path = resolved_path(package.get("official_sources_json"), base, "official_sources_json")
     audit = load_passing_audit(audit_path)
     convergence = load_object(convergence_path, "convergence evidence")
-    official = validate_official_sources(official_path, audit["cp2k_version"], audit["required_source_topics"])
+    official = validate_official_sources(
+        official_path,
+        audit["cp2k_version"],
+        audit["required_source_topics"],
+        live_replay=live_replay,
+    )
     blockers: list[str] = []
     if not claim_supported:
         blockers.append("generic task profile cannot support a claim package")
@@ -316,6 +413,7 @@ def validate_package(package_path: Path, profiles_path: Path = DEFAULT_PROFILES)
             "manual_version": official["manual_version"],
             "required_topics": official["required_topics"],
             "verified_topics": official["verified_topics"],
+            "verification_mode": official["verification_mode"],
         },
         "checks": checks,
         "blockers": blockers,
@@ -340,10 +438,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("package", type=Path)
     parser.add_argument("--profiles", type=Path, default=DEFAULT_PROFILES)
+    parser.add_argument(
+        "--live-replay",
+        action="store_true",
+        help="Reopen every required official URL during this validation and require exact cached-content hashes.",
+    )
     parser.add_argument("--pretty", action="store_true")
     args = parser.parse_args()
     try:
-        result = validate_package(args.package, args.profiles)
+        result = validate_package(args.package, args.profiles, live_replay=args.live_replay)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"status": "blocked_invalid_package", "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 2

@@ -22,6 +22,7 @@ from .electronic import (
     _window_integral,
     _write_csv_atomic,
 )
+from .registry import resolve_backend_maturity
 from .utils import utc_now, write_json_atomic
 
 
@@ -281,9 +282,10 @@ def normalize_vasp_bands(
     *,
     figure_output: Path | None = None,
     energy_window_ev: tuple[float, float] | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("bands", "vasp", "python.vasp-bands", maturity)
     _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -584,9 +586,10 @@ def normalize_vasp_dos(
     group_by: str = "species-orbital",
     integration_window_ev: tuple[float, float] | None = None,
     energy_window_ev: tuple[float, float] | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("dos-pdos", "vasp", "python.vasp-dos", maturity)
     _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -844,9 +847,10 @@ def normalize_vasp_fatband(
     render_mode: str = "line-width",
     projection_label: str | None = None,
     bands_label: str = "Bands",
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("bands", "vasp", "python.vasp-fatband", maturity)
     _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)

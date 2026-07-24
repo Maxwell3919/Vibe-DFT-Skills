@@ -12,7 +12,7 @@ Separate objective definition, official behavior, input integrity, pseudopotenti
 - Read [references/fail-closed-contract.md](references/fail-closed-contract.md) for every calculation design, input/output audit, or convergence task.
 - Resolve the bundled `scripts/qe_guard.py` from this skill directory; never assume the user's calculation directory is the skill directory.
 - Create `qe_plan.json` before scientific calculation design. Do not invent an observable, tolerance, version, or protocol id.
-- Run `reference` for every decisive official parameter. Use `--live-check` when network access is available; use `--offline` only with an explicit cached-source limitation.
+- Run `reference` for every decisive official parameter. Use `--live-check` when network access is available; use `--offline` only with an explicit cached-source limitation. Require `entry_verification.status: verified` and `complete_entry_returned: true` before treating the response as the complete matched entry; follow `continuation_token` pages for bounded retrieval or request `--full-entry`.
 - Run `audit` before calling a `pw.x` input ready and again with both `--output` and the separately captured `--stderr` before calling its execution complete.
 - Run `convergence` only on fixed-protocol tables whose rows bind the unchanged plan, distinct audit reports, and matching input/output content hashes; keep every untested convergence dimension explicit.
 - Treat any nonzero exit, `decision != pass`, `fail`, `incomplete`, `not_assessed`, or `scientific_claim_decision: blocked` as a hard stop for the corresponding positive claim.

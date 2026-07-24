@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import subprocess
 import sys
@@ -38,7 +39,13 @@ class ConvergenceTests(unittest.TestCase):
             "task_type": "static",
         }
 
-    def write_audit(self, path: Path, *, electronic: str = "pass") -> None:
+    def write_audit(
+        self,
+        path: Path,
+        *,
+        electronic: str = "pass",
+        consistency: str = "pass",
+    ) -> None:
         path.write_text(
             json.dumps(
                 {
@@ -51,6 +58,7 @@ class ConvergenceTests(unittest.TestCase):
                     "gates": {
                         "input_integrity": "pass",
                         "input_reproducibility": "pass",
+                        "input_output_consistency": consistency,
                         "execution_completion": "pass",
                         "electronic_convergence": electronic,
                         "ionic_convergence": "not_applicable",
@@ -134,6 +142,14 @@ class ConvergenceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "blocked technical gates"):
                 analyze_convergence.load_series(path, "encut", "energy")
 
+    def test_unresolved_input_output_binding_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = self.write_series(root)
+            self.write_audit(root / "audit-2.json", consistency="unresolved")
+            with self.assertRaisesRegex(ValueError, "input_output_consistency=unresolved"):
+                analyze_convergence.load_series(path, "encut", "energy")
+
     def test_state_change_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = self.write_series(Path(directory), states=("state-a", "state-b", "state-a"))
@@ -158,6 +174,46 @@ class AuditTests(unittest.TestCase):
         )
         return root
 
+    def set_explicit_kpoints(self, case: Path, count: int = 2) -> None:
+        rows = (
+            "0 0 0 1\n"
+            "0.5 0 0 1\n"
+        )
+        case.joinpath("KPOINTS").write_text(
+            f"explicit mesh\n{count}\nReciprocal\n{rows}"
+        )
+
+    def completed_outcar(
+        self,
+        *,
+        version: str = "6.4.3",
+        encut: str = "400",
+        ediff: str = "1E-8",
+        nelm: int = 60,
+        nkpts: int = 2,
+        suffix: str = "",
+    ) -> str:
+        return (
+            f"vasp.{version} 30Oct23 (build Feb 9 2024 14:42:54) complex\n"
+            " running on    1 total cores\n"
+            " POSCAR found :  1 types and 2 ions\n"
+            " Dimension of arrays:\n"
+            f" NKPTS = {nkpts}\n"
+            " INCAR settings echoed by VASP:\n"
+            f" ENCUT = {encut}\n"
+            f" EDIFF = {ediff}\n"
+            f" NELM = {nelm}\n"
+            " Iteration    1(   1)\n"
+            " DAV:   1    -1.000000000000E+01   -1.0E-02   -1.0E-03\n"
+            " aborting loop because EDIFF is reached\n"
+            " FREE ENERGIE OF THE ION-ELECTRON SYSTEM (eV)\n"
+            " free  energy   TOTEN  =       -10.00000000 eV\n"
+            " General timing and accounting informations for this job:\n"
+            " Total CPU time used (sec):       9.0\n"
+            " Elapsed time (sec):              10.0\n"
+            f"{suffix}"
+        )
+
     def test_consistent_case(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nISMEAR=0\nSIGMA=0.05\n")
@@ -169,6 +225,51 @@ class AuditTests(unittest.TestCase):
             self.assertEqual(result["gates"]["scientific_claim"], "blocked")
             self.assertNotIn(str(case), json.dumps(result))
             self.assertNotIn("comment", result["files"]["POSCAR"])
+
+    def test_unverified_source_metadata_cannot_pass_reproducibility(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\n")
+            coverage = {
+                "status": "metadata_resolved_unverified",
+                "covered": {"ENCUT": {}},
+                "missing": [],
+                "corrupt": [],
+                "integrity": {"anchor_status": "unverified"},
+            }
+            with patch.object(
+                audit_vasp_case,
+                "mirror_coverage",
+                return_value=coverage,
+            ):
+                result = audit_vasp_case.audit(case)
+            codes = {item["code"] for item in result["findings"]}
+            self.assertIn("official-source-metadata-unverified", codes)
+            self.assertEqual(result["gates"]["input_reproducibility"], "unresolved")
+            self.assertEqual(
+                result["verdict"],
+                "input_integrity_passed_reproducibility_unresolved",
+            )
+
+    def test_blocked_source_integrity_fails_input_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\n")
+            coverage = {
+                "status": "blocked_local_official_source",
+                "covered": {"ENCUT": {}},
+                "missing": [],
+                "corrupt": ["ENCUT"],
+                "integrity": {"anchor_status": "blocked"},
+            }
+            with patch.object(
+                audit_vasp_case,
+                "mirror_coverage",
+                return_value=coverage,
+            ):
+                result = audit_vasp_case.audit(case)
+            codes = {item["code"] for item in result["findings"]}
+            self.assertIn("official-source-integrity-blocked", codes)
+            self.assertEqual(result["gates"]["input_integrity"], "fail")
+            self.assertEqual(result["verdict"], "blocked")
 
     def test_fixed_charge_requires_chgcar(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -257,6 +358,19 @@ class AuditTests(unittest.TestCase):
             result = audit_vasp_case.audit(case)
             self.assertEqual(result["files"]["KPOINTS"]["mesh"], [6, 6, 6])
 
+    def test_case_id_changes_when_kpoints_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            root.joinpath("first").mkdir()
+            root.joinpath("second").mkdir()
+            first = self.make_case(root / "first", "ENCUT=400\nEDIFF=1E-6\nISMEAR=0\nSIGMA=0.05\n")
+            second = self.make_case(root / "second", "ENCUT=400\nEDIFF=1E-6\nISMEAR=0\nSIGMA=0.05\n")
+            first.joinpath("KPOINTS").write_text("mesh\n0\nGamma\n4 4 4\n0 0 0\n")
+            second.joinpath("KPOINTS").write_text("mesh\n0\nGamma\n8 8 8\n0 0 0\n")
+            first_result = audit_vasp_case.audit(first)
+            second_result = audit_vasp_case.audit(second)
+            self.assertNotEqual(first_result["case_id"], second_result["case_id"])
+
     def test_run_mode_requires_outcar(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nISMEAR=0\nSIGMA=0.05\n")
@@ -266,26 +380,223 @@ class AuditTests(unittest.TestCase):
 
     def test_completed_run_passes_technical_gates_only(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
-            case.joinpath("OUTCAR").write_text(
-                "vasp.6.4.3\n ENCUT = 400\n EDIFF = 1E-6\n NELM = 60\n NKPTS = 8\n"
-                " Iteration 1( 1)\n Elapsed time (sec): 10.0\n"
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            self.set_explicit_kpoints(case)
+            case.joinpath("OUTCAR").write_text(self.completed_outcar())
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
             )
-            result = audit_vasp_case.audit(case, mode="run", task_type="static")
             self.assertEqual(result["gates"]["execution_completion"], "pass")
             self.assertEqual(result["gates"]["electronic_convergence"], "pass")
+            self.assertEqual(result["gates"]["input_output_consistency"], "pass")
             self.assertEqual(result["gates"]["physical_validity"], "not_evaluated_by_single_case")
             self.assertEqual(result["gates"]["scientific_claim"], "blocked")
             self.assertEqual(result["verdict"], "technical_run_gates_passed_scientific_claim_blocked")
+
+    def test_mismatched_outcar_echoes_block_technical_run(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(
+                self.completed_outcar(ediff="1E-2", nelm=2, nkpts=1)
+            )
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["input_output_consistency"], "fail")
+            codes = {item["code"] for item in result["findings"]}
+            self.assertIn("ediff-input-output-mismatch", codes)
+            self.assertIn("nelm-input-output-mismatch", codes)
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_automatic_kpoints_binding_is_unresolved_without_exact_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(self.completed_outcar(nkpts=1))
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["input_output_consistency"], "unresolved")
+            self.assertIn(
+                "kpoints-output-comparison-unresolved",
+                {item["code"] for item in result["findings"]},
+            )
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_explicit_kpoints_count_mismatch_blocks_run(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            self.set_explicit_kpoints(case)
+            case.joinpath("OUTCAR").write_text(self.completed_outcar(nkpts=1))
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["input_output_consistency"], "fail")
+            self.assertIn(
+                "kpoints-input-output-mismatch",
+                {item["code"] for item in result["findings"]},
+            )
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_conflicting_repeated_outcar_echo_blocks_run(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            self.set_explicit_kpoints(case)
+            outcar = self.completed_outcar().replace(
+                " NELM = 60\n",
+                " NELM = 60\n EDIFF = 1E-2\n",
+            )
+            case.joinpath("OUTCAR").write_text(outcar)
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["input_output_consistency"], "fail")
+            self.assertIn(
+                "ediff-input-output-mismatch",
+                {item["code"] for item in result["findings"]},
+            )
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_second_startup_segment_invalidates_earlier_completion(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            self.set_explicit_kpoints(case)
+            truncated_tail = (
+                "vasp.6.4.3 30Oct23 (build Feb 9 2024 14:42:54) complex\n"
+                " running on    1 total cores\n"
+                " NKPTS = 2\n"
+                " Iteration    1(   1)\n"
+            )
+            case.joinpath("OUTCAR").write_text(
+                self.completed_outcar(suffix=truncated_tail)
+            )
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["execution_completion"], "fail")
+            self.assertIn(
+                "outcar-multiple-startup-segments",
+                {item["code"] for item in result["findings"]},
+            )
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_iteration_after_timing_invalidates_completion_without_second_banner(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            self.set_explicit_kpoints(case)
+            case.joinpath("OUTCAR").write_text(
+                self.completed_outcar(suffix=" Iteration    2(   1)\n")
+            )
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["execution_completion"], "fail")
+            self.assertIn(
+                "outcar-trailing-run-evidence",
+                {item["code"] for item in result["findings"]},
+            )
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_elapsed_time_without_final_accounting_header_does_not_prove_completion(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(
+                "vasp.6.4.3\n ENCUT = 400\n NELM = 60\n"
+                " Iteration 1( 1)\n Elapsed time (sec): 10.0\n"
+            )
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["execution_completion"], "fail")
+            self.assertIn("outcar-incomplete", {item["code"] for item in result["findings"]})
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_version_identity_requires_a_declared_expected_version(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(
+                "vasp.6.4.3\n ENCUT = 400\n NELM = 60\n Iteration 1( 1)\n"
+                " General timing and accounting informations for this job:\n"
+                " Elapsed time (sec): 10.0\n"
+            )
+            result = audit_vasp_case.audit(case, mode="run", task_type="static")
+            self.assertEqual(result["gates"]["version_identity"], "unresolved")
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_version_identity_rejects_mismatched_declared_version(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(
+                "vasp.99.99.99\n ENCUT = 400\n NELM = 60\n Iteration 1( 1)\n"
+                " General timing and accounting informations for this job:\n"
+                " Elapsed time (sec): 10.0\n"
+            )
+            result = audit_vasp_case.audit(
+                case,
+                mode="run",
+                task_type="static",
+                expected_vasp_version="6.4.3",
+            )
+            self.assertEqual(result["gates"]["version_identity"], "fail")
+            self.assertIn("vasp-version-mismatch", {item["code"] for item in result["findings"]})
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_version_mention_outside_startup_banner_is_unresolved(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(
+                "synthetic note mentions vasp.6.4.3\n ENCUT = 400\n NELM = 60\n"
+                " Iteration 1( 1)\n General timing and accounting informations for this job:\n"
+                " Elapsed time (sec): 10.0\n"
+            )
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["version_identity"], "unresolved")
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_realistic_startup_banner_matches_declared_version(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(
+                "vasp.6.4.3 30Oct23 (build Feb 9 2024 14:42:54) complex\n"
+                " ENCUT = 400\n NELM = 60\n Iteration 1( 1)\n"
+                " General timing and accounting informations for this job:\n"
+                " Elapsed time (sec): 10.0\n"
+            )
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["version_identity"], "pass")
+            self.assertEqual(result["expected_vasp_version"], "6.4.3")
 
     def test_nelm_exhaustion_blocks_run(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=2\nISMEAR=0\nSIGMA=0.05\n")
             case.joinpath("OUTCAR").write_text(
-                "vasp.6.4.3\n ENCUT = 400\n NELM = 2\n Iteration 1( 2)\n Elapsed time (sec): 10.0\n"
+                "vasp.6.4.3\n ENCUT = 400\n NELM = 2\n Iteration 1( 2)\n"
+                " General timing and accounting informations for this job:\n Elapsed time (sec): 10.0\n"
             )
-            result = audit_vasp_case.audit(case, mode="run", task_type="static")
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
             self.assertEqual(result["gates"]["electronic_convergence"], "fail")
+            self.assertEqual(result["verdict"], "blocked")
+
+    def test_earlier_ediff_marker_does_not_hide_later_nelm_exhaustion(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=2\nISMEAR=0\nSIGMA=0.05\n")
+            case.joinpath("OUTCAR").write_text(
+                "vasp.6.4.3\n ENCUT = 400\n NELM = 2\n"
+                " Iteration 1( 1)\n aborting loop because EDIFF is reached\n"
+                " Iteration 2( 1)\n Iteration 2( 2)\n"
+                " General timing and accounting informations for this job:\n"
+                " Elapsed time (sec): 10.0\n"
+            )
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
+            self.assertEqual(result["gates"]["electronic_convergence"], "fail")
+            self.assertEqual(result["files"]["OUTCAR"]["electronic_steps_at_nelm"], [2])
             self.assertEqual(result["verdict"], "blocked")
 
     def test_stopcar_marker_blocks_completed_run(self) -> None:
@@ -293,9 +604,12 @@ class AuditTests(unittest.TestCase):
             case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
             case.joinpath("OUTCAR").write_text(
                 "vasp.6.4.3\n ENCUT = 400\n NELM = 60\n Iteration 1( 1)\n"
-                "STOPCAR detected: soft stop\n Elapsed time (sec): 10.0\n"
+                "STOPCAR detected: soft stop\n General timing and accounting informations for this job:\n"
+                " Elapsed time (sec): 10.0\n"
             )
-            result = audit_vasp_case.audit(case, mode="run", task_type="static")
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
             self.assertEqual(result["gates"]["execution_completion"], "fail")
             self.assertIn("outcar-stopped", {item["code"] for item in result["findings"]})
 
@@ -305,6 +619,19 @@ class AuditTests(unittest.TestCase):
             result = audit_vasp_case.audit(case)
             self.assertEqual(result["gates"]["input_integrity"], "fail")
             self.assertIn("duplicate-incar-tag", {item["code"] for item in result["findings"]})
+
+    def test_incar_tag_absent_from_core_catalog_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(
+                Path(directory),
+                "ENCUT=400\nEDIFF=1E-6\nISMEAR=0\nSIGMA=0.05\nTOTALLY_NOT_REAL=1\n",
+            )
+            result = audit_vasp_case.audit(case)
+            self.assertEqual(result["gates"]["input_integrity"], "fail")
+            self.assertIn(
+                "incar-tag-not-in-core-catalog",
+                {item["code"] for item in result["findings"]},
+            )
 
     def test_nonfinite_or_expression_scalar_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -350,9 +677,12 @@ class AuditTests(unittest.TestCase):
             case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
             case.joinpath("OUTCAR").write_text(
                 "vasp.6.4.3\n ENCUT = 400\n NELM = 60\n Iteration 1( 1)\n"
-                "WARNING read /synthetic/hidden/path\n Elapsed time (sec): 10.0\n"
+                "WARNING read /synthetic/hidden/path\n General timing and accounting informations for this job:\n"
+                " Elapsed time (sec): 10.0\n"
             )
-            result = audit_vasp_case.audit(case, mode="run", task_type="static")
+            result = audit_vasp_case.audit(
+                case, mode="run", task_type="static", expected_vasp_version="6.4.3"
+            )
             warning = result["files"]["OUTCAR"]["warnings"][0]
             self.assertEqual(warning["category"], "unclassified-warning")
             self.assertTrue(warning["text_redacted"])
@@ -363,8 +693,13 @@ class AuditTests(unittest.TestCase):
 class OfficialSourceTests(unittest.TestCase):
     def test_exact_tag_resolves_with_revision(self) -> None:
         result = resolve_official_sources.resolve(["ENCUT", "vasprun.xml"])
-        self.assertEqual(result["status"], "pass")
+        self.assertEqual(result["status"], "local_integrity_verified")
+        self.assertEqual(
+            result["maximum_conclusion"],
+            "exact_local_mirror_integrity_only",
+        )
         self.assertTrue(all(item["revision"] for item in result["resolved"]))
+        self.assertNotEqual(result["status"], "pass")
 
     def test_missing_local_page_blocks_official_claim(self) -> None:
         result = resolve_official_sources.resolve(["IMAGINARY_NOT_A_VASP_TAG"])
@@ -401,6 +736,48 @@ class OfficialSourceTests(unittest.TestCase):
             self.assertEqual(result["status"], "blocked_local_official_source")
             self.assertEqual(result["corrupt"], ["ENCUT"])
 
+    def test_self_consistent_unpinned_manifest_is_metadata_only(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            skill = Path(directory) / "skill"
+            official = skill / "references" / "official-wiki"
+            official.mkdir(parents=True)
+            page = official / "page.md"
+            page.write_text("self-consistent but unpinned\n")
+            page_sha256 = hashlib.sha256(page.read_bytes()).hexdigest()
+            manifest = official / "manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "scope": "test",
+                        "retrieved_utc": "2026-01-01T00:00:00+00:00",
+                        "pages": [
+                            {
+                                "title": "ENCUT",
+                                "url": "https://www.vasp.at/wiki/ENCUT",
+                                "revid": 1,
+                                "markdown_path": "references/official-wiki/page.md",
+                                "markdown_sha256": page_sha256,
+                                "pageid": 1,
+                            }
+                        ],
+                    }
+                )
+            )
+            result = resolve_official_sources.resolve(
+                ["ENCUT"],
+                manifest,
+                catalog_path=None,
+                seed_path=None,
+            )
+            self.assertEqual(result["status"], "metadata_resolved_unverified")
+            self.assertEqual(result["integrity"]["anchor_status"], "unverified")
+            self.assertNotEqual(result["status"], "pass")
+
+    def test_auditor_coverage_never_collapses_local_integrity_to_pass(self) -> None:
+        result = audit_vasp_case.mirror_coverage({"ENCUT": "400"})
+        self.assertEqual(result["status"], "local_integrity_verified")
+        self.assertNotEqual(result["status"], "pass")
+
 
 class ClaimPackageTests(unittest.TestCase):
     def make_package(
@@ -426,6 +803,7 @@ class ClaimPackageTests(unittest.TestCase):
                     "gates": {
                         "input_integrity": "pass",
                         "input_reproducibility": "pass",
+                        "input_output_consistency": "pass",
                         "execution_completion": "pass",
                         "electronic_convergence": "pass",
                         "ionic_convergence": "not_applicable",
@@ -613,6 +991,59 @@ class CliContractTests(unittest.TestCase):
             result = json.loads(completed.stdout)
             self.assertEqual(result["gates"]["input_reproducibility"], "unresolved")
 
+    def test_run_cli_requires_expected_version_for_identity_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            case = self.make_case(Path(directory))
+            case.joinpath("KPOINTS").write_text(
+                "explicit mesh\n2\nReciprocal\n0 0 0 1\n0.5 0 0 1\n"
+            )
+            case.joinpath("OUTCAR").write_text(
+                "vasp.6.4.3 30Oct23 (build Feb 9 2024 14:42:54) complex\n"
+                " running on    1 total cores\n"
+                " POSCAR found :  1 types and 1 ions\n"
+                " Dimension of arrays:\n"
+                " NKPTS = 2\n"
+                " INCAR settings echoed by VASP:\n"
+                " ENCUT = 400\n"
+                " EDIFF = 1E-6\n"
+                " NELM = 60\n"
+                " Iteration    1(   1)\n"
+                " aborting loop because EDIFF is reached\n"
+                " FREE ENERGIE OF THE ION-ELECTRON SYSTEM (eV)\n"
+                " free  energy   TOTEN  =       -10.00000000 eV\n"
+                " General timing and accounting informations for this job:\n"
+                " Total CPU time used (sec):       9.0\n"
+                " Elapsed time (sec): 10.0\n"
+            )
+            command = [
+                sys.executable,
+                str(SCRIPT_DIR / "audit_vasp_case.py"),
+                str(case),
+                "--mode",
+                "run",
+                "--task-type",
+                "static",
+            ]
+            unresolved = subprocess.run(
+                command,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(unresolved.returncode, 1, unresolved.stderr)
+            self.assertEqual(
+                json.loads(unresolved.stdout)["gates"]["version_identity"],
+                "unresolved",
+            )
+            matched = subprocess.run(
+                command + ["--expected-vasp-version", "6.4.3"],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(matched.returncode, 0, matched.stderr)
+            self.assertEqual(json.loads(matched.stdout)["gates"]["version_identity"], "pass")
+
     def test_official_source_cli_fails_closed(self) -> None:
         completed = subprocess.run(
             [sys.executable, str(SCRIPT_DIR / "resolve_official_sources.py"), "NOT_A_REAL_VASP_TAG"],
@@ -668,6 +1099,25 @@ class MirrorHelperTests(unittest.TestCase):
         self.assertEqual(categories, {})
         self.assertIn("ENCUT", titles)
         category_titles.assert_not_called()
+
+    def test_full_scope_label_is_rejected(self) -> None:
+        with patch.object(sync_official_wiki, "category_titles") as category_titles:
+            with self.assertRaises(ValueError):
+                sync_official_wiki.collect_titles("full")
+        category_titles.assert_not_called()
+
+    def test_bounded_category_scope_is_explicitly_named(self) -> None:
+        with patch.object(
+            sync_official_wiki,
+            "category_titles",
+            return_value=["SYNTHETIC_PAGE"],
+        ) as category_titles:
+            categories, titles = sync_official_wiki.collect_titles(
+                "bounded-categories"
+            )
+        self.assertEqual(set(categories), set(sync_official_wiki.CATEGORIES))
+        self.assertIn("SYNTHETIC_PAGE", titles)
+        self.assertEqual(category_titles.call_count, len(sync_official_wiki.CATEGORIES))
 
     def test_request_retries_transient_network_failure(self) -> None:
         payload = b'{"query": {"ok": true}}'

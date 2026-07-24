@@ -8,7 +8,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import stat
 import sys
@@ -68,7 +68,12 @@ ACTIVATION_REQUIREMENT_FIELDS = {
     "activation_check_ids",
     "task_catalog_ids",
 }
-TREE_HASH_DOMAIN = b"VIBE-DFT-SKILL-SOURCE-TREE-v1\0"
+TREE_HASH_DOMAIN_NAME = "VIBE-DFT-SKILL-SOURCE-TREE-v2"
+TREE_HASH_DOMAIN = (TREE_HASH_DOMAIN_NAME + "\0").encode("ascii")
+OFFICIAL_SOURCE_PACK_HASH_DOMAIN = PurePosixPath(
+    "references",
+    "official-source-pack",
+)
 _COPY_SUFFIX = re.compile(
     r"^.+? (?:(?:[2-9]|[1-9][0-9])|copy(?: (?:[2-9]|[1-9][0-9]))?|"
     r"副本(?: (?:[2-9]|[1-9][0-9]))?|\((?:[1-9]|[1-9][0-9])\))(?:\.[^./]+)*$",
@@ -90,6 +95,22 @@ class SourceFileDigest:
 class SourceTreeDigest:
     sha256: str
     files: tuple[SourceFileDigest, ...]
+
+
+def source_tree_hash_path_excluded(relative_path: str | PurePosixPath) -> bool:
+    """Return whether a Skill-relative path belongs to the independent pack domain.
+
+    Only ``references/official-source-pack`` and its descendants are excluded.
+    The pack is protected by its own registration, contract, hash, and release
+    gates; excluding it prevents pack records that bind the Skill tree from
+    creating a cryptographic fixed-point loop.
+    """
+
+    pure = PurePosixPath(relative_path)
+    return (
+        pure == OFFICIAL_SOURCE_PACK_HASH_DOMAIN
+        or OFFICIAL_SOURCE_PACK_HASH_DOMAIN in pure.parents
+    )
 
 
 def _length_prefix(payload: bytes) -> bytes:
@@ -114,6 +135,9 @@ def source_tree_digest(path: Path) -> SourceTreeDigest:
         retained_directories: list[str] = []
         for name in sorted(child_directories):
             child = current / name
+            relative_child = child.relative_to(path).as_posix()
+            if source_tree_hash_path_excluded(relative_child):
+                continue
             try:
                 mode = child.lstat().st_mode
             except OSError as exc:
@@ -127,6 +151,9 @@ def source_tree_digest(path: Path) -> SourceTreeDigest:
         child_directories[:] = retained_directories
         for name in sorted(filenames):
             candidate = current / name
+            relative_candidate = candidate.relative_to(path).as_posix()
+            if source_tree_hash_path_excluded(relative_candidate):
+                continue
             if name in _CACHE_FILES or candidate.suffix.lower() in _BYTECODE_SUFFIXES:
                 continue
             candidates.append(candidate)

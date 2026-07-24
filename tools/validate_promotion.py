@@ -15,7 +15,7 @@ from typing import Any, Iterable, Iterator, Sequence
 from registry_yaml import RegistryYAMLError, loads_yaml_strict
 import strict_json
 import validate_contract
-from skill_registry import TREE_HASH_DOMAIN
+from skill_registry import TREE_HASH_DOMAIN, source_tree_hash_path_excluded
 
 MAX_BYTES=16*1024*1024
 ROUTING_REGISTRIES=("registry/skill-registry.yaml","registry/interface-registry.yaml","registry/operation-routes.yaml","registry/software-registry.yaml","registry/environment-profiles.yaml")
@@ -100,6 +100,7 @@ class GitRepo:
         for raw_path in result.stdout.split(b"\0"):
             if not raw_path:continue
             full=raw_path.decode();relative=PurePosixPath(full).relative_to(base).as_posix();p=PurePosixPath(relative)
+            if source_tree_hash_path_excluded(p):continue
             if any(x in {"__pycache__",".mypy_cache",".pytest_cache",".ruff_cache"} for x in p.parts) or p.name in {".coverage",".DS_Store"} or p.suffix.lower() in {".pyc",".pyo",".pyd"}:continue
             items.append((relative,self.file(commit,full).raw))
         if not items:raise GitError("empty source tree")

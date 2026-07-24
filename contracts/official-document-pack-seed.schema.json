@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-document-pack-seed:1.0",
+  "title": "Vibe DFT Skills deterministic official-document pack seed",
+  "description": "A strict, source-tree-bound input to the repository pack builder. The seed identifies authoritative inputs and an assurance ceiling; it cannot assert complete coverage or supply generated record status.",
+  "$comment": "The canonical location is skills/<skill-id>/references/source-pack-seed.json. The filename deliberately does not match the legacy official-* storage namespace.",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "skill_id",
+    "status_ceiling",
+    "scope_extractor_id",
+    "scope_catalog_ref",
+    "providers",
+    "limitations",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "contract_name": {
+      "const": "official-document-pack-seed"
+    },
+    "skill_id": {
+      "$ref": "#/$defs/hyphenId"
+    },
+    "status_ceiling": {
+      "enum": [
+        "partial",
+        "blocked"
+      ]
+    },
+    "scope_extractor_id": {
+      "$ref": "#/$defs/safeId"
+    },
+    "scope_catalog_ref": {
+      "$ref": "#/$defs/fileRef"
+    },
+    "providers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/providerInput"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status_ceiling": {
+            "const": "partial"
+          }
+        },
+        "required": [
+          "status_ceiling"
+        ]
+      },
+      "then": {
+        "properties": {
+          "limitations": {
+            "minItems": 1
+          },
+          "blockers": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status_ceiling": {
+            "const": "blocked"
+          }
+        },
+        "required": [
+          "status_ceiling"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$"
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)[A-Za-z0-9._/-]+$"
+    },
+    "fileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "providerInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_id",
+        "adapter_id",
+        "authority_id",
+        "provider_id",
+        "source_ref"
+      ],
+      "properties": {
+        "input_id": {
+          "$ref": "#/$defs/hyphenId"
+        },
+        "adapter_id": {
+          "enum": [
+            "declarative-catalog-v1",
+            "qe-input-manifest-v1",
+            "vasp-wiki-manifest-v1"
+          ]
+        },
+        "authority_id": {
+          "$ref": "#/$defs/hyphenId"
+        },
+        "provider_id": {
+          "$ref": "#/$defs/hyphenId"
+        },
+        "source_ref": {
+          "$ref": "#/$defs/fileRef"
+        },
+        "options_ref": {
+          "$ref": "#/$defs/fileRef"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "adapter_id": {
+                "enum": [
+                  "qe-input-manifest-v1",
+                  "vasp-wiki-manifest-v1"
+                ]
+              }
+            },
+            "required": ["adapter_id"]
+          },
+          "then": {
+            "required": ["options_ref"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "adapter_id": {"const": "declarative-catalog-v1"}
+            },
+            "required": ["adapter_id"]
+          },
+          "then": {
+            "not": {"required": ["options_ref"]}
+          }
+        }
+      ]
+    }
+  }
+}

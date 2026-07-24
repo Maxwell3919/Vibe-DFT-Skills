@@ -331,6 +331,30 @@ class AuditTests(unittest.TestCase):
             self.assertEqual(run_result["decision"], "blocked")
             self.assertIn("task-completion-not-deterministically-validated", {item["code"] for item in run_result["findings"]})
 
+    def test_nonstatic_task_inherits_quickstep_base_official_topics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(Path(directory), run_type="GEO_OPT")
+            result = audit_cp2k_case.audit(fixture.input, task_type="relax", data_files=fixture.data)
+            base_topics = {
+                "global",
+                "force-eval",
+                "dft",
+                "qs",
+                "scf",
+                "mgrid",
+                "xc",
+                "poisson",
+                "subsys",
+                "cell",
+                "kind",
+                "basis-methods",
+                "pseudopotential-methods",
+            }
+            self.assertTrue(
+                base_topics <= set(result["profiles"]["task"]["required_source_topics"]),
+                result["profiles"]["task"],
+            )
+
     def test_unknown_evidence_role_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             fixture = Fixture(Path(directory))
@@ -407,12 +431,12 @@ class OfficialSourceTests(unittest.TestCase):
         result = resolve_official_sources.resolve(["GLOBAL", "eps_scf"], "2025.2", live_check=False)
         self.assertEqual(result["status"], "resolved_url_only")
         self.assertTrue(all("/cp2k-2025_2-branch/" in item["url"] for item in result["resolved"]))
-        self.assertTrue(all(item["verification"] == "url_only_not_live_verified" for item in result["resolved"]))
+        self.assertTrue(all(item["verification"] == "url_only" for item in result["resolved"]))
 
     def test_current_offline_snapshot_is_version_matched_and_hash_checked(self) -> None:
         result = resolve_official_sources.resolve(["GLOBAL", "eps_scf"], "2026.2", live_check=False)
-        self.assertEqual(result["status"], "pass_cached_version_matched")
-        self.assertTrue(all(item["verification"] == "cached_version_matched" for item in result["resolved"]))
+        self.assertEqual(result["status"], "pass_cached_exact")
+        self.assertTrue(all(item["verification"] == "cached_exact" for item in result["resolved"]))
         self.assertTrue(all(item["local_reference"].startswith("references/official-manual/") for item in result["resolved"]))
 
     def test_version_specific_source_path_override(self) -> None:
@@ -422,6 +446,23 @@ class OfficialSourceTests(unittest.TestCase):
         self.assertTrue(older["resolved"][0]["url"].endswith("/DFT/PRINT/PDOS.html"))
 
     def test_live_check_records_hash(self) -> None:
+        offline = resolve_official_sources.resolve(["scf"], "2026.2", live_check=False)["resolved"][0]
+
+        def fake_fetch(url: str) -> dict[str, object]:
+            return {
+                "http_status": 200,
+                "final_url": url,
+                "content_sha256": offline["source_content_sha256"],
+                "bytes": offline["source_content_bytes"],
+                "retrieved_utc": "2026-07-18T00:00:00+00:00",
+            }
+
+        result = resolve_official_sources.resolve(["scf"], "2026.2", live_check=True, fetcher=fake_fetch)
+        self.assertEqual(result["status"], "pass_live_matches_cached")
+        self.assertEqual(result["resolved"][0]["verification"], "live_matches_cached")
+        self.assertEqual(result["resolved"][0]["content_sha256"], offline["source_content_sha256"])
+
+    def test_live_check_with_changed_content_is_not_positive_evidence(self) -> None:
         def fake_fetch(url: str) -> dict[str, object]:
             return {
                 "http_status": 200,
@@ -432,8 +473,48 @@ class OfficialSourceTests(unittest.TestCase):
             }
 
         result = resolve_official_sources.resolve(["scf"], "2026.2", live_check=True, fetcher=fake_fetch)
-        self.assertEqual(result["status"], "pass")
-        self.assertEqual(result["resolved"][0]["content_sha256"], "a" * 64)
+        self.assertEqual(result["status"], "blocked_official_source")
+        self.assertEqual(result["resolved"][0]["verification"], "live_changed_from_cached")
+
+    def test_live_receipt_metadata_is_validated_fail_closed(self) -> None:
+        offline = resolve_official_sources.resolve(["scf"], "2026.2", live_check=False)["resolved"][0]
+        valid = {
+            "http_status": 200,
+            "final_url": offline["url"],
+            "content_sha256": offline["source_content_sha256"],
+            "bytes": offline["source_content_bytes"],
+            "retrieved_utc": "2026-07-18T00:00:00+00:00",
+        }
+        invalid_receipts = (
+            {**valid, "http_status": 204},
+            {**valid, "final_url": offline["url"] + "?redirected=1"},
+            {**valid, "retrieved_utc": "not-a-timestamp"},
+            {**valid, "content_sha256": "not-a-hash"},
+        )
+        for receipt in invalid_receipts:
+            with self.subTest(receipt=receipt):
+                result = resolve_official_sources.resolve(
+                    ["scf"],
+                    "2026.2",
+                    live_check=True,
+                    fetcher=lambda _url, value=receipt: value,
+                )
+                self.assertEqual(result["status"], "blocked_official_source")
+                self.assertEqual(result["resolved"][0]["verification"], "live_unavailable_cached_exact")
+
+    def test_live_content_without_checked_baseline_is_unresolved(self) -> None:
+        def fake_fetch(url: str) -> dict[str, object]:
+            return {
+                "http_status": 200,
+                "final_url": url,
+                "content_sha256": "a" * 64,
+                "bytes": 10,
+                "retrieved_utc": "2026-07-18T00:00:00+00:00",
+            }
+
+        result = resolve_official_sources.resolve(["scf"], "2025.2", live_check=True, fetcher=fake_fetch)
+        self.assertEqual(result["status"], "blocked_official_source")
+        self.assertEqual(result["resolved"][0]["verification"], "unresolved")
 
     def test_unknown_topic_blocks(self) -> None:
         result = resolve_official_sources.resolve(["not-a-cp2k-topic"], "2026.2", live_check=False)
@@ -537,8 +618,14 @@ class SkillContractTests(unittest.TestCase):
         for profile in audit_cp2k_case.METHOD_PROFILES.values():
             topics.update(profile.get("source_topics", []))
         result = resolve_official_sources.resolve(sorted(topics), "2026.2", live_check=False)
-        self.assertEqual(result["status"], "pass_cached_version_matched", result)
+        self.assertEqual(result["status"], "pass_cached_exact", result)
         self.assertEqual({record["topic"] for record in result["resolved"]}, topics)
+
+    def test_every_task_profile_derives_the_quickstep_base_topics(self) -> None:
+        base = set(audit_cp2k_case.QUICKSTEP_BASE_SOURCE_TOPICS)
+        for task_type in audit_cp2k_case.TASK_PROFILES:
+            with self.subTest(task_type=task_type):
+                self.assertTrue(base <= set(audit_cp2k_case.task_source_topics(task_type)))
 
     def test_skill_text_preserves_maturity_and_claim_boundaries(self) -> None:
         skill = (SCRIPT_DIR.parent / "SKILL.md").read_text(encoding="utf-8")
@@ -698,6 +785,7 @@ class ClaimPackageTests(unittest.TestCase):
             result = validate_claim_package.validate_package(self.make_package(Path(directory)))
             self.assertEqual(result["status"], "eligible_for_expert_review")
             self.assertEqual(result["gates"]["scientific_acceptance"], "requires_expert_review")
+            self.assertEqual(result["official_sources"]["verification_mode"], "cached_exact")
             self.assertIn("not automatically accepted", result["maximum_allowed_conclusion"])
             self.assertNotIn(directory, json.dumps(result))
 
@@ -712,6 +800,119 @@ class ClaimPackageTests(unittest.TestCase):
             package = self.make_package(Path(directory), tamper_source=True)
             with self.assertRaisesRegex(ValueError, "snapshot hashes"):
                 validate_claim_package.validate_package(package)
+
+    def test_forged_legacy_live_verified_record_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_path = self.make_package(root)
+            package = json.loads(package_path.read_text(encoding="utf-8"))
+            official_path = root / package["official_sources_json"]
+            official = json.loads(official_path.read_text(encoding="utf-8"))
+            official["status"] = "pass"
+            for record in official["resolved"]:
+                record["verification"] = "live_verified"
+                record.pop("snapshot_sha256", None)
+                record.pop("source_content_sha256", None)
+            official_path.write_text(json.dumps(official), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "unverified topic|schema|version-verified"):
+                validate_claim_package.validate_package(package_path)
+
+    def test_forged_live_matches_cached_receipt_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_path = self.make_package(root)
+            package = json.loads(package_path.read_text(encoding="utf-8"))
+            official_path = root / package["official_sources_json"]
+            official = json.loads(official_path.read_text(encoding="utf-8"))
+            official["status"] = "pass_live_matches_cached"
+            for record in official["resolved"]:
+                record.update(
+                    {
+                        "verification": "live_matches_cached",
+                        "http_status": 200,
+                        "final_url": record["url"],
+                        "content_sha256": record["source_content_sha256"],
+                        "bytes": record["source_content_bytes"],
+                        "retrieved_utc": "2026-07-18T00:00:00+00:00",
+                    }
+                )
+            official["resolved"][0]["final_url"] += "?forged=1"
+            official_path.write_text(json.dumps(official), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "self-declared|live replay"):
+                validate_claim_package.validate_package(package_path)
+
+    def test_perfect_self_declared_live_receipt_cannot_upgrade_cached_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_path = self.make_package(root)
+            package = json.loads(package_path.read_text(encoding="utf-8"))
+            official_path = root / package["official_sources_json"]
+            official = json.loads(official_path.read_text(encoding="utf-8"))
+            official["status"] = "pass_live_matches_cached"
+            for record in official["resolved"]:
+                record.update(
+                    {
+                        "verification": "live_matches_cached",
+                        "http_status": 200,
+                        "final_url": record["url"],
+                        "content_sha256": record["source_content_sha256"],
+                        "bytes": record["source_content_bytes"],
+                        "retrieved_utc": "2099-01-01T00:00:00+00:00",
+                    }
+                )
+            official_path.write_text(json.dumps(official), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "self-declared|live replay"):
+                validate_claim_package.validate_package(package_path)
+
+    def test_explicit_validation_time_live_replay_can_match_cached_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_path = self.make_package(root)
+            package = json.loads(package_path.read_text(encoding="utf-8"))
+            official = json.loads((root / package["official_sources_json"]).read_text(encoding="utf-8"))
+            by_url = {record["url"]: record for record in official["resolved"]}
+
+            def replay_fetch(url: str) -> dict[str, object]:
+                record = by_url[url]
+                return {
+                    "http_status": 200,
+                    "final_url": url,
+                    "content_sha256": record["source_content_sha256"],
+                    "bytes": record["source_content_bytes"],
+                    "retrieved_utc": "2026-07-23T00:00:00+00:00",
+                }
+
+            with patch.object(resolve_official_sources, "fetch_url", side_effect=replay_fetch):
+                result = validate_claim_package.validate_package(
+                    package_path,
+                    live_replay=True,
+                )
+            self.assertEqual(result["status"], "eligible_for_expert_review")
+            self.assertEqual(
+                result["official_sources"]["verification_mode"],
+                "live_replayed_matches_cached",
+            )
+
+    def test_validation_time_live_replay_blocks_changed_content(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package_path = self.make_package(root)
+
+            def changed_fetch(url: str) -> dict[str, object]:
+                return {
+                    "http_status": 200,
+                    "final_url": url,
+                    "content_sha256": "a" * 64,
+                    "bytes": 10,
+                    "retrieved_utc": "2026-07-23T00:00:00+00:00",
+                }
+
+            with patch.object(resolve_official_sources, "fetch_url", side_effect=changed_fetch):
+                with self.assertRaisesRegex(ValueError, "live replay"):
+                    validate_claim_package.validate_package(
+                        package_path,
+                        live_replay=True,
+                    )
 
     def test_selected_audit_must_be_in_convergence_series(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -68,5 +68,6 @@ Exit codes are `0` candidate-local gate passed, `2` invalid/privacy-unsafe input
 - Use [references/linkage-and-role-boundaries.md](references/linkage-and-role-boundaries.md) for one-to-one linkage and author/tool roles.
 - Use [references/fail-closed-contract.md](references/fail-closed-contract.md), [references/weak-model-decision-table.json](references/weak-model-decision-table.json), and [references/finding-catalog.json](references/finding-catalog.json) for local gates.
 - Use [references/maturity-matrix.json](references/maturity-matrix.json) before any activation discussion.
+- Use [references/source-pack-seed.json](references/source-pack-seed.json) and [references/source-pack-scope-catalog.json](references/source-pack-scope-catalog.json) for the blocked metadata-only repository boundary; it never replaces input-specific source or manuscript authorities and can be refreshed or checked with `scripts/extract_official_source_scope.py`.
 
 The development/non-routable candidate's maximum claim is `no_positive_claim`.

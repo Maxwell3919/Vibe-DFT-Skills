@@ -1,0 +1,1 @@
+{"bundle_type":"official-document-coverage","records":{"corpora":["corpus-repository-contracts-reporting.json"],"coverage":"coverage.json","license_reviews":["license-review-repository-contracts-reporting.json"],"scope_inventory":"scope-inventory.json","slice_manifests":["slices-repository-contracts-reporting.json"]},"schema_version":"1.0","skill_id":"dft-reporting"}

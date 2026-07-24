@@ -1,0 +1,274 @@
+{
+  "blockers": [
+    {
+      "code": "CAT.VERSION.SOURCE_CONFLICT",
+      "dimensions": ["corpus","slices"],
+      "description": "Tag, package/module, and rolling-manual version surfaces disagree."
+    },
+    {
+      "code": "DOC.BODY.BYTES.EXTERNAL",
+      "dimensions": ["corpus","slices"],
+      "description": "Official document bodies and per-page content hashes are not retained."
+    },
+    {
+      "code": "DOC.BUILD.REPLAY.MISSING",
+      "dimensions": ["slices"],
+      "description": "Generated Sphinx/API documentation has not been reproduced from the exact tag."
+    }
+  ],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://github.com/SUNCAT-Center/catmap/tree/v0.4.1",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only"
+    ],
+    "assessment": "conditional",
+    "identity": {
+      "identifier": "GPL-3.0-only",
+      "terms_urls": [
+        "https://raw.githubusercontent.com/SUNCAT-Center/catmap/ed04f9146a787b0e63b6febd96d8fe3b314c251b/COPYING.txt"
+      ],
+      "verification": "verified"
+    },
+    "limitations": [
+      "Exact source licensing does not establish rights or safety for generated assets, external datasets, executable setup files, logs, pickles, or third-party dependencies."
+    ],
+    "official_terms_locator": "https://raw.githubusercontent.com/SUNCAT-Center/catmap/ed04f9146a787b0e63b6febd96d8fe3b314c251b/COPYING.txt"
+  },
+  "limitations": [
+    "The exact tag-tree inventory does not establish a version-consistent rendered manual, native runtime, solver behavior, numerical validity, or mechanism acceptance.",
+    "External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\\t<path>\\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "catmap-exact-document-tree-inventory"
+      ],
+      "description": "Only exact Git path and object metadata are retained; documentation bodies remain external.",
+      "disposition": "external-only",
+      "loss_id": "document-bodies-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "catmap-exact-document-tree-inventory"
+      ],
+      "description": "The Sphinx/API build and generated reference surface have not been replayed.",
+      "disposition": "blocked",
+      "loss_id": "rendered-build-not-replayed",
+      "materiality": "material",
+      "stage": "extraction"
+    },
+    {
+      "affected_source_ids": [
+        "catmap-exact-document-tree-inventory"
+      ],
+      "description": "The v0.4.1 tag, setup/module version 0.3.1, and rolling manual label 0.2.79 conflict and are not normalized into one identity.",
+      "disposition": "blocked",
+      "loss_id": "version-surface-conflict",
+      "materiality": "material",
+      "stage": "mapping"
+    },
+    {
+      "affected_source_ids": [
+        "catmap-exact-document-tree-inventory"
+      ],
+      "description": "Executable Python, mkm, log, and pickle-like tutorial surfaces are retained only as path metadata and are never executed or deserialized.",
+      "disposition": "external-only",
+      "loss_id": "executable-tutorials-excluded",
+      "materiality": "material",
+      "stage": "storage"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "74925ed719476d0cd5e81bda5188149b37cbab4589fc625cc0593415964bb97b",
+        "kind": "revision",
+        "raw_bytes": 10008,
+        "raw_sha256": "9eb80227d2555b7bb8105140183ba4c879ded3778b09d4943f8acefaf28f05c2",
+        "retrieved_utc": "2026-07-23T20:17:38Z",
+        "value": "commit:ed04f9146a787b0e63b6febd96d8fe3b314c251b;root-tree:3a4bf816fa468e2e7be70bb6ef63d541ae70c572"
+      },
+      "locator": "https://github.com/SUNCAT-Center/catmap/tree/v0.4.1",
+      "metadata_evidence_ref": {
+        "bytes": 20419,
+        "path": "skills/catmap-microkinetics/references/source-pack-inventory-catmap.json",
+        "sha256": "74925ed719476d0cd5e81bda5188149b37cbab4589fc625cc0593415964bb97b"
+      },
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 10008,
+            "raw_sha256": "9eb80227d2555b7bb8105140183ba4c879ded3778b09d4943f8acefaf28f05c2",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-23T20:17:38Z",
+            "selected_bytes": 10008,
+            "selected_sha256": "9eb80227d2555b7bb8105140183ba4c879ded3778b09d4943f8acefaf28f05c2"
+          },
+          "loss_ids": [
+            "document-bodies-not-retained",
+            "rendered-build-not-replayed",
+            "version-surface-conflict",
+            "executable-tutorials-excluded"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "catmap-exact-document-tree-inventory.whole",
+          "subject_ids": [
+            "feature.python.run-model",
+            "feature.python.single-point",
+            "feature.python.recalculate",
+            "feature.python.verify",
+            "feature.python.parse-table",
+            "feature.cli.import",
+            "feature.cli.graphviz",
+            "feature.cli.run-submission",
+            "feature.cli.inspect-log",
+            "feature.output.maps",
+            "feature.output.variables",
+            "feature.analysis.vector-map",
+            "feature.analysis.matrix-map",
+            "feature.analysis.mechanism",
+            "feature.thermo.interactions",
+            "feature.thermo.electrochemistry"
+          ],
+          "title": "Complete exact-tag documentation-tree metadata inventory"
+        }
+      ],
+      "source_id": "catmap-exact-document-tree-inventory",
+      "source_kind": "index",
+      "title": "CatMAP v0.4.1 documentation and tutorial tree metadata inventory"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.python.run-model",
+      "title": "feature python run-model"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.python.single-point",
+      "title": "feature python single-point"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.python.recalculate",
+      "title": "feature python recalculate"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.python.verify",
+      "title": "feature python verify"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.python.parse-table",
+      "title": "feature python parse-table"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.cli.import",
+      "title": "feature cli import"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.cli.graphviz",
+      "title": "feature cli graphviz"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.cli.run-submission",
+      "title": "feature cli run-submission"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.cli.inspect-log",
+      "title": "feature cli inspect-log"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.output.maps",
+      "title": "feature output maps"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.output.variables",
+      "title": "feature output variables"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.analysis.vector-map",
+      "title": "feature analysis vector-map"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.analysis.matrix-map",
+      "title": "feature analysis matrix-map"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.analysis.mechanism",
+      "title": "feature analysis mechanism"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.thermo.interactions",
+      "title": "feature thermo interactions"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "feature.thermo.electrochemistry",
+      "title": "feature thermo electrochemistry"
+    }
+  ],
+  "upstream_universe_complete": true,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": null,
+    "snapshot_identity": null,
+    "value": "0.4.1"
+  }
+}

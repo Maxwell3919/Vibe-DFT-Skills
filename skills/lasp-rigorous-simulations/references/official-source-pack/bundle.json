@@ -1,0 +1,1 @@
+{"bundle_type":"official-document-coverage","records":{"corpora":["corpus-lasp-author-literature.json"],"coverage":"coverage.json","license_reviews":["license-review-lasp-author-literature.json"],"scope_inventory":"scope-inventory.json","slice_manifests":["slices-lasp-author-literature.json"]},"schema_version":"1.0","skill_id":"lasp-rigorous-simulations"}

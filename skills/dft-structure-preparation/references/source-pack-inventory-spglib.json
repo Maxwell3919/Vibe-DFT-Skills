@@ -1,0 +1,225 @@
+{
+  "authority_id": "spglib-release-source-docs-2-7-0",
+  "commit_id": "12355c77fb7c505a55f52cae36341d73b781a065",
+  "documentation_roots": [
+    {
+      "path": "docs",
+      "tree_object_id": "40fa6228df62a15fad24dd90386e2d3294eb8740"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "98db35d1f0b2ee890a7db5305912ebc98d0513b8",
+      "object_type": "blob",
+      "path": "docs/.mdformat.toml"
+    },
+    {
+      "mode": "100644",
+      "object_id": "652db29c74524fdcb9bd2eab6c4da962adcba610",
+      "object_type": "blob",
+      "path": "docs/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6f10500fb242034cf082c22a72e011908f6a6c6b",
+      "object_type": "blob",
+      "path": "docs/_static/change-of-basis.ai"
+    },
+    {
+      "mode": "100644",
+      "object_id": "61765d4146a773195991786fd30b2dcbc07c5ecb",
+      "object_type": "blob",
+      "path": "docs/_static/change-of-basis.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc9d03c124386d6043592f0bbf6a2061bfb4f6fb",
+      "object_type": "blob",
+      "path": "docs/api.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cb52a0a8c18f437f07008e6492c3e86b47809c0d",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib._internal.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "59021c5322f3bf1e2bf24ea8157156f4db94c2af",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.cell.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "305d1ae8aeb528a556de2c33d0f03e944b5b6cb3",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.error.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2232f6eb8098c4dbcde0e811d2003d24a732fde0",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.kpoints.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "669a40c06496ef32f5b7840e14540e9ea140fe1f",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.msg.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b909b0c3f8fd459fe943666010bc3e87d6964455",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.reduce.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0c8833fa40ed6126acff382d5060d4dfcbced59f",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0968209490ed738ef38fa8708552b4ca4f6c99d7",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.spg.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e9f0d1e9a8469a8fae5899ed2701d2707ec473f8",
+      "object_type": "blob",
+      "path": "docs/api/autodoc/spglib.utils.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "db8d657ef25fcacfc1bd781ee58c6af099d0e51a",
+      "object_type": "blob",
+      "path": "docs/api/index.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a277e38b41100b2e84b85c694f7465e56d7525c7",
+      "object_type": "blob",
+      "path": "docs/codespell.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ebc4c25523c6385f85c68316525103afbe63395d",
+      "object_type": "blob",
+      "path": "docs/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4ec8f81bbb1c065e7a2f57fa95e8cf3981e3cc5c",
+      "object_type": "blob",
+      "path": "docs/dataset.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fcf9ab8fd7e331b5e8a939cdf6211d38a8d2b4bb",
+      "object_type": "blob",
+      "path": "docs/definition.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bf40766980c41dc702205c2fd033b0f62882cd06",
+      "object_type": "blob",
+      "path": "docs/development/develop.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "beb2876a4c8812c14ce836f026144507a88e73aa",
+      "object_type": "blob",
+      "path": "docs/development/magnetic_symmetry_flags.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e97573d6df1c639a69deeb75e36c3aa0485ba81",
+      "object_type": "blob",
+      "path": "docs/development/performance.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "649b8df3356cd94752d1c8c0487a1218caac10b0",
+      "object_type": "blob",
+      "path": "docs/exceptions/index.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6ca6a5aa5c7cee2c51cf7937a90ff91354578ebd",
+      "object_type": "blob",
+      "path": "docs/exceptions/python.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8c48fddf31d5a5111f3bb827880b05bf087e8755",
+      "object_type": "blob",
+      "path": "docs/generate-apidoc.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9b73115b96aefa5e91d8f17225f3be14b6ab1ad6",
+      "object_type": "blob",
+      "path": "docs/index.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91078e38eadf2af8dc2ba8206a5e72cd0392897a",
+      "object_type": "blob",
+      "path": "docs/install.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "78771d8289bcf083eaf59af8b0a20a2d9352c802",
+      "object_type": "blob",
+      "path": "docs/interface.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "244971a3680bfd22b07decff5ac38aebfe28f1ea",
+      "object_type": "blob",
+      "path": "docs/magnetic_dataset.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bdb7d6429e160516519df6540f3f8f4d16159e11",
+      "object_type": "blob",
+      "path": "docs/python-interface.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5f49fbc0a626c5805bbce5dd46b1f62625f3a200",
+      "object_type": "blob",
+      "path": "docs/references.bib"
+    },
+    {
+      "mode": "100644",
+      "object_id": "00dc7f3a2dce11097cabee43bac07d3ca4033ba6",
+      "object_type": "blob",
+      "path": "docs/references.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "461a9028dba3d4bc7737a7f3bb4cc19560ee23db",
+      "object_type": "blob",
+      "path": "docs/releases.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad3b4fb91fb8a48aff6a932ec0cce42c2d1808ba",
+      "object_type": "blob",
+      "path": "docs/variable.md"
+    }
+  ],
+  "entry_count": 34,
+  "inventory_scope": "Complete Git object inventory for the exact release documentation roots; file bodies are intentionally not embedded.",
+  "provider_id": "spglib",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v2.7.0",
+  "repository_url": "https://github.com/spglib/spglib",
+  "root_tree_object_id": "3bb8527bfa8c9dfcc2bcffa2250c2f41605bc23c",
+  "schema_version": "1.0",
+  "tag_object_id": null
+}

@@ -18,6 +18,7 @@ from .electronic import (
     _source_record,
     _validated_dataset,
 )
+from .registry import resolve_backend_maturity
 from .utils import utc_now, write_json_atomic
 
 
@@ -265,12 +266,15 @@ def render_vesta_isosurface(
     executable: Path | None = None,
     timeout_seconds: float = 30.0,
     figure_output: Path | None = None,
-    maturity: str = "tool-integration-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
-    _check_maturity(maturity)
     if code not in {"qe", "vasp", "mixed"}:
         raise ValueError("code must be qe, vasp, or mixed")
+    maturity = resolve_backend_maturity(
+        "real-space", code, "visualization.vesta", maturity
+    )
+    _check_maturity(maturity)
     if not field_kind.strip() or not field_unit.strip() or not level_unit.strip():
         raise ValueError("field_kind, field_unit, and level_unit must be explicit and nonempty")
     if timeout_seconds <= 0.0 or not math.isfinite(timeout_seconds):

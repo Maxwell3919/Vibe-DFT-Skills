@@ -1,0 +1,30 @@
+{
+  "blockers": [
+    "Provider-required subjects remain blocked until exact document bodies, generated documentation replay, and semantic slices exist.",
+    "Cataloged documentation conflicts and rolling-site version drift must remain explicit rather than being silently normalized."
+  ],
+  "contract_name": "official-document-pack-seed",
+  "limitations": [
+    "The exact v4.3.1 source documentation tree is inventoried as metadata only; document bodies, generated HTML, and rolling-site content remain external."
+  ],
+  "providers": [
+    {
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "phonopy-release-source-docs-4-3-1",
+      "input_id": "phonopy-docs",
+      "provider_id": "phonopy",
+      "source_ref": {
+        "path": "skills/phonopy-rigorous-workflows/references/source-pack-source-catalog-phonopy.json",
+        "sha256": "89aa89402457575bbeb1395f3ac1d299092d7a68ea29be9a07fb473f10449fae"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "scope_catalog_ref": {
+    "path": "skills/phonopy-rigorous-workflows/references/source-pack-scope-catalog.json",
+    "sha256": "1116e01af9bac4163e1ff0866f1da681c0faeed5591565660660600b3b66d516"
+  },
+  "scope_extractor_id": "reviewed-semantic-scope-v1",
+  "skill_id": "phonopy-rigorous-workflows",
+  "status_ceiling": "blocked"
+}

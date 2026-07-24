@@ -15,6 +15,7 @@ from .electronic import (
     _validated_dataset,
     _write_csv_atomic,
 )
+from .registry import resolve_backend_maturity
 from .utils import utc_now, write_json_atomic
 
 
@@ -85,9 +86,10 @@ def normalize_qe_phonon(
     frequency_unit: str,
     imaginary_threshold: float = 0.0,
     figure_output: Path | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("phonon", "qe", "python.qe-phonon", maturity)
     _check_maturity(maturity)
     if not frequency_unit.strip():
         raise ValueError("frequency_unit must be explicit and nonempty")
@@ -360,9 +362,10 @@ def normalize_qe_epc(
     qmode_smearing_index: int = 1,
     figure_output: Path | None = None,
     qmode_figure_output: Path | None = None,
-    maturity: str = "format-fixture-validated",
+    maturity: str | None = None,
     overwrite: bool = False,
 ) -> dict[str, Path]:
+    maturity = resolve_backend_maturity("epc", "qe", "python.qe-epc", maturity)
     _check_maturity(maturity)
     output_directory = output_directory.resolve()
     output_directory.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,204 @@
+{
+  "authority_id": "ovito-pypi-release-metadata-3-15-5",
+  "license_expression": "MIT",
+  "limitations": [
+    "Release metadata and artifact digests are retained; wheel bytes, component notices, native imports, Basic/Pro desktop packages, entitlement material, and runtime behavior are not."
+  ],
+  "locator": "https://pypi.org/pypi/ovito/3.15.5/json",
+  "name": "ovito",
+  "project_urls": {
+    "Bug Tracker": "https://gitlab.com/stuko/ovito",
+    "Documentation": "https://docs.ovito.org/python/",
+    "Homepage": "https://www.ovito.org"
+  },
+  "provider_id": "ovito",
+  "raw_json_bytes": 18263,
+  "raw_json_sha256": "77b53b8113e8d10b4dc02eb487e6fb75bfa1cfa2a7272925e03bc16940891f2b",
+  "record_type": "pypi-release-metadata-inventory",
+  "release_files": [
+    {
+      "filename": "ovito-3.15.5-cp310-cp310-macosx_12_0_arm64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp310",
+      "requires_python": ">=3.10",
+      "sha256": "c0c6724f20fde4c4287d98605f09d6afec5e403b5ca3e71b650b0b0f0e880dab",
+      "size": 70147575,
+      "upload_time_iso_8601": "2026-06-19T21:16:33.508416Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp310-cp310-manylinux_2_28_x86_64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp310",
+      "requires_python": ">=3.10",
+      "sha256": "8d3112a1286232a141aa9651139f4eb1d2d504f479c2e49fb2e2d2b7f1273a4f",
+      "size": 115311368,
+      "upload_time_iso_8601": "2026-06-19T20:42:14.176332Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp310-cp310-win_amd64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp310",
+      "requires_python": ">=3.10",
+      "sha256": "da5823882eb51c59804fb73a826e336257a16a7044bf6f275bc427969efbc54c",
+      "size": 102305845,
+      "upload_time_iso_8601": "2026-06-19T22:11:41.524071Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp311-cp311-macosx_12_0_arm64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp311",
+      "requires_python": ">=3.10",
+      "sha256": "d5ae4c00d8899b918c2dffa9af7f684a553c89e62777563709db124d39549ce8",
+      "size": 70149027,
+      "upload_time_iso_8601": "2026-06-19T21:20:26.504122Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp311-cp311-manylinux_2_28_x86_64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp311",
+      "requires_python": ">=3.10",
+      "sha256": "98bb84c2a28d6047a3d06c241620784805e684bd379a2ceaa73b0e9f17dba252",
+      "size": 115311606,
+      "upload_time_iso_8601": "2026-06-19T20:43:09.983285Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp311-cp311-win_amd64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp311",
+      "requires_python": ">=3.10",
+      "sha256": "cb4d8314c279b59fcbb0777eca9c23f1be3ca610fd9640eef07342c64e908497",
+      "size": 102311045,
+      "upload_time_iso_8601": "2026-06-19T22:12:23.054056Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp312-cp312-macosx_12_0_arm64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp312",
+      "requires_python": ">=3.10",
+      "sha256": "79cdda826c2abcb68e549969f95ad2aaa7b65be534cfd2e63f04ceec779f9484",
+      "size": 70160249,
+      "upload_time_iso_8601": "2026-06-20T07:56:12.100238Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp312-cp312-manylinux_2_28_x86_64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp312",
+      "requires_python": ">=3.10",
+      "sha256": "a8384088642a6588c3f65d96b04707e9b1c9b2cc46e564b643f639d259fde2f3",
+      "size": 115282320,
+      "upload_time_iso_8601": "2026-06-19T20:44:13.025350Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp312-cp312-manylinux_2_39_aarch64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp312",
+      "requires_python": ">=3.10",
+      "sha256": "4ce88f56b0937f629930ee2df2f5d4c9d95a1a190c497def1d080dfc6a7be276",
+      "size": 98509971,
+      "upload_time_iso_8601": "2026-06-19T20:31:51.741398Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp312-cp312-win_amd64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp312",
+      "requires_python": ">=3.10",
+      "sha256": "a921ccb58514f70eea2fcc2f7dd9df2c732519a021036a1b41e700f4c8fffd70",
+      "size": 102308098,
+      "upload_time_iso_8601": "2026-06-19T22:12:56.170738Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp313-cp313-macosx_12_0_arm64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp313",
+      "requires_python": ">=3.10",
+      "sha256": "c79f7748238a17bf9f97d7997d89294321ec3f70398b269d3c604eeb7f10feeb",
+      "size": 70160156,
+      "upload_time_iso_8601": "2026-06-20T07:56:30.352083Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp313-cp313-manylinux_2_28_x86_64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp313",
+      "requires_python": ">=3.10",
+      "sha256": "45d54589babab20fc2fd432c8f3a1d455db64268a960df2fd4ea20ffd2a700d3",
+      "size": 115281548,
+      "upload_time_iso_8601": "2026-06-19T20:45:10.500660Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp313-cp313-manylinux_2_39_aarch64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp313",
+      "requires_python": ">=3.10",
+      "sha256": "b40ee208524cc9f9ae4a5447cfd8d79a5e9610c25e79e5ed4cff7ff27b545437",
+      "size": 98509278,
+      "upload_time_iso_8601": "2026-06-19T20:31:58.199042Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp313-cp313-win_amd64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp313",
+      "requires_python": ">=3.10",
+      "sha256": "bf934cfe6f780aad3d2b8fcb57253edaab4bb284de3661932ebe1e9dffcc4c1d",
+      "size": 102308652,
+      "upload_time_iso_8601": "2026-06-19T22:13:35.207249Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp314-cp314-macosx_12_0_arm64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp314",
+      "requires_python": ">=3.10",
+      "sha256": "7adc915411460c0875f510e7abe8403c837c1ca47f74d61376da78055d2b05fb",
+      "size": 70160316,
+      "upload_time_iso_8601": "2026-06-20T07:56:57.267463Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp314-cp314-manylinux_2_28_x86_64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp314",
+      "requires_python": ">=3.10",
+      "sha256": "31d992428eb7451aad92761d68b6f0a27c96dff18836fb399af76ce5cb527522",
+      "size": 115287322,
+      "upload_time_iso_8601": "2026-06-19T20:46:08.983771Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp314-cp314-manylinux_2_39_aarch64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp314",
+      "requires_python": ">=3.10",
+      "sha256": "cc3260fb476814ce47f385d12e99a83a4a7891cc495742e3e78500a7179d962a",
+      "size": 98516227,
+      "upload_time_iso_8601": "2026-06-19T20:32:04.327446Z",
+      "yanked": false
+    },
+    {
+      "filename": "ovito-3.15.5-cp314-cp314-win_amd64.whl",
+      "packagetype": "bdist_wheel",
+      "python_version": "cp314",
+      "requires_python": ">=3.10",
+      "sha256": "c2283ab62be54f0f9042e4400f6684a8e4c7e79ea425211016bac26f4c5825cd",
+      "size": 103260743,
+      "upload_time_iso_8601": "2026-06-19T22:14:08.111263Z",
+      "yanked": false
+    }
+  ],
+  "requires_python": ">=3.10",
+  "retrieved_utc": "2026-07-24T00:00:00Z",
+  "schema_version": "1.0",
+  "version": "3.15.5"
+}

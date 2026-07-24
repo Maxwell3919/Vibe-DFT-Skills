@@ -1,0 +1,42 @@
+{
+  "consumer_path": "skills/cp2k-rigorous-calculations",
+  "contract_name": "official-document-authority-consumer-proposal",
+  "limitations": [
+    "This Skill-local proposal cannot create, widen, or override the canonical authority and consumer registries."
+  ],
+  "proposal_status": "skill-local-non-authoritative",
+  "providers": [
+    {
+      "authority_id": "cp2k-official-manual",
+      "consumer_binding": {
+        "binding_id": "cp2k-skill-cp2k-manual",
+        "claim_ceiling": "registered-skill-scope",
+        "consumer_lifecycle": "active",
+        "purpose": "official-document-coverage"
+      },
+      "input_id": "cp2k-manual",
+      "provider_id": "cp2k",
+      "source_catalog_ref": {
+        "path": "skills/cp2k-rigorous-calculations/references/source-pack-cp2k-manual.json",
+        "sha256": "fe30ada6d1ccc975e8610b6186a28f6a0f1221bc62a13e39edb268549d098d6c"
+      }
+    },
+    {
+      "authority_id": "cp2k-release-source-docs",
+      "consumer_binding": {
+        "binding_id": "cp2k-skill-cp2k-release-source",
+        "claim_ceiling": "registered-skill-scope",
+        "consumer_lifecycle": "active",
+        "purpose": "official-document-coverage"
+      },
+      "input_id": "cp2k-release",
+      "provider_id": "cp2k",
+      "source_catalog_ref": {
+        "path": "skills/cp2k-rigorous-calculations/references/source-pack-cp2k-release.json",
+        "sha256": "1e862c987fe585083e2b5b4a6a4f1b3130d56e1d639b4fb58e785b03a0937f55"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "skill_id": "cp2k-rigorous-calculations"
+}

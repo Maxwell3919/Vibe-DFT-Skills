@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-document-scope-catalog:1.0",
+  "title": "Vibe DFT Skills extracted official-document scope catalog",
+  "description": "A strict, source-tree-bound catalog of fine-grained Skill claims extracted from code and policy catalogs. The central builder merges it with complete ordinary-file enumeration and provider subjects; no catalog can suppress a source file.",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "skill_id",
+    "extractor_id",
+    "subjects"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "contract_name": {
+      "const": "official-document-scope-catalog"
+    },
+    "skill_id": {
+      "$ref": "#/$defs/hyphenId"
+    },
+    "extractor_id": {
+      "$ref": "#/$defs/safeId"
+    },
+    "subjects": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/subject"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$"
+    },
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)[A-Za-z0-9._/-]+$"
+    },
+    "originRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/safeRelativePath"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_id",
+        "subject_kind",
+        "evidence_class",
+        "origin_refs",
+        "statement",
+        "expected_disposition",
+        "provider_input_ids"
+      ],
+      "properties": {
+        "subject_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "subject_kind": {
+          "enum": [
+            "claim",
+            "documented-claim",
+            "capability",
+            "task",
+            "workflow",
+            "executable",
+            "parameter",
+            "input-keyword",
+            "output-field",
+            "observable",
+            "backend",
+            "limitation"
+          ]
+        },
+        "evidence_class": {
+          "enum": [
+            "official-provider-required",
+            "repository-policy",
+            "deterministic-tool-behavior",
+            "scientific-methodology"
+          ]
+        },
+        "origin_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/originRef"
+          }
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "expected_disposition": {
+          "enum": [
+            "covered",
+            "partial",
+            "blocked",
+            "not-applicable",
+            "excluded"
+          ]
+        },
+        "provider_input_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_class": {
+                "const": "official-provider-required"
+              }
+            },
+            "required": [
+              "evidence_class"
+            ]
+          },
+          "then": {
+            "properties": {
+              "expected_disposition": {
+                "enum": [
+                  "covered",
+                  "partial",
+                  "blocked"
+                ]
+              },
+              "provider_input_ids": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "expected_disposition": {
+                "enum": [
+                  "not-applicable",
+                  "excluded"
+                ]
+              },
+              "provider_input_ids": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

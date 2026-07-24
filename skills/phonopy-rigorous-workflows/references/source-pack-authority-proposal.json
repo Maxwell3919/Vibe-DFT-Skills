@@ -1,0 +1,82 @@
+{
+  "authorities": [
+    {
+      "authority_id": "phonopy-release-source-docs-4-3-1",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "baf530aed09071e1221b3c191918a168fc5f1d9b"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/phonopy/phonopy/baf530aed09071e1221b3c191918a168fc5f1d9b/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "phonopy-release-source-docs-4-3-1",
+        "binding_id": "phonopy-rigorous-workflows-phonopy-docs",
+        "claim_effect": "none",
+        "provider_input_id": "phonopy-docs",
+        "required_disposition": "blocked",
+        "skill_id": "phonopy-rigorous-workflows"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "BSD-3-Clause",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/phonopy/phonopy/baf530aed09071e1221b3c191918a168fc5f1d9b/LICENSE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source documentation does not prove local version identity, calculator interface execution, displacement/force lineage, convergence, or physical validity."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "phonopy",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "4.3.1",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "A blocked development consumer and lifecycle-decoupled authority must pass central authority/consumer validation before pack generation.",
+    "Preserve rolling-site drift and cataloged documentation conflicts instead of silently normalizing them into v4.3.1."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "phonopy-rigorous-workflows"
+}

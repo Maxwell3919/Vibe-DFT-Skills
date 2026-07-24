@@ -1,0 +1,177 @@
+{
+  "blockers": [
+    {
+      "code": "ARTIFACT.BYTES.NOT.RETAINED",
+      "dimensions": ["coverage"],
+      "description": "Release artifact bytes, signatures, notices, and imported-module identities are external."
+    },
+    {
+      "code": "RUNTIME.NATIVE.UNVERIFIED",
+      "dimensions": ["coverage"],
+      "description": "Installation, import, dependencies, platform behavior, and numerical execution are not validated."
+    },
+    {
+      "code": "EDITION.ENTITLEMENT.UNRESOLVED",
+      "dimensions": ["coverage"],
+      "description": "PyPI metadata cannot establish Basic/Pro desktop edition or entitlement."
+    }
+  ],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://pypi.org/pypi/ovito/3.15.5/json",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only"
+    ],
+    "assessment": "conditional",
+    "identity": {
+      "identifier": "MIT",
+      "terms_urls": [
+        "https://pypi.org/project/ovito/3.15.5/",
+        "https://gitlab.com/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/LICENSE.MIT.txt"
+      ],
+      "verification": "verified"
+    },
+    "limitations": [
+      "The PyPI license expression does not replace component notices, third-party terms, proprietary Pro desktop/entitlement terms, or user-data/artifact rights."
+    ],
+    "official_terms_locator": "https://pypi.org/project/ovito/3.15.5/"
+  },
+  "limitations": [
+    "Exact PyPI metadata and wheel digests do not establish artifact bytes, signatures, imported module identity, Basic/Pro desktop identity, entitlement, runtime behavior, modifier validity, or scientific acceptance."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "ovito-pypi-release-metadata-inventory"
+      ],
+      "description": "The exact JSON response hash and derived release fields are retained, but the raw PyPI JSON body is not.",
+      "disposition": "external-only",
+      "loss_id": "raw-pypi-json-not-retained",
+      "materiality": "non-material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "ovito-pypi-release-metadata-inventory"
+      ],
+      "description": "Wheel files, installers, component notices, signatures, SBOMs, and imported module bytes are not downloaded or stored.",
+      "disposition": "external-only",
+      "loss_id": "distribution-artifacts-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "ovito-pypi-release-metadata-inventory"
+      ],
+      "description": "Release metadata and artifact hashes do not establish installation, import, runtime dependencies, platform compatibility, API behavior, or numerical correctness.",
+      "disposition": "blocked",
+      "loss_id": "metadata-is-not-native-validation",
+      "materiality": "material",
+      "stage": "mapping"
+    },
+    {
+      "affected_source_ids": [
+        "ovito-pypi-release-metadata-inventory"
+      ],
+      "description": "PyPI package metadata does not establish Basic desktop or Pro desktop entitlement, activation, or feature availability.",
+      "disposition": "blocked",
+      "loss_id": "edition-boundary-not-proven-by-pypi",
+      "materiality": "material",
+      "stage": "mapping"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "87e4904da01db356dff6c069c47d7724828007b34818407c4460d337b18d8284",
+        "kind": "external-receipt",
+        "raw_bytes": 18263,
+        "raw_sha256": "77b53b8113e8d10b4dc02eb487e6fb75bfa1cfa2a7272925e03bc16940891f2b",
+        "retrieved_utc": "2026-07-24T00:00:00Z",
+        "value": "pypi-json:ovito:3.15.5"
+      },
+      "locator": "https://pypi.org/pypi/ovito/3.15.5/json",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 18263,
+            "raw_sha256": "77b53b8113e8d10b4dc02eb487e6fb75bfa1cfa2a7272925e03bc16940891f2b",
+            "retrieval_method": "official-api",
+            "retrieved_utc": "2026-07-24T00:00:00Z",
+            "selected_bytes": 18263,
+            "selected_sha256": "77b53b8113e8d10b4dc02eb487e6fb75bfa1cfa2a7272925e03bc16940891f2b"
+          },
+          "loss_ids": [
+            "raw-pypi-json-not-retained",
+            "distribution-artifacts-not-retained",
+            "metadata-is-not-native-validation",
+            "edition-boundary-not-proven-by-pypi"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "ovito-pypi-release-metadata-inventory.whole",
+          "subject_ids": [
+            "distribution.pypi-3-15-5",
+            "platform.python-wheel-matrix",
+            "provider.edition-license-separation",
+            "provider.python-module"
+          ],
+          "title": "Exact PyPI release metadata and artifact-digest inventory"
+        }
+      ],
+      "source_id": "ovito-pypi-release-metadata-inventory",
+      "source_kind": "api-record",
+      "title": "OVITO 3.15.5 exact PyPI release metadata inventory"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "provider.python-module",
+      "title": "The standalone ovito Python distribution 3.15.5 is a distinct module execution surface with exact artifact, Python, platform, license, and imported-version requirements."
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "provider.edition-license-separation",
+      "title": "Python module, Basic desktop, Pro desktop, source documentation, third-party notices, user data, and generated artifacts have distinct identity and license boundaries."
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "distribution.pypi-3-15-5",
+      "title": "PyPI release metadata identifies ovito 3.15.5, Python requirement, project links, MIT license expression, and 18 exact release-file names, sizes, and SHA-256 digests; artifact bytes and imports remain external."
+    },
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "platform.python-wheel-matrix",
+      "title": "OVITO 3.15.5 wheel availability is platform, architecture, Python-version, and minimum-OS specific; metadata does not prove installability or runtime behavior."
+    }
+  ],
+  "upstream_universe_complete": true,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": "2026-07-24T00:00:00Z",
+    "snapshot_identity": {
+      "content_sha256": "77b53b8113e8d10b4dc02eb487e6fb75bfa1cfa2a7272925e03bc16940891f2b",
+      "kind": "sha256",
+      "value": "pypi-json-ovito-3.15.5"
+    },
+    "value": "3.15.5"
+  }
+}

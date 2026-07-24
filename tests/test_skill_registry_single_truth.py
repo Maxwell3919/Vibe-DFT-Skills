@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
 from pathlib import Path
 import sys
@@ -329,6 +330,73 @@ class SourceTreeDigestTests(unittest.TestCase):
             os.link(root / "source.txt", root / "hard.txt")
             with self.assertRaisesRegex(ValueError, "hard-linked"):
                 skill_registry.source_tree_digest(root)
+
+    def test_official_source_pack_is_an_independent_hash_domain(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            root.joinpath("SKILL.md").write_text("stable\n", encoding="utf-8")
+            pack = root / "references" / "official-source-pack"
+            pack.mkdir(parents=True)
+            pack.joinpath("bundle.json").write_text(
+                '{"scope_tree_sha256":"first"}\n',
+                encoding="utf-8",
+            )
+            first = skill_registry.source_tree_digest(root)
+            pack.joinpath("bundle.json").write_text(
+                '{"scope_tree_sha256":"second"}\n',
+                encoding="utf-8",
+            )
+            pack.joinpath("coverage.json").write_text(
+                '{"status":"partial"}\n',
+                encoding="utf-8",
+            )
+            second = skill_registry.source_tree_digest(root)
+
+            self.assertEqual(first.sha256, second.sha256)
+            self.assertEqual(
+                [item.path for item in second.files],
+                ["SKILL.md"],
+            )
+
+    def test_non_pack_skill_file_change_still_changes_source_tree_hash(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            root.joinpath("SKILL.md").write_text("first\n", encoding="utf-8")
+            pack = root / "references" / "official-source-pack"
+            pack.mkdir(parents=True)
+            pack.joinpath("bundle.json").write_text("{}\n", encoding="utf-8")
+            first = skill_registry.source_tree_digest(root)
+            root.joinpath("SKILL.md").write_text("second\n", encoding="utf-8")
+            second = skill_registry.source_tree_digest(root)
+
+            self.assertNotEqual(first.sha256, second.sha256)
+            self.assertEqual(
+                [item.path for item in second.files],
+                ["SKILL.md"],
+            )
+
+    def test_pack_can_bind_refreshed_tree_hash_without_a_fixed_point_loop(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            root.joinpath("SKILL.md").write_text("stable\n", encoding="utf-8")
+            pack = root / "references" / "official-source-pack"
+            pack.mkdir(parents=True)
+            pack.joinpath("scope.json").write_text(
+                '{"source_tree_sha256":null}\n',
+                encoding="utf-8",
+            )
+            refreshed = skill_registry.source_tree_digest(root)
+            pack.joinpath("scope.json").write_text(
+                json.dumps(
+                    {"source_tree_sha256": refreshed.sha256},
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            rebound = skill_registry.source_tree_digest(root)
+
+            self.assertEqual(refreshed.sha256, rebound.sha256)
 
 
 if __name__ == "__main__":

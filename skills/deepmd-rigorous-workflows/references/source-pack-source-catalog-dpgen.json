@@ -1,0 +1,170 @@
+{
+  "blockers": [
+    {
+      "code": "DOC.BODY.BYTES.EXTERNAL",
+      "dimensions": ["corpus","slices"],
+      "description": "Official documentation bodies and per-page hashes are external, so provider-required subjects remain blocked."
+    },
+    {
+      "code": "DOC.BUILD.REPLAY.MISSING",
+      "dimensions": ["slices"],
+      "description": "The exact generated documentation build and API closure are not reproduced."
+    }
+  ],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://github.com/deepmodeling/dpgen/tree/v0.13.3",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only"
+    ],
+    "assessment": "conditional",
+    "identity": {
+      "identifier": "LGPL-3.0-or-later",
+      "terms_urls": [
+        "https://raw.githubusercontent.com/deepmodeling/dpgen/66232e5f05f90d6e399b1c25fd0d914ea3e40af8/LICENSE"
+      ],
+      "verification": "verified"
+    },
+    "limitations": [
+      "Framework source licensing does not grant rights to tutorial datasets, trained models, reference DFT outputs, optional backends, or third-party assets."
+    ],
+    "official_terms_locator": "https://raw.githubusercontent.com/deepmodeling/dpgen/66232e5f05f90d6e399b1c25fd0d914ea3e40af8/LICENSE"
+  },
+  "limitations": [
+    "This exact metadata inventory does not establish dependency compatibility, native CLI behavior, backend equivalence, model validity, or scientific acceptance.",
+    "External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\\t<path>\\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "dpgen-exact-document-tree-inventory"
+      ],
+      "description": "Only exact Git path and object metadata are retained; official documentation body bytes remain external.",
+      "disposition": "external-only",
+      "loss_id": "document-bodies-not-retained",
+      "materiality": "material",
+      "stage": "storage"
+    },
+    {
+      "affected_source_ids": [
+        "dpgen-exact-document-tree-inventory"
+      ],
+      "description": "Generated API/reference pages and the exact documentation build have not been replayed.",
+      "disposition": "blocked",
+      "loss_id": "generated-build-not-replayed",
+      "materiality": "material",
+      "stage": "extraction"
+    },
+    {
+      "affected_source_ids": [
+        "dpgen-exact-document-tree-inventory"
+      ],
+      "description": "Tutorial datasets, NumPy/HDF5 payloads, checkpoints, models, pickles, and other executable or serialized artifacts are metadata-only and are never loaded.",
+      "disposition": "external-only",
+      "loss_id": "runtime-artifacts-excluded",
+      "materiality": "material",
+      "stage": "storage"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "04e6db53d6afa2945ca41cbf8eaac5e5c4d1eb9854b9fdfc3e87ab32ce358d7a",
+        "kind": "revision",
+        "raw_bytes": 20700,
+        "raw_sha256": "7713a78d0a64cf7118945f9a6feb43c459d8dba56e4662c1ff83c78a855fb41f",
+        "retrieved_utc": "2026-07-23T20:17:38Z",
+        "value": "commit:66232e5f05f90d6e399b1c25fd0d914ea3e40af8;root-tree:8d66ef30f286a1825533bd4a2f1e941886f85290"
+      },
+      "locator": "https://github.com/deepmodeling/dpgen/tree/v0.13.3",
+      "metadata_evidence_ref": {
+        "bytes": 41152,
+        "path": "skills/deepmd-rigorous-workflows/references/source-pack-inventory-dpgen.json",
+        "sha256": "04e6db53d6afa2945ca41cbf8eaac5e5c4d1eb9854b9fdfc3e87ab32ce358d7a"
+      },
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 20700,
+            "raw_sha256": "7713a78d0a64cf7118945f9a6feb43c459d8dba56e4662c1ff83c78a855fb41f",
+            "retrieval_method": "git-object",
+            "retrieved_utc": "2026-07-23T20:17:38Z",
+            "selected_bytes": 20700,
+            "selected_sha256": "7713a78d0a64cf7118945f9a6feb43c459d8dba56e4662c1ff83c78a855fb41f"
+          },
+          "loss_ids": [
+            "document-bodies-not-retained",
+            "generated-build-not-replayed",
+            "runtime-artifacts-excluded"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "whole-source",
+            "layer": "raw-source",
+            "value": "*"
+          },
+          "slice_id": "dpgen-exact-document-tree-inventory.whole",
+          "subject_ids": [
+            "dpgen.install.pip",
+            "dpgen.run.concurrent-learning",
+            "dpgen.init.bulk",
+            "dpgen.simplify",
+            "dpgen.autotest"
+          ],
+          "title": "Complete documentation-tree metadata inventory"
+        }
+      ],
+      "source_id": "dpgen-exact-document-tree-inventory",
+      "source_kind": "index",
+      "title": "Exact release documentation-tree metadata inventory"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "dpgen.install.pip",
+      "title": "dpgen install pip"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "dpgen.run.concurrent-learning",
+      "title": "dpgen run concurrent-learning"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "dpgen.init.bulk",
+      "title": "dpgen init bulk"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "dpgen.simplify",
+      "title": "dpgen simplify"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "dpgen.autotest",
+      "title": "dpgen autotest"
+    }
+  ],
+  "upstream_universe_complete": true,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": null,
+    "snapshot_identity": null,
+    "value": "0.13.3"
+  }
+}

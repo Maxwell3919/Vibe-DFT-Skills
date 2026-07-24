@@ -1,0 +1,306 @@
+{
+  "blockers": [],
+  "contract_name": "official-document-source-catalog",
+  "inventory_locator": "https://gaussian.com/docs/",
+  "license": {
+    "allowed_storage_modes": [
+      "metadata-only",
+      "external-runtime-only"
+    ],
+    "assessment": "unresolved",
+    "identity": {
+      "identifier": null,
+      "terms_urls": [
+        "https://gaussian.com/terms-and-conditions/",
+        "https://gaussian.com/wp-content/uploads/dl/us_com.pdf"
+      ],
+      "verification": "unknown"
+    },
+    "limitations": [
+      "Gaussian commercial terms establish a restricted software boundary but do not grant redistribution rights for public reference-page text or assets.",
+      "No public documentation-content license was verified, so only hashes, sizes, locators, selectors, and retrieval metadata are stored."
+    ],
+    "official_terms_locator": "https://gaussian.com/wp-content/uploads/dl/us_com.pdf"
+  },
+  "limitations": [
+    "The public C.01 reference is mutable and has no immutable release snapshot.",
+    "This metadata-only catalog does not store page text, licensed manuals, examples, basis payloads, binaries, checkpoints, or user data.",
+    "The linked keyword, IOp, utility, and user-reference leaf pages are not yet individually receipt-bound."
+  ],
+  "losses": [
+    {
+      "affected_source_ids": [
+        "g16-c01-docs-index",
+        "g16-c01-users-reference",
+        "g16-c01-keyword-index",
+        "g16-c01-iop-index",
+        "g16-c01-input-reference"
+      ],
+      "description": "The five public index/API records do not yet close the 88-keyword, 12-overlay, utility, option, and user-reference leaf-page universe.",
+      "disposition": "external-only",
+      "loss_id": "g16-c01-unexpanded-link-graph",
+      "materiality": "material",
+      "stage": "discovery"
+    }
+  ],
+  "reviewed_exclusions": [],
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "540525fce2f14a2c3e9465b3d7768222c06123515931ab81f4f771c98c132b40",
+        "kind": "external-receipt",
+        "raw_bytes": 2381,
+        "raw_sha256": "05b08c073f24eefbca29ed7f3fd2654c9bd73bef71dc6afcf0b318045ee047e0",
+        "retrieved_utc": "2026-07-23T19:38:01Z",
+        "value": "wordpress-page-id:17023;modified-gmt:2023-11-06T20:17:17"
+      },
+      "locator": "https://gaussian.com/wp-json/wp/v2/pages/17023",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 2381,
+            "raw_sha256": "05b08c073f24eefbca29ed7f3fd2654c9bd73bef71dc6afcf0b318045ee047e0",
+            "retrieval_method": "official-api",
+            "retrieved_utc": "2026-07-23T19:38:01Z",
+            "selected_bytes": 354,
+            "selected_sha256": "540525fce2f14a2c3e9465b3d7768222c06123515931ab81f4f771c98c132b40"
+          },
+          "loss_ids": [
+            "g16-c01-unexpanded-link-graph"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "json-pointer",
+            "layer": "raw-source",
+            "value": "/content/rendered"
+          },
+          "slice_id": "g16-c01-docs-index-content",
+          "subject_ids": [
+            "g16-c01-navigation"
+          ],
+          "title": "Gaussian documentation hub content"
+        }
+      ],
+      "source_id": "g16-c01-docs-index",
+      "source_kind": "index",
+      "title": "Gaussian documentation hub"
+    },
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "fef0c399ce6219dfd813c27dd319686202ff2e519d544b9f6336fbbe9153a1d8",
+        "kind": "external-receipt",
+        "raw_bytes": 5216,
+        "raw_sha256": "e01f2571d4495177025924e2b9be4844659a6a716d673569230f2da424efb4e1",
+        "retrieved_utc": "2026-07-23T19:38:04Z",
+        "value": "wordpress-page-id:6734;modified-gmt:2019-08-22T12:57:53"
+      },
+      "locator": "https://gaussian.com/wp-json/wp/v2/pages/6734",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 5216,
+            "raw_sha256": "e01f2571d4495177025924e2b9be4844659a6a716d673569230f2da424efb4e1",
+            "retrieval_method": "official-api",
+            "retrieved_utc": "2026-07-23T19:38:04Z",
+            "selected_bytes": 2647,
+            "selected_sha256": "fef0c399ce6219dfd813c27dd319686202ff2e519d544b9f6336fbbe9153a1d8"
+          },
+          "loss_ids": [
+            "g16-c01-unexpanded-link-graph"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "json-pointer",
+            "layer": "raw-source",
+            "value": "/content/rendered"
+          },
+          "slice_id": "g16-c01-users-reference-content",
+          "subject_ids": [
+            "g16-c01-user-reference"
+          ],
+          "title": "Gaussian 16 C.01 users-reference index"
+        }
+      ],
+      "source_id": "g16-c01-users-reference",
+      "source_kind": "index",
+      "title": "Gaussian 16 Users Reference"
+    },
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "38fc076c72ba75b47c7fcd7add7b6a073bd205a6be41787899d5b7402a494a32",
+        "kind": "external-receipt",
+        "raw_bytes": 7230,
+        "raw_sha256": "62312ab2517d801464fd8a00880143a81e287dff83db74d80e52e833a5fe2833",
+        "retrieved_utc": "2026-07-23T19:38:08Z",
+        "value": "wordpress-page-id:4396;modified-gmt:2025-06-05T21:37:20"
+      },
+      "locator": "https://gaussian.com/wp-json/wp/v2/pages/4396",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 7230,
+            "raw_sha256": "62312ab2517d801464fd8a00880143a81e287dff83db74d80e52e833a5fe2833",
+            "retrieval_method": "official-api",
+            "retrieved_utc": "2026-07-23T19:38:08Z",
+            "selected_bytes": 4579,
+            "selected_sha256": "38fc076c72ba75b47c7fcd7add7b6a073bd205a6be41787899d5b7402a494a32"
+          },
+          "loss_ids": [
+            "g16-c01-unexpanded-link-graph"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "json-pointer",
+            "layer": "raw-source",
+            "value": "/content/rendered"
+          },
+          "slice_id": "g16-c01-keyword-index-content",
+          "subject_ids": [
+            "g16-c01-keywords"
+          ],
+          "title": "Gaussian keyword index"
+        }
+      ],
+      "source_id": "g16-c01-keyword-index",
+      "source_kind": "index",
+      "title": "List of Gaussian Keywords"
+    },
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "6a96a5a3eb089dca97d6b74470f1e544f94d4914b5eed823cd4292652e56c130",
+        "kind": "external-receipt",
+        "raw_bytes": 3009,
+        "raw_sha256": "7551d7ea923d662379100ba3528eb7df5b309e9d3ea9263500d94d6ed8cbd1e6",
+        "retrieved_utc": "2026-07-23T19:38:11Z",
+        "value": "wordpress-page-id:5086;modified-gmt:2019-08-22T18:30:37"
+      },
+      "locator": "https://gaussian.com/wp-json/wp/v2/pages/5086",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 3009,
+            "raw_sha256": "7551d7ea923d662379100ba3528eb7df5b309e9d3ea9263500d94d6ed8cbd1e6",
+            "retrieval_method": "official-api",
+            "retrieved_utc": "2026-07-23T19:38:11Z",
+            "selected_bytes": 820,
+            "selected_sha256": "6a96a5a3eb089dca97d6b74470f1e544f94d4914b5eed823cd4292652e56c130"
+          },
+          "loss_ids": [
+            "g16-c01-unexpanded-link-graph"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "json-pointer",
+            "layer": "raw-source",
+            "value": "/content/rendered"
+          },
+          "slice_id": "g16-c01-iop-index-content",
+          "subject_ids": [
+            "g16-c01-iops"
+          ],
+          "title": "Gaussian IOp overlay index"
+        }
+      ],
+      "source_id": "g16-c01-iop-index",
+      "source_kind": "index",
+      "title": "Gaussian 16 IOps Reference"
+    },
+    {
+      "disposition": "included",
+      "external_identity": {
+        "evidence_sha256": "04d82b46ae5857765ea6d11a22381f10b44a8bce8136cdc00e01fc8d4f2d7812",
+        "kind": "external-receipt",
+        "raw_bytes": 33410,
+        "raw_sha256": "ca63bf775e05a4bab3773c5c2a75e525ac2261705d5e2c2a8e4d92a18898a47c",
+        "retrieved_utc": "2026-07-23T19:38:15Z",
+        "value": "wordpress-page-id:2265;modified-gmt:2019-08-22T18:12:42"
+      },
+      "locator": "https://gaussian.com/wp-json/wp/v2/pages/2265",
+      "slices": [
+        {
+          "external_receipt": {
+            "raw_bytes": 33410,
+            "raw_sha256": "ca63bf775e05a4bab3773c5c2a75e525ac2261705d5e2c2a8e4d92a18898a47c",
+            "retrieval_method": "official-api",
+            "retrieved_utc": "2026-07-23T19:38:15Z",
+            "selected_bytes": 29277,
+            "selected_sha256": "04d82b46ae5857765ea6d11a22381f10b44a8bce8136cdc00e01fc8d4f2d7812"
+          },
+          "loss_ids": [
+            "g16-c01-unexpanded-link-graph"
+          ],
+          "order": 0,
+          "selector": {
+            "kind": "json-pointer",
+            "layer": "raw-source",
+            "value": "/content/rendered"
+          },
+          "slice_id": "g16-c01-input-reference-content",
+          "subject_ids": [
+            "g16-c01-input-grammar"
+          ],
+          "title": "Gaussian 16 input reference"
+        }
+      ],
+      "source_id": "g16-c01-input-reference",
+      "source_kind": "reference-page",
+      "title": "About Gaussian 16 Input"
+    }
+  ],
+  "subjects": [
+    {
+      "category": "provenance",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "supporting",
+      "subject_id": "g16-c01-navigation",
+      "title": "Gaussian documentation navigation"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "g16-c01-user-reference",
+      "title": "Gaussian 16 C.01 user-reference boundary"
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "g16-c01-keywords",
+      "title": "Gaussian keyword universe"
+    },
+    {
+      "category": "input-parameter",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "supporting",
+      "subject_id": "g16-c01-iops",
+      "title": "Gaussian internal options reference"
+    },
+    {
+      "category": "workflow",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "g16-c01-input-grammar",
+      "title": "Gaussian input grammar"
+    },
+    {
+      "category": "scientific-limitation",
+      "evidence_class": "official-provider-required",
+      "requirement_strength": "required",
+      "subject_id": "g16-licensed-runtime",
+      "title": "Licensed Gaussian runtime and private-manual boundary"
+    }
+  ],
+  "upstream_universe_complete": false,
+  "version_scope": {
+    "kind": "exact",
+    "retrieved_utc": null,
+    "snapshot_identity": null,
+    "value": "16-C.01-public-reference"
+  }
+}

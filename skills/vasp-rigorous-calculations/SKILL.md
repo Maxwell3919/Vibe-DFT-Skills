@@ -42,9 +42,21 @@ Read [references/official-wiki-index.md](references/official-wiki-index.md). Res
 python3 scripts/resolve_official_sources.py ENCUT EDIFF KPOINTS --pretty
 ```
 
+The local resolver never emits a generic `pass`. Its strongest local state,
+`local_integrity_verified`, means only that the source-pack seed, compact
+catalog, legacy manifest, raw JSON, wikitext, and derived Markdown hashes form
+the expected exact chain for the resolved pages. It does not establish live
+freshness, redistribution clearance, or a platform-attested external fetch.
+`metadata_resolved_unverified` and every blocked state are insufficient for an
+official-behavior claim.
+
 Use only `https://www.vasp.at/wiki/` or pages retrieved through its official MediaWiki API for official VASP claims. Cite the exact URL plus mirror revision/retrieval time. Recheck the live official page for version-sensitive defaults, restrictions, interactions, compatibility, and known issues when network access is available.
 
-If a page is missing or fails its manifest hash and live official verification is unavailable, report the behavior unresolved. “Missing locally” does not mean “undocumented by VASP.” Match documentation to the output version; do not project current Wiki behavior backward without evidence.
+If a page is missing or fails the exact local hash chain and a
+platform-attested external oldid resolution is unavailable, report the
+behavior unresolved. “Missing locally” does not mean “undocumented by VASP.”
+Match documentation to the output version; do not project current Wiki
+behavior backward without evidence.
 
 Label every statement as one of:
 
@@ -75,16 +87,17 @@ For a finished run:
 
 ```bash
 python3 scripts/audit_vasp_case.py CASE \
-  --mode run --task-type TASK --pretty
+  --mode run --task-type TASK \
+  --expected-vasp-version MAJOR.MINOR.PATCH --pretty
 ```
 
 Stop on a nonzero exit. Report finding codes and gate states. Do not replace a parser failure with manual optimism.
 
 Warnings always return a nonzero exit and make `input_reproducibility` or `output_warnings` unresolved. There is no permissive CLI switch.
 
-Input mode can pass only input integrity and reproducibility. Run mode additionally checks implemented OUTCAR completion, electronic iteration evidence, relevant ionic stopping evidence, warning presence, and version identity. A single case always leaves numerical convergence, task-specific validation, physical validity, and scientific acceptance unproved.
+Input mode can pass only input integrity and reproducibility. A tag absent from the current local core INCAR catalog blocks input integrity as unresolved; this is not evidence that the tag is absent from live VASP. Run mode additionally requires exactly one VASP startup segment, its final timing/accounting header followed by its elapsed-time record with no later iteration, exact input/output agreement for explicit ENCUT/EDIFF/NELM echoes, a provable KPOINTS-to-NKPTS binding, electronic convergence evidence for every observed ionic step, relevant ionic stopping evidence, no unresolved warnings, and an exact match between a strict OUTCAR startup banner and the independently declared `--expected-vasp-version`. Explicit KPOINTS point counts can be checked directly; automatic, line-mode, generalized, automatic-length, or KSPACING-derived sampling remains `input_output_consistency=unresolved` from NKPTS alone. A single case always leaves numerical convergence, task-specific validation, physical validity, and scientific acceptance unproved.
 
-The auditor intentionally emits an opaque case ID, file hashes, selected safe settings, POTCAR metadata, official-source coverage, findings, and a gate matrix. It omits private paths and user comments. Read files directly only to investigate a declared parser limitation; preserve the same privacy boundary.
+The auditor intentionally emits an opaque case ID derived from INCAR, POSCAR, POTCAR, and KPOINTS when present; file hashes; selected safe settings; POTCAR metadata; official-source coverage; findings; and a gate matrix. It omits private paths and user comments. Read files directly only to investigate a declared parser limitation; preserve the same privacy boundary.
 
 ### 4. Apply the task-specific checklist
 
@@ -165,7 +178,13 @@ python3 scripts/test_skill_scripts.py
 python3 scripts/sync_official_wiki.py --check
 ```
 
-Refresh into staging, validate before installation, replace transactionally, and reject stale pages outside the manifest. Use `--scope full` only when broader official category coverage is required and verify the resulting manifest before relying on it.
+Refresh into staging, validate before installation, replace transactionally,
+and reject stale pages outside the manifest.
+
+`core` is a curated subset. The only broader implemented mode is
+`--scope bounded-categories`, which is the bounded union of three named
+categories and the core list; it must never be described as full-Wiki
+coverage. A true full-Wiki enumerator is not implemented.
 
 ## Answer in the mandatory structure
 

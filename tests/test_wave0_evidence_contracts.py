@@ -513,6 +513,7 @@ def authority_snapshots(*, include_adapter: bool = False) -> dict[str, Any]:
                     "mode": "canonical-pinned-open-snapshot-or-platform-adapter",
                     "unpinned_action": "adapter-required",
                 },
+                "bundle_content_policy": "canonical-pinned-open-only",
                 "canonical_snapshot": {
                     "snapshot_id": "qe-docs-7-5-test-snapshot",
                     "manifest_raw_sha256": SHA_B,
@@ -522,7 +523,8 @@ def authority_snapshots(*, include_adapter: bool = False) -> dict[str, Any]:
                             "canonical_url": "https://docs.example.invalid/qe/pw-user-guide",
                             "version_scope": qe_version_scope,
                             "raw_sha256": SHA_A,
-                            "bytes": 128,
+                            "raw_bytes": 128,
+                            "raw_integrity_verified": True,
                         }
                     },
                 },
@@ -847,7 +849,7 @@ class Wave0EvidenceContractTests(unittest.TestCase):
                     rows,
                 )
 
-    def test_cp2k_repository_snapshot_pin_routes_without_external_adapter(self) -> None:
+    def test_cp2k_identity_pin_does_not_replace_license_trust(self) -> None:
         authorities = official_source_authorities.load_registry()
         software = load_yaml_strict(
             ROOT / "registry" / "software-registry.yaml",
@@ -858,26 +860,37 @@ class Wave0EvidenceContractTests(unittest.TestCase):
             software_data=software,
             source_root=ROOT,
         )
+        expected_license_policies = {
+            "qe-official-docs": ("unknown", ("unknown",)),
+            "qe-release-source-docs": (
+                "known-open",
+                ("redistributable",),
+            ),
+            "vasp-official-wiki": (
+                "known-open",
+                ("redistributable",),
+            ),
+            "cp2k-official-manual": ("unknown", ("unknown",)),
+            "cp2k-release-source-docs": ("unknown", ("unknown",)),
+            "siesta-official-docs": (
+                "known-restricted",
+                ("runtime-only", "restricted"),
+            ),
+            "siesta-release-source-docs": (
+                "known-open",
+                ("redistributable",),
+            ),
+        }
+        self.assertTrue(set(expected_license_policies).issubset(projection))
         self.assertEqual(
             {
                 authority_id: (
-                    entry["license_status"],
-                    tuple(entry["redistribution"]),
+                    projection[authority_id]["license_status"],
+                    tuple(projection[authority_id]["redistribution"]),
                 )
-                for authority_id, entry in projection.items()
+                for authority_id in expected_license_policies
             },
-            {
-                "qe-official-docs": ("unknown", ("unknown",)),
-                "vasp-official-wiki": (
-                    "known-restricted",
-                    ("runtime-only", "restricted"),
-                ),
-                "cp2k-official-manual": ("known-open", ("redistributable",)),
-                "siesta-official-docs": (
-                    "known-restricted",
-                    ("runtime-only", "restricted"),
-                ),
-            },
+            expected_license_policies,
         )
         cp2k = projection["cp2k-official-manual"]
         snapshot = cp2k["canonical_snapshot"]
@@ -886,8 +899,11 @@ class Wave0EvidenceContractTests(unittest.TestCase):
         self.assertEqual(len(snapshot["sources_by_id"]), 86)
         for authority_id in (
             "qe-official-docs",
+            "qe-release-source-docs",
             "vasp-official-wiki",
+            "cp2k-release-source-docs",
             "siesta-official-docs",
+            "siesta-release-source-docs",
         ):
             self.assertIsNone(projection[authority_id]["canonical_snapshot"])
             self.assertEqual(
@@ -895,18 +911,20 @@ class Wave0EvidenceContractTests(unittest.TestCase):
                 "platform-adapter-only",
             )
 
-        source_id = "dft"
+        source_id = official_source_authorities.cp2k_source_id(
+            "CP2K_INPUT/FORCE_EVAL/DFT.html"
+        )
         source = snapshot["sources_by_id"][source_id]
-        snapshot_raw = (
-            ROOT
-            / "skills"
-            / "cp2k-rigorous-calculations"
-            / "references"
-            / "official-manual"
-            / "dft.md"
-        ).read_bytes()
-        self.assertEqual(hashlib.sha256(snapshot_raw).hexdigest(), source["raw_sha256"])
-        self.assertEqual(len(snapshot_raw), source["bytes"])
+        self.assertEqual(source["topic_alias"], "dft")
+        derived_snapshot = source["derived_snapshot"]
+        snapshot_raw = (ROOT / derived_snapshot["path"]).read_bytes()
+        self.assertEqual(
+            hashlib.sha256(snapshot_raw).hexdigest(),
+            derived_snapshot["sha256"],
+        )
+        self.assertEqual(len(snapshot_raw), derived_snapshot["bytes"])
+        self.assertTrue(derived_snapshot["integrity_verified"])
+        self.assertFalse(source["raw_integrity_verified"])
 
         value = official_source()
         value["source_record_id"] = "official-cp2k-dft-2026-2"
@@ -926,11 +944,11 @@ class Wave0EvidenceContractTests(unittest.TestCase):
                 "artifact": file_ref(
                     role="official-source-content",
                     label="cp2k-dft.md",
-                    sha256=source["raw_sha256"],
-                    byte_count=source["bytes"],
+                    sha256=derived_snapshot["sha256"],
+                    byte_count=derived_snapshot["bytes"],
                 ),
-                "raw_sha256": source["raw_sha256"],
-                "bytes": source["bytes"],
+                "raw_sha256": derived_snapshot["sha256"],
+                "bytes": derived_snapshot["bytes"],
                 "pinned_source_ref": {
                     "authority_registry_id": "cp2k-official-manual",
                     "snapshot_id": snapshot["snapshot_id"],
@@ -967,7 +985,25 @@ class Wave0EvidenceContractTests(unittest.TestCase):
             context,
             evaluator=evaluator,
         )
-        self.assertTrue(all(row["status"] == "pass" for row in rows), rows)
+        failed = [row for row in rows if row["status"] == "fail"]
+        self.assertTrue(
+            any(
+                "OFFICIAL_SOURCE_LICENSE_REDISTRIBUTION_MISMATCH"
+                in row["finding_codes"]
+                for row in failed
+            ),
+            rows,
+        )
+        blocked = [row for row in rows if row["status"] == "blocked"]
+        self.assertTrue(blocked, rows)
+        self.assertTrue(
+            any(
+                "OFFICIAL_SOURCE_BUNDLE_CONTENT_NOT_AUTHORIZED"
+                in row["finding_codes"]
+                for row in blocked
+            ),
+            blocked,
+        )
 
     def test_restricted_source_receipt_without_platform_adapter_is_exit_three_state(self) -> None:
         value = restricted_external_source()
@@ -1414,6 +1450,13 @@ class Wave0EvidenceContractTests(unittest.TestCase):
         )
 
     def test_embedded_open_content_requires_verified_canonical_snapshot_pin(self) -> None:
+        verified_raw = official_context(official_source())
+        row = bundle_semantics_evidence.evaluate(
+            ["OFFICIAL_SOURCE_PINNED_CANONICAL_SNAPSHOT_MATCH"],
+            verified_raw,
+        )[0]
+        self.assertEqual(row["status"], "pass", row)
+
         blocked_mutations = (
             lambda context: context["registry_snapshots"][
                 "official_source_authorities"
@@ -1428,6 +1471,11 @@ class Wave0EvidenceContractTests(unittest.TestCase):
             ]["qe-official-docs"]["content_identity_policy"].update(
                 mode="platform-adapter-only"
             ),
+            lambda context: context["registry_snapshots"][
+                "official_source_authorities"
+            ]["qe-official-docs"]["canonical_snapshot"]["sources_by_id"][
+                "pw-user-guide"
+            ].update(raw_integrity_verified=False),
         )
         for mutate in blocked_mutations:
             context = official_context(official_source())
@@ -1458,6 +1506,11 @@ class Wave0EvidenceContractTests(unittest.TestCase):
             ]["qe-official-docs"]["canonical_snapshot"]["sources_by_id"][
                 "pw-user-guide"
             ].update(raw_sha256=SHA_B),
+            lambda context: context["registry_snapshots"][
+                "official_source_authorities"
+            ]["qe-official-docs"]["canonical_snapshot"]["sources_by_id"][
+                "pw-user-guide"
+            ].update(raw_bytes=129),
         )
         for mutate in mismatches:
             context = official_context(official_source())
@@ -1472,6 +1525,28 @@ class Wave0EvidenceContractTests(unittest.TestCase):
                     "OFFICIAL_SOURCE_CANONICAL_SNAPSHOT_"
                 )
             )
+
+        derived_snapshot_only = official_context(official_source())
+        derived_source = derived_snapshot_only["registry_snapshots"][
+            "official_source_authorities"
+        ]["qe-official-docs"]["canonical_snapshot"]["sources_by_id"][
+            "pw-user-guide"
+        ]
+        derived_source["raw_integrity_verified"] = False
+        derived_source["derived_snapshot"] = {
+            "sha256": SHA_A,
+            "bytes": 128,
+            "integrity_verified": True,
+        }
+        row = bundle_semantics_evidence.evaluate(
+            ["OFFICIAL_SOURCE_PINNED_CANONICAL_SNAPSHOT_MATCH"],
+            derived_snapshot_only,
+        )[0]
+        self.assertEqual(row["status"], "blocked", row)
+        self.assertEqual(
+            row["finding_codes"],
+            ["OFFICIAL_SOURCE_CANONICAL_SNAPSHOT_UNAVAILABLE"],
+        )
 
         self_asserted_manifest = official_source()
         self_asserted_manifest["content"]["pinned_source_ref"][
