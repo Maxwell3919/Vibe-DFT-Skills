@@ -378,9 +378,8 @@ def _consumer_registry_errors(
         "processors",
         "resolver_trust",
     }
-    allowed_root = set(required_root) | {"license_trust"}
     for key in data:
-        if not isinstance(key, str) or key not in allowed_root:
+        if not isinstance(key, str) or key not in required_root:
             errors.append(f"<root>: unexpected key '{key}'")
     for key in sorted(required_root):
         if key not in data:

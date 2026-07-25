@@ -148,6 +148,29 @@ class RegistrySnapshotAtomicTests(unittest.TestCase):
             ):
                 load_registry_snapshot(ROOT, validate_sources=False)
 
+    def test_consumer_registry_rejects_removed_license_trust_root_key(
+        self,
+    ) -> None:
+        original = registry_snapshot.load_yaml_strict_with_raw
+
+        def drifted(path, label):
+            data, raw = original(path, label)
+            if label == "official-document-consumers.yaml":
+                data = copy.deepcopy(data)
+                data["license_trust"] = {}
+            return data, raw
+
+        with mock.patch.object(
+            registry_snapshot,
+            "load_yaml_strict_with_raw",
+            side_effect=drifted,
+        ):
+            with self.assertRaisesRegex(
+                RegistrySnapshotError,
+                "official-document-consumers.*unexpected key 'license_trust'",
+            ):
+                load_registry_snapshot(ROOT, validate_sources=False)
+
     def test_expectation_registry_missing_or_membership_drift_blocks_atomic_snapshot(
         self,
     ) -> None:

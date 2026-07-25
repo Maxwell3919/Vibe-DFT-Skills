@@ -407,7 +407,7 @@ interfaces:
     lifecycle: active
     domain: official-documentation
     schema_path: contracts/official-document-source-catalog-1.1.schema.json
-    schema_sha256: 3d803252f1e283ff0a3ea82b0e018b7a2d61f4ce106f2ab8a07ec257c7e7664f
+    schema_sha256: d0d025f7bd9120b362a8d6ce2c38a22334200cf06b6ea482a0df1c0733706170
     producer_policy: skill
   official-document-scope-catalog@1.0:
     display_name: Extracted official-document semantic scope catalog
