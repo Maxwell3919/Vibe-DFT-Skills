@@ -896,9 +896,7 @@ def _repair_cp2k_manual_v11_catalog(
             "CP2K_LOCATOR_REPAIR_MIXED_STATE: "
             f"{item.catalog_path}: legacy={len(legacy_ids)} repaired={len(repaired_ids)}"
         )
-    if repaired_ids:
-        return item.catalog, item.catalog_bytes
-    if len(legacy_ids) != repair.expected_excluded_sources:
+    if not repaired_ids and len(legacy_ids) != repair.expected_excluded_sources:
         raise ApplyMigrationError(
             f"CP2K_LOCATOR_REPAIR_STATE_INVALID: {item.catalog_path}"
         )
@@ -907,6 +905,16 @@ def _repair_cp2k_manual_v11_catalog(
         catalog["discovered_sources"][source_id]["content"]["locator"] = (
             repair.authority_root + source_path
         )
+    discovery_processor = catalog.get("discovery_processor")
+    if not isinstance(discovery_processor, dict):
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_PROCESSOR_INVALID: {item.catalog_path}"
+        )
+    discovery_processor["output_sha256"] = _sha256(
+        canonical_projection_bytes(catalog["discovered_sources"])
+    )
+    if catalog == item.catalog:
+        return item.catalog, item.catalog_bytes
     return catalog, canonical_json_bytes(catalog)
 
 

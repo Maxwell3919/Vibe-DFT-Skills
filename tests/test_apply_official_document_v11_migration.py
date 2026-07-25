@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -25,6 +26,7 @@ from apply_official_document_v11_migration import (  # noqa: E402
     build_plan,
     enumerate_provider_inputs,
 )
+from migrate_official_document_catalogs_v11 import canonical_projection_bytes  # noqa: E402
 from registry_yaml import load_yaml_strict  # noqa: E402
 from validate_official_document_coverage import _url_matches_authority  # noqa: E402
 
@@ -65,6 +67,13 @@ class ApplyOfficialDocumentV11MigrationTests(unittest.TestCase):
             "schema_version": "1.1",
             "authority_root": repair.authority_root,
             "discovered_sources": discovered,
+            "discovery_processor": {
+                "input_sha256": "a" * 64,
+                "output_sha256": hashlib.sha256(
+                    canonical_projection_bytes(discovered)
+                ).hexdigest(),
+                "processor_id": "synthetic",
+            },
             "sentinel": {"preserved": True},
         }
         item = ProviderInput(
@@ -90,6 +99,7 @@ class ApplyOfficialDocumentV11MigrationTests(unittest.TestCase):
         original = copy.deepcopy(item.catalog)
         repaired, payload = _repair_cp2k_manual_v11_catalog(item, projection)
         self.assertNotEqual(payload, item.catalog_bytes)
+        expected = copy.deepcopy(original)
         for source_id, source in repaired["discovered_sources"].items():
             source_path = projection["canonical_snapshot"]["upstream_sources_by_id"][
                 source_id
@@ -98,16 +108,44 @@ class ApplyOfficialDocumentV11MigrationTests(unittest.TestCase):
                 source["content"]["locator"],
                 CP2K_MANUAL_LOCATOR_REPAIR.authority_root + source_path,
             )
-            source["content"]["locator"] = original["discovered_sources"][
-                source_id
-            ]["content"]["locator"]
-        self.assertEqual(repaired, original)
+            expected["discovered_sources"][source_id]["content"]["locator"] = (
+                CP2K_MANUAL_LOCATOR_REPAIR.authority_root + source_path
+            )
+        expected["discovery_processor"]["output_sha256"] = hashlib.sha256(
+            canonical_projection_bytes(expected["discovered_sources"])
+        ).hexdigest()
+        self.assertEqual(repaired, expected)
+        self.assertEqual(
+            repaired["discovery_processor"]["input_sha256"],
+            original["discovery_processor"]["input_sha256"],
+        )
 
     def test_cp2k_repaired_locators_are_idempotent(self) -> None:
         item, projection = self._cp2k_repair_fixture("repaired")
         repaired, payload = _repair_cp2k_manual_v11_catalog(item, projection)
         self.assertIs(repaired, item.catalog)
         self.assertEqual(payload, item.catalog_bytes)
+
+    def test_cp2k_repaired_locator_output_hash_drift_is_refreshed(self) -> None:
+        item, projection = self._cp2k_repair_fixture("repaired")
+        before_processor = copy.deepcopy(item.catalog["discovery_processor"])
+        item.catalog["discovery_processor"]["output_sha256"] = "0" * 64
+        repaired, payload = _repair_cp2k_manual_v11_catalog(item, projection)
+        self.assertNotEqual(payload, item.catalog_bytes)
+        expected_output = hashlib.sha256(
+            canonical_projection_bytes(repaired["discovered_sources"])
+        ).hexdigest()
+        self.assertEqual(
+            repaired["discovery_processor"]["output_sha256"],
+            expected_output,
+        )
+        repaired["discovery_processor"]["output_sha256"] = before_processor[
+            "output_sha256"
+        ]
+        self.assertEqual(
+            repaired["discovery_processor"],
+            before_processor,
+        )
 
     def test_cp2k_mixed_locator_state_fails_closed(self) -> None:
         item, projection = self._cp2k_repair_fixture("mixed")
