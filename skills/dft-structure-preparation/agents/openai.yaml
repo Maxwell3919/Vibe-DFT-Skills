@@ -1,4 +1,4 @@
 interface:
   display_name: "DFT Structure Preparation"
-  short_description: "Traceable periodic and molecular structure preparation"
-  default_prompt: "Use $dft-structure-preparation to audit and prepare a traceable structure without inventing calculation parameters."
+  short_description: "Traceable cells, interfaces, defects, and guests"
+  default_prompt: "Use $dft-structure-preparation to construct a traceable slab, interface, site edit, or guest candidate without claiming stability."

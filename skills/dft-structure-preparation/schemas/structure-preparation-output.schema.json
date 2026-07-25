@@ -10,7 +10,7 @@
   "properties": {
     "contract_name": {
       "enum": [
-        "structure-preparation-audit", "structure-roundtrip-report", "structure-preparation-result",
+        "structure-preparation-import", "structure-preparation-audit", "structure-roundtrip-report", "structure-preparation-result",
         "structure-export-plan", "structure-backend-probe", "structure-preparation-error"
       ]
     },
@@ -27,7 +27,7 @@
       "required": ["tool", "tool_version"],
       "properties": {
         "tool": {"const": "structure_prepare.py"},
-        "tool_version": {"const": "0.1.0-candidate"}
+        "tool_version": {"const": "0.2.0-candidate"}
       }
     }
   },
@@ -39,7 +39,7 @@
       },
       "then": {
         "required": ["finding_id", "message"],
-        "properties": {"status": {"enum": ["blocked", "internal-error"]}}
+        "properties": {"status": {"enum": ["blocked", "unavailable", "internal-error"]}}
       }
     },
     {

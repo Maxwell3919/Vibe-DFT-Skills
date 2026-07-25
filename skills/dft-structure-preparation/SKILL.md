@@ -1,6 +1,6 @@
 ---
 name: dft-structure-preparation
-description: Audit and prepare traceable periodic or molecular structures with deterministic identity, periodic-image, occupancy, symmetry, charge/spin, atom-mapping, transformation, round-trip, and DFT export-planning gates. Use when a CIF-derived or normalized structure must be wrapped, reordered, replicated, compared, or handed toward QE, VASP, CP2K, or SIESTA without losing site identity or inventing backend results. This is an isolated development Skill and must not be routed as an active production skill.
+description: Audit and prepare traceable periodic or molecular structures with deterministic identity, atom mapping, cell/supercell/strain and lattice-axis slab construction, bounded coherent-interface matching, explicit interstitial/defect/substitution edits, adsorbate or host-guest placement, collision gates, round-trip classification, and DFT export planning. Use when a CIF-derived normalized structure must be transformed or combined without losing parent-child lineage or inventing stability. This remains a non-routable development Skill.
 ---
 
 # DFT Structure Preparation
@@ -25,9 +25,17 @@ Do not merge these roles or infer a missing result from a plan, dependency probe
 
 Choose exactly one primary route:
 
+- Use `import-cif-manifest` to validate and adapt an active
+  `structure-manifest@1.0` without silently dropping occupancy or identity evidence.
 - Use `audit` for identity, periodicity, coordinate, occupancy, symmetry, charge, and spin gates.
 - Use `roundtrip` to distinguish exact representation, periodic equivalence, and loss.
-- Use `transform` only for the implemented `wrap`, `reorder`, or diagonal `supercell` operations.
+- Use `transform` for `wrap`, `reorder`, general integer `supercell`, or bounded Cartesian
+  `strain`.
+- Use `make-slab` for a lattice-vector-aligned cleave with explicit layer repeat and vacuum.
+- Use `build-interface` to search bounded in-plane repeat pairs and construct one coherent
+  interface from two already oriented slabs.
+- Use `site-edit` for one explicit interstitial insertion, removal, or substitution.
+- Use `place-guest` for explicit adsorbate or periodic host-guest placement.
 - Use `plan-export` to create a non-executed QE/VASP/CP2K/SIESTA structure handoff plan.
 - Use `probe-backends` to inspect distribution metadata without importing or executing a backend.
 
@@ -49,8 +57,18 @@ Spglib is reference-only here, not an independently registered provider or activ
 
 1. Inventory inputs. Record only a content-derived source label, raw-byte SHA-256, and byte count;
    never expose a user filename or absolute path in an artifact.
-2. Normalize upstream data into [the candidate input schema](schemas/structure-preparation-input.schema.json).
-   Do not call a candidate-local envelope a shared `structure-snapshot@1.0` record.
+2. Import an active CIF manifest or normalize another upstream source into
+   [the candidate input schema](schemas/structure-preparation-input.schema.json). Do not call a
+   candidate-local envelope a shared `structure-snapshot@1.0` record.
+
+   ```bash
+   python3 scripts/structure_prepare.py import-cif-manifest \
+     STRUCTURE-MANIFEST.json --out IMPORT.json
+   ```
+
+   Use `IMPORT.json.child` as the immutable parent for later commands. Refuse `BLOCK`, prior
+   transformations, missing identity preimages, hash/payload disagreement, partial occupancy, or
+   disorder rather than adapting a representative model as if it were lossless.
 3. Run the deterministic gate before interpreting geometry:
 
    ```bash
@@ -67,11 +85,25 @@ Spglib is reference-only here, not an independently registered provider or activ
    python3 scripts/structure_prepare.py transform INPUT.json --operation wrap --out WRAP.json
    python3 scripts/structure_prepare.py transform INPUT.json --operation reorder --order Si-1,Si-0 --out REORDER.json
    python3 scripts/structure_prepare.py transform INPUT.json --operation supercell --repeat 2 1 1 --out SUPERCELL.json
+   python3 scripts/structure_prepare.py transform INPUT.json --operation supercell \
+     --matrix 1 1 0 0 2 0 0 0 1 --out GENERAL-SUPERCELL.json
+   python3 scripts/structure_prepare.py make-slab INPUT.json \
+     --axis 2 --layers 4 --vacuum-ang 15 --out SLAB.json
+   python3 scripts/structure_prepare.py build-interface SUBSTRATE.json FILM.json \
+     --max-repeat 6 --max-strain 0.05 --max-angle-deg 1 \
+     --gap-ang 2.5 --vacuum-ang 18 --out INTERFACE.json
+   python3 scripts/structure_prepare.py site-edit INPUT.json --operation insert \
+     --site-id Li-interstitial-0 --element Li --fractional 0.5 0.5 0.5 \
+     --out INTERSTITIAL.json
+   python3 scripts/structure_prepare.py place-guest SLAB-INPUT.json MOLECULE.json \
+     --mode adsorbate --anchor-site O-0 --surface-frac 0.5 0.5 \
+     --height-ang 2.2 --out ADSORBATE.json
    ```
 
-6. Verify parent/child identity, complete `site_mapping`, image shifts, occupancy findings, and
-   round-trip classification. Treat supercell as a derived structure, never an equivalent
-   round-trip.
+6. Verify every parent identity, complete `site_mapping`, created/removed relations, image or
+   replica shifts, explicit construction parameters, minimum-distance result, occupancy findings,
+   and round-trip classification. Treat every cell-, composition-, interface-, or placement-changing
+   operation as a derived structure, never an equivalent round-trip.
 7. Plan a DFT handoff only after readiness is explicit:
 
    ```bash
@@ -89,7 +121,16 @@ Spglib is reference-only here, not an independently registered provider or activ
 - Require periodicity, structure kind, cell rank, nonsingular cell, fractional coordinates, and
   Cartesian coordinates to agree within an explicit tolerance.
 - Record a periodic image as an integer image shift; never count it as a created atom.
-- Invalidate symmetry after a supercell operation until a pinned backend recomputes it.
+- Invalidate symmetry after cell, slab, interface, site, or placement mutation until a pinned
+  backend recomputes it.
+- Enforce determinant, derived-atom, strain, repeat, angle, vacuum, gap, and minimum-distance
+  budgets before certifying a derived candidate.
+- Reset charge/spin claims after a composition edit unless the operation has exact charge
+  arithmetic; never infer charge compensation, oxidation state, or magnetic order.
+- Require two already oriented slabs for native interface matching. Treat its minimum-strain
+  selection as geometric ranking, never a stable-interface claim.
+- Require an explicit coordinate for native interstitials and an explicit anchor, position, and
+  orientation for guests. Do not describe either as a site search.
 - Require backend name and version before accepting a `verified` symmetry declaration.
 - Check molecular charge/multiplicity parity when a full integer electron count is available.
 - Refuse symlink or changing inputs, duplicate JSON keys, non-finite values, unsafe identifiers,
@@ -104,9 +145,11 @@ symmetry representation. Equality of only one digest does not imply equality of 
 
 An exit-zero audit proves only that the requested local parsing and gate operation completed. It
 does not imply `calculation_readiness=ready`. It never proves that a DFT calculation will converge
-or that the modeled chemistry is correct. While this directory is in development and non-routable, the
-current ceiling is always `no_positive_claim`; `future_gate_ceiling=input_gates_only` describes
-only a possible post-promotion local gate and never upgrades the current claim.
+or that the modeled chemistry is correct. Likewise, minimum strain, a passed collision gate, or
+successful construction does not establish a stable interface, interstitial, defect, adsorbate,
+or host-guest configuration. While this directory is in development and non-routable, the current
+ceiling is always `no_positive_claim`; `future_gate_ceiling=input_gates_only` describes only a
+possible post-promotion local gate and never upgrades the current claim.
 
 Consult [task-profiles-and-maturity.md](references/task-profiles-and-maturity.md) before quoting a
 maturity level. Consult [finding-catalog.md](references/finding-catalog.md) before suppressing or

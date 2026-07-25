@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -36,6 +37,13 @@ def write_value(directory: Path, name: str, value: dict[str, object]) -> Path:
 
 
 class StructureMutationRedTeamTests(unittest.TestCase):
+    def test_finding_catalog_covers_every_gate_error_literal(self) -> None:
+        source = SCRIPT.read_text(encoding="utf-8")
+        codes = set(re.findall(r'GateError\(\s*"([A-Z][A-Z0-9_]+)"', source))
+        catalog = (ROOT / "references" / "finding-catalog.md").read_text(encoding="utf-8")
+        missing = sorted(code for code in codes if f"`{code}`" not in catalog)
+        self.assertEqual(missing, [])
+
     def test_unwrapped_notice_applies_only_to_periodic_axes(self) -> None:
         value = fixture("si-periodic.json")
         value["structure_kind"] = "periodic-slab"
@@ -238,7 +246,7 @@ class StructureMutationRedTeamTests(unittest.TestCase):
         self.assertEqual(envelope["schema_version"], "1.0")
         self.assertEqual(
             envelope["provenance"],
-            {"tool": "structure_prepare.py", "tool_version": "0.1.0-candidate"},
+            {"tool": "structure_prepare.py", "tool_version": "0.2.0-candidate"},
         )
 
     def test_atomic_output_refuses_input_path_and_hardlink_or_symlink_aliases(self) -> None:
@@ -374,6 +382,38 @@ class StructureMutationRedTeamTests(unittest.TestCase):
             self.assertFalse(output.exists())
         self.assertEqual(result.returncode, 2)
         self.assertEqual(json.loads(result.stderr)["finding_id"], "SUPERCELL_BUDGET_EXCEEDED")
+
+    def test_transform_rejects_irrelevant_parameters_and_nonpositive_matrix(self) -> None:
+        conflict = run_cli(
+            "transform",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "wrap",
+            "--repeat",
+            2,
+            1,
+            1,
+        )
+        self.assertEqual(conflict.returncode, 2)
+        self.assertEqual(json.loads(conflict.stderr)["finding_id"], "PARAMETER_CONFLICT")
+        reflected = run_cli(
+            "transform",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "supercell",
+            "--matrix",
+            -1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+        )
+        self.assertEqual(reflected.returncode, 2)
+        self.assertEqual(json.loads(reflected.stderr)["finding_id"], "SUPERCELL_MATRIX_INVALID")
 
     def test_export_plan_cannot_claim_target_writes_or_parameter_choices(self) -> None:
         result = run_cli("plan-export", FIXTURES / "water-molecule.json", "--target", "vasp")

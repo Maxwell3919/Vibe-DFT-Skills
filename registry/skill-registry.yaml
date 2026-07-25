@@ -228,7 +228,7 @@ skills:
     kind: structure
     lifecycle: development
     path: skills/dft-structure-preparation
-    source_tree_sha256: "8c34c126effb2e9498aa401f79c158687a3ab15b13dc5466e15f3bcd79d5cbce"
+    source_tree_sha256: "056f90eedcfb47db0b577d3144476f2d582b4d64aa57676ff4d520fa75ee619d"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0

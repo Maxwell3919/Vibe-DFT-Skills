@@ -5,7 +5,7 @@
   "fixtures": [
     {
       "path": "references/weak-model-decision-table.json",
-      "sha256": "4df97fa69a36e7b04e1af9c91ae74244a5ee41abe571e53814ca07c864c6fe8c",
+      "sha256": "5c1cc994a68b2e842d7ccabd5d0925e8eb8ebfe12398ad32615f35c2cf5e5e5a",
       "kind": "canonical-weak-model-decision-table",
       "expected_exit": 0
     },

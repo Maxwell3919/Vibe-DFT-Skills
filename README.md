@@ -176,6 +176,21 @@ The links below were checked on 2026-07-22 and cover the scientific upstreams, s
 
 These screens reduce avoidable bad inputs, missed structural branches, and wasted relaxations; they do not derive material properties from a CIF. A quality pass, dimensionality candidate, symmetry permission, standardized cell, passing test, or valid pack proves neither minimum energy nor dynamical/thermodynamic stability, nonzero response, synthesizability, or complete/unambiguous official-document capture. Stable positions still require an explicit energy/force model, convergence, control branches, and claim-matched validation.
 
+### 从 CIF 分析到结构构建 / From CIF analysis to structure construction
+
+原始 CIF 仍由 active `cif-structure-analysis` 只读解析；`import-cif-manifest` 在核对公共 Schema、identity preimage/hash、晶胞/坐标以及 occupancy/disorder 边界后，才生成下游 staging child。所有会改变晶胞、原子、组分或 parent 数量的操作进入 development `dft-structure-preparation`。后者的 `0.2.0-candidate` 当前提供四类确定性构建：
+
+Raw CIF remains owned by the read-only active `cif-structure-analysis` intake. `import-cif-manifest` checks the shared Schema, identity preimage/hash, cell/coordinates, and occupancy/disorder boundary before creating a staging child. Every operation that changes a cell, site, composition, or parent count belongs to the development `dft-structure-preparation` candidate, whose native `0.2.0` surface covers four construction families:
+
+- **Cell/slab：** 正整数 3x3 supercell matrix、受显式预算约束的 Cartesian strain，以及晶格向量已经与表面法向对齐时的 layer/vacuum slab。 / Positive-determinant integer supercells, bounded Cartesian strain, and lattice-axis-aligned layer/vacuum slabs.
+- **Interface：** 对两个已经选好取向的 slab 搜索小整数面内 repeats，按 film strain、面内夹角、原子数排序，记录 registry shift、gap、vacuum 和界面最短距离，再构造一个 coherent candidate。 / Search bounded in-plane repeat pairs for two already oriented slabs, rank by strain/angle/atom count, and record registry, gap, vacuum, and cross-interface distance.
+- **Site edit：** 在显式 fractional coordinate 插入一个 interstitial，或按稳定 `site_id` 删除/替换位点；每次操作记录 `created`、`removed` 或 `same` lineage，并使需要重算的 symmetry、charge/spin claim 失效。 / Explicit interstitial insertion, removal, or substitution with complete site lineage and invalidated unsupported state claims.
+- **Adsorbate/host-guest：** 用明确 anchor、XYZ rotation 和目标位置把 isolated molecule/cluster 放在 slab 表面或周期 host 内，先做 cell-containment 与 host/guest 硬碰撞检查。 / Place an isolated molecule or cluster by explicit anchor, rotation, and target, with containment and hard-overlap gates.
+
+这些操作的优势是把“尝试构造一个结构”变成可复核的 parent hashes、typed parameters、site mapping、预算、拒绝原因和 child identity。异质结的最小失配排序、插层坐标、吸附高度或通过碰撞检查都只是优化起点候选，不证明最稳定位置。任意 Miller 面、termination/polarity、自动对称 interstitial/adsorption-site 搜索、twist/moiré、重构、缺陷电荷补偿和能量排序仍需要独立 provider 与科学验收；当前 Skill 保持 `development`、不可安装、不可路由和 `no_positive_claim`。
+
+The benefit is reviewable lineage rather than a bare edited CIF: parent hashes, typed parameters, site mappings, budgets, rejection reasons, and child identity remain bound together. Minimum mismatch, an explicit intercalation coordinate, adsorption height, or a passed collision gate is only a starting candidate—not a stable-position result. Arbitrary Miller surfaces, termination/polarity enumeration, automatic symmetry-unique interstitial or adsorption sites, twist/moiré, reconstruction, charge compensation, and energetic ranking still require separate validated providers and scientific acceptance. The Skill therefore remains development, non-installable, non-routable, and capped at `no_positive_claim`.
+
 ## Development 模块 / Development modules
 
 这些模块已有详细源码、参考资料、门禁和测试，但在完成匹配版本的官方资料审查、合法真实产物、原生执行、科学边界和端到端验收前保持不可路由。目录丰富不等于软件已经可用。
@@ -200,7 +215,7 @@ The 2026-07-22 content-first pass adds planning, audit, and troubleshooting play
 
 | Skill | 软件与官网 / Software and official site | 上游软件能力或预定范围 / Upstream or intended scope | 当前 Skill 实现与成熟度 / Current implemented surface and maturity | 优点、局限与采用理由 / Strengths, limits, and why included |
 |---|---|---|---|---|
-| `dft-structure-preparation` | [pymatgen](https://pymatgen.org/), [RDKit](https://www.rdkit.org/) | 周期/分子结构转换、标准化、超胞/表面/缺陷准备和导出。 / Periodic and molecular structure preparation and export. | 已形成 lineage、site mapping 和有损转换门禁，并对 ASE/pymatgen 做临时目录 API smoke；RDKit 和缺陷扩展尚未原生运行，整体仍为 development。 / Candidate lineage and loss gates include temporary ASE/pymatgen API smokes; RDKit and defect extensions remain native-not-run. | 两个生态互补且 I/O 成熟；格式转换可能重排原子或丢失占位、电荷和键语义，因此纳入统一 provenance。 / Complementary mature libraries whose lossy transformations require shared provenance. |
+| `dft-structure-preparation` | stdlib native candidate；[ASE](https://docs.ase-lib.org/)、[pymatgen](https://pymatgen.org/)、[RDKit](https://www.rdkit.org/) 为分离的 provider 路线 | 通用整数超胞、受限应变、晶格轴 slab/vacuum、取向后 slab 异质界面、小范围共格匹配、显式插层/删除/替换、吸附与 host-guest 放置、导出规划。 / General integer supercells, bounded strain, lattice-axis slabs, coherent oriented-slab interfaces, explicit site edits, adsorbate/host-guest placement, and export planning. | stdlib `0.2.0-candidate` 已用 synthetic fixtures 验证 lineage、site mapping、预算和碰撞门禁；任意 Miller 面、termination、自动位点搜索、twist/moiré 和 provider 集成仍未验收，整体保持 development、不可安装和不可路由。 / Native candidate geometry and lineage gates are synthetic-validated; broader provider routes remain unaccepted and the Skill stays development/non-routable. | 在 DFT 前确定性排除超预算、失配或硬碰撞候选，并保留每个 parent/child 映射；几何排序不等于稳定性。 / Deterministically rejects over-budget, mismatched, or colliding candidates while preserving lineage; geometric ranking is not stability. |
 | `gaussian-rigorous-calculations` | [Gaussian](https://gaussian.com/) | 分子量子化学输入、优化、频率、checkpoint 和电子结构任务。 / Molecular quantum chemistry, optimization, frequencies, and checkpoints. | 当前为版本化官方目录、离线计划/输入输出门禁和合成夹具；不启动 `g16`，不声称 native completion。 / Versioned documentation catalog and offline guards only; it does not launch `g16`. | 方法覆盖广；专有许可和平台差异要求隔离。用于补足周期材料代码之外的分子任务。 / Broad molecular methods, with proprietary and platform boundaries. |
 | `gromacs-rigorous-simulations` | [GROMACS](https://www.gromacs.org/) · [manual](https://manual.gromacs.org/) | 拓扑准备、`grompp`、`mdrun`、checkpoint/restart 和轨迹分析。 / Topology, preprocessing, MD, restart, and analysis. | 当前目录和 guard 只生成/审计候选记录；不会启动 `gmx`、`grompp` 或 `mdrun`。 / Catalogs and guards audit candidate records; no GROMACS executable is launched. | 高性能生物分子 MD；力场、拓扑和采样有效性与 DFT 分离。用于延伸时间尺度。 / High-performance MD whose force-field and sampling validity remain separate. |
 | `lammps-rigorous-simulations` | [LAMMPS](https://www.lammps.org/) · [manual](https://docs.lammps.org/) | 材料/粒子体系的经典或 ML 势 MD 与并行模拟。 / Classical or ML-potential atomistic simulation. | 当前固定命令/输入语义并离线审计 manifest、log 和 restart lineage；不启动 LAMMPS。 / Versioned command semantics and offline manifest/log/lineage checks; no native launch. | 极具扩展性；`units`、`atom_style`、势和 build package 改变语义。用于跨越 DFT 尺度。 / Flexible and scalable, with strongly configuration-dependent semantics. |
@@ -375,6 +390,23 @@ python3 skills/cif-structure-analysis/scripts/analyze_cif.py \
   --match-bond-length 2.41 \
   --match-bond-tolerance 0.05
 ```
+
+把已校验的 CIF manifest 交给 development 结构构建 candidate（不会激活或安装它）：
+
+Hand a validated CIF manifest to the development construction candidate without activating it:
+
+```bash
+python3 skills/dft-structure-preparation/scripts/structure_prepare.py \
+  import-cif-manifest structure-manifest.json \
+  --out structure-import.json
+```
+
+后续 `make-slab`、`build-interface`、`site-edit` 或 `place-guest` 使用
+`structure-import.json.child` 的独立副本作为输入，并保存每次 result envelope；不要只保留最终坐标。
+
+Use an immutable copy of `structure-import.json.child` for each later `make-slab`,
+`build-interface`, `site-edit`, or `place-guest` invocation, and retain every result envelope
+rather than only the final coordinates.
 
 查看当前后处理能力 / Inspect postprocessing capabilities:
 

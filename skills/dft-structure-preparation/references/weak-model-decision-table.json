@@ -13,15 +13,15 @@
       "case_id": "structure-input-unsafe-or-invalid",
       "priority": 1,
       "severity": "P0",
-      "condition": "Input is a symlink, changes during the bounded read, exceeds the size limit, or is not strict duplicate-free finite JSON.",
+      "condition": "Input is unsafe/invalid JSON, or a CIF manifest is blocked, schema-invalid, identity-inconsistent, previously transformed, partially occupied, or disordered.",
       "required_evidence": ["candidate-input-json"],
-      "finding_codes": ["INPUT_NOT_REGULAR", "INPUT_CHANGED_DURING_READ", "INPUT_TOO_LARGE", "JSON_INVALID"],
+      "finding_codes": ["INPUT_NOT_REGULAR", "INPUT_CHANGED_DURING_READ", "INPUT_TOO_LARGE", "JSON_INVALID", "MANIFEST_SCHEMA_INVALID", "MANIFEST_STATUS_BLOCKED", "MANIFEST_IDENTITY_HASH_MISMATCH", "MANIFEST_IDENTITY_PAYLOAD_MISMATCH", "MANIFEST_OCCUPANCY_MODEL_UNRESOLVED"],
       "action_state": "local_gate_blocked",
       "expected_exit_codes": [2],
       "current_claim": "no_positive_claim",
       "execution_authorized": false,
       "promotion_authorized": false,
-      "minimum_next_action": "Provide one immutable regular strict-JSON source and rerun audit."
+      "minimum_next_action": "Provide one immutable valid source or resolve the upstream CIF manifest blocker without dropping identity, occupancy, disorder, or lineage evidence."
     },
     {
       "case_id": "structure-output-alias-or-existing",
@@ -80,8 +80,22 @@
       "minimum_next_action": "Reduce the repeat or move the reviewed operation to a separately bounded production backend."
     },
     {
-      "case_id": "structure-symmetry-or-electronic-state-unresolved",
+      "case_id": "structure-derived-construction-gate-blocked",
       "priority": 6,
+      "severity": "P0",
+      "condition": "A slab, interface, site edit, adsorbate, host-guest, strain, collision, or cell budget is invalid or unsupported.",
+      "required_evidence": ["candidate-input-json", "requested-construction-parameters"],
+      "finding_codes": ["STRAIN_BUDGET_EXCEEDED", "SLAB_AXIS_NOT_SURFACE_NORMAL", "INTERFACE_MATCH_NOT_FOUND", "INTERFACE_ATOM_BUDGET_INVALID", "DERIVED_SITE_BUDGET_EXCEEDED", "MINIMUM_DISTANCE_VIOLATION", "INSERTION_OUTSIDE_CELL", "GUEST_OUTSIDE_CELL"],
+      "action_state": "local_gate_blocked",
+      "expected_exit_codes": [2],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Preserve the parents, revise one explicit construction parameter or use a separately validated backend route, and rerun without stability claims."
+    },
+    {
+      "case_id": "structure-symmetry-or-electronic-state-unresolved",
+      "priority": 7,
       "severity": "P1",
       "condition": "Symmetry evidence, molecular charge, or spin multiplicity is unresolved or only declared.",
       "required_evidence": ["structure-audit-report"],
@@ -95,7 +109,7 @@
     },
     {
       "case_id": "structure-roundtrip-periodic-equivalent",
-      "priority": 7,
+      "priority": 8,
       "severity": "P1",
       "condition": "Only site order or integer image shifts on axes periodic in both structures differ within tolerance.",
       "required_evidence": ["roundtrip-report", "site-mapping-hash"],
@@ -109,9 +123,9 @@
     },
     {
       "case_id": "structure-supercell-within-budget",
-      "priority": 8,
+      "priority": 9,
       "severity": "P1",
-      "condition": "A positive three-axis repeat produces at most 4096 sites from a fully periodic parent.",
+      "condition": "A positive-determinant integer supercell matrix produces at most 4096 sites from a fully periodic parent.",
       "required_evidence": ["supercell-result", "site-mapping-hash"],
       "finding_codes": [],
       "action_state": "local_gate_passed_limited",
@@ -122,8 +136,22 @@
       "minimum_next_action": "Preserve one-to-many mapping and recompute symmetry before any downstream use."
     },
     {
+      "case_id": "structure-derived-construction-within-budgets",
+      "priority": 10,
+      "severity": "P1",
+      "condition": "A slab, coherent interface, explicit site edit, adsorbate, host-guest placement, or bounded strain passes deterministic lineage and geometry gates.",
+      "required_evidence": ["structure-preparation-result", "site-mapping-hash", "explicit-construction-parameters"],
+      "finding_codes": [],
+      "action_state": "local_gate_passed_limited",
+      "expected_exit_codes": [0],
+      "current_claim": "no_positive_claim",
+      "execution_authorized": false,
+      "promotion_authorized": false,
+      "minimum_next_action": "Retain all parent identities and candidates; obtain independent symmetry, electronic-state, energy, force, and convergence evidence before selecting a stable structure."
+    },
+    {
       "case_id": "structure-export-plan-only",
-      "priority": 9,
+      "priority": 11,
       "severity": "P1",
       "condition": "A QE, VASP, CP2K, or SIESTA handoff is requested after local readiness gates.",
       "required_evidence": ["candidate-input-json", "structure-audit-report"],
@@ -137,7 +165,7 @@
     },
     {
       "case_id": "structure-roundtrip-exact",
-      "priority": 10,
+      "priority": 12,
       "severity": "P2",
       "condition": "Every identity domain, representation, site order, electronic state, symmetry field, and coordinate matches.",
       "required_evidence": ["roundtrip-report"],
@@ -151,7 +179,7 @@
     },
     {
       "case_id": "structure-provider-probe-only",
-      "priority": 11,
+      "priority": 13,
       "severity": "P2",
       "condition": "Pinned pymatgen or RDKit distribution metadata is absent, matched, or version-mismatched.",
       "required_evidence": ["provider-probe-report"],
@@ -165,7 +193,7 @@
     },
     {
       "case_id": "structure-default-fail-closed",
-      "priority": 12,
+      "priority": 14,
       "severity": "P0",
       "condition": "No earlier case matches exactly or required evidence is incomplete, ambiguous, or internally inconsistent.",
       "required_evidence": [],

@@ -20,11 +20,15 @@ Refuse and emit no certified result when any of these conditions holds:
   non-object, or non-finite input;
 - unknown fields, missing fields, unsafe IDs, duplicate site IDs, unknown elements, invalid or
   overfull occupancies;
+- invalid or blocked upstream `structure-manifest@1.0`, missing/mismatched identity preimage,
+  inconsistent published cell/coordinates, existing unadapted transformation lineage, or
+  occupancy/disorder that the staging contract cannot preserve;
 - structure-kind/PBC/cell mismatch, singular cell, or coordinate representation mismatch;
 - symmetry claims without required scope, tolerance, backend, or version;
 - invalid molecular charge/multiplicity parity;
-- incomplete reorder sets, invalid supercell repeats, unsupported operations, or failed identity
-  invariants;
+- incomplete reorder sets, invalid supercell matrices, unsupported operations, failed identity
+  invariants, excessive strain/repeat/atom budgets, incompatible slab axes, unmatched interface
+  cells, out-of-cell guests, or derived interatomic distances below the explicit hard gate;
 - existing or evidence-alias output, unsafe or changing output parent, or failed atomic publish;
 - missing/mismatched pinned provider when backend evidence is requested.
 
@@ -35,6 +39,8 @@ The CLI may validate and transform its candidate-local normalized structure. It 
 - activate this skill or promote registry/interface entries;
 - execute a DFT engine or choose scientific calculation parameters;
 - infer unreported symmetry, oxidation states, bonds, disorder orderings, charge, or spin;
+- infer a Miller face, termination, interstitial, adsorption site, registry, molecular orientation,
+  charge compensation, or stable structure from a geometric construction;
 - describe a dependency probe as import, execution, integration, or license evidence;
 - mark any structure scientifically accepted.
 

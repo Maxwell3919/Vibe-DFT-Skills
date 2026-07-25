@@ -12,6 +12,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "structure_prepare.py"
 FIXTURES = ROOT / "fixtures"
+CIF_SCRIPT = ROOT.parents[1] / "skills" / "cif-structure-analysis" / "scripts" / "analyze_cif.py"
 
 
 def run_cli(*arguments: object) -> subprocess.CompletedProcess[str]:
@@ -25,6 +26,87 @@ def run_cli(*arguments: object) -> subprocess.CompletedProcess[str]:
 
 
 class StructurePrepareCliTests(unittest.TestCase):
+    def test_cif_manifest_import_closes_the_active_intake_handoff(self) -> None:
+        cif_text = """\
+data_si
+_cell_length_a 5.43
+_cell_length_b 5.43
+_cell_length_c 5.43
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+_space_group_name_H-M_alt 'P 1'
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Si1 Si 0 0 0 1
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            directory_path = Path(directory)
+            cif_path = directory_path / "input.cif"
+            manifest_path = directory_path / "manifest.json"
+            markdown_path = directory_path / "manifest.md"
+            cif_path.write_text(cif_text, encoding="utf-8")
+            analyzed = subprocess.run(
+                [
+                    sys.executable,
+                    str(CIF_SCRIPT),
+                    "--input",
+                    str(cif_path),
+                    "--json",
+                    str(manifest_path),
+                    "--markdown",
+                    str(markdown_path),
+                ],
+                cwd=ROOT.parents[1],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(analyzed.returncode, 0, analyzed.stderr)
+            imported = run_cli("import-cif-manifest", manifest_path)
+            self.assertEqual(imported.returncode, 0, imported.stderr)
+            report = json.loads(imported.stdout)
+            self.assertEqual(report["contract_name"], "structure-preparation-import")
+            self.assertEqual(report["upstream_contract"], "structure-manifest@1.0")
+            self.assertEqual(report["child"]["structure_kind"], "periodic-crystal")
+            self.assertEqual(report["child"]["sites"][0]["site_id"], "Si-0")
+            self.assertEqual(report["site_mapping"][0]["upstream_site_index"], 0)
+            self.assertEqual(report["child"]["charge_state"]["status"], "unknown")
+            self.assertEqual(report["claim_ceiling"], "no_positive_claim")
+            self.assertFalse(report["promotion_authorized"])
+            self.assertFalse(report["execution_authorized"])
+
+            rounded = json.loads(manifest_path.read_text(encoding="utf-8"))
+            rounded["structure"]["sites"][0]["cartesian_ang"][0] = 0.000005
+            rounded_path = directory_path / "rounded-cartesian.json"
+            rounded_path.write_text(json.dumps(rounded), encoding="utf-8")
+            rounded_import = run_cli("import-cif-manifest", rounded_path)
+            self.assertEqual(rounded_import.returncode, 0, rounded_import.stderr)
+
+            unresolved = json.loads(manifest_path.read_text(encoding="utf-8"))
+            unresolved["document"]["metadata"]["partial_occupancy_rows"] = [0]
+            unresolved_path = directory_path / "unresolved-occupancy.json"
+            unresolved_path.write_text(json.dumps(unresolved), encoding="utf-8")
+            occupancy_refused = run_cli("import-cif-manifest", unresolved_path)
+            self.assertEqual(occupancy_refused.returncode, 2)
+            self.assertEqual(
+                json.loads(occupancy_refused.stderr)["finding_id"],
+                "MANIFEST_OCCUPANCY_MODEL_UNRESOLVED",
+            )
+
+            tampered = json.loads(manifest_path.read_text(encoding="utf-8"))
+            tampered["structure_identity"]["fingerprint_input"]["sites"][0]["fractional"][0] = 0.125
+            tampered_path = directory_path / "tampered.json"
+            tampered_path.write_text(json.dumps(tampered), encoding="utf-8")
+            refused = run_cli("import-cif-manifest", tampered_path)
+        self.assertEqual(refused.returncode, 2)
+        self.assertEqual(json.loads(refused.stderr)["finding_id"], "MANIFEST_IDENTITY_HASH_MISMATCH")
+
     def test_periodic_audit_records_separate_identity_digests(self) -> None:
         result = run_cli("audit", FIXTURES / "si-periodic.json")
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -115,6 +197,377 @@ class StructurePrepareCliTests(unittest.TestCase):
         self.assertEqual([item["replica_shift"] for item in si_one_mappings], [[0, 0, 0], [1, 0, 0]])
         self.assertTrue(all(0.0 <= site["fractional"][0] < 1.0 for site in report["child"]["sites"]))
         self.assertEqual(report["roundtrip"]["classification"], "not-applicable-derived-structure")
+
+    def test_general_integer_supercell_and_strain_are_bounded_and_traceable(self) -> None:
+        general = run_cli(
+            "transform",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "supercell",
+            "--matrix",
+            1,
+            1,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            1,
+        )
+        self.assertEqual(general.returncode, 0, general.stderr)
+        general_report = json.loads(general.stdout)
+        self.assertEqual(len(general_report["child"]["sites"]), 4)
+        self.assertEqual(general_report["child"]["cell_ang"][0], [5.43, 5.43, 0.0])
+        self.assertEqual(general_report["child"]["cell_ang"][1], [0.0, 10.86, 0.0])
+        self.assertTrue(
+            all("replica_lattice_translation" in item for item in general_report["site_mapping"])
+        )
+
+        strained = run_cli(
+            "transform",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "strain",
+            "--deformation",
+            1.05,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            "--max-strain",
+            0.1,
+        )
+        self.assertEqual(strained.returncode, 0, strained.stderr)
+        strained_report = json.loads(strained.stdout)
+        self.assertAlmostEqual(strained_report["child"]["cell_ang"][0][0], 5.7015)
+        self.assertEqual(strained_report["child"]["symmetry"]["status"], "unresolved")
+        refused = run_cli(
+            "transform",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "strain",
+            "--deformation",
+            1.2,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            "--max-strain",
+            0.1,
+        )
+        self.assertEqual(refused.returncode, 2)
+        self.assertEqual(json.loads(refused.stderr)["finding_id"], "STRAIN_BUDGET_EXCEEDED")
+
+    def test_slab_and_interface_construction_record_bounded_geometry_search(self) -> None:
+        slab = run_cli(
+            "make-slab",
+            FIXTURES / "si-periodic.json",
+            "--axis",
+            2,
+            "--layers",
+            2,
+            "--vacuum-ang",
+            12,
+        )
+        self.assertEqual(slab.returncode, 0, slab.stderr)
+        slab_report = json.loads(slab.stdout)
+        slab_child = slab_report["child"]
+        self.assertEqual(slab_report["operation"], "slab")
+        self.assertEqual(slab_child["structure_kind"], "periodic-slab")
+        self.assertEqual(slab_child["pbc"], [True, True, False])
+        self.assertEqual(len(slab_child["sites"]), 4)
+        self.assertEqual(slab_child["symmetry"]["status"], "unresolved")
+        self.assertIn("does not enumerate Miller indices", " ".join(slab_report["limitations"]))
+
+        with tempfile.TemporaryDirectory() as directory:
+            directory_path = Path(directory)
+            skewed_parent = json.loads(
+                (FIXTURES / "si-periodic.json").read_text(encoding="utf-8")
+            )
+            skewed_parent["cell_ang"][2][0] = 1.0
+            for site in skewed_parent["sites"]:
+                site["cartesian_ang"] = [
+                    sum(
+                        site["fractional"][i] * skewed_parent["cell_ang"][i][j]
+                        for i in range(3)
+                    )
+                    for j in range(3)
+                ]
+            skewed_path = directory_path / "skewed.json"
+            skewed_path.write_text(json.dumps(skewed_parent), encoding="utf-8")
+            skewed = run_cli(
+                "make-slab",
+                skewed_path,
+                "--axis",
+                2,
+                "--layers",
+                2,
+                "--vacuum-ang",
+                12,
+            )
+            self.assertEqual(skewed.returncode, 2)
+            self.assertEqual(
+                json.loads(skewed.stderr)["finding_id"],
+                "SLAB_AXIS_NOT_SURFACE_NORMAL",
+            )
+
+            substrate = directory_path / "substrate.json"
+            film = directory_path / "film.json"
+            substrate.write_text(json.dumps(slab_child), encoding="utf-8")
+            film.write_text(json.dumps(slab_child), encoding="utf-8")
+            outside_insertion = run_cli(
+                "site-edit",
+                substrate,
+                "--operation",
+                "insert",
+                "--site-id",
+                "Li-outside-0",
+                "--element",
+                "Li",
+                "--fractional",
+                0.5,
+                0.5,
+                1.5,
+            )
+            interface = run_cli(
+                "build-interface",
+                substrate,
+                film,
+                "--max-repeat",
+                2,
+                "--max-strain",
+                0.01,
+                "--max-angle-deg",
+                0.1,
+                "--gap-ang",
+                2.0,
+                "--vacuum-ang",
+                12.0,
+                "--registry-shift",
+                0.5,
+                0.5,
+            )
+            interface_repeat = run_cli(
+                "build-interface",
+                substrate,
+                film,
+                "--max-repeat",
+                2,
+                "--max-strain",
+                0.01,
+                "--max-angle-deg",
+                0.1,
+                "--gap-ang",
+                2.0,
+                "--vacuum-ang",
+                12.0,
+                "--registry-shift",
+                0.5,
+                0.5,
+            )
+            self.assertEqual(interface.stdout, interface_repeat.stdout)
+            mismatched_film = json.loads(json.dumps(slab_child))
+            mismatched_film["cell_ang"][0] = [
+                component * 1.04 for component in mismatched_film["cell_ang"][0]
+            ]
+            for site in mismatched_film["sites"]:
+                site["cartesian_ang"] = [
+                    sum(
+                        site["fractional"][i] * mismatched_film["cell_ang"][i][j]
+                        for i in range(3)
+                    )
+                    for j in range(3)
+                ]
+            film.write_text(json.dumps(mismatched_film), encoding="utf-8")
+            strict_mismatch = run_cli(
+                "build-interface",
+                substrate,
+                film,
+                "--max-repeat",
+                1,
+                "--max-strain",
+                0.01,
+                "--max-angle-deg",
+                0.1,
+                "--gap-ang",
+                2.0,
+                "--vacuum-ang",
+                12.0,
+            )
+            accepted_strain = run_cli(
+                "build-interface",
+                substrate,
+                film,
+                "--max-repeat",
+                1,
+                "--max-strain",
+                0.05,
+                "--max-angle-deg",
+                0.1,
+                "--gap-ang",
+                2.0,
+                "--vacuum-ang",
+                12.0,
+            )
+        self.assertEqual(interface.returncode, 0, interface.stderr)
+        self.assertEqual(outside_insertion.returncode, 2)
+        self.assertEqual(
+            json.loads(outside_insertion.stderr)["finding_id"],
+            "INSERTION_OUTSIDE_CELL",
+        )
+        interface_report = json.loads(interface.stdout)
+        self.assertEqual(interface_report["operation"], "merge")
+        self.assertEqual(interface_report["operation_family"], "interface")
+        self.assertEqual(interface_report["match_search"]["selected"]["substrate_repeat"], [1, 1])
+        self.assertEqual(interface_report["match_search"]["selected"]["film_repeat"], [1, 1])
+        self.assertGreaterEqual(interface_report["match_search"]["accepted_candidate_count"], 1)
+        self.assertLessEqual(
+            len(interface_report["match_search"]["accepted_candidate_sample"]),
+            interface_report["match_search"]["accepted_candidate_sample_limit"],
+        )
+        self.assertEqual(len(interface_report["child"]["sites"]), 8)
+        self.assertEqual(interface_report["mapping_status"], "exact")
+        self.assertIsNotNone(
+            interface_report["construction_metrics"]["closest_cross_interface_pair"]
+        )
+        self.assertIn("not an energetic stability result", " ".join(interface_report["limitations"]))
+        self.assertEqual(strict_mismatch.returncode, 2)
+        self.assertEqual(json.loads(strict_mismatch.stderr)["finding_id"], "INTERFACE_MATCH_NOT_FOUND")
+        self.assertEqual(accepted_strain.returncode, 0, accepted_strain.stderr)
+        strained_match = json.loads(accepted_strain.stdout)["match_search"]["selected"]
+        self.assertAlmostEqual(strained_match["film_length_strain"][0], -0.038461538462)
+
+    def test_site_edits_preserve_created_removed_and_substitution_lineage(self) -> None:
+        inserted = run_cli(
+            "site-edit",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "insert",
+            "--site-id",
+            "Li-interstitial-0",
+            "--element",
+            "Li",
+            "--fractional",
+            0.5,
+            0.5,
+            0.5,
+        )
+        self.assertEqual(inserted.returncode, 0, inserted.stderr)
+        inserted_report = json.loads(inserted.stdout)
+        self.assertEqual(inserted_report["operation"], "interstitial")
+        self.assertEqual(len(inserted_report["child"]["sites"]), 3)
+        self.assertIn("created", {item["relation"] for item in inserted_report["site_mapping"]})
+        self.assertEqual(inserted_report["child"]["charge_state"]["status"], "unknown")
+
+        collision = run_cli(
+            "site-edit",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "insert",
+            "--site-id",
+            "Li-collision-0",
+            "--element",
+            "Li",
+            "--fractional",
+            0,
+            0,
+            0,
+        )
+        self.assertEqual(collision.returncode, 2)
+        self.assertEqual(json.loads(collision.stderr)["finding_id"], "MINIMUM_DISTANCE_VIOLATION")
+
+        removed = run_cli(
+            "site-edit",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "remove",
+            "--site-id",
+            "Si-1",
+        )
+        self.assertEqual(removed.returncode, 0, removed.stderr)
+        self.assertIn("removed", {item["relation"] for item in json.loads(removed.stdout)["site_mapping"]})
+
+        substituted = run_cli(
+            "site-edit",
+            FIXTURES / "si-periodic.json",
+            "--operation",
+            "substitute",
+            "--site-id",
+            "Si-1",
+            "--element",
+            "Ge",
+        )
+        self.assertEqual(substituted.returncode, 0, substituted.stderr)
+        substituted_child = json.loads(substituted.stdout)["child"]
+        species = {site["site_id"]: site["species"] for site in substituted_child["sites"]}
+        self.assertEqual(species["Si-1"], [{"element": "Ge", "occupancy": 1.0}])
+
+    def test_adsorbate_and_host_guest_placement_are_explicit_not_stability_claims(self) -> None:
+        slab = run_cli(
+            "make-slab",
+            FIXTURES / "si-periodic.json",
+            "--layers",
+            2,
+            "--vacuum-ang",
+            14,
+        )
+        self.assertEqual(slab.returncode, 0, slab.stderr)
+        with tempfile.TemporaryDirectory() as directory:
+            host = Path(directory) / "host.json"
+            host.write_text(json.dumps(json.loads(slab.stdout)["child"]), encoding="utf-8")
+            adsorbate = run_cli(
+                "place-guest",
+                host,
+                FIXTURES / "water-molecule.json",
+                "--mode",
+                "adsorbate",
+                "--anchor-site",
+                "O-0",
+                "--surface-frac",
+                0.5,
+                0.5,
+                "--height-ang",
+                2.0,
+                "--rotation-deg",
+                0,
+                0,
+                30,
+            )
+        self.assertEqual(adsorbate.returncode, 0, adsorbate.stderr)
+        adsorbate_report = json.loads(adsorbate.stdout)
+        self.assertEqual(adsorbate_report["operation"], "adsorbate")
+        self.assertEqual(len(adsorbate_report["child"]["sites"]), 7)
+        self.assertIn("guest-O-0", {site["site_id"] for site in adsorbate_report["child"]["sites"]})
+        self.assertIn("does not search adsorption", " ".join(adsorbate_report["limitations"]))
+
+        host_guest = run_cli(
+            "place-guest",
+            FIXTURES / "si-periodic.json",
+            FIXTURES / "water-molecule.json",
+            "--mode",
+            "host-guest",
+            "--anchor-site",
+            "O-0",
+            "--target-cart",
+            2.715,
+            2.715,
+            2.715,
+            "--min-distance-ang",
+            0.1,
+        )
+        self.assertEqual(host_guest.returncode, 0, host_guest.stderr)
+        host_guest_report = json.loads(host_guest.stdout)
+        self.assertEqual(host_guest_report["operation"], "merge")
+        self.assertEqual(len(host_guest_report["parent_identities"]), 2)
 
     def test_disorder_is_preserved_but_blocks_calculation_readiness(self) -> None:
         audit = run_cli("audit", FIXTURES / "disordered-site.json")

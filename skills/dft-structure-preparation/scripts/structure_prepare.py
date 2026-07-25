@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.metadata
+import itertools
 import json
 import math
 import os
@@ -23,7 +24,9 @@ EXIT_UNAVAILABLE = 3
 EXIT_INTERNAL = 4
 MAX_JSON_BYTES = 5 * 1024 * 1024
 MAX_DERIVED_SITES = 4096
-TOOL_VERSION = "0.1.0-candidate"
+MANIFEST_PUBLIC_CARTESIAN_TOLERANCE_ANG = 1.0e-5
+MIN_SURFACE_NORMAL_ALIGNMENT = 0.999999
+TOOL_VERSION = "0.2.0-candidate"
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$")
 ELEMENTS = (
     "H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn "
@@ -325,6 +328,347 @@ def residual_norm(left: list[float], right: list[float]) -> float:
 def round_float(value: float, digits: int = 12) -> float:
     rounded = round(value, digits)
     return 0.0 if rounded == 0.0 else rounded
+
+
+def vector_add(left: list[float], right: list[float]) -> list[float]:
+    return [left[index] + right[index] for index in range(3)]
+
+
+def vector_subtract(left: list[float], right: list[float]) -> list[float]:
+    return [left[index] - right[index] for index in range(3)]
+
+
+def vector_scale(vector: list[float], factor: float) -> list[float]:
+    return [component * factor for component in vector]
+
+
+def dot(left: list[float], right: list[float]) -> float:
+    return sum(left[index] * right[index] for index in range(3))
+
+
+def norm(vector: list[float]) -> float:
+    return math.sqrt(dot(vector, vector))
+
+
+def cross(left: list[float], right: list[float]) -> list[float]:
+    return [
+        left[1] * right[2] - left[2] * right[1],
+        left[2] * right[0] - left[0] * right[2],
+        left[0] * right[1] - left[1] * right[0],
+    ]
+
+
+def unit_vector(vector: list[float], context: str) -> list[float]:
+    length = norm(vector)
+    if length <= 1.0e-12:
+        raise GateError("VECTOR_DEGENERATE", f"{context} has zero length")
+    return vector_scale(vector, 1.0 / length)
+
+
+def matrix_multiply(left: list[list[float]], right: list[list[float]]) -> list[list[float]]:
+    return [
+        [sum(left[i][k] * right[k][j] for k in range(3)) for j in range(3)]
+        for i in range(3)
+    ]
+
+
+def row_vector_matrix(vector: list[float], matrix: list[list[float]]) -> list[float]:
+    return [sum(vector[k] * matrix[k][j] for k in range(3)) for j in range(3)]
+
+
+def inverse_matrix(matrix: list[list[float]]) -> list[list[float]]:
+    det = determinant(matrix)
+    if abs(det) <= 1.0e-12:
+        raise GateError("MATRIX_SINGULAR", "matrix is singular or numerically degenerate")
+    a, b, c = matrix
+    cofactors = [
+        [
+            b[1] * c[2] - b[2] * c[1],
+            -(b[0] * c[2] - b[2] * c[0]),
+            b[0] * c[1] - b[1] * c[0],
+        ],
+        [
+            -(a[1] * c[2] - a[2] * c[1]),
+            a[0] * c[2] - a[2] * c[0],
+            -(a[0] * c[1] - a[1] * c[0]),
+        ],
+        [
+            a[1] * b[2] - a[2] * b[1],
+            -(a[0] * b[2] - a[2] * b[0]),
+            a[0] * b[1] - a[1] * b[0],
+        ],
+    ]
+    return [[cofactors[j][i] / det for j in range(3)] for i in range(3)]
+
+
+def cart_to_frac(cart: list[float], cell: list[list[float]]) -> list[float]:
+    return row_vector_matrix(cart, inverse_matrix(cell))
+
+
+def apply_cartesian_deformation(vector: list[float], deformation: list[list[float]]) -> list[float]:
+    return [
+        sum(deformation[row][column] * vector[column] for column in range(3))
+        for row in range(3)
+    ]
+
+
+def unresolved_symmetry() -> dict[str, Any]:
+    return {
+        "status": "unresolved",
+        "number": None,
+        "symbol": None,
+        "tolerance_ang": None,
+        "backend": None,
+        "backend_version": None,
+    }
+
+
+def invalidate_electronic_state(structure: dict[str, Any]) -> None:
+    structure["charge_state"] = {"status": "unknown", "net_charge_e": None}
+    structure["spin_state"] = {"status": "not-assessed", "multiplicity": None}
+
+
+def derived_structure_id(prefix: str, structure: dict[str, Any]) -> str:
+    candidate = f"{prefix}-{structure_identity(structure)['structure_sha256'][:16]}"
+    if not SAFE_ID.fullmatch(candidate):
+        raise GateError("DERIVED_STRUCTURE_ID_INVALID", "derived structure identifier is unsafe")
+    return candidate
+
+
+def validate_bounded_float(
+    value: Any,
+    context: str,
+    *,
+    minimum: float,
+    maximum: float,
+    include_minimum: bool = False,
+) -> float:
+    number = _finite_number(value, context)
+    minimum_ok = number >= minimum if include_minimum else number > minimum
+    if not minimum_ok or number > maximum:
+        bracket = "[" if include_minimum else "("
+        raise GateError(
+            "PARAMETER_OUT_OF_RANGE",
+            f"{context} must be in {bracket}{minimum}, {maximum}]",
+        )
+    return number
+
+
+def nearest_periodic_distance(
+    left: dict[str, Any],
+    right: dict[str, Any],
+    structure: dict[str, Any],
+) -> float:
+    if structure["cell_ang"] is None or left["fractional"] is None or right["fractional"] is None:
+        return residual_norm(left["cartesian_ang"], right["cartesian_ang"])
+    delta = [
+        right["fractional"][axis] - left["fractional"][axis]
+        for axis in range(3)
+    ]
+    base_shift = [
+        int(round(-delta[axis])) if structure["pbc"][axis] else 0
+        for axis in range(3)
+    ]
+    choices = [
+        [base_shift[axis] - 1, base_shift[axis], base_shift[axis] + 1]
+        if structure["pbc"][axis]
+        else [0]
+        for axis in range(3)
+    ]
+    best = math.inf
+    for shift in itertools.product(*choices):
+        trial = [delta[axis] + shift[axis] for axis in range(3)]
+        best = min(best, norm(frac_to_cart(trial, structure["cell_ang"])))
+    return best
+
+
+def minimum_distance(
+    structure: dict[str, Any],
+    *,
+    left_ids: set[str] | None = None,
+    right_ids: set[str] | None = None,
+) -> dict[str, Any] | None:
+    sites = structure["sites"]
+    best: dict[str, Any] | None = None
+    for left_index, left in enumerate(sites):
+        for right_index in range(left_index + 1, len(sites)):
+            right = sites[right_index]
+            if left_ids is not None and right_ids is not None:
+                cross_pair = (
+                    left["site_id"] in left_ids
+                    and right["site_id"] in right_ids
+                ) or (
+                    right["site_id"] in left_ids
+                    and left["site_id"] in right_ids
+                )
+                if not cross_pair:
+                    continue
+            distance = nearest_periodic_distance(left, right, structure)
+            if best is None or distance < best["distance_ang"]:
+                best = {
+                    "site_ids": [left["site_id"], right["site_id"]],
+                    "distance_ang": round_float(distance),
+                }
+    return best
+
+
+def enforce_minimum_distance(
+    structure: dict[str, Any],
+    threshold_ang: float,
+    *,
+    left_ids: set[str] | None = None,
+    right_ids: set[str] | None = None,
+) -> dict[str, Any] | None:
+    closest = minimum_distance(structure, left_ids=left_ids, right_ids=right_ids)
+    if closest is not None and closest["distance_ang"] < threshold_ang:
+        raise GateError(
+            "MINIMUM_DISTANCE_VIOLATION",
+            "derived structure contains a pair below the explicit minimum-distance gate",
+        )
+    return closest
+
+
+def validate_cif_manifest_schema(value: dict[str, Any]) -> None:
+    try:
+        from jsonschema import Draft202012Validator
+    except ImportError as exc:
+        raise GateError(
+            "MANIFEST_SCHEMA_VALIDATOR_UNAVAILABLE",
+            "jsonschema is required to import a public structure-manifest",
+            EXIT_UNAVAILABLE,
+        ) from exc
+    schema_path = Path(__file__).resolve().parents[3] / "contracts" / "structure-manifest.schema.json"
+    try:
+        schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise GateError(
+            "MANIFEST_SCHEMA_UNAVAILABLE",
+            "repository structure-manifest schema is unavailable or invalid",
+            EXIT_UNAVAILABLE,
+        ) from exc
+    failures = sorted(
+        Draft202012Validator(schema).iter_errors(value),
+        key=lambda item: list(item.absolute_path),
+    )
+    if failures:
+        location = "/".join(str(part) for part in failures[0].absolute_path) or "<root>"
+        raise GateError(
+            "MANIFEST_SCHEMA_INVALID",
+            f"structure-manifest schema validation failed at {location}",
+        )
+
+
+def import_cif_manifest(value: dict[str, Any], tolerance_ang: float) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    validate_cif_manifest_schema(value)
+    if value["status"] == "BLOCK" or value["validation"]["status"] == "block":
+        raise GateError("MANIFEST_STATUS_BLOCKED", "blocked CIF structure-manifest cannot enter mutation")
+    if value["transformations"]:
+        raise GateError(
+            "MANIFEST_LINEAGE_UNSUPPORTED",
+            "native import accepts inspection-only CIF manifests with no prior transformations",
+        )
+    metadata = value["document"]["metadata"]
+    if metadata["partial_occupancy_rows"] or metadata["disorder_rows"]:
+        raise GateError(
+            "MANIFEST_OCCUPANCY_MODEL_UNRESOLVED",
+            "partial occupancy or disorder cannot be losslessly adapted to the current staging contract",
+        )
+    identity = value["structure_identity"]
+    fingerprint = identity.get("fingerprint_input")
+    if identity.get("canonicalization") != "json-sort-keys-compact-utf8-v1" or not isinstance(fingerprint, dict):
+        raise GateError(
+            "MANIFEST_IDENTITY_PREIMAGE_MISSING",
+            "CIF manifest must publish its canonical identity preimage",
+        )
+    if digest(fingerprint) != identity["value"]:
+        raise GateError("MANIFEST_IDENTITY_HASH_MISMATCH", "CIF manifest identity preimage does not match its hash")
+    structure = value["structure"]
+    cell = structure["cell"]["vectors_ang"]
+    pbc = structure["pbc"]
+    published_sites = structure["sites"]
+    if fingerprint["pbc"] != pbc or len(fingerprint["sites"]) != len(published_sites):
+        raise GateError("MANIFEST_IDENTITY_PAYLOAD_MISMATCH", "CIF manifest identity and structure payload disagree")
+    cell_residual = max(
+        abs(fingerprint["cell_vectors_ang"][i][j] - cell[i][j])
+        for i in range(3)
+        for j in range(3)
+    )
+    if cell_residual > max(tolerance_ang, 1.0e-6):
+        raise GateError("MANIFEST_IDENTITY_PAYLOAD_MISMATCH", "CIF manifest identity cell disagrees with published cell")
+    normalized_sites: list[dict[str, Any]] = []
+    mappings: list[dict[str, Any]] = []
+    for ordinal, (site, fingerprint_site) in enumerate(zip(published_sites, fingerprint["sites"])):
+        if site["index"] != ordinal:
+            raise GateError("MANIFEST_SITE_ORDER_INVALID", "CIF manifest site indices must be contiguous and ordered")
+        symbol = site["symbol"]
+        if ATOMIC_NUMBER.get(symbol) != site["atomic_number"] or site["atomic_number"] != fingerprint_site["atomic_number"]:
+            raise GateError("MANIFEST_SITE_IDENTITY_MISMATCH", "CIF manifest site symbol and atomic number disagree")
+        fractional = [_finite_number(item, "manifest fractional") for item in site["fractional"]]
+        fingerprint_fractional = fingerprint_site["fractional"]
+        coordinate_residual = max(
+            abs((fractional[axis] % 1.0) - fingerprint_fractional[axis])
+            for axis in range(3)
+        )
+        if coordinate_residual > max(tolerance_ang, 1.0e-6):
+            raise GateError(
+                "MANIFEST_IDENTITY_PAYLOAD_MISMATCH",
+                "CIF manifest identity coordinates disagree with published sites",
+            )
+        cartesian = [_finite_number(item, "manifest cartesian") for item in site["cartesian_ang"]]
+        if residual_norm(cartesian, frac_to_cart(fractional, cell)) > max(
+            tolerance_ang,
+            MANIFEST_PUBLIC_CARTESIAN_TOLERANCE_ANG,
+        ):
+            raise GateError(
+                "MANIFEST_COORDINATE_CELL_MISMATCH",
+                "CIF manifest fractional and Cartesian site coordinates disagree",
+            )
+        site_id = f"{symbol}-{ordinal}"
+        normalized_sites.append(
+            {
+                "site_id": site_id,
+                "species": [{"element": symbol, "occupancy": 1.0}],
+                "fractional": fractional,
+                "cartesian_ang": frac_to_cart(fractional, cell),
+            }
+        )
+        mappings.append(
+            {
+                "upstream_site_index": ordinal,
+                "upstream_symbol": symbol,
+                "child_site_id": site_id,
+                "relation": "same",
+            }
+        )
+    dimensions = sum(pbc)
+    kinds = {3: "periodic-crystal", 2: "periodic-slab", 1: "periodic-wire"}
+    if dimensions not in kinds:
+        raise GateError("MANIFEST_PERIODICITY_UNSUPPORTED", "CIF manifest must retain at least one periodic axis")
+    symmetry_attempt = structure["symmetry_attempt"]
+    if symmetry_attempt["status"] == "DETECTED":
+        symmetry = {
+            "status": "verified",
+            "number": symmetry_attempt["number"],
+            "symbol": symmetry_attempt["international"],
+            "tolerance_ang": symmetry_attempt["symprec"],
+            "backend": symmetry_attempt["backend"],
+            "backend_version": symmetry_attempt["backend_version"],
+        }
+    else:
+        symmetry = unresolved_symmetry()
+    child = {
+        "contract_name": "structure-preparation-input",
+        "schema_version": "1.0",
+        "structure_id": value["manifest_id"],
+        "structure_kind": kinds[dimensions],
+        "pbc": pbc,
+        "cell_ang": cell,
+        "sites": normalized_sites,
+        "symmetry": symmetry,
+        "charge_state": {"status": "unknown", "net_charge_e": None},
+        "spin_state": {"status": "not-assessed", "multiplicity": None},
+    }
+    return validate_structure(child, tolerance_ang), mappings
 
 
 def validate_structure(value: dict[str, Any], tolerance_ang: float) -> dict[str, Any]:
@@ -800,13 +1144,171 @@ def compare_structures(parent: dict[str, Any], child: dict[str, Any], tolerance_
     }
 
 
+def validate_supercell_matrix(matrix: list[list[int]]) -> int:
+    if (
+        len(matrix) != 3
+        or any(len(row) != 3 for row in matrix)
+        or any(type(item) is not int for row in matrix for item in row)
+    ):
+        raise GateError("SUPERCELL_MATRIX_INVALID", "supercell matrix must contain nine integers")
+    det_float = determinant(matrix)
+    det_int = int(round(det_float))
+    if abs(det_float - det_int) > 1.0e-9 or det_int < 1:
+        raise GateError("SUPERCELL_MATRIX_INVALID", "supercell matrix must have a positive integer determinant")
+    return det_int
+
+
+def supercell_coset_representatives(matrix: list[list[int]], determinant_int: int) -> list[list[int]]:
+    diagonal = all(matrix[i][j] == 0 for i in range(3) for j in range(3) if i != j)
+    if diagonal and all(matrix[index][index] > 0 for index in range(3)):
+        return [
+            [i, j, k]
+            for i in range(matrix[0][0])
+            for j in range(matrix[1][1])
+            for k in range(matrix[2][2])
+        ]
+    inverse = inverse_matrix(matrix)
+    representatives: dict[tuple[float, float, float], list[int]] = {}
+    search_limit = max(2, determinant_int)
+    for radius in range(search_limit + 1):
+        for translation in itertools.product(range(-radius, radius + 1), repeat=3):
+            transformed = row_vector_matrix(list(translation), inverse)
+            key = tuple(round_float(component % 1.0) for component in transformed)
+            previous = representatives.get(key)
+            candidate = list(translation)
+            if previous is None or tuple(candidate) < tuple(previous):
+                representatives[key] = candidate
+        if len(representatives) >= determinant_int:
+            break
+    if len(representatives) != determinant_int:
+        raise GateError(
+            "SUPERCELL_COSET_ENUMERATION_FAILED",
+            "could not enumerate the expected number of supercell lattice cosets",
+        )
+    return [representatives[key] for key in sorted(representatives)]
+
+
+def replicate_by_matrix(
+    parent: dict[str, Any],
+    matrix: list[list[int]],
+    *,
+    allow_nonperiodic_unit_axes: bool = False,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    determinant_int = validate_supercell_matrix(matrix)
+    if parent["cell_ang"] is None:
+        raise GateError("OPERATION_SCOPE_INVALID", "supercell construction requires a periodic cell")
+    if allow_nonperiodic_unit_axes:
+        for axis, periodic in enumerate(parent["pbc"]):
+            if not periodic and (
+                matrix[axis][axis] != 1
+                or any(matrix[axis][other] != 0 for other in range(3) if other != axis)
+                or any(matrix[other][axis] != 0 for other in range(3) if other != axis)
+            ):
+                raise GateError(
+                    "NONPERIODIC_REPLICATION_REFUSED",
+                    "a nonperiodic axis must remain an unmixed unit axis",
+                )
+    elif not all(parent["pbc"]):
+        raise GateError("OPERATION_SCOPE_INVALID", "general supercell construction requires three-dimensional periodicity")
+    derived_site_count = len(parent["sites"]) * determinant_int
+    if derived_site_count > MAX_DERIVED_SITES:
+        raise GateError(
+            "SUPERCELL_BUDGET_EXCEEDED",
+            f"derived site count {derived_site_count} exceeds candidate limit {MAX_DERIVED_SITES}",
+        )
+    inverse = inverse_matrix(matrix)
+    representatives = supercell_coset_representatives(matrix, determinant_int)
+    diagonal = all(matrix[i][j] == 0 for i in range(3) for j in range(3) if i != j)
+    child = json.loads(json.dumps(parent))
+    child["cell_ang"] = matrix_multiply(matrix, parent["cell_ang"])
+    child["symmetry"] = unresolved_symmetry()
+    child_sites: list[dict[str, Any]] = []
+    mappings: list[dict[str, Any]] = []
+    for parent_site in parent["sites"]:
+        canonical_parent = [
+            component % 1.0 if parent["pbc"][axis] else component
+            for axis, component in enumerate(parent_site["fractional"])
+        ]
+        parent_image_shift = [
+            int(round(parent_site["fractional"][axis] - canonical_parent[axis]))
+            if parent["pbc"][axis]
+            else 0
+            for axis in range(3)
+        ]
+        for replica_index, translation in enumerate(representatives):
+            child_site = json.loads(json.dumps(parent_site))
+            replica_suffix = (
+                "_".join(str(item) for item in translation)
+                if diagonal
+                else f"r{replica_index}"
+            )
+            child_site["site_id"] = f"{parent_site['site_id']}__{replica_suffix}"
+            if not SAFE_ID.fullmatch(child_site["site_id"]):
+                raise GateError("DERIVED_SITE_ID_INVALID", "derived supercell site_id is too long or unsafe")
+            fractional = row_vector_matrix(
+                [canonical_parent[axis] + translation[axis] for axis in range(3)],
+                inverse,
+            )
+            child_site["fractional"] = [
+                round_float(component % 1.0 if child["pbc"][axis] else component)
+                for axis, component in enumerate(fractional)
+            ]
+            child_site["cartesian_ang"] = frac_to_cart(child_site["fractional"], child["cell_ang"])
+            child_sites.append(child_site)
+            mapping = {
+                "parent_site_id": parent_site["site_id"],
+                "child_site_id": child_site["site_id"],
+                "relation": "replicated",
+                "parent_image_shift_to_canonical": parent_image_shift,
+            }
+            if diagonal:
+                mapping["replica_shift"] = translation
+            else:
+                mapping["replica_index"] = replica_index
+                mapping["replica_lattice_translation"] = translation
+            mappings.append(mapping)
+    child["sites"] = child_sites
+    return child, mappings
+
+
+def parse_supercell_matrix(
+    repeat: list[int] | None,
+    matrix_values: list[int] | None,
+) -> tuple[list[list[int]], str]:
+    if repeat is not None and matrix_values is not None:
+        raise GateError("PARAMETER_CONFLICT", "use either --repeat or --matrix, not both")
+    if repeat is not None:
+        if len(repeat) != 3 or any(type(item) is not int or item < 1 for item in repeat):
+            raise GateError("SUPERCELL_PARAMETER_INVALID", "--repeat requires three positive integers")
+        return [
+            [repeat[0], 0, 0],
+            [0, repeat[1], 0],
+            [0, 0, repeat[2]],
+        ], "diagonal-repeat"
+    if matrix_values is not None:
+        if len(matrix_values) != 9 or any(type(item) is not int for item in matrix_values):
+            raise GateError("SUPERCELL_MATRIX_INVALID", "--matrix requires nine integers")
+        matrix = [matrix_values[index : index + 3] for index in range(0, 9, 3)]
+        validate_supercell_matrix(matrix)
+        return matrix, "integer-supercell-matrix"
+    raise GateError("PARAMETER_MISSING", "supercell requires --repeat or --matrix")
+
+
 def transformed_structure(
-    parent: dict[str, Any], operation: str, order: str | None, repeat: list[int] | None
+    parent: dict[str, Any],
+    operation: str,
+    order: str | None,
+    repeat: list[int] | None,
+    matrix_values: list[int] | None,
+    deformation_values: list[float] | None,
+    max_strain: float,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     child = json.loads(json.dumps(parent))
     mappings: list[dict[str, Any]] = []
     parameters: list[dict[str, Any]] = []
     if operation == "wrap":
+        if any(item is not None for item in (order, repeat, matrix_values, deformation_values)):
+            raise GateError("PARAMETER_CONFLICT", "wrap does not accept reorder, supercell, or strain parameters")
         if not any(parent["pbc"]):
             raise GateError("OPERATION_SCOPE_INVALID", "wrap requires a periodic structure")
         for site in child["sites"]:
@@ -824,6 +1326,8 @@ def transformed_structure(
             )
         parameters.append({"name": "wrap-policy", "value": "periodic-dimensions-only"})
     elif operation == "reorder":
+        if any(item is not None for item in (repeat, matrix_values, deformation_values)):
+            raise GateError("PARAMETER_CONFLICT", "reorder accepts only --order")
         if order is None:
             raise GateError("PARAMETER_MISSING", "reorder requires --order")
         requested = order.split(",")
@@ -843,57 +1347,51 @@ def transformed_structure(
         ]
         parameters.append({"name": "site-order", "value": requested})
     elif operation == "supercell":
-        if repeat is None or len(repeat) != 3 or any(type(item) is not int or item < 1 for item in repeat):
-            raise GateError("SUPERCELL_PARAMETER_INVALID", "--repeat requires three positive integers")
-        if not all(parent["pbc"]):
-            raise GateError("OPERATION_SCOPE_INVALID", "candidate supercell requires three-dimensional periodicity")
-        nx, ny, nz = repeat
-        derived_site_count = len(parent["sites"]) * nx * ny * nz
-        if derived_site_count > MAX_DERIVED_SITES:
-            raise GateError(
-                "SUPERCELL_BUDGET_EXCEEDED",
-                f"derived site count {derived_site_count} exceeds candidate limit {MAX_DERIVED_SITES}",
+        if order is not None or deformation_values is not None:
+            raise GateError("PARAMETER_CONFLICT", "supercell accepts --repeat or --matrix only")
+        supercell_matrix, parameter_name = parse_supercell_matrix(repeat, matrix_values)
+        child, mappings = replicate_by_matrix(parent, supercell_matrix)
+        parameters.append({"name": parameter_name, "value": supercell_matrix})
+    elif operation == "strain":
+        if order is not None or repeat is not None or matrix_values is not None:
+            raise GateError("PARAMETER_CONFLICT", "strain accepts --deformation and --max-strain only")
+        if deformation_values is None or len(deformation_values) != 9:
+            raise GateError("PARAMETER_MISSING", "strain requires --deformation with nine finite numbers")
+        deformation = [
+            [_finite_number(item, "deformation") for item in deformation_values[index : index + 3]]
+            for index in range(0, 9, 3)
+        ]
+        if determinant(deformation) <= 1.0e-8:
+            raise GateError("DEFORMATION_INVALID", "deformation must preserve handedness and remain nonsingular")
+        maximum_component = max(
+            abs(deformation[i][j] - (1.0 if i == j else 0.0))
+            for i in range(3)
+            for j in range(3)
+        )
+        if maximum_component > max_strain:
+            raise GateError("STRAIN_BUDGET_EXCEEDED", "deformation exceeds the explicit component-wise strain budget")
+        child["cell_ang"] = [
+            apply_cartesian_deformation(row, deformation)
+            for row in parent["cell_ang"]
+        ]
+        for site in child["sites"]:
+            site["cartesian_ang"] = apply_cartesian_deformation(site["cartesian_ang"], deformation)
+            mappings.append(
+                {
+                    "parent_site_id": site["site_id"],
+                    "child_site_id": site["site_id"],
+                    "relation": "same",
+                    "child_to_parent_image_shift": [0, 0, 0],
+                }
             )
-        child["cell_ang"] = [[item * repeat[i] for item in row] for i, row in enumerate(parent["cell_ang"])]
-        sites: list[dict[str, Any]] = []
-        for parent_site in parent["sites"]:
-            canonical_parent = [component % 1.0 for component in parent_site["fractional"]]
-            parent_image_shift = [
-                int(round(parent_site["fractional"][axis] - canonical_parent[axis])) for axis in range(3)
+        child["symmetry"] = unresolved_symmetry()
+        parameters.extend(
+            [
+                {"name": "cartesian-deformation", "value": deformation},
+                {"name": "maximum-component", "value": round_float(maximum_component)},
+                {"name": "maximum-allowed-component", "value": max_strain},
             ]
-            for i in range(nx):
-                for j in range(ny):
-                    for k in range(nz):
-                        child_site = json.loads(json.dumps(parent_site))
-                        child_site["site_id"] = f"{parent_site['site_id']}__{i}_{j}_{k}"
-                        if not SAFE_ID.fullmatch(child_site["site_id"]):
-                            raise GateError("DERIVED_SITE_ID_INVALID", "derived supercell site_id is too long or unsafe")
-                        child_site["fractional"] = [
-                            (canonical_parent[0] + i) / nx,
-                            (canonical_parent[1] + j) / ny,
-                            (canonical_parent[2] + k) / nz,
-                        ]
-                        child_site["cartesian_ang"] = frac_to_cart(child_site["fractional"], child["cell_ang"])
-                        sites.append(child_site)
-                        mappings.append(
-                            {
-                                "parent_site_id": parent_site["site_id"],
-                                "child_site_id": child_site["site_id"],
-                                "relation": "replicated",
-                                "parent_image_shift_to_canonical": parent_image_shift,
-                                "replica_shift": [i, j, k],
-                            }
-                        )
-        child["sites"] = sites
-        child["symmetry"] = {
-            "status": "unresolved",
-            "number": None,
-            "symbol": None,
-            "tolerance_ang": None,
-            "backend": None,
-            "backend_version": None,
-        }
-        parameters.append({"name": "diagonal-repeat", "value": repeat})
+        )
     else:
         raise GateError("OPERATION_UNSUPPORTED", "operation is not implemented by this candidate")
     child_identity = structure_identity(child)
@@ -901,6 +1399,792 @@ def transformed_structure(
     if not SAFE_ID.fullmatch(child["structure_id"]):
         child["structure_id"] = f"derived-{child_identity['structure_sha256'][:16]}"
     return child, mappings, parameters
+
+
+def derived_result(
+    *,
+    operation: str,
+    sources: list[dict[str, Any]],
+    parents: list[dict[str, Any]],
+    child: dict[str, Any],
+    mappings: list[dict[str, Any]],
+    parameters: list[dict[str, Any]],
+    tolerance_ang: float,
+    limitations: list[str],
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    child_identity = structure_identity(child)
+    audit = audit_report(
+        child,
+        {"label": "embedded-child", "bytes": 0, "sha256": digest(child)},
+        tolerance_ang,
+    )
+    result = {
+        "contract_name": "structure-preparation-result",
+        "schema_version": "1.0",
+        "status": "pass",
+        "sources": sources,
+        "operation": operation,
+        "parameters": parameters,
+        "parent_identities": [
+            {
+                "role": parent["role"],
+                "structure_id": parent["structure"]["structure_id"],
+                "identity": structure_identity(parent["structure"]),
+            }
+            for parent in parents
+        ],
+        "child_identity": child_identity,
+        "mapping_status": "exact",
+        "site_mapping": mappings,
+        "site_mapping_sha256": digest(mappings),
+        "roundtrip": {
+            "classification": "not-applicable-derived-structure",
+            "tolerance_ang": tolerance_ang,
+            "child_identity": child_identity,
+            "site_mapping_sha256": digest(mappings),
+            "differences": ["derived-geometry", "derived-composition-or-cell"],
+        },
+        "child": child,
+        "child_calculation_readiness": audit["calculation_readiness"],
+        "findings": audit["findings"],
+        **candidate_lifecycle("input_gates_only"),
+        "limitations": limitations,
+        "provenance": {"tool": "structure_prepare.py", "tool_version": TOOL_VERSION},
+    }
+    if extra:
+        result.update(extra)
+    return result
+
+
+def periodic_surface_frame(structure: dict[str, Any]) -> dict[str, Any]:
+    if structure["structure_kind"] != "periodic-slab" or sum(structure["pbc"]) != 2:
+        raise GateError("SURFACE_SCOPE_INVALID", "operation requires a two-dimensionally periodic slab")
+    periodic_axes = [axis for axis, periodic in enumerate(structure["pbc"]) if periodic]
+    normal_axis = next(axis for axis, periodic in enumerate(structure["pbc"]) if not periodic)
+    first = structure["cell_ang"][periodic_axes[0]]
+    second = structure["cell_ang"][periodic_axes[1]]
+    normal = unit_vector(cross(first, second), "surface plane")
+    cell_normal = unit_vector(structure["cell_ang"][normal_axis], "nonperiodic cell vector")
+    alignment = dot(normal, cell_normal)
+    if abs(alignment) < MIN_SURFACE_NORMAL_ALIGNMENT:
+        raise GateError(
+            "SURFACE_CELL_ALIGNMENT_INVALID",
+            "nonperiodic cell vector must be aligned with the surface normal within the native tolerance",
+        )
+    if alignment < 0.0:
+        normal = vector_scale(normal, -1.0)
+    return {
+        "periodic_axes": periodic_axes,
+        "normal_axis": normal_axis,
+        "normal": normal,
+        "normal_alignment": round_float(abs(alignment)),
+    }
+
+
+def command_make_slab(args: argparse.Namespace) -> int:
+    value, source = load_json(args.input)
+    parent = validate_structure(value, args.tolerance_ang)
+    if parent["structure_kind"] != "periodic-crystal":
+        raise GateError("SLAB_PARENT_INVALID", "make-slab requires a three-dimensionally periodic crystal")
+    axis = args.axis
+    if axis not in {0, 1, 2}:
+        raise GateError("SLAB_AXIS_INVALID", "slab axis must be 0, 1, or 2")
+    if not 1 <= args.layers <= 64:
+        raise GateError("SLAB_LAYER_BUDGET_INVALID", "layers must be in [1, 64]")
+    vacuum_ang = validate_bounded_float(
+        args.vacuum_ang,
+        "vacuum_ang",
+        minimum=0.0,
+        maximum=200.0,
+        include_minimum=True,
+    )
+    in_plane = [candidate for candidate in range(3) if candidate != axis]
+    plane_normal = unit_vector(
+        cross(parent["cell_ang"][in_plane[0]], parent["cell_ang"][in_plane[1]]),
+        "slab plane",
+    )
+    axis_unit = unit_vector(parent["cell_ang"][axis], "slab axis")
+    alignment = abs(dot(plane_normal, axis_unit))
+    if alignment < MIN_SURFACE_NORMAL_ALIGNMENT:
+        raise GateError(
+            "SLAB_AXIS_NOT_SURFACE_NORMAL",
+            "native make-slab supports only a lattice vector aligned with the plane normal",
+        )
+    repeat = [1, 1, 1]
+    repeat[axis] = args.layers
+    matrix = [[repeat[i] if i == j else 0 for j in range(3)] for i in range(3)]
+    child, mappings = replicate_by_matrix(parent, matrix)
+    base_length = norm(parent["cell_ang"][axis])
+    scale = args.layers + vacuum_ang / base_length
+    child["cell_ang"][axis] = vector_scale(parent["cell_ang"][axis], scale)
+    vacuum_offset = vacuum_ang / (2.0 * base_length)
+    for site in child["sites"]:
+        old_fractional = site["fractional"][axis]
+        site["fractional"][axis] = (old_fractional * args.layers + vacuum_offset) / scale
+        site["cartesian_ang"] = frac_to_cart(site["fractional"], child["cell_ang"])
+    child["pbc"][axis] = False
+    child["structure_kind"] = "periodic-slab"
+    child["symmetry"] = unresolved_symmetry()
+    child["structure_id"] = derived_structure_id("slab", child)
+    child = validate_structure(child, args.tolerance_ang)
+    result = derived_result(
+        operation="slab",
+        sources=[{"role": "parent", **source}],
+        parents=[{"role": "parent", "structure": parent}],
+        child=child,
+        mappings=mappings,
+        parameters=[
+            {"name": "lattice-axis", "value": axis},
+            {"name": "layer-repeat", "value": args.layers},
+            {"name": "vacuum-ang", "value": vacuum_ang},
+            {"name": "axis-normal-alignment", "value": round_float(alignment)},
+            {"name": "termination-policy", "value": "input-origin-preserved"},
+        ],
+        tolerance_ang=args.tolerance_ang,
+        limitations=[
+            "This native route cleaves only along an input lattice vector already aligned with the surface normal.",
+            "It does not enumerate Miller indices, terminations, polarity, reconstruction, or surface stability.",
+            "Vacuum and layer count are construction parameters, not convergence evidence.",
+        ],
+        extra={
+            "operation_family": "cell-slab",
+            "operation_profile_id": "native-lattice-axis-slab-v1",
+            "construction_metrics": {
+                "site_count": len(child["sites"]),
+                "surface_axis": axis,
+                "vacuum_ang": vacuum_ang,
+            }
+        },
+    )
+    write_json(result, args.out)
+    return EXIT_OK
+
+
+def in_plane_angle_degrees(first: list[float], second: list[float]) -> float:
+    cosine = dot(first, second) / (norm(first) * norm(second))
+    cosine = max(-1.0, min(1.0, cosine))
+    return math.degrees(math.acos(cosine))
+
+
+def interface_matches(
+    substrate: dict[str, Any],
+    film: dict[str, Any],
+    *,
+    max_repeat: int,
+    max_strain: float,
+    max_angle_deg: float,
+    max_atoms: int,
+) -> tuple[dict[str, Any], int, list[dict[str, Any]]]:
+    substrate_frame = periodic_surface_frame(substrate)
+    film_frame = periodic_surface_frame(film)
+    if substrate["pbc"] != film["pbc"]:
+        raise GateError("INTERFACE_PERIODICITY_MISMATCH", "substrate and film must use the same periodic axes")
+    axes = substrate_frame["periodic_axes"]
+    substrate_vectors = [substrate["cell_ang"][axis] for axis in axes]
+    film_vectors = [film["cell_ang"][axis] for axis in axes]
+    substrate_angle = in_plane_angle_degrees(*substrate_vectors)
+    film_angle = in_plane_angle_degrees(*film_vectors)
+    angle_mismatch = abs(substrate_angle - film_angle)
+    accepted: list[dict[str, Any]] = []
+    for substrate_repeat in itertools.product(range(1, max_repeat + 1), repeat=2):
+        substrate_lengths = [
+            norm(substrate_vectors[index]) * substrate_repeat[index]
+            for index in range(2)
+        ]
+        for film_repeat in itertools.product(range(1, max_repeat + 1), repeat=2):
+            film_lengths = [
+                norm(film_vectors[index]) * film_repeat[index]
+                for index in range(2)
+            ]
+            strains = [
+                substrate_lengths[index] / film_lengths[index] - 1.0
+                for index in range(2)
+            ]
+            maximum_strain = max(abs(item) for item in strains)
+            atom_count = (
+                len(substrate["sites"]) * substrate_repeat[0] * substrate_repeat[1]
+                + len(film["sites"]) * film_repeat[0] * film_repeat[1]
+            )
+            if maximum_strain > max_strain or angle_mismatch > max_angle_deg or atom_count > max_atoms:
+                continue
+            accepted.append(
+                {
+                    "substrate_repeat": list(substrate_repeat),
+                    "film_repeat": list(film_repeat),
+                    "film_length_strain": [round_float(item) for item in strains],
+                    "maximum_abs_film_length_strain": round_float(maximum_strain),
+                    "in_plane_angle_mismatch_deg": round_float(angle_mismatch),
+                    "derived_atom_count": atom_count,
+                    "substrate_area_ang2": round_float(
+                        norm(cross(substrate_vectors[0], substrate_vectors[1]))
+                        * substrate_repeat[0]
+                        * substrate_repeat[1]
+                    ),
+                }
+            )
+    if not accepted:
+        raise GateError(
+            "INTERFACE_MATCH_NOT_FOUND",
+            "no coherent in-plane repeat satisfies strain, angle, and atom-count budgets",
+        )
+    accepted.sort(
+        key=lambda item: (
+            item["maximum_abs_film_length_strain"],
+            item["in_plane_angle_mismatch_deg"],
+            item["derived_atom_count"],
+            sum(abs(value) for value in item["film_length_strain"]),
+            item["substrate_repeat"],
+            item["film_repeat"],
+        )
+    )
+    return accepted[0], len(accepted), accepted[:20]
+
+
+def replicate_slab_in_plane(
+    slab: dict[str, Any],
+    repeats: list[int],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    frame = periodic_surface_frame(slab)
+    diagonal = [1, 1, 1]
+    for index, axis in enumerate(frame["periodic_axes"]):
+        diagonal[axis] = repeats[index]
+    matrix = [[diagonal[i] if i == j else 0 for j in range(3)] for i in range(3)]
+    return replicate_by_matrix(slab, matrix, allow_nonperiodic_unit_axes=True)
+
+
+def command_build_interface(args: argparse.Namespace) -> int:
+    substrate_value, substrate_source = load_json(args.substrate)
+    film_value, film_source = load_json(args.film)
+    substrate = validate_structure(substrate_value, args.tolerance_ang)
+    film = validate_structure(film_value, args.tolerance_ang)
+    if not 1 <= args.max_repeat <= 12:
+        raise GateError("INTERFACE_REPEAT_BUDGET_INVALID", "max-repeat must be in [1, 12]")
+    if not 2 <= args.max_atoms <= MAX_DERIVED_SITES:
+        raise GateError("INTERFACE_ATOM_BUDGET_INVALID", f"max-atoms must be in [2, {MAX_DERIVED_SITES}]")
+    max_strain = validate_bounded_float(
+        args.max_strain,
+        "max_strain",
+        minimum=0.0,
+        maximum=0.5,
+        include_minimum=True,
+    )
+    max_angle_deg = validate_bounded_float(
+        args.max_angle_deg,
+        "max_angle_deg",
+        minimum=0.0,
+        maximum=30.0,
+        include_minimum=True,
+    )
+    gap_ang = validate_bounded_float(args.gap_ang, "gap_ang", minimum=0.0, maximum=30.0)
+    vacuum_ang = validate_bounded_float(
+        args.vacuum_ang,
+        "vacuum_ang",
+        minimum=0.0,
+        maximum=200.0,
+        include_minimum=True,
+    )
+    minimum_distance_ang = validate_bounded_float(
+        args.min_distance_ang,
+        "min_distance_ang",
+        minimum=0.0,
+        maximum=5.0,
+    )
+    shift = [_finite_number(item, "registry_shift") % 1.0 for item in args.registry_shift]
+    selected, accepted_count, accepted_sample = interface_matches(
+        substrate,
+        film,
+        max_repeat=args.max_repeat,
+        max_strain=max_strain,
+        max_angle_deg=max_angle_deg,
+        max_atoms=args.max_atoms,
+    )
+    substrate_supercell, substrate_mappings = replicate_slab_in_plane(
+        substrate,
+        selected["substrate_repeat"],
+    )
+    film_supercell, film_mappings = replicate_slab_in_plane(
+        film,
+        selected["film_repeat"],
+    )
+    substrate_frame = periodic_surface_frame(substrate_supercell)
+    film_frame = periodic_surface_frame(film_supercell)
+    axes = substrate_frame["periodic_axes"]
+    normal_axis = substrate_frame["normal_axis"]
+    normal = substrate_frame["normal"]
+    target_vectors = [substrate_supercell["cell_ang"][axis] for axis in axes]
+    substrate_projections = [dot(site["cartesian_ang"], normal) for site in substrate_supercell["sites"]]
+    film_normal = film_frame["normal"]
+    film_projections = [dot(site["cartesian_ang"], film_normal) for site in film_supercell["sites"]]
+    substrate_min, substrate_max = min(substrate_projections), max(substrate_projections)
+    film_min, film_max = min(film_projections), max(film_projections)
+    substrate_thickness = substrate_max - substrate_min
+    film_thickness = film_max - film_min
+    total_normal_length = vacuum_ang + substrate_thickness + gap_ang + film_thickness
+    if total_normal_length <= 1.0e-8:
+        raise GateError("INTERFACE_CELL_DEGENERATE", "interface normal cell length is degenerate")
+    child_cell = [[0.0, 0.0, 0.0] for _ in range(3)]
+    child_cell[axes[0]] = target_vectors[0]
+    child_cell[axes[1]] = target_vectors[1]
+    child_cell[normal_axis] = vector_scale(normal, total_normal_length)
+    substrate_start = vacuum_ang / 2.0
+    film_start = substrate_start + substrate_thickness + gap_ang
+    child_sites: list[dict[str, Any]] = []
+    substrate_child_ids: set[str] = set()
+    film_child_ids: set[str] = set()
+    mappings: list[dict[str, Any]] = []
+    substrate_mapping_by_child = {item["child_site_id"]: item for item in substrate_mappings}
+    film_mapping_by_child = {item["child_site_id"]: item for item in film_mappings}
+    for role, component, component_normal, minimum_projection, start, component_shift in (
+        ("substrate", substrate_supercell, normal, substrate_min, substrate_start, [0.0, 0.0]),
+        ("film", film_supercell, film_normal, film_min, film_start, shift),
+    ):
+        mapping_by_child = substrate_mapping_by_child if role == "substrate" else film_mapping_by_child
+        for site in component["sites"]:
+            u = (site["fractional"][axes[0]] + component_shift[0]) % 1.0
+            v = (site["fractional"][axes[1]] + component_shift[1]) % 1.0
+            projection = dot(site["cartesian_ang"], component_normal)
+            cart = vector_add(
+                vector_add(vector_scale(target_vectors[0], u), vector_scale(target_vectors[1], v)),
+                vector_scale(normal, start + projection - minimum_projection),
+            )
+            child_id = f"{'sub' if role == 'substrate' else 'film'}-{site['site_id']}"
+            if not SAFE_ID.fullmatch(child_id):
+                raise GateError("DERIVED_SITE_ID_INVALID", "interface site identifier is unsafe")
+            child_site = json.loads(json.dumps(site))
+            child_site["site_id"] = child_id
+            child_site["cartesian_ang"] = [round_float(item) for item in cart]
+            child_site["fractional"] = [round_float(item) for item in cart_to_frac(cart, child_cell)]
+            child_sites.append(child_site)
+            (substrate_child_ids if role == "substrate" else film_child_ids).add(child_id)
+            source_mapping = mapping_by_child[site["site_id"]]
+            mappings.append(
+                {
+                    "parent_role": role,
+                    "parent_site_id": source_mapping["parent_site_id"],
+                    "child_site_id": child_id,
+                    "relation": source_mapping["relation"],
+                    "replica_shift": source_mapping.get("replica_shift", [0, 0, 0]),
+                }
+            )
+    if substrate["charge_state"]["status"] == "known" and film["charge_state"]["status"] == "known":
+        charge_state = {
+            "status": "known",
+            "net_charge_e": substrate["charge_state"]["net_charge_e"] + film["charge_state"]["net_charge_e"],
+        }
+    else:
+        charge_state = {"status": "unknown", "net_charge_e": None}
+    child = {
+        "contract_name": "structure-preparation-input",
+        "schema_version": "1.0",
+        "structure_id": "interface-pending",
+        "structure_kind": "periodic-slab",
+        "pbc": list(substrate["pbc"]),
+        "cell_ang": child_cell,
+        "sites": child_sites,
+        "symmetry": unresolved_symmetry(),
+        "charge_state": charge_state,
+        "spin_state": {"status": "not-assessed", "multiplicity": None},
+    }
+    child["structure_id"] = derived_structure_id("interface", child)
+    child = validate_structure(child, args.tolerance_ang)
+    closest = enforce_minimum_distance(
+        child,
+        minimum_distance_ang,
+        left_ids=substrate_child_ids,
+        right_ids=film_child_ids,
+    )
+    result = derived_result(
+        operation="merge",
+        sources=[
+            {"role": "substrate", **substrate_source},
+            {"role": "film", **film_source},
+        ],
+        parents=[
+            {"role": "substrate", "structure": substrate},
+            {"role": "film", "structure": film},
+        ],
+        child=child,
+        mappings=mappings,
+        parameters=[
+            {"name": "substrate-repeat", "value": selected["substrate_repeat"]},
+            {"name": "film-repeat", "value": selected["film_repeat"]},
+            {"name": "film-length-strain", "value": selected["film_length_strain"]},
+            {"name": "registry-shift-fractional", "value": shift},
+            {"name": "gap-ang", "value": gap_ang},
+            {"name": "vacuum-ang", "value": vacuum_ang},
+            {"name": "minimum-distance-gate-ang", "value": minimum_distance_ang},
+        ],
+        tolerance_ang=args.tolerance_ang,
+        limitations=[
+            "The native matcher compares small integer repeats of already oriented slab cells; it does not choose Miller faces or terminations.",
+            "The film is coherently mapped onto the selected substrate in-plane cell, so recorded strain is a construction hypothesis.",
+            "The selected candidate minimizes geometric mismatch under budgets; it is not an energetic stability result.",
+            "Twist-angle and moire enumeration require a separately validated backend route.",
+        ],
+        extra={
+            "operation_family": "interface",
+            "operation_profile_id": "native-coherent-slab-interface-v1",
+            "match_search": {
+                "selection_policy": "minimum-strain-then-angle-then-atom-count",
+                "accepted_candidate_count": accepted_count,
+                "accepted_candidate_sample_limit": 20,
+                "accepted_candidate_sample": accepted_sample,
+                "selected": selected,
+            },
+            "construction_metrics": {
+                "substrate_thickness_ang": round_float(substrate_thickness),
+                "film_thickness_ang": round_float(film_thickness),
+                "closest_cross_interface_pair": closest,
+            },
+        },
+    )
+    write_json(result, args.out)
+    return EXIT_OK
+
+
+def command_site_edit(args: argparse.Namespace) -> int:
+    value, source = load_json(args.input)
+    parent = validate_structure(value, args.tolerance_ang)
+    child = json.loads(json.dumps(parent))
+    by_id = {site["site_id"]: site for site in child["sites"]}
+    mappings = [
+        {
+            "parent_site_id": site["site_id"],
+            "child_site_id": site["site_id"],
+            "relation": "same",
+        }
+        for site in parent["sites"]
+    ]
+    parameters: list[dict[str, Any]] = []
+    edited_child_ids: set[str] = set()
+    parent_ids = set(by_id)
+    operation_class = args.operation
+    if args.operation == "insert":
+        if len(parent["sites"]) + 1 > MAX_DERIVED_SITES:
+            raise GateError("DERIVED_SITE_BUDGET_EXCEEDED", "inserted structure exceeds the derived-site budget")
+        if not any(parent["pbc"]):
+            raise GateError("SITE_INSERT_SCOPE_INVALID", "native insertion requires a periodic host")
+        if args.site_id in by_id or not SAFE_ID.fullmatch(args.site_id or ""):
+            raise GateError("SITE_ID_INVALID", "inserted site_id must be safe and unique")
+        if args.element not in ATOMIC_NUMBER:
+            raise GateError("ELEMENT_INVALID", "inserted element is unknown")
+        if args.fractional is None:
+            raise GateError("PARAMETER_MISSING", "insert requires --fractional")
+        requested_fractional = [_finite_number(item, "fractional") for item in args.fractional]
+        if any(
+            not 0.0 <= requested_fractional[axis] <= 1.0
+            for axis, periodic in enumerate(parent["pbc"])
+            if not periodic
+        ):
+            raise GateError(
+                "INSERTION_OUTSIDE_CELL",
+                "inserted site lies outside a nonperiodic cell axis",
+            )
+        fractional = [
+            component % 1.0 if parent["pbc"][axis] else component
+            for axis, component in enumerate(requested_fractional)
+        ]
+        site = {
+            "site_id": args.site_id,
+            "species": [{"element": args.element, "occupancy": 1.0}],
+            "fractional": fractional,
+            "cartesian_ang": frac_to_cart(fractional, child["cell_ang"]),
+        }
+        child["sites"].append(site)
+        mappings.append(
+            {
+                "parent_site_id": None,
+                "child_site_id": args.site_id,
+                "relation": "created",
+            }
+        )
+        edited_child_ids.add(args.site_id)
+        operation_class = "interstitial"
+        parameters.extend(
+            [
+                {"name": "created-site-id", "value": args.site_id},
+                {"name": "element", "value": args.element},
+                {"name": "requested-fractional-coordinate", "value": requested_fractional},
+                {"name": "fractional-coordinate", "value": fractional},
+            ]
+        )
+    elif args.operation == "remove":
+        if args.element is not None or args.fractional is not None:
+            raise GateError("PARAMETER_CONFLICT", "remove accepts only --site-id and distance/tolerance gates")
+        if args.site_id not in by_id:
+            raise GateError("SITE_ID_NOT_FOUND", "remove requires an existing --site-id")
+        if len(child["sites"]) == 1:
+            raise GateError("LAST_SITE_REMOVAL_REFUSED", "cannot remove the only site")
+        child["sites"] = [site for site in child["sites"] if site["site_id"] != args.site_id]
+        mappings = [
+            (
+                {
+                    "parent_site_id": item["parent_site_id"],
+                    "child_site_id": None,
+                    "relation": "removed",
+                }
+                if item["parent_site_id"] == args.site_id
+                else item
+            )
+            for item in mappings
+        ]
+        operation_class = "remove-sites"
+        parameters.append({"name": "removed-site-id", "value": args.site_id})
+    elif args.operation == "substitute":
+        if args.fractional is not None:
+            raise GateError("PARAMETER_CONFLICT", "substitute does not accept --fractional")
+        if args.site_id not in by_id:
+            raise GateError("SITE_ID_NOT_FOUND", "substitute requires an existing --site-id")
+        if args.element not in ATOMIC_NUMBER:
+            raise GateError("ELEMENT_INVALID", "substitution element is unknown")
+        original_species = by_id[args.site_id]["species"]
+        if original_species == [{"element": args.element, "occupancy": 1.0}]:
+            raise GateError("NO_OP_REFUSED", "substitution would not change the site")
+        by_id[args.site_id]["species"] = [{"element": args.element, "occupancy": 1.0}]
+        edited_child_ids.add(args.site_id)
+        operation_class = "substitution"
+        parameters.extend(
+            [
+                {"name": "site-id", "value": args.site_id},
+                {"name": "parent-species", "value": original_species},
+                {"name": "child-element", "value": args.element},
+            ]
+        )
+    else:
+        raise GateError("OPERATION_UNSUPPORTED", "site-edit operation is unsupported")
+    child["symmetry"] = unresolved_symmetry() if any(child["pbc"]) else child["symmetry"]
+    invalidate_electronic_state(child)
+    child["structure_id"] = derived_structure_id(operation_class, child)
+    child = validate_structure(child, args.tolerance_ang)
+    minimum_distance_ang = validate_bounded_float(
+        args.min_distance_ang,
+        "min_distance_ang",
+        minimum=0.0,
+        maximum=5.0,
+    )
+    closest = None
+    if edited_child_ids:
+        closest = enforce_minimum_distance(
+            child,
+            minimum_distance_ang,
+            left_ids=edited_child_ids,
+            right_ids=parent_ids - edited_child_ids,
+        )
+    result = derived_result(
+        operation=operation_class,
+        sources=[{"role": "parent", **source}],
+        parents=[{"role": "parent", "structure": parent}],
+        child=child,
+        mappings=mappings,
+        parameters=parameters
+        + [{"name": "minimum-distance-gate-ang", "value": minimum_distance_ang}],
+        tolerance_ang=args.tolerance_ang,
+        limitations=[
+            "Explicit site edits do not infer oxidation state, charge compensation, magnetic state, or defect formation energy.",
+            "An inserted coordinate is a user-specified candidate, not a symmetry-unique or energetically preferred interstitial.",
+            "Composition-changing edits invalidate electronic-state and symmetry claims until independently reassessed.",
+        ],
+        extra={
+            "operation_family": "site-edit",
+            "operation_profile_id": f"native-{operation_class}-v1",
+            "construction_metrics": {"closest_edited_pair": closest},
+        },
+    )
+    write_json(result, args.out)
+    return EXIT_OK
+
+
+def rotate_xyz(vector: list[float], angles_deg: list[float]) -> list[float]:
+    x_angle, y_angle, z_angle = [math.radians(item) for item in angles_deg]
+    x, y, z = vector
+    y, z = y * math.cos(x_angle) - z * math.sin(x_angle), y * math.sin(x_angle) + z * math.cos(x_angle)
+    x, z = x * math.cos(y_angle) + z * math.sin(y_angle), -x * math.sin(y_angle) + z * math.cos(y_angle)
+    x, y = x * math.cos(z_angle) - y * math.sin(z_angle), x * math.sin(z_angle) + y * math.cos(z_angle)
+    return [x, y, z]
+
+
+def command_place_guest(args: argparse.Namespace) -> int:
+    host_value, host_source = load_json(args.host)
+    guest_value, guest_source = load_json(args.guest)
+    host = validate_structure(host_value, args.tolerance_ang)
+    guest = validate_structure(guest_value, args.tolerance_ang)
+    if guest["structure_kind"] not in {"isolated-molecule", "isolated-cluster"}:
+        raise GateError("GUEST_KIND_INVALID", "guest must be an isolated molecule or cluster")
+    if len(host["sites"]) + len(guest["sites"]) > MAX_DERIVED_SITES:
+        raise GateError("DERIVED_SITE_BUDGET_EXCEEDED", "combined structure exceeds the derived-site budget")
+    guest_by_id = {site["site_id"]: site for site in guest["sites"]}
+    if args.anchor_site not in guest_by_id:
+        raise GateError("ANCHOR_SITE_INVALID", "anchor-site must identify one guest site")
+    angles = [_finite_number(item, "rotation_deg") for item in args.rotation_deg]
+    if args.mode == "adsorbate":
+        frame = periodic_surface_frame(host)
+        if args.target_cart is not None:
+            raise GateError("PARAMETER_CONFLICT", "adsorbate mode uses --surface-frac and --height-ang")
+        surface_fractional = [_finite_number(item, "surface_frac") % 1.0 for item in args.surface_frac]
+        height_ang = validate_bounded_float(args.height_ang, "height_ang", minimum=0.0, maximum=30.0)
+        axes = frame["periodic_axes"]
+        normal = frame["normal"]
+        in_plane_target = vector_add(
+            vector_scale(host["cell_ang"][axes[0]], surface_fractional[0]),
+            vector_scale(host["cell_ang"][axes[1]], surface_fractional[1]),
+        )
+        projections = [dot(site["cartesian_ang"], normal) for site in host["sites"]]
+        surface_projection = max(projections) if args.side == "top" else min(projections)
+        signed_height = height_ang if args.side == "top" else -height_ang
+        target = vector_add(in_plane_target, vector_scale(normal, surface_projection + signed_height))
+        placement_parameters = [
+            {"name": "surface-fractional", "value": surface_fractional},
+            {"name": "side", "value": args.side},
+            {"name": "height-ang", "value": height_ang},
+        ]
+        operation_class = "adsorbate"
+    elif args.mode == "host-guest":
+        if not any(host["pbc"]):
+            raise GateError("HOST_KIND_INVALID", "host-guest placement requires a periodic host")
+        if args.target_cart is None:
+            raise GateError("PARAMETER_MISSING", "host-guest mode requires --target-cart")
+        target = [_finite_number(item, "target_cart") for item in args.target_cart]
+        placement_parameters = [{"name": "target-cartesian-ang", "value": target}]
+        operation_class = "merge"
+    else:
+        raise GateError("OPERATION_UNSUPPORTED", "guest placement mode is unsupported")
+    anchor = guest_by_id[args.anchor_site]["cartesian_ang"]
+    child = json.loads(json.dumps(host))
+    host_child_ids = {site["site_id"] for site in child["sites"]}
+    guest_child_ids: set[str] = set()
+    mappings = [
+        {
+            "parent_role": "host",
+            "parent_site_id": site["site_id"],
+            "child_site_id": site["site_id"],
+            "relation": "same",
+        }
+        for site in host["sites"]
+    ]
+    for guest_site in guest["sites"]:
+        relative = vector_subtract(guest_site["cartesian_ang"], anchor)
+        cart = vector_add(target, rotate_xyz(relative, angles))
+        child_id = f"guest-{guest_site['site_id']}"
+        if child_id in host_child_ids or not SAFE_ID.fullmatch(child_id):
+            raise GateError("DERIVED_SITE_ID_INVALID", "guest site identifier is unsafe or collides with the host")
+        child_site = json.loads(json.dumps(guest_site))
+        child_site["site_id"] = child_id
+        child_site["cartesian_ang"] = [round_float(item) for item in cart]
+        child_site["fractional"] = [round_float(item) for item in cart_to_frac(cart, child["cell_ang"])]
+        child["sites"].append(child_site)
+        guest_child_ids.add(child_id)
+        mappings.append(
+            {
+                "parent_role": "guest",
+                "parent_site_id": guest_site["site_id"],
+                "child_site_id": child_id,
+                "relation": "same",
+            }
+        )
+    nonperiodic_axes = [axis for axis, periodic in enumerate(host["pbc"]) if not periodic]
+    if any(
+        not 0.0 <= site["fractional"][axis] <= 1.0
+        for site in child["sites"]
+        if site["site_id"] in guest_child_ids
+        for axis in nonperiodic_axes
+    ):
+        raise GateError(
+            "GUEST_OUTSIDE_CELL",
+            "guest extends outside a nonperiodic cell axis; change placement or cell size",
+        )
+    if host["charge_state"]["status"] == "known" and guest["charge_state"]["status"] == "known":
+        child["charge_state"] = {
+            "status": "known",
+            "net_charge_e": host["charge_state"]["net_charge_e"] + guest["charge_state"]["net_charge_e"],
+        }
+    else:
+        child["charge_state"] = {"status": "unknown", "net_charge_e": None}
+    child["spin_state"] = {"status": "not-assessed", "multiplicity": None}
+    child["symmetry"] = unresolved_symmetry()
+    child["structure_id"] = derived_structure_id(operation_class, child)
+    child = validate_structure(child, args.tolerance_ang)
+    minimum_distance_ang = validate_bounded_float(
+        args.min_distance_ang,
+        "min_distance_ang",
+        minimum=0.0,
+        maximum=5.0,
+    )
+    closest = enforce_minimum_distance(
+        child,
+        minimum_distance_ang,
+        left_ids=host_child_ids,
+        right_ids=guest_child_ids,
+    )
+    result = derived_result(
+        operation=operation_class,
+        sources=[
+            {"role": "host", **host_source},
+            {"role": "guest", **guest_source},
+        ],
+        parents=[
+            {"role": "host", "structure": host},
+            {"role": "guest", "structure": guest},
+        ],
+        child=child,
+        mappings=mappings,
+        parameters=placement_parameters
+        + [
+            {"name": "anchor-site", "value": args.anchor_site},
+            {"name": "rotation-deg-xyz", "value": angles},
+            {"name": "minimum-distance-gate-ang", "value": minimum_distance_ang},
+        ],
+        tolerance_ang=args.tolerance_ang,
+        limitations=[
+            "Placement uses an explicit anchor, orientation, and position; it does not search adsorption or pore sites.",
+            "The minimum-distance gate rejects hard overlaps but does not evaluate bonding, energy, diffusion, or stability.",
+            "Coverage, charge transfer, dipole corrections, and relaxation settings remain downstream decisions.",
+        ],
+        extra={
+            "operation_family": args.mode,
+            "operation_profile_id": f"native-{args.mode}-placement-v1",
+            "construction_metrics": {"closest_host_guest_pair": closest},
+        },
+    )
+    write_json(result, args.out)
+    return EXIT_OK
+
+
+def command_import_cif_manifest(args: argparse.Namespace) -> int:
+    value, source = load_json(args.input)
+    child, mappings = import_cif_manifest(value, args.tolerance_ang)
+    audit = audit_report(
+        child,
+        {"label": "embedded-child", "bytes": 0, "sha256": digest(child)},
+        args.tolerance_ang,
+    )
+    report = {
+        "contract_name": "structure-preparation-import",
+        "schema_version": "1.0",
+        "status": "pass",
+        "source": source,
+        "upstream_contract": "structure-manifest@1.0",
+        "upstream_manifest_id": value["manifest_id"],
+        "upstream_structure_identity": value["structure_identity"],
+        "upstream_status": value["status"],
+        "mapping_status": "exact",
+        "site_mapping": mappings,
+        "site_mapping_sha256": digest(mappings),
+        "child": child,
+        "child_identity": structure_identity(child),
+        "child_calculation_readiness": audit["calculation_readiness"],
+        "findings": audit["findings"],
+        **candidate_lifecycle("input_gates_only"),
+        "limitations": [
+            "Schema and published-payload consistency do not re-parse the source CIF bytes.",
+            "The staging record carries unknown charge and unassessed spin.",
+            "Import preserves the representative materialized model only after refusing unresolved occupancy or disorder.",
+            "A successful import does not establish structure stability or calculation readiness.",
+        ],
+        "provenance": {"tool": "structure_prepare.py", "tool_version": TOOL_VERSION},
+    }
+    write_json(report, args.out)
+    return EXIT_OK
 
 
 def command_audit(args: argparse.Namespace) -> int:
@@ -947,7 +2231,22 @@ def command_roundtrip(args: argparse.Namespace) -> int:
 def command_transform(args: argparse.Namespace) -> int:
     value, source = load_json(args.input)
     parent = validate_structure(value, args.tolerance_ang)
-    child, mappings, parameters = transformed_structure(parent, args.operation, args.order, args.repeat)
+    max_strain = validate_bounded_float(
+        args.max_strain,
+        "max_strain",
+        minimum=0.0,
+        maximum=1.0,
+        include_minimum=True,
+    )
+    child, mappings, parameters = transformed_structure(
+        parent,
+        args.operation,
+        args.order,
+        args.repeat,
+        args.matrix,
+        args.deformation,
+        max_strain,
+    )
     child = validate_structure(child, args.tolerance_ang)
     parent_identity = structure_identity(parent)
     child_identity = structure_identity(child)
@@ -985,7 +2284,8 @@ def command_transform(args: argparse.Namespace) -> int:
         **candidate_lifecycle("input_gates_only"),
         "limitations": [
             "This candidate transform does not validate a DFT code-specific export.",
-            "Symmetry is invalidated after supercell construction until recomputed by a pinned backend.",
+            "Symmetry is invalidated after cell-changing construction until recomputed by a pinned backend.",
+            "A deterministic structure transform does not establish energetic or physical stability.",
         ],
         "provenance": {"tool": "structure_prepare.py", "tool_version": TOOL_VERSION},
     }
@@ -1075,6 +2375,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    import_manifest = subparsers.add_parser(
+        "import-cif-manifest",
+        help="validate and adapt one active CIF structure-manifest into the candidate staging contract",
+    )
+    import_manifest.add_argument("input")
+    import_manifest.add_argument("--tolerance-ang", type=float, default=1.0e-8)
+    import_manifest.add_argument("--out")
+    import_manifest.set_defaults(handler=command_import_cif_manifest)
+
     audit = subparsers.add_parser("audit", help="validate identity, periodicity, occupancy, symmetry, charge, and spin gates")
     audit.add_argument("input")
     audit.add_argument("--tolerance-ang", type=float, default=1.0e-8)
@@ -1084,12 +2393,79 @@ def build_parser() -> argparse.ArgumentParser:
 
     transform = subparsers.add_parser("transform", help="perform a deterministic candidate-local transform")
     transform.add_argument("input")
-    transform.add_argument("--operation", choices=["wrap", "reorder", "supercell"], required=True)
+    transform.add_argument("--operation", choices=["wrap", "reorder", "supercell", "strain"], required=True)
     transform.add_argument("--order", help="comma-separated site_id order for reorder")
     transform.add_argument("--repeat", type=int, nargs=3, metavar=("NX", "NY", "NZ"))
+    transform.add_argument("--matrix", type=int, nargs=9, metavar=("M11", "M12", "M13", "M21", "M22", "M23", "M31", "M32", "M33"))
+    transform.add_argument(
+        "--deformation",
+        type=float,
+        nargs=9,
+        metavar=("F11", "F12", "F13", "F21", "F22", "F23", "F31", "F32", "F33"),
+    )
+    transform.add_argument("--max-strain", type=float, default=0.25)
     transform.add_argument("--tolerance-ang", type=float, default=1.0e-8)
     transform.add_argument("--out")
     transform.set_defaults(handler=command_transform)
+
+    slab = subparsers.add_parser("make-slab", help="build a lattice-axis slab with explicit layers and vacuum")
+    slab.add_argument("input")
+    slab.add_argument("--axis", type=int, choices=[0, 1, 2], default=2)
+    slab.add_argument("--layers", type=int, required=True)
+    slab.add_argument("--vacuum-ang", type=float, required=True)
+    slab.add_argument("--tolerance-ang", type=float, default=1.0e-8)
+    slab.add_argument("--out")
+    slab.set_defaults(handler=command_make_slab)
+
+    interface = subparsers.add_parser(
+        "build-interface",
+        help="search bounded in-plane repeats and construct one coherent slab interface candidate",
+    )
+    interface.add_argument("substrate")
+    interface.add_argument("film")
+    interface.add_argument("--max-repeat", type=int, default=6)
+    interface.add_argument("--max-strain", type=float, default=0.08)
+    interface.add_argument("--max-angle-deg", type=float, default=2.0)
+    interface.add_argument("--max-atoms", type=int, default=512)
+    interface.add_argument("--registry-shift", type=float, nargs=2, metavar=("U", "V"), default=[0.0, 0.0])
+    interface.add_argument("--gap-ang", type=float, required=True)
+    interface.add_argument("--vacuum-ang", type=float, required=True)
+    interface.add_argument("--min-distance-ang", type=float, default=0.5)
+    interface.add_argument("--tolerance-ang", type=float, default=1.0e-8)
+    interface.add_argument("--out")
+    interface.set_defaults(handler=command_build_interface)
+
+    site_edit = subparsers.add_parser(
+        "site-edit",
+        help="insert, remove, or substitute one explicitly identified site",
+    )
+    site_edit.add_argument("input")
+    site_edit.add_argument("--operation", choices=["insert", "remove", "substitute"], required=True)
+    site_edit.add_argument("--site-id", required=True)
+    site_edit.add_argument("--element")
+    site_edit.add_argument("--fractional", type=float, nargs=3, metavar=("F1", "F2", "F3"))
+    site_edit.add_argument("--min-distance-ang", type=float, default=0.5)
+    site_edit.add_argument("--tolerance-ang", type=float, default=1.0e-8)
+    site_edit.add_argument("--out")
+    site_edit.set_defaults(handler=command_site_edit)
+
+    guest = subparsers.add_parser(
+        "place-guest",
+        help="place an isolated molecule or cluster on a slab or inside a periodic host",
+    )
+    guest.add_argument("host")
+    guest.add_argument("guest")
+    guest.add_argument("--mode", choices=["adsorbate", "host-guest"], required=True)
+    guest.add_argument("--anchor-site", required=True)
+    guest.add_argument("--surface-frac", type=float, nargs=2, metavar=("U", "V"), default=[0.0, 0.0])
+    guest.add_argument("--height-ang", type=float, default=2.0)
+    guest.add_argument("--side", choices=["top", "bottom"], default="top")
+    guest.add_argument("--target-cart", type=float, nargs=3, metavar=("X", "Y", "Z"))
+    guest.add_argument("--rotation-deg", type=float, nargs=3, metavar=("RX", "RY", "RZ"), default=[0.0, 0.0, 0.0])
+    guest.add_argument("--min-distance-ang", type=float, default=0.5)
+    guest.add_argument("--tolerance-ang", type=float, default=1.0e-8)
+    guest.add_argument("--out")
+    guest.set_defaults(handler=command_place_guest)
 
     roundtrip = subparsers.add_parser("roundtrip", help="compare exact representation and periodic structural equivalence")
     roundtrip.add_argument("parent")
@@ -1131,7 +2507,11 @@ def main(argv: list[str] | None = None) -> int:
     except GateError as exc:
         sys.stderr.write(
             json.dumps(
-                error_envelope(exc.finding_id, exc.message),
+                error_envelope(
+                    exc.finding_id,
+                    exc.message,
+                    status="unavailable" if exc.exit_code == EXIT_UNAVAILABLE else "blocked",
+                ),
                 sort_keys=True,
             )
             + "\n"

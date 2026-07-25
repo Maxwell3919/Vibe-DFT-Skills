@@ -2,25 +2,44 @@
   "contract_name": "candidate-validation-state",
   "schema_version": "1.0",
   "skill_id": "dft-structure-preparation",
-  "validated_date": "2026-07-19",
-  "quick_validate": {"status": "pass"},
+  "validated_date": "2026-07-26",
+  "validation_host": "talos",
+  "candidate_version": "0.2.0-candidate",
+  "quick_validate": {
+    "status": "pass",
+    "scope": "skill metadata and layout"
+  },
   "standalone_tests": {
     "status": "pass",
-    "interpreter": "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-    "test_count": 28,
-    "environment": "standard-library-only candidate suite"
+    "interpreter": "python3 (Talos repository validation environment)",
+    "test_count": 35,
+    "redteam_test_count": 17,
+    "functional_test_count": 18,
+    "environment": "Talos local environment; no dependency installation"
   },
+  "validated_native_surface": [
+    "active structure-manifest import and fail-closed identity/occupancy adaptation",
+    "positive-determinant integer supercell and bounded Cartesian strain",
+    "lattice-axis slab construction with explicit layers and vacuum",
+    "bounded coherent matching of two already oriented slabs",
+    "explicit insertion, removal, and substitution with complete site lineage",
+    "explicit adsorbate and host-guest placement with containment and minimum-distance gates"
+  ],
   "red_to_green": {
-    "reproduced_red_findings": 19,
-    "final_boundary_test_methods": 15,
-    "final_green_tests": 28,
-    "weak_model_decision_cases": 12,
+    "final_green_tests": 35,
+    "weak_model_decision_cases": 14,
     "mutation_domains": [
       "identity-hash-decoupling",
+      "active-cif-manifest-handoff",
       "roundtrip-monotonicity",
       "periodic-axis-boundaries",
       "occupancy-symmetry-charge-spin",
-      "supercell-budget",
+      "general-supercell-and-derived-site-budget",
+      "bounded-strain",
+      "lattice-axis-slab",
+      "coherent-interface-search",
+      "site-edit-lineage-and-containment",
+      "adsorbate-host-guest-collision",
       "export-authority",
       "candidate-lifecycle",
       "canonical-weak-model-decision-table",
@@ -31,43 +50,38 @@
     ]
   },
   "candidate_validator": {
-    "L0": {
-      "status": "fail",
-      "passed": 38,
-      "failed": 1,
-      "not_run": 2,
-      "failed_check_ids": ["CANDIDATE.ROUTING.INSTALL"]
-    },
-    "L1": {
-      "status": "fail",
-      "passed": 38,
-      "failed": 1,
-      "not_run": 2,
-      "failed_check_ids": ["CANDIDATE.ROUTING.INSTALL"],
-      "candidate_tests": "not-run-by-validator-because-pre-execution-repository-gates-failed"
-    }
+    "status": "not-applicable",
+    "reason": "the shared candidate validator targets path-null planned candidates; this Skill is source-backed development and remains governed by development tests and repository validation"
   },
   "provider_probe": {
     "status": "unavailable",
     "exit": 3,
     "ase": "3.29.0-match",
-    "pymatgen": "2026.5.4-match",
-    "pymatgen-core": "2026.5.18-match",
+    "pymatgen": "not-installed",
+    "pymatgen-core": "not-installed",
     "rdkit": "not-installed",
-    "imports_performed": false
+    "imports_performed": false,
+    "operations_executed": false
   },
   "native_api_validation": {
-    "status": "partial",
-    "evidence_scope": "direct temporary-directory API smoke checks; not a routed backend integration or scientific validation",
-    "catalog": "references/provider-capabilities.json",
-    "ase": "3.29.0-native-api-tested",
-    "pymatgen-core": "2026.5.18-native-api-tested",
-    "pymatgen-analysis-defects": "package-absent-native-not-run",
-    "rdkit": "package-absent-native-not-run"
+    "status": "not-run",
+    "evidence_scope": "no optional provider API was imported or executed during the Talos 0.2.0 validation",
+    "catalog": "references/provider-capabilities.json"
+  },
+  "repository_validation": {
+    "required_commands": [
+      "python3 tools/run_tests.py",
+      "python3 tools/run_development_tests.py",
+      "python3 tools/validate_all_skills.py",
+      "python3 tools/audit_repository.py",
+      "git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'"
+    ],
+    "status": "pass",
+    "evidence_location": "git commit and Research-Ops dated handoff; generated official pack refresh binds repository metadata only"
   },
   "claim_ceiling": "no_positive_claim",
   "future_gate_ceiling": "input_gates_only",
   "promotion_authorized": false,
   "execution_authorized": false,
-  "claim_boundary": "Standalone candidate tests passed; the shared active installer hash gate still fails, promotion remains unauthorized, and L1 isolation did not start."
+  "claim_boundary": "Local deterministic geometry, lineage, and fail-closed tests pass. This does not validate stable positions, energetic ordering, arbitrary surfaces, automatic site searches, optional provider integrations, DFT execution, or scientific acceptance; the Skill remains development, non-installable, and non-routable."
 }

@@ -10,6 +10,13 @@ The Python CLI also enforces cross-field semantic obligations that JSON Schema a
 prove, including unique IDs, occupancy sums, determinant, coordinate residual, charge/spin
 parity, mapping coverage, and periodic image shifts.
 
+`import-cif-manifest` first validates the shared `structure-manifest@1.0` Schema, then checks its
+canonical identity preimage/hash against the published cell and ordered sites. It refuses
+`BLOCK`, existing transformation lineage, partial occupancy, and disorder because the staging
+schema cannot carry those upstream meanings without loss. Its `structure-preparation-import`
+envelope contains the normalized record under `child`; it is an adapter result, not a new shared
+snapshot or a re-parse of source CIF bytes.
+
 These schema IDs contain `candidate`. They must not be registered as production interfaces.
 The canonical `references/weak-model-decision-table.json` is a projection of shared
 `candidate-decision-table@1.0`: first match by priorities `1..N`, with a final evidence-free
@@ -54,15 +61,22 @@ scientific-state domains, reordering, and integer image shifts on axes periodic 
 
 ## Atom mapping semantics
 
-Every mapping names parent and child site IDs. Periodic equivalence uses
+Every mapping names parent and child site IDs, plus a parent role for multi-parent operations.
+Periodic equivalence uses
 `child_to_parent_image_shift`, the integer vector added to the child fractional coordinate to
 reconstruct the parent image. Supercell mapping uses `replicated` relations, records the source
 site's `parent_image_shift_to_canonical` separately from each `replica_shift`, and remains
-non-bijective. Missing, ambiguous, created, or removed sites are unsupported and block this
-candidate route.
+non-bijective. General integer matrices additionally record a deterministic lattice-coset
+representative. Explicit site edits use null parent or child endpoints with `created` or `removed`;
+multi-parent interface and guest operations qualify each source endpoint with `parent_role`.
+Unexplained missing, ambiguous, created, or removed endpoints still block.
 
-Every mapping list is bound by `site_mapping_sha256`. A diagonal supercell is capped at 4096
-derived sites before materialization and is classified as derived, never exact or equivalent.
+Every mapping list is bound by `site_mapping_sha256`. Every supercell or combined interface is
+capped at 4096 derived sites before materialization and is classified as derived, never exact or
+equivalent. Candidate `operation=merge` plus `operation_family=interface` adapts to the shared
+`merge` operation class; `slab`, `interstitial`, `substitution`, `remove-sites`, and `adsorbate`
+map directly to shared operation classes. Candidate-local operation profiles are not registered
+production profiles until promotion.
 
 ## Lifecycle envelope
 
