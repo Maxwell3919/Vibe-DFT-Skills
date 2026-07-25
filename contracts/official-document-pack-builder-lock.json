@@ -116,7 +116,7 @@
     },
     {
       "path": "tools/validate_official_document_coverage.py",
-      "sha256": "d7f34fc326840f7bb3441ed33568c1379ad3510d1a11b759b7b9366c4b4d5542"
+      "sha256": "9ca8fa3bb882dc6c41756262fb572c6fcca22beb6629d430d21dfe66a62436ee"
     },
     {
       "path": "tools/validate_official_document_storage.py",
