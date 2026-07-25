@@ -9,6 +9,7 @@ resolve network resources, or build packs.
 from __future__ import annotations
 
 import copy
+from dataclasses import dataclass
 import hashlib
 import json
 import re
@@ -30,42 +31,792 @@ SOURCE_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,127}$")
 HTTPS_URL_RE = re.compile(r"^https://")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
-LEGAL_BLOCKER_DROP = {
-    "LICENSE.DOCUMENTATION.RIGHTS.UNRESOLVED",
-    "LICENSE.DERIVATIVE.RIGHTS.UNRESOLVED",
-    "LICENSE.COMPONENT.ARTIFACT.CLOSURE.MISSING",
-}
-BLOCKER_RENAME = {
-    "MODEL.DATA.LICENSE.IDENTITY.MISSING": "MODEL.DATA.IDENTITY.MISSING",
-}
-
-LOSS_DROP = {
-    "documentation-license-unresolved",
-    "custom-license-derivative-rights-unresolved",
-}
-
-LOSS_RENAME = {
-    "MODEL.DATA.LICENSE.IDENTITY.MISSING": "MODEL.DATA.IDENTITY.MISSING",
-    "third-party-and-artifact-license-closure-external": "third-party-and-artifact-provenance-closure-external",
-}
-
-LOSS_ID_FIXED_DESCRIPTION = {
-    "MODEL.DATA.IDENTITY.MISSING": "The data-identity migration lane is closed for this projection.",
-    "third-party-and-artifact-provenance-closure-external": "The external provenance and artifact-closure path is recorded with exact byte-identity boundaries.",
-    "LICENSE.COMPONENT.IDENTITY.CLOSURE.MISSING": "No byte-identity closure for this component artifact has been provided.",
-}
-
-BLOCKER_ID_FIXED_DESCRIPTION = {
-    "MODEL.DATA.IDENTITY.MISSING": "Model-data identity is represented by stable byte-identity records only; this projection does not infer legal conclusions.",
-}
-
 SELECTOR_LAYER_FIXES = {"raw-source"}
 
 LIMITATION_CLEAN_TEXT = "Selector kind json-pointer is retained; no virtual selector body bytes are introduced by migration."
 
-TECHNICAL_TEXT_BY_EXACT_TEXT = {
-    "VASPkit technical execution constraint: runtime or binary closure remains external to this projection.",
-    "Multiwfn runtime support evidence is bounded to exact references and technical command-surface metadata.",
+
+@dataclass(frozen=True)
+class LegacyRecordAction:
+    """One reviewed, exact, one-time v1.0 migration action.
+
+    The ledger deliberately has no keyword or policy classifier. A record is
+    actionable only when its provider input, typed identity, and canonical
+    record hash are the reviewed values below.
+    """
+
+    record_type: str
+    provider_input_id: str
+    record_id: str
+    expected_sha256: str | None
+    action: str
+    replacement_id: str | None = None
+    replacement_text: str | None = None
+    expected_scope_statement: str | None = None
+    replacement_statement: str | None = None
+
+
+def _legacy_action(
+    record_type: str,
+    provider_input_id: str,
+    record_id: str,
+    expected_sha256: str | None,
+    action: str,
+    *,
+    replacement_id: str | None = None,
+    replacement_text: str | None = None,
+    expected_scope_statement: str | None = None,
+    replacement_statement: str | None = None,
+) -> LegacyRecordAction:
+    return LegacyRecordAction(
+        record_type=record_type,
+        provider_input_id=provider_input_id,
+        record_id=record_id,
+        expected_sha256=expected_sha256,
+        action=action,
+        replacement_id=replacement_id,
+        replacement_text=replacement_text,
+        expected_scope_statement=expected_scope_statement,
+        replacement_statement=replacement_statement,
+    )
+
+
+# Exact reviewed ledger: blocker=10, loss=10, subject occurrences=26,
+# limitation=12, exclusion rationale=2. The actions are conversion-only and do
+# not become a production/runtime judgment mechanism.
+LEGACY_RECORD_ACTIONS: tuple[LegacyRecordAction, ...] = (
+    # Blockers: drop=5, rename=4, rewrite=1.
+    _legacy_action(
+        "blocker", "gpumd-docs", "MODEL.DATA.LICENSE.IDENTITY.MISSING",
+        "e68a42dcfea64fb6d8165c14acd0ca88e568d127fe784d560085ba7414f798a9",
+        "rename",
+        replacement_id="MODEL.DATA.IDENTITY.MISSING",
+        replacement_text=(
+            "Potential/model files, datasets, trained weights, and executable "
+            "examples require independent byte identities and provenance records."
+        ),
+    ),
+    _legacy_action(
+        "blocker", "mace-docs", "MACE_DOCS_LICENSE_CONDITIONAL",
+        "4737f60a3543f802fd6288ef8a118ebdbba5bb063d99be64cfd6ea9c0ac19850",
+        "drop",
+    ),
+    _legacy_action(
+        "blocker", "mace-docs", "MACE_MODEL_LICENSES_SPLIT",
+        "12167b5edc31bd93d9b785f4b787b764dcc7ed50ab8ea13bf514b06db246df28",
+        "rename",
+        replacement_id="MACE_MODEL_IDENTITIES_SPLIT",
+        replacement_text=(
+            "Foundation-model families have separate artifact identities, and no "
+            "selected model artifact identity is established here."
+        ),
+    ),
+    _legacy_action(
+        "blocker", "fairchem-v1", "FAIRCHEM_V1_WEIGHTS_LICENSE_UNKNOWN",
+        "796f193319a969fc658ff2a5cf586acea60182d00ebe7b02518d9eb0ab0f42fe",
+        "rename",
+        replacement_id="FAIRCHEM_V1_WEIGHTS_IDENTITY_MISSING",
+        replacement_text="Byte identities for legacy checkpoints are unresolved.",
+    ),
+    _legacy_action(
+        "blocker", "uma-models", "UMA_MODEL_TERMS_REVIEW_REQUIRED",
+        "e5a8b996ad70b8928c7f9c802c86159b4e6e03b01b91d9495b7cbe3e5442798f",
+        "drop",
+    ),
+    _legacy_action(
+        "blocker", "fairchem-datasets",
+        "FAIRCHEM_REFERENCE_DFT_RIGHTS_UNRESOLVED",
+        "7fe8a7599ba1de03815a0b5b9247146ec2c0a38caab821ec33dd66c17dcf4263",
+        "rename",
+        replacement_id="FAIRCHEM_REFERENCE_DFT_PROVENANCE_UNRESOLVED",
+        replacement_text=(
+            "Reference software, potential, raw-output, and gated-storage "
+            "identities and provenance remain independent and unresolved."
+        ),
+    ),
+    _legacy_action(
+        "blocker", "multiwfn-manual", "LICENSE.DERIVATIVE.RIGHTS.UNRESOLVED",
+        "ba760688a5e32f3777bec427ad4d6b1778e0cb20e34a3526c355ec2f8840ddad",
+        "drop",
+    ),
+    _legacy_action(
+        "blocker", "ovito-docs", "LICENSE.COMPONENT.ARTIFACT.CLOSURE.MISSING",
+        "e564cc5fe0cdd5452ea2c08d8443443a083e50b6a595f5c1075ec9bc05c43dfb",
+        "drop",
+    ),
+    _legacy_action(
+        "blocker", "vaspkit-docs", "LICENSE.DOCUMENTATION.RIGHTS.UNRESOLVED",
+        "e3049bc74eab90384ff31b85cf7c2ff13f6f7322ee607e9eb8c801643025f91e",
+        "drop",
+    ),
+    _legacy_action(
+        "blocker", "vaspkit-docs", "RUNTIME.BINARY.PARENT.CLOSURE.MISSING",
+        "808da5a959e3fe7400d0cc80a3912acf7b6260bb92372ec2d4d8813bbd2ee6d4",
+        "rewrite",
+        replacement_text=(
+            "Exact binary/menu/help, configuration, POTCAR, and accepted parent "
+            "VASP evidence are not covered by the docs authority."
+        ),
+    ),
+    # Losses: drop=2, rename=1, preserve=1, rewrite=6.
+    _legacy_action(
+        "loss", "mace-framework", "mace-framework-bodies-external",
+        "51e85a2f99a967da1cfd4200b47faad39c9a2be5de15f05703c646ca5402cfac",
+        "preserve",
+    ),
+    _legacy_action(
+        "loss", "mace-docs", "mace-docs-bodies-external",
+        "39cb3192db6aa11c41d487c88e68ae0cabf305eb9fb0e72204acb08f949f2438",
+        "rewrite",
+        replacement_text=(
+            "The docs tree, rendered index, guide, and branch metadata bodies "
+            "remain external; only exact receipts are tracked."
+        ),
+    ),
+    _legacy_action(
+        "loss", "nequip-framework", "nequip-bodies-external",
+        "19dd334b938fbf28639a31d5bebc5024e17160ee89f99ebb7351b5439342d63b",
+        "rewrite",
+        replacement_text=(
+            "Exact docs, code, and repository metadata bodies are represented "
+            "only by external git-object receipts."
+        ),
+    ),
+    _legacy_action(
+        "loss", "fairchem-v1", "fairchem-v1-bodies-external",
+        "d9adee8f5d15c11a56784b4fe2dd9b68966b99273ac95e6fa661afa4a510b8cb",
+        "rewrite",
+        replacement_text="Exact v1 docs, source, and repository metadata bodies remain external.",
+    ),
+    _legacy_action(
+        "loss", "fairchem-v2", "fairchem-v2-bodies-external",
+        "e8646d305467a7757e357aca4d9b6257312b95e4b0a3170846fcbeb984120d28",
+        "rewrite",
+        replacement_text="Exact v2 docs, source, and repository metadata bodies remain external.",
+    ),
+    _legacy_action(
+        "loss", "fairchem-datasets", "fairchem-dataset-doc-bodies-external",
+        "21898e8cb7c2d5cca0c05f8e058db5a53b55bd502cbd1e3d6df03e22a0b2c19a",
+        "rewrite",
+        replacement_text=(
+            "Exact dataset and UMA documentation bodies remain external; only "
+            "byte receipts and technical provenance subjects are stored."
+        ),
+    ),
+    _legacy_action(
+        "loss", "fairchem-datasets",
+        "fairchem-external-dataset-artifact-revisions",
+        "149e9461597d7ae09d7dac95137014ab4defff3a449f53cfefb10b4a7b7deb59",
+        "rewrite",
+        replacement_text=(
+            "Documentation revision does not establish each external dataset "
+            "archive's byte identity or storage revision."
+        ),
+    ),
+    _legacy_action(
+        "loss", "multiwfn-manual",
+        "custom-license-derivative-rights-unresolved",
+        "1156ff1d7c635b39b92a2f0b11ce37bf288aa7973eeb43a672a59fde575ba576",
+        "drop",
+    ),
+    _legacy_action(
+        "loss", "ovito-docs",
+        "third-party-and-artifact-license-closure-external",
+        "664e672a906d48831dc9ad782f97013c008014559e29167fac4fe25a6f67d49f",
+        "rename",
+        replacement_id="third-party-and-artifact-provenance-closure-external",
+        replacement_text=(
+            "Third-party notices, distribution artifacts, Pro binaries, user "
+            "trajectories, and generated artifacts require separate identity and "
+            "provenance closure."
+        ),
+    ),
+    _legacy_action(
+        "loss", "vaspkit-docs", "documentation-license-unresolved",
+        "ffa8c2a2e384c4c621c80d1d9e7b8e86fd4a7f39b488b46be618c2c83ffd1fae",
+        "drop",
+    ),
+    # Subjects: drop=5, rename=21. Repeated subject IDs are intentionally
+    # separate provider-input occurrences.
+    _legacy_action(
+        "subject", "gaussian-g16-c01-public", "g16-licensed-runtime",
+        "ebc54e80b28c8e0b355c2a78c7a67e814a39c83850e85f49ac1dbe7c76bbb257",
+        "drop",
+        expected_scope_statement=(
+            "A public reference cannot establish a licensed executable, private "
+            "manual, checkpoint, basis payload, or execution authorization."
+        ),
+    ),
+    _legacy_action(
+        "subject", "gaussian-g16-c02-delta", "g16-licensed-runtime",
+        "ebc54e80b28c8e0b355c2a78c7a67e814a39c83850e85f49ac1dbe7c76bbb257",
+        "drop",
+        expected_scope_statement=(
+            "A public reference cannot establish a licensed executable, private "
+            "manual, checkpoint, basis payload, or execution authorization."
+        ),
+    ),
+    _legacy_action(
+        "subject", "gpumd-docs", "license.execution-boundary",
+        "25f26dfbf10cefa85e21b4fcd9e95ed9b1356a9eae491127dcd2410387e907af",
+        "rename",
+        replacement_id="execution.provenance-boundary",
+        replacement_text=(
+            "Source, model/data, GPU runtime, privacy, and execution provenance "
+            "boundaries"
+        ),
+        expected_scope_statement=(
+            "Source licensing, external model/data licensing, GPU runtime terms, "
+            "privacy, and execution authorization are separate boundaries."
+        ),
+        replacement_statement=(
+            "Source revision, external model/data identity, GPU runtime identity, "
+            "privacy, and execution authorization are separate technical boundaries."
+        ),
+    ),
+    _legacy_action(
+        "subject", "lasp-author-literature", "lasp-3-7-3-license-terms",
+        "7aeaa69572a6992e06bddcb6ec0b7b0a3ac9397adfe257d8e23ee17c215ca64c",
+        "drop",
+        expected_scope_statement=(
+            "Complete LASP software, manual, examples, model, interface, and "
+            "redistribution terms are not established by the HTTPS literature."
+        ),
+    ),
+    _legacy_action(
+        "subject", "lobster-acs-method-literature",
+        "lobster-5-1-1-license-boundary",
+        "0a6d8548cc90448418f62c8596e80855fdfd4b9104481b2829e2327ff8b8f773",
+        "drop",
+        expected_scope_statement=(
+            "The registered non-profit license and non-redistribution boundary is "
+            "reported by a query-bearing first-party page that cannot be activated "
+            "under the central query policy; external entitlement evidence remains "
+            "required and bundled payloads remain prohibited."
+        ),
+    ),
+    _legacy_action(
+        "subject", "lobster-wiley-method-literature",
+        "lobster-5-1-1-license-boundary",
+        "0a6d8548cc90448418f62c8596e80855fdfd4b9104481b2829e2327ff8b8f773",
+        "drop",
+        expected_scope_statement=(
+            "The registered non-profit license and non-redistribution boundary is "
+            "reported by a query-bearing first-party page that cannot be activated "
+            "under the central query policy; external entitlement evidence remains "
+            "required and bundled payloads remain prohibited."
+        ),
+    ),
+    _legacy_action(
+        "subject", "mace-framework", "mace.framework.license",
+        "4d09b4023164fcbf8cf32de68a3c9f530e5ffde6c29390d1bda97e5732df5051",
+        "rename",
+        replacement_id="mace.framework.artifact-identity",
+        replacement_text="MACE framework revision and artifact identity boundary",
+        expected_scope_statement=(
+            "The v0.3.16 framework LICENSE is MIT and applies to that source "
+            "release only; it does not license the separate docs branch, model "
+            "artifacts, datasets, or reference-DFT artifacts."
+        ),
+        replacement_statement=(
+            "The v0.3.16 framework source revision does not establish the distinct "
+            "docs branch, model, dataset, or reference-DFT artifact identities."
+        ),
+    ),
+    _legacy_action(
+        "subject", "mace-docs", "mace.docs.license",
+        "95577838e06e555e45a6eb00b06a36287470133453f92656be0f28c3ab051962",
+        "rename",
+        replacement_id="mace.docs.branch-identity",
+        replacement_text="MACE docs branch identity boundary",
+        expected_scope_statement=(
+            "The reviewed docs branch LICENSE is an Academic Software License with "
+            "academic/noncommercial restrictions and is not the framework release "
+            "MIT license."
+        ),
+        replacement_statement=(
+            "The reviewed docs branch and framework release are distinct repository "
+            "revisions with independent source identities."
+        ),
+    ),
+    _legacy_action(
+        "subject", "mace-docs", "mace.docs.model.license.split",
+        "c5c4da210d306ec63cf53e38baccdae29a043a0dd4fa3368adee79f5fd667856",
+        "rename",
+        replacement_id="mace.docs.model.identity.split",
+        replacement_text="MACE model-artifact identity split",
+        expected_scope_statement=(
+            "The foundation-model page records different licenses across model "
+            "families; a framework or docs license never establishes a selected "
+            "model artifact's license."
+        ),
+        replacement_statement=(
+            "The foundation-model page records distinct model families; a framework "
+            "or docs revision does not establish any selected model artifact's byte "
+            "identity."
+        ),
+    ),
+    _legacy_action(
+        "subject", "nequip-framework", "nequip.framework.license.boundary",
+        "c929939dc8543b84244c1d8fa6728d80314409833ac95d8d0ed2156a376b77cc",
+        "rename",
+        replacement_id="nequip.framework.artifact-identity.boundary",
+        replacement_text="NequIP framework/checkpoint/data identity split",
+        expected_scope_statement=(
+            "The v0.19.0 source license is MIT; checkpoints, packaged models and "
+            "training data require separate identities and license evidence."
+        ),
+        replacement_statement=(
+            "The v0.19.0 source revision, checkpoints, packaged models, and training "
+            "data require separate artifact identities and provenance records."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-v1", "fairchem.v1.framework.license",
+        "58bebf53f8e20df9b23b1a47ba46e6f607fb0f8db3bdaf8e35e82f2e9da9d63c",
+        "rename",
+        replacement_id="fairchem.v1.framework.identity",
+        replacement_text="FairChem v1 framework source identity",
+        expected_scope_statement=(
+            "The reviewed repository source is MIT; this does not establish any "
+            "legacy pretrained checkpoint license."
+        ),
+        replacement_statement=(
+            "The reviewed repository source revision does not establish any legacy "
+            "pretrained checkpoint byte identity."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-v1", "fairchem.v1.weights.license.unknown",
+        "bab493ce9cbe153a02dfc2b71319169fbbee31117e35f0d7a1c66aa736b495da",
+        "rename",
+        replacement_id="fairchem.v1.weights.identity.unknown",
+        replacement_text="FairChem v1 legacy checkpoint identity gap",
+        expected_scope_statement=(
+            "Legacy model pages identify datasets and checkpoints but do not "
+            "provide sufficient artifact-specific weight-license evidence; weights "
+            "remain excluded and unresolved."
+        ),
+        replacement_statement=(
+            "Legacy model pages identify datasets and checkpoints but do not provide "
+            "the selected checkpoint byte identities; weights remain excluded."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-v2", "fairchem.v2.framework.license",
+        "f56fbd86a61f8a86ade2a50cb7e0ad99eb53bdcd6f3d3a29a4a76eddd1fe03c7",
+        "rename",
+        replacement_id="fairchem.v2.framework.identity",
+        replacement_text="FairChem v2 framework source identity",
+        expected_scope_statement=(
+            "The reviewed repository source is MIT; the UMA model repository, "
+            "pretrained weights, datasets and reference-DFT artifacts have separate "
+            "rights records."
+        ),
+        replacement_statement=(
+            "The reviewed repository source, UMA model repository, pretrained "
+            "weights, datasets, and reference-DFT artifacts require separate "
+            "identity and provenance records."
+        ),
+    ),
+    _legacy_action(
+        "subject", "uma-models", "uma.model.license.restricted",
+        "96330e1eb8fecd736539b8be8fea98420a1f826b593ab393a80979ecc309aa3b",
+        "rename",
+        replacement_id="uma.model.artifact.gated",
+        replacement_text="UMA gated model-artifact boundary",
+        expected_scope_statement=(
+            "The public repository metadata reports license:other and gated FAIR "
+            "Chemistry License v1 plus Acceptable Use Policy terms; the FairChem "
+            "framework MIT license does not apply to UMA weights."
+        ),
+        replacement_statement=(
+            "The public repository metadata reports a gated model repository; the "
+            "FairChem framework source identity does not establish UMA weight bytes."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.omol25.license-protocol",
+        "437ed9f1b6dc9693c1eb74e298340f6d5d59e06a2e776734c2733dded1dab293",
+        "rename",
+        replacement_id="fairchem.dataset.omol25.reference-protocol",
+        replacement_text="OMol25 reference protocol",
+        expected_scope_statement=(
+            "The exact OMol25 page states CC-BY-4.0 dataset terms and ORCA 6 "
+            "reference calculations using wB97M-V/def2-TZVPD; this does not grant "
+            "ORCA software or raw-output redistribution rights."
+        ),
+        replacement_statement=(
+            "The exact OMol25 page records ORCA 6 reference calculations using "
+            "wB97M-V/def2-TZVPD; software and raw-output identities remain separate."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.omc25.license-protocol",
+        "4f1a79cb5bfddb33ce8da2b4908c58dccd0675fcb35808fd303e8f1747e8a498",
+        "rename",
+        replacement_id="fairchem.dataset.omc25.reference-protocol",
+        replacement_text="OMC25 reference protocol",
+        expected_scope_statement=(
+            "The exact OMC25 page states CC-BY-4.0 dataset terms and VASP PBE+D3 "
+            "reference calculations; VASP and PAW/POTCAR rights remain separate."
+        ),
+        replacement_statement=(
+            "The exact OMC25 page records VASP PBE+D3 reference calculations; VASP "
+            "and PAW/POTCAR artifact identities remain separate."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.omat24.license-protocol",
+        "af404e91e6c4fa64877b3a528f67a1f404f4cb826019b50c9fd79532d32ba567",
+        "rename",
+        replacement_id="fairchem.dataset.omat24.reference-protocol",
+        replacement_text="OMat24 reference protocol",
+        expected_scope_statement=(
+            "The exact OMat24 page states CC-BY-4.0 dataset terms and VASP 5.4 "
+            "PBE/PBE+U reference calculations; pseudopotential and raw-output "
+            "rights are not inherited."
+        ),
+        replacement_statement=(
+            "The exact OMat24 page records VASP 5.4 PBE/PBE+U reference "
+            "calculations; pseudopotential and raw-output identities remain separate."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.odac23.license-protocol",
+        "2a8db0d3a22cc3fc9b5810c6d27d792590f9520a3006f100853b9a9719cd9618",
+        "rename",
+        replacement_id="fairchem.dataset.odac23.reference-protocol",
+        replacement_text="ODAC23 reference protocol",
+        expected_scope_statement=(
+            "The exact ODAC23 page states CC-BY-4.0 dataset terms and VASP 5.4 "
+            "PBE+D3 reference calculations; gated storage and reference artifacts "
+            "remain separate."
+        ),
+        replacement_statement=(
+            "The exact ODAC23 page records VASP 5.4 PBE+D3 reference calculations; "
+            "gated storage and reference artifact identities remain separate."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.oc20.license-protocol",
+        "d460a825e577591259101d0124e9001eecad04e162775e00723e0d6a30d79b09",
+        "rename",
+        replacement_id="fairchem.dataset.oc20.reference-protocol",
+        replacement_text="OC20 reference protocol",
+        expected_scope_statement=(
+            "The exact OC20 page states CC-BY-4.0 dataset terms and VASP 5.4 RPBE "
+            "reference calculations; this is not a license for VASP, PAW/POTCAR "
+            "contents, or raw outputs."
+        ),
+        replacement_statement=(
+            "The exact OC20 page records VASP 5.4 RPBE reference calculations; VASP, "
+            "PAW/POTCAR, and raw-output identities remain separate."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.oc22.license-protocol",
+        "7e82bdfd3a0f6870a36c27faefa1711a2b5b565ca470d4a9c7e77cfaf442e993",
+        "rename",
+        replacement_id="fairchem.dataset.oc22.reference-protocol",
+        replacement_text="OC22 reference protocol",
+        expected_scope_statement=(
+            "The exact OC22 page states CC-BY-4.0 dataset terms and VASP 5.4 PBE+U "
+            "reference calculations; software, pseudopotential and raw-output rights "
+            "remain separate."
+        ),
+        replacement_statement=(
+            "The exact OC22 page records VASP 5.4 PBE+U reference calculations; "
+            "software, pseudopotential, and raw-output identities remain separate."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.oc25.license-protocol",
+        "7048ddad414cc2f0fb4a49f65570725bfebf049a4e2837624be35601397ea059",
+        "rename",
+        replacement_id="fairchem.dataset.oc25.reference-protocol",
+        replacement_text="OC25 reference protocol",
+        expected_scope_statement=(
+            "The exact OC25 page states CC-BY-4.0 dataset terms and VASP 6.4 "
+            "RPBE+D3 reference calculations; external access and artifact rights "
+            "remain independently gated."
+        ),
+        replacement_statement=(
+            "The exact OC25 page records VASP 6.4 RPBE+D3 reference calculations; "
+            "external access and artifact identities remain independently gated."
+        ),
+    ),
+    _legacy_action(
+        "subject", "fairchem-datasets",
+        "fairchem.dataset.rights.four-layer",
+        "cf6a267c04fcb926d5874a0087a3e48a72a05f7dfa6292c63d2653a029c5ffcb",
+        "rename",
+        replacement_id="fairchem.dataset.identities.four-layer",
+        replacement_text="Framework/model/data/reference-DFT identity separation",
+        expected_scope_statement=(
+            "FairChem framework source, UMA model artifacts, dataset distributions, "
+            "and reference-DFT software/pseudopotential/raw-output materials require "
+            "four independent identity and rights records."
+        ),
+        replacement_statement=(
+            "FairChem framework source, UMA model artifacts, dataset distributions, "
+            "and reference-DFT software/pseudopotential/raw-output materials require "
+            "four independent identity and provenance records."
+        ),
+    ),
+    _legacy_action(
+        "subject", "ovito-docs", "provider.edition-license-separation",
+        "dfb195041beacd546d00b75166a0c19c5bc41029732ae3033ed7bf3cbaaf98f9",
+        "rename",
+        replacement_id="provider.edition-identity-separation",
+        replacement_text=(
+            "Python module, Basic desktop, Pro desktop, source documentation, "
+            "third-party notices, user data, and generated artifacts have distinct "
+            "identity boundaries."
+        ),
+        expected_scope_statement=(
+            "Python module, Basic desktop, Pro desktop, source documentation, "
+            "third-party notices, user data, and generated artifacts have distinct "
+            "identity and license boundaries."
+        ),
+        replacement_statement=(
+            "Python module, Basic desktop, Pro desktop, source documentation, "
+            "third-party notices, user data, and generated artifacts have distinct "
+            "identity and provenance boundaries."
+        ),
+    ),
+    _legacy_action(
+        "subject", "ovito-docs", "license.documentation-gfdl",
+        "fb6ef8db7bc572e1133d4e90eb1d5fc452fdb1e667fcc28a251855fa4d23099e",
+        "rename",
+        replacement_id="documentation.source-component-identity",
+        replacement_text="OVITO documentation source-component identity",
+        expected_scope_statement=(
+            "The exact v3.15.5 source repository declares OVITO user documentation "
+            "under GFDL-1.2-or-later while software and third-party components have "
+            "separate terms."
+        ),
+        replacement_statement=(
+            "The exact v3.15.5 source repository identifies OVITO user documentation "
+            "as a distinct component from software and third-party artifacts."
+        ),
+    ),
+    _legacy_action(
+        "subject", "ovito-pypi", "provider.edition-license-separation",
+        "af7be2ff4283271f13af7d281d5a50f0d0c5e8cda5560b87c97d4473557117de",
+        "rename",
+        replacement_id="provider.edition-identity-separation",
+        replacement_text=(
+            "Python module, Basic desktop, Pro desktop, source documentation, "
+            "third-party notices, user data, and generated artifacts have distinct "
+            "identity boundaries."
+        ),
+        expected_scope_statement=(
+            "Python module, Basic desktop, Pro desktop, source documentation, "
+            "third-party notices, user data, and generated artifacts have distinct "
+            "identity and license boundaries."
+        ),
+        replacement_statement=(
+            "Python module, Basic desktop, Pro desktop, source documentation, "
+            "third-party notices, user data, and generated artifacts have distinct "
+            "identity and provenance boundaries."
+        ),
+    ),
+    _legacy_action(
+        "subject", "vaspkit-docs", "site.installation-and-terms",
+        "8a083dc9913a81820fb7c8f9ddd43734fd5c3c5a7eed45c01d5bfa3452a57301",
+        "rename",
+        replacement_id="site.installation-and-runtime-artifacts",
+        replacement_text="VASPKIT installation and runtime-artifact evidence",
+        expected_scope_statement=(
+            "VASPKIT installation, binary distribution, platform, dependency, "
+            "configuration, usage-agreement, and current terms claims require exact "
+            "review of the installation page and binary archive."
+        ),
+        replacement_statement=(
+            "VASPKIT installation, binary distribution, platform, dependency, and "
+            "configuration claims require exact review of the installation page and "
+            "selected binary archive identity."
+        ),
+    ),
+    # Limitations: drop=2, rewrite=10.
+    _legacy_action(
+        "limitation", "iucr-cif-standards",
+        "CIF dictionary redistribution terms remain unresolved.", None, "drop",
+    ),
+    _legacy_action(
+        "limitation", "cp2k-2026-2-postprocess",
+        "The manual documentation-license scope and CP2K external-tool repositories remain separate.",
+        None, "rewrite",
+        replacement_text=(
+            "The manual documentation corpus and CP2K external-tool repositories "
+            "remain separate technical authorities."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "vasp-wiki-postprocess",
+        "Wiki revisions do not establish VASP executable or POTCAR rights.",
+        None, "rewrite",
+        replacement_text=(
+            "Wiki revisions do not establish a VASP executable or POTCAR byte identity."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "vaspkit-docs",
+        "The documentation commit does not establish exact binary identity or redistribution rights.",
+        None, "rewrite",
+        replacement_text=(
+            "The documentation commit does not establish an exact binary identity."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "gaussian-g16-c01-public",
+        "This metadata-only catalog does not store page text, licensed manuals, examples, basis payloads, binaries, checkpoints, or user data.",
+        None, "rewrite",
+        replacement_text=(
+            "This metadata-only catalog does not store page text, private manuals, "
+            "examples, basis payloads, binaries, checkpoints, or user data."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "gaussian-g16-c02-delta",
+        "No licensed manual, installer, binary, example, basis payload, or checkpoint is stored.",
+        None, "rewrite",
+        replacement_text=(
+            "No private manual, installer, binary, example, basis payload, or "
+            "checkpoint is stored."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "gpumd-docs",
+        "The exact source-tree inventory does not establish a native GPU build, binary behavior, model/data licensing, NEP transferability, transport convergence, or scientific acceptance.",
+        None, "rewrite",
+        replacement_text=(
+            "The exact source-tree inventory does not establish a native GPU build, "
+            "binary behavior, selected model/data identities, NEP transferability, "
+            "transport convergence, or scientific acceptance."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "fairchem-v1",
+        "Legacy checkpoint licenses remain unresolved.", None, "drop",
+    ),
+    _legacy_action(
+        "limitation", "fairchem-datasets",
+        "No proprietary software, pseudopotential, raw-output, model-weight, or gated-storage right is granted.",
+        None, "rewrite",
+        replacement_text=(
+            "No software, pseudopotential, raw-output, model-weight, or gated-storage "
+            "artifact identity is included."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "multiwfn-manual",
+        "Multiwfn manual and quick-start content are restricted to external-only receipts; the inventory does not establish a secure retrieval route, complete official-site universe, page/section coverage, executable identity, native behavior, scientific validity, or permission to redistribute derived manual content.",
+        None, "rewrite",
+        replacement_text=(
+            "Multiwfn manual and quick-start content are represented by external-only "
+            "receipts; the inventory does not establish a secure retrieval route, "
+            "complete official-site universe, page/section coverage, executable "
+            "identity, native behavior, or scientific validity."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "siesta-portal",
+        "Portal documentation authority and 5.4.2 release-source authority remain separate corpora and license reviews.",
+        None, "rewrite",
+        replacement_text=(
+            "Portal documentation authority and 5.4.2 release-source authority "
+            "remain separate technical corpora."
+        ),
+    ),
+    _legacy_action(
+        "limitation", "vaspkit-docs",
+        "Two exact raw pages are hash-verified, and the full docs tree is path/object inventoried, but the remaining page bodies, semantic heading slices, build replay, documentation license, exact binary, private configuration, POTCAR, and parent VASP evidence remain external.",
+        None, "rewrite",
+        replacement_text=(
+            "Two exact raw pages are hash-verified, and the full docs tree is "
+            "path/object inventoried, but the remaining page bodies, semantic "
+            "heading slices, build replay, exact binary, private configuration, "
+            "POTCAR, and parent VASP evidence remain external."
+        ),
+    ),
+    # Reviewed exclusion rationales: rewrite=2.
+    _legacy_action(
+        "exclusion", "mace-framework",
+        "mace-rolling-docs-separate-authority",
+        "30e7413c851ccab090951f191e17471a352b17abccf76920c31be0b1d6aec2d3",
+        "rewrite",
+        replacement_text=(
+            "Documentation is version-divergent and is reviewed under the mace-docs "
+            "provider input rather than silently merged with framework v0.3.16."
+        ),
+    ),
+    _legacy_action(
+        "exclusion", "uma-models", "uma-gated-model-card",
+        "e71223f338bbd74bb4186da8a4808fad3b10bbf5a8f7be914d23c527d466b798",
+        "rewrite",
+        replacement_text="The raw card requires gated access and was not retrieved.",
+    ),
+)
+
+
+_LEGACY_ACTION_INDEX = {
+    (action.record_type, action.provider_input_id, action.record_id): action
+    for action in LEGACY_RECORD_ACTIONS
+}
+if len(_LEGACY_ACTION_INDEX) != len(LEGACY_RECORD_ACTIONS):
+    raise RuntimeError("duplicate exact legacy-record ledger entry")
+
+
+CATALOG_WIDE_TECHNICAL_BINDINGS: dict[str, dict[str, str]] = {
+    "repository-contracts-hpc": {
+        "source_id": "hpc-repository-source-index",
+        "subject_id": "repository-interface.catalog-wide-provenance",
+        "statement": (
+            "The exact dft-hpc-execution repository source-index receipt is the "
+            "catalog-wide provider evidence for repository-interface provenance."
+        ),
+    },
+    "repository-contracts-orchestrator": {
+        "source_id": "orchestrator-repository-source-index",
+        "subject_id": "repository-interface.catalog-wide-provenance",
+        "statement": (
+            "The exact dft-project-orchestrator repository source-index receipt is "
+            "the catalog-wide provider evidence for repository-interface provenance."
+        ),
+    },
+    "repository-contracts-reporting": {
+        "source_id": "reporting-repository-source-index",
+        "subject_id": "repository-interface.catalog-wide-provenance",
+        "statement": (
+            "The exact dft-reporting repository source-index receipt is the "
+            "catalog-wide provider evidence for repository-interface provenance."
+        ),
+    },
+    "repository-contracts-review-response": {
+        "source_id": "review-response-repository-source-index",
+        "subject_id": "repository-interface.catalog-wide-provenance",
+        "statement": (
+            "The exact dft-review-response repository source-index receipt is the "
+            "catalog-wide provider evidence for repository-interface provenance."
+        ),
+    },
+    "repository-contracts-literature-plan": {
+        "source_id": "literature-plan-repository-source-index",
+        "subject_id": "repository-interface.catalog-wide-provenance",
+        "statement": (
+            "The exact literature-to-dft-plan repository source-index receipt is the "
+            "catalog-wide provider evidence for repository-interface provenance."
+        ),
+    },
 }
 
 
@@ -167,8 +918,6 @@ def _coerce_exact_description(
 ) -> str:
     if _is_str(value):
         candidate = str(value).strip()
-        if candidate in TECHNICAL_TEXT_BY_EXACT_TEXT:
-            return candidate
         if candidate in fixed_map:
             return fixed_map[candidate]
         if candidate != "":
@@ -183,6 +932,151 @@ def _sha256_hex(payload: bytes) -> str:
 def _make_identity(payload: Any) -> dict[str, Any]:
     raw = canonical_json_bytes(payload)
     return {"sha256": _sha256_hex(raw), "bytes": len(raw)}
+
+
+class _LegacyLedgerTracker:
+    """Require exact, single consumption of this provider's reviewed actions."""
+
+    def __init__(
+        self,
+        provider_input_id: str,
+        catalog: dict[str, Any],
+    ) -> None:
+        self.provider_input_id = provider_input_id
+        identities = {
+            "blocker": {
+                item.get("code")
+                for item in catalog.get("blockers", [])
+                if isinstance(item, dict)
+            },
+            "loss": {
+                item.get("loss_id")
+                for item in catalog.get("losses", [])
+                if isinstance(item, dict)
+            },
+            "subject": {
+                item.get("subject_id")
+                for item in catalog.get("subjects", [])
+                if isinstance(item, dict)
+            },
+            "limitation": {
+                item
+                for item in catalog.get("limitations", [])
+                if isinstance(item, str)
+            },
+            "exclusion": {
+                item.get("source_id")
+                for item in catalog.get("reviewed_exclusions", [])
+                if isinstance(item, dict)
+            },
+        }
+        self.actions = tuple(
+            action
+            for action in LEGACY_RECORD_ACTIONS
+            if action.provider_input_id == provider_input_id
+            and action.record_id in identities[action.record_type]
+        )
+        self.catalog_hits: dict[LegacyRecordAction, int] = {}
+        self.scope_hits: dict[LegacyRecordAction, int] = {}
+
+    def action_for(
+        self,
+        record_type: str,
+        record_id: str,
+    ) -> LegacyRecordAction | None:
+        return _LEGACY_ACTION_INDEX.get(
+            (record_type, self.provider_input_id, record_id)
+        )
+
+    def consume_catalog_record(
+        self,
+        record_type: str,
+        record_id: str,
+        record: dict[str, Any],
+        location: str,
+    ) -> LegacyRecordAction | None:
+        action = self.action_for(record_type, record_id)
+        if action is None:
+            return None
+        _require(
+            action.expected_sha256 is not None
+            and _sha256_hex(canonical_projection_bytes(record))
+            == action.expected_sha256,
+            "LEGACY_LEDGER_RECORD_DRIFT",
+            location,
+            "reviewed exact legacy record no longer matches its canonical hash",
+        )
+        self.catalog_hits[action] = self.catalog_hits.get(action, 0) + 1
+        _require(
+            self.catalog_hits[action] == 1,
+            "LEGACY_LEDGER_RECORD_DUPLICATE",
+            location,
+            "reviewed exact legacy record must occur once",
+        )
+        return action
+
+    def consume_limitation(
+        self,
+        text_value: str,
+        location: str,
+    ) -> LegacyRecordAction | None:
+        action = self.action_for("limitation", text_value)
+        if action is None:
+            return None
+        self.catalog_hits[action] = self.catalog_hits.get(action, 0) + 1
+        _require(
+            self.catalog_hits[action] == 1,
+            "LEGACY_LEDGER_RECORD_DUPLICATE",
+            location,
+            "reviewed exact legacy limitation must occur once",
+        )
+        return action
+
+    def consume_subject_scope(
+        self,
+        subject_id: str,
+        statement: str,
+        location: str,
+    ) -> LegacyRecordAction | None:
+        action = self.action_for("subject", subject_id)
+        if action is None:
+            return None
+        _require(
+            statement == action.expected_scope_statement,
+            "LEGACY_LEDGER_SCOPE_DRIFT",
+            location,
+            "reviewed subject scope statement no longer matches",
+        )
+        self.scope_hits[action] = self.scope_hits.get(action, 0) + 1
+        _require(
+            self.scope_hits[action] == 1,
+            "LEGACY_LEDGER_SCOPE_DUPLICATE",
+            location,
+            "reviewed subject scope statement must occur once per provider input",
+        )
+        return action
+
+    def verify_complete(self) -> None:
+        for action in self.actions:
+            _require(
+                self.catalog_hits.get(action, 0) == 1,
+                "LEGACY_LEDGER_ENTRY_UNCONSUMED",
+                (
+                    f"/legacy-ledger/{action.record_type}/"
+                    f"{action.provider_input_id}/{action.record_id}"
+                ),
+                "reviewed exact legacy action was not consumed exactly once",
+            )
+            if action.record_type == "subject":
+                _require(
+                    self.scope_hits.get(action, 0) == 1,
+                    "LEGACY_LEDGER_SCOPE_UNCONSUMED",
+                    (
+                        f"/legacy-ledger/subject/"
+                        f"{action.provider_input_id}/{action.record_id}"
+                    ),
+                    "reviewed subject scope action was not consumed exactly once",
+                )
 
 
 def _require(condition: bool, code: str, location: str, message: str) -> None:
@@ -414,7 +1308,11 @@ def _subject_requirement_strength(disposition: Any) -> str:
     return "required"
 
 
-def _build_scope_subjects(scope_catalog: Any, provider_input_id: str) -> dict[str, dict[str, Any]]:
+def _build_scope_subjects(
+    scope_catalog: Any,
+    provider_input_id: str,
+    tracker: _LegacyLedgerTracker,
+) -> dict[str, dict[str, Any]]:
     scope = _require_mapping(scope_catalog, "SCOPE_CATALOG_TYPE", "/scope_catalog")
     subjects = _require_list(scope.get("subjects"), "SCOPE_SUBJECTS_TYPE", "/scope_catalog/subjects")
 
@@ -431,10 +1329,45 @@ def _build_scope_subjects(scope_catalog: Any, provider_input_id: str) -> dict[st
         subject_id = _require_non_empty(subject.get("subject_id"), "SCOPE_SUBJECT_ID_MISSING", "/scope_catalog/subjects/subject_id", "subject_id required")
         _require(SAFE_ID_RE.fullmatch(subject_id) is not None, "SCOPE_SUBJECT_ID_INVALID", f"/scope_catalog/subjects/{subject_id}", "subject_id must be safe id")
         statement = _require_non_empty(subject.get("statement"), "SCOPE_SUBJECT_STATEMENT_MISSING", f"/scope_catalog/subjects/{subject_id}/statement", "statement required")
-        output[subject_id] = {
-            "statement": _normalize_text(statement),
+        action = tracker.consume_subject_scope(
+            subject_id,
+            statement,
+            f"/scope_catalog/subjects/{subject_id}/statement",
+        )
+        if action is not None and action.action == "drop":
+            continue
+        mapped_id = (
+            action.replacement_id
+            if action is not None and action.action == "rename"
+            else subject_id
+        )
+        mapped_statement = (
+            action.replacement_statement
+            if action is not None and action.action == "rename"
+            else statement
+        )
+        _require(
+            _is_str(mapped_id) and SAFE_ID_RE.fullmatch(str(mapped_id)) is not None,
+            "LEGACY_LEDGER_REPLACEMENT_ID_INVALID",
+            f"/scope_catalog/subjects/{subject_id}",
+            "replacement subject id must be safe",
+        )
+        _require(
+            _is_str(mapped_statement) and str(mapped_statement).strip() != "",
+            "LEGACY_LEDGER_REPLACEMENT_TEXT_INVALID",
+            f"/scope_catalog/subjects/{subject_id}/statement",
+            "replacement subject statement must be non-empty",
+        )
+        _require(
+            str(mapped_id) not in output,
+            "SCOPE_SUBJECT_ID_DUPLICATE",
+            f"/scope_catalog/subjects/{subject_id}",
+            "subject id is duplicate after exact migration mapping",
+        )
+        output[str(mapped_id)] = {
+            "statement": _normalize_text(mapped_statement),
             "_provider_input_ids": provider_ids,
-            "_subject_id": subject_id,
+            "_subject_id": str(mapped_id),
         }
     return output
 
@@ -470,7 +1403,11 @@ def _normalize_receipt(kind: str, identity: Any, location: str) -> dict[str, Any
     }
 
 
-def _as_content(source: dict[str, Any], source_id: str) -> dict[str, Any]:
+def _as_content(
+    source: dict[str, Any],
+    source_id: str,
+    exact_receipt: dict[str, Any],
+) -> dict[str, Any]:
     locator = source.get("locator")
     _require(
         _is_str(locator) and HTTPS_URL_RE.match(locator) is not None,
@@ -478,36 +1415,16 @@ def _as_content(source: dict[str, Any], source_id: str) -> dict[str, Any]:
         f"/sources/{source_id}/locator",
         "locator must be HTTPS URL",
     )
-    if source.get("external_identity") is not None:
-        receipt = _normalize_receipt("external-content", source["external_identity"], f"/sources/{source_id}/external_identity")
-        return {
-            "content_mode": "external-content",
-            "locator": locator,
-            "receipt": receipt,
-        }
-    if source.get("metadata_evidence_ref") is not None:
-        evidence = _require_mapping(source.get("metadata_evidence_ref"), "SOURCE_METADATA_REF_TYPE", f"/sources/{source_id}/metadata_evidence_ref")
-        sha = evidence.get("sha256")
-        bytes_count = evidence.get("bytes")
-        _require(_is_str(sha) and SHA256_RE.fullmatch(sha), "SOURCE_METADATA_REF_SHA256", f"/sources/{source_id}/metadata_evidence_ref/sha256", "sha256 invalid")
-        bytes_count = _verify_raw_bytes(bytes_count, f"/sources/{source_id}/metadata_evidence_ref/bytes")
-        return {
-            "content_mode": "metadata-only",
-            "locator": locator,
-            "identity": {"sha256": str(sha), "bytes": int(bytes_count)},
-        }
-    content_ref = _require_mapping(source.get("content_ref"), "SOURCE_CONTENT_REF_MISSING", f"/sources/{source_id}/content_ref")
-    sha = content_ref.get("sha256")
-    bytes_count = content_ref.get("bytes")
-    path = content_ref.get("path")
-    _require(_is_str(path) and path.strip() != "", "SOURCE_CONTENT_PATH_MISSING", f"/sources/{source_id}/content_ref/path", "path required")
-    _require(_is_str(sha) and SHA256_RE.fullmatch(sha), "SOURCE_CONTENT_SHA256_INVALID", f"/sources/{source_id}/content_ref/sha256", "sha256 invalid")
-    bytes_count = _verify_raw_bytes(bytes_count, f"/sources/{source_id}/content_ref/bytes")
+    _require(
+        source.get("external_identity") is not None,
+        "SOURCE_EXTERNAL_IDENTITY_MISSING",
+        f"/sources/{source_id}/external_identity",
+        "v1.0 declarative included source requires exact external identity",
+    )
     return {
-        "content_mode": "embedded-content",
-        "locator": path,
-        "sha256": str(sha),
-        "bytes": int(bytes_count),
+        "content_mode": "external-content",
+        "locator": locator,
+        "receipt": _safe_copy(exact_receipt),
     }
 
 
@@ -562,11 +1479,14 @@ def _project_authority_revision(
 def _project_selector(
     source_id: str,
     slice_record: dict[str, Any],
+    subject_renames: dict[str, str],
+    subject_drop: set[str],
     loss_renames: dict[str, str],
     loss_drop: set[str],
     seen_selector_ids: set[str],
-    source_external_receipt: dict[str, Any] | None,
-) -> tuple[dict[str, Any], bool]:
+    source_external_identity: dict[str, Any],
+    catalog_wide_subject_id: str | None,
+) -> tuple[dict[str, Any], bool, dict[str, Any]]:
     selector = _require_mapping(slice_record.get("selector"), "SLICE_SELECTOR_TYPE", f"/sources/{source_id}/slices/selector")
     selector_id = _require_non_empty(
         slice_record.get("slice_id") or slice_record.get("selector_id"),
@@ -626,7 +1546,24 @@ def _project_selector(
         f"/sources/{source_id}/slices/{selector_id}/loss_ids",
     )
 
-    normalized_subject_ids = _require_distinct_strings(subject_ids, "SLICE_SUBJECT_ID_DUPLICATE", f"/sources/{source_id}/slices/{selector_id}/subject_ids")
+    normalized_subject_ids: list[str] = []
+    for subject_id in _require_distinct_strings(
+        subject_ids,
+        "SLICE_SUBJECT_ID_DUPLICATE",
+        f"/sources/{source_id}/slices/{selector_id}/subject_ids",
+    ):
+        if subject_id in subject_drop:
+            continue
+        mapped_subject_id = subject_renames.get(subject_id, subject_id)
+        _require(
+            mapped_subject_id not in normalized_subject_ids,
+            "SLICE_SUBJECT_ID_DUPLICATE",
+            f"/sources/{source_id}/slices/{selector_id}/subject_ids",
+            "subject_ids must remain distinct after exact mapping",
+        )
+        normalized_subject_ids.append(mapped_subject_id)
+    if not normalized_subject_ids and catalog_wide_subject_id is not None:
+        normalized_subject_ids.append(catalog_wide_subject_id)
 
     normalized_losses: list[str] = []
     for loss_id in loss_ids:
@@ -642,37 +1579,61 @@ def _project_selector(
         )
         normalized_losses.append(normalized)
 
-    external_receipt = slice_record.get("external_receipt")
-    selected_identity: dict[str, Any] | None = None
-    if external_receipt is not None:
-        receipt = _require_mapping(
-            external_receipt,
-            "SLICE_EXTERNAL_RECEIPT_TYPE",
-            f"/sources/{source_id}/slices/{selector_id}/external_receipt",
+    external_receipt = _require_mapping(
+        slice_record.get("external_receipt"),
+        "SLICE_EXTERNAL_RECEIPT_TYPE",
+        f"/sources/{source_id}/slices/{selector_id}/external_receipt",
+    )
+    exact_receipt = _normalize_receipt(
+        "external-content",
+        external_receipt,
+        f"/sources/{source_id}/slices/{selector_id}/external_receipt",
+    )
+    for field in ("raw_sha256", "raw_bytes", "retrieved_utc"):
+        _require(
+            exact_receipt[field] == source_external_identity[field],
+            "SLICE_RAW_RECEIPT_MISMATCH",
+            f"/sources/{source_id}/slices/{selector_id}/external_receipt/{field}",
+            "slice raw receipt must exactly match source external identity",
         )
-        selected_sha = _require_non_empty(
-            receipt.get("selected_sha256"),
-            "SLICE_SELECTED_SHA256_MISSING",
-            f"/sources/{source_id}/slices/{selector_id}/external_receipt/selected_sha256",
-            "selected_sha256 required",
-        )
-        selected_bytes = _verify_raw_bytes(
-            receipt.get("selected_bytes"),
-            f"/sources/{source_id}/slices/{selector_id}/external_receipt/selected_bytes",
+    selected_sha = _require_non_empty(
+        external_receipt.get("selected_sha256"),
+        "SLICE_SELECTED_SHA256_MISSING",
+        f"/sources/{source_id}/slices/{selector_id}/external_receipt/selected_sha256",
+        "selected_sha256 required",
+    )
+    _require(
+        SHA256_RE.fullmatch(selected_sha) is not None,
+        "SLICE_SELECTED_SHA256_INVALID",
+        f"/sources/{source_id}/slices/{selector_id}/external_receipt/selected_sha256",
+        "selected_sha256 must be sha256",
+    )
+    selected_bytes = _verify_raw_bytes(
+        external_receipt.get("selected_bytes"),
+        f"/sources/{source_id}/slices/{selector_id}/external_receipt/selected_bytes",
+    )
+    if kind == "whole-source":
+        _require(
+            layer == "raw-source",
+            "SLICE_WHOLE_SOURCE_LAYER_INVALID",
+            f"/sources/{source_id}/slices/{selector_id}/layer",
+            "whole-source selector must bind raw-source bytes",
         )
         _require(
-            source_external_receipt is not None and selected_sha == source_external_receipt.get("raw_sha256"),
-            "SLICE_SELECTED_SHA256_MISMATCH",
+            selected_sha == exact_receipt["raw_sha256"]
+            and selected_bytes == exact_receipt["raw_bytes"],
+            "SLICE_WHOLE_SOURCE_IDENTITY_MISMATCH",
             f"/sources/{source_id}/slices/{selector_id}/external_receipt",
-            "selected_sha256 must match source external identity raw_sha256",
+            "whole-source selected identity must equal the raw source identity",
         )
+    if kind == "json-pointer":
         _require(
-            selected_bytes == source_external_receipt.get("raw_bytes"),
-            "SLICE_SELECTED_BYTES_MISMATCH",
-            f"/sources/{source_id}/slices/{selector_id}/external_receipt",
-            "selected_bytes must match source external identity raw_bytes",
+            layer == "derived-artifact",
+            "SLICE_JSON_POINTER_LAYER_INVALID",
+            f"/sources/{source_id}/slices/{selector_id}/layer",
+            "json-pointer selector must bind a derived artifact identity",
         )
-        selected_identity = {"sha256": str(selected_sha), "bytes": int(selected_bytes)}
+    selected_identity = {"sha256": str(selected_sha), "bytes": int(selected_bytes)}
 
     return (
         {
@@ -682,17 +1643,31 @@ def _project_selector(
             "value": str(value),
             "subject_ids": normalized_subject_ids,
             "loss_ids": normalized_losses,
-            **({"selected_identity": selected_identity} if selected_identity is not None else {}),
+            "selected_identity": selected_identity,
         },
         kind == "json-pointer",
+        exact_receipt,
     )
 
 
-def _project_loss(loss: dict[str, Any], loss_renames: dict[str, str]) -> tuple[str, dict[str, Any]] | None:
+def _project_loss(
+    loss: dict[str, Any],
+    tracker: _LegacyLedgerTracker,
+) -> tuple[str, dict[str, Any]] | None:
     loss_id = _require_non_empty(loss.get("loss_id"), "LOSS_ID_MISSING", "/losses/loss_id", "loss_id required")
-    if loss_id in LOSS_DROP:
+    action = tracker.consume_catalog_record(
+        "loss",
+        loss_id,
+        loss,
+        f"/losses/{loss_id}",
+    )
+    if action is not None and action.action == "drop":
         return None
-    mapped_id = loss_renames.get(loss_id, loss_id)
+    mapped_id = (
+        action.replacement_id
+        if action is not None and action.action == "rename"
+        else loss_id
+    )
     _require(SAFE_ID_RE.fullmatch(mapped_id) is not None, "LOSS_ID_INVALID", "/losses/loss_id", "loss_id must be safe id")
 
     stage = loss.get("stage")
@@ -704,13 +1679,16 @@ def _project_loss(loss: dict[str, Any], loss_renames: dict[str, str]) -> tuple[s
     _require(disposition in {"accepted", "preserved", "external-only", "blocked"}, "LOSS_DISPOSITION_INVALID", "/losses/disposition", "invalid disposition")
     _require(affected_source_ids, "LOSS_AFFECTED_SOURCE_IDS_EMPTY", "/losses/affected_source_ids", "affected_source_ids must be non-empty")
 
-    description = _coerce_exact_description(
-        loss.get("description"),
-        LOSS_ID_FIXED_DESCRIPTION,
-        "The source-conversion loss is recorded as technical evidence limitation.",
-    )
-    if mapped_id in LOSS_ID_FIXED_DESCRIPTION:
-        description = LOSS_ID_FIXED_DESCRIPTION[mapped_id]
+    description = _normalize_text(loss.get("description"))
+    if action is not None and action.action in {"rename", "rewrite"}:
+        _require(
+            _is_str(action.replacement_text)
+            and str(action.replacement_text).strip() != "",
+            "LEGACY_LEDGER_REPLACEMENT_TEXT_INVALID",
+            f"/losses/{loss_id}/description",
+            "mapped loss requires replacement description",
+        )
+        description = _normalize_text(action.replacement_text)
 
     mapped_sources = _require_distinct_strings(affected_source_ids, "LOSS_AFFECTED_SOURCE_ID_INVALID", "/losses/affected_source_ids")
 
@@ -723,7 +1701,10 @@ def _project_loss(loss: dict[str, Any], loss_renames: dict[str, str]) -> tuple[s
     }
 
 
-def _project_blockers(blockers: Any) -> list[dict[str, Any]]:
+def _project_blockers(
+    blockers: Any,
+    tracker: _LegacyLedgerTracker,
+) -> list[dict[str, Any]]:
     if not isinstance(blockers, list):
         return []
     normalized: list[dict[str, Any]] = []
@@ -731,18 +1712,37 @@ def _project_blockers(blockers: Any) -> list[dict[str, Any]]:
         if not isinstance(blocker, dict):
             continue
         code = blocker.get("code")
-        if code in LEGAL_BLOCKER_DROP:
-            continue
         _require(_is_str(code), "BLOCKER_CODE_MISSING", "/blockers/code", "blocker code required")
-        code = BLOCKER_RENAME.get(str(code), str(code))
-        if code in LEGAL_BLOCKER_DROP:
-            continue
-        description = _coerce_exact_description(
-            blocker.get("description"),
-            BLOCKER_ID_FIXED_DESCRIPTION,
-            "Technical limitation remains in conversion-only record",
+        original_code = str(code)
+        action = tracker.consume_catalog_record(
+            "blocker",
+            original_code,
+            blocker,
+            f"/blockers/{original_code}",
         )
-        description = BLOCKER_ID_FIXED_DESCRIPTION.get(code, description)
+        if action is not None and action.action == "drop":
+            continue
+        code = (
+            action.replacement_id
+            if action is not None and action.action == "rename"
+            else original_code
+        )
+        _require(
+            _is_str(code) and SAFE_ID_RE.fullmatch(str(code)) is not None,
+            "BLOCKER_CODE_INVALID",
+            f"/blockers/{original_code}/code",
+            "blocker code must be safe after exact migration mapping",
+        )
+        description = _normalize_text(blocker.get("description"))
+        if action is not None and action.action in {"rename", "rewrite"}:
+            _require(
+                _is_str(action.replacement_text)
+                and str(action.replacement_text).strip() != "",
+                "LEGACY_LEDGER_REPLACEMENT_TEXT_INVALID",
+                f"/blockers/{original_code}/description",
+                "mapped blocker requires replacement description",
+            )
+            description = _normalize_text(action.replacement_text)
         dimensions = blocker.get("dimensions")
         if isinstance(dimensions, list):
             dimensions = [str(item) for item in dimensions if _is_str(item)]
@@ -764,7 +1764,35 @@ def _project_limitation_from_exclusion(source_id: str, exclusion: dict[str, Any]
     return _coerce_exact_description(rationale, {}, "Reviewed exclusion rationale is technical and non-legal.")
 
 
-def _build_catalog_subjects(catalog_subjects: Any) -> dict[str, dict[str, str]]:
+def _project_reviewed_exclusion_rationale(
+    source_id: str,
+    exclusion: dict[str, Any],
+    tracker: _LegacyLedgerTracker,
+) -> str:
+    rationale = _project_limitation_from_exclusion(source_id, exclusion)
+    action = tracker.consume_catalog_record(
+        "exclusion",
+        source_id,
+        exclusion,
+        f"/reviewed_exclusions/{source_id}",
+    )
+    if action is None:
+        return rationale
+    _require(
+        action.action == "rewrite"
+        and _is_str(action.replacement_text)
+        and str(action.replacement_text).strip() != "",
+        "LEGACY_LEDGER_REPLACEMENT_TEXT_INVALID",
+        f"/reviewed_exclusions/{source_id}/rationale",
+        "reviewed exclusion action requires replacement rationale",
+    )
+    return _normalize_text(action.replacement_text)
+
+
+def _build_catalog_subjects(
+    catalog_subjects: Any,
+    tracker: _LegacyLedgerTracker,
+) -> dict[str, dict[str, str]]:
     if catalog_subjects is None:
         return {}
     subjects = _require_list(catalog_subjects, "CATALOG_SUBJECTS_TYPE", "/subjects")
@@ -774,8 +1802,42 @@ def _build_catalog_subjects(catalog_subjects: Any) -> dict[str, dict[str, str]]:
             continue
         subject_id = _require_non_empty(subject.get("subject_id"), "CATALOG_SUBJECT_ID_MISSING", "/subjects/subject_id", "subject_id required")
         _require(SAFE_ID_RE.fullmatch(subject_id) is not None, "CATALOG_SUBJECT_ID_INVALID", f"/subjects/{subject_id}", "subject_id must be safe id")
-        _require(subject_id not in output, "CATALOG_SUBJECT_DUPLICATE", f"/subjects/{subject_id}", "subject_id duplicate")
-        output[subject_id] = _subject_from_catalog(_require_mapping(subject, "CATALOG_SUBJECT_TYPE", f"/subjects/{subject_id}"), subject_id)
+        subject_record = _require_mapping(
+            subject,
+            "CATALOG_SUBJECT_TYPE",
+            f"/subjects/{subject_id}",
+        )
+        action = tracker.consume_catalog_record(
+            "subject",
+            subject_id,
+            subject_record,
+            f"/subjects/{subject_id}",
+        )
+        if action is not None and action.action == "drop":
+            continue
+        mapped_id = (
+            action.replacement_id
+            if action is not None and action.action == "rename"
+            else subject_id
+        )
+        _require(
+            _is_str(mapped_id) and SAFE_ID_RE.fullmatch(str(mapped_id)) is not None,
+            "LEGACY_LEDGER_REPLACEMENT_ID_INVALID",
+            f"/subjects/{subject_id}",
+            "replacement subject id must be safe",
+        )
+        _require(str(mapped_id) not in output, "CATALOG_SUBJECT_DUPLICATE", f"/subjects/{subject_id}", "subject_id duplicate after exact mapping")
+        projected = _subject_from_catalog(subject_record, subject_id)
+        if action is not None and action.action == "rename":
+            _require(
+                _is_str(action.replacement_text)
+                and str(action.replacement_text).strip() != "",
+                "LEGACY_LEDGER_REPLACEMENT_TEXT_INVALID",
+                f"/subjects/{subject_id}/title",
+                "renamed subject requires replacement title",
+            )
+            projected["title"] = _normalize_text(action.replacement_text)[:500]
+        output[str(mapped_id)] = projected
     return output
 
 
@@ -848,10 +1910,13 @@ def _canonical_snapshot_identity(values: Any) -> dict[str, Any]:
 
 def _project_sources(
     sources: list[Any],
+    subject_renames: dict[str, str],
+    subject_drop: set[str],
     loss_renames: dict[str, str],
     loss_drop: set[str],
     valid_subjects: set[str],
     valid_losses: set[str],
+    catalog_wide_binding: dict[str, str] | None,
 ) -> tuple[dict[str, Any], set[str], bool]:
     projected: dict[str, Any] = {}
     referenced_losses: set[str] = set()
@@ -936,20 +2001,37 @@ def _project_sources(
         if source_external_identity is not None:
             external_identity = _normalize_receipt("external-content", source_external_identity, f"/sources/{source_id}/external_identity")
             _require(external_identity["retrieval_method"] is not None, "SOURCE_EXTERNAL_RECEIPT_INVALID", f"/sources/{source_id}/external_identity", "external identity must contain retrieval metadata")
+        _require(
+            external_identity is not None,
+            "SOURCE_EXTERNAL_IDENTITY_MISSING",
+            f"/sources/{source_id}/external_identity",
+            "included declarative source requires exact external identity",
+        )
         source_subject_ids: list[str] = []
         source_losses: list[str] = []
-        external_selector_count = 0
+        exact_receipts: list[dict[str, Any]] = []
+        catalog_wide_subject_id = None
+        if catalog_wide_binding is not None:
+            _require(
+                source_id == catalog_wide_binding["source_id"],
+                "CATALOG_WIDE_BINDING_SOURCE_MISMATCH",
+                f"/sources/{source_id}",
+                "catalog-wide technical binding names a different source",
+            )
+            catalog_wide_subject_id = catalog_wide_binding["subject_id"]
         for slice_record in slices:
-            selector, is_json_pointer = _project_selector(
+            selector, is_json_pointer, exact_receipt = _project_selector(
                 source_id,
                 _require_mapping(slice_record, "SLICE_TYPE", f"/sources/{source_id}/slices"),
+                subject_renames,
+                subject_drop,
                 loss_renames,
                 loss_drop,
                 seen_selector_ids,
-                source_external_identity,
+                external_identity,
+                catalog_wide_subject_id,
             )
-            if "selected_identity" in selector:
-                external_selector_count += 1
+            exact_receipts.append(exact_receipt)
             has_json_pointer = has_json_pointer or is_json_pointer
             for sid in selector["subject_ids"]:
                 _require(sid in valid_subjects, "SLICE_SUBJECT_UNKNOWN", f"/sources/{source_id}/selectors/{selector['selector_id']}/subject_ids/{sid}", "subject id missing in scope-bound subjects")
@@ -961,7 +2043,7 @@ def _project_sources(
                 )
                 source_subject_ids.append(sid)
             for lid in selector["loss_ids"]:
-                if lid in LOSS_DROP:
+                if lid in loss_drop:
                     continue
                 _require(lid in valid_losses, "SLICE_LOSS_UNKNOWN", f"/sources/{source_id}/selectors/{selector['selector_id']}/loss_ids/{lid}", "loss id unknown")
                 _require(
@@ -972,32 +2054,22 @@ def _project_sources(
                 )
                 source_losses.append(lid)
             selectors.append(selector)
-        if external_identity is not None:
+        _require(
+            exact_receipts,
+            "SOURCE_EXTERNAL_RECEIPT_MISSING",
+            f"/sources/{source_id}/slices",
+            "included declarative source requires exact slice receipt",
+        )
+        for exact_receipt in exact_receipts[1:]:
             _require(
-                external_selector_count in {0, 1},
-                "SOURCE_SELECTOR_EXTERNAL_RECEIPT_MISMATCH",
+                exact_receipt == exact_receipts[0],
+                "SOURCE_RAW_RECEIPT_INCONSISTENT",
                 f"/sources/{source_id}/slices",
-                "exact source with external identity must have zero or one selected_identity",
+                "all selectors for a source must bind one exact raw receipt",
             )
 
-        content = _as_content(source, source_id)
-        if content["content_mode"] == "metadata-only":
-            _require(not selectors, "SOURCE_SELECTOR_MISMATCH", f"/sources/{source_id}/selectors", "metadata-only sources must not have selectors")
-        else:
-            _require(selectors, "SOURCE_SELECTOR_MISSING", f"/sources/{source_id}/selectors", "non-metadata sources require selectors")
-            _require(content["content_mode"] == "external-content", "SOURCE_CONTENT_MODE_INVALID", f"/sources/{source_id}/content_mode", "non-metadata source must be external-content")
-
-            if external_identity is not None:
-                if content["receipt"]["raw_sha256"] != external_identity["raw_sha256"]:
-                    _require(False, "SOURCE_EXTERNAL_IDENTITY_MISMATCH", f"/sources/{source_id}/external_identity", "external_identity raw_sha256 mismatch with source external_content raw_sha256")
-                if content["receipt"]["raw_bytes"] != external_identity["raw_bytes"]:
-                    _require(False, "SOURCE_EXTERNAL_IDENTITY_MISMATCH", f"/sources/{source_id}/external_identity", "external_identity raw_bytes mismatch with source external_content raw_bytes")
-                _require(
-                    source.get("external_receipt") is None,
-                    "SOURCE_EXTERNAL_IDENTITY_DUPLICATE",
-                    f"/sources/{source_id}/external_identity",
-                    "source external_identity must be used by slice selected_identity, not duplicated",
-                )
+        content = _as_content(source, source_id, exact_receipts[0])
+        _require(selectors, "SOURCE_SELECTOR_MISSING", f"/sources/{source_id}/selectors", "external source requires selectors")
 
         projected[source_id] = {
             "disposition": "included",
@@ -1042,6 +2114,7 @@ def convert_catalog_v10_to_v11(
 
     authority_id = _extract_authority(authority)
     provider_id, provider_input_id = _extract_provider(provider)
+    tracker = _LegacyLedgerTracker(provider_input_id, input_catalog)
     authority_projection = _require_mapping(authority_projection, "AUTHORITY_PROJECTION_TYPE", "/authority_projection")
     canonical_urls = _require_list(
         authority_projection.get("canonical_urls"),
@@ -1085,37 +2158,47 @@ def convert_catalog_v10_to_v11(
             f"/sources/{source.get('source_id')}/locator",
         )
 
-    for exclusion in reviewed_exclusions:
-        if not isinstance(exclusion, dict):
-            continue
-        exclusion_locator = exclusion.get("locator")
-        source_id = exclusion.get("source_id")
-        _require(
-            _is_str(exclusion_locator),
-            "REVIEWED_EXCLUSION_LOCATOR_MISSING",
-            "/reviewed_exclusions/locator",
-            "reviewed exclusion locator required",
-        )
-        _require_locator_in_authority_urls(
-            canonical_urls,
-            exclusion_locator,
-            f"/reviewed_exclusions/{source_id}/locator",
-        )
-
     version_scope = _project_version_scope(
         _safe_copy(version_scope_input),
         _safe_copy(authority_projection),
     )
 
     # Scope-bound subjects only. Catalog subjects are ignored unless provider-bound.
-    scope_subjects = _build_scope_subjects(scope_catalog, provider_input_id)
-    catalog_subjects = _build_catalog_subjects(input_catalog.get("subjects"))
+    scope_subjects = _build_scope_subjects(
+        scope_catalog,
+        provider_input_id,
+        tracker,
+    )
+    catalog_subjects = _build_catalog_subjects(
+        input_catalog.get("subjects"),
+        tracker,
+    )
     _require(
         set(catalog_subjects.keys()) == set(scope_subjects.keys()),
         "SUBJECT_SET_MISMATCH",
         "/subjects",
         "catalog subjects and scope provider subjects must match exactly",
     )
+
+    catalog_wide_binding = CATALOG_WIDE_TECHNICAL_BINDINGS.get(provider_input_id)
+    if catalog_wide_binding is not None:
+        _require(
+            not catalog_subjects and not scope_subjects,
+            "CATALOG_WIDE_BINDING_SCOPE_MISMATCH",
+            "/subjects",
+            "catalog-wide technical binding requires an empty legacy subject set",
+        )
+        binding_subject_id = catalog_wide_binding["subject_id"]
+        catalog_subjects[binding_subject_id] = {
+            "title": "Catalog-wide repository-interface provenance",
+            "category": "provenance",
+            "requirement_strength": "supporting",
+        }
+        scope_subjects[binding_subject_id] = {
+            "statement": catalog_wide_binding["statement"],
+            "_provider_input_ids": [provider_input_id],
+            "_subject_id": binding_subject_id,
+        }
 
     output_subjects: dict[str, Any] = {}
     for subject_id in scope_subjects:
@@ -1132,7 +2215,10 @@ def convert_catalog_v10_to_v11(
     # Convert losses first to build references and renamed identifiers.
     projected_losses: dict[str, Any] = {}
     for loss in losses:
-        projected = _project_loss(_require_mapping(loss, "LOSS_TYPE", "/losses"), LOSS_RENAME)
+        projected = _project_loss(
+            _require_mapping(loss, "LOSS_TYPE", "/losses"),
+            tracker,
+        )
         if projected is None:
             continue
         loss_id, payload = projected
@@ -1179,6 +2265,11 @@ def convert_catalog_v10_to_v11(
             "locator required",
         )
         _require(HTTPS_URL_RE.match(locator) is not None, "REVIEWED_EXCLUSION_LOCATOR_INVALID", f"/reviewed_exclusions/{source_id}/locator", "locator must be https URL")
+        rationale = _project_reviewed_exclusion_rationale(
+            source_id,
+            exc,
+            tracker,
+        )
 
         excluded[source_id] = {
             "disposition": "excluded",
@@ -1192,12 +2283,12 @@ def convert_catalog_v10_to_v11(
                         "source_id": source_id,
                         "title": title,
                         "reason_code": reason_code,
-                        "rationale": _project_limitation_from_exclusion(source_id, exc),
+                        "rationale": rationale,
                     }
                 ),
             },
             "reason_code": reason_code,
-            "rationale": _project_limitation_from_exclusion(source_id, exc),
+            "rationale": rationale,
         }
 
     # Validate source ids and duplicate closure across included+excluded.
@@ -1209,12 +2300,35 @@ def convert_catalog_v10_to_v11(
         _require(SOURCE_ID_RE.fullmatch(sid) is not None, "SOURCE_ID_INVALID", f"/sources/{sid}", "source_id must be source-id pattern")
         seen_source_ids.add(sid)
 
+    subject_renames = {
+        action.record_id: str(action.replacement_id)
+        for action in tracker.actions
+        if action.record_type == "subject" and action.action == "rename"
+    }
+    subject_drop = {
+        action.record_id
+        for action in tracker.actions
+        if action.record_type == "subject" and action.action == "drop"
+    }
+    loss_renames = {
+        action.record_id: str(action.replacement_id)
+        for action in tracker.actions
+        if action.record_type == "loss" and action.action == "rename"
+    }
+    loss_drop = {
+        action.record_id
+        for action in tracker.actions
+        if action.record_type == "loss" and action.action == "drop"
+    }
     projected_sources, selector_losses, has_json_pointer = _project_sources(
         sources,
-        LOSS_RENAME,
-        LOSS_DROP,
+        subject_renames,
+        subject_drop,
+        loss_renames,
+        loss_drop,
         valid_subjects=set(scope_subjects),
         valid_losses=set(projected_losses),
+        catalog_wide_binding=catalog_wide_binding,
     )
 
     projected_sources.update(excluded)
@@ -1249,7 +2363,28 @@ def convert_catalog_v10_to_v11(
     for lid in selector_losses:
         _require(lid in projected_losses, "LOSS_REFERENCE_MISSING", "/losses", "loss references required by selectors must exist")
 
-    out_limitations = [_normalize_text(item) for item in limitations if _is_str(item)]
+    out_limitations: list[str] = []
+    for index, item in enumerate(limitations):
+        if not _is_str(item):
+            continue
+        action = tracker.consume_limitation(
+            str(item),
+            f"/limitations/{index}",
+        )
+        if action is not None and action.action == "drop":
+            continue
+        value = (
+            action.replacement_text
+            if action is not None and action.action == "rewrite"
+            else item
+        )
+        _require(
+            _is_str(value) and str(value).strip() != "",
+            "LEGACY_LEDGER_REPLACEMENT_TEXT_INVALID",
+            f"/limitations/{index}",
+            "mapped limitation text must be non-empty",
+        )
+        out_limitations.append(_normalize_text(value))
     if has_json_pointer:
         if LIMITATION_CLEAN_TEXT not in out_limitations:
             out_limitations.append(LIMITATION_CLEAN_TEXT)
@@ -1301,8 +2436,9 @@ def convert_catalog_v10_to_v11(
         "subjects": output_subjects,
         "losses": projected_losses,
         "limitations": out_limitations,
-        "blockers": _project_blockers(blockers),
+        "blockers": _project_blockers(blockers, tracker),
     }
 
+    tracker.verify_complete()
     _require(output["authority_revision"] != "", "AUTHORITY_REVISION_MISSING", "/authority_revision", "authority_revision cannot be empty")
     return output
