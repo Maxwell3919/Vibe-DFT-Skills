@@ -365,86 +365,39 @@ change the acceptance boundary above.
 
 | Port | Live state | Evidence boundary |
 |---|---|---|
-| CI-01 | focused implementation complete | clean-worktree invariant and the 2,075-artifact strict-release block have focused test evidence |
-| B-01 | production implementation independently audited | no P0/P1 in the final writer/schema selection audit; QE and VASP in-memory semantic smokes pass after isolating the known B-06 stale hashes |
-| B-02 | production implementation independently audited; test migration incomplete | the four-record validator and metadata selector semantics have no remaining audited P0/P1; the restored v1.0 test file still calls `license_review_paths` |
-| B-03 | focused implementation complete | bundle and dashboard production paths use the exact four-family profile |
-| B-04 | production implementation independently audited; test migration incomplete | the final portable-distribution production blob has no remaining audited P0/P1; focused tests still contain one invalid compatibility expectation and one B-06 stale schema hash |
-| B-05 | implementation complete pending B-06 hash refresh | active production interfaces are the v1.1 technical interfaces; v1.0 remains planned |
-| B-06 | pure converter partially implemented; repository migration not started | the converter is at 39/55 catalogs; no catalog, seed, processor lock, central hash, or generated pack has been migrated |
+| CI-01 | complete | the clean-worktree invariant and the 2,075-artifact strict-release block remain separate |
+| B-01 | complete | the writer emits only corpus, slice, scope, coverage, and the exact bundle index |
+| B-02 | complete | the validator consumes the four-record v1.1 closure and rejects obsolete fifth-family inputs |
+| B-03 | complete | bundle discovery and dashboard use the exact four-family profile |
+| B-04 | complete | portable distribution verifies the v1.1 source identity and external receipt contract |
+| B-05 | complete | active production interfaces and schema hashes select v1.1; obsolete interfaces are non-routable tombstones |
+| B-06 | integrated pending final repository acceptance | all 55 declarative catalogs are v1.1; 26 packs contain 192 JSON files and no license-review records |
 
-The phrase “policy-free production” is not yet true even for the new writer.
-The live dependency chain still performs policy validation while loading the
-technical authority snapshot:
+The official-document production call graph now projects authority, version,
+locator, content identity, and transformation receipts without consuming
+`license_policy`, `redistribution_policy`, `license_trust`, or
+`bundle_content_policy`. The fifth record family and its references are absent
+from generated packs, the active consumer profile, bundle discovery, dashboard,
+coverage validation, and portable distribution.
 
-```text
-build_official_document_packs.py
-  -> registry_snapshot.load_registry_snapshot()
-  -> official_source_authorities.validate_and_project_authorities()
-  -> license_policy / redistribution_policy validation
-```
+This boundary does not claim that every historical compatibility fixture,
+environment profile, or unrelated legacy bundle validator in the repository
+contains no policy vocabulary. Those components do not enter the v1.1
+four-record production call graph and are outside this atomic migration.
+Future cleanup must be separately reviewed rather than mixed into this
+release checkpoint.
 
-In addition, the consumer registry still contains `license_trust`, the
-coverage validator still accepts that key, and the legacy storage validator
-still derives a gate from `bundle_content_policy`. Removing the fifth record
-family alone does not close the user-requested boundary. A separate
-single-purpose port must provide an authority/version/locator/content-identity
-technical projection and remove those policy fields from the official-document
-production call graph. Privacy, credentials, private paths, restricted
-potentials, binary identity, runtime authorization, lifecycle, side effects,
-and scientific-claim gates remain independent and must not be weakened.
+The B-06 transaction converted and schema-validated 55/55 seed-enumerated
+declarative catalogs, preserved the specialized QE and VASP manifest adapters,
+refreshed all dependent seeds and identities, and regenerated all 26 packs.
+The migration used an exact typed ledger with exact consumption counts, not a
+keyword classifier.
 
-The latest read-only B-06 converter harness used all 55 seed-enumerated
-declarative catalogs and left every input unchanged. It reported:
-
-```text
-converted=39/55
-schema_valid=39/39
-input_unchanged=55/55
-remaining_failures=16
-```
-
-The 16 remaining failures are bounded:
-
-- ten reviewed-exclusion locators are outside the authority used for included
-  source content; exclusions must remain recorded without broadening the
-  included-content authority;
-- five `repository-contracts-*` catalogs have no per-source subject binding
-  and need an evidence-preserving catalog-wide technical binding;
-- one Gaussian JSON-pointer selector must retain its independent selected
-  artifact identity instead of claiming equality with the raw source bytes.
-
-The authority, scope, and version normalization stages each pass 55/55 in the
-same harness. No repository data migration may start until the pure converter
-passes 55/55 and every result validates against
-`official-document-source-catalog@1.1`.
-
-The legacy policy cleanup must use an exact typed ledger and exact consumption
-counts. It must not use a generic keyword classifier. In particular, technical
-phrases such as the GROMACS energy-series subject are not policy records. The
-migration removes or technically neutralizes only the reviewed exact legacy
-records and does not add a license or legal judgment to production or agent
-runtime.
-
-Two focused test blockers are currently reproduced:
-
-```text
-tests/test_official_document_coverage.py
-  TypeError: validate_files() got an unexpected keyword argument
-  'license_review_paths'
-
-tests/test_active_only_distribution.py
-  OFFICIAL_DOCUMENT_TRUST_REGISTRY_INVALID:
-  official-document-source-catalog@1.1 schema hash is stale
-
-tests/test_active_only_distribution.py
-  compatibility fixture expects two included entries to be an invalid
-  discovered-source partition, although the v1.1 tagged partition is valid
-```
-
-The failed Spark test rewrites were stopped before checkpointing. The deleted
-coverage test was restored exactly from the branch base; no other task file
-was restored or overwritten.
+All source-backed Skill maintenance entrypoints reviewed in this closeout now
+emit or validate the checked-in v1.1 catalog shape. CIF, CP2K,
+`dft-campaign-efficiency`, `dft-postprocess`, SIESTA, and ML intentionally
+construct an exact typed v1.0 preimage before the shared converter produces
+their canonical v1.1 output.
 
 ## Pre-commit repository acceptance
 
@@ -461,24 +414,15 @@ git diff --check -- . \
 git status --short --branch
 ```
 
-Fresh WIP-checkpoint results on 2026-07-25:
-
-| Command | Exit | Result |
-|---|---:|---|
-| `python3 tools/run_tests.py` | 2 | fail closed at the stale v1.1 source-catalog schema hash and three stale builder processor hashes |
-| `python3 tools/run_development_tests.py` | 0 | 19 source-backed development Skills completed 60 deterministic maintenance commands |
-| `python3 tools/validate_all_skills.py` | 2 | same four stale central identities |
-| `python3 tools/audit_repository.py` | 2 | same four stale central identities |
-| `python3 tools/build_official_document_packs.py --all --check` | 2 | same four stale central identities; no pack write occurred |
-| `python3 tools/audit_hygiene.py --include-ignored` | 0 | pass after recoverably moving generated cache directories to Trash |
-| `git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'` | 0 | pass |
-
-The old B-01/B-02 production-behavior tests are not migrated. An independent
-combined run of `tests.test_official_document_coverage` and
-`tests.test_official_document_pack_builder` executed 94 tests and reported
-8 failures plus 72 errors, dominated by the removed fifth-family API and the
-removed `_license_projection`. These results are expected WIP evidence, not an
-accepted release baseline.
+Earlier failing WIP results remain historical diagnosis only. A fresh
+working-tree `tools/run_tests.py` run completed 836 core tests with one skip
+and all 33 deterministic active-Skill commands after the stale Skill-local
+v1.0 maintenance tests were migrated. The remaining local acceptance commands
+in the sequence above also completed successfully, including 60 deterministic
+development-Skill commands, the 26-pack byte check, repository audit, and
+hygiene audit. The clean-commit archive and GitHub checks must still finish
+successfully before publication; their results must not be inferred from the
+working-tree checks.
 
 After the reviewed tree is committed, the release candidate must additionally
 build and verify a fresh active-only archive in a new empty extraction
@@ -508,39 +452,26 @@ Passing these repository checks does not establish software availability,
 calculation completion, numerical convergence, physical validity, or a
 scientific result.
 
-## Current execution blocker
+## Closeout boundary
 
-The requested code-worker model `gpt-5.3-codex-spark` became available after
-the session moved from the desktop client to the CLI. It was invoked through
-the local Codex runtime with explicit single-file ownership and focused
-acceptance commands.
+The user explicitly authorized `gpt-5.6-sol` to finish the bounded code ports
+after the Spark allocation was exhausted. Each worker received explicit file
+ownership, inputs, outputs, forbidden areas, and focused acceptance commands.
+No worker committed, pushed, or merged independently.
 
-The runtime then returned a hard usage-limit response for new Spark tasks:
+The generated coverage state remains evidence-bounded:
 
-```text
-You've hit your usage limit for GPT-5.3-Codex-Spark.
-Switch to another model now, or try again at Aug 1st, 2026 3:36 AM.
-```
+- 5 packs are `partial`;
+- 21 packs are `blocked`;
+- 0 packs are `complete`.
 
-No different model has been substituted for the remaining code work. The next
-code worker must therefore either resume after the stated Spark reset or use a
-different model only after explicit user authorization. Safe read-only audit,
-handoff preparation, and validation triage may continue meanwhile.
+Therefore this checkpoint closes the protocol, generator, migration, and
+audit-chain implementation. It does not claim that all upstream official
+documentation has been completely split or covered. Upstream additions and
+reviewed exclusions remain ordinary future coverage work.
 
-The remaining implementation order is:
-
-1. remove the hidden authority/storage policy dependency from the
-   official-document production call graph while preserving the independent
-   technical and safety gates;
-2. close the 16 pure-converter failures and prove 55/55 schema-valid,
-   byte-preserving conversion;
-3. implement and test the exact typed legacy-record consumption ledger;
-4. add the bounded plan/check/apply transaction around the pure converter;
-5. migrate the 55 catalogs and 26 seeds in one reviewed worktree;
-6. refresh the processor lock, consumer/bundle registries, interface schema
-   hash, Skill source-tree hashes, and all dependent identities;
-7. generate all 26 packs once and require a byte-clean second `--all --check`;
-8. finish the B-01 pack-builder, B-02 coverage, and B-04 portable-distribution
-   test migrations;
-9. run the complete pre-commit and post-commit acceptance sequence before any
-   release claim.
+The integration owner obtained fresh successful exits from the complete
+pre-commit sequence on this working tree. The remaining publication steps are
+to commit only the reviewed task files, verify a clean-commit active-only
+archive, pass GitHub CI, merge the stacked pull requests without force-pushing,
+and revalidate the local installed Skill links against the merged `main`.

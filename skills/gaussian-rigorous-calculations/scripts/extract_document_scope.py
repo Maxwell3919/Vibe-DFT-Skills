@@ -132,24 +132,6 @@ SUBJECT_SPECS = (
         "provider_input_ids": ("gaussian-g16-c02-delta",),
     },
     {
-        "subject_id": "g16-licensed-runtime",
-        "subject_kind": "executable",
-        "evidence_class": "official-provider-required",
-        "origin_paths": (
-            "skills/gaussian-rigorous-calculations/references/environment-and-license.md",
-            "skills/gaussian-rigorous-calculations/SKILL.md",
-        ),
-        "statement": (
-            "A public reference cannot establish a licensed executable, private "
-            "manual, checkpoint, basis payload, or execution authorization."
-        ),
-        "expected_disposition": "blocked",
-        "provider_input_ids": (
-            "gaussian-g16-c01-public",
-            "gaussian-g16-c02-delta",
-        ),
-    },
-    {
         "subject_id": "gaussian-offline-guard-boundary",
         "subject_kind": "limitation",
         "evidence_class": "repository-policy",
@@ -196,7 +178,14 @@ def build_catalog() -> dict[str, object]:
 
 def canonical_bytes(value: object) -> bytes:
     return (
-        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        + "\n"
     ).encode("utf-8")
 
 

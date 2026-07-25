@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import unittest
 from unittest.mock import patch
 
@@ -15,42 +16,54 @@ class SiestaSourcePackCatalogTests(unittest.TestCase):
         cls.catalogs = catalog.build_catalogs()
         catalog.validate_catalogs(cls.catalogs)
 
+    @staticmethod
+    def included_sources(provider: dict[str, object]) -> list[dict[str, object]]:
+        return [
+            source
+            for source in provider["discovered_sources"].values()
+            if source["disposition"] == "included"
+        ]
+
     def test_release_inventory_is_exact_bounded_47_plus_6(self) -> None:
         release = self.catalogs["release"]
-        self.assertEqual(len(release["sources"]), 53)
+        sources = self.included_sources(release)
+        self.assertEqual(release["schema_version"], "1.1")
+        self.assertEqual(len(sources), 53)
         self.assertFalse(release["upstream_universe_complete"])
         self.assertEqual(
             sum(
-                source["external_identity"]["raw_bytes"]
-                for source in release["sources"]
+                source["content"]["receipt"]["raw_bytes"]
+                for source in sources
             ),
             717382,
         )
-        for source in release["sources"]:
-            self.assertIn("/-/raw/", source["locator"])
-            self.assertNotIn("/-/blob/", source["locator"])
-            self.assertNotIn("#", source["locator"])
-            self.assertIn("external_identity", source)
-            self.assertNotIn("content_ref", source)
+        for source in sources:
+            content = source["content"]
+            self.assertEqual(content["content_mode"], "external-content")
+            self.assertIn("/-/raw/", content["locator"])
+            self.assertNotIn("/-/blob/", content["locator"])
+            self.assertNotIn("#", content["locator"])
+            self.assertEqual(len(source["selectors"]), 1)
+            self.assertEqual(source["selectors"][0]["kind"], "whole-source")
+            self.assertEqual(source["selectors"][0]["layer"], "raw-source")
+            self.assertEqual(
+                source["selectors"][0]["selected_identity"],
+                {
+                    "sha256": content["receipt"]["raw_sha256"],
+                    "bytes": content["receipt"]["raw_bytes"],
+                },
+            )
 
     def test_fdf_subjects_are_collision_safe_and_complete(self) -> None:
-        ids = {
-            item["subject_id"]
-            for item in self.catalogs["release"]["subjects"]
-        }
+        subjects = self.catalogs["release"]["subjects"]
+        ids = set(subjects)
         fdf_ids = {sid for sid in ids if sid.startswith("siesta.fdf.")}
         self.assertEqual(len(fdf_ids), 572)
         mmcutoff = [
-            item
-            for item in self.catalogs["release"]["subjects"]
-            if "MM.Cutoff" in item["title"]
+            item for item in subjects.values() if "MM.Cutoff" in item["title"]
         ]
         self.assertEqual(len(mmcutoff), 2)
-        self.assertEqual(len({item["subject_id"] for item in mmcutoff}), 2)
-        source_ids = {
-            source["source_id"]
-            for source in self.catalogs["release"]["sources"]
-        }
+        source_ids = set(self.catalogs["release"]["discovered_sources"])
         self.assertEqual(len(source_ids), 53)
         self.assertTrue(
             all(len(source_id) <= 200 for source_id in source_ids)
@@ -106,12 +119,12 @@ class SiestaSourcePackCatalogTests(unittest.TestCase):
             ("release", "siesta-release"),
         ):
             provider = self.catalogs[catalog_name]
-            declared = {item["subject_id"] for item in provider["subjects"]}
+            declared = set(provider["subjects"])
             sliced = {
                 subject_id
-                for source in provider["sources"]
-                for sliced in source["slices"]
-                for subject_id in sliced["subject_ids"]
+                for source in self.included_sources(provider)
+                for selector in source["selectors"]
+                for subject_id in selector["subject_ids"]
             }
             self.assertEqual(declared, sliced)
             for subject_id in declared:
@@ -120,23 +133,34 @@ class SiestaSourcePackCatalogTests(unittest.TestCase):
                     provider_id, scope[subject_id]["provider_input_ids"]
                 )
 
-    def test_portal_and_release_authority_and_license_remain_separate(self) -> None:
-        portal_license = self.catalogs["portal"]["license"]
-        release_license = self.catalogs["release"]["license"]
+    def test_portal_and_release_are_policy_free_separate_technical_authorities(
+        self,
+    ) -> None:
+        portal = self.catalogs["portal"]
+        release = self.catalogs["release"]
+        self.assertEqual(portal["authority_id"], "siesta-official-docs")
         self.assertEqual(
-            portal_license["identity"]["identifier"],
-            "CC-BY-NC-SA-4.0",
-        )
-        self.assertEqual(
-            release_license["identity"]["identifier"], "GPL-3.0-only"
+            release["authority_id"], "siesta-release-source-docs"
         )
         self.assertNotEqual(
-            portal_license["official_terms_locator"],
-            release_license["official_terms_locator"],
+            portal["authority_root"],
+            release["authority_root"],
         )
-        self.assertNotIn(
-            "embedded-open", release_license["allowed_storage_modes"]
-        )
+        self.assertEqual(portal["version_scope"]["value"], "5.4")
+        self.assertEqual(release["version_scope"]["value"], "5.4.2")
+        self.assertNotIn("license", portal)
+        self.assertNotIn("license", release)
+        self.assertNotIn("review", " ".join(portal["limitations"]).lower())
+        for provider in (portal, release):
+            serialized = json.dumps(provider, ensure_ascii=False).lower()
+            for policy_term in (
+                "copyright",
+                "licence",
+                "license",
+                "non-commercial",
+                "redistribut",
+            ):
+                self.assertNotIn(policy_term, serialized)
 
     def test_scope_has_no_legacy_official_path_dependency(self) -> None:
         for subject in self.catalogs["scope"]["subjects"]:
@@ -174,6 +198,18 @@ class SiestaSourcePackCatalogTests(unittest.TestCase):
                 == "registered-skill-scope"
                 for item in proposal["providers"]
             )
+        )
+        self.assertEqual(
+            {
+                item["source_ref"]["sha256"]
+                for item in seed["providers"]
+            },
+            {
+                catalog.sha256_bytes(
+                    catalog.output_json_bytes(name, self.catalogs[name])
+                )
+                for name in ("portal", "release")
+            },
         )
 
     def test_check_mode_is_offline(self) -> None:

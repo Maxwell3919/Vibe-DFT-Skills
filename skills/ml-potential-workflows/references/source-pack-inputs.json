@@ -2614,16 +2614,16 @@
   ],
   "seed_limitations": [
     "All provider inputs are external metadata receipts; official documentation bodies are not bundled.",
-    "MACE framework and docs revisions/licenses are intentionally separate.",
-    "FairChem v1, FairChem v2, UMA model artifacts, datasets, and reference-DFT rights are intentionally separate.",
+    "MACE framework and docs revisions and source identities are intentionally separate.",
+    "FairChem v1, FairChem v2, UMA model artifacts, datasets, and reference-DFT identities are intentionally separate.",
     "No provider framework, checkpoint, dataset, archive, notebook, pickle, or serialized asset is imported, downloaded, opened, deserialized, or executed."
   ],
   "seed_blockers": [
-    "MACE has no exact v0.3.16 documentation corpus and its docs branch has a different revision and restrictive license.",
+    "MACE has no exact v0.3.16 documentation corpus, and its docs branch has a different revision and independent source identity.",
     "NequIP exact rendered v0.19.0 docs are unavailable and autodoc bodies remain external.",
-    "FairChem v1 generated AutoAPI/missing page and unresolved legacy checkpoint rights prevent complete coverage.",
+    "FairChem v1 generated AutoAPI/missing page and unresolved legacy checkpoint byte identities prevent complete coverage.",
     "FairChem v2 rolling drift and excluded non-text assets prevent complete rendered coverage.",
-    "UMA model-card, reference YAML, checkpoint byte identities, and custom terms remain gated or unresolved.",
-    "External FairChem dataset archive identities and reference-DFT software, potential, raw-output, and gated-storage rights remain unresolved."
+    "UMA model-card, reference YAML, checkpoint byte identities, and gated-access records remain unavailable or unresolved.",
+    "External FairChem dataset archive identities and reference-DFT software, potential, raw-output, and gated-storage provenance remain unresolved."
   ]
 }

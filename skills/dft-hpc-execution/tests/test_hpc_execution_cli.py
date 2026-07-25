@@ -907,7 +907,7 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
         for provider in self.seed["providers"]:
             pairs.append(
                 (
-                    "official-document-source-catalog.schema.json",
+                    "official-document-source-catalog-1.1.schema.json",
                     self.repository / provider["source_ref"]["path"],
                 )
             )
@@ -931,6 +931,22 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
             path = self.repository / ref["path"]
             path.resolve().relative_to(ROOT.resolve())
             self.assertEqual(ref["sha256"], self.digest(path))
+        for catalog in self.catalogs().values():
+            self.assertEqual("1.1", catalog["schema_version"])
+            self.assertEqual(
+                catalog["inventory_identity"]["sha256"],
+                catalog["discovery_processor"]["input_sha256"],
+            )
+            discovered_raw = json.dumps(
+                catalog["discovered_sources"],
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+            self.assertEqual(
+                hashlib.sha256(discovered_raw).hexdigest(),
+                catalog["discovery_processor"]["output_sha256"],
+            )
 
     def test_scope_and_catalog_subjects_are_exactly_partitioned(self) -> None:
         provider_ids = {item["input_id"] for item in self.seed["providers"]}
@@ -953,7 +969,7 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
                 )
         for provider_id, catalog in self.catalogs().items():
             self.assertEqual(
-                {item["subject_id"] for item in catalog["subjects"]},
+                set(catalog["subjects"]),
                 external[provider_id],
             )
 
@@ -963,8 +979,11 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
                 encoding="utf-8"
             )
         )
+        input_subject_ids = [
+            item["subject_id"] for item in inputs["scope_subjects"]
+        ]
         self.assertEqual(
-            [item["subject_id"] for item in inputs["scope_subjects"]],
+            input_subject_ids + ["repository-interface.catalog-wide-provenance"],
             [item["subject_id"] for item in self.scope["subjects"]],
         )
         for subject in inputs["scope_subjects"]:
@@ -1012,10 +1031,13 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
                 "https://slurm.schedmd.com/job_array.html",
                 "https://slurm.schedmd.com/gres.html",
             },
-            {source["locator"] for source in slurm["sources"]},
+            {
+                source["content"]["locator"]
+                for source in slurm["discovered_sources"].values()
+            },
         )
         openpbs = catalogs["openpbs-23-06-06"]
-        self.assertEqual(3, len(openpbs["sources"]))
+        self.assertEqual(3, len(openpbs["discovered_sources"]))
         self.assertIn(
             "OPENPBS.NGPUS.UNRESOLVED",
             {item["code"] for item in openpbs["blockers"]},
@@ -1030,12 +1052,13 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
     def test_catalogs_are_metadata_only_and_proposal_classes_are_bounded(self) -> None:
         for catalog in self.catalogs().values():
             self.assertNotIn("content_ref", json.dumps(catalog, sort_keys=True))
-            for source in catalog["sources"]:
-                self.assertIn("external_identity", source)
-                for slice_record in source["slices"]:
-                    self.assertEqual("whole-source", slice_record["selector"]["kind"])
-                    self.assertEqual("*", slice_record["selector"]["value"])
-                    self.assertIn("external_receipt", slice_record)
+            for source in catalog["discovered_sources"].values():
+                self.assertEqual("external-content", source["content"]["content_mode"])
+                self.assertIn("receipt", source["content"])
+                for selector in source["selectors"]:
+                    self.assertEqual("whole-source", selector["kind"])
+                    self.assertEqual("*", selector["value"])
+                    self.assertIn("selected_identity", selector)
         proposal = json.loads(
             (self.references / "source-pack-authority-proposal.json").read_text(
                 encoding="utf-8"

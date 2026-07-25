@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import sys
 import unittest
 
 from jsonschema import Draft202012Validator
@@ -14,7 +15,11 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[3]
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REFERENCES = SKILL_ROOT / "references"
-INVENTORIES = ["source-pack-inventory-vaspkit-docs.json"]
+TOOLS = str(ROOT / "tools")
+if TOOLS not in sys.path:
+    sys.path.insert(0, TOOLS)
+
+import validate_contract  # noqa: E402
 
 
 def load(path: Path) -> dict:
@@ -42,18 +47,22 @@ class SourcePackMetadataTests(unittest.TestCase):
 
     def test_strict_schemas(self) -> None:
         pairs = [
-            ("official-document-pack-seed.schema.json", self.seed_path),
-            ("official-document-scope-catalog.schema.json", self.scope_path),
+            ("official-document-pack-seed@1.0", self.seed_path),
+            ("official-document-scope-catalog@1.0", self.scope_path),
         ]
         pairs.extend(
-            ("official-document-source-catalog.schema.json", path)
+            ("official-document-source-catalog@1.1", path)
             for path in self.catalog_paths
         )
-        for schema_name, instance_path in pairs:
-            schema = load(ROOT / "contracts" / schema_name)
-            Draft202012Validator.check_schema(schema)
+        contracts = validate_contract.load_catalog(ROOT / "contracts")
+        for selector, instance_path in pairs:
+            contract = contracts.resolve(selector)
             errors = list(
-                Draft202012Validator(schema).iter_errors(load(instance_path))
+                Draft202012Validator(
+                    contract.schema,
+                    registry=contracts.registry,
+                    format_checker=validate_contract.FORMAT_CHECKER,
+                ).iter_errors(load(instance_path))
             )
             self.assertEqual([], [error.message for error in errors])
 
@@ -73,9 +82,9 @@ class SourcePackMetadataTests(unittest.TestCase):
             if item["evidence_class"] == "official-provider-required"
         }
         cataloged = {
-            item["subject_id"]
+            subject_id
             for catalog in self.catalogs
-            for item in catalog["subjects"]
+            for subject_id in catalog["subjects"]
         }
         self.assertEqual(expected, cataloged)
         provider_ids = {
@@ -91,29 +100,22 @@ class SourcePackMetadataTests(unittest.TestCase):
                 self.assertEqual(origin["sha256"], digest(ROOT / origin["path"]))
 
     def test_actual_sources_are_external_receipts_only(self) -> None:
-        inventory_hashes = {
-            digest(REFERENCES / name) for name in INVENTORIES
-        }
         for catalog in self.catalogs:
-            for source in catalog["sources"]:
-                self.assertNotIn("content_ref", source)
-                self.assertIn("external_identity", source)
-                evidence = source["external_identity"].get("evidence_sha256")
-                if evidence is not None:
-                    self.assertIn(evidence, inventory_hashes)
-                for slice_ in source["slices"]:
-                    self.assertNotIn("content_ref", slice_)
-                    self.assertIn("external_receipt", slice_)
-                    if slice_["selector"]["kind"] == "whole-source":
-                        self.assertEqual("*", slice_["selector"]["value"])
-                    receipt = slice_["external_receipt"]
+            for source in catalog["discovered_sources"].values():
+                if source["disposition"] != "included":
+                    continue
+                content = source["content"]
+                self.assertEqual("external-content", content["content_mode"])
+                receipt = content["receipt"]
+                for selector in source["selectors"]:
+                    if selector["kind"] == "whole-source":
+                        self.assertEqual("*", selector["value"])
                     self.assertEqual(
-                        source["external_identity"]["raw_sha256"],
-                        receipt["raw_sha256"],
-                    )
-                    self.assertEqual(
-                        source["external_identity"]["raw_bytes"],
-                        receipt["raw_bytes"],
+                        selector["selected_identity"],
+                        {
+                            "sha256": receipt["raw_sha256"],
+                            "bytes": receipt["raw_bytes"],
+                        },
                     )
 
     def test_inventory_and_lifecycle_boundaries(self) -> None:
@@ -134,8 +136,10 @@ class SourcePackMetadataTests(unittest.TestCase):
         self.assertEqual(paths, sorted(paths))
         self.assertEqual(len(paths), len(set(paths)))
         receipts = {
-            source["source_id"]: source["external_identity"]["raw_sha256"]
-            for catalog in self.catalogs for source in catalog["sources"]
+            source_id: source["content"]["receipt"]["raw_sha256"]
+            for catalog in self.catalogs
+            for source_id, source in catalog["discovered_sources"].items()
+            if source["disposition"] == "included"
         }
         self.assertEqual("454271ce1eab377a1a5539dab52e16b8aaec8e1413d0f739fa12840608772ccd", receipts["vaspkit-features-exact"])
         self.assertEqual("5a3f882c267b8da23d029861b9cbde3b9213f31e551b12df5e4bdc86e0bf6c59", receipts["vaspkit-tutorials-exact"])

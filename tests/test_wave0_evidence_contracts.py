@@ -849,49 +849,46 @@ class Wave0EvidenceContractTests(unittest.TestCase):
                     rows,
                 )
 
-    def test_cp2k_identity_pin_does_not_replace_license_trust(self) -> None:
+    def test_cp2k_technical_pin_does_not_promote_authority_trust_or_claim(self) -> None:
         authorities = official_source_authorities.load_registry()
         software = load_yaml_strict(
             ROOT / "registry" / "software-registry.yaml",
             "software-registry.yaml",
         )
-        projection = official_source_authorities.active_authority_snapshot(
+        projection = official_source_authorities.active_authority_technical_snapshot(
             authorities,
             software_data=software,
             source_root=ROOT,
         )
-        expected_license_policies = {
-            "qe-official-docs": ("unknown", ("unknown",)),
-            "qe-release-source-docs": (
-                "known-open",
-                ("redistributable",),
-            ),
-            "vasp-official-wiki": (
-                "known-open",
-                ("redistributable",),
-            ),
-            "cp2k-official-manual": ("unknown", ("unknown",)),
-            "cp2k-release-source-docs": ("unknown", ("unknown",)),
-            "siesta-official-docs": (
-                "known-restricted",
-                ("runtime-only", "restricted"),
-            ),
-            "siesta-release-source-docs": (
-                "known-open",
-                ("redistributable",),
-            ),
+        expected_technical_fields = {
+            "lifecycle",
+            "provider_class",
+            "provider_id",
+            "allowed_https_origins",
+            "allowed_path_prefixes",
+            "allowed_query_urls",
+            "locator_policy",
+            "canonical_urls",
+            "source_kinds",
+            "version_scopes",
+            "content_identity_policy",
+            "canonical_snapshot",
         }
-        self.assertTrue(set(expected_license_policies).issubset(projection))
-        self.assertEqual(
-            {
-                authority_id: (
-                    projection[authority_id]["license_status"],
-                    tuple(projection[authority_id]["redistribution"]),
-                )
-                for authority_id in expected_license_policies
-            },
-            expected_license_policies,
-        )
+        forbidden_self_promotions = {
+            "verification_status",
+            "trust_state",
+            "claim_ceiling",
+            "authority_limits",
+            "may_establish_external_source_authority",
+            "may_accept_scientific_claim",
+        }
+        for authority_id, technical_identity in projection.items():
+            with self.subTest(authority_id=authority_id):
+                self.assertEqual(set(technical_identity), expected_technical_fields)
+                serialized_identity = json.dumps(technical_identity, sort_keys=True)
+                for field in forbidden_self_promotions:
+                    self.assertNotIn(f'"{field}"', serialized_identity)
+
         cp2k = projection["cp2k-official-manual"]
         snapshot = cp2k["canonical_snapshot"]
         self.assertIsNotNone(snapshot)
@@ -925,85 +922,6 @@ class Wave0EvidenceContractTests(unittest.TestCase):
         self.assertEqual(len(snapshot_raw), derived_snapshot["bytes"])
         self.assertTrue(derived_snapshot["integrity_verified"])
         self.assertFalse(source["raw_integrity_verified"])
-
-        value = official_source()
-        value["source_record_id"] = "official-cp2k-dft-2026-2"
-        value["authority"].update(
-            {
-                "authority_registry_id": "cp2k-official-manual",
-                "provider_id": "cp2k",
-                "provider_label": "CP2K",
-                "source_title": "CP2K DFT reference",
-                "canonical_url": source["canonical_url"],
-            }
-        )
-        value["version_scope"] = copy.deepcopy(source["version_scope"])
-        value["retrieval"]["retrieval_url"] = source["canonical_url"]
-        value["content"].update(
-            {
-                "artifact": file_ref(
-                    role="official-source-content",
-                    label="cp2k-dft.md",
-                    sha256=derived_snapshot["sha256"],
-                    byte_count=derived_snapshot["bytes"],
-                ),
-                "raw_sha256": derived_snapshot["sha256"],
-                "bytes": derived_snapshot["bytes"],
-                "pinned_source_ref": {
-                    "authority_registry_id": "cp2k-official-manual",
-                    "snapshot_id": snapshot["snapshot_id"],
-                    "source_id": source_id,
-                },
-            }
-        )
-        value["license"] = {
-            "status": "known-open",
-            "identifier": "GPL-2.0-or-later",
-            "terms_url": "https://github.com/cp2k/cp2k/blob/master/LICENSE",
-            "redistribution": "redistributable",
-        }
-        self.assert_valid("official", value)
-
-        context = official_context(value)
-        context["registry_snapshots"]["official_source_authorities"] = projection
-        current = context["current_record"]
-        context["records_by_identity"][
-            (current["contract_name"], current["schema_version"], current["record_id"])
-        ] = current
-        context["core_checks"] = {
-            handler_id: {"status": "pass", "finding_codes": []}
-            for handler_id in (
-                "record-reference-dag",
-                "record-reference-integrity",
-                "artifact-integrity",
-                "privacy-boundary",
-            )
-        }
-        evaluator = bundle_semantics.builtin_evaluator("official-source-record")
-        rows = bundle_semantics.evaluate_advertised_obligations(
-            sorted(OFFICIAL_OBLIGATIONS),
-            context,
-            evaluator=evaluator,
-        )
-        failed = [row for row in rows if row["status"] == "fail"]
-        self.assertTrue(
-            any(
-                "OFFICIAL_SOURCE_LICENSE_REDISTRIBUTION_MISMATCH"
-                in row["finding_codes"]
-                for row in failed
-            ),
-            rows,
-        )
-        blocked = [row for row in rows if row["status"] == "blocked"]
-        self.assertTrue(blocked, rows)
-        self.assertTrue(
-            any(
-                "OFFICIAL_SOURCE_BUNDLE_CONTENT_NOT_AUTHORIZED"
-                in row["finding_codes"]
-                for row in blocked
-            ),
-            blocked,
-        )
 
     def test_restricted_source_receipt_without_platform_adapter_is_exit_three_state(self) -> None:
         value = restricted_external_source()

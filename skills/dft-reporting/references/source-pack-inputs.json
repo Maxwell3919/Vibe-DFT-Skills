@@ -8,7 +8,7 @@
       "Input-specific official-source-record authorities remain external runtime obligations and are not collapsed into a universal reporting provider."
     ],
     "blockers": [
-      "The repository has no root license record that closes redistribution of a repository snapshot.",
+      "The repository has no root-level byte-identity record that closes an exact repository snapshot.",
       "The central pack processors have no attested run, and semantic closure remains subject to repository review."
     ]
   },

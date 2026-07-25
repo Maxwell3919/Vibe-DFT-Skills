@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Build metadata-only SIESTA portal and exact-release source-pack catalogs.
+"""Build policy-free v1.1 SIESTA portal and release-source catalogs.
 
 The default mode writes deterministic catalogs. ``--check`` is offline and
-compares exact bytes. ``--refresh`` re-fetches every pinned source and license
-object over HTTPS, verifies its hash and byte count, and discards the body.
+compares exact bytes. ``--refresh`` re-fetches every pinned technical source
+over HTTPS, verifies its hash and byte count, and discards the body.
 """
 
 from __future__ import annotations
 
 import argparse
 from collections import defaultdict
+import copy
 import hashlib
 import json
 import os
@@ -28,6 +29,15 @@ from siesta_fdf_labels import matches_official_label
 SCRIPT_PATH = Path(__file__).resolve()
 SKILL_ROOT = SCRIPT_PATH.parents[1]
 REPO_ROOT = SCRIPT_PATH.parents[3]
+TOOLS_ROOT = REPO_ROOT / "tools"
+if str(TOOLS_ROOT) not in sys.path:
+    sys.path.insert(0, str(TOOLS_ROOT))
+
+from migrate_official_document_catalogs_v11 import (  # noqa: E402
+    canonical_json_bytes as canonical_v11_json_bytes,
+    convert_catalog_v10_to_v11,
+)
+
 REFERENCES = SKILL_ROOT / "references"
 SKILL_ID = "siesta-rigorous-calculations"
 RETRIEVED_UTC = "2026-07-23T19:30:41Z"
@@ -137,9 +147,21 @@ OUTPUTS = {
 
 
 def canonical_json_bytes(value: Any) -> bytes:
+    """Return the frozen pretty JSON used by the v1.0 migration preimage."""
+
     return (
         json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     ).encode("utf-8")
+
+
+def output_json_bytes(name: str, value: Any) -> bytes:
+    """Serialize checked-in v1.1 inputs transactionally and deterministically."""
+
+    if name == "proposal":
+        # The local proposal is not a migrated production input and retains its
+        # established human-readable serialization.
+        return canonical_json_bytes(value)
+    return canonical_v11_json_bytes(value)
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -292,7 +314,7 @@ def profile_labels(tasks: dict[str, Any]) -> set[str]:
     return labels
 
 
-def build_catalogs() -> dict[str, dict[str, Any]]:
+def _build_legacy_catalogs() -> dict[str, dict[str, Any]]:
     registry_path = REFERENCES / "official-source-registry.json"
     index_path = REFERENCES / "official-fdf-index.json"
     supplement_path = REFERENCES / "official-source-supplements.json"
@@ -849,11 +871,111 @@ def build_catalogs() -> dict[str, dict[str, Any]]:
     }
 
 
+TECHNICAL_AUTHORITY_PROJECTIONS: dict[str, dict[str, Any]] = {
+    "portal": {
+        "provider": {
+            "provider_id": "siesta",
+            "input_id": "siesta-portal",
+        },
+        "authority": {"authority_id": "siesta-official-docs"},
+        "projection": {
+            "canonical_urls": [
+                "https://docs.siesta-project.org/projects/siesta/en/5.4/"
+            ],
+            "version_scopes": [
+                {"scope": "exact", "exact_version": "5.4"}
+            ],
+        },
+    },
+    "release": {
+        "provider": {
+            "provider_id": "siesta",
+            "input_id": "siesta-release",
+        },
+        "authority": {"authority_id": "siesta-release-source-docs"},
+        "projection": {
+            "canonical_urls": [RELEASE_ROOT],
+            "version_scopes": [
+                {"scope": "exact", "exact_version": "5.4.2"}
+            ],
+        },
+    },
+}
+
+
+def _migrate_catalog(
+    name: str,
+    legacy_catalog: dict[str, Any],
+    scope_catalog: dict[str, Any],
+) -> dict[str, Any]:
+    """Project one frozen v1.0 technical inventory through the central converter."""
+
+    configuration = TECHNICAL_AUTHORITY_PROJECTIONS[name]
+    legacy_bytes = canonical_json_bytes(legacy_catalog)
+    included = [
+        source
+        for source in legacy_catalog["sources"]
+        if source["disposition"] == "included"
+    ]
+    if not included:
+        raise ValueError(f"{name}: no included source for inventory projection")
+    return convert_catalog_v10_to_v11(
+        legacy_catalog,
+        provider=configuration["provider"],
+        authority=configuration["authority"],
+        authority_projection=configuration["projection"],
+        scope_catalog=scope_catalog,
+        inventory_projection={
+            "locator": included[0]["locator"],
+            "identity": {
+                "sha256": sha256_bytes(legacy_bytes),
+                "bytes": len(legacy_bytes),
+            },
+            "canonical_preimage_bytes": legacy_bytes,
+        },
+    )
+
+
+def _bind_scope_to_v11_catalogs(
+    scope_catalog: dict[str, Any],
+    catalogs: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Replace migration-preimage refs with exact checked-in v1.1 identities."""
+
+    projected = copy.deepcopy(scope_catalog)
+    identities = {
+        OUTPUTS[name].relative_to(REPO_ROOT).as_posix(): sha256_bytes(
+            output_json_bytes(name, catalogs[name])
+        )
+        for name in ("portal", "release")
+    }
+    for subject in projected["subjects"]:
+        for origin in subject["origin_refs"]:
+            if origin["path"] in identities:
+                origin["sha256"] = identities[origin["path"]]
+    return projected
+
+
+def build_catalogs() -> dict[str, dict[str, Any]]:
+    """Return final v1.1 catalogs without exposing legacy policy records."""
+
+    legacy = _build_legacy_catalogs()
+    migrated = {
+        name: _migrate_catalog(name, legacy[name], legacy["scope"])
+        for name in ("portal", "release")
+    }
+    migrated["scope"] = _bind_scope_to_v11_catalogs(
+        legacy["scope"],
+        migrated,
+    )
+    return migrated
+
+
 def validate_catalogs(catalogs: dict[str, dict[str, Any]]) -> None:
     source_schema = load_json(
         REPO_ROOT
         / "contracts"
-        / "official-document-source-catalog.schema.json"
+        / "official-document-source-catalog-1.1.schema.json"
     )
     scope_schema = load_json(
         REPO_ROOT
@@ -888,7 +1010,13 @@ def build_seed_and_proposal(
     def generated_ref(name: str) -> dict[str, str]:
         return {
             "path": OUTPUTS[name].relative_to(REPO_ROOT).as_posix(),
-            "sha256": sha256_bytes(canonical_json_bytes(catalogs[name])),
+            "sha256": sha256_bytes(output_json_bytes(name, catalogs[name])),
+        }
+
+    def migration_preimage_ref(name: str) -> dict[str, str]:
+        return {
+            "path": OUTPUTS[name].relative_to(REPO_ROOT).as_posix(),
+            "sha256": catalogs[name]["inventory_identity"]["sha256"],
         }
 
     providers = [
@@ -937,7 +1065,14 @@ def build_seed_and_proposal(
                 "input_id": provider["input_id"],
                 "authority_id": provider["authority_id"],
                 "provider_id": provider["provider_id"],
-                "source_catalog_ref": provider["source_ref"],
+                # Preserve the established local proposal identity: it records
+                # the frozen v1.0 migration preimage, whereas the seed binds
+                # the exact checked-in v1.1 catalog bytes.
+                "source_catalog_ref": migration_preimage_ref(
+                    "portal"
+                    if provider["input_id"] == "siesta-portal"
+                    else "release"
+                ),
                 "consumer_binding": {
                     "binding_id": (
                         "siesta-skill-siesta-docs"
@@ -1011,20 +1146,26 @@ def refresh_external_identities(
 ) -> None:
     expected: dict[str, tuple[str, int]] = {}
     for name in ("portal", "release"):
-        for source in catalogs[name]["sources"]:
-            identity = source["external_identity"]
-            expected[source["locator"]] = (
-                identity["raw_sha256"],
-                identity["raw_bytes"],
+        for source in catalogs[name]["discovered_sources"].values():
+            if source["disposition"] != "included":
+                continue
+            content = source["content"]
+            if content["content_mode"] != "external-content":
+                raise ValueError(
+                    f"{name}: included source is not external-content"
+                )
+            receipt = content["receipt"]
+            identity = (
+                receipt["raw_sha256"],
+                receipt["raw_bytes"],
             )
-    expected[PORTAL_LICENSE_URL] = (
-        PORTAL_OBJECTS[PORTAL_LICENSE_URL]["sha256"],
-        PORTAL_OBJECTS[PORTAL_LICENSE_URL]["bytes"],
-    )
-    expected[RELEASE_LICENSE_URL] = (
-        RELEASE_LICENSE["sha256"],
-        RELEASE_LICENSE["bytes"],
-    )
+            locator = content["locator"]
+            previous = expected.get(locator)
+            if previous is not None and previous != identity:
+                raise ValueError(
+                    f"{name}: conflicting receipts for {locator}"
+                )
+            expected[locator] = identity
     for index, url in enumerate(sorted(expected), start=1):
         wanted_hash, wanted_bytes = expected[url]
         raw = fetch_with_curl(url)
@@ -1065,7 +1206,7 @@ def synchronize(*, check: bool, refresh: bool) -> int:
         refresh_external_identities(catalogs)
     stale: list[str] = []
     for name, output in OUTPUTS.items():
-        payload = canonical_json_bytes(outputs[name])
+        payload = output_json_bytes(name, outputs[name])
         current = output.read_bytes() if output.is_file() else None
         if current == payload:
             continue

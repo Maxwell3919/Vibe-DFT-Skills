@@ -72,26 +72,6 @@ SUBJECT_SPECS = (
         ),
     },
     {
-        "subject_id": "lobster-5-1-1-license-boundary",
-        "subject_kind": "limitation",
-        "evidence_class": "official-provider-required",
-        "origin_paths": (
-            "skills/lobster-bonding-analysis/references/official-sources-and-version-strategy.md",
-            "skills/lobster-bonding-analysis/references/environment-license-boundary.md",
-        ),
-        "statement": (
-            "The registered non-profit license and non-redistribution boundary "
-            "is reported by a query-bearing first-party page that cannot be "
-            "activated under the central query policy; external entitlement "
-            "evidence remains required and bundled payloads remain prohibited."
-        ),
-        "expected_disposition": "blocked",
-        "provider_input_ids": (
-            "lobster-acs-method-literature",
-            "lobster-wiley-method-literature",
-        ),
-    },
-    {
         "subject_id": "lobster-synthetic-guard-boundary",
         "subject_kind": "limitation",
         "evidence_class": "repository-policy",
@@ -138,7 +118,14 @@ def build_catalog() -> dict[str, object]:
 
 def canonical_bytes(value: object) -> bytes:
     return (
-        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        + "\n"
     ).encode("utf-8")
 
 

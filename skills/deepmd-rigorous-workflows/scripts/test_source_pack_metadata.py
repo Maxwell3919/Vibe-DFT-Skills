@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import unittest
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -49,7 +49,8 @@ class SourcePackMetadataTests(unittest.TestCase):
         ]
         pairs.extend(
             (
-                ROOT / "contracts/official-document-source-catalog.schema.json",
+                ROOT
+                / "contracts/official-document-source-catalog-1.1.schema.json",
                 ROOT / provider["source_ref"]["path"],
             )
             for provider in self.seed["providers"]
@@ -59,9 +60,9 @@ class SourcePackMetadataTests(unittest.TestCase):
                 schema = load_json(schema_path)
                 Draft202012Validator.check_schema(schema)
                 errors = list(
-                    Draft202012Validator(schema).iter_errors(
-                        load_json(instance_path)
-                    )
+                    Draft202012Validator(
+                        schema, format_checker=FormatChecker()
+                    ).iter_errors(load_json(instance_path))
                 )
                 self.assertEqual([], [error.message for error in errors])
 
@@ -95,10 +96,20 @@ class SourcePackMetadataTests(unittest.TestCase):
                 )
         for provider in self.seed["providers"]:
             catalog = load_json(ROOT / provider["source_ref"]["path"])
+            self.assertEqual("1.1", catalog["schema_version"])
+            self.assertEqual(provider["authority_id"], catalog["authority_id"])
+            self.assertEqual(provider["provider_id"], catalog["provider_id"])
             self.assertEqual(
-                {subject["subject_id"] for subject in catalog["subjects"]},
+                set(catalog["subjects"]),
                 scoped[provider["input_id"]],
             )
+            included_subjects = {
+                subject_id
+                for source in catalog["discovered_sources"].values()
+                if source["disposition"] == "included"
+                for subject_id in source["subject_ids"]
+            }
+            self.assertEqual(set(catalog["subjects"]), included_subjects)
 
     def test_tree_receipts_cover_every_recorded_path_once(self) -> None:
         expected = {

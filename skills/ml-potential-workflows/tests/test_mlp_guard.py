@@ -786,27 +786,29 @@ class OfficialSourceSeedTests(unittest.TestCase):
         )
         for provider in seed["providers"]:
             catalog = self.generated_json(provider["source_ref"]["path"])
-            declared = {item["subject_id"] for item in catalog["subjects"]}
+            declared = set(catalog["subjects"])
             sliced: set[str] = set()
-            for source in catalog["sources"]:
+            for source_id, source in catalog["discovered_sources"].items():
                 with self.subTest(
                     input_id=provider["input_id"],
-                    source_id=source["source_id"],
+                    source_id=source_id,
                 ):
-                    self.assertIn("external_identity", source)
                     self.assertNotIn("content_ref", source)
-                    self.assertEqual(source["disposition"], "included")
-                    locator = source["locator"].lower()
+                    content = source["content"]
+                    locator = content["locator"].lower()
                     self.assertNotIn("/resolve/", locator)
                     self.assertNotIn("/download/", locator)
                     self.assertFalse(locator.endswith(source_scope.MODEL_SUFFIXES))
-                    for item in source["slices"]:
-                        self.assertIn("external_receipt", item)
+                    if source["disposition"] == "excluded":
+                        self.assertEqual(content["content_mode"], "excluded")
+                        continue
+                    self.assertEqual(source["disposition"], "included")
+                    self.assertEqual(content["content_mode"], "external-content")
+                    self.assertIn("receipt", content)
+                    for item in source["selectors"]:
                         self.assertNotIn("content_ref", item)
-                        self.assertEqual(
-                            item["selector"]["layer"],
-                            "raw-source",
-                        )
+                        self.assertEqual(item["layer"], "raw-source")
+                        self.assertIn("selected_identity", item)
                         sliced.update(item["subject_ids"])
             self.assertEqual(sliced, declared)
             self.assertIs(catalog["upstream_universe_complete"], False)
@@ -819,28 +821,32 @@ class OfficialSourceSeedTests(unittest.TestCase):
         for provider in seed["providers"]:
             catalog = self.generated_json(provider["source_ref"]["path"])
             expected_by_source = {
-                source["source_id"]: set()
-                for source in catalog["sources"]
+                source_id: set()
+                for source_id in catalog["discovered_sources"]
             }
-            for loss in catalog["losses"]:
+            for loss_id, loss in catalog["losses"].items():
                 for source_id in loss["affected_source_ids"]:
                     self.assertIn(source_id, expected_by_source)
-                    expected_by_source[source_id].add(loss["loss_id"])
+                    expected_by_source[source_id].add(loss_id)
 
-            for source in catalog["sources"]:
+            for source_id, source in catalog["discovered_sources"].items():
                 with self.subTest(
                     input_id=provider["input_id"],
-                    source_id=source["source_id"],
+                    source_id=source_id,
                 ):
-                    self.assertEqual(len(source["slices"]), 1)
-                    actual = source["slices"][0].get("loss_ids", [])
+                    if source["disposition"] == "excluded":
+                        continue
+                    self.assertEqual(len(source["selectors"]), 1)
+                    actual = source["selectors"][0].get("loss_ids", [])
                     self.assertEqual(len(actual), len(set(actual)))
                     self.assertEqual(
                         set(actual),
-                        expected_by_source[source["source_id"]],
+                        expected_by_source[source_id],
                     )
 
-    def test_license_and_version_boundaries_are_not_collapsed(self) -> None:
+    def test_technical_identity_and_version_boundaries_are_not_collapsed(
+        self,
+    ) -> None:
         seed = self.generated_json(
             "skills/ml-potential-workflows/references/source-pack-seed.json"
         )
@@ -848,53 +854,41 @@ class OfficialSourceSeedTests(unittest.TestCase):
             item["input_id"]: self.generated_json(item["source_ref"]["path"])
             for item in seed["providers"]
         }
-        self.assertEqual(
-            catalogs["mace-framework"]["license"]["identity"]["identifier"],
-            "MIT",
-        )
-        self.assertEqual(
-            catalogs["mace-docs"]["license"]["identity"]["identifier"],
-            "Academic Software License",
+        self.assertTrue(all("license" not in catalog for catalog in catalogs.values()))
+        self.assertNotEqual(
+            catalogs["mace-framework"]["inventory_identity"],
+            catalogs["mace-docs"]["inventory_identity"],
         )
         self.assertNotEqual(
-            catalogs["mace-framework"]["version_scope"]["snapshot_identity"]["value"],
-            catalogs["mace-docs"]["version_scope"]["snapshot_identity"]["value"],
+            catalogs["mace-framework"]["authority_revision"],
+            catalogs["mace-docs"]["authority_revision"],
         )
-        self.assertEqual(
-            catalogs["uma-models"]["license"]["assessment"],
-            "conditional",
-        )
-        self.assertEqual(
-            catalogs["uma-models"]["license"]["allowed_storage_modes"],
-            ["metadata-only", "excluded"],
-        )
-        self.assertEqual(
-            catalogs["fairchem-datasets"]["license"]["identity"]["identifier"],
-            "MIT",
-        )
-        dataset_limitations = " ".join(
-            catalogs["fairchem-datasets"]["license"]["limitations"]
-        )
-        self.assertIn("repository documentation source only", dataset_limitations)
-        self.assertIn("CC-BY-4.0", dataset_limitations)
         self.assertNotEqual(
-            catalogs["fairchem-v1"]["version_scope"]["snapshot_identity"]["value"],
-            catalogs["fairchem-v2"]["version_scope"]["snapshot_identity"]["value"],
+            catalogs["fairchem-v1"]["authority_revision"],
+            catalogs["fairchem-v2"]["authority_revision"],
+        )
+        self.assertEqual(
+            catalogs["uma-models"]["provider_id"],
+            "fairchem-uma",
+        )
+        self.assertEqual(
+            catalogs["fairchem-datasets"]["provider_id"],
+            "fairchem-datasets",
         )
 
-    def test_scope_contains_all_four_rights_layers_and_no_false_coverage(self) -> None:
+    def test_scope_preserves_separate_artifact_identity_layers(self) -> None:
         scope = self.generated_json(
             "skills/ml-potential-workflows/references/source-pack-scope-catalog.json"
         )
         by_id = {item["subject_id"]: item for item in scope["subjects"]}
         required = {
-            "mace.framework.license",
-            "mace.docs.model.license.split",
-            "nequip.framework.license.boundary",
-            "fairchem.v1.weights.license.unknown",
-            "fairchem.v2.framework.license",
-            "uma.model.license.restricted",
-            "fairchem.dataset.rights.four-layer",
+            "mace.framework.artifact-identity",
+            "mace.docs.model.identity.split",
+            "nequip.framework.artifact-identity.boundary",
+            "fairchem.v1.weights.identity.unknown",
+            "fairchem.v2.framework.identity",
+            "uma.model.artifact.gated",
+            "fairchem.dataset.identities.four-layer",
             "fairchem.reference-dft.restricted-components",
             "ml.boundary.four-rights-records",
         }

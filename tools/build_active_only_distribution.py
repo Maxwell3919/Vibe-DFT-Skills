@@ -4401,11 +4401,16 @@ def _portable_official_document_pack_audit(
                     receipt = identity.get("receipt")
                     if (
                         not isinstance(receipt, Mapping)
-                        or set(receipt.keys()) != {"sha256", "bytes"}
-                        or SHA256_RE.fullmatch(str(receipt.get("sha256"))) is None
-                        or not isinstance(receipt.get("bytes"), int)
-                        or isinstance(receipt.get("bytes"), bool)
-                        or receipt.get("bytes") <= 0
+                        or set(receipt.keys())
+                        != {
+                            "retrieval_method",
+                            "retrieved_utc",
+                            "raw_sha256",
+                            "raw_bytes",
+                        }
+                        or validate_official_document_coverage
+                        ._slice_source_identity_projection(identity)
+                        is None
                     ):
                         raise DistributionError(
                             f"{skill_id}: official-document corpus source "

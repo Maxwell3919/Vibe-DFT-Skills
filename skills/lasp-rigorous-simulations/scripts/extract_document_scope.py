@@ -53,21 +53,6 @@ SUBJECT_SPECS = (
         "provider_input_ids": ("lasp-author-literature",),
     },
     {
-        "subject_id": "lasp-3-7-3-license-terms",
-        "subject_kind": "limitation",
-        "evidence_class": "official-provider-required",
-        "origin_paths": (
-            "skills/lasp-rigorous-simulations/references/official-sources.json",
-            "skills/lasp-rigorous-simulations/references/environment-license-execution.md",
-        ),
-        "statement": (
-            "Complete LASP software, manual, examples, model, interface, and "
-            "redistribution terms are not established by the HTTPS literature."
-        ),
-        "expected_disposition": "blocked",
-        "provider_input_ids": ("lasp-author-literature",),
-    },
-    {
         "subject_id": "lasp-offline-inventory-boundary",
         "subject_kind": "limitation",
         "evidence_class": "repository-policy",
@@ -114,7 +99,14 @@ def build_catalog() -> dict[str, object]:
 
 def canonical_bytes(value: object) -> bytes:
     return (
-        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+        + "\n"
     ).encode("utf-8")
 
 

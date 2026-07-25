@@ -2082,12 +2082,19 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
         corpus_path = f"{pack_root}corpus-ase-3-29.json"
         slice_path = f"{pack_root}slices-ase-3-29.json"
         for case, message in (
-            ("official-disposition", "confuses official and local evidence"),
+            ("official-disposition", "has invalid coverage logic"),
             ("scope-output", "scope extractor receipt"),
-            ("slice-output", "slice transformer receipt"),
-            ("cross-skill-local-evidence", "outside the exact Skill source"),
-            ("corpus-url", "exceeds its authority policy"),
-            ("corpus-partition", "source universe or authority scope"),
+            ("slice-output", "processor does not bind exact IO"),
+            ("cross-skill-local-evidence", "subject origin .* does not resolve"),
+            (
+                "corpus-url",
+                "external source identity locator is invalid",
+            ),
+            (
+                "corpus-source-linkage",
+                "slice manifest includes source IDs outside the referenced "
+                "corpus included set",
+            ),
         ):
             with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
                 files = dict(selection.files)
@@ -2095,11 +2102,18 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 if case == "official-disposition":
                     mapping = next(
                         item
-                        for item in coverage["mappings"]
-                        if item["coverage_status"] == "partial"
-                        and item["official_disposition"] == "partial"
+                        for item in coverage["mappings"].values()
+                        if item["mapping_status"] == "partial"
+                        and item["disposition"] == "partial"
                     )
-                    mapping["official_disposition"] = "covered"
+                    mapping.update(
+                        {
+                            "disposition": "not-applicable",
+                            "limitations": [],
+                            "mapping_status": "complete",
+                            "slice_refs": [],
+                        }
+                    )
                 elif case == "scope-output":
                     scope = json.loads(files[scope_path])
                     scope["enumeration"]["extractor"]["output_sha256"] = "3" * 64
@@ -2109,7 +2123,9 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                     )
                 elif case == "slice-output":
                     slices = json.loads(files[slice_path])
-                    slices["sources"][0]["transformer"]["output_sha256"] = "4" * 64
+                    next(iter(slices["sources"].values()))["processor"][
+                        "output_sha256"
+                    ] = "4" * 64
                     files[slice_path] = distribution._json_bytes(slices)
                     slice_id = slices["slice_manifest_id"]
                     next(
@@ -2118,37 +2134,46 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                         if item["slice_manifest_id"] == slice_id
                     )["sha256"] = distribution._sha256(files[slice_path])
                 elif case == "cross-skill-local-evidence":
-                    mapping = next(
+                    scope = json.loads(files[scope_path])
+                    subject = next(
                         item
-                        for item in coverage["mappings"]
-                        if item["official_disposition"] == "not-applicable"
+                        for item in scope["subjects"]
+                        if item["evidence_class"] != "official-provider-required"
                     )
                     external_path = "tools/strict_json.py"
-                    mapping["local_evidence_refs"] = [
-                        {
-                            "path": external_path,
-                            "sha256": distribution._sha256(
-                                files[external_path]
-                            ),
-                        }
-                    ]
-                elif case in {"corpus-url", "corpus-partition"}:
+                    subject["origin_refs"][0] = {
+                        "path": external_path,
+                        "selector": {
+                            "kind": "whole-file",
+                            "value": "*",
+                        },
+                        "sha256": distribution._sha256(files[external_path]),
+                    }
+                    scope["enumeration"]["extractor"]["output_sha256"] = (
+                        distribution._canonical_projection_sha256(
+                            scope["subjects"]
+                        )
+                    )
+                    files[scope_path] = distribution._json_bytes(scope)
+                    coverage["scope_inventory_ref"]["sha256"] = (
+                        distribution._sha256(files[scope_path])
+                    )
+                elif case in {"corpus-url", "corpus-source-linkage"}:
                     corpus = json.loads(files[corpus_path])
+                    source_id = next(iter(corpus["source_inventory"]))
                     if case == "corpus-url":
-                        corpus["included_sources"][0]["locator"] = (
+                        corpus["source_inventory"][source_id][
+                            "source_identity"
+                        ]["locator"] = (
                             "https://example.com/forged-official-doc"
                         )
                     else:
-                        del corpus["discovery"]["discovered_source_ids"][0]
-                        corpus["discovery"]["enumerator"]["output_sha256"] = (
-                            distribution._canonical_projection_sha256(
-                                {
-                                    "discovered_source_ids": corpus[
-                                        "discovery"
-                                    ]["discovered_source_ids"]
-                                }
-                            )
+                        del corpus["source_inventory"][source_id]
+                    corpus["discovery"]["processor"]["output_sha256"] = (
+                        distribution._canonical_projection_sha256(
+                            corpus["source_inventory"]
                         )
+                    )
                     files[corpus_path] = distribution._json_bytes(corpus)
                     corpus_sha = distribution._sha256(files[corpus_path])
                     corpus_id = corpus["corpus_id"]
@@ -2159,6 +2184,25 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                     )["sha256"] = corpus_sha
                     slices = json.loads(files[slice_path])
                     slices["corpus_ref"]["sha256"] = corpus_sha
+                    if case == "corpus-url":
+                        slice_source = slices["sources"][source_id]
+                        slice_source["source_identity"] = corpus[
+                            "source_inventory"
+                        ][source_id]["source_identity"]
+                        for item in slice_source["slices"]:
+                            item["content"]["locator"] = corpus[
+                                "source_inventory"
+                            ][source_id]["source_identity"]["locator"]
+                        slice_source["processor"]["output_sha256"] = (
+                            distribution._canonical_projection_sha256(
+                                {
+                                    "slices": slice_source["slices"],
+                                    "source_loss_accounting": slice_source[
+                                        "source_loss_accounting"
+                                    ],
+                                }
+                            )
+                        )
                     files[slice_path] = distribution._json_bytes(slices)
                     next(
                         item
@@ -2203,18 +2247,15 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             coverage: dict[str, object],
             slices: dict[str, object],
         ) -> None:
-            for source in slices["sources"]:
+            for source in slices["sources"].values():
                 projection = {
                     key: source[key]
                     for key in (
                         "slices",
-                        "reviewed_overlaps",
-                        "preserved_ranges",
-                        "reviewed_orphans",
-                        "loss_ledger",
+                        "source_loss_accounting",
                     )
                 }
-                source["transformer"]["output_sha256"] = (
+                source["processor"]["output_sha256"] = (
                     distribution._canonical_projection_sha256(projection)
                 )
             files[slice_path] = distribution._json_bytes(slices)
@@ -2233,7 +2274,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 distribution._canonical_projection_sha256(scope["subjects"])
             )
             files[scope_path] = distribution._json_bytes(scope)
-            coverage["declared_scope"] = scope["subjects"]
             coverage["scope_inventory_ref"]["sha256"] = (
                 distribution._sha256(files[scope_path])
             )
@@ -2260,17 +2300,20 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             )["sha256"] = distribution._sha256(files[slice_path])
 
         cases = (
-            ("slice-order", "SLICE_ORDER_INVALID"),
-            ("slice-receipt-url", "SLICE_EXTERNAL_RECEIPT_INVALID"),
+            ("slice-full-extent", "whole-source requires full extent"),
+            (
+                "slice-content-locator",
+                "content locator must match corpus source locator",
+            ),
             ("scope-origin-selector", "SCOPE_SUBJECT_ORIGIN_INVALID"),
             ("corpus-blocker-overclaim", "COMPLETENESS_STATUS_OVERCLAIM"),
             (
-                "corpus-self-asserted-universe",
-                "CORPUS_CATALOG_SELF_ASSERTED_UNIVERSE",
+                "corpus-self-asserted-complete",
+                "processor cannot claim complete under unverified mode",
             ),
             (
-                "corpus-authority-revision",
-                "AUTHORITY_DISCOVERY_REVISION_MISMATCH",
+                "corpus-version-scope",
+                "source universe or authority scope is not exact",
             ),
         )
         for case, expected_code in cases:
@@ -2278,19 +2321,21 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 files = dict(selection.files)
                 coverage = json.loads(files[coverage_path])
                 if case in {
-                    "slice-order",
-                    "slice-receipt-url",
+                    "slice-full-extent",
+                    "slice-content-locator",
                 }:
                     slices = json.loads(files[slice_path])
-                    first_slice = slices["sources"][0]["slices"][0]
-                    if case == "slice-order":
-                        first_slice["ordinal"] = 7
-                    elif case == "slice-receipt-url":
-                        first_slice["content_receipt"]["canonical_url"] = (
-                            "https://example.com/forged-receipt"
+                    first_source = next(iter(slices["sources"].values()))
+                    first_slice = first_source["slices"][0]
+                    if case == "slice-full-extent":
+                        first_slice["raw_byte_range"]["start_byte"] = 1
+                        first_slice["raw_byte_range"]["byte_count"] = (
+                            first_source["raw_source_extent_bytes"] - 1
                         )
                     else:
-                        first_slice["artifact_kind"] = "image"
+                        first_slice["content"]["locator"] = (
+                            "https://example.com/forged-receipt"
+                        )
                     update_slice(files, coverage, slices)
                 elif case == "scope-origin-selector":
                     scope = json.loads(files[scope_path])
@@ -2307,19 +2352,19 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                                 "description": (
                                     "Synthetic blocker proves status ceiling replay."
                                 ),
+                                "dimension": "inventory",
                             }
                         )
-                    elif case == "corpus-self-asserted-universe":
+                    elif case == "corpus-self-asserted-complete":
                         corpus["discovery"][
                             "upstream_universe_complete"
                         ] = True
                         corpus["discovery"]["inventory_scope"] = (
                             "upstream-universe"
                         )
+                        corpus["status"] = "complete"
                     else:
-                        corpus["discovery"]["authority_revision"] = (
-                            "forged-revision"
-                        )
+                        corpus["version_scope"]["value"] = "forged-version"
                     update_corpus(files, coverage, corpus)
                 files[coverage_path] = distribution._json_bytes(coverage)
                 archive = Path(temporary) / f"{case}.tar"

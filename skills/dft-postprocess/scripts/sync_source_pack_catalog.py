@@ -41,6 +41,22 @@ if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
 
 from registry_yaml import load_yaml_strict  # noqa: E402
+from migrate_official_document_catalogs_v11 import (  # noqa: E402
+    convert_catalog_v10_to_v11,
+)
+from official_source_authorities import validate_and_project  # noqa: E402
+
+
+PROVIDER_SPECS = {
+    "qe-7-5-postprocess": ("qe-official-docs", "qe"),
+    "vasp-wiki-postprocess": ("vasp-official-wiki", "vasp"),
+    "cp2k-2026-2-postprocess": ("cp2k-official-manual", "cp2k"),
+    "siesta-5-4-2-postprocess": ("siesta-release-source-docs", "siesta"),
+    "ase-3-29-postprocess": ("ase-release-source-docs-3-29-0", "ase"),
+    "vaspkit-docs": ("vaspkit-1-5-documentation", "vaspkit"),
+    "vesta-manual": ("vesta-official-manual", "vesta"),
+    "bader-1-05": ("bader-1-05-official-page", "bader"),
+}
 
 
 def sha256_bytes(payload: bytes) -> str:
@@ -695,7 +711,7 @@ def cp2k_curated_partition(
     return sources, exclusions
 
 
-def provider_catalogs(root: Path) -> dict[str, dict[str, Any]]:
+def legacy_provider_catalogs(root: Path) -> dict[str, dict[str, Any]]:
     qe_sources = [
         (
             "qe-input-bands",
@@ -990,6 +1006,79 @@ def provider_catalogs(root: Path) -> dict[str, dict[str, Any]]:
     }
 
 
+def authority_projections(root: Path) -> dict[str, dict[str, Any]]:
+    """Return the central technical authority projections used by v1.1."""
+
+    authorities = load_yaml_strict(
+        root / "registry" / "official-source-authorities.yaml",
+        "official-source-authorities.yaml",
+    )
+    software = load_yaml_strict(
+        root / "registry" / "software-registry.yaml",
+        "software-registry.yaml",
+    )
+    failures, projections = validate_and_project(
+        authorities,
+        software_data=software,
+        source_root=root,
+    )
+    if failures:
+        raise ValueError(
+            "invalid central technical authority projection: "
+            + " | ".join(str(item) for item in failures)
+        )
+    return projections
+
+
+def provider_catalogs(root: Path) -> dict[str, dict[str, Any]]:
+    """Generate v1.1 catalogs by pure conversion of deterministic v1.0 inputs."""
+
+    legacy_catalogs = legacy_provider_catalogs(root)
+    if set(legacy_catalogs) != set(PROVIDER_SPECS):
+        raise ValueError(
+            "provider specification mismatch: "
+            f"catalogs={sorted(legacy_catalogs)} specs={sorted(PROVIDER_SPECS)}"
+        )
+    projections = authority_projections(root)
+    scope = scope_catalog(root)
+    catalogs: dict[str, dict[str, Any]] = {}
+    for input_id, legacy in sorted(legacy_catalogs.items()):
+        authority_id, provider_id = PROVIDER_SPECS[input_id]
+        projection = projections.get(authority_id)
+        if projection is None:
+            raise ValueError(
+                f"{input_id}: missing technical authority projection {authority_id}"
+            )
+        included = [
+            source
+            for source in legacy["sources"]
+            if source.get("disposition") == "included"
+        ]
+        if not included:
+            raise ValueError(f"{input_id}: no included legacy source")
+        legacy_bytes = canonical_json_bytes(legacy)
+        catalogs[input_id] = convert_catalog_v10_to_v11(
+            legacy,
+            provider={
+                "input_id": input_id,
+                "authority_id": authority_id,
+                "provider_id": provider_id,
+            },
+            authority={"authority_id": authority_id},
+            authority_projection=projection,
+            scope_catalog=scope,
+            inventory_projection={
+                "locator": included[0]["locator"],
+                "identity": {
+                    "sha256": sha256_bytes(legacy_bytes),
+                    "bytes": len(legacy_bytes),
+                },
+                "canonical_preimage_bytes": legacy_bytes,
+            },
+        )
+    return catalogs
+
+
 def consumer_binding(
     authority_id: str,
     provider_id: str,
@@ -1234,19 +1323,6 @@ def build_outputs(root: Path) -> dict[Path, bytes]:
     outputs: dict[Path, bytes] = {
         scope_path: canonical_json_bytes(scope_catalog(root))
     }
-    provider_specs = {
-        "qe-7-5-postprocess": ("qe-official-docs", "qe"),
-        "vasp-wiki-postprocess": ("vasp-official-wiki", "vasp"),
-        "cp2k-2026-2-postprocess": ("cp2k-official-manual", "cp2k"),
-        "siesta-5-4-2-postprocess": ("siesta-release-source-docs", "siesta"),
-        "ase-3-29-postprocess": (
-            "ase-release-source-docs-3-29-0",
-            "ase",
-        ),
-        "vaspkit-docs": ("vaspkit-1-5-documentation", "vaspkit"),
-        "vesta-manual": ("vesta-official-manual", "vesta"),
-        "bader-1-05": ("bader-1-05-official-page", "bader"),
-    }
     providers: list[dict[str, Any]] = []
     for input_id, value in sorted(provider_catalogs(root).items()):
         path = (
@@ -1254,7 +1330,7 @@ def build_outputs(root: Path) -> dict[Path, bytes]:
         )
         payload = canonical_json_bytes(value)
         outputs[path] = payload
-        authority_id, provider_id = provider_specs[input_id]
+        authority_id, provider_id = PROVIDER_SPECS[input_id]
         providers.append(
             {
                 "input_id": input_id,

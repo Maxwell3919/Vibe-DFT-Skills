@@ -9,7 +9,7 @@
     ],
     "blockers": [
       "Input-specific official-source, manuscript, artifact, and human-decision authenticity remain external obligations.",
-      "Repository licensing, semantic closure, and an attested central pack-processor run remain unresolved."
+      "Repository snapshot identity, semantic closure, and an attested central pack-processor run remain unresolved."
     ]
   },
   "providers": [

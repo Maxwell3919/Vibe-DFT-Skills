@@ -17,6 +17,9 @@ assert SPEC is not None and SPEC.loader is not None
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 ROOT = MODULE.repository_root()
+import validate_contract  # noqa: E402
+
+
 PROVIDER_CLASSES = {
     "software",
     "standard",
@@ -120,10 +123,15 @@ class SourcePackCatalogTests(unittest.TestCase):
             for item in manifest["pages"].values()
         }
         catalog = MODULE.provider_catalogs(ROOT)["cp2k-2026-2-postprocess"]
-        included = {item["source_id"]: item for item in catalog["sources"]}
+        included = {
+            source_id: item
+            for source_id, item in catalog["discovered_sources"].items()
+            if item["disposition"] == "included"
+        }
         excluded = {
-            item["source_id"]: item
-            for item in catalog["reviewed_exclusions"]
+            source_id: item
+            for source_id, item in catalog["discovered_sources"].items()
+            if item["disposition"] == "excluded"
         }
 
         self.assertFalse(catalog["upstream_universe_complete"])
@@ -140,29 +148,93 @@ class SourcePackCatalogTests(unittest.TestCase):
         self.assertEqual(set(included), expected_included)
         for source_id, source in included.items():
             page = expected[source_id]
-            self.assertEqual(source["locator"], page["source_url"])
+            self.assertEqual(source["content"]["locator"], page["source_url"])
             self.assertEqual(
-                source["external_identity"]["raw_sha256"],
+                source["content"]["receipt"]["raw_sha256"],
                 page["raw_sha256"],
             )
             self.assertEqual(
-                source["external_identity"]["raw_bytes"],
+                source["content"]["receipt"]["raw_bytes"],
                 page["raw_bytes"],
             )
-            self.assertEqual(len(source["slices"]), 1)
-            source_slice = source["slices"][0]
+            self.assertEqual(len(source["selectors"]), 1)
+            source_slice = source["selectors"][0]
             self.assertEqual(
                 source_slice["subject_ids"],
                 ["cp2k:postprocess-artifacts"],
             )
             self.assertEqual(
-                source_slice["external_receipt"]["raw_sha256"],
+                source_slice["selected_identity"]["sha256"],
                 page["raw_sha256"],
             )
             self.assertEqual(
-                source_slice["external_receipt"]["raw_bytes"],
+                source_slice["selected_identity"]["bytes"],
                 page["raw_bytes"],
             )
+
+    def test_v11_catalogs_preserve_preimage_and_subject_closure(self) -> None:
+        legacy_catalogs = MODULE.legacy_provider_catalogs(ROOT)
+        catalogs = MODULE.provider_catalogs(ROOT)
+        expected_subjects: dict[str, set[str]] = {}
+        for subject_id, _kind, _statement, input_id, _disposition in (
+            MODULE.PROVIDER_SUBJECTS
+        ):
+            expected_subjects.setdefault(input_id, set()).add(subject_id)
+
+        self.assertEqual(set(catalogs), set(MODULE.PROVIDER_SPECS))
+        for input_id, catalog in catalogs.items():
+            with self.subTest(input_id=input_id):
+                legacy_bytes = MODULE.canonical_json_bytes(
+                    legacy_catalogs[input_id]
+                )
+                self.assertEqual(catalog["schema_version"], "1.1")
+                self.assertNotIn("license", catalog)
+                self.assertEqual(
+                    catalog["inventory_identity"],
+                    {
+                        "sha256": MODULE.sha256_bytes(legacy_bytes),
+                        "bytes": len(legacy_bytes),
+                    },
+                )
+                self.assertEqual(
+                    set(catalog["subjects"]),
+                    expected_subjects[input_id],
+                )
+                for source in catalog["discovered_sources"].values():
+                    if source["disposition"] != "included":
+                        continue
+                    selector_subjects = {
+                        subject_id
+                        for selector in source["selectors"]
+                        for subject_id in selector["subject_ids"]
+                    }
+                    self.assertEqual(
+                        selector_subjects,
+                        set(source["subject_ids"]),
+                    )
+                    self.assertLessEqual(
+                        selector_subjects,
+                        set(catalog["subjects"]),
+                    )
+
+    def test_seed_hashes_close_over_generated_v11_catalogs(self) -> None:
+        outputs = MODULE.build_outputs(ROOT)
+        refs = ROOT / "skills" / MODULE.SKILL_ID / "references"
+        seed_path = refs / "source-pack-seed.json"
+        seed = json.loads(outputs[seed_path])
+        scope_path = ROOT / seed["scope_catalog_ref"]["path"]
+        self.assertEqual(
+            seed["scope_catalog_ref"]["sha256"],
+            MODULE.sha256_bytes(outputs[scope_path]),
+        )
+        for provider in seed["providers"]:
+            source_path = ROOT / provider["source_ref"]["path"]
+            self.assertEqual(
+                provider["source_ref"]["sha256"],
+                MODULE.sha256_bytes(outputs[source_path]),
+            )
+            catalog = json.loads(outputs[source_path])
+            self.assertEqual(catalog["schema_version"], "1.1")
 
     def test_authority_proposal_covers_every_seed_provider(self) -> None:
         refs = ROOT / "skills" / MODULE.SKILL_ID / "references"
@@ -203,28 +275,31 @@ class SourcePackCatalogTests(unittest.TestCase):
         refs = ROOT / "skills" / MODULE.SKILL_ID / "references"
         checks = [
             (
-                "contracts/official-document-pack-seed.schema.json",
+                "official-document-pack-seed@1.0",
                 refs / "source-pack-seed.json",
             ),
             (
-                "contracts/official-document-scope-catalog.schema.json",
+                "official-document-scope-catalog@1.0",
                 refs / "source-pack-scope.json",
             ),
         ]
         checks.extend(
             (
-                "contracts/official-document-source-catalog.schema.json",
+                "official-document-source-catalog@1.1",
                 path,
             )
             for path in sorted((refs / "source-pack-inputs").glob("*.json"))
         )
-        for schema_path, value_path in checks:
+        catalog = validate_contract.load_catalog(ROOT / "contracts")
+        for selector, value_path in checks:
             with self.subTest(path=value_path.name):
-                schema = json.loads((ROOT / schema_path).read_text(encoding="utf-8"))
+                contract = catalog.resolve(selector)
                 value = json.loads(value_path.read_text(encoding="utf-8"))
                 errors = sorted(
                     Draft202012Validator(
-                        schema, format_checker=FormatChecker()
+                        contract.schema,
+                        registry=catalog.registry,
+                        format_checker=FormatChecker(),
                     ).iter_errors(value),
                     key=lambda item: tuple(str(part) for part in item.absolute_path),
                 )

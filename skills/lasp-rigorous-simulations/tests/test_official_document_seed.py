@@ -68,7 +68,7 @@ class LaspOfficialDocumentSeedTests(unittest.TestCase):
         )
         self.validate_schema(
             self.catalog,
-            "contracts/official-document-source-catalog.schema.json",
+            "contracts/official-document-source-catalog-1.1.schema.json",
         )
 
     def test_every_seed_file_reference_is_exact(self) -> None:
@@ -101,14 +101,11 @@ class LaspOfficialDocumentSeedTests(unittest.TestCase):
             subjects["lasp-3-7-capability-context"]["expected_disposition"],
             "partial",
         )
-        for subject_id in (
-            "lasp-3-7-3-native-contract",
-            "lasp-3-7-3-license-terms",
-        ):
-            self.assertEqual(
-                subjects[subject_id]["expected_disposition"],
-                "blocked",
-            )
+        self.assertEqual(
+            subjects["lasp-3-7-3-native-contract"]["expected_disposition"],
+            "blocked",
+        )
+        self.assertNotIn("lasp-3-7-3-license-terms", subjects)
         self.assertEqual(self.seed["status_ceiling"], "blocked")
         self.assertTrue(self.seed["blockers"])
 
@@ -125,11 +122,12 @@ class LaspOfficialDocumentSeedTests(unittest.TestCase):
             if item["evidence_class"] == "official-provider-required"
             and input_id in item["provider_input_ids"]
         }
-        declared = {item["subject_id"] for item in self.catalog["subjects"]}
+        declared = set(self.catalog["subjects"])
         sliced = {
             subject_id
-            for source in self.catalog["sources"]
-            for item in source["slices"]
+            for source in self.catalog["discovered_sources"].values()
+            if source["disposition"] == "included"
+            for item in source["selectors"]
             for subject_id in item["subject_ids"]
         }
         blocked = {
@@ -140,18 +138,22 @@ class LaspOfficialDocumentSeedTests(unittest.TestCase):
         self.assertEqual(declared, expected)
         self.assertEqual(
             blocked,
-            {"lasp-3-7-3-native-contract", "lasp-3-7-3-license-terms"},
+            {"lasp-3-7-3-native-contract"},
         )
         self.assertTrue(blocked.isdisjoint(sliced))
         self.assertEqual(sliced, expected - blocked)
 
     def test_catalog_is_https_metadata_only_and_keeps_native_payloads_out(self) -> None:
-        self.assertEqual(len(self.catalog["sources"]), 5)
+        self.assertEqual(len(self.catalog["discovered_sources"]), 5)
         rendered = json.dumps(self.catalog)
         self.assertNotIn("http://", rendered)
         self.assertNotIn("www.lasphub.com", rendered)
         self.assertFalse(self.catalog["upstream_universe_complete"])
-        locators = {item["locator"] for item in self.catalog["sources"]}
+        self.assertNotIn("license", self.catalog)
+        locators = {
+            item["content"]["locator"]
+            for item in self.catalog["discovered_sources"].values()
+        }
         self.assertTrue(
             any(item.startswith("https://doi.org/") for item in locators)
         )
@@ -159,17 +161,15 @@ class LaspOfficialDocumentSeedTests(unittest.TestCase):
             "https://pmc.ncbi.nlm.nih.gov/articles/PMC11672538/",
             locators,
         )
-        for source in self.catalog["sources"]:
-            self.assertTrue(source["locator"].startswith("https://"))
+        for source in self.catalog["discovered_sources"].values():
+            self.assertEqual(source["disposition"], "included")
+            self.assertTrue(source["content"]["locator"].startswith("https://"))
+            self.assertEqual(source["content"]["content_mode"], "external-content")
             self.assertNotIn("content_ref", source)
-            self.assertIn("external_identity", source)
-            for item in source["slices"]:
+            self.assertIn("receipt", source["content"])
+            for item in source["selectors"]:
                 self.assertNotIn("content_ref", item)
-                self.assertIn("external_receipt", item)
-        self.assertNotIn(
-            "embedded-open",
-            self.catalog["license"]["allowed_storage_modes"],
-        )
+                self.assertIn("selected_identity", item)
 
     def test_authority_and_binding_proposal_matches_seed_and_central_contract(self) -> None:
         sys.path.insert(0, str(REPO_ROOT / "tools"))

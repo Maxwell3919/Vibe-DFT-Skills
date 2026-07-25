@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import copy
+import hashlib
 import unittest
 from unittest.mock import patch
 
@@ -12,14 +14,22 @@ import sync_source_pack_catalog as catalog
 class Cp2kSourcePackCatalogTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.catalogs = catalog.build_catalogs()
+        cls.legacy = catalog.build_legacy_projection_inputs()
+        cls.catalogs = catalog.build_catalogs(cls.legacy)
         catalog.validate_catalogs(cls.catalogs)
+        cls.seed = catalog.build_seed(cls.catalogs)
 
     def test_manual_discovery_universe_is_exact_partition(self) -> None:
         manual = self.catalogs["manual"]
-        included = {item["source_id"] for item in manual["sources"]}
+        included = {
+            source_id
+            for source_id, item in manual["discovered_sources"].items()
+            if item["disposition"] == "included"
+        }
         excluded = {
-            item["source_id"] for item in manual["reviewed_exclusions"]
+            source_id
+            for source_id, item in manual["discovered_sources"].items()
+            if item["disposition"] == "excluded"
         }
         self.assertEqual(len(included), 86)
         self.assertEqual(len(excluded), 2860)
@@ -29,19 +39,26 @@ class Cp2kSourcePackCatalogTests(unittest.TestCase):
 
     def test_raw_and_derived_identities_are_not_confused(self) -> None:
         manual = self.catalogs["manual"]
-        for source in manual["sources"]:
-            self.assertIn("external_identity", source)
-            self.assertNotIn("content_ref", source)
-            self.assertTrue(source["locator"].endswith(".html"))
-            identity = source["external_identity"]
+        for source in manual["discovered_sources"].values():
+            if source["disposition"] != "included":
+                continue
+            self.assertEqual(
+                source["content"]["content_mode"], "external-content"
+            )
+            self.assertTrue(source["content"]["locator"].endswith(".html"))
+            identity = source["content"]["receipt"]
             self.assertGreater(identity["raw_bytes"], 0)
             self.assertEqual(len(identity["raw_sha256"]), 64)
-            for sliced in source["slices"]:
+            for sliced in source["selectors"]:
+                self.assertEqual(sliced["layer"], "raw-source")
                 self.assertEqual(
-                    sliced["selector"]["layer"], "raw-source"
+                    sliced["selected_identity"]["sha256"],
+                    identity["raw_sha256"],
                 )
-                self.assertIn("external_receipt", sliced)
-                self.assertNotIn("content_ref", sliced)
+                self.assertEqual(
+                    sliced["selected_identity"]["bytes"],
+                    identity["raw_bytes"],
+                )
 
     def test_scope_is_semantic_not_one_subject_per_file(self) -> None:
         subjects = self.catalogs["scope"]["subjects"]
@@ -99,11 +116,12 @@ class Cp2kSourcePackCatalogTests(unittest.TestCase):
             ("release", "cp2k-release"),
         ):
             provider = self.catalogs[catalog_name]
-            declared = {item["subject_id"] for item in provider["subjects"]}
+            declared = set(provider["subjects"])
             sliced = {
                 subject_id
-                for source in provider["sources"]
-                for sliced in source["slices"]
+                for source in provider["discovered_sources"].values()
+                if source["disposition"] == "included"
+                for sliced in source["selectors"]
                 for subject_id in sliced["subject_ids"]
             }
             self.assertEqual(declared, sliced)
@@ -113,22 +131,58 @@ class Cp2kSourcePackCatalogTests(unittest.TestCase):
                     provider_id, scope[subject_id]["provider_input_ids"]
                 )
 
-    def test_manual_license_cannot_claim_unknown_obligations(self) -> None:
-        license_record = self.catalogs["manual"]["license"]
-        self.assertIsNone(license_record["identity"]["identifier"])
-        self.assertEqual(
-            license_record["identity"]["verification"], "unknown"
+    def test_v11_outputs_are_policy_free_and_self_identified(self) -> None:
+        for name in ("manual", "release"):
+            generated = self.catalogs[name]
+            self.assertEqual(generated["schema_version"], "1.1")
+            self.assertFalse(
+                {"license", "sources", "reviewed_exclusions"} & set(generated)
+            )
+            processor = generated["discovery_processor"]
+            self.assertEqual(
+                processor["input_sha256"],
+                generated["inventory_identity"]["sha256"],
+            )
+            self.assertEqual(
+                processor["output_sha256"],
+                hashlib.sha256(
+                    catalog.canonical_projection_bytes(
+                        generated["discovered_sources"]
+                    )
+                ).hexdigest(),
+            )
+
+    def test_exact_version_exclusion_locator_is_preserved(self) -> None:
+        manual = self.catalogs["manual"]
+        excluded = [
+            source
+            for source in manual["discovered_sources"].values()
+            if source["disposition"] == "excluded"
+        ]
+        self.assertEqual(len(excluded), 2860)
+        self.assertTrue(
+            all(
+                source["content"]["locator"].startswith(
+                    "https://manual.cp2k.org/cp2k-2026_2-branch/"
+                )
+                for source in excluded
+            )
         )
-        self.assertEqual(license_record["assessment"], "unresolved")
-        self.assertNotIn("embedded-open", license_record["allowed_storage_modes"])
+
+        mutated = copy.deepcopy(self.catalogs)
+        mutated["manual"]["discovery_processor"]["output_sha256"] = "0" * 64
+        with self.assertRaisesRegex(
+            ValueError, "discovery output identity mismatch"
+        ):
+            catalog.validate_catalogs(mutated)
 
     def test_scope_has_no_legacy_official_path_dependency(self) -> None:
         for subject in self.catalogs["scope"]["subjects"]:
             for origin in subject["origin_refs"]:
                 self.assertNotIn("/official-", origin["path"])
 
-    def test_seed_and_local_proposal_preserve_central_ceiling(self) -> None:
-        seed, proposal = catalog.build_seed_and_proposal(self.catalogs)
+    def test_seed_has_strict_v11_identity_closure(self) -> None:
+        seed = self.seed
         self.assertEqual(seed["status_ceiling"], "partial")
         self.assertEqual(seed["blockers"], [])
         self.assertEqual(
@@ -145,15 +199,20 @@ class Cp2kSourcePackCatalogTests(unittest.TestCase):
                 ("cp2k-release", "cp2k-release-source-docs", "cp2k"),
             },
         )
+        expected_hashes = {
+            catalog.OUTPUTS[name].relative_to(catalog.REPO_ROOT).as_posix():
+            hashlib.sha256(
+                catalog.canonical_v11_json_bytes(self.catalogs[name])
+            ).hexdigest()
+            for name in ("manual", "release", "scope")
+        }
+        refs = [
+            seed["scope_catalog_ref"],
+            *(provider["source_ref"] for provider in seed["providers"]),
+        ]
         self.assertEqual(
-            proposal["proposal_status"], "skill-local-non-authoritative"
-        )
-        self.assertTrue(
-            all(
-                item["consumer_binding"]["claim_ceiling"]
-                == "registered-skill-scope"
-                for item in proposal["providers"]
-            )
+            {item["path"]: item["sha256"] for item in refs},
+            expected_hashes,
         )
 
     def test_check_mode_is_offline(self) -> None:
@@ -163,6 +222,15 @@ class Cp2kSourcePackCatalogTests(unittest.TestCase):
             result = catalog.synchronize(check=True, refresh=False)
         self.assertEqual(result, 0)
         refresh.assert_not_called()
+
+    def test_checked_in_bytes_match_every_managed_output(self) -> None:
+        outputs = {**self.catalogs, "seed": self.seed}
+        for name, path in catalog.OUTPUTS.items():
+            with self.subTest(name=name):
+                self.assertEqual(
+                    path.read_bytes(),
+                    catalog.canonical_v11_json_bytes(outputs[name]),
+                )
 
 
 if __name__ == "__main__":

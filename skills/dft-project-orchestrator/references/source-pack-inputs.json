@@ -8,7 +8,7 @@
       "JSON Schema provenance is limited to dialect and validation-vocabulary semantics; it does not prove the candidate's hand-written checks are a conforming JSON Schema implementation."
     ],
     "blockers": [
-      "Repository licensing and exact JSON Schema redistribution review remain incomplete.",
+      "Repository snapshot identity and exact JSON Schema specification-body identity remain incomplete.",
       "The central pack processors have no attested run and semantic source-tree closure remains under review."
     ]
   },

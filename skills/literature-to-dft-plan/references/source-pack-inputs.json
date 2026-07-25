@@ -8,8 +8,8 @@
       "The literature universe is open ended and input specific; no finite all-literature corpus is asserted."
     ],
     "blockers": [
-      "Every real source still requires its own exact official-source record, authority resolution, content identity, and license review.",
-      "Repository licensing, semantic closure, and an attested central pack-processor run remain unresolved."
+      "Every real source still requires its own exact official-source record, authority resolution, content identity, and retrieval receipt.",
+      "Repository snapshot identity, semantic closure, and an attested central pack-processor run remain unresolved."
     ]
   },
   "providers": [

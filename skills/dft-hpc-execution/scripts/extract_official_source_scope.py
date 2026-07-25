@@ -9,18 +9,63 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import sys
+from typing import NamedTuple
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 INPUT_PATH = SKILL_ROOT / "references" / "source-pack-inputs.json"
+TOOLS = str(REPOSITORY_ROOT / "tools")
+if TOOLS not in sys.path:
+    sys.path.insert(0, TOOLS)
+
+from migrate_official_document_catalogs_v11 import (  # noqa: E402
+    CATALOG_WIDE_TECHNICAL_BINDINGS,
+    canonical_json_bytes as canonical_bytes,
+    convert_catalog_v10_to_v11,
+)
 
 
-def canonical_bytes(value: object) -> bytes:
-    return (
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        + "\n"
-    ).encode("utf-8")
+class MigrationProjection(NamedTuple):
+    authority_root: str
+    inventory_source_id: str
+    registered_scope: str
+    exact_version: str | None
+
+
+MIGRATION_PROJECTIONS = {
+    "repository-contracts-hpc": MigrationProjection(
+        authority_root=(
+            "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/"
+            "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/"
+            "skills/dft-hpc-execution/references/"
+        ),
+        inventory_source_id="hpc-repository-source-index",
+        registered_scope="exact",
+        exact_version="24dd8a9b7fd2758a7c44b82ee7dbb386693b2315",
+    ),
+    "json-schema-2020-12": MigrationProjection(
+        authority_root="https://json-schema.org/draft/2020-12/",
+        inventory_source_id="json-schema-core-2020-12",
+        registered_scope="exact",
+        exact_version="2020-12",
+    ),
+    "slurm-26-05-live": MigrationProjection(
+        authority_root="https://slurm.schedmd.com/",
+        inventory_source_id="slurm-sbatch",
+        registered_scope="latest-at-retrieval",
+        exact_version=None,
+    ),
+    "openpbs-23-06-06": MigrationProjection(
+        authority_root=(
+            "https://raw.githubusercontent.com/openpbs/openpbs/"
+            "be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/"
+        ),
+        inventory_source_id="openpbs-qsub",
+        registered_scope="exact",
+        exact_version="23.06.06",
+    ),
+}
 
 
 def load_object(path: Path) -> dict:
@@ -101,22 +146,85 @@ def render_outputs() -> dict[Path, bytes]:
     skill_id = SKILL_ROOT.name
     if inputs.get("schema_version") != "1.0" or inputs.get("skill_id") != skill_id:
         raise ValueError("source-pack-inputs.json is not bound to this Skill")
+    provider_ids = {provider["input_id"] for provider in inputs["providers"]}
+    if provider_ids != set(MIGRATION_PROJECTIONS):
+        raise ValueError("provider migration projection ledger is incomplete")
 
     outputs: dict[Path, bytes] = {}
     provider_records: list[dict] = []
+    catalog_paths: dict[str, Path] = {}
+
+    conversion_subjects = []
+    for source_subject in inputs["scope_subjects"]:
+        subject = copy.deepcopy(source_subject)
+        subject.pop("origin_paths")
+        subject["origin_refs"] = []
+        conversion_subjects.append(subject)
+    conversion_scope = {
+        "schema_version": "1.0",
+        "contract_name": "official-document-scope-catalog",
+        "skill_id": skill_id,
+        "extractor_id": "repository-native-source-scope-v1",
+        "subjects": conversion_subjects,
+    }
+
     for provider in inputs["providers"]:
-        catalog = copy.deepcopy(provider["catalog"])
-        catalog["sources"] = [
-            materialize_receipt(source) for source in catalog["sources"]
+        legacy_catalog = copy.deepcopy(provider["catalog"])
+        legacy_catalog["sources"] = [
+            materialize_receipt(source) for source in legacy_catalog["sources"]
         ]
-        if "content_ref" in json.dumps(catalog, sort_keys=True):
+        if "content_ref" in json.dumps(legacy_catalog, sort_keys=True):
             raise ValueError("metadata-only catalogs cannot contain content_ref")
+
+        input_id = provider["input_id"]
+        projection = MIGRATION_PROJECTIONS[input_id]
+        version_scope = legacy_catalog["version_scope"]
+        if projection.registered_scope == "exact":
+            if version_scope.get("value") != projection.exact_version:
+                raise ValueError(f"{input_id}: exact version projection drift")
+            registered_scope = {
+                "scope": "exact",
+                "exact_version": projection.exact_version,
+            }
+        else:
+            if version_scope.get("kind") != "latest-at-retrieval":
+                raise ValueError(f"{input_id}: retrieval scope projection drift")
+            registered_scope = {"scope": "latest-at-retrieval"}
+
+        included_sources = {
+            source["source_id"]: source
+            for source in legacy_catalog["sources"]
+            if source.get("disposition") == "included"
+        }
+        inventory_source = included_sources.get(projection.inventory_source_id)
+        if inventory_source is None:
+            raise ValueError(f"{input_id}: inventory source is missing")
+        preimage = canonical_bytes(legacy_catalog)
+        catalog = convert_catalog_v10_to_v11(
+            legacy_catalog,
+            provider=provider,
+            authority={"authority_id": provider["authority_id"]},
+            authority_projection={
+                "canonical_urls": [projection.authority_root],
+                "version_scopes": [registered_scope],
+            },
+            scope_catalog=conversion_scope,
+            inventory_projection={
+                "locator": inventory_source["locator"],
+                "identity": {
+                    "sha256": hashlib.sha256(preimage).hexdigest(),
+                    "bytes": len(preimage),
+                },
+                "canonical_preimage_bytes": preimage,
+            },
+        )
         catalog_path = SKILL_ROOT / "references" / provider["catalog_file"]
         catalog_raw = canonical_bytes(catalog)
         outputs[catalog_path] = catalog_raw
+        catalog_paths[input_id] = catalog_path
         provider_records.append(
             {
-                "input_id": provider["input_id"],
+                "input_id": input_id,
                 "adapter_id": "declarative-catalog-v1",
                 "authority_id": provider["authority_id"],
                 "provider_id": provider["provider_id"],
@@ -135,6 +243,32 @@ def render_outputs() -> dict[Path, bytes]:
             scope_origin_ref(path, outputs) for path in origin_paths
         ]
         subjects.append(subject)
+    for provider in inputs["providers"]:
+        input_id = provider["input_id"]
+        binding = CATALOG_WIDE_TECHNICAL_BINDINGS.get(input_id)
+        if binding is None:
+            continue
+        catalog_path = catalog_paths[input_id]
+        subjects.append(
+            {
+                "subject_id": binding["subject_id"],
+                "subject_kind": "documented-claim",
+                "evidence_class": "official-provider-required",
+                "origin_refs": [
+                    {
+                        "path": catalog_path.relative_to(
+                            REPOSITORY_ROOT
+                        ).as_posix(),
+                        "sha256": hashlib.sha256(
+                            outputs[catalog_path]
+                        ).hexdigest(),
+                    }
+                ],
+                "statement": binding["statement"],
+                "expected_disposition": "partial",
+                "provider_input_ids": [input_id],
+            }
+        )
     scope = {
         "schema_version": "1.0",
         "contract_name": "official-document-scope-catalog",

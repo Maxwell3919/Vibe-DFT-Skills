@@ -585,7 +585,7 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
         for schema_name, instance_path in (
             ("official-document-pack-seed.schema.json", self.seed_path),
             ("official-document-scope-catalog.schema.json", self.scope_path),
-            ("official-document-source-catalog.schema.json", self.catalog_path),
+            ("official-document-source-catalog-1.1.schema.json", self.catalog_path),
         ):
             schema = json.loads(
                 (self.repository / "contracts" / schema_name).read_text(
@@ -606,6 +606,21 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
             path = self.repository / ref["path"]
             path.resolve().relative_to(ROOT.resolve())
             self.assertEqual(ref["sha256"], self.digest(path))
+        self.assertEqual("1.1", self.catalog["schema_version"])
+        self.assertEqual(
+            self.catalog["inventory_identity"]["sha256"],
+            self.catalog["discovery_processor"]["input_sha256"],
+        )
+        discovered_raw = json.dumps(
+            self.catalog["discovered_sources"],
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        self.assertEqual(
+            hashlib.sha256(discovered_raw).hexdigest(),
+            self.catalog["discovery_processor"]["output_sha256"],
+        )
         for subject in self.scope["subjects"]:
             for origin in subject["origin_refs"]:
                 self.assertEqual(
@@ -613,10 +628,25 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
                 )
 
     def test_open_ended_literature_universe_is_excluded_not_invented(self) -> None:
-        self.assertEqual([], self.catalog["subjects"])
+        technical_id = "repository-interface.catalog-wide-provenance"
+        self.assertEqual({technical_id}, set(self.catalog["subjects"]))
         self.assertTrue(
-            all(subject["provider_input_ids"] == [] for subject in self.scope["subjects"])
+            all(
+                subject["provider_input_ids"] == []
+                for subject in self.scope["subjects"]
+                if subject["subject_id"] != technical_id
+            )
         )
+        technical = next(
+            subject
+            for subject in self.scope["subjects"]
+            if subject["subject_id"] == technical_id
+        )
+        self.assertEqual(
+            ["repository-contracts-literature-plan"],
+            technical["provider_input_ids"],
+        )
+        self.assertEqual("partial", technical["expected_disposition"])
         universal = next(
             subject
             for subject in self.scope["subjects"]
@@ -632,11 +662,12 @@ class OfficialSourcePackMetadataTests(unittest.TestCase):
 
     def test_metadata_only_proposal_and_generator_are_fail_closed(self) -> None:
         self.assertNotIn("content_ref", json.dumps(self.catalog, sort_keys=True))
-        for source in self.catalog["sources"]:
-            self.assertIn("external_identity", source)
-            for slice_record in source["slices"]:
-                self.assertEqual("*", slice_record["selector"]["value"])
-                self.assertIn("external_receipt", slice_record)
+        for source in self.catalog["discovered_sources"].values():
+            self.assertEqual("external-content", source["content"]["content_mode"])
+            self.assertIn("receipt", source["content"])
+            for selector in source["selectors"]:
+                self.assertEqual("*", selector["value"])
+                self.assertIn("selected_identity", selector)
         proposal = json.loads(
             (self.references / "source-pack-authority-proposal.json").read_text(
                 encoding="utf-8"
