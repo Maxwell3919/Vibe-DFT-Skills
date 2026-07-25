@@ -465,7 +465,7 @@ processors:
     version: '1.0'
     implementation_ref:
       path: tools/build_official_document_packs.py
-      sha256: b6582c86e36647a01be6710284c2d4c8d5d2ca41d04e53293ab7266e86bf96be
+      sha256: e8cc4b4e3bf6ee7ceb736e563306ee769999d36f134cdb7a396ef7214274972f
     configuration_ref:
       path: contracts/official-document-pack-seed.schema.json
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
@@ -478,7 +478,7 @@ processors:
     version: '1.0'
     implementation_ref:
       path: tools/build_official_document_packs.py
-      sha256: b6582c86e36647a01be6710284c2d4c8d5d2ca41d04e53293ab7266e86bf96be
+      sha256: e8cc4b4e3bf6ee7ceb736e563306ee769999d36f134cdb7a396ef7214274972f
     configuration_ref:
       path: contracts/official-document-pack-seed.schema.json
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
@@ -491,7 +491,7 @@ processors:
     version: '1.0'
     implementation_ref:
       path: tools/build_official_document_packs.py
-      sha256: b6582c86e36647a01be6710284c2d4c8d5d2ca41d04e53293ab7266e86bf96be
+      sha256: e8cc4b4e3bf6ee7ceb736e563306ee769999d36f134cdb7a396ef7214274972f
     configuration_ref:
       path: contracts/official-document-pack-seed.schema.json
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
