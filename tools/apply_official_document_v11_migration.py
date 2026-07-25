@@ -14,6 +14,7 @@ import shutil
 import sys
 import tempfile
 from typing import Any
+from urllib.parse import urlsplit
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -190,6 +191,22 @@ class ProviderInput:
     scope: dict[str, Any]
     catalog: dict[str, Any]
     catalog_bytes: bytes
+
+
+@dataclass(frozen=True)
+class V11TechnicalLocatorRepair:
+    provider_input_id: str
+    old_origin: str
+    authority_root: str
+    expected_excluded_sources: int
+
+
+CP2K_MANUAL_LOCATOR_REPAIR = V11TechnicalLocatorRepair(
+    provider_input_id="cp2k-manual",
+    old_origin="https://manual.cp2k.org/",
+    authority_root="https://manual.cp2k.org/cp2k-2026_2-branch/",
+    expected_excluded_sources=2860,
+)
 
 
 @dataclass(frozen=True)
@@ -762,6 +779,185 @@ def _resolve_path_without_hash(root: Path, ref: dict[str, Any], owner: Path) -> 
     return target
 
 
+def _repair_cp2k_manual_v11_catalog(
+    item: ProviderInput,
+    authority_projection: dict[str, Any],
+) -> tuple[dict[str, Any], bytes]:
+    """Repair exactly the reviewed CP2K excluded-locator legacy state."""
+
+    repair = CP2K_MANUAL_LOCATOR_REPAIR
+    if item.provider.get("input_id") != repair.provider_input_id:
+        return item.catalog, item.catalog_bytes
+    if item.catalog.get("authority_root") != repair.authority_root:
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_AUTHORITY_ROOT_DRIFT: {item.catalog_path}"
+        )
+    expected_origin = repair.old_origin.rstrip("/")
+    expected_prefix = urlsplit(repair.authority_root).path
+    if (
+        expected_origin not in authority_projection.get("allowed_https_origins", [])
+        or expected_prefix
+        not in authority_projection.get("allowed_path_prefixes", [])
+        or repair.authority_root
+        not in authority_projection.get("canonical_urls", [])
+    ):
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_AUTHORITY_DRIFT: {item.catalog_path}"
+        )
+    upstream = (
+        authority_projection.get("canonical_snapshot", {})
+        .get("upstream_sources_by_id")
+    )
+    discovered = item.catalog.get("discovered_sources")
+    if not isinstance(upstream, dict) or not isinstance(discovered, dict):
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_INVENTORY_INVALID: {item.catalog_path}"
+        )
+
+    catalog = copy.deepcopy(item.catalog)
+    legacy_ids: list[str] = []
+    repaired_ids: list[str] = []
+    excluded_count = 0
+    for source_id, source in catalog["discovered_sources"].items():
+        if not isinstance(source, dict):
+            raise ApplyMigrationError(
+                f"CP2K_LOCATOR_REPAIR_SOURCE_INVALID: {item.catalog_path}: {source_id}"
+            )
+        content = source.get("content")
+        if not isinstance(content, dict):
+            continue
+        if (
+            content.get("content_mode") == "excluded"
+            and source.get("disposition") != "excluded"
+        ):
+            raise ApplyMigrationError(
+                f"CP2K_LOCATOR_REPAIR_NONEXCLUDED: {item.catalog_path}: {source_id}"
+            )
+        if source.get("disposition") != "excluded":
+            upstream_entry = upstream.get(source_id)
+            source_path = (
+                upstream_entry.get("source_path")
+                if isinstance(upstream_entry, dict)
+                else None
+            )
+            if (
+                isinstance(source_path, str)
+                and content.get("locator") == repair.old_origin + source_path
+            ):
+                raise ApplyMigrationError(
+                    f"CP2K_LOCATOR_REPAIR_NONEXCLUDED: "
+                    f"{item.catalog_path}: {source_id}"
+                )
+            continue
+        excluded_count += 1
+        if content.get("content_mode") != "excluded":
+            raise ApplyMigrationError(
+                f"CP2K_LOCATOR_REPAIR_CONTENT_MODE_DRIFT: {item.catalog_path}: {source_id}"
+            )
+        upstream_entry = upstream.get(source_id)
+        source_path = (
+            upstream_entry.get("source_path")
+            if isinstance(upstream_entry, dict)
+            else None
+        )
+        locator = content.get("locator")
+        if (
+            not isinstance(source_path, str)
+            or not source_path
+            or not isinstance(locator, str)
+        ):
+            raise ApplyMigrationError(
+                f"CP2K_LOCATOR_REPAIR_LOCATOR_INVALID: {item.catalog_path}: {source_id}"
+            )
+        parsed = urlsplit(locator)
+        if parsed.query or parsed.fragment:
+            raise ApplyMigrationError(
+                f"CP2K_LOCATOR_REPAIR_QUERY_FRAGMENT_DRIFT: {item.catalog_path}: {source_id}"
+            )
+        legacy_locator = repair.old_origin + source_path
+        repaired_locator = repair.authority_root + source_path
+        if locator == legacy_locator:
+            legacy_ids.append(source_id)
+        elif locator == repaired_locator:
+            repaired_ids.append(source_id)
+        else:
+            raise ApplyMigrationError(
+                f"CP2K_LOCATOR_REPAIR_LOCATOR_DRIFT: {item.catalog_path}: {source_id}"
+            )
+
+    if excluded_count != repair.expected_excluded_sources:
+        raise ApplyMigrationError(
+            "CP2K_LOCATOR_REPAIR_COUNT_DRIFT: "
+            f"{item.catalog_path}: expected={repair.expected_excluded_sources} "
+            f"actual={excluded_count}"
+        )
+    if legacy_ids and repaired_ids:
+        raise ApplyMigrationError(
+            "CP2K_LOCATOR_REPAIR_MIXED_STATE: "
+            f"{item.catalog_path}: legacy={len(legacy_ids)} repaired={len(repaired_ids)}"
+        )
+    if repaired_ids:
+        return item.catalog, item.catalog_bytes
+    if len(legacy_ids) != repair.expected_excluded_sources:
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_STATE_INVALID: {item.catalog_path}"
+        )
+    for source_id in legacy_ids:
+        source_path = upstream[source_id]["source_path"]
+        catalog["discovered_sources"][source_id]["content"]["locator"] = (
+            repair.authority_root + source_path
+        )
+    return catalog, canonical_json_bytes(catalog)
+
+
+def _refresh_v11_repair_hashes(
+    root: Path,
+    item: ProviderInput,
+    catalog_bytes: bytes,
+) -> tuple[bytes, bytes]:
+    relative_catalog = _relative_path(root, item.catalog_path)
+    catalog_sha = _sha256(catalog_bytes)
+    scope = copy.deepcopy(item.scope)
+    origin_hits = 0
+    for subject in scope.get("subjects", []):
+        for origin_ref in subject.get("origin_refs", []):
+            if origin_ref.get("path") == relative_catalog:
+                origin_ref["sha256"] = catalog_sha
+                origin_hits += 1
+    if origin_hits == 0:
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_SCOPE_REF_MISSING: {item.scope_path}"
+        )
+    scope_bytes = canonical_json_bytes(scope)
+
+    seed = copy.deepcopy(item.seed)
+    provider_hits = 0
+    for provider in seed.get("providers", []):
+        if provider.get("input_id") != CP2K_MANUAL_LOCATOR_REPAIR.provider_input_id:
+            continue
+        ref = provider.get("source_ref")
+        if not isinstance(ref, dict) or ref.get("path") != relative_catalog:
+            raise ApplyMigrationError(
+                f"CP2K_LOCATOR_REPAIR_SEED_SOURCE_REF_DRIFT: {item.seed_path}"
+            )
+        ref["sha256"] = catalog_sha
+        provider_hits += 1
+    if provider_hits != 1:
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_SEED_PROVIDER_COUNT: {item.seed_path}: {provider_hits}"
+        )
+    scope_ref = seed.get("scope_catalog_ref")
+    if (
+        not isinstance(scope_ref, dict)
+        or scope_ref.get("path") != _relative_path(root, item.scope_path)
+    ):
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_SEED_SCOPE_REF_DRIFT: {item.seed_path}"
+        )
+    scope_ref["sha256"] = _sha256(scope_bytes)
+    return scope_bytes, canonical_json_bytes(seed)
+
+
 def build_plan(root: Path) -> MigrationPlan:
     """Build and schema-validate every prospective catalog byte before writes."""
 
@@ -769,6 +965,7 @@ def build_plan(root: Path) -> MigrationPlan:
     seed_paths, provider_inputs = enumerate_provider_inputs(root)
     versions = {item.catalog.get("schema_version") for item in provider_inputs}
     if versions == {"1.1"}:
+        projections = _authority_projections(root)
         catalog_after = {
             item.catalog_path: item.catalog_bytes for item in provider_inputs
         }
@@ -781,6 +978,39 @@ def build_plan(root: Path) -> MigrationPlan:
             scope_path = _resolve_ref(root, seed["scope_catalog_ref"], seed_path)
             scope_after[scope_path] = scope_path.read_bytes()
         seed_after = {path: path.read_bytes() for path in seed_paths}
+        repair_items = [
+            item
+            for item in provider_inputs
+            if item.provider.get("input_id")
+            == CP2K_MANUAL_LOCATOR_REPAIR.provider_input_id
+        ]
+        if len(repair_items) != 1:
+            raise ApplyMigrationError(
+                "CP2K_LOCATOR_REPAIR_PROVIDER_COUNT: "
+                f"expected=1 actual={len(repair_items)}"
+            )
+        repaired_items: list[ProviderInput] = []
+        for item in repair_items:
+            authority_id = item.provider.get("authority_id")
+            if authority_id not in projections:
+                raise ApplyMigrationError(
+                    f"AUTHORITY_PROJECTION_MISSING: {item.catalog_path}: {authority_id}"
+                )
+            catalog, payload = _repair_cp2k_manual_v11_catalog(
+                item, projections[authority_id]
+            )
+            catalog_payloads[item.catalog_path] = catalog
+            catalog_after[item.catalog_path] = payload
+            if payload != item.catalog_bytes:
+                repaired_items.append(item)
+        if len(repaired_items) > 1:
+            raise ApplyMigrationError("CP2K_LOCATOR_REPAIR_PROVIDER_DUPLICATE")
+        for item in repaired_items:
+            scope_payload, seed_payload = _refresh_v11_repair_hashes(
+                root, item, catalog_after[item.catalog_path]
+            )
+            scope_after[item.scope_path] = scope_payload
+            seed_after[item.seed_path] = seed_payload
         _validate_final_graph(
             root,
             seed_paths,
@@ -799,15 +1029,21 @@ def build_plan(root: Path) -> MigrationPlan:
             for collection in ("limitations", "blockers"):
                 if old_seed_text.intersection(seed.get(collection, [])):
                     raise ApplyMigrationError(f"SEED_LEGACY_TEXT_REMAINS: {path}")
+        final_files = {**catalog_after, **scope_after, **seed_after}
+        changes = {
+            path: payload
+            for path, payload in final_files.items()
+            if path.read_bytes() != payload
+        }
         return MigrationPlan(
             root=root,
-            status="up-to-date",
+            status="migration-required" if changes else "up-to-date",
             seed_paths=seed_paths,
             provider_inputs=provider_inputs,
             catalog_after=catalog_after,
             scope_after=scope_after,
             seed_after=seed_after,
-            changes={},
+            changes=changes,
         )
     if versions != {"1.0"}:
         raise ApplyMigrationError(

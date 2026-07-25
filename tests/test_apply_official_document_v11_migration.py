@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+import json
 import os
 from pathlib import Path
 import sys
@@ -13,15 +15,134 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from apply_official_document_v11_migration import (  # noqa: E402
+    ApplyMigrationError,
+    CP2K_MANUAL_LOCATOR_REPAIR,
     EXPECTED_DECLARATIVE_CATALOGS,
     EXPECTED_SEEDS,
+    ProviderInput,
+    _repair_cp2k_manual_v11_catalog,
     apply_changes_atomically,
     build_plan,
     enumerate_provider_inputs,
 )
+from registry_yaml import load_yaml_strict  # noqa: E402
+from validate_official_document_coverage import _url_matches_authority  # noqa: E402
 
 
 class ApplyOfficialDocumentV11MigrationTests(unittest.TestCase):
+    @staticmethod
+    def _cp2k_repair_fixture(state: str) -> tuple[ProviderInput, dict[str, object]]:
+        repair = CP2K_MANUAL_LOCATOR_REPAIR
+        discovered = {}
+        upstream = {}
+        for index in range(repair.expected_excluded_sources):
+            source_id = f"page-{index}.html"
+            source_path = f"section/{source_id}"
+            if state == "legacy" or (state == "mixed" and index):
+                locator = repair.old_origin + source_path
+            else:
+                locator = repair.authority_root + source_path
+            discovered[source_id] = {
+                "content": {
+                    "content_mode": "excluded",
+                    "inventory_entry_identity": {
+                        "bytes": index + 1,
+                        "sha256": f"{index:064x}",
+                    },
+                    "locator": locator,
+                },
+                "disposition": "excluded",
+                "rationale": "reviewed exclusion",
+                "reason_code": "other",
+                "source_kind": "other",
+                "title": source_id,
+            }
+            upstream[source_id] = {
+                "canonical_url": repair.authority_root + source_path,
+                "source_path": source_path,
+            }
+        catalog = {
+            "schema_version": "1.1",
+            "authority_root": repair.authority_root,
+            "discovered_sources": discovered,
+            "sentinel": {"preserved": True},
+        }
+        item = ProviderInput(
+            seed_path=Path("/synthetic/seed.json"),
+            scope_path=Path("/synthetic/scope.json"),
+            catalog_path=Path("/synthetic/catalog.json"),
+            provider={"input_id": repair.provider_input_id},
+            seed={},
+            scope={},
+            catalog=catalog,
+            catalog_bytes=json.dumps(catalog).encode(),
+        )
+        projection = {
+            "allowed_https_origins": [repair.old_origin.rstrip("/")],
+            "allowed_path_prefixes": ["/cp2k-2026_2-branch/"],
+            "canonical_urls": [repair.authority_root],
+            "canonical_snapshot": {"upstream_sources_by_id": upstream},
+        }
+        return item, projection
+
+    def test_cp2k_legacy_locators_are_rebased_without_other_changes(self) -> None:
+        item, projection = self._cp2k_repair_fixture("legacy")
+        original = copy.deepcopy(item.catalog)
+        repaired, payload = _repair_cp2k_manual_v11_catalog(item, projection)
+        self.assertNotEqual(payload, item.catalog_bytes)
+        for source_id, source in repaired["discovered_sources"].items():
+            source_path = projection["canonical_snapshot"]["upstream_sources_by_id"][
+                source_id
+            ]["source_path"]
+            self.assertEqual(
+                source["content"]["locator"],
+                CP2K_MANUAL_LOCATOR_REPAIR.authority_root + source_path,
+            )
+            source["content"]["locator"] = original["discovered_sources"][
+                source_id
+            ]["content"]["locator"]
+        self.assertEqual(repaired, original)
+
+    def test_cp2k_repaired_locators_are_idempotent(self) -> None:
+        item, projection = self._cp2k_repair_fixture("repaired")
+        repaired, payload = _repair_cp2k_manual_v11_catalog(item, projection)
+        self.assertIs(repaired, item.catalog)
+        self.assertEqual(payload, item.catalog_bytes)
+
+    def test_cp2k_mixed_locator_state_fails_closed(self) -> None:
+        item, projection = self._cp2k_repair_fixture("mixed")
+        with self.assertRaisesRegex(
+            ApplyMigrationError, "CP2K_LOCATOR_REPAIR_MIXED_STATE"
+        ):
+            _repair_cp2k_manual_v11_catalog(item, projection)
+
+    def test_cp2k_locator_drift_states_fail_closed(self) -> None:
+        for drift, expected in (
+            ("count", "CP2K_LOCATOR_REPAIR_COUNT_DRIFT"),
+            ("nonexcluded", "CP2K_LOCATOR_REPAIR_NONEXCLUDED"),
+            ("query", "CP2K_LOCATOR_REPAIR_QUERY_FRAGMENT_DRIFT"),
+            ("fragment", "CP2K_LOCATOR_REPAIR_QUERY_FRAGMENT_DRIFT"),
+            ("host", "CP2K_LOCATOR_REPAIR_LOCATOR_DRIFT"),
+        ):
+            with self.subTest(drift=drift):
+                item, projection = self._cp2k_repair_fixture("legacy")
+                source_id = next(iter(item.catalog["discovered_sources"]))
+                source = item.catalog["discovered_sources"][source_id]
+                if drift == "count":
+                    del item.catalog["discovered_sources"][source_id]
+                elif drift == "nonexcluded":
+                    source["disposition"] = "included"
+                elif drift == "query":
+                    source["content"]["locator"] += "?drift=1"
+                elif drift == "fragment":
+                    source["content"]["locator"] += "#drift"
+                else:
+                    source["content"]["locator"] = source["content"][
+                        "locator"
+                    ].replace("manual.cp2k.org", "example.invalid")
+                with self.assertRaisesRegex(ApplyMigrationError, expected):
+                    _repair_cp2k_manual_v11_catalog(item, projection)
+
     def test_seed_enumeration_is_exact_and_ref_bound(self) -> None:
         seed_paths, provider_inputs = enumerate_provider_inputs(ROOT)
         self.assertEqual(len(seed_paths), EXPECTED_SEEDS)
@@ -42,6 +163,31 @@ class ApplyOfficialDocumentV11MigrationTests(unittest.TestCase):
         self.assertEqual(len(plan.catalog_after), EXPECTED_DECLARATIVE_CATALOGS)
         self.assertEqual(len(plan.scope_after), EXPECTED_SEEDS)
         self.assertEqual(len(plan.seed_after), EXPECTED_SEEDS)
+        authorities = load_yaml_strict(
+            ROOT / "registry" / "official-source-authorities.yaml",
+            "official-source-authorities.yaml",
+        )
+        authority = authorities["authorities"]["cp2k-official-manual"]
+        cp2k = next(
+            item
+            for item in plan.provider_inputs
+            if item.provider.get("input_id") == "cp2k-manual"
+        )
+        excluded = [
+            source
+            for source in cp2k.catalog["discovered_sources"].values()
+            if source["disposition"] == "excluded"
+        ]
+        self.assertEqual(
+            len(excluded),
+            CP2K_MANUAL_LOCATOR_REPAIR.expected_excluded_sources,
+        )
+        self.assertTrue(
+            all(
+                _url_matches_authority(source["content"]["locator"], authority)
+                for source in excluded
+            )
+        )
 
     def test_atomic_apply_replaces_all_staged_bytes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
