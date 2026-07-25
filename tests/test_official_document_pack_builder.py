@@ -327,6 +327,33 @@ class OfficialDocumentPackBuilderTests(unittest.TestCase):
             )
         builder._validate_provider_projection(context, result)
 
+    def test_declarative_v11_selector_subjects_accumulate(self) -> None:
+        context = self.real_context("gromacs-rigorous-simulations")
+        provider = context.seed["providers"][0]
+        authority = self.authority_for(
+            provider,
+            {
+                "scope": "exact",
+                "exact_version": "2026.3",
+                "minimum_version": None,
+                "maximum_version": None,
+                "release_series": None,
+            },
+        )
+        with mock.patch.object(builder, "_authority", return_value=authority):
+            result = builder._declarative_adapter(context, provider)
+        self.assertEqual(
+            result.version_scope,
+            {
+                "kind": "exact",
+                "retrieved_utc": None,
+                "snapshot_identity": None,
+                "value": "2026.3",
+            },
+        )
+        self.assertTrue(result.slice_sources)
+        builder._validate_provider_projection(context, result)
+
     def test_blockers_route_only_to_declared_dimensions(self) -> None:
         blockers = [
             {

@@ -2090,20 +2090,20 @@ def _declarative_adapter(
                     f"Selector {selector['selector_id']!r} for source {source_id!r} "
                     "uses non-whole external projection and cannot claim exact upstream bytes."
                 )
-            selector_subject_ids = selector["subject_ids"]
-            if not isinstance(selector_subject_ids, list):
+            raw_selector_subject_ids = selector["subject_ids"]
+            if not isinstance(raw_selector_subject_ids, list):
                 raise PackBuildError(
                     f"{context.skill_id}:{provider['input_id']}:{source_id}: "
                     "selector subject_ids must be a list"
                 )
-            if not set(selector_subject_ids).issubset(expected_subjects):
+            if not set(raw_selector_subject_ids).issubset(expected_subjects):
                 raise PackBuildError(
                     f"{context.skill_id}:{provider['input_id']}:{source_id}: "
                     "selector subject_ids must resolve to canonical provider scope"
                 )
             mapped_selector_subject_ids = [
                 scope_subject_id_map[subject_id]
-                for subject_id in selector_subject_ids
+                for subject_id in raw_selector_subject_ids
             ]
             if len(mapped_selector_subject_ids) != len(set(mapped_selector_subject_ids)):
                 raise PackBuildError(
