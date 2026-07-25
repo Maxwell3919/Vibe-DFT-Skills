@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and project canonical official-source authority policy."""
+"""Validate and project canonical official-source technical authority data."""
 
 from __future__ import annotations
 
@@ -24,8 +24,7 @@ SCHEMA_VERSION = "1.0"
 IDENTIFIER = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 HOST = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*$")
 UTC_TIMESTAMP = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")
-ENTRY_FIELDS = {
-    "display_name",
+TECHNICAL_ENTRY_FIELDS = {
     "lifecycle",
     "provider_class",
     "provider_id",
@@ -34,10 +33,6 @@ ENTRY_FIELDS = {
     "content_policy",
     "content_identity_policy",
     "canonical_snapshot",
-    "license_policy",
-    "redistribution_policy",
-    "limitations",
-    "provenance",
 }
 PROVIDER_CLASSES = {
     "software",
@@ -125,15 +120,6 @@ SOURCE_KINDS = {
     "official-dataset",
     "official-api-metadata",
 }
-LICENSE_POLICY_FIELDS = {"status", "identifier", "terms_urls", "verification_status"}
-REDISTRIBUTION_POLICY_FIELDS = {
-    "allowed_values",
-    "bundle_content",
-    "external_runtime_content",
-}
-PROVENANCE_FIELDS = {"verified_utc", "official_fact_urls"}
-LICENSE_STATUSES = {"known-open", "known-restricted", "unknown"}
-REDISTRIBUTION_VALUES = {"redistributable", "runtime-only", "restricted", "unknown"}
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
 MAX_MANIFEST_BYTES = 4 * 1024 * 1024
 MAX_SNAPSHOT_BYTES = 16 * 1024 * 1024
@@ -240,10 +226,6 @@ def _url_allowed(url: str, origins: list[str], prefixes: list[str]) -> bool:
         return False
     origin, path = parts
     return origin in origins and any(path.startswith(prefix) for prefix in prefixes)
-
-
-def _public_https_url(url: object) -> bool:
-    return _canonical_https_parts(url, require_path=True) is not None
 
 
 def _canonical_query_https_parts(
@@ -776,7 +758,7 @@ def _canonical_snapshot_projection(
     }
 
 
-def validate_and_project(
+def validate_and_project_technical(
     data: object,
     *,
     software_data: dict[str, Any] | None = None,
@@ -830,10 +812,11 @@ def validate_and_project(
         if not isinstance(entry, dict):
             failures.append(f"{location}: expected a mapping")
             continue
-        if set(entry) != ENTRY_FIELDS:
-            failures.append(f"{location}: expected fields {sorted(ENTRY_FIELDS)}")
-        if not isinstance(entry.get("display_name"), str) or not entry["display_name"].strip():
-            failures.append(f"{location}/display_name: expected a nonempty string")
+        missing_fields = TECHNICAL_ENTRY_FIELDS - set(entry)
+        if missing_fields:
+            failures.append(
+                f"{location}: missing technical fields {sorted(missing_fields)}"
+            )
         lifecycle = entry.get("lifecycle")
         if lifecycle not in software_providers_by_authority_lifecycle:
             failures.append(f"{location}/lifecycle: expected active or planned")
@@ -990,47 +973,6 @@ def validate_and_project(
         if content.get("resolution_mode") != expected_resolution:
             failures.append(f"{location}/content_policy/resolution_mode: expected {expected_resolution!r}")
 
-        license_policy = entry.get("license_policy")
-        if not isinstance(license_policy, dict) or set(license_policy) != LICENSE_POLICY_FIELDS:
-            failures.append(f"{location}/license_policy: expected fields {sorted(LICENSE_POLICY_FIELDS)}")
-            license_policy = {}
-        license_status = license_policy.get("status")
-        if license_status not in LICENSE_STATUSES:
-            failures.append(f"{location}/license_policy/status: unsupported status")
-        identifier = license_policy.get("identifier")
-        if identifier is not None and (not isinstance(identifier, str) or not identifier.strip()):
-            failures.append(f"{location}/license_policy/identifier: expected null or nonempty string")
-        terms_urls = _string_list(
-            license_policy.get("terms_urls"),
-            f"{location}/license_policy/terms_urls",
-            failures,
-        )
-        for index, url in enumerate(terms_urls):
-            if not _public_https_url(url):
-                failures.append(f"{location}/license_policy/terms_urls/{index}: expected a public HTTPS URL")
-        if license_policy.get("verification_status") not in {"verified", "unresolved"}:
-            failures.append(f"{location}/license_policy/verification_status: unsupported status")
-        if lifecycle == "active" and license_status in {"known-open", "known-restricted"}:
-            if identifier is None or not terms_urls or license_policy.get("verification_status") != "verified":
-                failures.append(
-                    f"{location}/license_policy: known license status requires an identifier, terms URL, and verification"
-                )
-        if lifecycle == "active" and license_status == "unknown" and (
-            identifier is not None
-            or terms_urls
-            or license_policy.get("verification_status") != "unresolved"
-        ):
-            failures.append(
-                f"{location}/license_policy: unknown license status must not claim resolved license facts"
-            )
-        if lifecycle == "planned" and (
-            license_status != "unknown"
-            or identifier is not None
-            or terms_urls
-            or license_policy.get("verification_status") != "unresolved"
-        ):
-            failures.append(f"{location}/license_policy: planned authority must remain unresolved")
-
         canonical = entry.get("canonical_snapshot")
         if lifecycle == "planned" or identity_mode == "platform-adapter-only":
             if canonical is not None:
@@ -1056,69 +998,9 @@ def validate_and_project(
                 failures.append(f"{location}/canonical_snapshot: unsupported identity mode cannot authorize a snapshot")
             canonical_projections[authority_id] = None
 
-        redistribution = entry.get("redistribution_policy")
-        if not isinstance(redistribution, dict) or set(redistribution) != REDISTRIBUTION_POLICY_FIELDS:
-            failures.append(f"{location}/redistribution_policy: expected fields {sorted(REDISTRIBUTION_POLICY_FIELDS)}")
-            redistribution = {}
-        allowed_values = _string_list(
-            redistribution.get("allowed_values"),
-            f"{location}/redistribution_policy/allowed_values",
-            failures,
-            allowed=REDISTRIBUTION_VALUES,
-            nonempty=True,
-        )
-        expected_values = {
-            "known-open": {"redistributable"},
-            "known-restricted": {"runtime-only", "restricted"},
-            "unknown": {"unknown"},
-        }.get(license_status, set())
-        if set(allowed_values) != expected_values:
-            failures.append(f"{location}/redistribution_policy/allowed_values: inconsistent with license status")
-        bundle_content = redistribution.get("bundle_content")
-        if bundle_content not in {"forbidden", "canonical-pinned-open-only"}:
-            failures.append(
-                f"{location}/redistribution_policy/bundle_content: unsupported policy"
-            )
-        elif bundle_content == "canonical-pinned-open-only" and (
-            not pinned_mode or license_status != "known-open"
+        if lifecycle == "planned" and (
+            origins or allowed_scopes or registered_scopes
         ):
-            failures.append(
-                f"{location}/redistribution_policy/bundle_content: bundled content "
-                "requires both a canonical identity pin and a known-open license"
-            )
-        elif lifecycle == "planned" and bundle_content != "forbidden":
-            failures.append(
-                f"{location}/redistribution_policy/bundle_content: planned authority "
-                "must forbid bundled content"
-            )
-        expected_runtime = "platform-verification-required" if lifecycle == "active" else "unavailable"
-        if redistribution.get("external_runtime_content") != expected_runtime:
-            failures.append(f"{location}/redistribution_policy/external_runtime_content: expected {expected_runtime!r}")
-
-        _string_list(entry.get("limitations"), f"{location}/limitations", failures, nonempty=True)
-        provenance = entry.get("provenance")
-        if not isinstance(provenance, dict) or set(provenance) != PROVENANCE_FIELDS:
-            failures.append(f"{location}/provenance: expected fields {sorted(PROVENANCE_FIELDS)}")
-            provenance = {}
-        fact_urls = _string_list(
-            provenance.get("official_fact_urls"),
-            f"{location}/provenance/official_fact_urls",
-            failures,
-            nonempty=lifecycle == "active",
-        )
-        verified_utc = provenance.get("verified_utc")
-        if lifecycle == "active":
-            if not _valid_timestamp(verified_utc):
-                failures.append(f"{location}/provenance/verified_utc: expected an exact UTC timestamp")
-            for index, url in enumerate(fact_urls):
-                if not _public_https_url(url):
-                    failures.append(f"{location}/provenance/official_fact_urls/{index}: expected a canonical public HTTPS URL")
-                elif not _url_allowed(url, origins, prefixes) and url not in terms_urls:
-                    failures.append(
-                        f"{location}/provenance/official_fact_urls/{index}: URL is outside "
-                        "authority locator policy and license terms"
-                    )
-        elif verified_utc is not None or fact_urls or origins or allowed_scopes or registered_scopes:
             failures.append(f"{location}: planned authority must not claim verified source metadata")
 
     if software_data is not None:
@@ -1192,13 +1074,27 @@ def validate_and_project(
             "version_scopes": copy.deepcopy(entry["version_policy"]["registered_scopes"]),
             "content_identity_policy": copy.deepcopy(entry["content_identity_policy"]),
             "canonical_snapshot": copy.deepcopy(canonical_projections.get(authority_id)),
-            "license_status": entry["license_policy"]["status"],
-            "license_identifier": entry["license_policy"]["identifier"],
-            "license_terms_urls": copy.deepcopy(entry["license_policy"]["terms_urls"]),
-            "redistribution": copy.deepcopy(entry["redistribution_policy"]["allowed_values"]),
-            "bundle_content_policy": entry["redistribution_policy"]["bundle_content"],
         }
     return [], snapshot
+
+
+def validate_and_project(
+    data: object,
+    *,
+    software_data: dict[str, Any] | None = None,
+    source_root: Path | None = None,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
+) -> tuple[list[str], dict[str, dict[str, Any]]]:
+    """Compatibility alias for the policy-free technical projection."""
+
+    return validate_and_project_technical(
+        data,
+        software_data=software_data,
+        source_root=source_root,
+        externalized_receipts=externalized_receipts,
+        used_externalized_paths=used_externalized_paths,
+    )
 
 
 def validation_errors(
@@ -1227,7 +1123,28 @@ def active_authority_snapshot(
     externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
     used_externalized_paths: set[str] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    failures, snapshot = validate_and_project(
+    """Compatibility alias for :func:`active_authority_technical_snapshot`."""
+
+    return active_authority_technical_snapshot(
+        data,
+        software_data=software_data,
+        source_root=source_root,
+        externalized_receipts=externalized_receipts,
+        used_externalized_paths=used_externalized_paths,
+    )
+
+
+def active_authority_technical_snapshot(
+    data: dict[str, Any],
+    *,
+    software_data: dict[str, Any] | None = None,
+    source_root: Path | None = None,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Return active authority/version/locator/content-identity data only."""
+
+    failures, snapshot = validate_and_project_technical(
         data,
         software_data=software_data,
         source_root=source_root,

@@ -70,7 +70,7 @@ class LobsterOfficialDocumentSeedTests(unittest.TestCase):
         for catalog in self.catalogs:
             self.validate_schema(
                 catalog,
-                "contracts/official-document-source-catalog.schema.json",
+                "contracts/official-document-source-catalog-1.1.schema.json",
             )
 
     def test_every_seed_file_reference_is_exact(self) -> None:
@@ -103,18 +103,21 @@ class LobsterOfficialDocumentSeedTests(unittest.TestCase):
                 self.assertTrue(mapped)
             else:
                 self.assertEqual(mapped, set())
-        for subject_id in (
-            "lobster-5-1-1-native-contract",
-            "lobster-5-1-1-license-boundary",
-        ):
-            self.assertEqual(
-                subjects[subject_id]["expected_disposition"],
-                "blocked",
-            )
-            self.assertEqual(
-                set(subjects[subject_id]["provider_input_ids"]),
-                provider_ids,
-            )
+        self.assertEqual(
+            subjects["lobster-5-1-1-native-contract"][
+                "expected_disposition"
+            ],
+            "blocked",
+        )
+        self.assertEqual(
+            set(
+                subjects["lobster-5-1-1-native-contract"][
+                    "provider_input_ids"
+                ]
+            ),
+            provider_ids,
+        )
+        self.assertNotIn("lobster-5-1-1-license-boundary", subjects)
         self.assertEqual(self.seed["status_ceiling"], "blocked")
         self.assertTrue(self.seed["blockers"])
 
@@ -134,11 +137,12 @@ class LobsterOfficialDocumentSeedTests(unittest.TestCase):
                 if item["evidence_class"] == "official-provider-required"
                 and input_id in item["provider_input_ids"]
             }
-            declared = {item["subject_id"] for item in catalog["subjects"]}
+            declared = set(catalog["subjects"])
             sliced = {
                 subject_id
-                for source in catalog["sources"]
-                for item in source["slices"]
+                for source in catalog["discovered_sources"].values()
+                if source["disposition"] == "included"
+                for item in source["selectors"]
                 for subject_id in item["subject_ids"]
             }
             blocked = {
@@ -150,37 +154,35 @@ class LobsterOfficialDocumentSeedTests(unittest.TestCase):
             self.assertEqual(declared, expected)
             self.assertEqual(
                 blocked,
-                {
-                    "lobster-5-1-1-native-contract",
-                    "lobster-5-1-1-license-boundary",
-                },
+                {"lobster-5-1-1-native-contract"},
             )
             self.assertTrue(blocked.isdisjoint(sliced))
             self.assertEqual(sliced, expected - blocked)
 
     def test_catalogs_are_https_doi_metadata_only_and_query_free(self) -> None:
-        self.assertEqual(sum(len(item["sources"]) for item in self.catalogs), 7)
+        self.assertEqual(
+            sum(len(item["discovered_sources"]) for item in self.catalogs),
+            7,
+        )
         for catalog in self.catalogs:
             rendered = json.dumps(catalog)
             self.assertNotIn("http://", rendered)
             self.assertNotIn("?", rendered)
             self.assertNotIn("schmeling.ac.rwth-aachen.de", rendered)
             self.assertFalse(catalog["upstream_universe_complete"])
-            for source in catalog["sources"]:
-                self.assertTrue(source["locator"].startswith("https://doi.org/"))
-                self.assertNotIn("content_ref", source)
-                self.assertIn("external_identity", source)
-                self.assertIn(
-                    "application/vnd.citationstyles.csl+json",
-                    source["external_identity"]["value"],
+            self.assertNotIn("license", catalog)
+            for source in catalog["discovered_sources"].values():
+                self.assertEqual(source["disposition"], "included")
+                content = source["content"]
+                self.assertTrue(
+                    content["locator"].startswith("https://doi.org/")
                 )
-                for item in source["slices"]:
+                self.assertEqual(content["content_mode"], "external-content")
+                self.assertNotIn("content_ref", source)
+                self.assertIn("receipt", content)
+                for item in source["selectors"]:
                     self.assertNotIn("content_ref", item)
-                    self.assertIn("external_receipt", item)
-            self.assertNotIn(
-                "embedded-open",
-                catalog["license"]["allowed_storage_modes"],
-            )
+                    self.assertIn("selected_identity", item)
 
     def test_authority_and_binding_proposal_matches_seed_and_central_contract(self) -> None:
         sys.path.insert(0, str(REPO_ROOT / "tools"))

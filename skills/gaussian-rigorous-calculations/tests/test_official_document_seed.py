@@ -70,7 +70,7 @@ class GaussianOfficialDocumentSeedTests(unittest.TestCase):
         for catalog in self.catalogs:
             self.validate_schema(
                 catalog,
-                "contracts/official-document-source-catalog.schema.json",
+                "contracts/official-document-source-catalog-1.1.schema.json",
             )
 
     def test_every_seed_file_reference_is_exact(self) -> None:
@@ -99,7 +99,14 @@ class GaussianOfficialDocumentSeedTests(unittest.TestCase):
                 self.assertTrue(mapped)
             else:
                 self.assertEqual(mapped, set())
-        self.assertEqual(dispositions["g16-licensed-runtime"], "blocked")
+        self.assertNotIn("g16-licensed-runtime", dispositions)
+        self.assertTrue(
+            all(
+                disposition == "partial"
+                for subject_id, disposition in dispositions.items()
+                if subject_id != "gaussian-offline-guard-boundary"
+            )
+        )
         self.assertEqual(self.seed["status_ceiling"], "partial")
         self.assertEqual(self.seed["blockers"], [])
 
@@ -119,11 +126,12 @@ class GaussianOfficialDocumentSeedTests(unittest.TestCase):
                 if item["evidence_class"] == "official-provider-required"
                 and input_id in item["provider_input_ids"]
             }
-            declared = {item["subject_id"] for item in catalog["subjects"]}
+            declared = set(catalog["subjects"])
             sliced = {
                 subject_id
-                for source in catalog["sources"]
-                for item in source["slices"]
+                for source in catalog["discovered_sources"].values()
+                if source["disposition"] == "included"
+                for item in source["selectors"]
                 for subject_id in item["subject_ids"]
             }
             blocked = {
@@ -133,9 +141,8 @@ class GaussianOfficialDocumentSeedTests(unittest.TestCase):
                 == "blocked"
             }
             self.assertEqual(declared, expected)
-            self.assertEqual(blocked, {"g16-licensed-runtime"})
-            self.assertTrue(blocked.isdisjoint(sliced))
-            self.assertEqual(sliced, expected - blocked)
+            self.assertEqual(blocked, set())
+            self.assertEqual(sliced, expected)
 
     def test_catalogs_are_https_metadata_only_and_exactly_registered(self) -> None:
         self.assertEqual(
@@ -148,18 +155,18 @@ class GaussianOfficialDocumentSeedTests(unittest.TestCase):
         )
         for catalog in self.catalogs:
             self.assertFalse(catalog["upstream_universe_complete"])
+            self.assertNotIn("license", catalog)
             self.assertNotIn("http://", json.dumps(catalog))
-            for source in catalog["sources"]:
-                self.assertTrue(source["locator"].startswith("https://"))
+            for source in catalog["discovered_sources"].values():
+                content = source["content"]
+                self.assertTrue(content["locator"].startswith("https://"))
                 self.assertNotIn("content_ref", source)
-                self.assertIn("external_identity", source)
-                for item in source["slices"]:
-                    self.assertNotIn("content_ref", item)
-                    self.assertIn("external_receipt", item)
-            self.assertNotIn(
-                "embedded-open",
-                catalog["license"]["allowed_storage_modes"],
-            )
+                if source["disposition"] == "included":
+                    self.assertEqual(content["content_mode"], "external-content")
+                    self.assertIn("receipt", content)
+                    for item in source["selectors"]:
+                        self.assertNotIn("content_ref", item)
+                        self.assertIn("selected_identity", item)
 
     def test_authority_and_binding_proposal_matches_seed_and_central_contract(self) -> None:
         sys.path.insert(0, str(REPO_ROOT / "tools"))

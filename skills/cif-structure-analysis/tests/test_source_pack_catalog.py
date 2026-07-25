@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
+import tempfile
 import unittest
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -30,6 +33,54 @@ PROVIDER_CLASSES = {
 class SourcePackCatalogTests(unittest.TestCase):
     def test_generated_inputs_are_current(self) -> None:
         self.assertEqual(MODULE.sync(check=True), ())
+
+        fixture_payloads = []
+        expected_paths = {
+            path.relative_to(ROOT).as_posix()
+            for path in MODULE.build_outputs(ROOT)
+        }
+        for _ in range(2):
+            with tempfile.TemporaryDirectory() as temp_dir:
+                fixture_root = Path(temp_dir)
+                fixture_skill = (
+                    fixture_root / "skills" / MODULE.SKILL_ID
+                )
+                shutil.copytree(
+                    ROOT / "skills" / MODULE.SKILL_ID,
+                    fixture_skill,
+                )
+                for relative in expected_paths:
+                    path = fixture_root / relative
+                    if path.is_file():
+                        path.unlink()
+
+                self.assertEqual(
+                    set(MODULE.sync(check=False, root=fixture_root)),
+                    expected_paths,
+                )
+                self.assertEqual(
+                    MODULE.sync(check=False, root=fixture_root),
+                    (),
+                )
+                self.assertEqual(
+                    MODULE.sync(check=True, root=fixture_root),
+                    (),
+                )
+                fixture_payloads.append(
+                    {
+                        relative: (fixture_root / relative).read_bytes()
+                        for relative in expected_paths
+                    }
+                )
+
+        self.assertEqual(fixture_payloads[0], fixture_payloads[1])
+        self.assertEqual(
+            fixture_payloads[0],
+            {
+                relative: (ROOT / relative).read_bytes()
+                for relative in expected_paths
+            },
+        )
 
     def test_scope_contains_exact_provider_and_public_symbol_sets(self) -> None:
         catalog = MODULE.scope_catalog(ROOT)
@@ -92,19 +143,21 @@ class SourcePackCatalogTests(unittest.TestCase):
 
     def test_seed_and_catalogs_match_strict_schemas(self) -> None:
         skill_refs = ROOT / "skills" / MODULE.SKILL_ID / "references"
+        seed_path = skill_refs / "source-pack-seed.json"
+        scope_path = skill_refs / "source-pack-scope.json"
         checks = [
             (
                 "contracts/official-document-pack-seed.schema.json",
-                skill_refs / "source-pack-seed.json",
+                seed_path,
             ),
             (
                 "contracts/official-document-scope-catalog.schema.json",
-                skill_refs / "source-pack-scope.json",
+                scope_path,
             ),
         ]
         checks.extend(
             (
-                "contracts/official-document-source-catalog.schema.json",
+                "contracts/official-document-source-catalog-1.1.schema.json",
                 path,
             )
             for path in sorted((skill_refs / "source-pack-inputs").glob("*.json"))
@@ -120,6 +173,70 @@ class SourcePackCatalogTests(unittest.TestCase):
                     key=lambda item: tuple(str(part) for part in item.absolute_path),
                 )
                 self.assertEqual([item.message for item in errors], [])
+
+        seed = json.loads(seed_path.read_text(encoding="utf-8"))
+        scope_ref = seed["scope_catalog_ref"]
+        self.assertEqual(scope_ref["path"], scope_path.relative_to(ROOT).as_posix())
+        self.assertEqual(scope_ref["sha256"], MODULE.sha256_file(scope_path))
+
+        providers = {
+            item["input_id"]: item
+            for item in seed["providers"]
+        }
+        self.assertEqual(
+            set(providers),
+            set(MODULE.PROVIDER_MIGRATION_SPECS),
+        )
+        catalog_paths = {
+            path.stem: path
+            for path in (skill_refs / "source-pack-inputs").glob("*.json")
+        }
+        self.assertEqual(set(catalog_paths), set(providers))
+
+        legacy_catalogs = MODULE.legacy_provider_catalogs()
+        for input_id, provider in providers.items():
+            with self.subTest(identity=input_id):
+                spec = MODULE.PROVIDER_MIGRATION_SPECS[input_id]
+                catalog_path = ROOT / provider["source_ref"]["path"]
+                catalog_bytes = catalog_path.read_bytes()
+                catalog = json.loads(catalog_bytes)
+                legacy_bytes = MODULE.canonical_json_bytes(
+                    legacy_catalogs[input_id]
+                )
+                inventory_identity = {
+                    "sha256": hashlib.sha256(legacy_bytes).hexdigest(),
+                    "bytes": len(legacy_bytes),
+                }
+
+                self.assertEqual(provider["authority_id"], spec.authority_id)
+                self.assertEqual(provider["provider_id"], spec.provider_id)
+                self.assertEqual(
+                    provider["source_ref"]["sha256"],
+                    hashlib.sha256(catalog_bytes).hexdigest(),
+                )
+                self.assertEqual(catalog["schema_version"], "1.1")
+                self.assertEqual(catalog["authority_id"], spec.authority_id)
+                self.assertEqual(catalog["provider_id"], spec.provider_id)
+                self.assertEqual(
+                    catalog["inventory_identity"],
+                    inventory_identity,
+                )
+                self.assertEqual(
+                    catalog["authority_revision"],
+                    inventory_identity["sha256"],
+                )
+                self.assertEqual(
+                    catalog["discovery_processor"]["input_sha256"],
+                    inventory_identity["sha256"],
+                )
+                self.assertEqual(
+                    catalog["discovery_processor"]["output_sha256"],
+                    MODULE.sha256_bytes(
+                        MODULE.canonical_projection_bytes(
+                            catalog["discovered_sources"]
+                        )
+                    ),
+                )
 
 
 if __name__ == "__main__":

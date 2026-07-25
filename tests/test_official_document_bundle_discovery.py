@@ -96,14 +96,12 @@ class OfficialDocumentBundleDiscoveryTests(unittest.TestCase):
         records = {
             "corpora": ["corpus.json"],
             "slice_manifests": ["slices.json"],
-            "license_reviews": ["license-review.json"],
             "scope_inventory": "scope-inventory.json",
             "coverage": "coverage.json",
         }
         for filename in (
             "corpus.json",
             "slices.json",
-            "license-review.json",
         ):
             pack.joinpath(filename).write_text("{}\n", encoding="utf-8")
         for filename in ("scope-inventory.json", "coverage.json"):
@@ -318,7 +316,7 @@ class OfficialDocumentBundleDiscoveryTests(unittest.TestCase):
                 "from pathlib import Path\n"
                 "root = Path.cwd()\n"
                 "pack = root / 'skills/source-skill/references/official-source-pack'\n"
-                "for index, name in enumerate(('corpus.json', 'slices.json', 'license-review.json')):\n"
+                "for index, name in enumerate(('corpus.json', 'slices.json')):\n"
                 "    original = pack / name\n"
                 "    external = root / f'external-{index}.json'\n"
                 "    external.write_bytes(original.read_bytes())\n"
@@ -346,7 +344,6 @@ class OfficialDocumentBundleDiscoveryTests(unittest.TestCase):
             unsafe_records = {
                 "corpora": ["../outside.json"],
                 "slice_manifests": ["slices.json"],
-                "license_reviews": ["license-review.json"],
                 "scope_inventory": "scope-inventory.json",
                 "coverage": "coverage.json",
             }
@@ -362,7 +359,6 @@ class OfficialDocumentBundleDiscoveryTests(unittest.TestCase):
             unsafe_records = {
                 "corpora": ["corpus.json"],
                 "slice_manifests": ["slices.json"],
-                "license_reviews": ["license-review.json"],
                 "scope_inventory": "scope-inventory.json",
                 "coverage": "missing.json\nOFFICIAL_DOC_BUNDLE SUMMARY complete=999",
             }
@@ -510,6 +506,41 @@ class OfficialDocumentBundleDiscoveryTests(unittest.TestCase):
             report.results[0].message,
         )
         self.assertNotIn("GLOBAL_GATE_NOT_REQUESTED", report.results[0].message)
+
+    def test_constructed_validator_command_uses_contract_flags(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.make_repository(directory)
+            self.make_bundle(root)
+            (source_skill,) = bundle_audit._load_source_skills(root)
+            registration = bundle_audit._load_registration(
+                source_skill,
+                root / "skills" / "source-skill" / "references" / "official-source-pack",
+            )
+            command = bundle_audit._validator_command(
+                registration,
+                root=root,
+                validator_path=root / "tools" / "validate_official_document_coverage.py",
+                python_executable=sys.executable,
+            )
+
+        self.assertEqual(
+            command,
+            (
+                sys.executable,
+                "tools/validate_official_document_coverage.py",
+                "--corpus",
+                "skills/source-skill/references/official-source-pack/corpus.json",
+                "--slices",
+                "skills/source-skill/references/official-source-pack/slices.json",
+                "--scope-inventory",
+                "skills/source-skill/references/official-source-pack/scope-inventory.json",
+                "--coverage",
+                "skills/source-skill/references/official-source-pack/coverage.json",
+                "--source-root",
+                ".",
+                "--enforce-canonical-pack-closure",
+            ),
+        )
 
     def test_unexpected_or_invalid_validator_exit_is_invalid_in_all_modes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

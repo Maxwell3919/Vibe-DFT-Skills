@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 import sys
@@ -10,11 +11,15 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
+TESTS = ROOT / "tests"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
+if str(TESTS) not in sys.path:
+    sys.path.insert(0, str(TESTS))
 
 import build_official_document_dashboard as dashboard  # noqa: E402
 import validate_official_document_bundles as bundle_audit  # noqa: E402
+import test_official_document_v11_contracts as v11_contracts  # noqa: E402
 
 
 def assurance_layers(status: str) -> dict[str, dict[str, object]]:
@@ -25,11 +30,94 @@ def assurance_layers(status: str) -> dict[str, dict[str, object]]:
 
 
 class OfficialDocumentDashboardTests(unittest.TestCase):
+    def _v11_bundle_status(self) -> dict[str, str]:
+        return {
+            "overall": "partial",
+            "corpus": "partial",
+            "slices": "partial",
+            "scope": "partial",
+            "mappings": "partial",
+        }
+
+    def _v11_content(self, mode: str) -> dict[str, object]:
+        if mode == "embedded-content":
+            return copy.deepcopy(v11_contracts.embedded_slice_content())
+        if mode == "external-content":
+            return copy.deepcopy(v11_contracts.external_slice_content())
+        if mode == "metadata-only":
+            return copy.deepcopy(v11_contracts.metadata_slice_content())
+        if mode == "excluded":
+            return copy.deepcopy(v11_contracts.excluded_content())
+        return {
+            "content_mode": "other",
+            "locator": "https://docs.example.org/other.txt",
+            "identity": {
+                "sha256": "4" * 64,
+                "bytes": 4,
+            },
+        }
+
+    def _v11_slice(
+        self,
+        *,
+        slice_id: str,
+        selector_kind: str,
+        selector_value: str,
+        mode: str,
+        start_byte: int = 0,
+        byte_count: int = 8,
+    ) -> dict[str, object]:
+        return {
+            "slice_id": slice_id,
+            "selector": {
+                "layer": "raw-source",
+                "kind": selector_kind,
+                "value": selector_value,
+            },
+            "raw_byte_range": {
+                "start_byte": start_byte,
+                "byte_count": byte_count,
+            },
+            "content": self._v11_content(mode),
+            "subject_ids": ["subject-one"],
+            "loss_accounting": v11_contracts.loss_accounting(),
+        }
+
+    def _v11_pack_payloads(
+        self,
+        *,
+        corpus_status: str,
+        slice_status: str,
+        coverage_status: dict[str, str],
+        source_slices: dict[str, list[dict[str, object]]],
+    ) -> tuple[dict[str, object], dict[str, object], dict[str, object]]:
+        corpus = copy.deepcopy(v11_contracts.corpus_record())
+        corpus["status"] = corpus_status
+        corpus["authority_id"] = "example-authority"
+        base_sources = copy.deepcopy(v11_contracts.slice_record()["sources"])
+        manifest_sources: dict[str, object] = {}
+        for source_id, slices in source_slices.items():
+            source = copy.deepcopy(base_sources[source_id])
+            source["slices"] = slices
+            manifest_sources[source_id] = source
+        if not manifest_sources:
+            raise ValueError("sources may not be empty")
+
+        slice_manifest = copy.deepcopy(v11_contracts.slice_record())
+        slice_manifest["status"] = slice_status
+        slice_manifest["sources"] = manifest_sources
+
+        coverage = copy.deepcopy(v11_contracts.coverage_record())
+        coverage["status"] = coverage_status
+        return corpus, slice_manifest, coverage
+
     def pack_projection(
         self,
         *,
-        slice_status: str,
-        slices: list[dict[str, object]],
+        slice_status: str = "partial",
+        source_slices: dict[str, list[dict[str, object]]],
+        corpus_status: str = "partial",
+        coverage_status: dict[str, str] | None = None,
     ) -> tuple[
         dict[str, str],
         dict[str, dict[str, object]],
@@ -48,10 +136,20 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
             records = {
                 "corpora": ["corpus.json"],
                 "slice_manifests": ["slices.json"],
-                "license_reviews": ["license.json"],
                 "scope_inventory": "scope.json",
                 "coverage": "coverage.json",
             }
+            coverage_status = (
+                coverage_status
+                if coverage_status is not None
+                else self._v11_bundle_status()
+            )
+            corpus, slices_record, coverage = self._v11_pack_payloads(
+                corpus_status=corpus_status,
+                slice_status=slice_status,
+                coverage_status=coverage_status,
+                source_slices=source_slices,
+            )
             payloads = {
                 "bundle.json": {
                     "schema_version": "1.0",
@@ -59,28 +157,10 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
                     "skill_id": "example-skill",
                     "records": records,
                 },
-                "corpus.json": {
-                    "status": "partial",
-                    "authority_id": "example-authority",
-                    "discovery": {
-                        "upstream_universe_complete": False,
-                        "discovered_source_ids": ["manual"],
-                    },
-                    "included_sources": [{"source_id": "manual"}],
-                    "reviewed_exclusions": [],
-                },
-                "slices.json": {
-                    "status": slice_status,
-                    "sources": [
-                        {
-                            "source_id": "manual",
-                            "slices": slices,
-                        }
-                    ],
-                },
-                "license.json": {"status": "partial"},
+                "corpus.json": corpus,
+                "slices.json": slices_record,
                 "scope.json": {"status": "partial"},
-                "coverage.json": {"status": "partial"},
+                "coverage.json": coverage,
             }
             for name, payload in payloads.items():
                 (pack / name).write_text(
@@ -297,7 +377,7 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
         self.assertEqual(row["overall_status"], "partial")
         self.assertEqual(row["bundle_semantic_state"], "partial")
 
-    def test_missing_bundle_cannot_claim_freshness_or_storage_complete(self) -> None:
+    def test_missing_bundle_cannot_claim_freshness_complete(self) -> None:
         row = dashboard.make_skill_row(
             skill_id="example-skill",
             entrypoint=(
@@ -309,8 +389,7 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
                 "corpus": "missing",
                 "slice": "missing",
                 "scope": "missing",
-                "license": "missing",
-                "storage": "blocked",
+                "coverage": "missing",
                 "freshness": "missing",
             },
             assurance_layers={
@@ -326,28 +405,24 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
     ) -> None:
         _, layers, _ = self.pack_projection(
             slice_status="partial",
-            slices=[
-                {
-                    "slice_id": "whole-metadata",
-                    "selector": {
-                        "layer": "raw-source",
-                        "kind": "whole-source",
-                        "value": "*",
-                    },
-                    "artifact_kind": "metadata",
-                    "storage_mode": "metadata-only",
-                },
-                {
-                    "slice_id": "heading-content",
-                    "selector": {
-                        "layer": "raw-source",
-                        "kind": "heading",
-                        "value": "SCF",
-                    },
-                    "artifact_kind": "derived-text",
-                    "storage_mode": "embedded-open",
-                },
-            ],
+            source_slices={
+                "doc-embedded": [
+                    self._v11_slice(
+                        slice_id="whole-metadata",
+                        selector_kind="whole-source",
+                        selector_value="*",
+                        mode="metadata-only",
+                        start_byte=0,
+                    ),
+                    self._v11_slice(
+                        slice_id="heading-content",
+                        selector_kind="heading",
+                        selector_value="SCF",
+                        mode="embedded-content",
+                        start_byte=16,
+                    ),
+                ]
+            },
         )
         content = layers["content_materialized"]
         semantic = layers["semantic_slice"]
@@ -367,18 +442,18 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
     ) -> None:
         _, layers, _ = self.pack_projection(
             slice_status="partial",
-            slices=[
-                {
-                    "slice_id": "whole-metadata",
-                    "selector": {
-                        "layer": "raw-source",
-                        "kind": "whole-source",
-                        "value": "*",
-                    },
-                    "artifact_kind": "metadata",
-                    "storage_mode": "metadata-only",
-                }
-            ],
+            source_slices={
+                "doc-embedded": [
+                    self._v11_slice(
+                        slice_id="whole-metadata",
+                        selector_kind="whole-source",
+                        selector_value="*",
+                        mode="metadata-only",
+                        start_byte=0,
+                        byte_count=8,
+                    )
+                ]
+            },
         )
         self.assertEqual(
             layers["content_materialized"]["status"],
@@ -389,18 +464,17 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
     def test_blocked_slice_record_is_not_collapsed_to_partial(self) -> None:
         dimensions, layers, _ = self.pack_projection(
             slice_status="blocked",
-            slices=[
-                {
-                    "slice_id": "heading-content",
-                    "selector": {
-                        "layer": "raw-source",
-                        "kind": "heading",
-                        "value": "SCF",
-                    },
-                    "artifact_kind": "derived-text",
-                    "storage_mode": "embedded-open",
-                }
-            ],
+            source_slices={
+                "doc-embedded": [
+                    self._v11_slice(
+                        slice_id="heading-content",
+                        selector_kind="heading",
+                        selector_value="SCF",
+                        mode="embedded-content",
+                        start_byte=0,
+                    )
+                ]
+            },
         )
         self.assertEqual(
             layers["content_materialized"]["status"],
@@ -419,6 +493,118 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
         )
         self.assertEqual(row["assurance_status"], "blocked")
         self.assertEqual(row["overall_status"], "blocked")
+
+    def test_valid_v11_pack_projection_reaches_projection(self) -> None:
+        dimensions, layers, authorities = self.pack_projection(
+            source_slices={
+                "doc-embedded": [
+                    self._v11_slice(
+                        slice_id="embedded-only",
+                        selector_kind="byte-range",
+                        selector_value="0:16",
+                        mode="embedded-content",
+                        start_byte=0,
+                        byte_count=16,
+                    ),
+                    self._v11_slice(
+                        slice_id="external-only",
+                        selector_kind="byte-range",
+                        selector_value="16:24",
+                        mode="external-content",
+                        start_byte=16,
+                        byte_count=8,
+                    ),
+                ]
+            },
+            coverage_status={
+                "overall": "partial",
+                "corpus": "partial",
+                "slices": "partial",
+                "scope": "partial",
+                "mappings": "partial",
+            },
+        )
+        self.assertEqual(dimensions["coverage"], "partial")
+        self.assertEqual(layers["content_materialized"]["slice_count"], 2)
+        self.assertEqual(
+            layers["content_materialized"]["external_cache_content_slice_count"],
+            0,
+        )
+        self.assertEqual(
+            layers["content_materialized"]["external_runtime_content_slice_count"],
+            1,
+        )
+        self.assertEqual(layers["inventory"]["discovered_source_count"], 4)
+        self.assertEqual(layers["inventory"]["included_source_count"], 3)
+        self.assertEqual(layers["inventory"]["reviewed_exclusion_count"], 1)
+        self.assertEqual(authorities, ("example-authority",))
+
+    def test_rejects_excluded_content_mode_in_pack_projection(self) -> None:
+        with self.assertRaisesRegex(
+            dashboard.DashboardError,
+            "unsupported content mode",
+        ):
+            self.pack_projection(
+                source_slices={
+                    "doc-embedded": [
+                        self._v11_slice(
+                            slice_id="excluded",
+                            selector_kind="byte-range",
+                            selector_value="0:16",
+                            mode="excluded",
+                            start_byte=0,
+                            byte_count=16,
+                        )
+                    ]
+                },
+            )
+
+    def test_rejects_other_content_mode_in_pack_projection(self) -> None:
+        with self.assertRaisesRegex(
+            dashboard.DashboardError,
+            "unsupported content mode",
+        ):
+            self.pack_projection(
+                source_slices={
+                    "doc-embedded": [
+                        self._v11_slice(
+                            slice_id="other-mode",
+                            selector_kind="byte-range",
+                            selector_value="0:16",
+                            mode="other",
+                            start_byte=0,
+                            byte_count=16,
+                        )
+                    ]
+                },
+            )
+
+    def test_invalid_technical_status_is_rejected(self) -> None:
+        with self.assertRaisesRegex(
+            dashboard.DashboardError,
+            "unsupported completeness status",
+        ):
+            self.pack_projection(
+                source_slices={
+                    "doc-embedded": [
+                        self._v11_slice(
+                            slice_id="embedded-only",
+                            selector_kind="byte-range",
+                            selector_value="0:16",
+                            mode="embedded-content",
+                            start_byte=0,
+                            byte_count=16,
+                        )
+                    ]
+                },
+                coverage_status={
+                    "overall": "partial",
+                    "corpus": "partial",
+                    "slices": "partial",
+                    "scope": "blocked",
+                    "mappings": "invalid",
+                },
+            )
 
     def test_repository_dashboard_has_exact_26_rows_and_dimension_totals(self) -> None:
         report = dashboard.build_dashboard(ROOT)
@@ -506,8 +692,7 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
                     "corpus": "partial",
                     "slice": "partial",
                     "scope": "partial",
-                    "license": "partial",
-                    "storage": "partial",
+                    "coverage": "partial",
                     "freshness": "unknown",
                 },
                 assurance_layers("partial"),
@@ -520,7 +705,6 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
             ):
                 build_arguments = {
                     "bundle_report": audit,
-                    "storage_status_by_skill": {},
                     "freshness_status_by_skill": {
                         "example-skill": {
                             "authority_statuses": {
@@ -556,7 +740,6 @@ class OfficialDocumentDashboardTests(unittest.TestCase):
             dashboard.build_dashboard(
                 ROOT,
                 bundle_report=truncated,
-                storage_status_by_skill={},
             )
 
 

@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 import unittest
 
 from jsonschema import Draft202012Validator
@@ -16,6 +17,11 @@ ROOT = Path(__file__).resolve().parents[3]
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REFERENCES = SKILL_ROOT / "references"
 SHA1 = re.compile(r"^[0-9a-f]{40}$")
+TOOLS = str(ROOT / "tools")
+if TOOLS not in sys.path:
+    sys.path.insert(0, TOOLS)
+
+import validate_contract  # noqa: E402
 
 
 def load(path: Path) -> dict:
@@ -40,14 +46,20 @@ class SourcePackMetadataTests(unittest.TestCase):
 
     def test_strict_schemas(self) -> None:
         pairs = [
-            ("official-document-pack-seed.schema.json", self.seed_path),
-            ("official-document-scope-catalog.schema.json", self.scope_path),
-            ("official-document-source-catalog.schema.json", self.catalog_path),
+            ("official-document-pack-seed@1.0", self.seed_path),
+            ("official-document-scope-catalog@1.0", self.scope_path),
+            ("official-document-source-catalog@1.1", self.catalog_path),
         ]
-        for schema_name, instance_path in pairs:
-            schema = load(ROOT / "contracts" / schema_name)
-            Draft202012Validator.check_schema(schema)
-            errors = list(Draft202012Validator(schema).iter_errors(load(instance_path)))
+        contracts = validate_contract.load_catalog(ROOT / "contracts")
+        for selector, instance_path in pairs:
+            contract = contracts.resolve(selector)
+            errors = list(
+                Draft202012Validator(
+                    contract.schema,
+                    registry=contracts.registry,
+                    format_checker=validate_contract.FORMAT_CHECKER,
+                ).iter_errors(load(instance_path))
+            )
             self.assertEqual([], [error.message for error in errors])
 
     def test_seed_hashes_are_local_and_exact(self) -> None:
@@ -67,7 +79,7 @@ class SourcePackMetadataTests(unittest.TestCase):
             if item["evidence_class"] == "official-provider-required"
         }
         self.assertEqual(
-            {item["subject_id"] for item in self.catalog["subjects"]}, scoped
+            set(self.catalog["subjects"]), scoped
         )
         for item in self.scope["subjects"]:
             if item["evidence_class"] == "official-provider-required":

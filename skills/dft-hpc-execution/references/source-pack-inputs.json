@@ -10,7 +10,7 @@
     ],
     "blockers": [
       "No live cluster version, site policy, scheduler client, accounting configuration, or native execution was validated.",
-      "Slurm documentation licensing, the OpenPBS ngpus rendering assumption, repository licensing, and central processor attestation remain unresolved."
+      "Slurm documentation snapshot identity, the OpenPBS ngpus rendering assumption, repository snapshot identity, and central processor attestation remain unresolved."
     ]
   },
   "providers": [

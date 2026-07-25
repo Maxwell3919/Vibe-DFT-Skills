@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit tracked official-document storage against central authority policy.
+"""Audit tracked official-document storage topology and exact identities.
 
 The Git index supplies the tracked path set, while ordinary local audit hashes
 the corresponding regular worktree bytes and scans for untracked namespace
@@ -8,12 +8,12 @@ legacy official-document namespaces as either an artifact set or an exact
 local control. Artifact sets retain every applicable registered authority ID;
 one authority cannot overwrite another authority from the same provider.
 
-Normal mode reports policy conflicts.  ``--strict-release`` blocks any tracked
-artifact set that is forbidden or still requires canonical-open proof.  Invalid
-configuration, authority projection, unsafe worktree state, classification,
-or exact candidate baseline identity always exits 2. Git-baseline comparison
-is delete-only after a bounded first-registry bootstrap. There is no waiver or
-grandfather lane.
+Invalid configuration, authority projection, unsafe worktree state,
+classification, or exact candidate baseline identity always exits 2.
+``--strict-release`` additionally blocks worktree drift and legacy namespace
+artifacts that have not migrated into the canonical v1.1 pack domain.
+Git-baseline comparison is delete-only after a bounded first-registry
+bootstrap. There is no waiver or grandfather lane.
 """
 
 from __future__ import annotations
@@ -223,8 +223,8 @@ class StorageMigrationSnapshot:
 
     @property
     def release_blocking_path_count(self) -> int:
-        # Every Wave-0 legacy artifact set is release-blocking until an
-        # independently reviewed open-storage migration contract exists.
+        # Every entry is a legacy namespace artifact outside the canonical
+        # v1.1 pack domain and therefore still requires technical migration.
         return self.artifact_path_count
 
 
@@ -558,7 +558,7 @@ def load_authority_projection(
             root / "registry" / "software-registry.yaml",
             "software-registry.yaml",
         )
-        return official_source_authorities.active_authority_snapshot(
+        return official_source_authorities.active_authority_technical_snapshot(
             authority_data,
             software_data=software_data,
             source_root=root,
@@ -1305,8 +1305,7 @@ def evaluate_storage(
 
     results: list[ArtifactSetResult] = []
     all_artifact_paths: set[str] = set()
-    forbidden_paths: set[str] = set()
-    release_blocking_paths: set[str] = set()
+    legacy_migration_paths: set[str] = set()
     for rule in configuration.artifact_sets:
         selected_paths = sorted(
             path
@@ -1319,7 +1318,7 @@ def evaluate_storage(
             if blob.path in selected_paths
         )
         all_artifact_paths.update(selected_paths)
-        policies: list[str] = []
+        legacy_migration_paths.update(selected_paths)
         for authority_id in rule.authority_ids:
             authority = authorities.get(authority_id)
             if not isinstance(authority, dict):
@@ -1332,26 +1331,7 @@ def evaluate_storage(
                     f"artifact set {rule.set_id}: authority {authority_id} provider "
                     "does not match artifact provider"
                 )
-            policy = authority.get("bundle_content_policy")
-            if policy not in {"forbidden", "canonical-pinned-open-only"}:
-                findings.append(
-                    f"artifact set {rule.set_id}: authority {authority_id} has "
-                    "unsupported bundle-content policy"
-                )
-            else:
-                policies.append(policy)
-        if "forbidden" in policies:
-            state = "blocked"
-            forbidden_paths.update(selected_paths)
-            release_blocking_paths.update(selected_paths)
-        elif policies and len(policies) == len(rule.authority_ids):
-            # This Wave-0 registry has no artifact-to-canonical-snapshot proof
-            # contract.  A conditional policy therefore cannot silently allow
-            # arbitrary tracked legacy bytes.
-            state = "canonical-proof-required"
-            release_blocking_paths.update(selected_paths)
-        else:
-            state = "invalid"
+        state = "legacy-technical-migration-required"
 
         byte_count = sum(blob.size for blob in selected)
         digest = _digest(selected)
@@ -1376,9 +1356,7 @@ def evaluate_storage(
                 path_count=len(selected),
                 byte_count=byte_count,
                 digest_sha256=digest,
-                forbidden_path_count=(
-                    len(selected) if "forbidden" in policies else 0
-                ),
+                forbidden_path_count=len(selected),
             )
         )
 
@@ -1401,8 +1379,8 @@ def evaluate_storage(
         artifact_bytes=sum(
             blob.size for blob in blobs if blob.path in all_artifact_paths
         ),
-        forbidden_path_count=len(forbidden_paths),
-        release_blocking_path_count=len(release_blocking_paths),
+        forbidden_path_count=len(legacy_migration_paths),
+        release_blocking_path_count=len(legacy_migration_paths),
         artifact_sets=tuple(results),
         worktree_drift_findings=(),
     )

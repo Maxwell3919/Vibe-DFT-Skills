@@ -373,15 +373,14 @@ class InterfaceRegistryTests(unittest.TestCase):
                 "agent-action-envelope@1.0",
                 "official-source-record@1.0",
                 "official-document-pack-seed@1.0",
-                "official-document-source-catalog@1.0",
                 "official-document-scope-catalog@1.0",
                 "qe-source-pack-input@1.0",
                 "vasp-source-pack-input@1.0",
-                "official-corpus-manifest@1.0",
-                "document-slice-manifest@1.0",
-                "official-source-license-review@1.0",
+                "official-document-source-catalog@1.1",
+                "official-corpus-manifest@1.1",
+                "document-slice-manifest@1.1",
                 "skill-document-scope-inventory@1.0",
-                "skill-document-coverage@1.0",
+                "skill-document-coverage@1.1",
                 "evidence-record@1.0",
                 "bundle-manifest@1.0",
                 "bundle-validation-report@1.0",
@@ -465,7 +464,6 @@ class InterfaceRegistryTests(unittest.TestCase):
         official_document_contracts = {
             "official-corpus-manifest",
             "document-slice-manifest",
-            "official-source-license-review",
             "skill-document-scope-inventory",
             "skill-document-coverage",
         }
@@ -519,6 +517,34 @@ class InterfaceRegistryTests(unittest.TestCase):
                     bundle_semantics.builtin_evaluator(contract.name),
                     f"active semantic contract has no exact-one owner: {contract.name}",
                 )
+
+    def test_official_document_v11_registry_entries_are_active_and_unversioned_selector_fails(self) -> None:
+        registry = interface_registry.load_registry()
+        policy_free_contracts = (
+            "official-document-source-catalog",
+            "official-corpus-manifest",
+            "document-slice-manifest",
+            "skill-document-coverage",
+        )
+        for name in policy_free_contracts:
+            with self.subTest(contract_name=name):
+                self.assertEqual(registry["interfaces"][f"{name}@1.1"]["lifecycle"], "active")
+                self.assertEqual(registry["interfaces"][f"{name}@1.0"]["lifecycle"], "planned")
+                self.assertNotIn(name, registry["interfaces"])
+
+    def test_official_v1_legacy_contracts_are_not_active_owners(self) -> None:
+        registry = interface_registry.load_registry()
+        for interface_id in (
+            "official-document-source-catalog@1.0",
+            "official-corpus-manifest@1.0",
+            "document-slice-manifest@1.0",
+            "official-source-license-review@1.0",
+            "skill-document-coverage@1.0",
+        ):
+            self.assertEqual(
+                registry["interfaces"][interface_id]["lifecycle"],
+                "planned",
+            )
 
     def test_hash_drift_is_rejected(self) -> None:
         registry = copy.deepcopy(interface_registry.load_registry())

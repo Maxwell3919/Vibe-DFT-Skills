@@ -35,6 +35,11 @@ SEED_PATH = SKILL_ROOT / "references" / "source-pack-seed.json"
 PROPOSAL_PATH = SKILL_ROOT / "references" / "source-pack-authority-proposal.json"
 
 CATALOG_SCHEMA_PATH = (
+    REPOSITORY_ROOT
+    / "contracts"
+    / "official-document-source-catalog-1.1.schema.json"
+)
+LEGACY_CATALOG_SCHEMA_PATH = (
     REPOSITORY_ROOT / "contracts" / "official-document-source-catalog.schema.json"
 )
 SCOPE_SCHEMA_PATH = (
@@ -43,6 +48,16 @@ SCOPE_SCHEMA_PATH = (
 SEED_SCHEMA_PATH = (
     REPOSITORY_ROOT / "contracts" / "official-document-pack-seed.schema.json"
 )
+CENTRAL_TOOLS = REPOSITORY_ROOT / "tools"
+if str(CENTRAL_TOOLS) not in sys.path:
+    sys.path.insert(0, str(CENTRAL_TOOLS))
+
+from migrate_official_document_catalogs_v11 import (  # noqa: E402
+    LEGACY_RECORD_ACTIONS,
+    convert_catalog_v10_to_v11,
+)
+from official_source_authorities import validate_and_project  # noqa: E402
+from registry_yaml import load_yaml_strict  # noqa: E402
 
 CATALOG_FIELDS = frozenset(
     {
@@ -417,6 +432,146 @@ def _scope_from_input(
     }
 
 
+def _authority_projections() -> dict[str, dict[str, Any]]:
+    authorities = load_yaml_strict(
+        REPOSITORY_ROOT / "registry" / "official-source-authorities.yaml",
+        "official-source-authorities.yaml",
+    )
+    software = load_yaml_strict(
+        REPOSITORY_ROOT / "registry" / "software-registry.yaml",
+        "software-registry.yaml",
+    )
+    failures, projections = validate_and_project(
+        authorities,
+        software_data=software,
+        source_root=REPOSITORY_ROOT,
+    )
+    if failures:
+        raise SourceSeedError(
+            "central authority projection is invalid: "
+            + " | ".join(str(item) for item in failures)
+        )
+    return projections
+
+
+def _catalog_v11(
+    provider: dict[str, Any],
+    legacy_catalog: dict[str, Any],
+    legacy_scope: dict[str, Any],
+    projections: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    authority_id = provider["authority_id"]
+    projection = projections.get(authority_id)
+    if projection is None:
+        raise SourceSeedError(
+            f"{provider['input_id']}: central authority projection is missing "
+            f"{authority_id}"
+        )
+    included = [
+        source
+        for source in legacy_catalog["sources"]
+        if source.get("disposition") == "included"
+    ]
+    if not included:
+        raise SourceSeedError(
+            f"{provider['input_id']}: legacy catalog has no included source"
+        )
+    legacy_bytes = canonical_json_bytes(legacy_catalog)
+    try:
+        return convert_catalog_v10_to_v11(
+            legacy_catalog,
+            provider=provider,
+            authority={"authority_id": authority_id},
+            authority_projection=projection,
+            scope_catalog=legacy_scope,
+            inventory_projection={
+                "locator": included[0]["locator"],
+                "identity": {
+                    "sha256": sha256_bytes(legacy_bytes),
+                    "bytes": len(legacy_bytes),
+                },
+                "canonical_preimage_bytes": legacy_bytes,
+            },
+        )
+    except ValueError as exc:
+        raise SourceSeedError(
+            f"{provider['input_id']}: v1.1 catalog projection failed: {exc}"
+        ) from None
+
+
+def _scope_v11(
+    legacy_scope: dict[str, Any],
+    providers: list[dict[str, Any]],
+    catalog_outputs: dict[str, bytes],
+) -> dict[str, Any]:
+    provider_ids = {provider["input_id"] for provider in providers}
+    actions = {
+        (action.provider_input_id, action.record_id): action
+        for action in LEGACY_RECORD_ACTIONS
+        if action.record_type == "subject"
+        and action.provider_input_id in provider_ids
+    }
+    hits: dict[tuple[str, str], int] = {}
+    migrated_subjects: list[dict[str, Any]] = []
+    for raw_subject in legacy_scope["subjects"]:
+        subject = copy.deepcopy(raw_subject)
+        subject_id = subject["subject_id"]
+        subject_providers = subject["provider_input_ids"]
+        matching = [
+            actions[(provider_id, subject_id)]
+            for provider_id in subject_providers
+            if (provider_id, subject_id) in actions
+        ]
+        if matching:
+            if len(matching) != len(subject_providers):
+                raise SourceSeedError(
+                    f"{subject_id}: subject migration action is only partially bound"
+                )
+            for action in matching:
+                key = (action.provider_input_id, action.record_id)
+                hits[key] = hits.get(key, 0) + 1
+                if subject["statement"] != action.expected_scope_statement:
+                    raise SourceSeedError(
+                        f"{subject_id}: subject migration statement drift"
+                    )
+            action_kinds = {action.action for action in matching}
+            if action_kinds == {"drop"}:
+                continue
+            replacement_ids = {action.replacement_id for action in matching}
+            replacement_statements = {
+                action.replacement_statement for action in matching
+            }
+            if (
+                action_kinds != {"rename"}
+                or len(replacement_ids) != 1
+                or len(replacement_statements) != 1
+                or None in replacement_ids
+                or None in replacement_statements
+            ):
+                raise SourceSeedError(
+                    f"{subject_id}: subject migration action conflicts"
+                )
+            subject["subject_id"] = next(iter(replacement_ids))
+            subject["statement"] = next(iter(replacement_statements))
+        for origin_ref in subject["origin_refs"]:
+            origin_path = origin_ref["path"]
+            if origin_path in catalog_outputs:
+                origin_ref["sha256"] = sha256_bytes(
+                    catalog_outputs[origin_path]
+                )
+        migrated_subjects.append(subject)
+
+    if set(hits) != set(actions) or any(count != 1 for count in hits.values()):
+        raise SourceSeedError(
+            "exact subject migration actions were not consumed once each"
+        )
+    migrated_ids = [subject["subject_id"] for subject in migrated_subjects]
+    _unique(migrated_ids, "migrated scope catalog")
+    scope = copy.deepcopy(legacy_scope)
+    scope["subjects"] = migrated_subjects
+    return scope
+
+
 def _seed_from_input(
     value: dict[str, Any],
     providers: list[dict[str, Any]],
@@ -482,25 +637,46 @@ def render_outputs(value: dict[str, Any] | None = None) -> dict[str, bytes]:
     _unique((item["catalog_filename"] for item in providers), "catalog filenames")
     _unique((item["authority_id"] for item in providers), "provider authorities")
 
+    legacy_catalog_validator = _schema_validator(LEGACY_CATALOG_SCHEMA_PATH)
     catalog_validator = _schema_validator(CATALOG_SCHEMA_PATH)
     scope_validator = _schema_validator(SCOPE_SCHEMA_PATH)
     seed_validator = _schema_validator(SEED_SCHEMA_PATH)
-    outputs: dict[str, bytes] = {}
+    legacy_catalogs: dict[str, dict[str, Any]] = {}
+    legacy_outputs: dict[str, bytes] = {}
     for provider in providers:
         catalog = _catalog_from_provider(provider)
         _validate_schema(
             catalog,
-            catalog_validator,
-            f"{provider['input_id']} source catalog",
+            legacy_catalog_validator,
+            f"{provider['input_id']} legacy source catalog",
         )
         relative = _catalog_relative(provider)
+        legacy_catalogs[relative] = catalog
+        legacy_outputs[relative] = canonical_json_bytes(catalog)
+
+    legacy_scope = _scope_from_input(source, providers, legacy_outputs)
+    projections = _authority_projections()
+    outputs: dict[str, bytes] = {}
+    for provider in providers:
+        relative = _catalog_relative(provider)
+        catalog = _catalog_v11(
+            provider,
+            legacy_catalogs[relative],
+            legacy_scope,
+            projections,
+        )
+        _validate_schema(
+            catalog,
+            catalog_validator,
+            f"{provider['input_id']} v1.1 source catalog",
+        )
         outputs[relative] = canonical_json_bytes(catalog)
 
     proposal = _proposal_from_input(source)
     proposal_relative = PROPOSAL_PATH.relative_to(REPOSITORY_ROOT).as_posix()
     outputs[proposal_relative] = canonical_json_bytes(proposal)
 
-    scope = _scope_from_input(source, providers, outputs)
+    scope = _scope_v11(legacy_scope, providers, outputs)
     _validate_schema(scope, scope_validator, "source scope catalog")
     scope_relative = SCOPE_PATH.relative_to(REPOSITORY_ROOT).as_posix()
     outputs[scope_relative] = canonical_json_bytes(scope)

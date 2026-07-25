@@ -61,6 +61,25 @@ class SourcePackCatalogTests(unittest.TestCase):
             "blocked",
         )
 
+    def test_v11_projection_binds_legacy_preimage_without_policy_fields(self) -> None:
+        legacy_bytes = MODULE.canonical_json_bytes(MODULE.legacy_qe_catalog())
+        catalog = MODULE.qe_catalog(ROOT)
+        self.assertEqual(catalog["schema_version"], "1.1")
+        self.assertEqual(catalog["authority_id"], MODULE.PROVIDER["authority_id"])
+        self.assertEqual(catalog["provider_id"], MODULE.PROVIDER["provider_id"])
+        self.assertNotIn("license", catalog)
+        self.assertEqual(
+            catalog["inventory_identity"],
+            {
+                "sha256": MODULE.sha256_bytes(legacy_bytes),
+                "bytes": len(legacy_bytes),
+            },
+        )
+        self.assertEqual(
+            catalog["discovery_processor"]["input_sha256"],
+            MODULE.sha256_bytes(legacy_bytes),
+        )
+
     def test_authority_proposal_covers_every_seed_provider(self) -> None:
         refs = ROOT / "skills" / MODULE.SKILL_ID / "references"
         seed = json.loads((refs / "source-pack-seed.json").read_text())
@@ -103,7 +122,7 @@ class SourcePackCatalogTests(unittest.TestCase):
                 f"skills/{MODULE.SKILL_ID}/references/source-pack-scope.json",
             ),
             (
-                "contracts/official-document-source-catalog.schema.json",
+                "contracts/official-document-source-catalog-1.1.schema.json",
                 (
                     f"skills/{MODULE.SKILL_ID}/references/"
                     "source-pack-inputs/qe-phonon-epw.json"
@@ -122,24 +141,42 @@ class SourcePackCatalogTests(unittest.TestCase):
                 )
                 self.assertEqual([item.message for item in errors], [])
 
+    def test_generated_seed_hashes_close_over_generated_inputs(self) -> None:
+        outputs = MODULE.build_outputs(ROOT)
+        refs = ROOT / "skills" / MODULE.SKILL_ID / "references"
+        seed = json.loads(outputs[refs / "source-pack-seed.json"])
+        scope_ref = seed["scope_catalog_ref"]
+        self.assertEqual(
+            scope_ref["sha256"],
+            MODULE.sha256_bytes(outputs[ROOT / scope_ref["path"]]),
+        )
+        for provider in seed["providers"]:
+            source_ref = provider["source_ref"]
+            self.assertEqual(
+                source_ref["sha256"],
+                MODULE.sha256_bytes(outputs[ROOT / source_ref["path"]]),
+            )
+
     def test_every_declared_loss_is_exactly_linked_by_affected_source(self) -> None:
-        catalog = MODULE.qe_catalog()
+        catalog = MODULE.qe_catalog(ROOT)
         expected_by_source = {
-            source["source_id"]: set()
-            for source in catalog["sources"]
+            source_id: set()
+            for source_id in catalog["discovered_sources"]
         }
-        for loss in catalog["losses"]:
+        for loss_id, loss in catalog["losses"].items():
             for source_id in loss["affected_source_ids"]:
                 self.assertIn(source_id, expected_by_source)
-                expected_by_source[source_id].add(loss["loss_id"])
+                expected_by_source[source_id].add(loss_id)
 
-        for source in catalog["sources"]:
-            self.assertEqual(len(source["slices"]), 1)
-            actual = source["slices"][0]["loss_ids"]
+        for source_id, source in catalog["discovered_sources"].items():
+            if source["disposition"] != "included":
+                continue
+            self.assertEqual(len(source["selectors"]), 1)
+            actual = source["selectors"][0]["loss_ids"]
             self.assertEqual(len(actual), len(set(actual)))
             self.assertEqual(
                 set(actual),
-                expected_by_source[source["source_id"]],
+                expected_by_source[source_id],
             )
 
 

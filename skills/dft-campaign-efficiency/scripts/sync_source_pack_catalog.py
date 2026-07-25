@@ -9,6 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 from typing import Any, Iterable
 
 
@@ -18,11 +19,28 @@ QE_COMMIT = "770a0b2d12928a67048e2f3da8d10d057e52179e"
 RETRIEVED_UTC = "2026-07-24T00:00:00Z"
 
 
-def repository_root() -> Path:
+def _locate_repository_root() -> Path:
     for parent in Path(__file__).resolve().parents:
         if parent.joinpath("registry", "skill-registry.yaml").is_file():
             return parent
     raise RuntimeError("cannot locate repository root")
+
+
+REPOSITORY_ROOT = _locate_repository_root()
+CENTRAL_TOOLS = REPOSITORY_ROOT / "tools"
+if str(CENTRAL_TOOLS) not in sys.path:
+    sys.path.insert(0, str(CENTRAL_TOOLS))
+
+from migrate_official_document_catalogs_v11 import (  # noqa: E402
+    canonical_json_bytes,
+    convert_catalog_v10_to_v11,
+)
+from official_source_authorities import validate_and_project  # noqa: E402
+from registry_yaml import load_yaml_strict  # noqa: E402
+
+
+def repository_root() -> Path:
+    return REPOSITORY_ROOT
 
 
 def sha256_bytes(payload: bytes) -> str:
@@ -31,13 +49,6 @@ def sha256_bytes(payload: bytes) -> str:
 
 def sha256_file(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
-
-
-def canonical_json_bytes(value: object) -> bytes:
-    return (
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        + "\n"
-    ).encode("utf-8")
 
 
 def safe_id(value: str) -> str:
@@ -249,7 +260,7 @@ def external_source(
     }
 
 
-def qe_catalog() -> dict[str, Any]:
+def legacy_qe_catalog() -> dict[str, Any]:
     ph_subjects = [item[0] for item in QE_SUBJECTS if item[0].startswith("qe:ph:")]
     return {
         "schema_version": "1.0",
@@ -365,6 +376,70 @@ def qe_catalog() -> dict[str, Any]:
     }
 
 
+PROVIDER = {
+    "input_id": "qe-phonon-epw",
+    "adapter_id": "declarative-catalog-v1",
+    "authority_id": "qe-release-source-docs",
+    "provider_id": "qe",
+}
+
+
+def authority_projection(root: Path) -> dict[str, Any]:
+    authorities = load_yaml_strict(
+        root / "registry" / "official-source-authorities.yaml",
+        "official-source-authorities.yaml",
+    )
+    software = load_yaml_strict(
+        root / "registry" / "software-registry.yaml",
+        "software-registry.yaml",
+    )
+    failures, projections = validate_and_project(
+        authorities,
+        software_data=software,
+        source_root=root,
+    )
+    if failures:
+        raise ValueError(
+            "central authority projection is invalid: "
+            + " | ".join(str(item) for item in failures)
+        )
+    authority_id = PROVIDER["authority_id"]
+    if authority_id not in projections:
+        raise ValueError(f"central authority projection is missing {authority_id}")
+    return projections[authority_id]
+
+
+def qe_catalog(
+    root: Path,
+    *,
+    scope: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    legacy = legacy_qe_catalog()
+    legacy_bytes = canonical_json_bytes(legacy)
+    included = [
+        source
+        for source in legacy["sources"]
+        if source.get("disposition") == "included"
+    ]
+    if not included:
+        raise ValueError("legacy QE catalog has no included source")
+    return convert_catalog_v10_to_v11(
+        legacy,
+        provider=PROVIDER,
+        authority={"authority_id": PROVIDER["authority_id"]},
+        authority_projection=authority_projection(root),
+        scope_catalog=scope if scope is not None else scope_catalog(root),
+        inventory_projection={
+            "locator": included[0]["locator"],
+            "identity": {
+                "sha256": sha256_bytes(legacy_bytes),
+                "bytes": len(legacy_bytes),
+            },
+            "canonical_preimage_bytes": legacy_bytes,
+        },
+    )
+
+
 def authority_proposal() -> dict[str, Any]:
     """Return the central-registry proposal without changing central state."""
 
@@ -408,8 +483,9 @@ def build_outputs(root: Path) -> dict[Path, bytes]:
     provider_path = (
         skill_root / "references" / "source-pack-inputs" / "qe-phonon-epw.json"
     )
-    scope_bytes = canonical_json_bytes(scope_catalog(root))
-    provider_bytes = canonical_json_bytes(qe_catalog())
+    scope = scope_catalog(root)
+    scope_bytes = canonical_json_bytes(scope)
+    provider_bytes = canonical_json_bytes(qe_catalog(root, scope=scope))
     seed = {
         "schema_version": "1.0",
         "contract_name": "official-document-pack-seed",
@@ -422,10 +498,7 @@ def build_outputs(root: Path) -> dict[Path, bytes]:
         },
         "providers": [
             {
-                "input_id": "qe-phonon-epw",
-                "adapter_id": "declarative-catalog-v1",
-                "authority_id": "qe-release-source-docs",
-                "provider_id": "qe",
+                **PROVIDER,
                 "source_ref": {
                     "path": provider_path.relative_to(root).as_posix(),
                     "sha256": sha256_bytes(provider_bytes),

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import ExitStack
 import copy
 import hashlib
 import json
@@ -7,13 +8,14 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
 import official_source_authorities  # noqa: E402
-from registry_snapshot import load_registry_snapshot  # noqa: E402
+import registry_snapshot  # noqa: E402
 from registry_yaml import RegistryYAMLError, load_yaml_strict  # noqa: E402
 
 
@@ -75,7 +77,7 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
         )
 
     def test_active_projection_is_frozen_and_excludes_every_placeholder(self) -> None:
-        projection = official_source_authorities.active_authority_snapshot(
+        projection = official_source_authorities.active_authority_technical_snapshot(
             self.authorities,
             software_data=self.software,
             source_root=ROOT,
@@ -94,11 +96,6 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
             "version_scopes",
             "content_identity_policy",
             "canonical_snapshot",
-            "license_status",
-            "license_identifier",
-            "license_terms_urls",
-            "redistribution",
-            "bundle_content_policy",
         }
         for authority_id, entry in projection.items():
             with self.subTest(authority_id=authority_id):
@@ -166,101 +163,6 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
             )
         for authority_id in ACTIVE_AUTHORITIES - {"cp2k-official-manual"}:
             self.assertIsNone(projection[authority_id]["canonical_snapshot"])
-        self.assertEqual(
-            {
-                authority_id: entry["license_status"]
-                for authority_id, entry in projection.items()
-                if authority_id in CORE_ACTIVE_AUTHORITIES
-            },
-            {
-                "qe-official-docs": "unknown",
-                "qe-release-source-docs": "known-open",
-                "vasp-official-wiki": "known-open",
-                "cp2k-official-manual": "unknown",
-                "cp2k-release-source-docs": "unknown",
-                "siesta-official-docs": "known-restricted",
-                "siesta-release-source-docs": "known-open",
-            },
-        )
-        for authority_id in {
-            "qe-official-docs",
-            "cp2k-official-manual",
-            "cp2k-release-source-docs",
-        }:
-            self.assertIsNone(projection[authority_id]["license_identifier"])
-            self.assertEqual(projection[authority_id]["license_terms_urls"], [])
-            self.assertEqual(projection[authority_id]["redistribution"], ["unknown"])
-            self.assertEqual(projection[authority_id]["bundle_content_policy"], "forbidden")
-        self.assertEqual(
-            {
-                authority_id: (
-                    entry["license_identifier"],
-                    entry["license_terms_urls"],
-                )
-                for authority_id, entry in projection.items()
-                if authority_id
-                in {
-                    "qe-release-source-docs",
-                    "vasp-official-wiki",
-                    "siesta-official-docs",
-                    "siesta-release-source-docs",
-                }
-            },
-            {
-                "qe-release-source-docs": (
-                    "GPL-2.0-or-later",
-                    [
-                        "https://gitlab.com/QEF/q-e/-/raw/"
-                        "770a0b2d12928a67048e2f3da8d10d057e52179e/License"
-                    ],
-                ),
-                "vasp-official-wiki": (
-                    "GFDL-1.2-only",
-                    [
-                        "https://www.vasp.at/wiki/Main_page",
-                        "https://www.gnu.org/licenses/old-licenses/fdl-1.2.txt",
-                    ],
-                ),
-                "siesta-official-docs": (
-                    "CC-BY-NC-SA-4.0",
-                    [
-                        "https://gitlab.com/siesta-project/documentation/"
-                        "siesta-docs/-/raw/"
-                        "ca6da4c46538bccce34776cdbb075fa4bfc2c6dc/LICENSE"
-                    ],
-                ),
-                "siesta-release-source-docs": (
-                    "GPL-3.0-only",
-                    [
-                        "https://gitlab.com/siesta-project/siesta/-/raw/"
-                        "e486d12067b96ff688179f0496d0ec21b6fae0ab/COPYING"
-                    ],
-                ),
-            },
-        )
-        for authority_id in {
-            "qe-release-source-docs",
-            "vasp-official-wiki",
-            "siesta-release-source-docs",
-        }:
-            self.assertEqual(
-                projection[authority_id]["redistribution"],
-                ["redistributable"],
-            )
-            self.assertEqual(
-                projection[authority_id]["bundle_content_policy"],
-                "forbidden",
-            )
-        for authority_id in {"siesta-official-docs"}:
-            self.assertEqual(
-                projection[authority_id]["redistribution"],
-                ["runtime-only", "restricted"],
-            )
-            self.assertEqual(
-                projection[authority_id]["bundle_content_policy"],
-                "forbidden",
-            )
-
         projection["qe-official-docs"]["version_scopes"][0]["exact_version"] = "tampered"
         self.assertEqual(
             self.authorities["authorities"]["qe-official-docs"]["version_policy"][
@@ -269,15 +171,13 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
             "7.5",
         )
 
-    def test_planned_authority_cannot_claim_origin_version_or_license(self) -> None:
+    def test_planned_authority_cannot_claim_technical_origin_or_version(self) -> None:
         invalid = copy.deepcopy(self.authorities)
         entry = invalid["authorities"]["gaussian-official-reference"]
         entry["allowed_https_origins"] = ["https://example.invalid"]
         entry["version_policy"]["allowed_scopes"] = ["unversioned"]
-        entry["license_policy"]["status"] = "known-open"
         failures = self.errors(invalid)
         self.assertTrue(any("planned authority must not claim" in item for item in failures))
-        self.assertTrue(any("planned authority must remain unresolved" in item for item in failures))
 
     def test_active_locator_and_content_identity_policy_fail_closed(self) -> None:
         invalid = copy.deepcopy(self.authorities)
@@ -295,36 +195,36 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
         self.assertTrue(any("invalid absolute path prefix" in item for item in failures))
         self.assertTrue(any("forbids a snapshot" in item for item in failures))
 
-    def test_fact_urls_are_bound_to_locator_or_exact_license_terms(self) -> None:
-        invalid = copy.deepcopy(self.authorities)
-        invalid["authorities"]["qe-official-docs"]["provenance"]["official_fact_urls"] = [
-            "https://www.quantum-espresso.org/unrelated/"
-        ]
-        failures = self.errors(invalid)
-        self.assertTrue(any("outside authority locator policy" in item for item in failures))
-
-        encoded = copy.deepcopy(self.authorities)
-        encoded["authorities"]["vasp-official-wiki"]["license_policy"]["terms_urls"] = [
-            "https://vasp.at/footer/%2e%2e/private/"
-        ]
-        self.assertTrue(any("public HTTPS URL" in item for item in self.errors(encoded)))
+    def test_nonproduction_policy_metadata_is_not_read_or_projected(self) -> None:
+        mutated = copy.deepcopy(self.authorities)
+        entry = mutated["authorities"]["qe-official-docs"]
+        entry["license_policy"] = {"deliberately": "not-a-policy-contract"}
+        entry["redistribution_policy"] = ["not", "a", "mapping"]
+        entry["provenance"] = object()
+        self.assertEqual(self.errors(mutated), [])
+        projection = official_source_authorities.active_authority_technical_snapshot(
+            mutated,
+            software_data=self.software,
+            source_root=ROOT,
+        )
+        self.assertNotIn("license_policy", projection["qe-official-docs"])
+        self.assertNotIn("redistribution_policy", projection["qe-official-docs"])
+        self.assertNotIn("provenance", projection["qe-official-docs"])
 
     def test_authority_urls_reject_parser_ambiguity_and_origin_spoofing(self) -> None:
         cases = (
-            "https://user@www.quantum-espresso.org/Doc/",
-            "https://www.quantum-espresso.org:444/Doc/",
-            "https://www.quantum-espresso.org.evil.example/Doc/",
-            "https://www.quantum-espresso.org/Doc/?q=x",
-            "https://www.quantum-espresso.org/Doc/#fragment",
-            "https://www.quantum-espresso.org/Doc/%2e%2e/private/",
-            "https://www.quantum-espresso.org/Doc/../private/",
-            "https://www.quantum-espresso.org/Doc\\private/",
+            "https://user@www.quantum-espresso.org",
+            "https://www.quantum-espresso.org:444",
+            "https://www.quantum-espresso.org?q=x",
+            "https://www.quantum-espresso.org#fragment",
+            "https://127.0.0.1",
+            "https://localhost",
         )
         for value in cases:
             with self.subTest(value=value):
                 invalid = copy.deepcopy(self.authorities)
-                invalid["authorities"]["qe-official-docs"]["provenance"][
-                    "official_fact_urls"
+                invalid["authorities"]["qe-official-docs"][
+                    "allowed_https_origins"
                 ] = [value]
                 self.assertTrue(self.errors(invalid))
 
@@ -487,25 +387,21 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
             any("pinned mode requires" in item for item in self.errors(missing))
         )
 
-    def test_identity_pin_does_not_authorize_redistribution(self) -> None:
-        cp2k = self.authorities["authorities"]["cp2k-official-manual"]
-        self.assertEqual(cp2k["license_policy"]["status"], "unknown")
-        self.assertEqual(
-            cp2k["redistribution_policy"]["bundle_content"],
-            "forbidden",
+    def test_identity_pin_is_independent_of_nonproduction_policy_metadata(self) -> None:
+        mutated = copy.deepcopy(self.authorities)
+        entry = mutated["authorities"]["cp2k-official-manual"]
+        entry["license_policy"] = None
+        entry["redistribution_policy"] = None
+        projection = official_source_authorities.active_authority_technical_snapshot(
+            mutated,
+            software_data=self.software,
+            source_root=ROOT,
         )
-
-        invalid = copy.deepcopy(self.authorities)
-        invalid["authorities"]["cp2k-official-manual"]["redistribution_policy"][
-            "bundle_content"
-        ] = "canonical-pinned-open-only"
-        failures = self.errors(invalid)
-        self.assertTrue(
-            any(
-                "requires both a canonical identity pin and a known-open license"
-                in item
-                for item in failures
-            )
+        self.assertIs(
+            projection["cp2k-official-manual"]["canonical_snapshot"][
+                "integrity_verified"
+            ],
+            True,
         )
 
     def test_canonical_manifest_digest_is_verified_from_exact_bytes(self) -> None:
@@ -641,7 +537,21 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
         self.assertNotIn(secret, str(caught.exception))
 
     def test_shared_snapshot_hashes_exact_authority_bytes(self) -> None:
-        snapshot = load_registry_snapshot(ROOT)
+        with ExitStack() as stack:
+            for name in (
+                "environment_validation_errors",
+                "interface_validation_errors",
+                "skill_validation_errors",
+                "software_validation_errors",
+                "consumer_registry_validation_errors",
+                "expectation_registry_validation_errors",
+                "storage_discovery_validation_errors",
+                "operation_validation_findings",
+            ):
+                stack.enter_context(
+                    mock.patch.object(registry_snapshot, name, return_value=[])
+                )
+            snapshot = registry_snapshot.load_registry_snapshot(ROOT)
         raw = (ROOT / "registry" / "official-source-authorities.yaml").read_bytes()
         self.assertEqual(
             snapshot.registry_sha256["official-source-authorities.yaml"],

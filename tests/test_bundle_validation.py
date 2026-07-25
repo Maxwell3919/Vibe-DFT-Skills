@@ -977,7 +977,7 @@ class BundleValidationTests(unittest.TestCase):
             for interface_id, specification in snapshot.interfaces["interfaces"].items()
             if specification["lifecycle"] == "active"
         }
-        self.assertEqual(len(active), 36)
+        self.assertEqual(len(active), 35)
         self.assertEqual(bundle_semantics.builtin_ownership_errors(), [])
         special_paths = {
             "agent-action-envelope@1.0": TOOLS / "validate_agent_answer.py",
@@ -987,18 +987,17 @@ class BundleValidationTests(unittest.TestCase):
         specialized_paths = {
             interface_id: TOOLS / "validate_official_document_coverage.py"
             for interface_id in (
-                "official-corpus-manifest@1.0",
-                "document-slice-manifest@1.0",
-                "official-source-license-review@1.0",
+                "official-corpus-manifest@1.1",
+                "document-slice-manifest@1.1",
                 "skill-document-scope-inventory@1.0",
-                "skill-document-coverage@1.0",
+                "skill-document-coverage@1.1",
             )
         }
         builder_paths = {
             interface_id: TOOLS / "build_official_document_packs.py"
             for interface_id in (
                 "official-document-pack-seed@1.0",
-                "official-document-source-catalog@1.0",
+                "official-document-source-catalog@1.1",
                 "official-document-scope-catalog@1.0",
                 "qe-source-pack-input@1.0",
                 "vasp-source-pack-input@1.0",

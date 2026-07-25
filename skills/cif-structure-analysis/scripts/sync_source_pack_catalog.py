@@ -6,10 +6,10 @@ from __future__ import annotations
 import argparse
 import ast
 import hashlib
-import json
 from pathlib import Path
 import re
-from typing import Any, Iterable
+import sys
+from typing import Any, Iterable, NamedTuple
 
 
 SKILL_ID = "cif-structure-analysis"
@@ -24,19 +24,24 @@ def repository_root() -> Path:
     raise RuntimeError("cannot locate repository root")
 
 
+ROOT = repository_root()
+TOOLS = str(ROOT / "tools")
+if TOOLS not in sys.path:
+    sys.path.insert(0, TOOLS)
+
+from migrate_official_document_catalogs_v11 import (  # noqa: E402
+    canonical_json_bytes,
+    canonical_projection_bytes,
+    convert_catalog_v10_to_v11,
+)
+
+
 def sha256_bytes(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
 def sha256_file(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
-
-
-def canonical_json_bytes(value: object) -> bytes:
-    return (
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        + "\n"
-    ).encode("utf-8")
 
 
 def safe_id(value: str) -> str:
@@ -359,7 +364,9 @@ def catalog(
     }
 
 
-def provider_catalogs() -> dict[str, dict[str, Any]]:
+def legacy_provider_catalogs() -> dict[str, dict[str, Any]]:
+    """Return the exact v1.0 preimages consumed by the pure v1.1 converter."""
+
     iucr_api_revision = "1ddf445dc3dc82c211396b02e8af5bea3230a211"
     core_revision = "6b12b6782b66e57dd18b2f413e1c7bcde4d59907"
     ase_revision = "f27c0005ae6a67ea419f996e728668865bfc1f86"
@@ -569,6 +576,160 @@ def provider_catalogs() -> dict[str, dict[str, Any]]:
             ],
         ),
     }
+
+
+class ProviderMigrationSpec(NamedTuple):
+    """Exact build-time inputs for one pure catalog conversion.
+
+    This ledger only supplies the converter's explicit projection inputs. It
+    neither reads nor changes the runtime authority registry and contains no
+    policy classifier.
+    """
+
+    authority_id: str
+    provider_id: str
+    exact_version: str
+    inventory_source_id: str
+    canonical_urls: tuple[str, ...]
+
+
+PROVIDER_MIGRATION_SPECS: dict[str, ProviderMigrationSpec] = {
+    "iucr-cif-standards": ProviderMigrationSpec(
+        authority_id="iucr-comcifs-cif-standards",
+        provider_id="iucr",
+        exact_version="CIF-1.1+CIF-2.0+core-3.2.0",
+        inventory_source_id="comcifs-cif-api-readme",
+        canonical_urls=(
+            (
+                "https://raw.githubusercontent.com/COMCIFS/cif_api/"
+                "1ddf445dc3dc82c211396b02e8af5bea3230a211/"
+            ),
+            (
+                "https://raw.githubusercontent.com/COMCIFS/cif_core/"
+                "6b12b6782b66e57dd18b2f413e1c7bcde4d59907/"
+            ),
+        ),
+    ),
+    "ase-3-29": ProviderMigrationSpec(
+        authority_id="ase-release-source-docs-3-29-0",
+        provider_id="ase",
+        exact_version="3.29.0",
+        inventory_source_id="ase-cif-io-doc",
+        canonical_urls=(
+            (
+                "https://gitlab.com/ase/ase/-/raw/"
+                "f27c0005ae6a67ea419f996e728668865bfc1f86/doc/ase/"
+            ),
+            (
+                "https://gitlab.com/ase/ase/-/raw/"
+                "f27c0005ae6a67ea419f996e728668865bfc1f86/doc/ase/io/"
+            ),
+            "https://gitlab.com/ase/ase/-/tree/",
+        ),
+    ),
+    "gemmi-0-7-5": ProviderMigrationSpec(
+        authority_id="gemmi-0-7-5-source-docs",
+        provider_id="gemmi",
+        exact_version="0.7.5",
+        inventory_source_id="gemmi-cif-doc",
+        canonical_urls=(
+            (
+                "https://raw.githubusercontent.com/project-gemmi/gemmi/"
+                "5cc1c23c6007e0e6cbd69289c6f7c0bff50e943e/docs/"
+            ),
+        ),
+    ),
+    "pycifrw-5-0-1": ProviderMigrationSpec(
+        authority_id="pycifrw-5-0-1-source-docs",
+        provider_id="pycifrw",
+        exact_version="5.0.1",
+        inventory_source_id="pycifrw-readme",
+        canonical_urls=(
+            (
+                "https://raw.githubusercontent.com/jamesrhester/pycifrw/"
+                "046dae8fead29d9f7c0b7df2544f943558b55b8b/"
+            ),
+        ),
+    ),
+    "spglib-2-7-0": ProviderMigrationSpec(
+        authority_id="spglib-release-source-docs-2-7-0",
+        provider_id="spglib",
+        exact_version="2.7.0",
+        inventory_source_id="spglib-python-interface",
+        canonical_urls=(
+            (
+                "https://github.com/spglib/spglib/"
+                "12355c77fb7c505a55f52cae36341d73b781a065/docs/"
+            ),
+            "https://github.com/spglib/spglib/tree/",
+            (
+                "https://raw.githubusercontent.com/spglib/spglib/"
+                "12355c77fb7c505a55f52cae36341d73b781a065/docs/"
+            ),
+            "https://raw.githubusercontent.com/spglib/spglib/tree/",
+        ),
+    ),
+}
+
+
+def provider_catalogs(scope: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """Convert exact local v1.0 preimages into deterministic v1.1 catalogs."""
+
+    legacy_catalogs = legacy_provider_catalogs()
+    if set(legacy_catalogs) != set(PROVIDER_MIGRATION_SPECS):
+        raise ValueError("provider migration ledger does not match catalog inputs")
+
+    converted: dict[str, dict[str, Any]] = {}
+    for input_id, legacy_catalog in sorted(legacy_catalogs.items()):
+        spec = PROVIDER_MIGRATION_SPECS[input_id]
+        version_scope = legacy_catalog.get("version_scope")
+        if version_scope != {
+            "kind": "exact",
+            "value": spec.exact_version,
+            "retrieved_utc": None,
+            "snapshot_identity": None,
+        }:
+            raise ValueError(f"{input_id}: exact version drifted from migration ledger")
+
+        included_sources = {
+            source["source_id"]: source
+            for source in legacy_catalog["sources"]
+            if source.get("disposition") == "included"
+        }
+        inventory_source = included_sources.get(spec.inventory_source_id)
+        if inventory_source is None:
+            raise ValueError(
+                f"{input_id}: inventory source missing from legacy catalog"
+            )
+
+        preimage = canonical_json_bytes(legacy_catalog)
+        converted[input_id] = convert_catalog_v10_to_v11(
+            legacy_catalog,
+            provider={
+                "input_id": input_id,
+                "provider_id": spec.provider_id,
+            },
+            authority={"authority_id": spec.authority_id},
+            authority_projection={
+                "canonical_urls": list(spec.canonical_urls),
+                "version_scopes": [
+                    {
+                        "scope": "exact",
+                        "exact_version": spec.exact_version,
+                    }
+                ],
+            },
+            scope_catalog=scope,
+            inventory_projection={
+                "locator": inventory_source["locator"],
+                "identity": {
+                    "sha256": sha256_bytes(preimage),
+                    "bytes": len(preimage),
+                },
+                "canonical_preimage_bytes": preimage,
+            },
+        )
+    return converted
 
 
 def consumer_binding(
@@ -821,36 +982,24 @@ def authority_proposal() -> dict[str, Any]:
 def build_outputs(root: Path) -> dict[Path, bytes]:
     skill_root = root / "skills" / SKILL_ID
     scope_path = skill_root / "references" / "source-pack-scope.json"
+    scope = scope_catalog(root)
     outputs: dict[Path, bytes] = {
-        scope_path: canonical_json_bytes(scope_catalog(root))
-    }
-    provider_specs = {
-        "iucr-cif-standards": (
-            "iucr-comcifs-cif-standards",
-            "iucr",
-        ),
-        "ase-3-29": ("ase-release-source-docs-3-29-0", "ase"),
-        "gemmi-0-7-5": ("gemmi-0-7-5-source-docs", "gemmi"),
-        "pycifrw-5-0-1": ("pycifrw-5-0-1-source-docs", "pycifrw"),
-        "spglib-2-7-0": (
-            "spglib-release-source-docs-2-7-0",
-            "spglib",
-        ),
+        scope_path: canonical_json_bytes(scope)
     }
     providers: list[dict[str, Any]] = []
-    for input_id, value in sorted(provider_catalogs().items()):
+    for input_id, value in sorted(provider_catalogs(scope).items()):
         path = (
             skill_root / "references" / "source-pack-inputs" / f"{input_id}.json"
         )
         payload = canonical_json_bytes(value)
         outputs[path] = payload
-        authority_id, provider_id = provider_specs[input_id]
+        spec = PROVIDER_MIGRATION_SPECS[input_id]
         providers.append(
             {
                 "input_id": input_id,
                 "adapter_id": "declarative-catalog-v1",
-                "authority_id": authority_id,
-                "provider_id": provider_id,
+                "authority_id": spec.authority_id,
+                "provider_id": spec.provider_id,
                 "source_ref": {
                     "path": path.relative_to(root).as_posix(),
                     "sha256": sha256_bytes(payload),
@@ -871,7 +1020,7 @@ def build_outputs(root: Path) -> dict[Path, bytes]:
         "limitations": [
             "The pack is metadata-only and does not embed official documentation text.",
             "Open-ended dependency ranges are not equivalent to these exact provider snapshots.",
-            "IUCr dictionary licensing and full portal enumeration remain unresolved.",
+            "IUCr dictionary byte identity and full portal enumeration remain unresolved.",
         ],
         "blockers": [],
     }
@@ -884,16 +1033,16 @@ def build_outputs(root: Path) -> dict[Path, bytes]:
     return outputs
 
 
-def sync(*, check: bool) -> tuple[str, ...]:
-    root = repository_root()
+def sync(*, check: bool, root: Path | None = None) -> tuple[str, ...]:
+    selected_root = repository_root() if root is None else root
     changed: list[str] = []
     for path, payload in sorted(
-        build_outputs(root).items(), key=lambda item: item[0].as_posix()
+        build_outputs(selected_root).items(), key=lambda item: item[0].as_posix()
     ):
         current = path.read_bytes() if path.is_file() else None
         if current == payload:
             continue
-        changed.append(path.relative_to(root).as_posix())
+        changed.append(path.relative_to(selected_root).as_posix())
         if not check:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(payload)

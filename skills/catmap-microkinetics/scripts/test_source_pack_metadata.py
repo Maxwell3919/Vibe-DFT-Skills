@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import unittest
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -50,7 +50,8 @@ class SourcePackMetadataTests(unittest.TestCase):
                 self.scope_path,
             ),
             (
-                ROOT / "contracts/official-document-source-catalog.schema.json",
+                ROOT
+                / "contracts/official-document-source-catalog-1.1.schema.json",
                 self.catalog_path,
             ),
         ]
@@ -59,9 +60,9 @@ class SourcePackMetadataTests(unittest.TestCase):
                 schema = load_json(schema_path)
                 Draft202012Validator.check_schema(schema)
                 errors = list(
-                    Draft202012Validator(schema).iter_errors(
-                        load_json(instance_path)
-                    )
+                    Draft202012Validator(
+                        schema, format_checker=FormatChecker()
+                    ).iter_errors(load_json(instance_path))
                 )
                 self.assertEqual([], [error.message for error in errors])
 
@@ -82,9 +83,21 @@ class SourcePackMetadataTests(unittest.TestCase):
             if subject["evidence_class"] == "official-provider-required"
         }
         self.assertEqual(
-            {subject["subject_id"] for subject in self.catalog["subjects"]},
+            set(self.catalog["subjects"]),
             scoped,
         )
+        self.assertEqual("1.1", self.catalog["schema_version"])
+        self.assertEqual(
+            self.provider["authority_id"], self.catalog["authority_id"]
+        )
+        self.assertEqual(self.provider["provider_id"], self.catalog["provider_id"])
+        included_subjects = {
+            subject_id
+            for source in self.catalog["discovered_sources"].values()
+            if source["disposition"] == "included"
+            for subject_id in source["subject_ids"]
+        }
+        self.assertEqual(set(self.catalog["subjects"]), included_subjects)
         for subject in self.scope["subjects"]:
             if subject["evidence_class"] == "official-provider-required":
                 self.assertEqual("blocked", subject["expected_disposition"])

@@ -48,7 +48,7 @@ SEED_SCHEMA_PATH = PurePosixPath(
     "contracts", "official-document-pack-seed.schema.json"
 )
 CATALOG_SCHEMA_PATH = PurePosixPath(
-    "contracts", "official-document-source-catalog.schema.json"
+    "contracts", "official-document-source-catalog-1.1.schema.json"
 )
 SCOPE_CATALOG_SCHEMA_PATH = PurePosixPath(
     "contracts", "official-document-scope-catalog.schema.json"
@@ -110,15 +110,11 @@ class ProviderBuild:
     retrieved_utc: str
     authority_root: str
     authority_revision: str
-    inventory_format: str
-    inventory_locator: str
-    inventory_sha256: str
+    inventory: dict[str, Any]
+    source_inventory: dict[str, dict[str, Any]]
+    slice_sources: dict[str, dict[str, Any]]
     upstream_universe_complete: bool
-    included_sources: tuple[dict[str, Any], ...]
-    reviewed_exclusions: tuple[dict[str, Any], ...]
-    source_slices: tuple[dict[str, Any], ...]
     subject_slice_ids: dict[str, tuple[str, ...]]
-    license: dict[str, Any]
     limitations: tuple[str, ...]
     blockers: tuple[dict[str, Any], ...]
 
@@ -976,11 +972,10 @@ def _validate_dependency_lock(context: BuildContext) -> None:
     )
     expected_outputs = {
         "contracts/common-definitions-1.0.schema.json",
-        "contracts/official-corpus-manifest.schema.json",
-        "contracts/document-slice-manifest.schema.json",
-        "contracts/official-source-license-review.schema.json",
         "contracts/skill-document-scope-inventory.schema.json",
-        "contracts/skill-document-coverage.schema.json",
+        "contracts/official-corpus-manifest-1.1.schema.json",
+        "contracts/document-slice-manifest-1.1.schema.json",
+        "contracts/skill-document-coverage-1.1.schema.json",
     }
 
     def verify_ref(value: Any, *, label: str) -> str:
@@ -1154,6 +1149,24 @@ def _processor_refs(context: BuildContext) -> dict[str, dict[str, str]]:
     }
 
 
+def _processor_refs_v11(context: BuildContext) -> dict[str, dict[str, Any]]:
+    paths = {
+        "implementation_ref": PurePosixPath(
+            "tools", "build_official_document_packs.py"
+        ),
+        "configuration_ref": SEED_SCHEMA_PATH,
+        "dependency_lock_ref": DEPENDENCY_LOCK_PATH,
+    }
+    return {
+        field: {
+            "path": path.as_posix(),
+            "sha256": sha256_file(context.root.joinpath(*path.parts)),
+            "bytes": context.root.joinpath(*path.parts).stat().st_size,
+        }
+        for field, path in paths.items()
+    }
+
+
 def _processor(
     context: BuildContext,
     *,
@@ -1186,6 +1199,63 @@ def _processor(
     if kind == "transformer":
         result["deterministic"] = True
     return result
+
+
+def _processor_v11(
+    context: BuildContext,
+    *,
+    processor_id: str,
+    processor_version: str,
+    assurance_mode: str,
+    input_sha256: str,
+    output_sha256: str,
+    attestation_id: str | None = None,
+) -> dict[str, Any]:
+    if assurance_mode not in {"unverified", "pinned", "attested"}:
+        raise PackBuildError(
+            f"{context.skill_id}: unsupported assurance mode {assurance_mode!r}"
+        )
+    if assurance_mode in {"unverified", "pinned"}:
+        if attestation_id is not None:
+            raise PackBuildError(
+                f"{context.skill_id}: {assurance_mode} processors require "
+                "attestation_id to be None"
+            )
+    else:
+        if not isinstance(attestation_id, str) or not attestation_id:
+            raise PackBuildError(
+                f"{context.skill_id}: attested processors require an "
+                "explicit non-empty attestation_id"
+            )
+    refs = (
+        None
+        if assurance_mode == "unverified"
+        else _processor_refs_v11(context)
+    )
+    return {
+        "processor_id": processor_id,
+        "processor_version": processor_version,
+        "assurance_mode": assurance_mode,
+        "implementation_ref": (
+            None
+            if refs is None
+            else refs["implementation_ref"]
+        ),
+        "configuration_ref": (
+            None
+            if refs is None
+            else refs["configuration_ref"]
+        ),
+        "dependency_lock_ref": (
+            None
+            if refs is None
+            else refs["dependency_lock_ref"]
+        ),
+        "input_sha256": input_sha256,
+        "output_sha256": output_sha256,
+        "attestation_id": None if assurance_mode != "attested" else attestation_id,
+        "deterministic": True,
+    }
 
 
 def _receipt(
@@ -1310,48 +1380,69 @@ def _source_identity_from_catalog(
     provider: dict[str, Any],
     source: dict[str, Any],
 ) -> dict[str, Any]:
-    if "content_ref" in source:
-        raw = _validate_content_ref(
-            context,
-            source["content_ref"],
-            label=f"{context.skill_id}:{provider['input_id']}:{source['source_id']}",
-        )
-        digest = sha256_bytes(raw)
-        return {
-            "kind": "sha256",
-            "value": digest,
-            "raw_sha256": digest,
-            "raw_bytes": len(raw),
-            "resolver_receipt": None,
+    content = source["content"]
+    content_mode = content["content_mode"]
+    if content_mode == "embedded-content":
+        content_ref = {
+            "path": content["locator"],
+            "sha256": content["sha256"],
         }
-    external = source["external_identity"]
-    receipt_id = _safe_id(
-        context.skill_id,
-        provider["input_id"],
-        source["source_id"],
-        "source-receipt",
+        content_path = _resolve_skill_ref(
+            context,
+            content_ref,
+            label=(
+                f"{context.skill_id}:{provider['input_id']}:"
+                f"{source['source_id']}:embedded-content"
+            ),
+        )
+        raw = _read_regular_bytes(
+            content_path,
+            label=(
+                f"{context.skill_id}:{provider['input_id']}:"
+                f"{source['source_id']}:embedded-content"
+            ),
+            maximum=MAX_CATALOG_BYTES,
+        )
+        if len(raw) != content["bytes"]:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: "
+                f"{source['source_id']}: embedded source bytes mismatch"
+            )
+        if sha256_bytes(raw) != content["sha256"]:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: "
+                f"{source['source_id']}: embedded source identity mismatch"
+            )
+        return {
+            "content_mode": "embedded-content",
+            "locator": content["locator"],
+            "sha256": content["sha256"],
+            "bytes": content["bytes"],
+        }
+    if content_mode == "external-content":
+        return {
+            "content_mode": "external-content",
+            "locator": content["locator"],
+            "receipt": copy.deepcopy(content["receipt"]),
+        }
+    if content_mode == "metadata-only":
+        return {
+            "content_mode": "metadata-only",
+            "locator": content["locator"],
+            "identity": copy.deepcopy(content["identity"]),
+        }
+    if content_mode == "excluded":
+        return {
+            "content_mode": "excluded",
+            "locator": content["locator"],
+            "inventory_entry_identity": copy.deepcopy(
+                content["inventory_entry_identity"]
+            ),
+        }
+    raise PackBuildError(
+        f"{context.skill_id}:{provider['input_id']}: "
+        f"{source['source_id']}: unsupported content mode {content_mode!r}"
     )
-    evidence_sha256 = external.get(
-        "evidence_sha256", provider["source_ref"]["sha256"]
-    )
-    receipt = _receipt(
-        context,
-        receipt_id=receipt_id,
-        canonical_url=source["locator"],
-        retrieved_utc=external["retrieved_utc"],
-        raw_sha256=external["raw_sha256"],
-        raw_bytes=external["raw_bytes"],
-        selected_sha256=external["raw_sha256"],
-        selected_bytes=external["raw_bytes"],
-        evidence_sha256=evidence_sha256,
-    )
-    return {
-        "kind": external["kind"],
-        "value": receipt_id if external["kind"] == "external-receipt" else external["value"],
-        "raw_sha256": external["raw_sha256"],
-        "raw_bytes": external["raw_bytes"],
-        "resolver_receipt": receipt,
-    }
 
 
 def _output_loss(loss: dict[str, Any], slice_ids: list[str]) -> dict[str, Any]:
@@ -1371,11 +1462,18 @@ def _output_loss(loss: dict[str, Any], slice_ids: list[str]) -> dict[str, Any]:
         severity = "blocking"
     return {
         "loss_id": loss["loss_id"],
-        "category": "other",
+        "category": {
+            "discovery": "metadata",
+            "retrieval": "asset",
+            "extraction": "code",
+            "normalization": "encoding",
+            "storage": "other",
+            "mapping": "metadata",
+            "other": "other",
+        }[loss["stage"]],
         "severity": severity,
         "disposition": disposition,
         "description": loss["description"],
-        "affected_slice_ids": slice_ids,
     }
 
 
@@ -1403,71 +1501,225 @@ def _slice_from_catalog(
     provider: dict[str, Any],
     source: dict[str, Any],
     identity: dict[str, Any],
-    item: dict[str, Any],
+    selector: dict[str, Any],
+    raw_source_extent_bytes: int,
 ) -> dict[str, Any]:
-    selector = copy.deepcopy(item["selector"])
-    byte_range = None
-    if selector["kind"] == "byte-range":
-        start, end = (int(value) for value in selector["value"].split(":", 1))
-        byte_range = {
-            "start_byte": start,
-            "end_byte_exclusive": end,
-        }
-    if "content_ref" in item:
-        raw = _validate_content_ref(
-            context,
-            item["content_ref"],
-            label=(
-                f"{context.skill_id}:{provider['input_id']}:"
-                f"{source['source_id']}:{item['slice_id']}"
-            ),
+    selector = copy.deepcopy(selector)
+    selector_identity = selector.get("selected_identity")
+    if selector_identity is None:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+            f"{selector['selector_id']}: selected_identity missing and must be required"
         )
-        storage_mode = "embedded-open"
-        content_locator = item["content_ref"]["path"]
-        hash_basis = "artifact-and-payload-exact-bytes"
-        artifact_sha256: str | None = sha256_bytes(raw)
-        content_sha256 = artifact_sha256
-        receipt = None
+    if (
+        not isinstance(selector_identity, dict)
+        or set(selector_identity) != {"sha256", "bytes"}
+        or not isinstance(selector_identity["sha256"], str)
+        or not re.fullmatch(r"[0-9a-f]{64}", selector_identity["sha256"])
+        or isinstance(selector_identity["bytes"], bool)
+        or not isinstance(selector_identity["bytes"], int)
+        or selector_identity["bytes"] <= 0
+    ):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+            f"{selector['selector_id']}: selected_identity must be byteIdentity"
+        )
+
+    if selector["kind"] == "byte-range":
+        start, byte_count = (
+            int(value) for value in selector["value"].split(":", 1)
+        )
+        if start < 0 or byte_count <= 0:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+                f"{selector['selector_id']}: byte-range must be non-negative and "
+                "non-zero"
+            )
+        if start + byte_count > raw_source_extent_bytes:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+                f"{selector['selector_id']}: byte-range exceeds source extent"
+            )
+        raw_byte_range = {
+            "start_byte": start,
+            "byte_count": byte_count,
+        }
+        if selector["layer"] == "derived-artifact":
+            raw_byte_range = {
+                "start_byte": 0,
+                "byte_count": raw_source_extent_bytes,
+            }
     else:
-        external = item["external_receipt"]
-        storage_mode = "metadata-only"
-        content_locator = source["locator"]
-        hash_basis = "external-receipt-content-bytes"
-        artifact_sha256 = None
-        content_sha256 = external["selected_sha256"]
-        receipt = _receipt(
-            context,
-            receipt_id=(
-                f"{context.skill_id}-{provider['input_id']}-"
-                f"{source['source_id']}-{item['slice_id']}"
-            ),
-            canonical_url=source["locator"],
-            retrieved_utc=external["retrieved_utc"],
-            raw_sha256=external["raw_sha256"],
-            raw_bytes=external["raw_bytes"],
-            selected_sha256=external["selected_sha256"],
-            selected_bytes=external["selected_bytes"],
-            evidence_sha256=(
-                source.get("metadata_evidence_ref", {}).get(
-                    "sha256",
-                    provider["source_ref"]["sha256"],
+        raw_byte_range = {
+            "start_byte": 0,
+            "byte_count": raw_source_extent_bytes,
+        }
+
+    selector_emitted = {
+        "layer": selector["layer"],
+        "kind": selector["kind"],
+        "value": selector["value"],
+    }
+    if identity["content_mode"] == "embedded-content":
+        if (
+            selector["layer"] != "raw-source"
+            or selector["kind"] != "whole-source"
+            or selector_identity["sha256"] != identity["sha256"]
+            or selector_identity["bytes"] != identity["bytes"]
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+                f"{selector['selector_id']}: embedded selector must be raw whole-source "
+                "and selected_identity must equal embedded source identity"
+            )
+        is_complete_range = (
+            selector["kind"] != "byte-range"
+            or (
+                raw_byte_range["start_byte"] == 0
+                and raw_byte_range["byte_count"] == raw_source_extent_bytes
+            )
+        )
+        if not is_complete_range:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+                f"{selector['selector_id']}: embedded-content cannot be claimed by partial selector"
+            )
+        content = {
+            "content_mode": "embedded-content",
+            "artifact": {
+                "path": identity["locator"],
+                "sha256": identity["sha256"],
+                "bytes": identity["bytes"],
+            },
+            "hash_basis": "exact-artifact-bytes",
+        }
+    elif identity["content_mode"] == "external-content":
+        if selector["kind"] == "whole-source":
+            if (
+                selector_identity["sha256"] != identity["receipt"]["raw_sha256"]
+                or selector_identity["bytes"] != identity["receipt"]["raw_bytes"]
+            ):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+                    f"{selector['selector_id']}: external whole-source selector selected_identity "
+                    "must match source receipt identity"
                 )
-            ),
+            content = {
+                "content_mode": "external-content",
+                "locator": identity["locator"],
+                "receipt": {
+                    **identity["receipt"],
+                    "selected_content": {
+                        "sha256": identity["receipt"]["raw_sha256"],
+                        "bytes": identity["receipt"]["raw_bytes"],
+                    },
+                },
+                "hash_basis": "external-receipt-bytes",
+            }
+        elif selector["layer"] == "raw-source":
+            if selector["kind"] != "byte-range":
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+                    f"{selector['selector_id']}: non-whole external selectors on raw "
+                    "source must be byte-range"
+                )
+            if selector_identity["bytes"] != raw_byte_range["byte_count"]:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+                    f"{selector['selector_id']}: selected_identity bytes must equal "
+                    "selector byte-range byte_count"
+                )
+            content = {
+                "content_mode": "metadata-only",
+                "locator": identity["locator"],
+                "identity": copy.deepcopy(selector_identity),
+                "hash_basis": "metadata-identity-bytes",
+            }
+        else:
+            content = {
+                "content_mode": "metadata-only",
+                "locator": identity["locator"],
+                "identity": {
+                    "sha256": selector_identity["sha256"],
+                    "bytes": selector_identity["bytes"],
+                },
+                "hash_basis": "metadata-identity-bytes",
+            }
+    else:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}:{source['source_id']}:"
+            f"unsupported source content mode {identity['content_mode']!r}"
         )
     return {
-        "slice_id": item["slice_id"],
-        "ordinal": item["order"],
-        "selector": selector,
-        "byte_range": byte_range,
-        "artifact_kind": "metadata",
-        "source_material_class": "documentation-text",
-        "storage_mode": storage_mode,
-        "content_locator": content_locator,
-        "hash_basis": hash_basis,
-        "artifact_sha256": artifact_sha256,
-        "content_sha256": content_sha256,
-        "content_receipt": receipt,
-        "loss_ids": list(item.get("loss_ids", [])),
+        "slice_id": selector["selector_id"],
+        "selector": selector_emitted,
+        "raw_byte_range": raw_byte_range,
+        "content": content,
+        "subject_ids": list(selector["subject_ids"]),
+        "loss_accounting": {},
+    }
+
+
+def _slice_processor_v11(
+    context: BuildContext,
+    *,
+    source_identity: dict[str, Any],
+    output_slices: list[dict[str, Any]],
+    source_loss_accounting: dict[str, Any],
+) -> dict[str, Any]:
+    refs = _processor_refs_v11(context)
+    attestations = [
+        {
+            "attestation_id": _safe_id(
+                "official-document-pack-transformer",
+                "implementation",
+            ),
+            "kind": "implementation",
+            "artifact": refs["implementation_ref"],
+        },
+        {
+            "attestation_id": _safe_id(
+                "official-document-pack-transformer",
+                "configuration",
+            ),
+            "kind": "configuration",
+            "artifact": refs["configuration_ref"],
+        },
+        {
+            "attestation_id": _safe_id(
+                "official-document-pack-transformer",
+                "dependency-lock",
+            ),
+            "kind": "dependency-lock",
+            "artifact": refs["dependency_lock_ref"],
+        },
+    ]
+    if source_identity["content_mode"] == "embedded-content":
+        input_sha256 = source_identity["sha256"]
+    elif source_identity["content_mode"] == "external-content":
+        input_sha256 = source_identity["receipt"]["raw_sha256"]
+    elif source_identity["content_mode"] == "metadata-only":
+        input_sha256 = source_identity["identity"]["sha256"]
+    elif source_identity["content_mode"] == "excluded":
+        input_sha256 = source_identity["inventory_entry_identity"]["sha256"]
+    else:
+        raise PackBuildError(
+            f"{context.skill_id}: unsupported source identity mode for "
+            f"{source_identity['content_mode']!r}"
+        )
+    return {
+        "processor_id": "official-document-pack-transformer",
+        "processor_version": BUILDER_VERSION,
+        "assurance_mode": "pinned",
+        "input_sha256": input_sha256,
+        "output_sha256": canonical_projection_sha256(
+            {
+                "slices": output_slices,
+                "source_loss_accounting": source_loss_accounting,
+            }
+        ),
+        "attestations": attestations,
+        "deterministic": True,
     }
 
 
@@ -1487,403 +1739,511 @@ def _declarative_adapter(
         catalog_blockers=catalog["blockers"],
         label=f"{context.skill_id}:{provider['input_id']}:source_ref",
     )
-    embedded_refs = [
-        source["source_id"]
-        for source in catalog["sources"]
-        if "content_ref" in source
-        or any("content_ref" in item for item in source["slices"])
-    ]
-    if embedded_refs:
-        bundle_policy = authority_entry["redistribution_policy"][
-            "bundle_content"
-        ]
+
+    if catalog["authority_id"] != provider["authority_id"]:
         raise PackBuildError(
-            f"{context.skill_id}:{provider['input_id']}: declarative content_ref "
-            "would place provider bytes in the ordinary Skill/distribution tree; "
-            f"central bundle_content={bundle_policy!r}, so only external identity "
-            "and metadata receipts are accepted"
+            f"{context.skill_id}:{provider['input_id']}: catalog authority_id "
+            "must match provider authority_id"
         )
-    for source in catalog["sources"]:
-        evidence_ref = source.get("metadata_evidence_ref")
-        if evidence_ref is None:
-            continue
-        evidence_raw = _validate_content_ref(
-            context,
-            evidence_ref,
-            label=(
-                f"{context.skill_id}:{provider['input_id']}:"
-                f"{source['source_id']}:metadata_evidence_ref"
-            ),
-        )
-        external_identity = source.get("external_identity")
-        if (
-            not isinstance(external_identity, dict)
-            or external_identity.get("evidence_sha256")
-            != evidence_ref["sha256"]
-            or sha256_bytes(evidence_raw) != evidence_ref["sha256"]
-        ):
-            raise PackBuildError(
-                f"{context.skill_id}:{provider['input_id']}:"
-                f"{source['source_id']}: metadata sidecar must exactly bind "
-                "the external identity evidence hash; it cannot substitute for "
-                "the independent upstream raw identity"
-            )
-        for item in source["slices"]:
-            receipt = item.get("external_receipt")
-            if (
-                not isinstance(receipt, dict)
-                or item["selector"] != {
-                    "layer": "raw-source",
-                    "kind": "whole-source",
-                    "value": "*",
-                }
-                or receipt["raw_sha256"]
-                != external_identity["raw_sha256"]
-                or receipt["raw_bytes"] != external_identity["raw_bytes"]
-                or receipt["selected_sha256"]
-                != external_identity["raw_sha256"]
-                or receipt["selected_bytes"]
-                != external_identity["raw_bytes"]
-            ):
-                raise PackBuildError(
-                    f"{context.skill_id}:{provider['input_id']}:"
-                    f"{source['source_id']}: metadata sidecar slices require "
-                    "one exact external whole-source receipt independent from "
-                    "the local sidecar bytes"
-                )
-    included_ids: set[str] = set()
-    excluded_ids: set[str] = set()
-    source_records: list[dict[str, Any]] = []
-    source_slices: list[dict[str, Any]] = []
-    subject_slices: dict[str, list[str]] = {}
-    declared_source_ids = [item["source_id"] for item in catalog["sources"]]
-    if len(declared_source_ids) != len(set(declared_source_ids)):
+    if catalog["provider_id"] != provider["provider_id"]:
         raise PackBuildError(
-            f"{context.skill_id}:{provider['input_id']}: duplicate included "
-            "source_id"
+            f"{context.skill_id}:{provider['input_id']}: catalog provider_id "
+            "must match provider provider_id"
         )
-    declared_source_set = set(declared_source_ids)
-    declared_exclusion_ids = [
-        item["source_id"] for item in catalog["reviewed_exclusions"]
-    ]
-    if (
-        len(declared_exclusion_ids) != len(set(declared_exclusion_ids))
-        or declared_source_set.intersection(declared_exclusion_ids)
+    discovery = catalog["discovery_processor"]
+    if discovery["input_sha256"] != catalog["inventory_identity"]["sha256"]:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: discovery processor "
+            "input_sha256 must equal catalog inventory_identity.sha256"
+        )
+    if discovery["output_sha256"] != canonical_projection_sha256(
+        catalog["discovered_sources"]
     ):
         raise PackBuildError(
-            f"{context.skill_id}:{provider['input_id']}: included/excluded "
-            "source IDs are not a disjoint unique partition"
+            f"{context.skill_id}:{provider['input_id']}: discovery processor "
+            "output_sha256 must equal canonical hash of discovered_sources"
         )
-    source_id_map = _output_id_map(
-        [*declared_source_ids, *declared_exclusion_ids],
-        label=f"{context.skill_id}:{provider['input_id']}:source IDs",
-    )
-    declared_slice_ids = [
-        item["slice_id"]
-        for source in catalog["sources"]
-        for item in source["slices"]
-    ]
-    slice_id_map = _output_id_map(
-        declared_slice_ids,
-        label=f"{context.skill_id}:{provider['input_id']}:slice IDs",
-    )
-    loss_id_map = _output_id_map(
-        [item["loss_id"] for item in catalog["losses"]],
-        label=f"{context.skill_id}:{provider['input_id']}:loss IDs",
-    )
-    loss_by_id: dict[str, dict[str, Any]] = {}
-    for loss in catalog["losses"]:
-        loss_id = loss["loss_id"]
-        if loss_id in loss_by_id:
-            raise PackBuildError(
-                f"{context.skill_id}:{provider['input_id']}: duplicate loss_id "
-                f"{loss_id!r}"
-            )
-        if not set(loss["affected_source_ids"]).issubset(
-            declared_source_set
-        ):
-            raise PackBuildError(
-                f"{context.skill_id}:{provider['input_id']}:{loss_id}: "
-                "affected_source_ids contain a non-included source"
-            )
-        loss_by_id[loss_id] = loss
-    global_slice_ids: set[str] = set()
-    declared_catalog_subject_ids = [
-        item["subject_id"] for item in catalog["subjects"]
-    ]
-    declared_catalog_subjects = set(declared_catalog_subject_ids)
-    if len(declared_catalog_subject_ids) != len(declared_catalog_subjects):
+
+    discovered_sources = catalog["discovered_sources"]
+    losses = catalog["losses"]
+    catalog_subjects = catalog["subjects"]
+
+    if not isinstance(discovered_sources, dict):
         raise PackBuildError(
-            f"{context.skill_id}:{provider['input_id']}: duplicate catalog "
-            "subject_id"
+            f"{context.skill_id}:{provider['input_id']}: discovered_sources must "
+            "be a source-id map"
         )
-    expected_provider_subjects = {
+    if not isinstance(losses, dict):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: losses must be a map"
+        )
+    if not isinstance(catalog_subjects, dict):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: subjects must be a map"
+        )
+
+    scope_catalog = _scope_catalog(context)
+    expected_subjects = {
         item["subject_id"]: item
-        for item in _scope_catalog(context)["subjects"]
+        for item in scope_catalog["subjects"]
         if item["evidence_class"] == "official-provider-required"
         and provider["input_id"] in item["provider_input_ids"]
     }
-    if declared_catalog_subjects != set(expected_provider_subjects):
+    if set(catalog_subjects) != set(expected_subjects):
         raise PackBuildError(
-            f"{context.skill_id}:{provider['input_id']}: declarative catalog "
-            "subject IDs do not exactly equal the canonical provider scope"
+            f"{context.skill_id}:{provider['input_id']}: declarative catalog subject "
+            "ids must exactly match canonical provider scope"
         )
+    for subject_id, expected in expected_subjects.items():
+        if catalog_subjects[subject_id]["statement"] != expected["statement"]:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{subject_id}: "
+                "declarative subject statement must exactly match canonical scope statement"
+            )
+
+    source_ids = list(discovered_sources)
+    if not source_ids:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: discovered_sources cannot be empty"
+        )
+    scope_subject_id_map = _output_id_map(
+        [item["subject_id"] for item in scope_catalog["subjects"]],
+        label=f"{context.skill_id}:{provider['input_id']}:scope subjects",
+    )
+
+    source_id_map = _output_id_map(
+        source_ids,
+        label=f"{context.skill_id}:{provider['input_id']}:source IDs",
+    )
+    loss_id_map = _output_id_map(
+        list(losses),
+        label=f"{context.skill_id}:{provider['input_id']}:loss IDs",
+    )
+
+    selector_ids: list[str] = []
+    for source_id, source in discovered_sources.items():
+        if not isinstance(source, dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: source {source_id!r} "
+                "must be a mapping"
+            )
+        if source["disposition"] != "included":
+            continue
+        if source["content"]["content_mode"] != "metadata-only":
+            selector_ids.extend(item["selector_id"] for item in source["selectors"])
+    selector_id_map = _output_id_map(
+        selector_ids,
+        label=f"{context.skill_id}:{provider['input_id']}:selector IDs",
+    )
+
+    def _source_raw_extent_bytes(source_identity: dict[str, Any]) -> int:
+        if source_identity["content_mode"] == "embedded-content":
+            return source_identity["bytes"]
+        if source_identity["content_mode"] == "external-content":
+            return source_identity["receipt"]["raw_bytes"]
+        if source_identity["content_mode"] == "metadata-only":
+            return source_identity["identity"]["bytes"]
+        if source_identity["content_mode"] == "excluded":
+            return source_identity["inventory_entry_identity"]["bytes"]
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: unsupported source content mode"
+        )
+
     source_identity_by_id = {
-        source["source_id"]: _source_identity_from_catalog(
+        source_id: _source_identity_from_catalog(
             context,
             provider,
-            source,
+            {**source, "source_id": source_id},
         )
-        for source in catalog["sources"]
+        for source_id, source in discovered_sources.items()
     }
-    rolling_snapshot_sha256 = None
-    if catalog["version_scope"]["kind"] == "latest-at-retrieval":
-        rolling_snapshot_sha256 = _source_identity_aggregate_sha256(
-            authority_id=provider["authority_id"],
-            provider_id=provider["provider_id"],
-            retrieved_utc=_utc(
-                catalog["version_scope"]["retrieved_utc"]
-            ),
-            included_sources=[
-                {
-                    "source_id": source_id_map[source["source_id"]],
-                    "locator": source["locator"],
-                    "identity": source_identity_by_id[source["source_id"]],
-                }
-                for source in catalog["sources"]
-            ],
-            reviewed_exclusions=[
-                {
-                    "source_id": source_id_map[item["source_id"]],
-                    "reason_code": item["reason_code"],
-                }
-                for item in catalog["reviewed_exclusions"]
-            ],
-        )
-    output_version_scope = _output_version_scope(
-        catalog["version_scope"],
-        rolling_snapshot_sha256=rolling_snapshot_sha256,
-    )
-    (
-        inventory_format,
-        inventory_locator,
-        inventory_sha256,
-        upstream_universe_complete,
-    ) = _declarative_inventory_projection(
-        context,
-        provider,
-        authority_entry=authority_entry,
-        authority_projection=authority_projection,
-        mapped_discovered_ids=set(source_id_map.values()),
-        upstream_universe_complete=catalog[
-            "upstream_universe_complete"
-        ],
-    )
-    for source in catalog["sources"]:
-        source_id = source["source_id"]
-        if source_id in included_ids:
+
+    included_source_ids = {
+        source_id for source_id in source_ids if discovered_sources[source_id]["disposition"] == "included"
+    }
+    for loss_id, loss in losses.items():
+        if not isinstance(loss, dict):
             raise PackBuildError(
-                f"{context.skill_id}:{provider['input_id']}: duplicate source_id "
-                f"{source_id!r}"
+                f"{context.skill_id}:{provider['input_id']}: loss {loss_id!r} "
+                "must be a mapping"
             )
-        included_ids.add(source_id)
-        identity = source_identity_by_id[source_id]
-        output_slices: list[dict[str, Any]] = []
-        seen_ordinals: set[int] = set()
-        slice_ids_by_loss: dict[str, list[str]] = {}
-        for item in sorted(source["slices"], key=lambda value: value["order"]):
-            if item["order"] in seen_ordinals:
+        if not set(loss["affected_source_ids"]).issubset(source_ids):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: loss {loss_id!r} "
+                "references non-existent discovered source"
+            )
+        for affected_source_id in loss["affected_source_ids"]:
+            if affected_source_id not in included_source_ids:
                 raise PackBuildError(
-                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
-                    "duplicate slice order"
+                    f"{context.skill_id}:{provider['input_id']}: "
+                    f"loss {loss_id!r} references non-included source "
+                    f"{affected_source_id!r}"
                 )
-            seen_ordinals.add(item["order"])
-            if item["slice_id"] in global_slice_ids:
-                raise PackBuildError(
-                    f"{context.skill_id}:{provider['input_id']}: duplicate "
-                    f"slice_id {item['slice_id']!r}"
-                )
-            global_slice_ids.add(item["slice_id"])
-            if not set(item["subject_ids"]).issubset(
-                declared_catalog_subjects
+            if loss_id not in discovered_sources[affected_source_id].get(
+                "loss_ids", []
             ):
                 raise PackBuildError(
-                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
-                    "slice subject_ids do not resolve to official scope subjects"
+                    f"{context.skill_id}:{provider['input_id']}: "
+                    f"loss {loss_id!r} is not declared on source "
+                    f"{affected_source_id!r}"
                 )
-            for loss_id in item.get("loss_ids", []):
-                loss = loss_by_id.get(loss_id)
-                if loss is None or source_id not in loss["affected_source_ids"]:
+
+    loss_output_by_original: dict[str, dict[str, Any]] = {}
+    for loss_id, loss in losses.items():
+        loss_output_by_original[loss_id] = _output_loss(
+            {
+                **loss,
+                "loss_id": loss_id_map[loss_id],
+            },
+            [],
+        )
+
+    source_inventory: dict[str, dict[str, Any]] = {}
+    slice_sources: dict[str, dict[str, Any]] = {}
+    subject_slice_ids: dict[str, set[str]] = {
+        scope_subject_id_map[subject_id]: set()
+        for subject_id in expected_subjects
+    }
+    global_slice_ids: set[str] = set()
+    limitations: list[str] = list(catalog["limitations"])
+    included_selector_bearing_sources = 0
+
+    for source_id, source in discovered_sources.items():
+        if not isinstance(source, dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: source {source_id!r} "
+                "must be a mapping"
+            )
+        disposition = source["disposition"]
+        if disposition not in {"included", "excluded"}:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "disposition must be exactly included or excluded"
+            )
+        mapped_source_id = source_id_map[source_id]
+        source_identity = source_identity_by_id[source_id]
+        source_with_id = {**source, "source_id": source_id}
+
+        if disposition == "excluded":
+            source_inventory[mapped_source_id] = {
+                "disposition": "excluded",
+                "title": source["title"],
+                "source_kind": source["source_kind"],
+                "source_identity": source_identity,
+                "reason_code": source["reason_code"],
+                "rationale": source["rationale"],
+            }
+            continue
+
+        source_subject_ids = source["subject_ids"]
+        if not isinstance(source_subject_ids, list):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "source subject_ids must be a list"
+            )
+        if not set(source_subject_ids).issubset(expected_subjects):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "source subject_ids must resolve to canonical provider scope"
+            )
+        mapped_source_subject_ids = [
+            scope_subject_id_map[subject_id] for subject_id in source_subject_ids
+        ]
+        if len(mapped_source_subject_ids) != len(set(mapped_source_subject_ids)):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "source subject_ids must not contain duplicates"
+            )
+
+        source_loss_ids = source["loss_ids"]
+        if not isinstance(source_loss_ids, list):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "source loss_ids must be a list"
+            )
+        source_loss_seen: set[str] = set()
+        source_loss_output_ids: list[str] = []
+        source_loss_entries: list[dict[str, Any]] = []
+        for source_loss_id in source_loss_ids:
+            mapped_loss_id = loss_id_map.get(source_loss_id)
+            if mapped_loss_id is None:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    f"unknown source loss_id {source_loss_id!r}"
+                )
+            if source_loss_id in source_loss_seen:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    f"duplicate source loss_id {source_loss_id!r}"
+                )
+            if source_id not in losses[source_loss_id]["affected_source_ids"]:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    f"loss {source_loss_id!r} does not include this source"
+                )
+            source_loss_seen.add(source_loss_id)
+            source_loss_output_ids.append(mapped_loss_id)
+            source_loss_entries.append(loss_output_by_original[source_loss_id])
+
+        if source["content"]["content_mode"] == "metadata-only":
+            if source["selectors"]:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    "metadata-only source must not expose selectors"
+                )
+            limitations.append(
+                f"Source {source_id!r} is metadata-only and intentionally "
+                "omits selector coverage; only source identity is retained."
+            )
+            source_inventory[mapped_source_id] = {
+                "disposition": "included",
+                "title": source["title"],
+                "source_kind": source["source_kind"],
+                "subject_ids": mapped_source_subject_ids,
+                "loss_ids": sorted(source_loss_output_ids),
+                "source_identity": source_identity,
+            }
+            continue
+
+        selectors = source["selectors"]
+        if not selectors:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "embedded/external included source must have selectors"
+            )
+        output_slices: list[dict[str, Any]] = []
+        covered_losses: set[str] = set()
+        selector_subject_ids: set[str] = set()
+        has_nonwhole_external_selector = False
+        for selector in selectors:
+            selector_loss_ids = selector["loss_ids"]
+            if not isinstance(selector_loss_ids, list):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    "selector loss_ids must be a list"
+                )
+            selector_loss_entries: list[dict[str, Any]] = []
+            selector_loss_output_ids: list[str] = []
+            selector_loss_seen: set[str] = set()
+            for selector_loss_id in selector_loss_ids:
+                mapped_selector_loss_id = loss_id_map.get(selector_loss_id)
+                if mapped_selector_loss_id is None:
                     raise PackBuildError(
                         f"{context.skill_id}:{provider['input_id']}:{source_id}: "
-                        f"slice references dangling or cross-source loss {loss_id!r}"
+                        f"unknown selector loss_id {selector_loss_id!r}"
                     )
-                slice_ids_by_loss.setdefault(loss_id, []).append(
-                    slice_id_map[item["slice_id"]]
+                if selector_loss_id in selector_loss_seen:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                        f"duplicate selector loss_id {selector_loss_id!r}"
+                    )
+                if selector_loss_id not in source_loss_ids:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                        f"selector references loss {selector_loss_id!r} "
+                        "not declared on the source"
+                    )
+                if source_id not in losses[selector_loss_id]["affected_source_ids"]:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                        f"selector references loss {selector_loss_id!r} "
+                        "that does not include this source"
+                    )
+                selector_loss_seen.add(selector_loss_id)
+                selector_loss_output_ids.append(mapped_selector_loss_id)
+                selector_loss_entries.append(loss_output_by_original[selector_loss_id])
+
+            mapped_selector_id = selector_id_map.get(selector["selector_id"])
+            if mapped_selector_id is None:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    f"unknown selector id {selector['selector_id']!r}"
                 )
-            output = _slice_from_catalog(
-                context, provider, source, identity, item
-            )
-            output["slice_id"] = slice_id_map[item["slice_id"]]
-            output["loss_ids"] = [
-                loss_id_map[loss_id]
-                for loss_id in item.get("loss_ids", [])
-            ]
-            output_slices.append(output)
-            for subject_id in item["subject_ids"]:
-                subject_slices.setdefault(subject_id, []).append(
-                    output["slice_id"]
+            if mapped_selector_id in global_slice_ids:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    f"selector id collision after output projection {selector['selector_id']!r}"
                 )
-        if [item["ordinal"] for item in output_slices] != list(
-            range(len(output_slices))
-        ):
-            raise PackBuildError(
-                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
-                "slice orders must be contiguous from zero"
-            )
-        relevant_losses = [
-            loss
-            for loss in catalog["losses"]
-            if source_id in loss["affected_source_ids"]
-        ]
-        missing_loss_links = sorted(
-            loss["loss_id"]
-            for loss in relevant_losses
-            if not slice_ids_by_loss.get(loss["loss_id"])
-        )
-        if missing_loss_links:
-            raise PackBuildError(
-                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
-                "loss ledger entries are not linked from exact slices: "
-                + ", ".join(missing_loss_links)
-            )
-        loss_ledger = [
-            _output_loss(
-                {
-                    **loss,
-                    "loss_id": loss_id_map[loss["loss_id"]],
+            global_slice_ids.add(mapped_selector_id)
+
+            slice_record = _slice_from_catalog(
+                context=context,
+                provider=provider,
+                source=source_with_id,
+                identity=source_identity,
+                selector={
+                    **copy.deepcopy(selector),
+                    "selector_id": mapped_selector_id,
                 },
-                sorted(slice_ids_by_loss[loss["loss_id"]]),
+                raw_source_extent_bytes=_source_raw_extent_bytes(source_identity),
             )
-            for loss in relevant_losses
-        ]
-        projection = {
-            "slices": output_slices,
-            "reviewed_overlaps": [],
-            "preserved_ranges": [],
-            "reviewed_orphans": [],
-            "loss_ledger": loss_ledger,
-        }
-        source_slices.append(
-            {
-                "source_id": source_id_map[source_id],
-                "source_identity": identity,
-                "raw_source_extent_bytes": identity["raw_bytes"],
-                "transformer": _processor(
-                    context,
-                    kind="transformer",
-                    input_sha256=identity["raw_sha256"],
-                    output_sha256=canonical_projection_sha256(projection),
+            slice_record["slice_id"] = mapped_selector_id
+            non_whole_external_selector = (
+                source_identity["content_mode"] == "external-content"
+                and selector["kind"] != "whole-source"
+            )
+            has_nonwhole_external_selector = (
+                has_nonwhole_external_selector or non_whole_external_selector
+            )
+            if non_whole_external_selector:
+                limitations.append(
+                    f"Selector {selector['selector_id']!r} for source {source_id!r} "
+                    "uses non-whole external projection and cannot claim exact upstream bytes."
+                )
+            raw_selector_subject_ids = selector["subject_ids"]
+            if not isinstance(raw_selector_subject_ids, list):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    "selector subject_ids must be a list"
+                )
+            if not set(raw_selector_subject_ids).issubset(expected_subjects):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    "selector subject_ids must resolve to canonical provider scope"
+                )
+            mapped_selector_subject_ids = [
+                scope_subject_id_map[subject_id]
+                for subject_id in raw_selector_subject_ids
+            ]
+            if len(mapped_selector_subject_ids) != len(set(mapped_selector_subject_ids)):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    "selector subject_ids must not contain duplicates"
+                )
+            if any(
+                loss["disposition"] == "unresolved"
+                for loss in selector_loss_entries
+            ):
+                selector_closure = "blocked"
+            elif non_whole_external_selector:
+                selector_closure = "partial"
+            else:
+                selector_closure = "complete"
+            slice_record["loss_accounting"] = {
+                "entries": sorted(
+                    selector_loss_entries,
+                    key=lambda item: item["loss_id"],
                 ),
-                **projection,
+                "closure_status": selector_closure,
             }
-        )
-        source_records.append(
-            {
-                "source_id": source_id_map[source_id],
-                "source_kind": source["source_kind"],
-                "locator": source["locator"],
-                "version_scope": _source_version_scope(
-                    output_version_scope,
-                    raw_sha256=identity["raw_sha256"],
-                ),
-                "identity": identity,
-            }
-        )
-    exclusions: list[dict[str, Any]] = []
-    for item in catalog["reviewed_exclusions"]:
-        source_id = item["source_id"]
-        if source_id in included_ids or source_id in excluded_ids:
+            slice_record["subject_ids"] = mapped_selector_subject_ids
+            output_slices.append(slice_record)
+            covered_losses.update(selector_loss_output_ids)
+            selector_subject_ids.update(mapped_selector_subject_ids)
+            for subject_id in mapped_selector_subject_ids:
+                subject_slice_ids[subject_id].add(mapped_selector_id)
+        if set(selector_subject_ids) != set(mapped_source_subject_ids):
             raise PackBuildError(
-                f"{context.skill_id}:{provider['input_id']}: source universe is "
-                "not a disjoint ID partition"
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "selector subject coverage must exactly match source subject_ids"
             )
-        excluded_ids.add(source_id)
-        exclusions.append(
-            {
-                "source_id": source_id_map[source_id],
-                "reason_code": item["reason_code"],
-                "rationale": item["rationale"],
-                "reviewed_by": "official-document-pack-builder",
-                "reviewed_utc": _utc(item["reviewed_utc"]),
-            }
+
+        if any(
+            loss["disposition"] == "unresolved" for loss in source_loss_entries
+        ):
+            source_loss_status_override = "blocked"
+        elif has_nonwhole_external_selector:
+            source_loss_status_override = "partial"
+        elif not set(source_loss_output_ids).issubset(covered_losses):
+            source_loss_status_override = "partial"
+        else:
+            source_loss_status_override = "complete"
+
+        source_inventory[mapped_source_id] = {
+            "disposition": "included",
+            "title": source["title"],
+            "source_kind": source["source_kind"],
+            "subject_ids": mapped_source_subject_ids,
+            "loss_ids": sorted(source_loss_output_ids),
+            "source_identity": source_identity,
+        }
+
+        output_slices_sorted = sorted(
+            output_slices,
+            key=lambda item: item["slice_id"],
         )
-    missing_required_slices = sorted(
-        subject_id
-        for subject_id, subject in expected_provider_subjects.items()
-        if subject["expected_disposition"] != "blocked"
-        and not subject_slices.get(subject_id)
-    )
-    if missing_required_slices:
+        source_loss_accounting = {
+            "entries": sorted(
+                source_loss_entries,
+                key=lambda item: item["loss_id"],
+            ),
+            "closure_status": source_loss_status_override,
+        }
+        slice_sources[mapped_source_id] = {
+            "source_identity": source_identity,
+            "raw_source_extent_bytes": _source_raw_extent_bytes(source_identity),
+            "processor": _slice_processor_v11(
+                context=context,
+                source_identity=source_identity,
+                output_slices=output_slices_sorted,
+                source_loss_accounting=source_loss_accounting,
+            ),
+            "slices": output_slices_sorted,
+            "source_loss_accounting": source_loss_accounting,
+        }
+        included_selector_bearing_sources += 1
+
+    if included_selector_bearing_sources == 0:
         raise PackBuildError(
-            f"{context.skill_id}:{provider['input_id']}: slice mappings do not "
-            "cover non-blocked canonical provider scope subjects: "
-            + ", ".join(missing_required_slices)
+            f"{context.skill_id}:{provider['input_id']}: at least one included "
+            "selector-bearing source is required"
         )
-    for subject_id in expected_provider_subjects:
-        subject_slices.setdefault(subject_id, [])
-    projection = authority_projection
-    version = catalog["version_scope"]
-    retrieved_values = [
-        item["external_identity"]["retrieved_utc"]
-        for item in catalog["sources"]
-        if "external_identity" in item
-    ]
-    retrieved = max((_utc(item) for item in retrieved_values), default=DEFAULT_GENERATED_UTC)
-    revision = (
-        version["value"]
-        if version["value"] is not None
-        else (
-            output_version_scope["snapshot_identity"]["value"]
-            if output_version_scope["snapshot_identity"] is not None
-            else f"catalog-{provider['source_ref']['sha256']}"
-        )
+
+    version_scope = copy.deepcopy(catalog["version_scope"])
+    _require_registered_version_scope(
+        skill_id=context.skill_id,
+        input_id=provider["input_id"],
+        version_scope=version_scope,
+        registered_scopes=authority_projection["version_scopes"],
     )
-    return ProviderBuild(
+
+    provider_build = ProviderBuild(
         input_id=provider["input_id"],
         authority_id=provider["authority_id"],
         provider_id=provider["provider_id"],
-        version_scope=copy.deepcopy(output_version_scope),
-        retrieved_utc=retrieved,
-        authority_root=projection["canonical_urls"][0],
-        authority_revision=str(revision),
-        inventory_format=inventory_format,
-        inventory_locator=inventory_locator,
-        inventory_sha256=inventory_sha256,
-        upstream_universe_complete=upstream_universe_complete,
-        included_sources=tuple(source_records),
-        reviewed_exclusions=tuple(exclusions),
-        source_slices=tuple(source_slices),
-        subject_slice_ids={
-            subject_id: tuple(sorted(subject_slices[subject_id]))
-            for subject_id in sorted(expected_provider_subjects)
+        version_scope=version_scope,
+        retrieved_utc=_utc(catalog["version_scope"].get("retrieved_utc")),
+        authority_root=catalog["authority_root"],
+        authority_revision=str(catalog["authority_revision"]),
+        inventory={
+            "content_mode": "metadata-only",
+            "locator": catalog["inventory_locator"],
+            "identity": copy.deepcopy(catalog["inventory_identity"]),
         },
-        license=copy.deepcopy(catalog["license"]),
-        limitations=tuple(catalog["limitations"]),
+        source_inventory=source_inventory,
+        slice_sources=slice_sources,
+        upstream_universe_complete=catalog["upstream_universe_complete"],
+        subject_slice_ids={
+            subject_id: tuple(sorted(subject_slice_ids[subject_id]))
+            for subject_id in sorted(subject_slice_ids)
+        },
+        limitations=tuple(sorted(set(limitations))),
         blockers=tuple(
             [
                 *copy.deepcopy(catalog["blockers"]),
-                *_blocking_loss_blockers(catalog["losses"]),
+                *_blocking_loss_blockers(
+                    [
+                        {
+                            **loss,
+                            "loss_id": loss_id_map[loss_id],
+                        }
+                        for loss_id, loss in losses.items()
+                    ]
+                ),
             ]
         ),
     )
+    _validate_provider_projection(context, provider_build)
+    return provider_build
 
 
 def _qe_adapter(
     context: BuildContext,
     provider: dict[str, Any],
 ) -> ProviderBuild:
-    _authority(context, provider)
+    from urllib.parse import urlparse
+
+    authority_entry, authority_projection = _authority(context, provider)
     catalog_path, catalog_raw = _read_catalog_ref(
         context,
         provider["source_ref"],
@@ -1909,6 +2269,8 @@ def _qe_adapter(
         catalog_raw=catalog_raw,
         catalog=manifest,
     )
+    if not isinstance(manifest, dict):
+        raise PackBuildError("QE compact catalog must be an object")
     expected_root = {
         "schema_version",
         "contract_name",
@@ -1926,17 +2288,71 @@ def _qe_adapter(
         or manifest["contract_name"] != "qe-source-pack-input"
         or manifest["catalog_type"] != "qe-input-manifest-metadata-v1"
         or manifest["skill_id"] != context.skill_id
-        or not isinstance(manifest["manuals"], list)
     ):
         raise PackBuildError(
             "QE compact catalog root does not match the exact v1 adapter"
         )
-    included: list[dict[str, Any]] = []
-    exclusions: list[dict[str, Any]] = []
-    source_slices: list[dict[str, Any]] = []
-    subject_slices: dict[str, list[str]] = {}
-    seen_names: set[str] = set()
+    if (
+        not isinstance(manifest["manuals"], list)
+        or not isinstance(manifest["source_root"], str)
+        or not isinstance(manifest["retrieved_utc"], str)
+        or not isinstance(manifest["limitations"], list)
+    ):
+        raise PackBuildError("QE compact catalog has invalid top-level typing")
+    if not all(isinstance(item, str) for item in manifest["limitations"]):
+        raise PackBuildError(
+            "QE compact catalog limitations must be a list of strings"
+        )
+    source_root = manifest["source_root"]
+    expected_source_root = "https://www.quantum-espresso.org/Doc/"
+    if source_root != expected_source_root:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: QE source_root must be "
+            f"{expected_source_root!r}"
+        )
+
+    def _validate_qe_url(url: str) -> None:
+        parsed = urlparse(url)
+        if (
+            parsed.scheme != "https"
+            or parsed.netloc == ""
+            or parsed.hostname != "www.quantum-espresso.org"
+            or parsed.username is not None
+            or parsed.password is not None
+            or (parsed.port not in (None, 443))
+            or parsed.query
+            or parsed.fragment
+            or not url.startswith(expected_source_root)
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: "
+                f"manual URL {url!r} violates strict QE docs constraints"
+            )
+
+    scope_catalog = _scope_catalog(context)
+    expected_subjects = {
+        item["subject_id"]
+        for item in scope_catalog["subjects"]
+        if item["evidence_class"] == "official-provider-required"
+        and provider["input_id"] in item["provider_input_ids"]
+    }
+    if not expected_subjects:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: QE provider scope "
+            "must define at least one required subject"
+        )
+    subject_slice_ids: dict[str, set[str]] = {
+        subject_id: set() for subject_id in expected_subjects
+    }
+
+    source_payloads: dict[str, dict[str, Any]] = {}
+    selector_payloads: list[dict[str, Any]] = []
+    loss_payloads: dict[str, dict[str, Any]] = {}
     total_sections = 0
+    included_manuals = 0
+    has_excluded_ld1 = False
+    seen_manual_names: set[str] = set()
+
     for manual in manifest["manuals"]:
         expected_manual = {
             "name",
@@ -1947,200 +2363,459 @@ def _qe_adapter(
             "raw_bytes",
             "sections",
         }
-        if not isinstance(manual, dict) or set(manual) != expected_manual:
+        if (
+            not isinstance(manual, dict)
+            or set(manual) != expected_manual
+            or not isinstance(manual["name"], str)
+            or not isinstance(manual["version"], str)
+            or not isinstance(manual["url"], str)
+            or not isinstance(manual["retrieved_utc"], str)
+            or not isinstance(manual["raw_sha256"], str)
+            or not isinstance(manual["raw_bytes"], int)
+            or not isinstance(manual["sections"], list)
+        ):
             raise PackBuildError("QE input manual does not match the exact adapter")
-        name = manual["name"]
-        if name in seen_names:
-            raise PackBuildError(f"QE manifest has duplicate input manual {name!r}")
-        seen_names.add(name)
-        source_id = _safe_id("qe-input", name)
-        if manual["version"] != "7.5":
-            if name != "INPUT_LD1" or manual["version"] != "7.4":
-                raise PackBuildError(
-                    f"QE manifest has unexpected non-7.5 manual {name!r} "
-                    f"at version {manual['version']!r}"
-                )
-            exclusions.append(
-                {
-                    "source_id": source_id,
-                    "reason_code": "obsolete",
-                    "rationale": (
-                        "INPUT_LD1 is explicitly version 7.4 and is excluded "
-                        "from the exact QE 7.5 corpus."
-                    ),
-                    "reviewed_by": "official-document-pack-builder",
-                    "reviewed_utc": _utc(manual["retrieved_utc"]),
-                }
+
+        manual_name = manual["name"]
+        if manual_name in seen_manual_names:
+            raise PackBuildError(
+                f"QE catalog has duplicate manual {manual_name!r}"
             )
-            continue
-        identity = {
-            "kind": "sha256",
-            "value": manual["raw_sha256"],
-            "raw_sha256": manual["raw_sha256"],
-            "raw_bytes": manual["raw_bytes"],
-            "resolver_receipt": None,
-        }
-        version_scope = {
-            "kind": "exact",
-            "value": "7.5",
-            "retrieved_utc": None,
-            "snapshot_identity": None,
-        }
-        included.append(
-            {
-                "source_id": source_id,
-                "source_kind": "reference-page",
-                "locator": manual["url"],
-                "version_scope": version_scope,
-                "identity": identity,
-            }
-        )
-        output_slices: list[dict[str, Any]] = []
-        section_ids: set[str] = set()
-        for ordinal, section in enumerate(manual["sections"]):
-            expected_section = {
-                "order",
-                "section_id",
-                "title",
-                "selected_sha256",
-                "selected_bytes",
-                "payload_hash_basis",
-                "wrapper_sha256",
-                "wrapper_bytes",
-            }
-            if (
-                not isinstance(section, dict)
-                or set(section) != expected_section
-                or section["order"] != ordinal
-                or section["section_id"] in section_ids
-            ):
-                raise PackBuildError(
-                    f"QE {name}: section structure/order is not exact"
+        seen_manual_names.add(manual_name)
+        _validate_qe_url(manual["url"])
+        source_id = _safe_id("qe", manual_name)
+
+        if manual["version"] == "7.5":
+            included_manuals += 1
+            section_ids: set[str] = set()
+            loss_ids: list[str] = []
+            for ordinal, section in enumerate(manual["sections"], start=0):
+                expected_section = {
+                    "order",
+                    "section_id",
+                    "title",
+                    "selected_sha256",
+                    "selected_bytes",
+                    "payload_hash_basis",
+                    "wrapper_sha256",
+                    "wrapper_bytes",
+                }
+                if (
+                    not isinstance(section, dict)
+                    or set(section) != expected_section
+                    or not isinstance(section["order"], int)
+                    or not isinstance(section["section_id"], str)
+                    or not isinstance(section["title"], str)
+                    or not isinstance(section["selected_sha256"], str)
+                    or not isinstance(section["selected_bytes"], int)
+                    or not isinstance(section["payload_hash_basis"], str)
+                    or not isinstance(section["wrapper_sha256"], str)
+                    or not isinstance(section["wrapper_bytes"], int)
+                ):
+                    raise PackBuildError(
+                        f"QE manual {manual_name!r} section does not match the "
+                        "exact adapter"
+                    )
+                if section["payload_hash_basis"] != (
+                    "utf-8 bytes of the fenced text payload after removing "
+                    "the single wrapper separator newline"
+                ):
+                    raise PackBuildError(
+                        f"QE {manual_name!r} section {section['section_id']!r} "
+                        "uses unsupported payload hash basis"
+                    )
+                if section["order"] != ordinal:
+                    raise PackBuildError(
+                        f"QE {manual_name!r} section {section['section_id']!r} "
+                        f"must keep order {ordinal}, found {section['order']}"
+                    )
+                if section["selected_bytes"] <= 0:
+                    raise PackBuildError(
+                        f"QE {manual_name!r} section {section['section_id']!r} "
+                        "requires selected_bytes > 0"
+                    )
+                section_id = section["section_id"]
+                if section_id in section_ids:
+                    raise PackBuildError(
+                        f"QE manual {manual_name!r} has duplicate section_id "
+                        f"{section_id!r}"
+                    )
+                section_ids.add(section_id)
+                loss_id = _safe_id(
+                    "qe",
+                    source_id,
+                    section_id,
+                    "metadata-only",
                 )
-            section_ids.add(section["section_id"])
-            if section["payload_hash_basis"] != (
-                "utf-8 bytes of the fenced text payload after removing "
-                "the single wrapper separator newline"
-            ):
-                raise PackBuildError(
-                    f"QE {name} section {section['section_id']}: "
-                    "unsupported payload hash basis"
+                if loss_id in loss_payloads:
+                    raise PackBuildError(
+                        f"QE manual {manual_name!r} has duplicate section loss id "
+                        f"{loss_id!r}"
+                    )
+                loss_payloads[loss_id] = {
+                    "description": (
+                        f"Section {section_id!r} in {manual_name!r} is "
+                        "projected from catalog metadata only; byte "
+                        "offset is unknown."
+                    ),
+                }
+                loss_ids.append(loss_id)
+                selector_id = _safe_id(
+                    "qe",
+                    source_id,
+                    section_id,
+                    "selector",
                 )
-            slice_id = _safe_id("qe", name, section["section_id"])
-            output_slices.append(
-                {
-                    "slice_id": slice_id,
-                    "ordinal": ordinal,
-                    "selector": {
-                        "layer": "derived-artifact",
-                        "kind": "source-symbol",
-                        "value": section["section_id"],
+                selector_payloads.append(
+                    {
+                        "source_id": source_id,
+                        "identity": {
+                            "selected_sha256": section["selected_sha256"],
+                            "selected_bytes": section["selected_bytes"],
+                        },
+                        "selector": {
+                            "selector_id": selector_id,
+                            "layer": "derived-artifact",
+                            "kind": "source-symbol",
+                            "value": section_id,
+                            "subject_ids": sorted(expected_subjects),
+                            "loss_ids": [loss_id],
+                            "selected_identity": {
+                                "sha256": section["selected_sha256"],
+                                "bytes": section["selected_bytes"],
+                            },
+                            "selected_sha256": section["selected_sha256"],
+                            "selected_bytes": section["selected_bytes"],
+                        },
+                    }
+                )
+                total_sections += 1
+            source_payloads[source_id] = {
+                "title": manual_name,
+                "source_kind": "manual-page",
+                "disposition": "included",
+                "raw_bytes": manual["raw_bytes"],
+                "source_identity": {
+                    "content_mode": "external-content",
+                    "locator": manual["url"],
+                    "receipt": {
+                        "retrieval_method": "https-get",
+                        "retrieved_utc": _utc(manual["retrieved_utc"]),
+                        "raw_sha256": manual["raw_sha256"],
+                        "raw_bytes": manual["raw_bytes"],
                     },
-                    "byte_range": None,
-                    "artifact_kind": "metadata",
-                    "source_material_class": "documentation-text",
-                    "storage_mode": "metadata-only",
-                    "content_locator": manual["url"],
-                    "hash_basis": "external-receipt-content-bytes",
-                    "artifact_sha256": None,
-                    "content_sha256": section["selected_sha256"],
-                    "content_receipt": _receipt(
-                        context,
-                        receipt_id=f"{slice_id}-receipt",
-                        canonical_url=manual["url"],
-                        retrieved_utc=manual["retrieved_utc"],
-                        raw_sha256=manual["raw_sha256"],
-                        raw_bytes=manual["raw_bytes"],
-                        selected_sha256=section["selected_sha256"],
-                        selected_bytes=section["selected_bytes"],
-            evidence_sha256=provider["source_ref"]["sha256"],
-                    ),
-                    "loss_ids": [
-                        _safe_id(source_id, "portal-pdf-asset-closure")
-                    ],
-                }
-            )
-            total_sections += 1
-        loss = {
-            "loss_id": _safe_id(source_id, "portal-pdf-asset-closure"),
-            "category": "asset",
-            "severity": "material",
-            "disposition": "external-only",
-            "description": (
-                "Portal navigation, PDF parity, linked pages, images, and "
-                "non-text assets remain external and are not byte-closed by "
-                "the input-manual section mirror."
-            ),
-            "affected_slice_ids": [
-                item["slice_id"] for item in output_slices
-            ],
-        }
-        projection = {
-            "slices": output_slices,
-            "reviewed_overlaps": [],
-            "preserved_ranges": [],
-            "reviewed_orphans": [],
-            "loss_ledger": [loss],
-        }
-        source_slices.append(
-            {
-                "source_id": source_id,
-                "source_identity": identity,
-                "raw_source_extent_bytes": manual["raw_bytes"],
-                "transformer": _processor(
-                    context,
-                    kind="transformer",
-                    input_sha256=manual["raw_sha256"],
-                    output_sha256=canonical_projection_sha256(projection),
-                ),
-                **projection,
+                },
+                "loss_ids": loss_ids,
             }
+            continue
+
+        if manual_name == "INPUT_LD1" and manual["version"] == "7.4":
+            has_excluded_ld1 = True
+            excluded_identity_payload = canonical_json_bytes(manual)
+            source_payloads[source_id] = {
+                "title": manual_name,
+                "source_kind": "reference-page",
+                "disposition": "excluded",
+                "source_identity": {
+                    "content_mode": "excluded",
+                    "locator": manual["url"],
+                    "inventory_entry_identity": {
+                        "sha256": sha256_bytes(excluded_identity_payload),
+                        "bytes": len(excluded_identity_payload),
+                    },
+                },
+                "reason_code": "obsolete",
+                "rationale": (
+                    "INPUT_LD1 is explicitly version 7.4 and excluded from "
+                    "the QE 7.5-only projection."
+                ),
+            }
+            continue
+
+        raise PackBuildError(
+            f"QE catalog has unsupported manual {manual_name!r} "
+            f"at version {manual['version']!r}"
         )
-        ids = [item["slice_id"] for item in output_slices]
-        subject_slices.setdefault("qe-input-manuals", []).extend(ids)
-    if len(included) != 35 or total_sections != 1159:
+
+    if included_manuals != 35 or total_sections != 1159:
         raise PackBuildError(
             "QE adapter requires exactly 35 QE 7.5 manuals and 1159 sections "
-            f"(found {len(included)} and {total_sections})"
+            f"(found {included_manuals} and {total_sections})"
         )
-    return ProviderBuild(
+    if not has_excluded_ld1:
+        raise PackBuildError(
+            "QE adapter requires INPUT_LD1 7.4 explicit exclusion gate"
+        )
+
+    source_ids = sorted(source_payloads)
+    source_id_map = _output_id_map(
+        source_ids,
+        label=f"{context.skill_id}:{provider['input_id']}:source IDs",
+    )
+    selector_id_map = _output_id_map(
+        [item["selector"]["selector_id"] for item in selector_payloads],
+        label=f"{context.skill_id}:{provider['input_id']}:selector IDs",
+    )
+    loss_id_map = _output_id_map(
+        list(loss_payloads),
+        label=f"{context.skill_id}:{provider['input_id']}:loss IDs",
+    )
+
+    section_loss_output: dict[str, dict[str, Any]] = {}
+    for original_loss_id, loss_payload in loss_payloads.items():
+        mapped_loss_id = loss_id_map[original_loss_id]
+        section_loss_output[original_loss_id] = {
+            "loss_id": mapped_loss_id,
+            "category": "metadata",
+            "severity": "material",
+            "disposition": "external-only",
+            "description": loss_payload["description"],
+        }
+
+    source_inventory: dict[str, dict[str, Any]] = {}
+    slice_sources: dict[str, dict[str, Any]] = {}
+    included_selector_sources = 0
+    global_slice_ids: set[str] = set()
+
+    for source_id in source_ids:
+        source_payload = source_payloads[source_id]
+        mapped_source_id = source_id_map[source_id]
+        source_identity = copy.deepcopy(source_payload["source_identity"])
+
+        if source_payload["disposition"] == "excluded":
+            source_inventory[mapped_source_id] = {
+                "disposition": "excluded",
+                "title": source_payload["title"],
+                "source_kind": source_payload["source_kind"],
+                "source_identity": source_identity,
+                "reason_code": source_payload["reason_code"],
+                "rationale": source_payload["rationale"],
+            }
+            continue
+
+        selectors = [
+            item for item in selector_payloads if item["source_id"] == source_id
+        ]
+        if not selectors:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "included manual requires at least one selector"
+            )
+
+        source_slice_loss_ids: set[str] = set()
+        output_slices: list[dict[str, Any]] = []
+        for selector_record in selectors:
+            selector = copy.deepcopy(selector_record["selector"])
+            selector_identity = selector_record["identity"]
+            if selector_identity["selected_bytes"] <= 0:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    "selector selected_bytes must be strictly positive"
+                )
+            selector_entries: list[dict[str, Any]] = []
+            selector_loss_ids: list[str] = []
+            for original_loss_id in selector["loss_ids"]:
+                loss_entry = section_loss_output.get(original_loss_id)
+                if loss_entry is None:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                        f"unknown section loss id {original_loss_id!r}"
+                    )
+                selector_loss_ids.append(loss_entry["loss_id"])
+                selector_entries.append(loss_entry)
+                source_slice_loss_ids.add(loss_entry["loss_id"])
+            selector["loss_ids"] = sorted(selector_loss_ids)
+            slice_record = _slice_from_catalog(
+                context=context,
+                provider=provider,
+                source={
+                    "source_id": source_id,
+                    "disposition": "included",
+                    "source_identity": source_identity,
+                },
+                identity=source_identity,
+                selector=selector,
+                raw_source_extent_bytes=source_payload["raw_bytes"],
+            )
+            mapped_selector_id = selector_id_map[selector_record["selector"]["selector_id"]]
+            if mapped_selector_id in global_slice_ids:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}: "
+                    f"selector id collision after output projection {mapped_selector_id!r}"
+                )
+            global_slice_ids.add(mapped_selector_id)
+            slice_record["content"] = {
+                "content_mode": "metadata-only",
+                "locator": source_payload["source_identity"]["locator"],
+                "identity": {
+                    "sha256": selector_identity["selected_sha256"],
+                    "bytes": selector_identity["selected_bytes"],
+                },
+                "hash_basis": "metadata-identity-bytes",
+            }
+            slice_record["raw_byte_range"] = {
+                "start_byte": 0,
+                "byte_count": source_payload["raw_bytes"],
+            }
+            output_slices.append(
+                {
+                    **slice_record,
+                    "slice_id": mapped_selector_id,
+                    "loss_accounting": {
+                        "closure_status": "partial",
+                        "entries": sorted(
+                            selector_entries,
+                            key=lambda item: item["loss_id"],
+                        ),
+                    },
+                }
+            )
+            for subject_id in selector["subject_ids"]:
+                if subject_id not in subject_slice_ids:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                        f"unknown scope subject {subject_id!r}"
+                    )
+                subject_slice_ids[subject_id].add(mapped_selector_id)
+
+        source_loss_ids = []
+        source_loss_output: list[dict[str, Any]] = []
+        for original_loss_id in source_payload["loss_ids"]:
+            loss_entry = section_loss_output[original_loss_id]
+            mapped_loss_id = loss_entry["loss_id"]
+            if mapped_loss_id not in source_slice_loss_ids:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                    "source loss ids are not represented by its slice loss-accounting"
+                )
+            source_loss_ids.append(mapped_loss_id)
+            source_loss_output.append(loss_entry)
+        if set(source_loss_ids) != source_slice_loss_ids:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}:{source_id}: "
+                "source and slice loss-accounting are not closed"
+            )
+        output_slices_sorted = sorted(
+            output_slices,
+            key=lambda item: item["slice_id"],
+        )
+        source_loss_accounting = {
+            "closure_status": "partial",
+            "entries": sorted(source_loss_output, key=lambda item: item["loss_id"]),
+        }
+        slice_sources[mapped_source_id] = {
+            "source_identity": source_identity,
+            "raw_source_extent_bytes": source_payload["raw_bytes"],
+            "source_loss_accounting": source_loss_accounting,
+            "processor": _slice_processor_v11(
+                context=context,
+                source_identity=source_identity,
+                output_slices=output_slices_sorted,
+                source_loss_accounting=copy.deepcopy(source_loss_accounting),
+            ),
+            "slices": output_slices_sorted,
+        }
+        source_inventory[mapped_source_id] = {
+            "disposition": "included",
+            "title": source_payload["title"],
+            "source_kind": source_payload["source_kind"],
+            "subject_ids": sorted(expected_subjects),
+            "loss_ids": sorted(source_loss_ids),
+            "source_identity": source_identity,
+        }
+        included_selector_sources += 1
+
+    if included_selector_sources == 0:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: at least one included "
+            "selector-bearing manual is required"
+        )
+    if set(source_inventory) != set(source_id_map.values()):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: source inventory projection "
+            "must include all discovered manual IDs"
+        )
+
+    version_scope = {
+        "kind": "exact",
+        "value": "7.5",
+        "retrieved_utc": None,
+        "snapshot_identity": None,
+    }
+    _require_registered_version_scope(
+        skill_id=context.skill_id,
+        input_id=provider["input_id"],
+        version_scope=version_scope,
+        registered_scopes=authority_projection["version_scopes"],
+    )
+
+    if authority_entry["provider_id"] != provider["provider_id"]:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: authority provider "
+            "does not match QE adapter provider tuple"
+        )
+    if authority_entry.get("lifecycle") != "active":
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: authority must be active"
+        )
+
+    provider_build = ProviderBuild(
         input_id=provider["input_id"],
         authority_id=provider["authority_id"],
         provider_id=provider["provider_id"],
-        version_scope={
-            "kind": "exact",
-            "value": "7.5",
-            "retrieved_utc": None,
-            "snapshot_identity": None,
-        },
+        version_scope=version_scope,
         retrieved_utc=_utc(manifest["retrieved_utc"]),
         authority_root=manifest["source_root"],
         authority_revision="7.5",
-        inventory_format="qe-official-manifest-v1",
-        inventory_locator=provider["source_ref"]["path"],
-        inventory_sha256=provider["source_ref"]["sha256"],
-        upstream_universe_complete=False,
-        included_sources=tuple(included),
-        reviewed_exclusions=tuple(exclusions),
-        source_slices=tuple(source_slices),
-        subject_slice_ids={
-            key: tuple(value) for key, value in subject_slices.items()
+        inventory={
+            "content_mode": "metadata-only",
+            "locator": manifest["source_root"],
+            "identity": {
+                "sha256": sha256_bytes(catalog_raw),
+                "bytes": len(catalog_raw),
+            },
         },
-        license={},
-        limitations=(
-            "Coverage is a bounded exact QE 7.5 input-manual subset, not the complete Doc portal.",
-            "INPUT_LD1 is explicitly excluded because the official mirror labels it as QE 7.4.",
-            "PDF manuals, user-guide pages, release notes, links, images, and assets remain external.",
+        source_inventory=source_inventory,
+        slice_sources=copy.deepcopy(slice_sources),
+        upstream_universe_complete=False,
+        subject_slice_ids={
+            key: tuple(sorted(value)) for key, value in subject_slice_ids.items()
+        },
+        limitations=tuple(
+            sorted(
+                set(
+                    manifest["limitations"]
+                    + [
+                        "Section projections are metadata-only; no validated upstream byte offsets were "
+                        "available in the compact catalog.",
+                        "INPUT_LD1 (7.4) is excluded by explicit scope gate.",
+                        "Technical projection is metadata-only and does not include "
+                        "root body hash contents.",
+                    ]
+                )
+            )
         ),
-        blockers=(),
+        blockers=tuple(
+            _blocking_loss_blockers(
+                [
+                    {
+                        **loss,
+                        "loss_id": section_loss_output[loss_id]["loss_id"],
+                    }
+                    for loss_id, loss in section_loss_output.items()
+                ]
+            )
+        ),
     )
+    _validate_provider_projection(context, provider_build)
+    return provider_build
 
 
 def _vasp_adapter(
     context: BuildContext,
     provider: dict[str, Any],
 ) -> ProviderBuild:
-    _authority(context, provider)
+    authority_entry, authority_projection = _authority(context, provider)
     catalog_path, catalog_raw = _read_catalog_ref(
         context,
         provider["source_ref"],
@@ -2190,17 +2865,25 @@ def _vasp_adapter(
             "VASP compact catalog is not the exact 81-page adapter input"
         )
     retrieved = _utc(manifest["retrieved_utc"])
-    included: list[dict[str, Any]] = []
-    source_slices: list[dict[str, Any]] = []
-    subject_slices: dict[str, list[str]] = {}
+    source_inventory: dict[str, dict[str, Any]] = {}
+    slice_sources: dict[str, dict[str, Any]] = {}
+    subject_slices: dict[str, set[str]] = {}
     expected_provider_subjects = {
         item["subject_id"]
         for item in _scope_catalog(context)["subjects"]
         if item["evidence_class"] == "official-provider-required"
         and provider["input_id"] in item["provider_input_ids"]
     }
+    if not expected_provider_subjects:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: VASP provider scope "
+            "must define at least one required official-provider subject"
+        )
+    for subject_id in expected_provider_subjects:
+        subject_slices[subject_id] = set()
     pageids: set[int] = set()
-    revision_pairs: set[tuple[int, int]] = set()
+    revids: set[int] = set()
+    version_scope_projection: list[dict[str, Any]] = []
     for page in sorted(manifest["pages"], key=lambda item: item["pageid"]):
         expected_page = {
             "pageid",
@@ -2217,10 +2900,18 @@ def _vasp_adapter(
             raise PackBuildError("VASP page does not match the exact adapter")
         pageid = page["pageid"]
         revid = page["revid"]
-        if pageid in pageids or (pageid, revid) in revision_pairs:
-            raise PackBuildError("VASP manifest has duplicate page/revision identity")
+        if pageid in pageids:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: duplicate pageid "
+                f"{pageid!r}"
+            )
+        if revid in revids:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider['input_id']}: duplicate revid "
+                f"{revid!r}"
+            )
         pageids.add(pageid)
-        revision_pairs.add((pageid, revid))
+        revids.add(revid)
         representations = (
             (
                 "api-json",
@@ -2235,111 +2926,113 @@ def _vasp_adapter(
         )
         for representation, digest, extent in representations:
             source_id = _safe_id("vasp-page", pageid, representation)
-            identity = {
-                "kind": "sha256",
-                "value": digest,
+            if extent <= 0:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider['input_id']}: source "
+                    f"{source_id}: extent must be positive"
+                )
+            source_kind = (
+                "api-record"
+                if representation == "api-json"
+            else "reference-page"
+            )
+            locator = (
+                page["api_request_url"]
+                if representation == "api-json"
+                else page["url"]
+            )
+            source_receipt = {
+                "retrieval_method": "official-api",
+                "retrieved_utc": retrieved,
                 "raw_sha256": digest,
                 "raw_bytes": extent,
-                "resolver_receipt": None,
             }
-            source_scope = {
-                "kind": "latest-at-retrieval",
-                "value": None,
-                "retrieved_utc": retrieved,
-                "snapshot_identity": {
-                    "kind": "revision",
-                    "value": str(revid),
-                    "content_sha256": digest,
+            source_identity = {
+                "content_mode": "external-content",
+                "locator": locator,
+                "receipt": source_receipt,
+            }
+            loss_id = _safe_id(source_id, "page-link-asset-closure")
+            selector_subject_ids: list[str] = []
+            tag_subject = _safe_id("vasp-safe-tag", page["title"])
+            if representation == "wikitext" and tag_subject in expected_provider_subjects:
+                selector_subject_ids = [tag_subject]
+                subject_slices[tag_subject].add(_safe_id(source_id, "whole"))
+            selector = {
+                "selector_id": _safe_id(source_id, "whole"),
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*",
+                "subject_ids": selector_subject_ids,
+                "selected_identity": {
+                    "sha256": digest,
+                    "bytes": extent,
                 },
             }
-            included.append(
+            mapped_loss = _output_loss(
                 {
-                    "source_id": source_id,
-                    "source_kind": (
-                        "api-record"
-                        if representation == "api-json"
-                        else "reference-page"
+                    "loss_id": loss_id,
+                    "materiality": "material",
+                    "disposition": "external-only",
+                    "stage": "storage",
+                    "description": (
+                        "Linked Wiki pages, rendered media, and third-party "
+                        "assets are outside this exact page identity."
                     ),
-                    "locator": (
-                        page["api_request_url"]
-                        if representation == "api-json"
-                        else page["url"]
-                    ),
-                    "version_scope": source_scope,
-                    "identity": identity,
-                }
-            )
-            slice_id = _safe_id(source_id, "whole")
-            item = {
-                "slice_id": slice_id,
-                "ordinal": 0,
-                "selector": {
-                    "layer": "raw-source",
-                    "kind": "whole-source",
-                    "value": "*",
                 },
-                "byte_range": None,
-                "artifact_kind": "metadata",
-                "source_material_class": "documentation-text",
-                "storage_mode": "metadata-only",
-                "content_locator": page["api_request_url"],
-                "hash_basis": "external-receipt-content-bytes",
-                "artifact_sha256": None,
-                "content_sha256": digest,
-                "content_receipt": _receipt(
-                    context,
-                    receipt_id=f"{slice_id}-receipt",
-                    canonical_url=page["api_request_url"],
-                    retrieved_utc=retrieved,
-                    raw_sha256=digest,
-                    raw_bytes=extent,
-                    selected_sha256=digest,
-                    selected_bytes=extent,
-                    evidence_sha256=provider["source_ref"]["sha256"],
-                ),
-                "loss_ids": [
-                    _safe_id(source_id, "page-link-asset-closure")
-                ],
+                [selector["selector_id"]],
+            )
+            output_slice = _slice_from_catalog(
+                context=context,
+                provider=provider,
+                source={"source_id": source_id, "source_identity": source_identity},
+                identity=source_identity,
+                selector=selector,
+                raw_source_extent_bytes=extent,
+            )
+            slice_record = {
+                **output_slice,
+                "loss_accounting": {
+                    "closure_status": "complete",
+                    "entries": [mapped_loss],
+                },
             }
-            loss = {
-                "loss_id": _safe_id(
-                    source_id, "page-link-asset-closure"
-                ),
-                "category": "link",
-                "severity": "material",
-                "disposition": "external-only",
-                "description": (
-                    "Linked Wiki pages, Portal content, rendered media, and "
-                    "third-party assets are outside this exact page identity."
-                ),
-                "affected_slice_ids": [slice_id],
+            source_loss_accounting = {
+                "closure_status": "complete",
+                "entries": [mapped_loss],
             }
-            projection = {
-                "slices": [item],
-                "reviewed_overlaps": [],
-                "preserved_ranges": [],
-                "reviewed_orphans": [],
-                "loss_ledger": [loss],
+            slice_sources[source_id] = {
+                "source_identity": source_identity,
+                "raw_source_extent_bytes": extent,
+                "source_loss_accounting": source_loss_accounting,
+                "processor": _slice_processor_v11(
+                    context=context,
+                    source_identity=source_identity,
+                    output_slices=[slice_record],
+                    source_loss_accounting=copy.deepcopy(source_loss_accounting),
+                ),
+                "slices": [slice_record],
             }
-            source_slices.append(
+            source_inventory[source_id] = {
+                "disposition": "included",
+                "title": page["title"],
+                "source_kind": source_kind,
+                "subject_ids": selector_subject_ids,
+                "loss_ids": [loss_id],
+                "source_identity": source_identity,
+            }
+            version_scope_projection.append(
                 {
                     "source_id": source_id,
-                    "source_identity": identity,
-                    "raw_source_extent_bytes": extent,
-                    "transformer": _processor(
-                        context,
-                        kind="transformer",
-                        input_sha256=digest,
-                        output_sha256=canonical_projection_sha256(projection),
-                    ),
-                    **projection,
+                    "pageid": pageid,
+                    "revid": revid,
+                    "representation": representation,
+                    "locator": locator,
+                    "sha256": digest,
+                    "bytes": extent,
                 }
             )
-            if representation == "wikitext":
-                tag_subject = _safe_id("vasp-safe-tag", page["title"])
-                if tag_subject in expected_provider_subjects:
-                    subject_slices.setdefault(tag_subject, []).append(slice_id)
-    if len(included) != 162 or len(source_slices) != 162:
+    if len(source_inventory) != 162 or len(slice_sources) != 162:
         raise PackBuildError("VASP adapter must emit 81 API + 81 wikitext identities")
     if (
         set(subject_slices) != expected_provider_subjects
@@ -2349,42 +3042,91 @@ def _vasp_adapter(
             "VASP adapter safe-tag mappings do not exactly equal canonical "
             "provider scope subjects"
         )
+    version_projection = canonical_json_bytes(
+        {
+            item["source_id"]: {
+                "pageid": item["pageid"],
+                "revid": item["revid"],
+                "representation": item["representation"],
+                "locator": item["locator"],
+                "sha256": item["sha256"],
+                "bytes": item["bytes"],
+            }
+            for item in sorted(
+                version_scope_projection, key=lambda item: item["source_id"]
+            )
+        }
+    )
+    version_scope = {
+        "kind": "latest-at-retrieval",
+        "value": None,
+        "retrieved_utc": retrieved,
+        "snapshot_identity": {
+            "sha256": sha256_bytes(version_projection),
+            "bytes": len(version_projection),
+        },
+    }
+    _require_registered_version_scope(
+        skill_id=context.skill_id,
+        input_id=provider["input_id"],
+        version_scope=version_scope,
+        registered_scopes=authority_projection["version_scopes"],
+    )
+    if authority_entry["provider_id"] != provider["provider_id"]:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: authority provider "
+            "does not match VASP adapter provider tuple"
+        )
+    if authority_entry.get("lifecycle") != "active":
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: authority must be active"
+        )
     manifest_digest = provider["source_ref"]["sha256"]
-    return ProviderBuild(
+    inventory_locator = provider["source_ref"]["path"]
+    if not isinstance(inventory_locator, str):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: source_ref path must be "
+            "a string"
+        )
+    if not inventory_locator.startswith("https://"):
+        inventory_locator = manifest["official_root"]
+    if not inventory_locator.startswith("https://"):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider['input_id']}: inventory locator "
+            "must be HTTPS"
+        )
+    provider_build = ProviderBuild(
         input_id=provider["input_id"],
         authority_id=provider["authority_id"],
         provider_id=provider["provider_id"],
-        version_scope={
-            "kind": "latest-at-retrieval",
-            "value": None,
-            "retrieved_utc": retrieved,
-            "snapshot_identity": {
-                "kind": "sha256",
-                "value": manifest_digest,
-                "content_sha256": manifest_digest,
-            },
-        },
+        version_scope=version_scope,
         retrieved_utc=retrieved,
         authority_root=manifest["official_root"],
-        authority_revision=f"81-pages-at-{retrieved}",
-        inventory_format="vasp-wiki-manifest-v1",
-        inventory_locator=provider["source_ref"]["path"],
-        inventory_sha256=manifest_digest,
-        upstream_universe_complete=False,
-        included_sources=tuple(included),
-        reviewed_exclusions=(),
-        source_slices=tuple(source_slices),
-        subject_slice_ids={
-            key: tuple(value) for key, value in subject_slices.items()
+        authority_revision=manifest_digest,
+        inventory={
+            "content_mode": "metadata-only",
+            "locator": inventory_locator,
+            "identity": {
+                "sha256": manifest_digest,
+                "bytes": len(catalog_raw),
+            },
         },
-        license={},
+        upstream_universe_complete=False,
+        source_inventory=source_inventory,
+        slice_sources=copy.deepcopy(slice_sources),
+        subject_slice_ids={
+            key: tuple(sorted(value)) for key, value in subject_slices.items()
+        },
         limitations=(
             "The 81-page curated Wiki set is a bounded subset, not full site closure.",
             "API JSON and extracted wikitext are separate exact identities; rendered Markdown is not substituted for either.",
             "Portal downloads, link closure, images, templates, and third-party assets remain external.",
+            "Source-specific closure is implemented with exact whole-source selectors and complete loss-accounting.",
         ),
         blockers=(),
     )
+    _validate_provider_projection(context, provider_build)
+    return provider_build
 
 
 ADAPTERS.update(
@@ -2400,232 +3142,734 @@ def _validate_provider_projection(
     context: BuildContext,
     provider: ProviderBuild,
 ) -> None:
-    """Reject dangling identities, slices, and losses from every adapter."""
+    """Validate fail-closed 1.1 source projection closure."""
 
-    included_by_id = {
-        item["source_id"]: item for item in provider.included_sources
-    }
-    if len(included_by_id) != len(provider.included_sources):
+    source_inventory = provider.source_inventory
+    if not isinstance(source_inventory, dict) or not source_inventory:
         raise PackBuildError(
-            f"{context.skill_id}:{provider.input_id}: duplicate included source ID"
+            f"{context.skill_id}:{provider.input_id}: source inventory must be "
+            "a non-empty mapping"
         )
-    excluded_ids = [item["source_id"] for item in provider.reviewed_exclusions]
-    if (
-        len(excluded_ids) != len(set(excluded_ids))
-        or set(excluded_ids).intersection(included_by_id)
-    ):
+    slice_sources = provider.slice_sources
+    if not isinstance(slice_sources, dict) or not slice_sources:
         raise PackBuildError(
-            f"{context.skill_id}:{provider.input_id}: included/excluded source "
-            "IDs are not disjoint and unique"
+            f"{context.skill_id}:{provider.input_id}: slice-source map must be "
+            "a non-empty mapping"
         )
-    sliced_by_id = {item["source_id"]: item for item in provider.source_slices}
-    if (
-        len(sliced_by_id) != len(provider.source_slices)
-        or set(sliced_by_id) != set(included_by_id)
-    ):
+    subject_slice_ids = provider.subject_slice_ids
+    if not isinstance(subject_slice_ids, dict):
         raise PackBuildError(
-            f"{context.skill_id}:{provider.input_id}: source-slice records do "
-            "not exactly equal included source IDs"
+            f"{context.skill_id}:{provider.input_id}: subject_slice_ids must be "
+            "a mapping"
         )
-    all_slice_ids: set[str] = set()
-    for source_id, source in sliced_by_id.items():
-        if source["source_identity"] != included_by_id[source_id]["identity"]:
+
+    included_ids: set[str] = set()
+    source_disposition: dict[str, str] = {}
+    included_source_loss_ids: dict[str, set[str]] = {}
+    has_metadata_only_included_source = False
+    for source_id, source_entry in source_inventory.items():
+        if not isinstance(source_id, str) or not source_id:
             raise PackBuildError(
-                f"{context.skill_id}:{provider.input_id}:{source_id}: corpus "
-                "and slice source identities differ"
+                f"{context.skill_id}:{provider.input_id}: source inventory key "
+                "must be a non-empty source_id"
             )
-        slice_ids = [item["slice_id"] for item in source["slices"]]
-        if (
-            len(slice_ids) != len(set(slice_ids))
-            or all_slice_ids.intersection(slice_ids)
-        ):
+        if not isinstance(source_entry, dict):
             raise PackBuildError(
-                f"{context.skill_id}:{provider.input_id}: slice IDs are not "
-                "globally unique"
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source inventory entry is not a mapping"
             )
-        all_slice_ids.update(slice_ids)
-        losses = {
-            item["loss_id"]: item for item in source["loss_ledger"]
-        }
-        if len(losses) != len(source["loss_ledger"]):
+        disposition = source_entry.get("disposition")
+        if disposition not in {"included", "excluded"}:
             raise PackBuildError(
-                f"{context.skill_id}:{provider.input_id}:{source_id}: duplicate "
-                "loss ledger ID"
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source disposition must be exactly included or excluded"
             )
-        linked: dict[str, set[str]] = {}
-        for item in source["slices"]:
-            if len(item["loss_ids"]) != len(set(item["loss_ids"])):
+        source_disposition[source_id] = disposition
+        if not isinstance(source_entry.get("source_identity"), dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source_identity must be a mapping"
+            )
+        if disposition == "included":
+            included_ids.add(source_id)
+            if source_entry["source_identity"].get("content_mode") == "metadata-only":
+                has_metadata_only_included_source = True
+            subject_ids = source_entry.get("subject_ids")
+            if not isinstance(subject_ids, list):
                 raise PackBuildError(
                     f"{context.skill_id}:{provider.input_id}:{source_id}: "
-                    "duplicate loss reference on a slice"
+                    "included source entries require subject_ids list"
                 )
-            for loss_id in item["loss_ids"]:
-                if loss_id not in losses:
+            for subject_id in subject_ids:
+                if not isinstance(subject_id, str) or not subject_id:
                     raise PackBuildError(
                         f"{context.skill_id}:{provider.input_id}:{source_id}: "
-                        f"dangling slice loss ID {loss_id!r}"
+                        "subject_ids must be non-empty strings"
                     )
-                linked.setdefault(loss_id, set()).add(item["slice_id"])
-        if set(linked) != set(losses):
+            loss_ids = source_entry.get("loss_ids")
+            if not isinstance(loss_ids, list):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "included source entries require loss_ids list"
+                )
+            source_loss_ids: set[str] = set()
+            for loss_id in loss_ids:
+                if not isinstance(loss_id, str) or not loss_id:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "loss_id must be a non-empty string"
+                    )
+                if loss_id in source_loss_ids:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "loss_ids contain duplicates"
+                    )
+                source_loss_ids.add(loss_id)
+            included_source_loss_ids[source_id] = source_loss_ids
+            if len(loss_ids) != len(source_loss_ids):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "loss_ids contain duplicates"
+                )
+
+    if not included_ids:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: source inventory "
+            "must include at least one source"
+        )
+    for source_id in slice_sources:
+        if not isinstance(source_id, str) or not source_id:
             raise PackBuildError(
-                f"{context.skill_id}:{provider.input_id}:{source_id}: loss "
-                "ledger and slice references do not have exact closure"
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "slice-source key must be a non-empty source_id"
             )
-        for loss_id, loss in losses.items():
-            affected = loss["affected_slice_ids"]
+    slice_source_ids = set(slice_sources)
+    if not slice_source_ids.issubset(included_ids):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: slice-source keys must "
+            "be subset of included source IDs"
+        )
+    missing_included_ids = included_ids.difference(slice_source_ids)
+    if missing_included_ids:
+        if not has_metadata_only_included_source:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: slice-source "
+                "projection omits one or more included sources"
+            )
+        if not any(
+            isinstance(item, str) and item.strip()
+            for item in provider.limitations
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: omitted "
+                "metadata-only source slices require explicit limitation text"
+            )
+        for source_id in missing_included_ids:
+            source_entry = source_inventory[source_id]
+            source_identity = source_entry["source_identity"]
+            if source_identity.get("content_mode") != "metadata-only":
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "slice-source projection cannot omit embedded/external sources"
+                )
+
+    all_slice_ids: set[str] = set()
+    reconstructed_subject_slice_ids: dict[str, set[str]] = {
+        subject_id: set()
+        for subject_id in subject_slice_ids
+        if isinstance(subject_id, str) and subject_id
+    }
+    for source_id, source_record in slice_sources.items():
+        source_inventory_entry = source_inventory.get(source_id)
+        if not isinstance(source_record, dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "slice-source entry is not a mapping"
+            )
+        if not isinstance(source_inventory_entry, dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "slice-source entry is not in source inventory"
+            )
+        if source_disposition.get(source_id) != "included":
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "slice-source keys must point to included sources"
+            )
+        if source_record.get("source_identity") != source_inventory_entry.get(
+            "source_identity"
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "slice source identity does not equal corpus source_identity"
+            )
+
+        source_losses_expected = source_inventory_entry.get("loss_ids")
+        if not isinstance(source_losses_expected, list):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "included source entries require list loss_ids"
+            )
+        source_loss_ids = included_source_loss_ids.get(source_id)
+        if source_loss_ids is None:
+            source_loss_ids = set()
+            for loss_id in source_losses_expected:
+                if not isinstance(loss_id, str) or not loss_id:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "loss_ids must contain non-empty strings"
+                    )
+                if loss_id in source_loss_ids:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "loss_ids contain duplicates"
+                    )
+                source_loss_ids.add(loss_id)
+            if len(source_losses_expected) != len(source_loss_ids):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "loss_ids contain duplicates"
+                )
+
+        source_loss_accounting = source_record.get("source_loss_accounting")
+        if not isinstance(source_loss_accounting, dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source_loss_accounting must be a mapping"
+            )
+        if (
+            not isinstance(source_loss_accounting.get("closure_status"), str)
+            or not isinstance(source_loss_accounting.get("entries"), list)
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source_loss_accounting must include closure_status and entries"
+            )
+        closure_status = source_loss_accounting["closure_status"]
+        if closure_status not in {"complete", "partial", "blocked"}:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "invalid source-loss closure status"
+            )
+        source_accounting_entries: dict[str, dict[str, Any]] = {}
+        for accounting_entry in source_loss_accounting["entries"]:
+            if not isinstance(accounting_entry, dict):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "source loss-accounting entry is not a mapping"
+                )
+            loss_id = accounting_entry.get("loss_id")
+            if not isinstance(loss_id, str) or not loss_id:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "source loss-accounting entry loss_id must be a non-empty string"
+                )
+            if loss_id in source_accounting_entries:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    f"duplicated source loss_id {loss_id!r}"
+                )
+            source_accounting_entries[loss_id] = accounting_entry
+        if source_loss_ids != set(source_accounting_entries):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source loss_ids must exactly match source_loss_accounting IDs"
+            )
+
+        slices = source_record.get("slices")
+        if not isinstance(slices, list) or not slices:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "slices must be a non-empty list"
+            )
+        slice_ids: list[str] = []
+        for item in slices:
+            if not isinstance(item, dict):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "slice entry is not a mapping"
+                )
+            slice_id = item.get("slice_id")
+            if not isinstance(slice_id, str) or not slice_id:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "slice_id must be a non-empty string"
+                )
+            slice_ids.append(slice_id)
+        if len(slice_ids) != len(set(slice_ids)):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "slice IDs are not unique for this source"
+            )
+        overlapping = all_slice_ids.intersection(slice_ids)
+        if overlapping:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                f"slice IDs are not globally unique: "
+                f"{', '.join(sorted(overlapping))}"
+            )
+        source_slice_loss_ids: set[str] = set()
+        source_slice_subject_ids: set[str] = set()
+        for item in slices:
+            slice_id = item.get("slice_id")
+            if not isinstance(slice_id, str) or not slice_id:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "slice_id must be a non-empty string"
+                )
+            slice_loss_accounting = item.get("loss_accounting")
+            if not isinstance(slice_loss_accounting, dict):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "slice loss_accounting must be a mapping"
+                )
             if (
-                not affected
-                or len(affected) != len(set(affected))
-                or set(affected) != linked[loss_id]
+                not isinstance(slice_loss_accounting.get("closure_status"), str)
+                or not isinstance(slice_loss_accounting.get("entries"), list)
             ):
                 raise PackBuildError(
-                    f"{context.skill_id}:{provider.input_id}:{source_id}: loss "
-                    f"{loss_id!r} does not exactly bind its affected slices"
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "slice loss_accounting must include closure_status and entries"
                 )
-    for subject_id, slice_ids in provider.subject_slice_ids.items():
+            if slice_loss_accounting["closure_status"] not in {
+                "complete",
+                "partial",
+                "blocked",
+            }:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    f"{slice_id}: invalid slice loss-accounting closure status"
+                )
+            slice_loss_entry_ids: set[str] = set()
+            for loss_entry in slice_loss_accounting["entries"]:
+                if not isinstance(loss_entry, dict):
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "slice loss-accounting entry is not a mapping"
+                    )
+                loss_id = loss_entry.get("loss_id")
+                if not isinstance(loss_id, str) or not loss_id:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "slice loss-accounting entry loss_id must be a non-empty "
+                        "string"
+                    )
+                if loss_id in slice_loss_entry_ids:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        f"duplicated slice loss_id {loss_id!r}"
+                    )
+                accounting_entry = source_accounting_entries.get(loss_id)
+                if accounting_entry is None:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        f"slice loss_id {loss_id!r} is not in source loss-accounting "
+                        "entries"
+                    )
+                if loss_entry != accounting_entry:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "slice loss entry does not exactly match source loss-accounting "
+                        "entry"
+                    )
+                slice_loss_entry_ids.add(loss_id)
+            source_slice_loss_ids.update(slice_loss_entry_ids)
+            slice_subject_ids = item.get("subject_ids")
+            if not isinstance(slice_subject_ids, list):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "slice subject_ids must be a list"
+                )
+            slice_subject_set: set[str] = set()
+            for subject_id in slice_subject_ids:
+                if not isinstance(subject_id, str) or not subject_id:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "slice subject_ids must be non-empty strings"
+                    )
+                if subject_id in slice_subject_set:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "slice subject_ids must not contain duplicates"
+                    )
+                slice_subject_set.add(subject_id)
+                if subject_id not in reconstructed_subject_slice_ids:
+                    raise PackBuildError(
+                        f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                        "slice subject_id is not declared in subject_slice_ids"
+                    )
+                reconstructed_subject_slice_ids[subject_id].add(slice_id)
+            source_slice_subject_ids.update(slice_subject_set)
         if (
-            len(slice_ids) != len(set(slice_ids))
-            or not set(slice_ids).issubset(all_slice_ids)
+            source_inventory_entry["source_identity"].get("content_mode")
+            == "metadata-only"
         ):
+            if source_slice_subject_ids:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "metadata-only sources cannot include slice subject_ids"
+                )
+        else:
+            if source_slice_subject_ids != set(source_inventory_entry["subject_ids"]):
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                    "included selector-bearing source subject_ids must equal the "
+                    "union of its slice subject_ids"
+                )
+        if closure_status == "complete" and source_slice_loss_ids != source_loss_ids:
             raise PackBuildError(
-                f"{context.skill_id}:{provider.input_id}:{subject_id}: subject "
-                "mapping contains duplicate or dangling slices"
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "complete source loss closure is not exactly represented by "
+                "slice losses"
+            )
+        all_slice_ids.update(slice_ids)
+
+    for subject_id, subject_slices in subject_slice_ids.items():
+        if not isinstance(subject_id, str) or not subject_id:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: subject_slice_ids key "
+                "must be a non-empty subject ID"
+            )
+        if not isinstance(subject_slices, (list, tuple)):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{subject_id}: "
+                "subject slices must be a list or tuple"
+            )
+        subject_slice_ids_set: set[str] = set()
+        for slice_id in subject_slices:
+            if not isinstance(slice_id, str) or not slice_id:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{subject_id}: "
+                    "subject slice ids must all be non-empty strings"
+                )
+            if slice_id in subject_slice_ids_set:
+                raise PackBuildError(
+                    f"{context.skill_id}:{provider.input_id}:{subject_id}: "
+                    "subject slice mapping has duplicate slice ids"
+                )
+            subject_slice_ids_set.add(slice_id)
+        if len(subject_slices) != len(subject_slice_ids_set):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{subject_id}: "
+                "subject slice mapping has duplicate slice ids"
+            )
+        if not subject_slice_ids_set.issubset(all_slice_ids):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{subject_id}: "
+                "subject slice mapping has dangling slice ids"
+            )
+        if subject_slice_ids_set != reconstructed_subject_slice_ids.get(subject_id, set()):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{subject_id}: "
+                "subject_slice_ids must exactly equal reconstructed slice-based "
+                "mapping"
             )
 
+    if set(reconstructed_subject_slice_ids) != set(subject_slice_ids):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: reconstructed subject-to-slice "
+            "mapping keys are not identical to declared subject_slice_ids"
+        )
 
-def _license_projection(
+
+def _provider_records_v11(
     context: BuildContext,
+    provider_input: dict[str, Any],
     provider: ProviderBuild,
-) -> dict[str, Any]:
-    """Compute the conservative central-policy ∩ catalog license projection."""
+    *,
+    producer: dict[str, Any],
+    seed_limitations: tuple[str, ...],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Build version 1.1 corpus and slice manifests from validated provider projection."""
 
-    authority = context.snapshot.official_source_authorities["authorities"][
-        provider.authority_id
-    ]
-    central = authority["license_policy"]
-    redistribution = authority["redistribution_policy"]
-    central_modes = {"metadata-only", "excluded"}
-    if redistribution["external_runtime_content"] != "unavailable":
-        central_modes.add("external-runtime-only")
-
-    if provider.license:
-        supplied = provider.license
-        supplied_identity = supplied["identity"]
-        requested_modes = set(supplied["allowed_storage_modes"])
-        supplied_assessment = supplied["assessment"]
-        evidence_locator = supplied["official_terms_locator"]
-        license_limitations = list(supplied["limitations"])
-    else:
-        supplied_identity = {
-            "identifier": central["identifier"],
-            "terms_urls": list(central["terms_urls"]),
-            "verification": (
-                "verified"
-                if central["verification_status"] == "verified"
-                else "unknown"
-            ),
-        }
-        requested_modes = set(central_modes)
-        supplied_assessment = (
-            "allowed"
-            if central["status"] == "known-open"
-            else (
-                "conditional"
-                if central["status"] == "known-restricted"
-                else "unresolved"
-            )
-        )
-        evidence_locator = (
-            central["terms_urls"][0]
-            if central["terms_urls"]
-            else authority["provenance"]["official_fact_urls"][0]
-        )
-        license_limitations = []
-
-    central_verified = (
-        central["verification_status"] == "verified"
-        and central["status"] in {"known-open", "known-restricted"}
-    )
-    supplied_verified = supplied_identity["verification"] == "verified"
-    if central_verified and supplied_verified:
-        if (
-            supplied_identity["identifier"] != central["identifier"]
-            or supplied_identity["terms_urls"] != central["terms_urls"]
-            or evidence_locator not in central["terms_urls"]
-        ):
-            raise PackBuildError(
-                f"{context.skill_id}:{provider.input_id}: verified catalog "
-                "license identity conflicts with the central authority policy"
-            )
-        identity = {
-            "identifier": central["identifier"],
-            "terms_urls": list(central["terms_urls"]),
-            "verification": "verified",
-        }
-    elif supplied_verified:
-        raise PackBuildError(
-            f"{context.skill_id}:{provider.input_id}: catalog cannot upgrade an "
-            "unresolved central license identity to verified"
-        )
-    else:
-        if supplied_identity["identifier"] is not None or supplied_identity[
-            "terms_urls"
-        ]:
-            license_limitations.append(
-                "Unverified catalog license identifier and terms URL claims "
-                "were conservatively downgraded to null/empty; the separately "
-                "declared official_terms_locator remains evidence only."
-            )
-        identity = {
-            "identifier": None,
-            "terms_urls": [],
-            "verification": "unknown",
-        }
-
-    central_assessment = (
-        "allowed"
-        if central["status"] == "known-open"
-        else (
-            "conditional"
-            if central["status"] == "known-restricted"
-            else "unresolved"
-        )
-    )
-    restrictiveness = {
-        "allowed": 0,
-        "conditional": 1,
-        "unresolved": 2,
-        "forbidden": 3,
-    }
-    assessment = max(
-        (central_assessment, supplied_assessment),
-        key=restrictiveness.__getitem__,
-    )
-    allowed_modes = sorted(requested_modes.intersection(central_modes))
-    if assessment == "forbidden":
-        allowed_modes = [
-            item for item in allowed_modes if item == "excluded"
-        ]
-    if "metadata-only" not in allowed_modes:
-        raise PackBuildError(
-            f"{context.skill_id}:{provider.input_id}: central/catalog license "
-            "intersection does not permit the pack's metadata-only slices"
-        )
-    return {
-        "identity": identity,
-        "assessment": assessment,
-        "allowed_storage_modes": allowed_modes,
-        "evidence_locator": evidence_locator,
-        "limitations": sorted(
-            set(
-                [
-                    *license_limitations,
-                    "The generated review is the conservative intersection of "
-                    "the central authority policy and the hashed provider catalog.",
-                ]
-            )
+    adapter_projection = {
+        "declarative-catalog-v1": (
+            "manual-inventory",
+            "official-document-source-catalog-1.1",
+            "unverified",
+        ),
+        "qe-input-manifest-v1": (
+            "official-index",
+            "qe-source-pack-input-1.0",
+            "pinned",
+        ),
+        "vasp-wiki-manifest-v1": (
+            "official-api",
+            "vasp-source-pack-input-1.0",
+            "pinned",
         ),
     }
+    adapter_id = provider_input["adapter_id"]
+    discovery = adapter_projection.get(adapter_id)
+    if discovery is None:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider_input['input_id']}: unsupported adapter "
+            f"{adapter_id!r} for official-document-records v1.1"
+        )
+    discovery_method, inventory_format, assurance_mode = discovery
+
+    source_inventory = copy.deepcopy(provider.source_inventory)
+    if not isinstance(source_inventory, dict) or not source_inventory:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: source_inventory must be a "
+            "non-empty mapping"
+        )
+    included_ids = [
+        source_id
+        for source_id, item in source_inventory.items()
+        if item.get("disposition") == "included"
+    ]
+    if not included_ids:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: source partition must "
+            "contain at least one included source"
+        )
+    for source_id in source_inventory:
+        if not isinstance(source_id, str) or not source_id:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: source_inventory keys "
+                "must be non-empty source IDs"
+            )
+        if not isinstance(source_inventory[source_id], dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source_inventory entry must be a mapping"
+            )
+        if source_inventory[source_id].get("disposition") not in {
+            "included",
+            "excluded",
+        }:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}:{source_id}: "
+                "source disposition must be included or excluded"
+            )
+
+    slice_sources = copy.deepcopy(provider.slice_sources)
+    if not isinstance(slice_sources, dict) or not slice_sources:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: slice_sources must be a "
+            "non-empty mapping"
+        )
+    slice_source_ids = set(slice_sources)
+    if not slice_source_ids.issubset(set(included_ids)):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: slice source ids must be a "
+            "subset of included source ids"
+        )
+    if not slice_source_ids:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: slice partition must be non-empty"
+        )
+    for source_id in slice_source_ids:
+        if not isinstance(source_id, str) or not source_id:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: slice source key must "
+                "be a non-empty source ID"
+            )
+
+    catalog_inventory = provider.inventory
+    if not isinstance(catalog_inventory, dict):
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: provider inventory must be a "
+            "mapping"
+        )
+    inventory_content_mode = catalog_inventory.get("content_mode")
+    if inventory_content_mode == "embedded-content":
+        expected_keys = {"content_mode", "locator", "sha256", "bytes"}
+        if set(catalog_inventory.keys()) != expected_keys:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: embedded-content "
+                "inventory must only include content_mode, locator, sha256, and bytes"
+            )
+        if not isinstance(catalog_inventory.get("sha256"), str) or re.fullmatch(
+            r"[0-9a-f]{64}", catalog_inventory["sha256"]
+        ) is None:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: embedded-content "
+                "inventory sha256 must be a 64-char hex string"
+            )
+        if (
+            not isinstance(catalog_inventory.get("bytes"), int)
+            or catalog_inventory["bytes"] <= 0
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: embedded-content "
+                "inventory bytes must be a positive integer"
+            )
+        input_sha256 = catalog_inventory["sha256"]
+    elif inventory_content_mode == "external-content":
+        expected_keys = {"content_mode", "locator", "receipt"}
+        if set(catalog_inventory.keys()) != expected_keys:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: external-content "
+                "inventory must only include content_mode, locator, and receipt"
+            )
+        receipt = catalog_inventory.get("receipt")
+        if not isinstance(receipt, dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: external-content "
+                "inventory receipt must be a mapping"
+            )
+        if set(receipt.keys()) != {
+            "retrieval_method",
+            "retrieved_utc",
+            "raw_sha256",
+            "raw_bytes",
+        }:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: external-content "
+                "inventory receipt must only include retrieval_method, "
+                "retrieved_utc, raw_sha256, and raw_bytes"
+            )
+        if (
+            not isinstance(receipt.get("raw_sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", receipt["raw_sha256"]) is None
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: external-content "
+                "inventory receipt raw_sha256 must be a 64-char hex string"
+            )
+        if (
+            not isinstance(receipt.get("raw_bytes"), int)
+            or receipt["raw_bytes"] <= 0
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: external-content "
+                "inventory receipt raw_bytes must be a positive integer"
+            )
+        input_sha256 = receipt["raw_sha256"]
+    elif inventory_content_mode == "metadata-only":
+        expected_keys = {"content_mode", "locator", "identity"}
+        if set(catalog_inventory.keys()) != expected_keys:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: metadata-only inventory "
+                "must only include content_mode, locator, and identity"
+            )
+        identity = catalog_inventory.get("identity")
+        if not isinstance(identity, dict):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: metadata-only inventory "
+                "identity must be a mapping"
+            )
+        if set(identity.keys()) != {"sha256", "bytes"}:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: metadata-only inventory "
+                "identity must only include sha256 and bytes"
+            )
+        if (
+            not isinstance(identity.get("sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", identity["sha256"]) is None
+        ):
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: metadata-only inventory "
+                "identity sha256 must be a 64-char hex string"
+            )
+        if not isinstance(identity.get("bytes"), int) or identity["bytes"] <= 0:
+            raise PackBuildError(
+                f"{context.skill_id}:{provider.input_id}: metadata-only inventory "
+                "identity bytes must be a positive integer"
+            )
+        input_sha256 = identity["sha256"]
+    else:
+        raise PackBuildError(
+            f"{context.skill_id}:{provider.input_id}: unsupported inventory "
+            f"content_mode {inventory_content_mode!r}"
+        )
+
+    corpus_id = _safe_id(context.skill_id, provider.input_id, "official-corpus")
+    source_projection_sha256 = canonical_projection_sha256(source_inventory)
+    corpus_discovery = {
+        "method": discovery_method,
+        "upstream_universe_complete": provider.upstream_universe_complete,
+        "inventory_scope": (
+            "upstream-universe"
+            if provider.upstream_universe_complete
+            else "bounded-authority-subset"
+        ),
+        "authority_root": provider.authority_root,
+        "authority_revision": provider.authority_revision,
+        "inventory_format": inventory_format,
+        "inventory": copy.deepcopy(catalog_inventory),
+        "processor": _processor_v11(
+            context=context,
+            processor_id="official-document-pack-enumerator",
+            processor_version=BUILDER_VERSION,
+            assurance_mode=assurance_mode,
+            input_sha256=input_sha256,
+            output_sha256=source_projection_sha256,
+        ),
+    }
+
+    corpus_blockers = [
+        {**blocker, "dimension": "inventory"}
+        for blocker in _output_blockers(
+            provider.blockers,
+            label=f"{context.skill_id}:{provider.input_id}:corpus",
+            dimension="corpus",
+        )
+    ]
+    slice_blockers = [
+        {**blocker, "dimension": "loss-closure"}
+        for blocker in _output_blockers(
+            provider.blockers,
+            label=f"{context.skill_id}:{provider.input_id}:slices",
+            dimension="slices",
+        )
+    ]
+    corpus_status = "blocked" if corpus_blockers else "partial"
+    slice_status = "blocked" if slice_blockers else "partial"
+
+    corpus_limitations = sorted(
+        set(
+            [
+                *seed_limitations,
+                *provider.limitations,
+                "Inventory and source identities are projected as technical artifacts only.",
+            ]
+        )
+    )
+    slice_limitations = sorted(
+        set(
+            [
+                *seed_limitations,
+                *provider.limitations,
+                "Slice projections are validated against the provider source partition.",
+            ]
+        )
+    )
+
+    corpus = {
+        "schema_version": "1.1",
+        "contract_name": "official-corpus-manifest",
+        "corpus_id": corpus_id,
+        "authority_id": provider.authority_id,
+        "provider_id": provider.provider_id,
+        "version_scope": copy.deepcopy(provider.version_scope),
+        "status": corpus_status,
+        "discovery": corpus_discovery,
+        "source_inventory": source_inventory,
+        "blockers": corpus_blockers,
+        "limitations": corpus_limitations,
+        "producer": copy.deepcopy(producer),
+    }
+
+    corpus_sha = sha256_bytes(canonical_json_bytes(corpus))
+    slice_id = _safe_id(context.skill_id, provider.input_id, "official-slices")
+    slices = {
+        "schema_version": "1.1",
+        "contract_name": "document-slice-manifest",
+        "slice_manifest_id": slice_id,
+        "corpus_ref": {
+            "corpus_id": corpus_id,
+            "sha256": corpus_sha,
+        },
+        "status": slice_status,
+        "sources": slice_sources,
+        "blockers": slice_blockers,
+        "limitations": slice_limitations,
+        "producer": copy.deepcopy(producer),
+    }
+    return corpus, slices
 
 
 def _build_one(context: BuildContext) -> dict[str, bytes]:
@@ -2633,6 +3877,10 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
 
     _validate_dependency_lock(context)
     scope_catalog = _scope_catalog(context)
+    scope_subject_id_map = _output_id_map(
+        [item["subject_id"] for item in scope_catalog["subjects"]],
+        label=f"{context.skill_id}:scope subjects",
+    )
     providers: list[tuple[dict[str, Any], ProviderBuild]] = []
     for provider_input in context.seed["providers"]:
         adapter = ADAPTERS.get(provider_input["adapter_id"])
@@ -2657,7 +3905,10 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
             if item["evidence_class"] == "official-provider-required"
             and provider_input["input_id"] in item["provider_input_ids"]
         }
-        if set(built.subject_slice_ids) != expected_subjects:
+        expected_mapped_subjects = {
+            scope_subject_id_map[item] for item in expected_subjects
+        }
+        if set(built.subject_slice_ids) != expected_mapped_subjects:
             raise PackBuildError(
                 f"{context.skill_id}:{provider_input['input_id']}: adapter "
                 "subject mappings do not exactly equal canonical provider scope"
@@ -2684,237 +3935,33 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
     ]
 
     records: dict[str, bytes] = {}
-    corpus_records: list[tuple[ProviderBuild, dict[str, Any], str, str]] = []
-    slice_records: list[tuple[ProviderBuild, dict[str, Any], str, str]] = []
-    license_records: list[tuple[ProviderBuild, dict[str, Any], str, str]] = []
-    bindings_by_id: dict[str, dict[str, Any]] = {}
+    corpus_records: list[tuple[dict[str, Any], str, str]] = []
+    slice_records: list[tuple[dict[str, Any], str, str]] = []
+    provider_by_input: dict[str, ProviderBuild] = {}
+    slice_manifest_id_by_input: dict[str, str] = {}
 
     for provider_input, provider in providers:
-        binding = _central_binding(context, provider_input)
-        bindings_by_id[binding["binding_id"]] = binding
-        corpus_blockers = _output_blockers(
-            provider.blockers,
-            label=f"{context.skill_id}:{provider.input_id}:corpus",
-            dimension="corpus",
+        corpus, slices = _provider_records_v11(
+            context,
+            provider_input,
+            provider,
+            producer=producer,
+            seed_limitations=tuple(context.seed["limitations"]),
         )
-        slice_blockers = _output_blockers(
-            provider.blockers,
-            label=f"{context.skill_id}:{provider.input_id}:slices",
-            dimension="slices",
-        )
-        corpus_status = "blocked" if corpus_blockers else "partial"
-        slice_status = "blocked" if slice_blockers else "partial"
-        limitations = sorted(
-            set(
-                [
-                    *context.seed["limitations"],
-                    *provider.limitations,
-                    (
-                        "Central processor hashes are pinned, but this exact "
-                        "input/output run has no platform attestation."
-                    ),
-                ]
-            )
-        )
-        included_ids = [
-            item["source_id"] for item in provider.included_sources
-        ]
-        excluded_ids = [
-            item["source_id"] for item in provider.reviewed_exclusions
-        ]
-        discovered_ids = sorted([*included_ids, *excluded_ids])
-        if (
-            len(discovered_ids) != len(set(discovered_ids))
-            or not included_ids
-        ):
-            raise PackBuildError(
-                f"{context.skill_id}:{provider.input_id}: invalid source universe"
-            )
-        corpus_id = _safe_id(
-            context.skill_id, provider.input_id, "official-corpus"
-        )
-        enumerator_output = canonical_projection_sha256(
-            {"discovered_source_ids": discovered_ids}
-        )
-        corpus = {
-            "schema_version": "1.0",
-            "contract_name": "official-corpus-manifest",
-            "corpus_id": corpus_id,
-            "authority_id": provider.authority_id,
-            "provider_id": provider.provider_id,
-            "version_scope": copy.deepcopy(provider.version_scope),
-            "status": corpus_status,
-            "discovery": {
-                "method": (
-                    "official-api"
-                    if provider.inventory_format == "vasp-wiki-manifest-v1"
-                    else (
-                        "official-index"
-                        if provider.inventory_format
-                        == "qe-official-manifest-v1"
-                        else "manual-inventory"
-                    )
-                ),
-                "upstream_universe_complete": (
-                    provider.upstream_universe_complete
-                ),
-                "inventory_scope": (
-                    "upstream-universe"
-                    if provider.upstream_universe_complete
-                    else "bounded-authority-subset"
-                ),
-                "authority_root": provider.authority_root,
-                "authority_revision": provider.authority_revision,
-                "inventory_format": provider.inventory_format,
-                "inventory_storage_mode": "embedded-open",
-                "inventory_locator": provider.inventory_locator,
-                "inventory_sha256": provider.inventory_sha256,
-                "inventory_receipt": None,
-                "enumerator": _processor(
-                    context,
-                    kind="enumerator",
-                    input_sha256=provider.inventory_sha256,
-                    output_sha256=enumerator_output,
-                ),
-                "discovered_source_ids": discovered_ids,
-            },
-            "included_sources": list(provider.included_sources),
-            "reviewed_exclusions": list(provider.reviewed_exclusions),
-            "blockers": corpus_blockers,
-            "limitations": limitations,
-            "producer": producer,
-        }
         corpus_name = f"corpus-{provider.input_id}.json"
         corpus_raw = canonical_json_bytes(corpus)
         corpus_sha = sha256_bytes(corpus_raw)
         records[corpus_name] = corpus_raw
-        corpus_records.append((provider, corpus, corpus_name, corpus_sha))
-
-        slice_id = _safe_id(
-            context.skill_id, provider.input_id, "official-slices"
-        )
-        slices = {
-            "schema_version": "1.0",
-            "contract_name": "document-slice-manifest",
-            "slice_manifest_id": slice_id,
-            "corpus_ref": {
-                "corpus_id": corpus_id,
-                "sha256": corpus_sha,
-            },
-            "status": slice_status,
-            "sources": list(provider.source_slices),
-            "blockers": slice_blockers,
-            "limitations": limitations,
-            "producer": producer,
-        }
+        corpus_records.append((corpus, corpus_name, corpus_sha))
         slice_name = f"slices-{provider.input_id}.json"
         slice_raw = canonical_json_bytes(slices)
         slice_sha = sha256_bytes(slice_raw)
         records[slice_name] = slice_raw
-        slice_records.append((provider, slices, slice_name, slice_sha))
-
-        authority_entry = context.snapshot.official_source_authorities[
-            "authorities"
-        ][provider.authority_id]
-        license_projection = _license_projection(context, provider)
-        license_identity = license_projection["identity"]
-        allowed_modes = license_projection["allowed_storage_modes"]
-        evidence_locator = license_projection["evidence_locator"]
-        evidence_id = _safe_id(provider.input_id, "license-evidence")
-        license_review_id = _safe_id(
-            context.skill_id, provider.input_id, "license-review"
-        )
-        license_status = "partial"
-        license_limitations = sorted(
-            set(
-                [
-                    *license_projection["limitations"],
-                    "The exact official-terms bytes and retrieval revision are "
-                    "not locally bound or platform attested.",
-                    "License trust remains unverified in the central consumer "
-                    "registry.",
-                ]
-            )
-        )
-        license_review = {
-            "schema_version": "1.0",
-            "contract_name": "official-source-license-review",
-            "license_review_id": license_review_id,
-            "corpus_ref": {
-                "corpus_id": corpus_id,
-                "sha256": corpus_sha,
-            },
-            "authority_id": provider.authority_id,
-            "status": license_status,
-            "trust_attestation": {
-                "trust_mode": "unverified",
-                "registry_path": "registry/official-document-consumers.yaml",
-                "registry_sha256": context.snapshot.registry_sha256[
-                    CONSUMER_REGISTRY_NAME
-                ],
-                "trust_id": None,
-                "attestation_ref": None,
-            },
-            "license_identity": license_identity,
-            "storage_rules": [
-                {
-                    "artifact_kind": "metadata",
-                    "source_material_class": "documentation-text",
-                    "assessment": license_projection["assessment"],
-                    "allowed_storage_modes": allowed_modes,
-                    "conditions": [
-                        "Keep official body content external; retain only exact identities, selectors, and receipts in this pack."
-                    ],
-                    "limitations": sorted(
-                        set(
-                            [
-                                *license_projection["limitations"],
-                                "The exact official-terms bytes, retrieval "
-                                "revision, reviewer, and obligation analysis "
-                                "are not platform attested.",
-                            ]
-                        )
-                    ),
-                    "license_evidence_refs": [evidence_id],
-                    "rights_holder": (
-                        "Official provider; exact rights-holder scope remains "
-                        "subject to the cited official terms."
-                    ),
-                    "attribution_required": "unknown",
-                    "notice_required": "unknown",
-                    "modified_content_marking_required": "unknown",
-                    "share_alike_required": "unknown",
-                    "source_offer_required": "unknown",
-                }
-            ],
-            "evidence": [
-                {
-                    "evidence_id": evidence_id,
-                    "locator": evidence_locator,
-                    "revision": None,
-                    "sha256": None,
-                    "hash_basis": "unattested-external-locator",
-                    "terms_content_ref": None,
-                }
-            ],
-            "review_expires_utc": None,
-            "supersedes_review_ids": [],
-            "blockers": [],
-            "limitations": license_limitations,
-            "reviewer": {
-                "reviewer_id": "official-document-pack-builder",
-                "role": "license-reviewer",
-                "reviewed_utc": generated_utc,
-            },
-            "producer": producer,
-        }
-        license_name = f"license-review-{provider.input_id}.json"
-        license_raw = canonical_json_bytes(license_review)
-        license_sha = sha256_bytes(license_raw)
-        records[license_name] = license_raw
-        license_records.append(
-            (provider, license_review, license_name, license_sha)
-        )
+        slice_records.append((slices, slice_name, slice_sha))
+        provider_by_input[provider_input["input_id"]] = provider
+        slice_manifest_id_by_input[provider_input["input_id"]] = slices[
+            "slice_manifest_id"
+        ]
 
     try:
         tree = skill_registry.source_tree_digest(context.skill_root)
@@ -2939,10 +3986,7 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
     source_ref_pairs = {
         (item["path"], item["sha256"]) for item in source_refs
     }
-    scope_subject_id_map = _output_id_map(
-        [item["subject_id"] for item in scope_catalog["subjects"]],
-        label=f"{context.skill_id}:scope subjects",
-    )
+
     scope_subjects: list[dict[str, Any]] = []
     scope_meta: dict[str, dict[str, Any]] = {}
     for item in scope_catalog["subjects"]:
@@ -2965,16 +4009,18 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
                 f"{context.skill_id}: scope subject {item['subject_id']!r} "
                 "has an origin outside the complete source-tree inventory"
             )
+        subject_id = scope_subject_id_map[item["subject_id"]]
         subject = {
-            "subject_id": scope_subject_id_map[item["subject_id"]],
+            "subject_id": subject_id,
             "subject_kind": item["subject_kind"],
             "evidence_class": item["evidence_class"],
             "origin_refs": origins,
             "statement": item["statement"],
         }
         scope_subjects.append(subject)
-        scope_meta[subject["subject_id"]] = item
+        scope_meta[subject_id] = item
     scope_subjects.sort(key=lambda item: item["subject_id"])
+
     scope_blockers = list(seed_blockers)
     if context.seed["status_ceiling"] == "blocked" and not scope_blockers:
         scope_blockers.append(
@@ -3033,15 +4079,8 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
     scope_sha = sha256_bytes(scope_raw)
     records["scope-inventory.json"] = scope_raw
 
-    provider_by_input = {
-        provider.input_id: provider for _, provider in providers
-    }
-    slice_manifest_ids = {
-        provider.input_id: record["slice_manifest_id"]
-        for provider, record, _, _ in slice_records
-    }
-    mappings: list[dict[str, Any]] = []
-    official_mapping_blocked = False
+    mappings: dict[str, dict[str, Any]] = {}
+    mapping_statuses: set[str] = set()
     for subject in scope_subjects:
         meta = scope_meta[subject["subject_id"]]
         if subject["evidence_class"] == "official-provider-required":
@@ -3049,11 +4088,13 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
             for input_id in meta["provider_input_ids"]:
                 provider = provider_by_input[input_id]
                 for slice_id in provider.subject_slice_ids.get(
-                    meta["subject_id"], ()
+                    subject["subject_id"], ()
                 ):
                     refs.append(
                         {
-                            "slice_manifest_id": slice_manifest_ids[input_id],
+                            "slice_manifest_id": slice_manifest_id_by_input[
+                                input_id
+                            ],
                             "slice_id": slice_id,
                         }
                     )
@@ -3064,148 +4105,156 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
                     item["slice_id"],
                 ),
             )
-            if not refs and meta["expected_disposition"] != "blocked":
-                raise PackBuildError(
-                    f"{context.skill_id}: official scope subject "
-                    f"{subject['subject_id']!r} has no exact provider slice"
-                )
             if meta["expected_disposition"] == "blocked":
                 mapping_status = "blocked"
-                official_mapping_blocked = True
+                mapping_rationale = (
+                    "The canonical scope marks this official subject as blocked."
+                )
+                mapping_limitations = [
+                    "Official-provider mapping is intentionally blocked for this scope subject."
+                ]
+                refs = []
             else:
+                if not refs:
+                    raise PackBuildError(
+                        f"{context.skill_id}: official scope subject "
+                        f"{subject['subject_id']!r} has no exact provider slice"
+                    )
                 mapping_status = "partial"
-            mappings.append(
-                {
-                    "subject_id": subject["subject_id"],
-                    "coverage_status": mapping_status,
-                    "official_disposition": mapping_status,
-                    "slice_refs": refs,
-                    "local_evidence_refs": [],
-                    "rationale": (
-                        "The canonical Skill scope marks this provider subject "
-                        "blocked; no unrelated public or literature slice is "
-                        "substituted for unavailable official evidence."
-                        if mapping_status == "blocked"
-                        else None
-                    ),
-                    "limitations": (
-                        [
-                            "Official evidence is unavailable, restricted, or "
-                            "otherwise unresolved for this blocked subject."
-                        ]
-                        if mapping_status == "blocked"
-                        else [
-                            "Official source and slice identities are exact "
-                            "metadata, but resolver, processor, and license "
-                            "trust remain below complete."
-                        ]
-                    ),
-                }
-            )
+                mapping_rationale = (
+                    "Exact official slices are available for this canonical "
+                    "scope subject."
+                )
+                mapping_limitations = [
+                    "Slice references are exact and derived from the provider manifest."
+                ]
+            mappings[subject["subject_id"]] = {
+                "mapping_status": mapping_status,
+                "disposition": "blocked"
+                if mapping_status == "blocked"
+                else "partial",
+                "slice_refs": refs,
+                "rationale": mapping_rationale,
+                "limitations": mapping_limitations,
+            }
         else:
-            local_refs = sorted(
-                {
-                    (origin["path"], origin["sha256"])
-                    for origin in subject["origin_refs"]
-                }
+            mappings[subject["subject_id"]] = {
+                "mapping_status": "complete",
+                "disposition": meta["expected_disposition"]
+                if meta["expected_disposition"] in {"not-applicable", "excluded"}
+                else "not-applicable",
+                "slice_refs": [],
+                "rationale": (
+                    "This subject is established by local Skill scope and is "
+                    "outside official-provider coverage."
+                ),
+                "limitations": [],
+            }
+            mapping_status = "complete"
+        mapping_statuses.add(mapping_status)
+
+    coverage_status: dict[str, str] = {
+        "corpus": "partial",
+        "slices": "partial",
+        "scope": scope_status,
+        "mappings": "partial",
+    }
+    if any(record["status"] == "blocked" for record, _, _ in corpus_records):
+        coverage_status["corpus"] = "blocked"
+    if any(record["status"] == "blocked" for record, _, _ in slice_records):
+        coverage_status["slices"] = "blocked"
+    if "blocked" in mapping_statuses:
+        coverage_status["mappings"] = "blocked"
+    elif "partial" in mapping_statuses:
+        coverage_status["mappings"] = "partial"
+    else:
+        coverage_status["mappings"] = "complete"
+    coverage_status["overall"] = (
+        "blocked"
+        if "blocked" in coverage_status.values()
+        else (
+            "complete"
+            if all(
+                status == "complete"
+                for status in coverage_status.values()
             )
-            mappings.append(
-                {
-                    "subject_id": subject["subject_id"],
-                    "coverage_status": "complete",
-                    "official_disposition": meta["expected_disposition"],
-                    "slice_refs": [],
-                    "local_evidence_refs": [
-                        {"path": path, "sha256": digest}
-                        for path, digest in local_refs
-                    ],
-                    "rationale": (
-                        "This subject is established by exact local Skill "
-                        "source and is outside provider-document coverage."
-                    ),
-                    "limitations": [],
-                }
-            )
-    coverage_blockers = list(scope_blockers)
-    if official_mapping_blocked and not coverage_blockers:
+            else "partial"
+        )
+    )
+
+    coverage_blockers = []
+    if coverage_status["corpus"] == "blocked":
         coverage_blockers.append(
             {
-                "code": "official-subject-blocked",
+                "code": "corpus-blocked",
                 "description": (
-                    "At least one canonical scope subject is explicitly blocked."
+                    "Corpus projection is blocked by seeded provider blockers."
                 ),
+                "dimension": "corpus",
             }
         )
-    if any(
-        record["status"] == "blocked"
-        for _, record, _, _ in [
-            *corpus_records,
-            *slice_records,
-            *license_records,
-        ]
-    ) and not coverage_blockers:
+    if coverage_status["slices"] == "blocked":
         coverage_blockers.append(
             {
-                "code": "provider-record-blocked",
+                "code": "slices-blocked",
                 "description": (
-                    "At least one exact provider record is blocked."
+                    "Slice projection is blocked by seeded provider blockers."
                 ),
+                "dimension": "slices",
             }
         )
-    coverage_status = "blocked" if coverage_blockers else "partial"
+    if coverage_status["scope"] == "blocked":
+        coverage_blockers.append(
+            {
+                "code": "scope-blocked",
+                "description": "Scope is blocked by seed ceiling or blockers.",
+                "dimension": "scope",
+            }
+        )
+    if coverage_status["mappings"] == "blocked":
+        coverage_blockers.append(
+            {
+                "code": "mappings-blocked",
+                "description": (
+                    "At least one canonical scope subject mapping is blocked."
+                ),
+                "dimension": "mappings",
+            }
+        )
+
     coverage = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "contract_name": "skill-document-coverage",
         "coverage_id": _safe_id(
             context.skill_id, "official-document-coverage"
         ),
         "skill_id": context.skill_id,
-        "consumer_binding_refs": [
-            {
-                "registry_path": "registry/official-document-consumers.yaml",
-                "registry_sha256": context.snapshot.registry_sha256[
-                    CONSUMER_REGISTRY_NAME
-                ],
-                "binding_id": binding_id,
-            }
-            for binding_id in sorted(bindings_by_id)
-        ],
         "status": coverage_status,
         "corpus_refs": [
             {
                 "corpus_id": record["corpus_id"],
                 "sha256": digest,
             }
-            for _, record, _, digest in corpus_records
+            for record, _, digest in corpus_records
         ],
         "slice_manifest_refs": [
             {
                 "slice_manifest_id": record["slice_manifest_id"],
                 "sha256": digest,
             }
-            for _, record, _, digest in slice_records
-        ],
-        "license_review_refs": [
-            {
-                "license_review_id": record["license_review_id"],
-                "sha256": digest,
-            }
-            for _, record, _, digest in license_records
+            for record, _, digest in slice_records
         ],
         "scope_inventory_ref": {
             "inventory_id": scope_id,
             "sha256": scope_sha,
         },
-        "declared_scope": scope_subjects,
-        "mappings": sorted(
-            mappings, key=lambda item: item["subject_id"]
-        ),
+        "mappings": mappings,
         "blockers": coverage_blockers,
         "limitations": sorted(
             set(
                 [
                     *context.seed["limitations"],
-                    "Complete official-document coverage is not claimed by this metadata-only pack.",
+                    "Technical official-document coverage metadata is partial unless all dimensions are complete.",
                 ]
             )
         ),
@@ -3218,15 +4267,8 @@ def _build_one(context: BuildContext) -> dict[str, bytes]:
         "schema_version": "1.0",
         "skill_id": context.skill_id,
         "records": {
-            "corpora": sorted(
-                name for _, _, name, _ in corpus_records
-            ),
-            "slice_manifests": sorted(
-                name for _, _, name, _ in slice_records
-            ),
-            "license_reviews": sorted(
-                name for _, _, name, _ in license_records
-            ),
+            "corpora": sorted(name for _, name, _ in corpus_records),
+            "slice_manifests": sorted(name for _, name, _ in slice_records),
             "scope_inventory": "scope-inventory.json",
             "coverage": "coverage.json",
         },
@@ -3247,7 +4289,6 @@ def _expected_output_names(context: BuildContext) -> set[str]:
             {
                 f"corpus-{input_id}.json",
                 f"slices-{input_id}.json",
-                f"license-review-{input_id}.json",
             }
         )
     return names
@@ -3263,13 +4304,100 @@ def _validate_output_closure(
             f"{context.skill_id}: builder output set differs from the fixed "
             "pack contract"
         )
+
+    bundle_bytes = outputs.get("bundle.json")
+    bundle = strict_json.loads_object(
+        bundle_bytes,
+        f"{context.skill_id}:bundle.json",
+        max_bytes=MAX_CATALOG_BYTES,
+    )
+    if not isinstance(bundle, dict):
+        raise PackBuildError(f"{context.skill_id}: bundle.json must be an object")
+    if bundle.get("bundle_type") != "official-document-coverage":
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json bundle_type must be "
+            "'official-document-coverage'"
+        )
+    if bundle.get("schema_version") != "1.0":
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json schema_version must be '1.0'"
+        )
+    if bundle.get("skill_id") != context.skill_id:
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json skill_id mismatch"
+        )
+
+    records = bundle.get("records")
+    if not isinstance(records, dict):
+        raise PackBuildError(f"{context.skill_id}: bundle.json records must be an object")
+    required_record_keys = {
+        "corpora",
+        "slice_manifests",
+        "scope_inventory",
+        "coverage",
+    }
+    if set(records) != required_record_keys:
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records keys must be exactly "
+            f"{sorted(required_record_keys)!r}"
+        )
+
+    corpora = records["corpora"]
+    slice_manifests = records["slice_manifests"]
+    scope_inventory = records["scope_inventory"]
+    coverage = records["coverage"]
+
+    if not isinstance(corpora, list) or not isinstance(slice_manifests, list):
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records corpora/slice_manifests "
+            "must be lists"
+        )
+    if not isinstance(scope_inventory, str) or not isinstance(coverage, str):
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records scope_inventory and coverage "
+            "must be strings"
+        )
+
+    provider_input_ids = tuple(sorted(item["input_id"] for item in context.seed["providers"]))
+    expected_corpora = [f"corpus-{input_id}.json" for input_id in provider_input_ids]
+    expected_slices = [f"slices-{input_id}.json" for input_id in provider_input_ids]
+
+    if len(set(corpora)) != len(corpora):
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records contains duplicate corpus entries"
+        )
+    if len(set(slice_manifests)) != len(slice_manifests):
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records contains duplicate slice entries"
+        )
+
+    referenced = (
+        {scope_inventory, coverage}
+        | set(corpora)
+        | set(slice_manifests)
+    )
+    if referenced != (expected - {"bundle.json"}):
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records referenced files do not "
+            "match generated outputs"
+        )
+    if corpora != expected_corpora or slice_manifests != expected_slices:
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records corpus/slice files are not the "
+            "exact ordered provider set"
+        )
+    if scope_inventory != "scope-inventory.json" or coverage != "coverage.json":
+        raise PackBuildError(
+            f"{context.skill_id}: bundle.json records scope/coverage filenames are "
+            "incorrect"
+        )
+
     for name, raw in outputs.items():
         if (
             PurePosixPath(name).name != name
             or not re.fullmatch(
                 r"(?:bundle|scope-inventory|coverage|"
-                r"(?:corpus|slices|license-review)-"
-                r"[a-z0-9]+(?:-[a-z0-9]+)*)\.json",
+                r"(?:corpus|slices)-[a-z0-9]+(?:-[a-z0-9]+)*)\.json",
                 name,
             )
             or not isinstance(raw, bytes)
@@ -3338,10 +4466,6 @@ def _semantic_validate_outputs(
             ],
             slice_paths=[
                 stage / f"slices-{input_id}.json"
-                for input_id in provider_ids
-            ],
-            license_review_paths=[
-                stage / f"license-review-{input_id}.json"
                 for input_id in provider_ids
             ],
             scope_inventory_path=stage / "scope-inventory.json",

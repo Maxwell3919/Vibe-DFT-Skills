@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Build the metadata-only CP2K source-pack catalogs.
+"""Build the policy-free CP2K v1.1 source-pack inputs.
 
-The default mode writes three deterministic JSON catalogs. ``--check`` is
-strictly offline and compares their exact bytes. ``--refresh`` additionally
-re-fetches every pinned upstream object and verifies hash/byte identities, but
-never stores upstream document bodies.
+The default mode writes two deterministic source catalogs, one scope catalog,
+and their seed. ``--check`` is strictly offline and compares their exact bytes.
+``--refresh`` additionally re-fetches every included upstream object and
+verifies hash/byte identities, but never stores upstream document bodies.
 """
 
 from __future__ import annotations
@@ -28,6 +28,19 @@ SCRIPT_PATH = Path(__file__).resolve()
 SKILL_ROOT = SCRIPT_PATH.parents[1]
 REPO_ROOT = SCRIPT_PATH.parents[3]
 REFERENCES = SKILL_ROOT / "references"
+TOOLS = REPO_ROOT / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
+
+from migrate_official_document_catalogs_v11 import (  # noqa: E402
+    canonical_json_bytes as canonical_v11_json_bytes,
+    canonical_projection_bytes,
+    convert_catalog_v10_to_v11,
+)
+from official_source_authorities import validate_and_project  # noqa: E402
+from registry_yaml import load_yaml_strict  # noqa: E402
+
+
 SKILL_ID = "cp2k-rigorous-calculations"
 RETRIEVED_UTC = "2026-07-23T19:30:41Z"
 RELEASE_COMMIT = "67b5da876dd6a76b8b021d5a04d1c81ba79a4c50"
@@ -54,11 +67,16 @@ OUTPUTS = {
     "release": REFERENCES / "source-pack-cp2k-release.json",
     "scope": REFERENCES / "source-pack-scope-catalog.json",
     "seed": REFERENCES / "source-pack-seed.json",
-    "proposal": REFERENCES / "source-pack-authority-consumer-proposal.json",
 }
 
 
-def canonical_json_bytes(value: Any) -> bytes:
+def canonical_legacy_json_bytes(value: Any) -> bytes:
+    """Return the exact historical v1.0 preimage encoding.
+
+    The pure central converter binds this byte identity as migration metadata.
+    These bytes are never emitted as a production source catalog.
+    """
+
     return (
         json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     ).encode("utf-8")
@@ -201,7 +219,9 @@ def scope_subject(
     }
 
 
-def build_catalogs() -> dict[str, dict[str, Any]]:
+def build_legacy_projection_inputs() -> dict[str, dict[str, Any]]:
+    """Build the exact historical inputs consumed by the pure v1.1 converter."""
+
     registry_path = REFERENCES / "official-source-registry.json"
     task_path = REFERENCES / "task-evidence-profiles.json"
     method_path = REFERENCES / "method-evidence-profiles.json"
@@ -674,11 +694,15 @@ def build_catalogs() -> dict[str, dict[str, Any]]:
     generated_catalog_origins = {
         "cp2k-manual": {
             "path": OUTPUTS["manual"].relative_to(REPO_ROOT).as_posix(),
-            "sha256": sha256_bytes(canonical_json_bytes(manual_catalog)),
+            "sha256": sha256_bytes(
+                canonical_legacy_json_bytes(manual_catalog)
+            ),
         },
         "cp2k-release": {
             "path": OUTPUTS["release"].relative_to(REPO_ROOT).as_posix(),
-            "sha256": sha256_bytes(canonical_json_bytes(release_catalog)),
+            "sha256": sha256_bytes(
+                canonical_legacy_json_bytes(release_catalog)
+            ),
         },
     }
     for item in scope_subjects.values():
@@ -713,14 +737,183 @@ def build_catalogs() -> dict[str, dict[str, Any]]:
     }
 
 
+def authority_projections() -> dict[str, dict[str, Any]]:
+    """Load the central technical authority projection without mutating it."""
+
+    authorities = load_yaml_strict(
+        REPO_ROOT / "registry" / "official-source-authorities.yaml",
+        "official-source-authorities.yaml",
+    )
+    software = load_yaml_strict(
+        REPO_ROOT / "registry" / "software-registry.yaml",
+        "software-registry.yaml",
+    )
+    failures, projections = validate_and_project(
+        authorities,
+        software_data=software,
+        source_root=REPO_ROOT,
+    )
+    if failures:
+        raise ValueError(
+            "central authority projection invalid: "
+            + " | ".join(str(item) for item in failures)
+        )
+    return projections
+
+
+def _convert_source_catalog(
+    legacy_catalog: dict[str, Any],
+    *,
+    input_id: str,
+    authority_id: str,
+    scope_catalog: dict[str, Any],
+    projection: dict[str, Any],
+) -> dict[str, Any]:
+    """Project one exact historical CP2K catalog through the pure converter."""
+
+    legacy_bytes = canonical_legacy_json_bytes(legacy_catalog)
+    included = [
+        source
+        for source in legacy_catalog["sources"]
+        if source.get("disposition") == "included"
+    ]
+    if not included:
+        raise ValueError(f"{input_id}: no included source")
+    return convert_catalog_v10_to_v11(
+        legacy_catalog,
+        provider={"input_id": input_id, "provider_id": "cp2k"},
+        authority={"authority_id": authority_id},
+        authority_projection=projection,
+        scope_catalog=scope_catalog,
+        inventory_projection={
+            "locator": included[0]["locator"],
+            "identity": {
+                "sha256": sha256_bytes(legacy_bytes),
+                "bytes": len(legacy_bytes),
+            },
+            "canonical_preimage_bytes": legacy_bytes,
+        },
+    )
+
+
+def _repair_manual_excluded_locators(
+    catalog: dict[str, Any],
+    projection: dict[str, Any],
+) -> None:
+    """Bind every excluded page to the exact 2026.2 authority root.
+
+    The one-time converter retained the old generic manual origin for reviewed
+    exclusions. The checked-in v1.1 state repaired those inert locators and
+    rebound the discovery output identity. Reproduction must preserve both.
+    """
+
+    authority_root = catalog["authority_root"]
+    canonical_urls = projection.get("canonical_urls", [])
+    if canonical_urls != [authority_root]:
+        raise ValueError(
+            "CP2K exact manual authority root disagrees with central projection"
+        )
+    index = load_json(REFERENCES / "official-manual" / "index.json")
+    included_paths = {
+        page["source_path"]
+        for page in load_json(
+            REFERENCES / "official-manual" / "manifest.json"
+        )["pages"].values()
+    }
+    excluded_paths = sorted(set(index["pages"]) - included_paths)
+    expected = {source_id(path): path for path in excluded_paths}
+    if len(expected) != 2860:
+        raise ValueError(
+            "CP2K exact-version exclusion repair requires 2860 unique pages"
+        )
+
+    actual_excluded = {
+        identity
+        for identity, source in catalog["discovered_sources"].items()
+        if source["disposition"] == "excluded"
+    }
+    if actual_excluded != set(expected):
+        raise ValueError("CP2K excluded source identities drifted")
+
+    generic_root = "https://manual.cp2k.org/"
+    for identity, path in expected.items():
+        content = catalog["discovered_sources"][identity]["content"]
+        locator = content.get("locator")
+        generic_locator = generic_root + path
+        exact_locator = authority_root + path
+        if locator not in {generic_locator, exact_locator}:
+            raise ValueError(
+                f"CP2K excluded locator drifted for {identity}"
+            )
+        content["locator"] = exact_locator
+
+    catalog["discovery_processor"]["output_sha256"] = sha256_bytes(
+        canonical_projection_bytes(catalog["discovered_sources"])
+    )
+
+
+def _rebind_scope_catalog(
+    legacy_scope: dict[str, Any],
+    source_catalogs: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Bind scope origins to the generated v1.1 catalog bytes."""
+
+    scope = json.loads(json.dumps(legacy_scope))
+    generated_hashes = {
+        OUTPUTS[name].relative_to(REPO_ROOT).as_posix(): sha256_bytes(
+            canonical_v11_json_bytes(source_catalogs[name])
+        )
+        for name in ("manual", "release")
+    }
+    for subject in scope["subjects"]:
+        for origin in subject["origin_refs"]:
+            replacement = generated_hashes.get(origin["path"])
+            if replacement is not None:
+                origin["sha256"] = replacement
+    return scope
+
+
+def build_catalogs(
+    legacy: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Build policy-free v1.1 catalogs and their strictly bound scope."""
+
+    legacy = legacy or build_legacy_projection_inputs()
+    projections = authority_projections()
+    source_catalogs = {
+        "manual": _convert_source_catalog(
+            legacy["manual"],
+            input_id="cp2k-manual",
+            authority_id="cp2k-official-manual",
+            scope_catalog=legacy["scope"],
+            projection=projections["cp2k-official-manual"],
+        ),
+        "release": _convert_source_catalog(
+            legacy["release"],
+            input_id="cp2k-release",
+            authority_id="cp2k-release-source-docs",
+            scope_catalog=legacy["scope"],
+            projection=projections["cp2k-release-source-docs"],
+        ),
+    }
+    _repair_manual_excluded_locators(
+        source_catalogs["manual"],
+        projections["cp2k-official-manual"],
+    )
+    return {
+        **source_catalogs,
+        "scope": _rebind_scope_catalog(legacy["scope"], source_catalogs),
+    }
+
+
 def validate_catalogs(catalogs: dict[str, dict[str, Any]]) -> None:
     schemas = {
         "manual": REPO_ROOT
         / "contracts"
-        / "official-document-source-catalog.schema.json",
+        / "official-document-source-catalog-1.1.schema.json",
         "release": REPO_ROOT
         / "contracts"
-        / "official-document-source-catalog.schema.json",
+        / "official-document-source-catalog-1.1.schema.json",
         "scope": REPO_ROOT
         / "contracts"
         / "official-document-scope-catalog.schema.json",
@@ -746,14 +939,86 @@ def validate_catalogs(catalogs: dict[str, dict[str, Any]]) -> None:
             )
             raise ValueError(f"{name} catalog schema invalid: {rendered}")
 
+    for name in ("manual", "release"):
+        catalog = catalogs[name]
+        if catalog["schema_version"] != "1.1":
+            raise ValueError(f"{name}: v1.1 schema required")
+        forbidden = {
+            "license",
+            "reviewed_exclusions",
+            "sources",
+        }.intersection(catalog)
+        if forbidden:
+            raise ValueError(
+                f"{name}: legacy policy fields remain: {sorted(forbidden)}"
+            )
+        processor = catalog["discovery_processor"]
+        expected_output = sha256_bytes(
+            canonical_projection_bytes(catalog["discovered_sources"])
+        )
+        if processor["output_sha256"] != expected_output:
+            raise ValueError(
+                f"{name}: discovery output identity mismatch"
+            )
+        if processor["input_sha256"] != catalog["inventory_identity"]["sha256"]:
+            raise ValueError(
+                f"{name}: discovery input identity mismatch"
+            )
 
-def build_seed_and_proposal(
-    catalogs: dict[str, dict[str, Any]]
-) -> tuple[dict[str, Any], dict[str, Any]]:
+    manual = catalogs["manual"]
+    included = [
+        source
+        for source in manual["discovered_sources"].values()
+        if source["disposition"] == "included"
+    ]
+    excluded = [
+        source
+        for source in manual["discovered_sources"].values()
+        if source["disposition"] == "excluded"
+    ]
+    if len(included) != 86 or len(excluded) != 2860:
+        raise ValueError("manual discovered-source partition drifted")
+    if any(
+        not source["content"]["locator"].startswith(manual["authority_root"])
+        for source in excluded
+    ):
+        raise ValueError("manual excluded locator is not exact-version bound")
+
+    for subject in catalogs["scope"]["subjects"]:
+        for origin in subject["origin_refs"]:
+            path = REPO_ROOT / origin["path"]
+            if not path.is_file():
+                raise ValueError(
+                    f"scope origin path missing: {origin['path']}"
+                )
+            expected = sha256_file(path)
+            generated_name = next(
+                (
+                    name
+                    for name in ("manual", "release")
+                    if path == OUTPUTS[name]
+                ),
+                None,
+            )
+            if generated_name is not None:
+                expected = sha256_bytes(
+                    canonical_v11_json_bytes(catalogs[generated_name])
+                )
+            if origin["sha256"] != expected:
+                raise ValueError(
+                    f"scope origin identity mismatch: {origin['path']}"
+                )
+
+
+def build_seed(catalogs: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """Build the seed with exact v1.1 source and scope identities."""
+
     def generated_ref(name: str) -> dict[str, str]:
         return {
             "path": OUTPUTS[name].relative_to(REPO_ROOT).as_posix(),
-            "sha256": sha256_bytes(canonical_json_bytes(catalogs[name])),
+            "sha256": sha256_bytes(
+                canonical_v11_json_bytes(catalogs[name])
+            ),
         }
 
     providers = [
@@ -784,42 +1049,12 @@ def build_seed_and_proposal(
             "The CP2K manual pack includes exact raw receipts for only 86 of "
             "2946 discovered pages; all other pages remain reviewed exclusions.",
             "The exact-release source catalog is deliberately bounded and the "
-            "central documentation license identity remains unresolved.",
+            "central documentation corpus identity remains unresolved.",
             "External selector receipts and complete source-tree extraction "
             "have no trusted platform attestation, so this seed cannot claim "
             "complete coverage.",
         ],
         "blockers": [],
-    }
-    proposal = {
-        "schema_version": "1.0",
-        "contract_name": "official-document-authority-consumer-proposal",
-        "proposal_status": "skill-local-non-authoritative",
-        "skill_id": SKILL_ID,
-        "consumer_path": f"skills/{SKILL_ID}",
-        "providers": [
-            {
-                "input_id": provider["input_id"],
-                "authority_id": provider["authority_id"],
-                "provider_id": provider["provider_id"],
-                "source_catalog_ref": provider["source_ref"],
-                "consumer_binding": {
-                    "binding_id": (
-                        "cp2k-skill-cp2k-manual"
-                        if provider["input_id"] == "cp2k-manual"
-                        else "cp2k-skill-cp2k-release-source"
-                    ),
-                    "consumer_lifecycle": "active",
-                    "purpose": "official-document-coverage",
-                    "claim_ceiling": "registered-skill-scope",
-                },
-            }
-            for provider in providers
-        ],
-        "limitations": [
-            "This Skill-local proposal cannot create, widen, or override the "
-            "canonical authority and consumer registries."
-        ],
     }
     schema = load_json(
         REPO_ROOT / "contracts" / "official-document-pack-seed.schema.json"
@@ -841,7 +1076,7 @@ def build_seed_and_proposal(
             for error in errors
         )
         raise ValueError(f"seed schema invalid: {rendered}")
-    return seed, proposal
+    return seed
 
 
 def fetch_with_curl(url: str) -> bytes:
@@ -876,16 +1111,15 @@ def refresh_external_identities(
 ) -> None:
     expected: dict[str, tuple[str, int]] = {}
     for name in ("manual", "release"):
-        for source in catalogs[name]["sources"]:
-            identity = source["external_identity"]
-            expected[source["locator"]] = (
-                identity["raw_sha256"],
-                identity["raw_bytes"],
+        for source in catalogs[name]["discovered_sources"].values():
+            if source["disposition"] != "included":
+                continue
+            content = source["content"]
+            receipt = content["receipt"]
+            expected[content["locator"]] = (
+                receipt["raw_sha256"],
+                receipt["raw_bytes"],
             )
-    expected[RELEASE_ROOT + "LICENSE"] = (
-        RELEASE_OBJECTS["LICENSE"]["sha256"],
-        RELEASE_OBJECTS["LICENSE"]["bytes"],
-    )
     for index, url in enumerate(sorted(expected), start=1):
         wanted_hash, wanted_bytes = expected[url]
         raw = fetch_with_curl(url)
@@ -918,15 +1152,16 @@ def atomic_write(path: Path, payload: bytes) -> None:
 
 
 def synchronize(*, check: bool, refresh: bool) -> int:
-    catalogs = build_catalogs()
+    legacy = build_legacy_projection_inputs()
+    catalogs = build_catalogs(legacy)
     validate_catalogs(catalogs)
-    seed, proposal = build_seed_and_proposal(catalogs)
-    outputs = {**catalogs, "seed": seed, "proposal": proposal}
+    seed = build_seed(catalogs)
+    outputs = {**catalogs, "seed": seed}
     if refresh:
         refresh_external_identities(catalogs)
     stale: list[str] = []
     for name, output in OUTPUTS.items():
-        payload = canonical_json_bytes(outputs[name])
+        payload = canonical_v11_json_bytes(outputs[name])
         current = output.read_bytes() if output.is_file() else None
         if current == payload:
             continue

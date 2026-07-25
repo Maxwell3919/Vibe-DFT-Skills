@@ -2,8 +2,8 @@
 """Build a deterministic, conservative official-document completeness dashboard.
 
 The dashboard consumes the public repository bundle-audit result and the
-documented registration record.  It reports corpus, slice, scope, license,
-storage, and freshness independently.  Bundle semantic state remains an
+documented registration record.  It reports corpus, slice, scope, coverage,
+and freshness independently.  Bundle semantic state remains an
 additional cap: a partial bundle can never be presented as complete merely
 because a dimension projection is incomplete or optimistic.
 """
@@ -23,7 +23,6 @@ from typing import Any, Iterable, Mapping
 from registry_yaml import load_yaml_strict
 import strict_json
 import validate_official_document_bundles as bundle_audit
-import validate_official_document_storage as storage_audit
 
 
 SCHEMA_VERSION = "1.0"
@@ -31,8 +30,7 @@ DIMENSION_ORDER = (
     "corpus",
     "slice",
     "scope",
-    "license",
-    "storage",
+    "coverage",
     "freshness",
 )
 ASSURANCE_LAYER_ORDER = (
@@ -49,6 +47,7 @@ STATUS_ORDER = (
     "blocked",
     "invalid",
 )
+TECHNICAL_STATUSES = frozenset({"complete", "partial", "blocked"})
 STATUS_PRECEDENCE = {
     "complete": 0,
     "unknown": 1,
@@ -60,7 +59,6 @@ STATUS_PRECEDENCE = {
 RECORD_FIELDS = {
     "corpora",
     "slice_manifests",
-    "license_reviews",
     "scope_inventory",
     "coverage",
 }
@@ -77,23 +75,11 @@ SEMANTIC_SELECTOR_KINDS = frozenset(
 SELECTOR_KINDS = frozenset(
     {*SEMANTIC_SELECTOR_KINDS, "whole-source", "other"}
 )
-STORAGE_MODES = frozenset(
+SLICE_CONTENT_MODES = frozenset(
     {
-        "embedded-open",
-        "external-cache",
-        "external-runtime-only",
+        "embedded-content",
+        "external-content",
         "metadata-only",
-    }
-)
-ARTIFACT_KINDS = frozenset(
-    {
-        "raw-source",
-        "derived-text",
-        "image",
-        "pdf",
-        "metadata",
-        "code-example",
-        "other",
     }
 )
 FRESHNESS_OVERLAY_FIELDS = frozenset(
@@ -384,6 +370,26 @@ def _record_status(
     return status
 
 
+def _coverage_statuses(
+    record: Mapping[str, Any],
+    location: str,
+) -> dict[str, str]:
+    value = record.get("status")
+    if not isinstance(value, Mapping):
+        raise DashboardError(f"{location}: status must be an object")
+    if set(value) != {"overall", "corpus", "slices", "scope", "mappings"}:
+        raise DashboardError(f"{location}: status fields are invalid")
+    result: dict[str, str] = {}
+    for key in ("overall", "corpus", "slices", "scope", "mappings"):
+        status = value.get(key)
+        if status not in TECHNICAL_STATUSES:
+            raise DashboardError(
+                f"{location}/status/{key}: unsupported completeness status"
+            )
+        result[key] = status
+    return result
+
+
 def _required_list(
     record: Mapping[str, Any],
     key: str,
@@ -392,6 +398,17 @@ def _required_list(
     value = record.get(key)
     if not isinstance(value, list):
         raise DashboardError(f"{location}/{key}: expected a list")
+    return value
+
+
+def _required_map(
+    record: Mapping[str, Any],
+    key: str,
+    location: str,
+) -> Mapping[str, Any]:
+    value = record.get(key)
+    if not isinstance(value, Mapping):
+        raise DashboardError(f"{location}/{key}: expected a map")
     return value
 
 
@@ -423,19 +440,50 @@ def _pack_assurance_layers(
         discovery = corpus.get("discovery")
         if not isinstance(discovery, dict):
             raise DashboardError(f"{location}/discovery: expected an object")
-        discovered_count += len(
-            _required_list(
-                discovery,
-                "discovered_source_ids",
-                f"{location}/discovery",
+        source_inventory = corpus.get("source_inventory")
+        if not isinstance(source_inventory, Mapping):
+            raise DashboardError(
+                f"{location}/source_inventory: expected a map"
             )
-        )
-        included_count += len(
-            _required_list(corpus, "included_sources", location)
-        )
-        exclusion_count += len(
-            _required_list(corpus, "reviewed_exclusions", location)
-        )
+        local_discovered = len(source_inventory)
+        if local_discovered < 1:
+            raise DashboardError(
+                f"{location}/source_inventory: expected at least one source"
+            )
+        local_included = 0
+        local_excluded = 0
+        for source_id, source in source_inventory.items():
+            if (
+                not isinstance(source_id, str)
+                or not source_id
+                or not source_id.isprintable()
+            ):
+                raise DashboardError(
+                    f"{location}/source_inventory: invalid source_id"
+                )
+            if not isinstance(source, Mapping):
+                raise DashboardError(
+                    f"{location}/source_inventory/{source_id}: expected a source "
+                    "entry object"
+                )
+            disposition = source.get("disposition")
+            if disposition == "included":
+                local_included += 1
+            elif disposition == "excluded":
+                local_excluded += 1
+            else:
+                raise DashboardError(
+                    f"{location}/source_inventory/{source_id}: unsupported "
+                    "source disposition"
+                )
+        if local_included + local_excluded != local_discovered:
+            raise DashboardError(
+                f"{location}/source_inventory: disposition mix is invalid"
+            )
+        discovered_count += local_discovered
+        included_count += local_included
+        exclusion_count += local_excluded
+
         upstream_complete = discovery.get("upstream_universe_complete")
         if not isinstance(upstream_complete, bool):
             raise DashboardError(
@@ -448,7 +496,6 @@ def _pack_assurance_layers(
     metadata_only_count = 0
     metadata_artifact_count = 0
     repository_materialized_count = 0
-    external_cache_count = 0
     external_runtime_count = 0
     semantic_count = 0
     whole_source_count = 0
@@ -457,18 +504,32 @@ def _pack_assurance_layers(
     fine_grained_materialized_count = 0
     for manifest_index, manifest in enumerate(slice_records):
         manifest_location = f"{skill_id}/slice/{manifest_index}"
-        for source_index, source in enumerate(
-            _required_list(manifest, "sources", manifest_location)
-        ):
-            source_location = (
-                f"{manifest_location}/sources/{source_index}"
+        sources = _required_map(
+            manifest,
+            "sources",
+            manifest_location,
+        )
+        if not sources:
+            raise DashboardError(
+                f"{manifest_location}/sources: expected a nonempty map"
             )
-            if not isinstance(source, dict):
-                raise DashboardError(f"{source_location}: expected an object")
-            for slice_index, item in enumerate(
-                _required_list(source, "slices", source_location)
+        for source_id, source in sources.items():
+            if (
+                not isinstance(source_id, str)
+                or not source_id
+                or not source_id.isprintable()
             ):
-                location = f"{source_location}/slices/{slice_index}"
+                raise DashboardError(
+                    f"{manifest_location}/sources: invalid source_id"
+                )
+            if not isinstance(source, dict):
+                raise DashboardError(
+                    f"{manifest_location}/sources/{source_id}: expected an object"
+                )
+            for slice_index, item in enumerate(
+                _required_list(source, "slices", f"{manifest_location}/sources/{source_id}")
+            ):
+                location = f"{manifest_location}/sources/{source_id}/slices/{slice_index}"
                 if not isinstance(item, dict):
                     raise DashboardError(f"{location}: expected an object")
                 selector = item.get("selector")
@@ -477,41 +538,31 @@ def _pack_assurance_layers(
                         f"{location}/selector: expected an object"
                     )
                 selector_kind = selector.get("kind")
-                storage_mode = item.get("storage_mode")
-                artifact_kind = item.get("artifact_kind")
                 if selector_kind not in SELECTOR_KINDS:
                     raise DashboardError(
                         f"{location}/selector/kind: unsupported selector"
                     )
-                if storage_mode not in STORAGE_MODES:
+                content = item.get("content")
+                if not isinstance(content, Mapping):
                     raise DashboardError(
-                        f"{location}/storage_mode: unsupported storage mode"
+                        f"{location}/content: expected an object"
                     )
-                if artifact_kind not in ARTIFACT_KINDS:
+                content_mode = content.get("content_mode")
+                if content_mode not in SLICE_CONTENT_MODES:
                     raise DashboardError(
-                        f"{location}/artifact_kind: unsupported artifact kind"
+                        f"{location}/content/content_mode: unsupported content mode"
                     )
+
                 total_slices += 1
-                is_metadata_only = storage_mode == "metadata-only"
-                is_content_artifact = artifact_kind != "metadata"
-                is_repository_materialized = (
-                    storage_mode == "embedded-open"
-                    and is_content_artifact
-                )
+                is_metadata_only = content_mode == "metadata-only"
+                is_repository_materialized = content_mode == "embedded-content"
                 is_semantic = selector_kind in SEMANTIC_SELECTOR_KINDS
                 metadata_only_count += int(is_metadata_only)
-                metadata_artifact_count += int(not is_content_artifact)
+                metadata_artifact_count += int(is_metadata_only)
                 repository_materialized_count += int(
                     is_repository_materialized
                 )
-                external_cache_count += int(
-                    storage_mode == "external-cache"
-                    and is_content_artifact
-                )
-                external_runtime_count += int(
-                    storage_mode == "external-runtime-only"
-                    and is_content_artifact
-                )
+                external_runtime_count += int(content_mode == "external-content")
                 semantic_count += int(is_semantic)
                 whole_source_count += int(selector_kind == "whole-source")
                 other_selector_count += int(selector_kind == "other")
@@ -554,7 +605,7 @@ def _pack_assurance_layers(
             "repository_materialized_slice_count": (
                 repository_materialized_count
             ),
-            "external_cache_content_slice_count": external_cache_count,
+            "external_cache_content_slice_count": 0,
             "external_runtime_content_slice_count": external_runtime_count,
             "metadata_only_slice_count": metadata_only_count,
             "metadata_artifact_slice_count": metadata_artifact_count,
@@ -615,11 +666,6 @@ def _load_pack_projection(
         f"{result.skill_id}/records/slice_manifests",
         multiple=True,
     )
-    licenses = _registered_paths(
-        records["license_reviews"],
-        f"{result.skill_id}/records/license_reviews",
-        multiple=True,
-    )
     scope = _registered_paths(
         records["scope_inventory"],
         f"{result.skill_id}/records/scope_inventory",
@@ -630,7 +676,7 @@ def _load_pack_projection(
         f"{result.skill_id}/records/coverage",
         multiple=False,
     )
-    all_paths = (*corpora, *slices, *licenses, *scope, *coverage)
+    all_paths = (*corpora, *slices, *scope, *coverage)
     if len(all_paths) != len(set(all_paths)):
         raise DashboardError(f"{result.skill_id}: one record is registered twice")
     pack = entrypoint.parent
@@ -668,28 +714,31 @@ def _load_pack_projection(
         _record_status(record, f"{result.skill_id}/slice/{index}")
         for index, record in enumerate(slice_records)
     )
-    license_status = aggregate_statuses(
-        _record_statuses(pack, licenses, f"{result.skill_id}/license")
-    )
     scope_status = aggregate_statuses(
         _record_statuses(pack, scope, f"{result.skill_id}/scope")
     )
-    coverage_status = aggregate_statuses(
-        _record_statuses(pack, coverage, f"{result.skill_id}/coverage")
+    coverage_record = _load_json_object(
+        pack.joinpath(*coverage[0].parts),
+        f"{result.skill_id}/coverage/{coverage[0].as_posix()}",
     )
-    # Coverage is a cross-record semantic projection rather than a seventh
-    # dashboard dimension.  It therefore caps scope, which is the Skill-side
-    # declared-subject surface, while bundle semantic state remains the final
-    # independent cap.
-    scope_status = aggregate_statuses((scope_status, coverage_status))
+    coverage_status = _coverage_statuses(
+        coverage_record,
+        f"{result.skill_id}/coverage/{coverage[0].as_posix()}",
+    )
+    # Coverage is a cross-record semantic projection. It caps corpus, slice, and
+    # scope while also projecting overall coverage status separately.
+    corpus_status = aggregate_statuses(
+        (corpus_status, coverage_status["corpus"])
+    )
+    slice_status = aggregate_statuses(
+        (slice_status, coverage_status["slices"])
+    )
+    scope_status = aggregate_statuses((scope_status, coverage_status["scope"]))
     dimensions = {
         "corpus": corpus_status,
         "slice": slice_status,
         "scope": scope_status,
-        "license": license_status,
-        # A complete license-review record includes resolved storage rules;
-        # repository-local legacy storage is independently overlaid below.
-        "storage": license_status,
+        "coverage": coverage_status["overall"],
         # Static bundle records do not establish current upstream freshness.
         # A live drift report may supply a conservative per-Skill overlay.
         "freshness": "unknown",
@@ -741,51 +790,6 @@ def _expected_skills(root: Path) -> dict[str, str]:
             raise DashboardError(f"{skill_id}: expectation entrypoint is noncanonical")
         result[skill_id] = expected
     return dict(sorted(result.items()))
-
-
-def _selector_skill_ids(
-    configuration: storage_audit.StorageConfiguration,
-) -> dict[str, frozenset[str]]:
-    result: dict[str, frozenset[str]] = {}
-    for rule in configuration.artifact_sets:
-        skill_ids: set[str] = set()
-        for selector in rule.selectors:
-            parts = PurePosixPath(selector.value).parts
-            if len(parts) >= 2 and parts[0] == "skills":
-                skill_ids.add(parts[1])
-        result[rule.set_id] = frozenset(skill_ids)
-    return result
-
-
-def storage_statuses(
-    root: Path,
-    expected_skill_ids: Iterable[str],
-) -> dict[str, str]:
-    """Project the public central storage report to affected Skill IDs."""
-
-    expected = frozenset(expected_skill_ids)
-    report = storage_audit.audit_repository(root)
-    if report.invalid_findings:
-        return {skill_id: "invalid" for skill_id in expected}
-    try:
-        configuration = storage_audit.load_configuration(root)
-    except (OSError, ValueError, storage_audit.StorageAuditError) as exc:
-        raise DashboardError(f"storage configuration is invalid ({exc})") from exc
-    affected = _selector_skill_ids(configuration)
-    projected: dict[str, str] = {}
-    for result in report.artifact_sets:
-        if result.forbidden_path_count:
-            for skill_id in affected.get(result.set_id, ()):
-                if skill_id in expected:
-                    projected[skill_id] = "blocked"
-    if report.worktree_drift_findings:
-        # Drift strings are diagnostics, not a stable machine interface for
-        # path attribution. Conservatively cap every centrally governed Skill.
-        for skill_ids in affected.values():
-            for skill_id in skill_ids:
-                if skill_id in expected:
-                    projected[skill_id] = "blocked"
-    return projected
 
 
 def _empty_dimensions(status: str) -> dict[str, str]:
@@ -849,7 +853,6 @@ def build_dashboard(
     root: Path,
     *,
     bundle_report: bundle_audit.AuditReport | None = None,
-    storage_status_by_skill: Mapping[str, str] | None = None,
     freshness_status_by_skill: (
         Mapping[str, Mapping[str, object]] | None
     ) = None,
@@ -868,16 +871,7 @@ def build_dashboard(
         raise DashboardError(
             "bundle audit does not contain the exact expected Skill set"
         )
-    storage_overlay = (
-        dict(storage_status_by_skill)
-        if storage_status_by_skill is not None
-        else storage_statuses(selected_root, expected)
-    )
     freshness_overlay = dict(freshness_status_by_skill or {})
-    if set(storage_overlay) - set(expected):
-        raise DashboardError("storage overlay names an unknown Skill")
-    if set(storage_overlay.values()) - set(STATUS_PRECEDENCE):
-        raise DashboardError("storage overlay contains an unsupported status")
     if set(freshness_overlay) - set(expected):
         raise DashboardError("freshness overlay names an unknown Skill")
     if freshness_overlay and freshness_as_of_utc is None:
@@ -905,10 +899,6 @@ def build_dashboard(
             authority_ids = ()
         else:
             raise DashboardError(f"{skill_id}: unsupported bundle audit state")
-        if skill_id in storage_overlay:
-            dimensions["storage"] = aggregate_statuses(
-                (dimensions["storage"], storage_overlay[skill_id])
-            )
         if skill_id in freshness_overlay:
             assert freshness_as_of_utc is not None
             dimensions["freshness"] = _apply_freshness_overlay(
@@ -931,18 +921,18 @@ def build_dashboard(
             "registration": (
                 "The canonical bundle index exists, has the exact Skill "
                 "identity and record families, and passed bundle registration "
-                "audit. It does not claim document body availability."
+                "audit. It does not assert legal/licensing compliance."
             ),
             "inventory": (
                 "Counts and status come from validated corpus manifests: "
-                "discovered, included, and reviewed-excluded source units plus "
+                "discovered, included, and excluded source units plus "
                 "the recorded upstream-universe boundary."
             ),
             "content_materialized": (
-                "Only a non-metadata artifact with storage_mode=embedded-open "
-                "counts as repository-materialized content. Metadata-only, "
-                "external-cache, and external-runtime-only records are shown "
-                "separately and never upgraded by inference."
+                "Only content_mode=embedded-content counts as repository-"
+                "materialized content. metadata-only is tracked explicitly "
+                "in the content classification, and external-content is "
+                "counted in runtime metrics."
             ),
             "semantic_slice": (
                 "Fine-grained slices require a heading, byte-range, "

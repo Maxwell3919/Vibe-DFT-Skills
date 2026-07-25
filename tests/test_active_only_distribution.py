@@ -196,34 +196,149 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 subjects=subjects,
             )
         )
+        source_inventory = {
+            "a": {
+                "disposition": "included",
+                "source_identity": {
+                    "content_mode": "external-content",
+                    "locator": "https://docs.example.org/a.rst",
+                    "receipt": {
+                        "sha256": "c" * 64,
+                        "bytes": 1024,
+                    },
+                },
+            },
+            "b": {
+                "disposition": "included",
+                "source_identity": {
+                    "content_mode": "external-content",
+                    "locator": "https://docs.example.org/b.rst",
+                    "receipt": {
+                        "sha256": "d" * 64,
+                        "bytes": 128,
+                    },
+                },
+            },
+            "c": {
+                "disposition": "excluded",
+                "source_identity": {
+                    "content_mode": "metadata-only",
+                    "locator": "https://docs.example.org/c.json",
+                    "identity": {
+                        "sha256": "e" * 64,
+                        "bytes": 16,
+                    },
+                },
+            },
+        }
+        manifest_sources = {
+            "b": {
+                "source_identity": source_inventory["b"]["source_identity"],
+            }
+        }
+        manifest_sources_mismatch = {
+            "b": {
+                "source_identity": {
+                    "content_mode": "external-content",
+                    "locator": "https://docs.example.org/b.rst",
+                    "receipt": {
+                        "sha256": "f" * 64,
+                        "bytes": 128,
+                    },
+                }
+            }
+        }
+        manifest_sources_complete = {
+            "a": {
+                "source_identity": source_inventory["a"]["source_identity"],
+            },
+            "b": {
+                "source_identity": source_inventory["b"]["source_identity"],
+            },
+        }
         self.assertTrue(
             distribution._slice_source_inventory_valid(
-                [
-                    {"source_id": "a", "identity": {"kind": "sha256"}},
-                    {"source_id": "b", "identity": {"kind": "sha256"}},
-                ],
-                [
-                    {
-                        "source_id": "b",
-                        "source_identity": {"kind": "sha256"},
-                    }
-                ],
+                source_inventory,
+                manifest_sources,
                 status="partial",
             )
         )
         self.assertFalse(
             distribution._slice_source_inventory_valid(
-                [
-                    {"source_id": "a", "identity": {"kind": "sha256"}},
-                    {"source_id": "b", "identity": {"kind": "sha256"}},
-                ],
-                [
-                    {
-                        "source_id": "b",
-                        "source_identity": {"kind": "sha256"},
-                    }
-                ],
+                source_inventory,
+                manifest_sources_mismatch,
+                status="partial",
+            )
+        )
+        self.assertTrue(
+            distribution._slice_source_inventory_valid(
+                source_inventory,
+                manifest_sources,
+                status="partial",
+            )
+        )
+        self.assertFalse(
+            distribution._slice_source_inventory_valid(
+                source_inventory,
+                manifest_sources,
                 status="complete",
+            )
+        )
+        self.assertTrue(
+            distribution._slice_source_inventory_valid(
+                source_inventory,
+                {
+                    "a": {
+                        "source_identity": source_inventory["a"]["source_identity"],
+                    },
+                    "b": {
+                        "source_identity": source_inventory["b"]["source_identity"],
+                    },
+                },
+                status="complete",
+            )
+        )
+        self.assertTrue(
+            distribution._corpus_source_partition_valid(
+                {
+                    "a": {
+                        "disposition": "included",
+                        "source_identity": source_inventory["a"]["source_identity"],
+                    },
+                    "b": {
+                        "disposition": "included",
+                        "source_identity": source_inventory["b"]["source_identity"],
+                    },
+                    "c": {
+                        "disposition": "excluded",
+                        "source_identity": source_inventory["c"]["source_identity"],
+                    },
+                },
+            )
+        )
+        self.assertFalse(
+            distribution._corpus_source_partition_valid(
+                {
+                    "a": {
+                        "disposition": "included",
+                        "source_identity": source_inventory["a"]["source_identity"],
+                    },
+                    "b": {
+                        "disposition": "unknown",
+                        "source_identity": source_inventory["b"]["source_identity"],
+                    },
+                },
+            )
+        )
+        # A tagged total map does not require both dispositions to be present.
+        self.assertTrue(
+            distribution._corpus_source_partition_valid(
+                {"a": {"disposition": "included"}, "b": {"disposition": "excluded"}},
+            )
+        )
+        self.assertTrue(
+            distribution._corpus_source_partition_valid(
+                {"a": {"disposition": "included"}, "b": {"disposition": "included"}},
             )
         )
         self.assertEqual(
@@ -232,20 +347,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 "compatibility/path",
             ),
             "nested/record.data",
-        )
-        self.assertTrue(
-            distribution._corpus_source_partition_valid(
-                ["included"],
-                ["excluded"],
-                ["excluded", "included"],
-            )
-        )
-        self.assertFalse(
-            distribution._corpus_source_partition_valid(
-                ["included"],
-                ["excluded"],
-                ["included", "included"],
-            )
         )
         oversized_bundle = distribution._json_bytes(
             {"payload": "x" * distribution.MAX_BUNDLE_BYTES}
@@ -285,117 +386,535 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             "SLICE_RANGE_INVALID",
         )
 
-    def test_portable_canonical_context_tracks_only_consumed_receipts_per_call(
+    def test_active_pack_protocol_uses_exact_v11_record_families(self) -> None:
+        self.assertEqual(
+            distribution.PACK_RECORD_FAMILIES,
+            {
+                "corpora": ("official-corpus-manifest@1.1", "corpus_id"),
+                "slice_manifests": (
+                    "document-slice-manifest@1.1",
+                    "slice_manifest_id",
+                ),
+                "scope_inventory": (
+                    "skill-document-scope-inventory@1.0",
+                    "inventory_id",
+                ),
+                "coverage": (
+                    "skill-document-coverage@1.1",
+                    "coverage_id",
+                ),
+            },
+        )
+
+    def test_embedded_source_identity_uses_real_local_bytes_hash_and_path(
         self,
     ) -> None:
-        selection = distribution.collect_source_selection(ROOT)
+        authority: dict[str, object] = {}
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            for relative, raw in selection.files.items():
-                target = root / relative
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(raw)
-            pack_root = (
-                root
-                / "skills"
-                / "cif-structure-analysis"
-                / "references"
-                / "official-source-pack"
-            )
-            bundle = json.loads((pack_root / "bundle.json").read_bytes())[
-                "records"
-            ]
-            target_relative = "skills/cif-structure-analysis/SKILL.md"
-            target_path = root / target_relative
-            target_raw = target_path.read_bytes()
-            receipts = {
-                str(item["path"]): dict(item)
-                for item in selection.excluded_legacy_artifacts
+            payload = b"exact embedded bytes"
+            relative = "content/manual.txt"
+            target = root / relative
+            target.parent.mkdir(parents=True)
+            target.write_bytes(payload)
+
+            def findings_for(identity: dict[str, object]) -> set[str]:
+                findings: list[coverage_validator.Finding] = []
+                coverage_validator._source_inventory_v11_entries(
+                    {
+                        "source-one": {
+                            "disposition": "included",
+                            "source_identity": identity,
+                        }
+                    },
+                    authority=authority,
+                    location="corpus/test",
+                    source_root=root,
+                    findings=findings,
+                )
+                return {finding.code for finding in findings}
+
+            valid_identity = {
+                "content_mode": "embedded-content",
+                "locator": relative,
+                "sha256": distribution._sha256(payload),
+                "bytes": len(payload),
             }
-            receipts[target_relative] = {
+            self.assertFalse(
+                {
+                    "CORPUS_SOURCE_CONTENT_UNAVAILABLE",
+                    "CORPUS_SOURCE_CONTENT_HASH_MISMATCH",
+                    "CORPUS_SOURCE_CONTENT_BYTES_MISMATCH",
+                }
+                & findings_for(valid_identity)
+            )
+            for field, value, expected in (
+                (
+                    "locator",
+                    "content/missing.txt",
+                    "CORPUS_SOURCE_CONTENT_UNAVAILABLE",
+                ),
+                (
+                    "sha256",
+                    "0" * 64,
+                    "CORPUS_SOURCE_CONTENT_HASH_MISMATCH",
+                ),
+                (
+                    "bytes",
+                    len(payload) + 1,
+                    "CORPUS_SOURCE_CONTENT_BYTES_MISMATCH",
+                ),
+            ):
+                with self.subTest(field=field):
+                    malformed = dict(valid_identity)
+                    malformed[field] = value
+                    self.assertIn(expected, findings_for(malformed))
+
+    def test_external_backed_metadata_slice_binds_locator_and_authority(
+        self,
+    ) -> None:
+        source_locator = "https://docs.example.org/manual.html"
+        authority = {
+            "allowed_https_origins": ["https://docs.example.org"],
+            "content_policy": {
+                "source_kinds": [],
+                "allowed_path_prefixes": ["/"],
+                "query_policy": "forbidden",
+                "allowed_query_urls": [],
+                "fragment_policy": "forbidden",
+            },
+        }
+        source_identity = {
+            "content_mode": "external-content",
+            "locator": source_locator,
+            "receipt": {
+                "retrieval_method": "https-get",
+                "retrieved_utc": "2026-07-25T00:00:00Z",
+                "raw_sha256": "1" * 64,
+                "raw_bytes": 4,
+            },
+        }
+
+        authority_findings: list[coverage_validator.Finding] = []
+        coverage_validator._source_inventory_v11_entries(
+            {
+                "source-one": {
+                    "disposition": "included",
+                    "source_identity": source_identity,
+                }
+            },
+            authority=authority,
+            location="corpus/test",
+            source_root=ROOT,
+            findings=authority_findings,
+        )
+        self.assertNotIn(
+            "CORPUS_SOURCE_LOCATOR_MISMATCH",
+            {finding.code for finding in authority_findings},
+        )
+        off_authority = {
+            **source_identity,
+            "locator": "https://other.example.org/manual.html",
+        }
+        authority_findings = []
+        coverage_validator._source_inventory_v11_entries(
+            {
+                "source-one": {
+                    "disposition": "included",
+                    "source_identity": off_authority,
+                }
+            },
+            authority=authority,
+            location="corpus/test",
+            source_root=ROOT,
+            findings=authority_findings,
+        )
+        self.assertIn(
+            "CORPUS_SOURCE_LOCATOR_MISMATCH",
+            {finding.code for finding in authority_findings},
+        )
+
+        def slice_findings(locator: str) -> set[str]:
+            corpus_data = {
+                "corpus_id": "corpus-one",
+                "status": "partial",
+                "source_inventory": {
+                    "source-one": {
+                        "disposition": "included",
+                        "source_identity": source_identity,
+                        "loss_ids": [],
+                    }
+                },
+            }
+            corpus_raw = distribution._json_bytes(corpus_data)
+            corpus = coverage_validator.LoadedRecord(
+                path=Path("corpus.json"),
+                raw_sha256=distribution._sha256(corpus_raw),
+                data=corpus_data,
+            )
+            slices = [
+                {
+                    "slice_id": "slice-one",
+                    "selector": {
+                        "layer": "raw-source",
+                        "kind": "byte-range",
+                        "value": "0:2",
+                    },
+                    "raw_byte_range": {
+                        "start_byte": 0,
+                        "byte_count": 2,
+                    },
+                    "content": {
+                        "content_mode": "metadata-only",
+                        "locator": locator,
+                        "identity": {
+                            "sha256": "2" * 64,
+                            "bytes": 2,
+                        },
+                        "hash_basis": "metadata-identity-bytes",
+                    },
+                    "subject_ids": [],
+                    "loss_accounting": {
+                        "closure_status": "complete",
+                        "entries": [],
+                    },
+                }
+            ]
+            source_accounting = {
+                "closure_status": "complete",
+                "entries": [],
+            }
+            processor_output = (
+                coverage_validator._canonical_json_sha256(
+                    {
+                        "slices": slices,
+                        "source_loss_accounting": source_accounting,
+                    }
+                )
+            )
+            slice_data = {
+                "slice_manifest_id": "slices-one",
+                "corpus_ref": {
+                    "corpus_id": "corpus-one",
+                    "sha256": corpus.raw_sha256,
+                },
+                "status": "partial",
+                "sources": {
+                    "source-one": {
+                        "source_identity": source_identity,
+                        "raw_source_extent_bytes": 4,
+                        "processor": {
+                            "processor_id": "fixture-transformer",
+                            "processor_version": "1.0",
+                            "assurance_mode": "unverified",
+                            "input_sha256": "1" * 64,
+                            "output_sha256": processor_output,
+                            "deterministic": True,
+                            "attestations": [],
+                        },
+                        "slices": slices,
+                        "source_loss_accounting": source_accounting,
+                    }
+                },
+                "blockers": [],
+            }
+            record_raw = distribution._json_bytes(slice_data)
+            record = coverage_validator.LoadedRecord(
+                path=Path("slices.json"),
+                raw_sha256=distribution._sha256(record_raw),
+                data=slice_data,
+            )
+            findings: list[coverage_validator.Finding] = []
+            coverage_validator._slice_manifest_findings(
+                record,
+                corpora={"corpus-one": corpus},
+                authorities={},
+                authority_projection={},
+                consumer_registry={"processors": {}},
+                consumer_registry_sha256="3" * 64,
+                source_root=ROOT,
+                repository_root=ROOT,
+                findings=findings,
+            )
+            return {finding.code for finding in findings}
+
+        self.assertNotIn(
+            "SLICE_CONTENT_MODE_MISMATCH",
+            slice_findings(source_locator),
+        )
+        self.assertIn(
+            "SLICE_CONTENT_MODE_MISMATCH",
+            slice_findings("https://docs.example.org/other.html"),
+        )
+
+    def _processor_validation_fixture(
+        self,
+        root: Path,
+        *,
+        kind: str,
+        duplicate_run: bool,
+    ) -> tuple[
+        list[dict[str, object]],
+        dict[str, dict[str, object]],
+        frozenset[str],
+    ]:
+        payloads = {
+            "artifacts/implementation.py": b"# implementation\n",
+            "artifacts/configuration.json": b"{}\n",
+            "artifacts/dependencies.lock": b"fixture==1.0\n",
+            "artifacts/run.json": b'{"attested":true}\n',
+        }
+        for relative, payload in payloads.items():
+            target = root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+
+        def ref(path: str, *, include_bytes: bool) -> dict[str, object]:
+            payload = payloads[path]
+            identity: dict[str, object] = {
+                "path": path,
+                "sha256": distribution._sha256(payload),
+            }
+            if include_bytes:
+                identity["bytes"] = len(payload)
+            return identity
+
+        processor_id = f"fixture-{kind}"
+        input_sha256 = "4" * 64
+        output_sha256 = "5" * 64
+        central_refs = {
+            "implementation_ref": ref(
+                "artifacts/implementation.py",
+                include_bytes=False,
+            ),
+            "configuration_ref": ref(
+                "artifacts/configuration.json",
+                include_bytes=False,
+            ),
+            "dependency_lock_ref": ref(
+                "artifacts/dependencies.lock",
+                include_bytes=False,
+            ),
+        }
+        run = {
+            "attestation_id": "run-one",
+            "input_sha256": input_sha256,
+            "output_sha256": output_sha256,
+            "attestation_ref": ref(
+                "artifacts/run.json",
+                include_bytes=False,
+            ),
+        }
+        processors = {
+            processor_id: {
+                "kind": kind,
+                "version": "1.0",
+                **central_refs,
+                "attested_runs": [
+                    dict(run)
+                    for _ in range(2 if duplicate_run else 1)
+                ],
+            }
+        }
+        if kind == "enumerator":
+            processor = {
+                "processor_id": processor_id,
+                "processor_version": "1.0",
+                "assurance_mode": "attested",
+                **{
+                    field: ref(
+                        str(reference["path"]),
+                        include_bytes=True,
+                    )
+                    for field, reference in central_refs.items()
+                },
+                "input_sha256": input_sha256,
+                "output_sha256": output_sha256,
+                "attestation_id": "run-one",
+                "deterministic": True,
+            }
+            records = [
+                {
+                    "contract_name": "official-corpus-manifest",
+                    "corpus_id": "corpus-one",
+                    "status": "partial",
+                    "discovery": {"processor": processor},
+                }
+            ]
+        elif kind == "transformer":
+            attestation_specs = (
+                (
+                    "implementation",
+                    "implementation-one",
+                    "artifacts/implementation.py",
+                ),
+                (
+                    "configuration",
+                    "configuration-one",
+                    "artifacts/configuration.json",
+                ),
+                (
+                    "dependency-lock",
+                    "dependency-one",
+                    "artifacts/dependencies.lock",
+                ),
+                ("execution", "run-one", "artifacts/run.json"),
+            )
+            processor = {
+                "processor_id": processor_id,
+                "processor_version": "1.0",
+                "assurance_mode": "attested",
+                "input_sha256": input_sha256,
+                "output_sha256": output_sha256,
+                "deterministic": True,
+                "attestations": [
+                    {
+                        "kind": attestation_kind,
+                        "attestation_id": attestation_id,
+                        "artifact": ref(path, include_bytes=True),
+                    }
+                    for attestation_kind, attestation_id, path in attestation_specs
+                ],
+            }
+            records = [
+                {
+                    "contract_name": "document-slice-manifest",
+                    "slice_manifest_id": "slices-one",
+                    "status": "partial",
+                    "sources": {
+                        "source-one": {
+                            "processor": processor,
+                        }
+                    },
+                }
+            ]
+        else:
+            processor = {
+                "tool_id": processor_id,
+                "tool_version": "1.0",
+                "trust_mode": "platform-attested",
+                **central_refs,
+                "input_sha256": input_sha256,
+                "output_sha256": output_sha256,
+                "attestation_id": "run-one",
+                "deterministic": True,
+            }
+            records = [
+                {
+                    "contract_name": "skill-document-scope-inventory",
+                    "inventory_id": "scope-one",
+                    "status": "partial",
+                    "enumeration": {"extractor": processor},
+                }
+            ]
+        return records, processors, frozenset(payloads)
+
+    def test_three_processor_classes_reject_duplicate_attested_run(
+        self,
+    ) -> None:
+        for kind in ("enumerator", "transformer", "extractor"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                records, processors, manifest_paths = (
+                    self._processor_validation_fixture(
+                        root,
+                        kind=kind,
+                        duplicate_run=True,
+                    )
+                )
+                with self.assertRaisesRegex(
+                    distribution.DistributionError,
+                    "duplicate central runs",
+                ):
+                    distribution._validate_pack_processor_refs(
+                        root,
+                        records,
+                        processors=processors,
+                        manifest_paths=manifest_paths,
+                    )
+
+    def test_platform_attested_extractor_is_valid_under_partial_status(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            records, processors, manifest_paths = (
+                self._processor_validation_fixture(
+                    root,
+                    kind="extractor",
+                    duplicate_run=False,
+                )
+            )
+            self.assertIsNone(
+                distribution._validate_pack_processor_refs(
+                    root,
+                    records,
+                    processors=processors,
+                    manifest_paths=manifest_paths,
+                )
+            )
+
+    def test_portable_context_tracks_only_locally_consumed_receipts(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target_relative = "skills/fixture/SKILL.md"
+            target_path = root / target_relative
+            target_raw = b"# Fixture\n"
+            receipt = {
                 "path": target_relative,
                 "sha256": distribution._sha256(target_raw),
                 "size": len(target_raw),
             }
-            context = coverage_validator.PortableValidationContext(
-                repository_root=root,
-                contracts_directory=root / "contracts",
-                interface_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/interface-registry.yaml"
-                    )
-                ),
-                authority_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/official-source-authorities.yaml"
-                    )
-                ),
-                software_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/software-registry.yaml"
-                    )
-                ),
-                skill_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/skill-registry.yaml"
-                    )
-                ),
-                consumer_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/official-document-consumers.yaml"
-                    )
-                ),
-                externalized_receipts=receipts,
-            )
 
-            def validate():
-                return coverage_validator.validate_files(
-                    corpus_paths=[
-                        pack_root / name for name in bundle["corpora"]
-                    ],
-                    slice_paths=[
-                        pack_root / name
-                        for name in bundle["slice_manifests"]
-                    ],
-                    license_review_paths=[
-                        pack_root / name
-                        for name in bundle["license_reviews"]
-                    ],
-                    scope_inventory_path=(
-                        pack_root / bundle["scope_inventory"]
-                    ),
-                    coverage_path=pack_root / bundle["coverage"],
-                    source_root=root,
-                    portable_context=context,
+            def context() -> coverage_validator.PortableValidationContext:
+                return coverage_validator.PortableValidationContext(
+                    repository_root=root,
+                    contracts_directory=root / "contracts",
+                    interface_registry_path=root / "registry/interface.yaml",
+                    authority_registry_path=root / "registry/authority.yaml",
+                    software_registry_path=root / "registry/software.yaml",
+                    skill_registry_path=root / "registry/skills.yaml",
+                    consumer_registry_path=root / "registry/consumers.yaml",
+                    externalized_receipts={target_relative: receipt},
                 )
 
-            target_path.unlink()
-            missing_result = validate()
-            self.assertEqual(missing_result.findings, ())
-            self.assertEqual(missing_result.assurance_status, "partial")
-            self.assertIn(
+            missing_context = context()
+            missing_findings: list[coverage_validator.Finding] = []
+            missing = coverage_validator._safe_local_bytes(
+                root,
                 target_relative,
-                missing_result.externalized_paths,
+                location="fixture/source",
+                findings=missing_findings,
+                failure_code="FIXTURE_UNAVAILABLE",
+                portable_context=missing_context,
             )
-            self.assertLess(
-                len(missing_result.externalized_paths),
-                len(receipts),
+            self.assertIsInstance(
+                missing,
+                coverage_validator.ExternalizedArtifact,
             )
-            self.assertEqual(context.used_externalized_paths, set())
+            self.assertEqual(missing_findings, [])
+            self.assertEqual(
+                missing_context.used_externalized_paths,
+                {target_relative},
+            )
 
+            target_path.parent.mkdir(parents=True)
             target_path.write_bytes(target_raw)
-            present_result = validate()
-            self.assertEqual(present_result.findings, ())
-            self.assertNotIn(
+            present_context = context()
+            present_findings: list[coverage_validator.Finding] = []
+            present = coverage_validator._safe_local_bytes(
+                root,
                 target_relative,
-                present_result.externalized_paths,
+                location="fixture/source",
+                findings=present_findings,
+                failure_code="FIXTURE_UNAVAILABLE",
+                portable_context=present_context,
             )
-            self.assertEqual(context.used_externalized_paths, set())
+            self.assertEqual(present, target_raw)
+            self.assertEqual(present_findings, [])
+            self.assertEqual(present_context.used_externalized_paths, set())
 
     def test_synthetic_noncontract_pack_is_rejected_by_unpack_verification(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1396,7 +1915,7 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             for registry_path in distribution.SOURCE_REGISTRY_PATHS
         }
         interface = loaded["registry/interface-registry.yaml"]["interfaces"][
-            "official-corpus-manifest@1.0"
+            "official-corpus-manifest@1.1"
         ]
         interface["lifecycle"] = "planned"
         interface["schema_path"] = None
@@ -1561,16 +2080,21 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
         coverage_path = f"{pack_root}coverage.json"
         scope_path = f"{pack_root}scope-inventory.json"
         corpus_path = f"{pack_root}corpus-ase-3-29.json"
-        license_path = f"{pack_root}license-review-ase-3-29.json"
         slice_path = f"{pack_root}slices-ase-3-29.json"
         for case, message in (
-            ("official-disposition", "confuses official and local evidence"),
+            ("official-disposition", "has invalid coverage logic"),
             ("scope-output", "scope extractor receipt"),
-            ("slice-output", "slice transformer receipt"),
-            ("cross-skill-local-evidence", "outside the exact Skill source"),
-            ("corpus-url", "exceeds its authority policy"),
-            ("corpus-partition", "source universe or authority scope"),
-            ("license-storage", "central authority ceiling"),
+            ("slice-output", "processor does not bind exact IO"),
+            ("cross-skill-local-evidence", "subject origin .* does not resolve"),
+            (
+                "corpus-url",
+                "external source identity locator is invalid",
+            ),
+            (
+                "corpus-source-linkage",
+                "slice manifest includes source IDs outside the referenced "
+                "corpus included set",
+            ),
         ):
             with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
                 files = dict(selection.files)
@@ -1578,11 +2102,18 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 if case == "official-disposition":
                     mapping = next(
                         item
-                        for item in coverage["mappings"]
-                        if item["coverage_status"] == "partial"
-                        and item["official_disposition"] == "partial"
+                        for item in coverage["mappings"].values()
+                        if item["mapping_status"] == "partial"
+                        and item["disposition"] == "partial"
                     )
-                    mapping["official_disposition"] = "covered"
+                    mapping.update(
+                        {
+                            "disposition": "not-applicable",
+                            "limitations": [],
+                            "mapping_status": "complete",
+                            "slice_refs": [],
+                        }
+                    )
                 elif case == "scope-output":
                     scope = json.loads(files[scope_path])
                     scope["enumeration"]["extractor"]["output_sha256"] = "3" * 64
@@ -1592,7 +2123,9 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                     )
                 elif case == "slice-output":
                     slices = json.loads(files[slice_path])
-                    slices["sources"][0]["transformer"]["output_sha256"] = "4" * 64
+                    next(iter(slices["sources"].values()))["processor"][
+                        "output_sha256"
+                    ] = "4" * 64
                     files[slice_path] = distribution._json_bytes(slices)
                     slice_id = slices["slice_manifest_id"]
                     next(
@@ -1601,37 +2134,46 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                         if item["slice_manifest_id"] == slice_id
                     )["sha256"] = distribution._sha256(files[slice_path])
                 elif case == "cross-skill-local-evidence":
-                    mapping = next(
+                    scope = json.loads(files[scope_path])
+                    subject = next(
                         item
-                        for item in coverage["mappings"]
-                        if item["official_disposition"] == "not-applicable"
+                        for item in scope["subjects"]
+                        if item["evidence_class"] != "official-provider-required"
                     )
                     external_path = "tools/strict_json.py"
-                    mapping["local_evidence_refs"] = [
-                        {
-                            "path": external_path,
-                            "sha256": distribution._sha256(
-                                files[external_path]
-                            ),
-                        }
-                    ]
-                elif case in {"corpus-url", "corpus-partition"}:
+                    subject["origin_refs"][0] = {
+                        "path": external_path,
+                        "selector": {
+                            "kind": "whole-file",
+                            "value": "*",
+                        },
+                        "sha256": distribution._sha256(files[external_path]),
+                    }
+                    scope["enumeration"]["extractor"]["output_sha256"] = (
+                        distribution._canonical_projection_sha256(
+                            scope["subjects"]
+                        )
+                    )
+                    files[scope_path] = distribution._json_bytes(scope)
+                    coverage["scope_inventory_ref"]["sha256"] = (
+                        distribution._sha256(files[scope_path])
+                    )
+                elif case in {"corpus-url", "corpus-source-linkage"}:
                     corpus = json.loads(files[corpus_path])
+                    source_id = next(iter(corpus["source_inventory"]))
                     if case == "corpus-url":
-                        corpus["included_sources"][0]["locator"] = (
+                        corpus["source_inventory"][source_id][
+                            "source_identity"
+                        ]["locator"] = (
                             "https://example.com/forged-official-doc"
                         )
                     else:
-                        del corpus["discovery"]["discovered_source_ids"][0]
-                        corpus["discovery"]["enumerator"]["output_sha256"] = (
-                            distribution._canonical_projection_sha256(
-                                {
-                                    "discovered_source_ids": corpus[
-                                        "discovery"
-                                    ]["discovered_source_ids"]
-                                }
-                            )
+                        del corpus["source_inventory"][source_id]
+                    corpus["discovery"]["processor"]["output_sha256"] = (
+                        distribution._canonical_projection_sha256(
+                            corpus["source_inventory"]
                         )
+                    )
                     files[corpus_path] = distribution._json_bytes(corpus)
                     corpus_sha = distribution._sha256(files[corpus_path])
                     corpus_id = corpus["corpus_id"]
@@ -1642,6 +2184,25 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                     )["sha256"] = corpus_sha
                     slices = json.loads(files[slice_path])
                     slices["corpus_ref"]["sha256"] = corpus_sha
+                    if case == "corpus-url":
+                        slice_source = slices["sources"][source_id]
+                        slice_source["source_identity"] = corpus[
+                            "source_inventory"
+                        ][source_id]["source_identity"]
+                        for item in slice_source["slices"]:
+                            item["content"]["locator"] = corpus[
+                                "source_inventory"
+                            ][source_id]["source_identity"]["locator"]
+                        slice_source["processor"]["output_sha256"] = (
+                            distribution._canonical_projection_sha256(
+                                {
+                                    "slices": slice_source["slices"],
+                                    "source_loss_accounting": slice_source[
+                                        "source_loss_accounting"
+                                    ],
+                                }
+                            )
+                        )
                     files[slice_path] = distribution._json_bytes(slices)
                     next(
                         item
@@ -1649,27 +2210,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                         if item["slice_manifest_id"]
                         == slices["slice_manifest_id"]
                     )["sha256"] = distribution._sha256(files[slice_path])
-                    review = json.loads(files[license_path])
-                    review["corpus_ref"]["sha256"] = corpus_sha
-                    files[license_path] = distribution._json_bytes(review)
-                    next(
-                        item
-                        for item in coverage["license_review_refs"]
-                        if item["license_review_id"]
-                        == review["license_review_id"]
-                    )["sha256"] = distribution._sha256(files[license_path])
-                else:
-                    review = json.loads(files[license_path])
-                    review["storage_rules"][0][
-                        "allowed_storage_modes"
-                    ] = ["embedded-open"]
-                    files[license_path] = distribution._json_bytes(review)
-                    next(
-                        item
-                        for item in coverage["license_review_refs"]
-                        if item["license_review_id"]
-                        == review["license_review_id"]
-                    )["sha256"] = distribution._sha256(files[license_path])
                 files[coverage_path] = distribution._json_bytes(coverage)
                 archive = Path(temporary) / f"{case}.tar"
                 distribution.write_distribution_archive(
@@ -1700,7 +2240,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
         coverage_path = f"{pack_root}coverage.json"
         scope_path = f"{pack_root}scope-inventory.json"
         corpus_path = f"{pack_root}corpus-ase-3-29.json"
-        license_path = f"{pack_root}license-review-ase-3-29.json"
         slice_path = f"{pack_root}slices-ase-3-29.json"
 
         def update_slice(
@@ -1708,18 +2247,15 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             coverage: dict[str, object],
             slices: dict[str, object],
         ) -> None:
-            for source in slices["sources"]:
+            for source in slices["sources"].values():
                 projection = {
                     key: source[key]
                     for key in (
                         "slices",
-                        "reviewed_overlaps",
-                        "preserved_ranges",
-                        "reviewed_orphans",
-                        "loss_ledger",
+                        "source_loss_accounting",
                     )
                 }
-                source["transformer"]["output_sha256"] = (
+                source["processor"]["output_sha256"] = (
                     distribution._canonical_projection_sha256(projection)
                 )
             files[slice_path] = distribution._json_bytes(slices)
@@ -1738,7 +2274,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 distribution._canonical_projection_sha256(scope["subjects"])
             )
             files[scope_path] = distribution._json_bytes(scope)
-            coverage["declared_scope"] = scope["subjects"]
             coverage["scope_inventory_ref"]["sha256"] = (
                 distribution._sha256(files[scope_path])
             )
@@ -1763,42 +2298,22 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 for item in coverage["slice_manifest_refs"]
                 if item["slice_manifest_id"] == slices["slice_manifest_id"]
             )["sha256"] = distribution._sha256(files[slice_path])
-            review = json.loads(files[license_path])
-            review["corpus_ref"]["sha256"] = corpus_sha
-            files[license_path] = distribution._json_bytes(review)
-            next(
-                item
-                for item in coverage["license_review_refs"]
-                if item["license_review_id"] == review["license_review_id"]
-            )["sha256"] = distribution._sha256(files[license_path])
-
-        def update_license(
-            files: dict[str, bytes],
-            coverage: dict[str, object],
-            review: dict[str, object],
-        ) -> None:
-            files[license_path] = distribution._json_bytes(review)
-            next(
-                item
-                for item in coverage["license_review_refs"]
-                if item["license_review_id"] == review["license_review_id"]
-            )["sha256"] = distribution._sha256(files[license_path])
 
         cases = (
-            ("slice-order", "SLICE_ORDER_INVALID"),
-            ("slice-receipt-url", "SLICE_EXTERNAL_RECEIPT_INVALID"),
+            ("slice-full-extent", "whole-source requires full extent"),
+            (
+                "slice-content-locator",
+                "content locator must match corpus source locator",
+            ),
             ("scope-origin-selector", "SCOPE_SUBJECT_ORIGIN_INVALID"),
             ("corpus-blocker-overclaim", "COMPLETENESS_STATUS_OVERCLAIM"),
-            ("license-evidence-ref", "LICENSE_EVIDENCE_REF_INVALID"),
-            ("license-self-supersession", "LICENSE_SUPERSESSION_INVALID"),
-            ("slice-artifact-license-lane", "LICENSE_STORAGE_RULE_MISSING"),
             (
-                "corpus-self-asserted-universe",
-                "CORPUS_CATALOG_SELF_ASSERTED_UNIVERSE",
+                "corpus-self-asserted-complete",
+                "processor cannot claim complete under unverified mode",
             ),
             (
-                "corpus-authority-revision",
-                "AUTHORITY_DISCOVERY_REVISION_MISMATCH",
+                "corpus-version-scope",
+                "source universe or authority scope is not exact",
             ),
         )
         for case, expected_code in cases:
@@ -1806,20 +2321,21 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 files = dict(selection.files)
                 coverage = json.loads(files[coverage_path])
                 if case in {
-                    "slice-order",
-                    "slice-receipt-url",
-                    "slice-artifact-license-lane",
+                    "slice-full-extent",
+                    "slice-content-locator",
                 }:
                     slices = json.loads(files[slice_path])
-                    first_slice = slices["sources"][0]["slices"][0]
-                    if case == "slice-order":
-                        first_slice["ordinal"] = 7
-                    elif case == "slice-receipt-url":
-                        first_slice["content_receipt"]["canonical_url"] = (
-                            "https://example.com/forged-receipt"
+                    first_source = next(iter(slices["sources"].values()))
+                    first_slice = first_source["slices"][0]
+                    if case == "slice-full-extent":
+                        first_slice["raw_byte_range"]["start_byte"] = 1
+                        first_slice["raw_byte_range"]["byte_count"] = (
+                            first_source["raw_source_extent_bytes"] - 1
                         )
                     else:
-                        first_slice["artifact_kind"] = "image"
+                        first_slice["content"]["locator"] = (
+                            "https://example.com/forged-receipt"
+                        )
                     update_slice(files, coverage, slices)
                 elif case == "scope-origin-selector":
                     scope = json.loads(files[scope_path])
@@ -1827,20 +2343,6 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                         "value"
                     ] = "not-star"
                     update_scope(files, coverage, scope)
-                elif case in {
-                    "license-evidence-ref",
-                    "license-self-supersession",
-                }:
-                    review = json.loads(files[license_path])
-                    if case == "license-evidence-ref":
-                        review["storage_rules"][0][
-                            "license_evidence_refs"
-                        ] = ["missing-license-evidence"]
-                    else:
-                        review["supersedes_review_ids"] = [
-                            review["license_review_id"]
-                        ]
-                    update_license(files, coverage, review)
                 else:
                     corpus = json.loads(files[corpus_path])
                     if case == "corpus-blocker-overclaim":
@@ -1850,19 +2352,19 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                                 "description": (
                                     "Synthetic blocker proves status ceiling replay."
                                 ),
+                                "dimension": "inventory",
                             }
                         )
-                    elif case == "corpus-self-asserted-universe":
+                    elif case == "corpus-self-asserted-complete":
                         corpus["discovery"][
                             "upstream_universe_complete"
                         ] = True
                         corpus["discovery"]["inventory_scope"] = (
                             "upstream-universe"
                         )
+                        corpus["status"] = "complete"
                     else:
-                        corpus["discovery"]["authority_revision"] = (
-                            "forged-revision"
-                        )
+                        corpus["version_scope"]["value"] = "forged-version"
                     update_corpus(files, coverage, corpus)
                 files[coverage_path] = distribution._json_bytes(coverage)
                 archive = Path(temporary) / f"{case}.tar"
