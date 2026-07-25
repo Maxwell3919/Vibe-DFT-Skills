@@ -25,7 +25,7 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
         digest.update(raw)
         return digest.hexdigest()
 
-    def test_live_worktree_matches_candidate_inventory_and_is_release_blocked(self) -> None:
+    def test_live_worktree_is_identity_valid_but_requires_v11_migration(self) -> None:
         report = storage_gate.audit_repository(ROOT)
 
         self.assertEqual(report.invalid_findings, ())
@@ -39,9 +39,14 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
         )
         self.assertEqual(report.artifact_bytes, 13_412_851)
         self.assertEqual(report.forbidden_path_count, 2075)
+        self.assertEqual(report.release_blocking_path_count, 2075)
         self.assertEqual(report.worktree_drift_findings, ())
         self.assertEqual(storage_gate.exit_code(report, strict_release=False), 0)
         self.assertEqual(storage_gate.exit_code(report, strict_release=True), 3)
+        self.assertEqual(
+            {result.state for result in report.artifact_sets},
+            {"legacy-technical-migration-required"},
+        )
 
     def test_unclassified_new_official_index_path_is_invalid_not_grandfathered(self) -> None:
         configuration = storage_gate.load_configuration(ROOT)
@@ -80,9 +85,7 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
     def test_same_provider_authorities_are_all_of_and_cannot_overwrite_each_other(self) -> None:
         configuration = storage_gate.load_configuration(ROOT)
         authorities = copy.deepcopy(storage_gate.load_authority_projection(ROOT))
-        authorities["qe-release-source-docs"]["bundle_content_policy"] = (
-            "canonical-pinned-open-only"
-        )
+        authorities["qe-release-source-docs"]["bundle_content_policy"] = object()
         qe_blob = next(
             blob
             for blob in storage_gate.load_git_index(ROOT)
@@ -105,7 +108,7 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
             qe_set.authority_ids,
             ("qe-official-docs", "qe-release-source-docs"),
         )
-        self.assertEqual(qe_set.state, "blocked")
+        self.assertEqual(qe_set.state, "legacy-technical-migration-required")
 
     def test_unknown_or_provider_mismatched_authority_is_invalid(self) -> None:
         configuration = storage_gate.load_configuration(ROOT)

@@ -12,7 +12,7 @@ from typing import Any
 from environment_profiles import validation_errors as environment_validation_errors
 from interface_registry import validation_errors as interface_validation_errors
 from official_source_authorities import (
-    validate_and_project as validate_and_project_authorities,
+    validate_and_project_technical as validate_and_project_authorities,
 )
 from validate_official_document_coverage import (
     consumer_registry_validation_errors,

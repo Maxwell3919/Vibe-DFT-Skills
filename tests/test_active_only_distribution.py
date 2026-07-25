@@ -182,23 +182,6 @@ def synthetic_source_digests(files: dict[str, bytes]) -> dict[str, str]:
 
 
 class ActiveOnlyDistributionTests(unittest.TestCase):
-    def _assert_metadata_only_slice_authority_and_locator(self, *, source_locator: str, slice_locator: str, authority: dict[str, object], selected_identity: dict[str, object]) -> None:
-        if source_locator != slice_locator:
-            raise distribution.DistributionError(
-                "metadata-only slice locator does not match source locator"
-            )
-        if not coverage_validator._url_matches_authority(
-            slice_locator,
-            authority,
-        ):
-            raise distribution.DistributionError(
-                "metadata-only slice locator is outside authority scope"
-            )
-        if not isinstance(selected_identity, dict) or set(selected_identity) != {"sha256", "bytes"}:
-            raise distribution.DistributionError(
-                "metadata-only selected identity is invalid"
-            )
-
     def test_portable_compatibility_semantics_match_canonical_contracts(
         self,
     ) -> None:
@@ -347,13 +330,13 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 },
             )
         )
-        # exact identity: included/excluded partition and complete closure
+        # A tagged total map does not require both dispositions to be present.
         self.assertTrue(
             distribution._corpus_source_partition_valid(
                 {"a": {"disposition": "included"}, "b": {"disposition": "excluded"}},
             )
         )
-        self.assertFalse(
+        self.assertTrue(
             distribution._corpus_source_partition_valid(
                 {"a": {"disposition": "included"}, "b": {"disposition": "included"}},
             )
@@ -402,6 +385,95 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             ),
             "SLICE_RANGE_INVALID",
         )
+
+    def test_active_pack_protocol_uses_exact_v11_record_families(self) -> None:
+        self.assertEqual(
+            distribution.PACK_RECORD_FAMILIES,
+            {
+                "corpora": ("official-corpus-manifest@1.1", "corpus_id"),
+                "slice_manifests": (
+                    "document-slice-manifest@1.1",
+                    "slice_manifest_id",
+                ),
+                "scope_inventory": (
+                    "skill-document-scope-inventory@1.0",
+                    "inventory_id",
+                ),
+                "coverage": (
+                    "skill-document-coverage@1.1",
+                    "coverage_id",
+                ),
+            },
+        )
+
+    def test_embedded_source_identity_uses_real_local_bytes_hash_and_path(
+        self,
+    ) -> None:
+        authority: dict[str, object] = {}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            payload = b"exact embedded bytes"
+            relative = "content/manual.txt"
+            target = root / relative
+            target.parent.mkdir(parents=True)
+            target.write_bytes(payload)
+
+            def findings_for(identity: dict[str, object]) -> set[str]:
+                findings: list[coverage_validator.Finding] = []
+                coverage_validator._source_inventory_v11_entries(
+                    {
+                        "source-one": {
+                            "disposition": "included",
+                            "source_identity": identity,
+                        }
+                    },
+                    authority=authority,
+                    location="corpus/test",
+                    source_root=root,
+                    findings=findings,
+                )
+                return {finding.code for finding in findings}
+
+            valid_identity = {
+                "content_mode": "embedded-content",
+                "locator": relative,
+                "sha256": distribution._sha256(payload),
+                "bytes": len(payload),
+            }
+            self.assertFalse(
+                {
+                    "CORPUS_SOURCE_CONTENT_UNAVAILABLE",
+                    "CORPUS_SOURCE_CONTENT_HASH_MISMATCH",
+                    "CORPUS_SOURCE_CONTENT_BYTES_MISMATCH",
+                }
+                & findings_for(valid_identity)
+            )
+            for field, value, expected in (
+                (
+                    "locator",
+                    "content/missing.txt",
+                    "CORPUS_SOURCE_CONTENT_UNAVAILABLE",
+                ),
+                (
+                    "sha256",
+                    "0" * 64,
+                    "CORPUS_SOURCE_CONTENT_HASH_MISMATCH",
+                ),
+                (
+                    "bytes",
+                    len(payload) + 1,
+                    "CORPUS_SOURCE_CONTENT_BYTES_MISMATCH",
+                ),
+            ):
+                with self.subTest(field=field):
+                    malformed = dict(valid_identity)
+                    malformed[field] = value
+                    self.assertIn(expected, findings_for(malformed))
+
+    def test_external_backed_metadata_slice_binds_locator_and_authority(
+        self,
+    ) -> None:
+        source_locator = "https://docs.example.org/manual.html"
         authority = {
             "allowed_https_origins": ["https://docs.example.org"],
             "content_policy": {
@@ -412,138 +484,437 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
                 "fragment_policy": "forbidden",
             },
         }
-        self.assertRaises(
-            distribution.DistributionError,
-            self._assert_metadata_only_slice_authority_and_locator,
-            source_locator="https://docs.example.org/sources/original.rst",
-            slice_locator="https://docs.example.org/sources/mismatch.json",
+        source_identity = {
+            "content_mode": "external-content",
+            "locator": source_locator,
+            "receipt": {
+                "retrieval_method": "https-get",
+                "retrieved_utc": "2026-07-25T00:00:00Z",
+                "raw_sha256": "1" * 64,
+                "raw_bytes": 4,
+            },
+        }
+
+        authority_findings: list[coverage_validator.Finding] = []
+        coverage_validator._source_inventory_v11_entries(
+            {
+                "source-one": {
+                    "disposition": "included",
+                    "source_identity": source_identity,
+                }
+            },
             authority=authority,
-            selected_identity={"sha256": "9" * 64, "bytes": 16},
+            location="corpus/test",
+            source_root=ROOT,
+            findings=authority_findings,
         )
-        self.assertRaises(
-            distribution.DistributionError,
-            self._assert_metadata_only_slice_authority_and_locator,
-            source_locator="https://docs.example.org/sources/original.rst",
-            slice_locator="https://other.example.org/sources/original.rst",
+        self.assertNotIn(
+            "CORPUS_SOURCE_LOCATOR_MISMATCH",
+            {finding.code for finding in authority_findings},
+        )
+        off_authority = {
+            **source_identity,
+            "locator": "https://other.example.org/manual.html",
+        }
+        authority_findings = []
+        coverage_validator._source_inventory_v11_entries(
+            {
+                "source-one": {
+                    "disposition": "included",
+                    "source_identity": off_authority,
+                }
+            },
             authority=authority,
-            selected_identity={"sha256": "9" * 64, "bytes": 16},
+            location="corpus/test",
+            source_root=ROOT,
+            findings=authority_findings,
         )
-        self.assertIsNone(
-            self._assert_metadata_only_slice_authority_and_locator(
-                source_locator="https://docs.example.org/sources/original.rst",
-                slice_locator="https://docs.example.org/sources/original.rst",
-                authority=authority,
-                selected_identity={"sha256": "9" * 64, "bytes": 16},
-            )
+        self.assertIn(
+            "CORPUS_SOURCE_LOCATOR_MISMATCH",
+            {finding.code for finding in authority_findings},
         )
 
-    def test_portable_canonical_context_tracks_only_consumed_receipts_per_call(
+        def slice_findings(locator: str) -> set[str]:
+            corpus_data = {
+                "corpus_id": "corpus-one",
+                "status": "partial",
+                "source_inventory": {
+                    "source-one": {
+                        "disposition": "included",
+                        "source_identity": source_identity,
+                        "loss_ids": [],
+                    }
+                },
+            }
+            corpus_raw = distribution._json_bytes(corpus_data)
+            corpus = coverage_validator.LoadedRecord(
+                path=Path("corpus.json"),
+                raw_sha256=distribution._sha256(corpus_raw),
+                data=corpus_data,
+            )
+            slices = [
+                {
+                    "slice_id": "slice-one",
+                    "selector": {
+                        "layer": "raw-source",
+                        "kind": "byte-range",
+                        "value": "0:2",
+                    },
+                    "raw_byte_range": {
+                        "start_byte": 0,
+                        "byte_count": 2,
+                    },
+                    "content": {
+                        "content_mode": "metadata-only",
+                        "locator": locator,
+                        "identity": {
+                            "sha256": "2" * 64,
+                            "bytes": 2,
+                        },
+                        "hash_basis": "metadata-identity-bytes",
+                    },
+                    "subject_ids": [],
+                    "loss_accounting": {
+                        "closure_status": "complete",
+                        "entries": [],
+                    },
+                }
+            ]
+            source_accounting = {
+                "closure_status": "complete",
+                "entries": [],
+            }
+            processor_output = (
+                coverage_validator._canonical_json_sha256(
+                    {
+                        "slices": slices,
+                        "source_loss_accounting": source_accounting,
+                    }
+                )
+            )
+            slice_data = {
+                "slice_manifest_id": "slices-one",
+                "corpus_ref": {
+                    "corpus_id": "corpus-one",
+                    "sha256": corpus.raw_sha256,
+                },
+                "status": "partial",
+                "sources": {
+                    "source-one": {
+                        "source_identity": source_identity,
+                        "raw_source_extent_bytes": 4,
+                        "processor": {
+                            "processor_id": "fixture-transformer",
+                            "processor_version": "1.0",
+                            "assurance_mode": "unverified",
+                            "input_sha256": "1" * 64,
+                            "output_sha256": processor_output,
+                            "deterministic": True,
+                            "attestations": [],
+                        },
+                        "slices": slices,
+                        "source_loss_accounting": source_accounting,
+                    }
+                },
+                "blockers": [],
+            }
+            record_raw = distribution._json_bytes(slice_data)
+            record = coverage_validator.LoadedRecord(
+                path=Path("slices.json"),
+                raw_sha256=distribution._sha256(record_raw),
+                data=slice_data,
+            )
+            findings: list[coverage_validator.Finding] = []
+            coverage_validator._slice_manifest_findings(
+                record,
+                corpora={"corpus-one": corpus},
+                authorities={},
+                authority_projection={},
+                consumer_registry={"processors": {}},
+                consumer_registry_sha256="3" * 64,
+                source_root=ROOT,
+                repository_root=ROOT,
+                findings=findings,
+            )
+            return {finding.code for finding in findings}
+
+        self.assertNotIn(
+            "SLICE_CONTENT_MODE_MISMATCH",
+            slice_findings(source_locator),
+        )
+        self.assertIn(
+            "SLICE_CONTENT_MODE_MISMATCH",
+            slice_findings("https://docs.example.org/other.html"),
+        )
+
+    def _processor_validation_fixture(
+        self,
+        root: Path,
+        *,
+        kind: str,
+        duplicate_run: bool,
+    ) -> tuple[
+        list[dict[str, object]],
+        dict[str, dict[str, object]],
+        frozenset[str],
+    ]:
+        payloads = {
+            "artifacts/implementation.py": b"# implementation\n",
+            "artifacts/configuration.json": b"{}\n",
+            "artifacts/dependencies.lock": b"fixture==1.0\n",
+            "artifacts/run.json": b'{"attested":true}\n',
+        }
+        for relative, payload in payloads.items():
+            target = root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+
+        def ref(path: str, *, include_bytes: bool) -> dict[str, object]:
+            payload = payloads[path]
+            identity: dict[str, object] = {
+                "path": path,
+                "sha256": distribution._sha256(payload),
+            }
+            if include_bytes:
+                identity["bytes"] = len(payload)
+            return identity
+
+        processor_id = f"fixture-{kind}"
+        input_sha256 = "4" * 64
+        output_sha256 = "5" * 64
+        central_refs = {
+            "implementation_ref": ref(
+                "artifacts/implementation.py",
+                include_bytes=False,
+            ),
+            "configuration_ref": ref(
+                "artifacts/configuration.json",
+                include_bytes=False,
+            ),
+            "dependency_lock_ref": ref(
+                "artifacts/dependencies.lock",
+                include_bytes=False,
+            ),
+        }
+        run = {
+            "attestation_id": "run-one",
+            "input_sha256": input_sha256,
+            "output_sha256": output_sha256,
+            "attestation_ref": ref(
+                "artifacts/run.json",
+                include_bytes=False,
+            ),
+        }
+        processors = {
+            processor_id: {
+                "kind": kind,
+                "version": "1.0",
+                **central_refs,
+                "attested_runs": [
+                    dict(run)
+                    for _ in range(2 if duplicate_run else 1)
+                ],
+            }
+        }
+        if kind == "enumerator":
+            processor = {
+                "processor_id": processor_id,
+                "processor_version": "1.0",
+                "assurance_mode": "attested",
+                **{
+                    field: ref(
+                        str(reference["path"]),
+                        include_bytes=True,
+                    )
+                    for field, reference in central_refs.items()
+                },
+                "input_sha256": input_sha256,
+                "output_sha256": output_sha256,
+                "attestation_id": "run-one",
+                "deterministic": True,
+            }
+            records = [
+                {
+                    "contract_name": "official-corpus-manifest",
+                    "corpus_id": "corpus-one",
+                    "status": "partial",
+                    "discovery": {"processor": processor},
+                }
+            ]
+        elif kind == "transformer":
+            attestation_specs = (
+                (
+                    "implementation",
+                    "implementation-one",
+                    "artifacts/implementation.py",
+                ),
+                (
+                    "configuration",
+                    "configuration-one",
+                    "artifacts/configuration.json",
+                ),
+                (
+                    "dependency-lock",
+                    "dependency-one",
+                    "artifacts/dependencies.lock",
+                ),
+                ("execution", "run-one", "artifacts/run.json"),
+            )
+            processor = {
+                "processor_id": processor_id,
+                "processor_version": "1.0",
+                "assurance_mode": "attested",
+                "input_sha256": input_sha256,
+                "output_sha256": output_sha256,
+                "deterministic": True,
+                "attestations": [
+                    {
+                        "kind": attestation_kind,
+                        "attestation_id": attestation_id,
+                        "artifact": ref(path, include_bytes=True),
+                    }
+                    for attestation_kind, attestation_id, path in attestation_specs
+                ],
+            }
+            records = [
+                {
+                    "contract_name": "document-slice-manifest",
+                    "slice_manifest_id": "slices-one",
+                    "status": "partial",
+                    "sources": {
+                        "source-one": {
+                            "processor": processor,
+                        }
+                    },
+                }
+            ]
+        else:
+            processor = {
+                "tool_id": processor_id,
+                "tool_version": "1.0",
+                "trust_mode": "platform-attested",
+                **central_refs,
+                "input_sha256": input_sha256,
+                "output_sha256": output_sha256,
+                "attestation_id": "run-one",
+                "deterministic": True,
+            }
+            records = [
+                {
+                    "contract_name": "skill-document-scope-inventory",
+                    "inventory_id": "scope-one",
+                    "status": "partial",
+                    "enumeration": {"extractor": processor},
+                }
+            ]
+        return records, processors, frozenset(payloads)
+
+    def test_three_processor_classes_reject_duplicate_attested_run(
         self,
     ) -> None:
-        selection = distribution.collect_source_selection(ROOT)
+        for kind in ("enumerator", "transformer", "extractor"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                records, processors, manifest_paths = (
+                    self._processor_validation_fixture(
+                        root,
+                        kind=kind,
+                        duplicate_run=True,
+                    )
+                )
+                with self.assertRaisesRegex(
+                    distribution.DistributionError,
+                    "duplicate central runs",
+                ):
+                    distribution._validate_pack_processor_refs(
+                        root,
+                        records,
+                        processors=processors,
+                        manifest_paths=manifest_paths,
+                    )
+
+    def test_platform_attested_extractor_is_valid_under_partial_status(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            for relative, raw in selection.files.items():
-                target = root / relative
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(raw)
-            pack_root = (
-                root
-                / "skills"
-                / "cif-structure-analysis"
-                / "references"
-                / "official-source-pack"
+            records, processors, manifest_paths = (
+                self._processor_validation_fixture(
+                    root,
+                    kind="extractor",
+                    duplicate_run=False,
+                )
             )
-            bundle = json.loads((pack_root / "bundle.json").read_bytes())[
-                "records"
-            ]
-            target_relative = "skills/cif-structure-analysis/SKILL.md"
+            self.assertIsNone(
+                distribution._validate_pack_processor_refs(
+                    root,
+                    records,
+                    processors=processors,
+                    manifest_paths=manifest_paths,
+                )
+            )
+
+    def test_portable_context_tracks_only_locally_consumed_receipts(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            target_relative = "skills/fixture/SKILL.md"
             target_path = root / target_relative
-            target_raw = target_path.read_bytes()
-            receipts = {
-                str(item["path"]): dict(item)
-                for item in selection.excluded_legacy_artifacts
-            }
-            receipts[target_relative] = {
+            target_raw = b"# Fixture\n"
+            receipt = {
                 "path": target_relative,
                 "sha256": distribution._sha256(target_raw),
                 "size": len(target_raw),
             }
-            context = coverage_validator.PortableValidationContext(
-                repository_root=root,
-                contracts_directory=root / "contracts",
-                interface_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/interface-registry.yaml"
-                    )
-                ),
-                authority_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/official-source-authorities.yaml"
-                    )
-                ),
-                software_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/software-registry.yaml"
-                    )
-                ),
-                skill_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/skill-registry.yaml"
-                    )
-                ),
-                consumer_registry_path=(
-                    root
-                    / distribution._source_snapshot_path(
-                        "registry/official-document-consumers.yaml"
-                    )
-                ),
-                externalized_receipts=receipts,
-            )
 
-            def validate():
-                return coverage_validator.validate_files(
-                    corpus_paths=[
-                        pack_root / name for name in bundle["corpora"]
-                    ],
-                    slice_paths=[
-                        pack_root / name
-                        for name in bundle["slice_manifests"]
-                    ],
-                    scope_inventory_path=(
-                        pack_root / bundle["scope_inventory"]
-                    ),
-                    coverage_path=pack_root / bundle["coverage"],
-                    source_root=root,
-                    portable_context=context,
+            def context() -> coverage_validator.PortableValidationContext:
+                return coverage_validator.PortableValidationContext(
+                    repository_root=root,
+                    contracts_directory=root / "contracts",
+                    interface_registry_path=root / "registry/interface.yaml",
+                    authority_registry_path=root / "registry/authority.yaml",
+                    software_registry_path=root / "registry/software.yaml",
+                    skill_registry_path=root / "registry/skills.yaml",
+                    consumer_registry_path=root / "registry/consumers.yaml",
+                    externalized_receipts={target_relative: receipt},
                 )
 
-            target_path.unlink()
-            missing_result = validate()
-            self.assertEqual(missing_result.findings, ())
-            self.assertEqual(missing_result.assurance_status, "partial")
-            self.assertIn(
+            missing_context = context()
+            missing_findings: list[coverage_validator.Finding] = []
+            missing = coverage_validator._safe_local_bytes(
+                root,
                 target_relative,
-                missing_result.externalized_paths,
+                location="fixture/source",
+                findings=missing_findings,
+                failure_code="FIXTURE_UNAVAILABLE",
+                portable_context=missing_context,
             )
-            self.assertLess(
-                len(missing_result.externalized_paths),
-                len(receipts),
+            self.assertIsInstance(
+                missing,
+                coverage_validator.ExternalizedArtifact,
             )
-            self.assertEqual(context.used_externalized_paths, set())
+            self.assertEqual(missing_findings, [])
+            self.assertEqual(
+                missing_context.used_externalized_paths,
+                {target_relative},
+            )
 
+            target_path.parent.mkdir(parents=True)
             target_path.write_bytes(target_raw)
-            present_result = validate()
-            self.assertEqual(present_result.findings, ())
-            self.assertNotIn(
+            present_context = context()
+            present_findings: list[coverage_validator.Finding] = []
+            present = coverage_validator._safe_local_bytes(
+                root,
                 target_relative,
-                present_result.externalized_paths,
+                location="fixture/source",
+                findings=present_findings,
+                failure_code="FIXTURE_UNAVAILABLE",
+                portable_context=present_context,
             )
-            self.assertEqual(context.used_externalized_paths, set())
+            self.assertEqual(present, target_raw)
+            self.assertEqual(present_findings, [])
+            self.assertEqual(present_context.used_externalized_paths, set())
 
     def test_synthetic_noncontract_pack_is_rejected_by_unpack_verification(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
