@@ -1275,6 +1275,25 @@ def _url_matches_authority(
     return True
 
 
+def _excluded_locator_is_safe(url: str) -> bool:
+    """Validate inert exclusion metadata without granting content authority."""
+
+    try:
+        parsed = urlsplit(url)
+        port = parsed.port
+    except (TypeError, ValueError):
+        return False
+    return (
+        parsed.scheme == "https"
+        and bool(parsed.hostname)
+        and parsed.username is None
+        and parsed.password is None
+        and port in (None, 443)
+        and "?" not in url
+        and "#" not in url
+    )
+
+
 def _load_records(
     paths: Iterable[Path],
     *,
@@ -1822,15 +1841,14 @@ def _source_inventory_v11_entries(
                 )
                 valid = False
                 continue
-            if authority and not _url_matches_authority(
+            if not _excluded_locator_is_safe(
                 str(identity.get("locator")),
-                authority,
             ):
                 findings.append(
                     _finding(
                         "CORPUS_SOURCE_LOCATOR_MISMATCH",
                         f"{source_location}/source_identity/locator",
-                        "excluded source locator is outside authority policy",
+                        "excluded source locator is not safe inert HTTPS metadata",
                     )
                 )
                 valid = False

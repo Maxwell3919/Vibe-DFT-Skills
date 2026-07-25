@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -595,6 +596,93 @@ class ExactQueryAuthorityTests(unittest.TestCase):
             validator._url_matches_authority(
                 "https://docs.example.org/api/index?format=json",
                 authority,
+            )
+        )
+
+
+class ExcludedSourceLocatorSafetyTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.authority = {
+            "allowed_https_origins": ["https://docs.example.org"],
+            "content_policy": {
+                "allowed_path_prefixes": ["/draft/2020-12/"],
+                "query_policy": "forbidden",
+                "allowed_query_urls": [],
+                "fragment_policy": "forbidden",
+            },
+        }
+
+    @staticmethod
+    def _source(locator: str) -> dict[str, object]:
+        return {
+            "disposition": "excluded",
+            "title": "Reviewed exclusion",
+            "source_kind": "navigation",
+            "source_identity": {
+                "content_mode": "excluded",
+                "locator": locator,
+                "inventory_entry_identity": {
+                    "sha256": SHA_A,
+                    "bytes": 1,
+                },
+            },
+            "reason_code": "navigation-only",
+            "rationale": "Navigation metadata is not content authority.",
+        }
+
+    def _findings_for(self, locator: str) -> tuple[bool, set[str]]:
+        findings: list[validator.Finding] = []
+        _, _, valid = validator._source_inventory_v11_entries(
+            {"excluded-source": self._source(locator)},
+            authority=self.authority,
+            location="corpus/test",
+            source_root=ROOT,
+            findings=findings,
+        )
+        return valid, {finding.code for finding in findings}
+
+    def test_safe_excluded_locators_are_inert_metadata(self) -> None:
+        for locator in (
+            "https://docs.example.org/specification",
+            "https://outside.example.net/out-of-scope",
+        ):
+            with self.subTest(locator=locator):
+                with mock.patch.object(
+                    validator,
+                    "_url_matches_authority",
+                    side_effect=AssertionError(
+                        "excluded locator must not consume content authority"
+                    ),
+                ):
+                    valid, finding_codes = self._findings_for(locator)
+                self.assertTrue(valid)
+                self.assertNotIn(
+                    "CORPUS_SOURCE_LOCATOR_MISMATCH",
+                    finding_codes,
+                )
+
+    def test_unsafe_excluded_locators_are_rejected(self) -> None:
+        for locator in (
+            "http://docs.example.org/specification",
+            "https://user@docs.example.org/specification",
+            "https://docs.example.org:444/specification",
+            "https://docs.example.org/specification?view=full",
+            "https://docs.example.org/specification#top",
+            "https:///specification",
+        ):
+            with self.subTest(locator=locator):
+                valid, finding_codes = self._findings_for(locator)
+                self.assertFalse(valid)
+                self.assertIn(
+                    "CORPUS_SOURCE_LOCATOR_MISMATCH",
+                    finding_codes,
+                )
+
+    def test_included_locator_still_requires_full_authority(self) -> None:
+        self.assertFalse(
+            validator._url_matches_authority(
+                "https://outside.example.net/draft/2020-12/schema",
+                self.authority,
             )
         )
 
