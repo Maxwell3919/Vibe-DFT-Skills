@@ -49,7 +49,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/cp2k-rigorous-calculations
-    source_tree_sha256: "d942c95392523b53dc3a88acc12d00b619621eee8b61235846884f6cb9363ca3"
+    source_tree_sha256: "026e2ae5a6cc4c8e55c5b255cc75c5915c48e18b53adef9887cac6109d94c365"
     side_effects: [network-read, local-execution]
     consumes:
       - structure-manifest@1.0
