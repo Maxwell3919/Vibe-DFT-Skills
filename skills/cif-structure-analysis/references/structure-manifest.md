@@ -37,6 +37,20 @@ Every neighbor edge has `(i, j, shift)`, where `shift` is the integer lattice tr
 
 `symmetry_attempt` records the spglib version, requested `symprec` and angle tolerance, detected dataset, Wyckoff/equivalent-site arrays, transformation/origin data, a tolerance sweep, declared/detected comparison, and standardized primitive/conventional summaries. Standardized summaries are evidence, not replacements for the selected structure.
 
+## Structure-intelligence screening
+
+The v1 contract keeps the following fields optional for backward compatibility. Current `analyze_cif.py` output includes all of them:
+
+- `quality_analysis`: formula/Z comparison when the representative model is comparable, cell numerical quality, short contacts, and occupancy/disorder state;
+- `local_geometry`: per-site nearest-shell vectors, distances, angles, and heuristic geometry labels;
+- `connectivity_analysis`: periodic graph components and translation ranks across all `topology_scale_factors`;
+- `property_screening`: symmetry-only tensor permission screens and structure-only hypotheses;
+- `optimization_guidance`: unranked source/primitive/conventional starting points, controls, and blockers.
+
+`provenance.command_options.topology_scale_factors` and the matching execution field bind the graph sensitivity sweep. Older manifests may omit the new option and screening payloads and still validate as `structure-manifest@1.0`; consumers must test for field presence.
+
+These fields deliberately separate input review, geometric classification, property hypotheses, and optimization planning. None records energies, forces, phonons, finite-temperature sampling, convex-hull data, or synthesis evidence. `optimization_guidance.ranking_status` is always `NOT_RANKED`; its safe dotted `coordinates_ref` values point to existing manifest payloads and do not mutate the source or resemble filesystem paths.
+
 ## Transformation extension
 
 `transformations` is empty for inspection-only analysis. A future normalizer, supercell builder, slab builder, defect builder, or exporter must append one record per transformation with:

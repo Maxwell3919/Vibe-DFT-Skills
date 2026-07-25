@@ -1,13 +1,13 @@
 ---
 name: cif-structure-analysis
-description: Use when parsing or analyzing CIF files for traceable structure facts, data-block and raw-tag metadata, standard uncertainties, occupancy/disorder warnings, periodic-image neighbors and coordination, target element-pair or bond-length matching, short-distance flags, symmetry evidence, structure identity, axis-gap estimates, or static structure projections.
+description: Use when parsing or analyzing CIF files for traceable structure facts, data-block and raw-tag metadata, standard uncertainties, occupancy/disorder warnings, periodic-image neighbors and coordination, local geometry hints, multi-scale connectivity dimensionality, symmetry-only property screening, target element-pair or bond-length matching, short-distance flags, symmetry evidence, structure identity, optimization starting-point guidance, axis-gap estimates, or static structure projections.
 ---
 
 # CIF Structure Analysis
 
 ## Purpose
 
-Run the helper before making numeric structure claims. It emits a schema-validated JSON manifest and Markdown summary; optional PNGs are presentation artifacts. This Skill does not choose DFT parameters or judge stability.
+Run the helper before making numeric structure claims. It emits a schema-validated JSON manifest and Markdown summary; optional PNGs are presentation artifacts. It can reject or flag avoidable input problems and propose bounded, unranked optimization starting points. It does not choose DFT parameters, evaluate an energy model, or identify a stable structure.
 
 ## Analyze
 
@@ -19,6 +19,8 @@ python3 scripts/analyze_cif.py \
 ```
 
 Add `--views-dir path/to/views` for static a/b/c PNGs. For a multi-block CIF, use `--block-name NAME` or `--block-index N`; default index is `0`, and the manifest inventories all blocks. Invalid selection fails without JSON/Markdown output.
+
+Use `--topology-scale-factors 1.0 1.15 1.3` to change the covalent-radius sensitivity sweep. Keep more than one scale when using a dimensionality candidate: `SENSITIVE` is an evidence result, not an error to suppress.
 
 ## Match near-neighbor lengths
 
@@ -38,6 +40,20 @@ python3 scripts/analyze_cif.py \
 - Coordination counts directed neighbors in each site's nearest-distance shell. It is geometric coordination, not bond order.
 - Use `--neighbor-cutoff` only for an intentional fixed cutoff; otherwise search expands to `--maximum-neighbor-cutoff`. Incomplete search gives `WARN`.
 
+## Screen the structure before DFT
+
+Read these independent payloads:
+
+- `structure.quality_analysis`: formula/Z versus the materialized cell when comparable, cell rank/conditioning, short contacts, occupancy, and disorder review needs.
+- `structure.local_geometry`: per-site nearest-shell distances, angles, coordination, and geometric hints.
+- `structure.connectivity_analysis`: periodic connected components and translation-rank dimensionality across configured covalent-radius scales.
+- `structure.property_screening`: point-group permission/forbidden screens, metric anisotropy, dimensionality, and d/f-block presence as structure-only hypotheses.
+- `structure.optimization_guidance`: source, primitive, and conventional starting-point candidates plus required controls and blockers.
+
+Treat all five as screening. A geometry hint is not a bond-order assignment; graph dimensionality is not exfoliation evidence; a symmetry-allowed response is not a nonzero coefficient; d/f-block presence is not magnetism; and an available standardized cell is not a lower-energy structure.
+
+Optimization candidates are intentionally `NOT_RANKED`, with `stability_assessed=false` and `energy_model_used=false`. Retain the source structure as the provenance baseline. When an idealized cell is used, compare it with a lower-symmetry control under the same accepted energy/force method. Resolve occupancy/disorder and short-contact blockers before expensive relaxation.
+
 ## Evidence workflow
 
 1. Check top-level `status` and every `validation.checks` entry.
@@ -45,9 +61,11 @@ python3 scripts/analyze_cif.py \
 3. Separate raw `document.metadata` from the ASE-materialized `structure`.
 4. For occupancy/disorder warnings, state that formula, density, neighbors, and symmetry describe a representative model, not a resolved ensemble.
 5. Report spglib version, tolerances, declared comparison, and tolerance sensitivity with symmetry claims.
-6. Cite the JSON or Markdown artifact for each numeric claim. Return `BLOCK` when the helper fails, output is missing, or artifact status is `BLOCK`.
+6. Report the topology scale factors and whether the candidate is stable across them.
+7. Preserve `NOT_RANKED`, blockers, and claim boundaries when handing starting points to a calculation Skill.
+8. Cite the JSON or Markdown artifact for each numeric claim. Return `BLOCK` when the helper fails, output is missing, or artifact status is `BLOCK`.
 
-Read [structure-manifest.md](references/structure-manifest.md) for field and lineage semantics, [dependencies-and-capabilities.md](references/dependencies-and-capabilities.md) for library boundaries, and [extension-interfaces.md](references/extension-interfaces.md) before adding modules.
+Read [structure-manifest.md](references/structure-manifest.md) for field and lineage semantics, [structure-intelligence.md](references/structure-intelligence.md) for screening methods and their limits, [dependencies-and-capabilities.md](references/dependencies-and-capabilities.md) for library boundaries, and [extension-interfaces.md](references/extension-interfaces.md) before adding modules.
 
 ## Static projection convention
 
@@ -63,4 +81,4 @@ Non-orthogonal projections use actual cell vectors. PNGs crop to atom extent; fu
 
 Only claim fields present in a non-`BLOCK` artifact.
 
-Do not treat axis gaps as rigorous layer/vacuum thickness; treat flags, coordination, detected symmetry, or `NO_MATCH` as stability conclusions; claim dictionary validation, magnetic/modulated support, equivalence, topology, XRD, or database identity without a validated extension; or provide pseudopotential, cutoff, k-point, magnetic, convergence, supercell, or other DFT setup advice.
+Do not treat axis gaps as rigorous layer/vacuum thickness; treat flags, coordination, local geometry, graph dimensionality, detected symmetry, property hypotheses, standardized cells, or `NO_MATCH` as stability conclusions; claim dictionary validation, magnetic/modulated support, structure equivalence, ring/framework identity, XRD, or database identity without a validated extension; or provide pseudopotential, cutoff, k-point, magnetic, convergence, supercell, or other DFT setup advice.

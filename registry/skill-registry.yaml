@@ -10,7 +10,7 @@ skills:
     kind: structure
     lifecycle: active
     path: skills/cif-structure-analysis
-    source_tree_sha256: "c30761e0a8eb41a4e2521c60493d05ae994ff7714467e5161d27491deaf578af"
+    source_tree_sha256: "bdc727081a1a891d8104b25d210f81038196d3f780f4b9293f8e9cf816518fd4"
     side_effects: [local-write, local-execution]
     consumes: []
     produces:

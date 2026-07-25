@@ -8,6 +8,7 @@ The format follows Keep a Changelog principles, with additional sections for lif
 
 ### Added
 
+- CIF structure-intelligence screening for formula/Z and cell quality, nearest-shell local geometry, multi-scale periodic-graph dimensionality, symmetry-only property hypotheses, and explicitly unranked source/primitive/conventional optimization starting points.
 - A centralized README index of first-party websites, manuals, source repositories, release channels, and license/access boundaries for 4 active calculation codes, 19 planned software identities, and direct standards/infrastructure dependencies.
 - Content-first planning, audit, troubleshooting, restart, output-acceptance, convergence, and scientific-boundary playbooks across all 19 development Skills, grounded in version-matched official manuals or upstream source where public evidence permits.
 - Architecture baseline records for source commit `33dc893ad7dee6cdab8d645f7e25ff44f345c899`.
@@ -53,6 +54,7 @@ The format follows Keep a Changelog principles, with additional sections for lif
 
 ### Evidence boundary
 
+- CIF quality, topology, property screens, standardized cells, and optimization candidates do not establish energetic, dynamic, or thermodynamic stability, nonzero response, synthesizability, or complete official-document capture.
 - Content depth now supports preliminary planning and audit use; it does not establish installed-software availability, native execution, end-to-end numerical validity, or scientific acceptance.
 - The baseline records architecture and declared lifecycle state only.
 - No native third-party software execution, numerical convergence, physical validity, or scientific acceptance claim is added.

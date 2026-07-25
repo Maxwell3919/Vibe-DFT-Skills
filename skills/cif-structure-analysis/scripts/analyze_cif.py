@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from ciftool.document import inspect_cif_document
+from ciftool.local_geometry import analyze_local_geometry
 from ciftool.manifest import (
     element_styles,
     manifest_identity,
@@ -24,12 +25,16 @@ from ciftool.manifest import (
 )
 from ciftool.neighbors import analyze_periodic_neighbors
 from ciftool.neighbors import match_neighbor_bonds as match_periodic_neighbor_bonds
+from ciftool.quality import analyze_structure_quality
+from ciftool.screening import analyze_property_screening, build_optimization_guidance
 from ciftool.symmetry import analyze_symmetry
+from ciftool.topology import analyze_connectivity
 
 AMU_PER_ANG3_TO_G_CM3 = 1.66053906660
 ROUND_DIGITS = 6
 NEAREST_BOND_TOLERANCE_ANG = 0.05
 DEFAULT_BOND_MATCH_TOLERANCE_ANG = 0.05
+DEFAULT_TOPOLOGY_SCALE_FACTORS = [1.0, 1.15, 1.3]
 
 def rounded(value: Any) -> Any:
     if value is None:
@@ -542,6 +547,30 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
                 ),
             }
         )
+    quality, quality_diagnostics = analyze_structure_quality(
+        atoms,
+        document["metadata"],
+        short_flags,
+    )
+    diagnostics.extend(quality_diagnostics)
+    local_geometry = analyze_local_geometry(
+        atoms,
+        nearest["nearest_neighbor_bond_pairs"],
+    )
+    connectivity = analyze_connectivity(atoms, args.topology_scale_factors)
+    property_screening = analyze_property_screening(
+        atoms,
+        symmetry,
+        connectivity,
+    )
+    optimization_guidance = build_optimization_guidance(
+        quality,
+        symmetry,
+        connectivity,
+        short_flags,
+        partial_occupancy_rows,
+        disorder_rows,
+    )
     views = []
     if args.views_dir:
         views = render_projection_views(atoms, Path(args.views_dir).expanduser().resolve(), input_path.stem)
@@ -582,6 +611,7 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
         "maximum_neighbor_cutoff_ang": args.maximum_neighbor_cutoff,
         "symprec": args.symprec,
         "angle_tolerance": args.angle_tolerance,
+        "topology_scale_factors": args.topology_scale_factors,
         "bond_match": {
             "element_pair": list(args.match_elements) if args.match_elements else None,
             "target_distance_ang": args.match_bond_length,
@@ -632,6 +662,11 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
                 "nearest_distances": nearest,
                 "axis_gap_estimates": axis_gap_estimates(atoms),
                 "symmetry_attempt": symmetry,
+                "quality_analysis": quality,
+                "local_geometry": local_geometry,
+                "connectivity_analysis": connectivity,
+                "property_screening": property_screening,
+                "optimization_guidance": optimization_guidance,
             },
             "flags": {
                 "short_distances": short_flags,
@@ -645,6 +680,7 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
                 "k-point or cutoff settings",
                 "magnetic initialization",
                 "physical credibility or stability",
+                "stable atomic positions or global-minimum structure",
                 "synthesis feasibility",
                 "strict layer dimensionality or physical vacuum thickness",
             ],
@@ -686,6 +722,11 @@ def render_markdown(report: dict[str, Any]) -> str:
     nearest = structure["nearest_distances"]
     bond_match = nearest["bond_length_match"]
     symmetry = structure["symmetry_attempt"]
+    quality = structure["quality_analysis"]
+    local_geometry = structure["local_geometry"]
+    connectivity = structure["connectivity_analysis"]
+    property_screening = structure["property_screening"]
+    optimization_guidance = structure["optimization_guidance"]
     document = report["document"]
     selected_block = document["selected_block"]
 
@@ -702,6 +743,17 @@ def render_markdown(report: dict[str, Any]) -> str:
         ["periodic_edge_count", nearest["periodic_edge_count"], "JSON: structure.nearest_distances.periodic_edge_count"],
         ["bond_match_status", bond_match["status"], "JSON: structure.nearest_distances.bond_length_match"],
         ["symmetry_status", symmetry["status"], "JSON: structure.symmetry_attempt"],
+        ["quality_status", quality["status"], "JSON: structure.quality_analysis"],
+        [
+            "connectivity_dimensionality_candidate",
+            connectivity["dimensionality_candidate"],
+            "JSON: structure.connectivity_analysis",
+        ],
+        [
+            "optimization_ranking_status",
+            optimization_guidance["ranking_status"],
+            "JSON: structure.optimization_guidance",
+        ],
     ]
 
     validation_rows = [
@@ -850,6 +902,48 @@ def render_markdown(report: dict[str, Any]) -> str:
         ["tolerance_sensitive", symmetry.get("tolerance_sensitive")],
         ["reason", symmetry.get("reason")],
     ]
+    geometry_rows = [
+        [
+            item["index"],
+            item["symbol"],
+            item["coordination"],
+            item["bond_distance_mean_ang"],
+            item["bond_angle_count"],
+            item["geometry_hint"],
+        ]
+        for item in local_geometry["sites"]
+    ]
+    topology_rows = [
+        [
+            item["covalent_radius_scale"],
+            item["periodic_edge_count"],
+            item["component_count"],
+            [
+                {
+                    "atoms": component["atom_count"],
+                    "dimensionality": component["dimensionality"],
+                }
+                for component in item["components"]
+            ],
+        ]
+        for item in connectivity["scales"]
+    ]
+    hypothesis_rows = [
+        [item["id"], item["status"], item["basis"], item["limitation"]]
+        for item in property_screening["hypotheses"]
+    ]
+    if not hypothesis_rows:
+        hypothesis_rows.append(["none", "", "", "symmetry or structure evidence unavailable"])
+    starting_point_rows = [
+        [
+            item["candidate_id"],
+            item["available"],
+            item["recommended_for_screening"],
+            item["role"],
+            item["limitation"],
+        ]
+        for item in optimization_guidance["starting_points"]
+    ]
 
     view_rows = []
     view_images = []
@@ -927,6 +1021,55 @@ def render_markdown(report: dict[str, Any]) -> str:
             "## Symmetry Attempt",
             markdown_table(symmetry_rows, ["Field", "Value"]),
             "",
+            "## Structure Quality Screening",
+            f'- Status: `{quality["status"]}`',
+            f'- Claim boundary: {quality["claim_boundary"]}',
+            "",
+            markdown_table(
+                [
+                    [item["id"], item["status"], item["message"]]
+                    for item in quality["checks"]
+                ],
+                ["Check", "Status", "Message"],
+            ),
+            "",
+            "## Local Geometry Hints",
+            markdown_table(
+                geometry_rows,
+                ["Index", "Element", "Coordination", "Mean distance Ang", "Angle count", "Geometry hint"],
+            ),
+            "",
+            f'- Claim boundary: {local_geometry["claim_boundary"]}',
+            "",
+            "## Multi-Scale Periodic Connectivity",
+            f'- Dimensionality candidate: `{connectivity["dimensionality_candidate"]}`',
+            f'- Stable across configured scales: `{connectivity["stable_across_scales"]}`',
+            "",
+            markdown_table(
+                topology_rows,
+                ["Covalent-radius scale", "Periodic edges", "Components", "Component summary"],
+            ),
+            "",
+            f'- Claim boundary: {connectivity["claim_boundary"]}',
+            "",
+            "## Structure-Only Property Screening",
+            markdown_table(
+                hypothesis_rows,
+                ["Screen", "Status", "Basis", "Limitation"],
+            ),
+            "",
+            "## Optimization Starting-Point Guidance",
+            f'- Ranking status: `{optimization_guidance["ranking_status"]}`',
+            f'- Stability assessed: `{optimization_guidance["stability_assessed"]}`',
+            f'- Energy model used: `{optimization_guidance["energy_model_used"]}`',
+            "",
+            markdown_table(
+                starting_point_rows,
+                ["Candidate", "Available", "Recommended for screening", "Role", "Limitation"],
+            ),
+            "",
+            f'- Claim boundary: {optimization_guidance["claim_boundary"]}',
+            "",
             "## Generated Views",
             markdown_table(view_rows, ["View axis", "Horizontal axis", "Vertical axis", "Path", "Projection"]),
             "",
@@ -987,6 +1130,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         type=float,
         default=-1.0,
         help="spglib angle tolerance in degrees; -1 uses the backend default.",
+    )
+    parser.add_argument(
+        "--topology-scale-factors",
+        nargs="+",
+        type=positive_float,
+        default=list(DEFAULT_TOPOLOGY_SCALE_FACTORS),
+        metavar="SCALE",
+        help=(
+            "Positive covalent-radius multipliers for periodic graph sensitivity "
+            "analysis (default: 1.0 1.15 1.3)."
+        ),
     )
     parser.add_argument(
         "--match-elements",

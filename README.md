@@ -5,7 +5,7 @@
   <strong>面向可重复 DFT 与原子模拟工作流的可移植、证据门禁 Skill 集合</strong>
 </p>
 
-> **最后更新 / Last updated:** 2026-07-24 (Asia/Shanghai)
+> **最后更新 / Last updated:** 2026-07-25 (Asia/Shanghai)
 > **仓库状态 / Repository scope:** 26 source-backed Skills = 7 `active` + 19 `development`; 4 active calculation-code integrations; 19 planned software identities
 
 > **项目声明 / Project statement**
@@ -150,13 +150,31 @@ The links below were checked on 2026-07-22 and cover the scientific upstreams, s
 
 | Skill | 软件与官网 / Software and official site | 功能 / Function | 优点、局限与采用理由 / Strengths, limits, and why included |
 |---|---|---|---|
-| `cif-structure-analysis` | [IUCr CIF](https://www.iucr.org/resources/cif), [ASE](https://docs.ase-lib.org/), [Gemmi](https://gemmi.readthedocs.io/en/stable/), [PyCifRW](https://github.com/jamesrhester/pycifrw), [spglib](https://spglib.readthedocs.io/en/stable/) | 解析 CIF1/CIF2、数据块与原始标签；保留不确定度和占位警告；分析周期近邻、配位、目标元素对/键长、对称性和静态投影。 / Parse CIF metadata and structures; inspect uncertainty, occupancy, periodic neighbors, coordination, target bond lengths, symmetry, and static projections. | 多解析器交叉保留晶体学证据，适合作为结构入口；无序、部分占位和“键”的化学含义仍需人工/方法判断。 / Traceable multi-parser entry point; disorder, partial occupancy, and chemical bond meaning remain explicit limitations. |
+| `cif-structure-analysis` | [IUCr CIF](https://www.iucr.org/resources/cif), [ASE](https://docs.ase-lib.org/), [Gemmi](https://gemmi.readthedocs.io/en/stable/), [PyCifRW](https://github.com/jamesrhester/pycifrw), [spglib](https://spglib.readthedocs.io/en/stable/) | 解析 CIF1/CIF2 与原始晶体学证据；检查结构质量；分析周期近邻、局域几何、多尺度连通维度与对称性；给出结构性质初筛和未排序的优化起点候选。 / Parse traceable CIF evidence; screen quality; analyze periodic neighbors, local geometry, multi-scale connectivity and symmetry; emit structure-only property screens and unranked optimization starting points. | 能在昂贵 DFT 前发现坏输入、显式暴露阈值敏感性并收束候选起点；所有性质与稳定性结论仍保持 fail closed。 / Catches risky inputs and narrows starting candidates before expensive DFT while keeping property and stability claims fail closed. |
 | `qe-rigorous-calculations` | [Quantum ESPRESSO](https://www.quantum-espresso.org/) · [official input documentation](https://www.quantum-espresso.org/Doc/INPUT_PW.html) | `pw.x`、`ph.x`、`neb.x` 等平面波/赝势 DFT 工作流的输入设计、官方参数解析、运行审计、重启谱系和可观测量收敛。 / Evidence-gated input design, official-parameter resolution, run auditing, restart lineage, and observable-specific convergence for QE. | 开源、方法和后处理生态广，便于复现与扩展；输入程序多、单位/默认值和赝势选择复杂。选作开放周期 DFT 主路线。 / Open and extensible with broad methods; multi-program semantics and pseudopotential/convergence choices require strict gates. |
 | `vasp-rigorous-calculations` | [VASP](https://vasp.at/) · [VASP Wiki](https://vasp.at/wiki/) | 审计 INCAR、POSCAR、KPOINTS、POTCAR 元数据、OUTCAR/`vasprun.xml`、完成性、收敛及高级方法。 / Audit inputs, outputs, completion, convergence, and advanced VASP workflows. | 固体材料工作流成熟、应用广；软件和 POTCAR 受许可约束，参数相互作用复杂。因实际材料计算覆盖率高而保留，但永不提交 POTCAR 内容。 / Mature and widely used, but proprietary and parameter-coupled; licensed content never enters Git. |
 | `cp2k-rigorous-calculations` | [CP2K](https://www.cp2k.org/) · [2026.2 manual](https://manual.cp2k.org/cp2k-2026_2-branch/) | Quickstep、GPW/GAPW、基组/赝势、周期与分子体系、优化、MD、振动和高级方法的设计与审计。 / Plan and audit CP2K GPW/GAPW calculations across molecular, periodic, optimization, MD, and response tasks. | 对混合体系、分子动力学和多种理论层级灵活，开源且并行能力强；输入树、基组和网格组合复杂。用于补足纯平面波路线。 / Flexible open framework for mixed systems and MD; input hierarchy and basis/grid convergence are demanding. |
 | `siesta-rigorous-calculations` | [SIESTA](https://siesta-project.org/siesta/) · [5.4 documentation](https://docs.siesta-project.org/projects/siesta/en/5.4/) | FDF 输入、数值原子轨道、PSF/PSML/VPS、完成性、父任务/重启、能带/DOS/声子/输运等任务边界。 / Audit SIESTA FDF, localized bases, pseudopotentials, lineage, completion, and task-specific evidence. | 局域基组适合较大体系并提供 TranSIESTA/TBtrans 方向；基组依赖和 mesh/k 点收敛不能照搬平面波经验。用于覆盖局域轨道和输运路线。 / Efficient localized-orbital route for larger systems and transport; basis dependence requires separate convergence evidence. |
 | `dft-postprocess` | Repository Python tools; optional adapters to the calculation codes and external analysis packages | 盘点、抽取、归一化、验证、分析与绘图，输出 postprocess plan、tool execution、normalized dataset 和 artifact manifest。 / Inventory, extract, normalize, validate, analyze, and plot DFT outputs with provenance-bearing artifacts. | 统一数据/图件接口并减少重复脚本；成熟度必须按 `code × observable × backend` 单独检查，图画出来不等于科学结论成立。 / Shared deterministic data and figure layer; every backend/observable route remains independently maturity-gated. |
 | `dft-campaign-efficiency` | Repository Python tools | 记录 wall time、core-hours、存储、失败、重跑和关键路径，形成隐私安全的 campaign record 与证据分级建议。 / Normalize campaign cost and failure evidence into comparable records and recommendations. | 把计算经验变成可审计建议且不改动计算；跨体系可迁移性有限，建议不得降低科学验收标准。 / Turns experience into traceable advice without editing calculations; recommendations remain evidence-ranked and system-specific. |
+
+### CIF 结构分析的功能与优势 / CIF structure-analysis capabilities and strengths
+
+`cif-structure-analysis` 是 DFT 工作流的结构入口，不只是一个 CIF 转换器。它把原始标签、解析后结构、诊断、假设和后续起点分层写入同一份 `structure-manifest@1.0`，便于低推理模型和人工审查者沿同一证据链工作。
+
+`cif-structure-analysis` is the structure intake gate for a DFT workflow, not merely a CIF converter. It separates raw tags, the materialized structure, diagnostics, hypotheses, and downstream starting points inside one `structure-manifest@1.0`.
+
+- **可追踪解析 / Traceable parsing:** 支持 CIF 1.1/CIF 2.0 路由、多 data block、原始数值与 standard uncertainty、占位/无序元数据、源文件 hash 和结构 identity；不会把本机绝对路径写入产物。 / Routes CIF 1.1/2.0, inventories data blocks, preserves raw values and standard uncertainties, records occupancy/disorder, and binds source/structure identities without leaking local absolute paths.
+- **DFT 前质量门禁 / Pre-DFT quality gate:** 核对声明 formula、Z 与物化晶胞的可比一致性，检查晶胞数值质量与过短接触，并明确哪些结果只代表无序体系的代表模型。 / Checks comparable formula/Z materialization, cell numerics, and short contacts while marking representative-model limits.
+- **局域结构 / Local structure:** 枚举周期镜像与 self-image，给出最近壳层配位、距离、角度和线性/四面体/平面四方/八面体等几何提示；目标元素对和键长查询带显式 tolerance。 / Enumerates periodic and self images, nearest-shell coordination, distances, angles, broad geometry hints, and tolerance-bound pair/length queries.
+- **多尺度连通性 / Multi-scale connectivity:** 用多个 covalent-radius scale 构建周期图，以晶格平移环的 rank 给出 `0D/1D/2D/3D` candidate；不同 scale 不一致时返回 `SENSITIVE`，不会强行归类。 / Computes translation-rank dimensionality candidates over multiple radius scales and reports `SENSITIVE` rather than hiding threshold dependence.
+- **结构性质初筛 / Structure-only property screening:** 根据检测到的 point group 筛查 centrosymmetry、ordinary bulk piezoelectricity、polar point group 和 bulk electric-dipole SHG 是否被对称性允许，并记录 metric anisotropy、图维度和 d/f-block presence。 / Screens symmetry permission/forbidden conditions and records metric, graph, and elemental hypotheses.
+- **优化起点收束 / Optimization starting-point narrowing:** 保留 source-as-read 基线，并把可用的 symmetry-idealized primitive/conventional cell 作为独立、未排序候选；同时要求 symmetry-breaking、disorder、short-contact 或 layer-registry controls。 / Preserves the source baseline and exposes available idealized primitive/conventional cells as independent, unranked candidates with explicit controls and blockers.
+- **确定性与可交接 / Deterministic handoff:** JSON Schema、稳定字段、Markdown 摘要和可选静态投影让结构事实可被计算 Skill、后处理 Skill 和下一位 Agent 复核。 / Schema validation, stable fields, Markdown, and optional projections make structure evidence reviewable by calculation/postprocessing Skills and later agents.
+
+这些优势用于减少明显错误输入、遗漏的结构分支和无谓优化，但不等于“从 CIF 算出了材料性质”。`quality PASS`、`3D`/`2D` candidate、symmetry-allowed、标准化晶胞、测试通过或 pack-valid 均不证明能量最低、动力学/热力学稳定、响应系数非零、材料可合成，或官方文档已完整且无歧义。稳定位置仍必须由明确的能量/力方法、收敛、约束对照、声子或其他与主张相匹配的证据独立验收。
+
+These screens reduce avoidable bad inputs, missed structural branches, and wasted relaxations; they do not derive material properties from a CIF. A quality pass, dimensionality candidate, symmetry permission, standardized cell, passing test, or valid pack proves neither minimum energy nor dynamical/thermodynamic stability, nonzero response, synthesizability, or complete/unambiguous official-document capture. Stable positions still require an explicit energy/force model, convergence, control branches, and claim-matched validation.
 
 ## Development 模块 / Development modules
 

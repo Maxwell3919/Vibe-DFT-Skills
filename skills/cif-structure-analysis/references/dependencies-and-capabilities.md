@@ -4,10 +4,10 @@
 
 | Library | Role | Current boundary |
 | --- | --- | --- |
-| ASE | Materialize the selected CIF block, periodic geometry, neighbor enumeration, element data | Does not resolve correlated occupancy/disorder ensembles. |
+| ASE | Materialize the selected CIF block, periodic geometry, neighbor enumeration, element/covalent-radius data | Natural cutoffs are geometric graph heuristics and do not resolve correlated occupancy/disorder or establish chemical bonds. |
 | Gemmi 0.7.5+ | Strict CIF 1.1 document parsing and data-block/tag/loop inventory | Gemmi documents that CIF2/DDLm syntax is not supported; CIF2 is routed elsewhere. |
 | PyCifRW 5.0.1+ | CIF2 parsing and block/loop access | Dictionary-driven semantic validation is not enabled by the current CLI. |
-| NumPy | Cell/vector operations and static projections | Numerical backend only. |
+| NumPy | Cell/vector operations, bond angles, graph translation rank, and static projections | Numerical backend only; rank and heuristic classifications inherit the selected geometric graph. |
 | jsonschema | Draft 2020-12 structure-manifest validation | Structural constraints do not replace crystallographic review. |
 | spglib 2.7+ | Symmetry dataset, tolerance sweep, Wyckoff/equivalent sites, standardized cells | Partial/mixed occupancy is not represented by spglib species labels. |
 | Matplotlib | Optional static PNG projections | Images are presentation artifacts, not numeric evidence. |
@@ -40,3 +40,5 @@ These libraries are not evidence that a feature is implemented. Add an adapter, 
 | OPTIMADE clients, mp-api, COD adapters | External discovery/cross-reference modules with network, authentication, license, cache, and provenance controls. |
 
 Magnetic CIF, modulated structures, powder/reflection data, dictionary validation, and database identity resolution each require their own format fixtures and claim boundaries. The current parser only records the core structure subset it understands and retains a tag inventory for future adapters.
+
+The current property screen uses detected crystallographic point groups only. It can state whether ordinary bulk piezoelectricity and bulk electric-dipole SHG are symmetry-allowed or forbidden, and whether the point group is polar. It does not calculate tensor values, switchability, domains, surfaces, finite-size responses, magnetic order, or any energy-derived property.

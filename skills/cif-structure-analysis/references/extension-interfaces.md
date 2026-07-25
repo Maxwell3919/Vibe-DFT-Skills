@@ -5,6 +5,10 @@
 - `ciftool.document`: syntax routing, data-block selection, raw metadata, uncertainty, occupancy/disorder, and tag inventory.
 - `ciftool.neighbors`: periodic-image enumeration, canonical edges, nearest shells, coordination, short-distance flags, and target bond-length matching.
 - `ciftool.symmetry`: spglib evidence, declaration comparison, tolerance sweep, and standardized-cell summaries.
+- `ciftool.quality`: formula/Z materialization consistency, cell numerics, and short-contact/occupancy/disorder screening.
+- `ciftool.local_geometry`: nearest-shell distance/angle summaries and explicitly heuristic geometry labels.
+- `ciftool.topology`: covalent-radius periodic graphs, connected components, and translation-rank dimensionality sensitivity.
+- `ciftool.screening`: symmetry-only property hypotheses and unranked optimization starting-point guidance.
 - `ciftool.manifest`: safe provenance, structure identity, validation aggregation, element styles, relative artifacts, and schema validation.
 - `analyze_cif.py`: the orchestration CLI and Markdown/static-PNG presentation layer.
 
@@ -14,9 +18,9 @@ Keep parsing, scientific analysis, presentation, and external tool execution sep
 
 | Module | Contract responsibility |
 | --- | --- |
-| `quality` | Formula/Z/occupancy consistency, duplicate or overlapping sites, cell validity, dictionary-validation adapter. |
-| `coordination` | Named distance, covalent-radius, Voronoi, CrystalNN, or ChemEnv methods with explicit parameters and side-by-side results. |
-| `topology` | Periodic graph, connected components under translations, dimensionality, rings, and framework/layer evidence. |
+| `quality-extensions` | Duplicate/equivalent-site detection and dictionary-validation adapters beyond the implemented formula/Z, cell, contact, occupancy, and disorder checks. |
+| `coordination-extensions` | Named alternative distance, Voronoi, CrystalNN, or ChemEnv methods with explicit parameters and side-by-side results; never overwrite the implemented nearest-shell result. |
+| `topology-extensions` | Ring statistics, named framework/layer identity, bonded-subgraph chemistry, and energetic layer evidence beyond the implemented radius-sensitive translation rank. |
 | `layers` | Orientation-aware planes, layer grouping, surface normal, interlayer separation, and vacuum estimates; supersedes no existing axis-gap claim. |
 | `compare` | Symmetry-aware matching, RMS displacement, mapping ambiguity, duplicate detection, and tolerance evidence. |
 | `transform` | Primitive/conventional, supercell, slab, defect, reorder, coordinate cleanup, and per-step lineage records. |

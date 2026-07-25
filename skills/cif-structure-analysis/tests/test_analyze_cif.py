@@ -22,6 +22,8 @@ from ciftool.document import parse_cif_number  # noqa: E402
 NACL_CIF = '''data_NaCl
 _symmetry_space_group_name_H-M    'P 1'
 _symmetry_Int_Tables_number       1
+_chemical_formula_sum             'Na Cl'
+_cell_formula_units_Z             1
 _cell_length_a    5.6402
 _cell_length_b    5.6402
 _cell_length_c    5.6402
@@ -113,6 +115,28 @@ _atom_site_fract_y
 _atom_site_fract_z
 _atom_site_occupancy
 Po1 Po 0.0 0.0 0.0 1
+'''
+
+LAYERED_SI_CIF = '''data_layered_si
+_symmetry_space_group_name_H-M    'P 1'
+_symmetry_Int_Tables_number       1
+_cell_length_a    2.2
+_cell_length_b    2.2
+_cell_length_c    20.0
+_cell_angle_alpha 90
+_cell_angle_beta  90
+_cell_angle_gamma 90
+loop_
+_space_group_symop_operation_xyz
+  'x, y, z'
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Si1 Si 0.0 0.0 0.5 1
 '''
 
 
@@ -302,6 +326,25 @@ class AnalyzeCifTests(unittest.TestCase):
             self.assertAlmostEqual(data["structure"]["cell"]["a"], 5.6402, places=4)
             self.assertGreater(data["structure"]["nearest_distances"]["min_distance_ang"], 4.0)
             self.assertEqual(data["flags"]["short_distances"], [])
+            intelligence = data["structure"]
+            self.assertEqual(
+                intelligence["quality_analysis"]["formula_consistency"]["status"],
+                "MATCH",
+            )
+            self.assertEqual(
+                intelligence["optimization_guidance"]["ranking_status"],
+                "NOT_RANKED",
+            )
+            self.assertFalse(
+                intelligence["optimization_guidance"]["stability_assessed"]
+            )
+            self.assertFalse(
+                intelligence["optimization_guidance"]["energy_model_used"]
+            )
+            self.assertEqual(
+                data["provenance"]["command_options"]["topology_scale_factors"],
+                [1.0, 1.15, 1.3],
+            )
             self.assertEqual(
                 sorted(path.name for path in views_dir.glob("*.png")),
                 ["view_along_a.png", "view_along_b.png", "view_along_c.png"],
@@ -322,6 +365,11 @@ class AnalyzeCifTests(unittest.TestCase):
             self.assertIn("Detailed Cell", markdown)
             self.assertIn("Coordinate Sample", markdown)
             self.assertIn("Nearest Pair Sample", markdown)
+            self.assertIn("Structure Quality Screening", markdown)
+            self.assertIn("Local Geometry Hints", markdown)
+            self.assertIn("Multi-Scale Periodic Connectivity", markdown)
+            self.assertIn("Structure-Only Property Screening", markdown)
+            self.assertIn("Optimization Starting-Point Guidance", markdown)
             self.assertIn("Generated Views", markdown)
             self.assertIn("view_along_a.png", markdown)
 
@@ -488,13 +536,17 @@ class AnalyzeCifTests(unittest.TestCase):
                     str(out_json),
                     "--markdown",
                     str(out_md),
+                    "--topology-scale-factors",
+                    "1.2",
+                    "1.3",
                 ],
                 text=True,
                 capture_output=True,
             )
 
             self.assertEqual(result.returncode, 0, result.stderr)
-            nearest = json.loads(out_json.read_text())["structure"]["nearest_distances"]
+            structure = json.loads(out_json.read_text())["structure"]
+            nearest = structure["nearest_distances"]
             self.assertTrue(nearest["periodic_images_enumerated"])
             self.assertTrue(nearest["self_image_neighbors_enumerated"])
             self.assertEqual(nearest["periodic_edge_count"], 3)
@@ -505,6 +557,80 @@ class AnalyzeCifTests(unittest.TestCase):
             )
             self.assertTrue(
                 all(item["i"] == item["j"] == 0 for item in nearest["nearest_neighbor_bond_pairs"])
+            )
+            local = structure["local_geometry"]["sites"][0]
+            self.assertEqual(local["coordination"], 6)
+            self.assertEqual(local["geometry_hint"], "octahedral-like")
+            connectivity = structure["connectivity_analysis"]
+            self.assertTrue(connectivity["stable_across_scales"])
+            self.assertEqual(connectivity["dimensionality_candidate"], "3D")
+            screening = structure["property_screening"]
+            self.assertTrue(screening["symmetry"]["centrosymmetric"])
+            self.assertFalse(
+                screening["symmetry"]["piezoelectric_symmetry_allowed"]
+            )
+            guidance = structure["optimization_guidance"]
+            self.assertEqual(guidance["ranking_status"], "NOT_RANKED")
+            self.assertTrue(
+                any(
+                    item["candidate_id"] == "symmetry-idealized-primitive"
+                    and item["available"]
+                    for item in guidance["starting_points"]
+                )
+            )
+
+    def test_reports_robust_2d_graph_as_candidate_and_adds_layer_control(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            cif = tmp / "layered.cif"
+            out_json = tmp / "layered.analysis.json"
+            out_md = tmp / "layered.analysis.md"
+            cif.write_text(LAYERED_SI_CIF)
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--input",
+                    str(cif),
+                    "--json",
+                    str(out_json),
+                    "--markdown",
+                    str(out_md),
+                    "--topology-scale-factors",
+                    "1.0",
+                    "1.1",
+                ],
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            structure = json.loads(out_json.read_text())["structure"]
+            connectivity = structure["connectivity_analysis"]
+            self.assertTrue(connectivity["stable_across_scales"])
+            self.assertEqual(connectivity["dimensionality_candidate"], "2D")
+            self.assertTrue(
+                all(
+                    scale["components"][0]["translation_rank"] == 2
+                    for scale in connectivity["scales"]
+                )
+            )
+            self.assertIn(
+                "connectivity-dimensionality-screen",
+                {
+                    item["id"]
+                    for item in structure["property_screening"]["hypotheses"]
+                },
+            )
+            self.assertIn(
+                "enumerate-layer-registry-candidates",
+                {
+                    item["id"]
+                    for item in structure["optimization_guidance"][
+                        "recommended_controls"
+                    ]
+                },
             )
 
     def test_selects_named_block_and_records_all_blocks(self):
@@ -623,6 +749,7 @@ class AnalyzeCifTests(unittest.TestCase):
                 ["--block-name", "missing"],
                 ["--neighbor-cutoff", "5", "--maximum-neighbor-cutoff", "4"],
                 ["--angle-tolerance", "-0.5"],
+                ["--topology-scale-factors", "1.0", "0"],
             ]
             for index, extra in enumerate(cases):
                 with self.subTest(extra=extra):

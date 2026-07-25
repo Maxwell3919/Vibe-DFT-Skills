@@ -469,6 +469,12 @@
         "maximum_neighbor_cutoff_ang": {"$ref": "#/$defs/nullableNumber"},
         "symprec": {"type": "number", "exclusiveMinimum": 0},
         "angle_tolerance": {"type": "number", "minimum": -1},
+        "topology_scale_factors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "number", "exclusiveMinimum": 0}
+        },
         "bond_match": {"$ref": "#/$defs/bondMatchOptions"}
       }
     },
@@ -530,6 +536,12 @@
         "maximum_neighbor_cutoff_ang": {"$ref": "#/$defs/nullableNumber"},
         "symprec": {"type": "number", "exclusiveMinimum": 0},
         "angle_tolerance": {"type": "number", "minimum": -1},
+        "topology_scale_factors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "number", "exclusiveMinimum": 0}
+        },
         "bond_match": {"$ref": "#/$defs/bondMatchOptions"}
       }
     },
@@ -953,7 +965,356 @@
         "sites": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/site"}},
         "nearest_distances": {"$ref": "#/$defs/nearestDistances"},
         "axis_gap_estimates": {"type": "array", "items": {"$ref": "#/$defs/axisGap"}},
-        "symmetry_attempt": {"$ref": "#/$defs/symmetry"}
+        "symmetry_attempt": {"$ref": "#/$defs/symmetry"},
+        "quality_analysis": {"$ref": "#/$defs/qualityAnalysis"},
+        "local_geometry": {"$ref": "#/$defs/localGeometry"},
+        "connectivity_analysis": {"$ref": "#/$defs/connectivityAnalysis"},
+        "property_screening": {"$ref": "#/$defs/propertyScreening"},
+        "optimization_guidance": {"$ref": "#/$defs/optimizationGuidance"}
+      }
+    },
+    "qualityCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "message"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {
+          "enum": ["PASS", "WARN", "FAIL", "MATCH", "MISMATCH", "NOT_COMPARABLE"]
+        },
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "elementNumberMap": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z][a-z]?$": {"type": "number", "exclusiveMinimum": 0}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "qualityAnalysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method_version",
+        "status",
+        "formula_consistency",
+        "cell_numerics",
+        "short_contact_count",
+        "partial_occupancy_present",
+        "disorder_metadata_present",
+        "checks",
+        "claim_boundary"
+      ],
+      "properties": {
+        "method_version": {"const": "cif-structure-quality-v1"},
+        "status": {"enum": ["PASS", "WARN", "FAIL"]},
+        "formula_consistency": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "comparison_mode",
+            "declared_formula",
+            "declared_counts",
+            "formula_units_z",
+            "expected_cell_counts",
+            "materialized_counts",
+            "representative_model_limited"
+          ],
+          "properties": {
+            "status": {"enum": ["MATCH", "MISMATCH", "NOT_COMPARABLE"]},
+            "comparison_mode": {"enum": ["none", "reduced-ratio", "formula-times-z"]},
+            "declared_formula": {"type": ["string", "null"]},
+            "declared_counts": {"$ref": "#/$defs/elementNumberMap"},
+            "formula_units_z": {"type": ["number", "null"]},
+            "expected_cell_counts": {"$ref": "#/$defs/elementNumberMap"},
+            "materialized_counts": {"$ref": "#/$defs/elementNumberMap"},
+            "representative_model_limited": {"type": "boolean"}
+          }
+        },
+        "cell_numerics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rank",
+            "determinant_ang3",
+            "absolute_determinant_ang3",
+            "condition_number"
+          ],
+          "properties": {
+            "rank": {"type": "integer", "minimum": 0, "maximum": 3},
+            "determinant_ang3": {"type": "number"},
+            "absolute_determinant_ang3": {"type": "number", "minimum": 0},
+            "condition_number": {"$ref": "#/$defs/nullableNumber"}
+          }
+        },
+        "short_contact_count": {"type": "integer", "minimum": 0},
+        "partial_occupancy_present": {"type": "boolean"},
+        "disorder_metadata_present": {"type": "boolean"},
+        "checks": {"type": "array", "items": {"$ref": "#/$defs/qualityCheck"}},
+        "claim_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "localGeometrySite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index",
+        "symbol",
+        "coordination",
+        "bond_distance_min_ang",
+        "bond_distance_max_ang",
+        "bond_distance_mean_ang",
+        "bond_distance_std_ang",
+        "bond_angle_count",
+        "bond_angle_min_deg",
+        "bond_angle_max_deg",
+        "bond_angles_deg",
+        "bond_angle_sample_limit",
+        "geometry_hint"
+      ],
+      "properties": {
+        "index": {"type": "integer", "minimum": 0},
+        "symbol": {"$ref": "#/$defs/elementSymbol"},
+        "coordination": {"type": "integer", "minimum": 0},
+        "bond_distance_min_ang": {"$ref": "#/$defs/nullableNumber"},
+        "bond_distance_max_ang": {"$ref": "#/$defs/nullableNumber"},
+        "bond_distance_mean_ang": {"$ref": "#/$defs/nullableNumber"},
+        "bond_distance_std_ang": {"$ref": "#/$defs/nullableNumber"},
+        "bond_angle_count": {"type": "integer", "minimum": 0},
+        "bond_angle_min_deg": {"$ref": "#/$defs/nullableNumber"},
+        "bond_angle_max_deg": {"$ref": "#/$defs/nullableNumber"},
+        "bond_angles_deg": {
+          "type": "array",
+          "maxItems": 36,
+          "items": {"type": "number", "minimum": 0, "maximum": 180}
+        },
+        "bond_angle_sample_limit": {"const": 36},
+        "geometry_hint": {"type": "string", "minLength": 1}
+      }
+    },
+    "localGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "method_version", "site_count", "sites", "claim_boundary"],
+      "properties": {
+        "method": {"const": "periodic-nearest-shell-vector-geometry"},
+        "method_version": {"const": "1.0"},
+        "site_count": {"type": "integer", "minimum": 0},
+        "sites": {"type": "array", "items": {"$ref": "#/$defs/localGeometrySite"}},
+        "claim_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "topologyComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component_index",
+        "atom_indices",
+        "atom_count",
+        "elements",
+        "translation_rank",
+        "dimensionality",
+        "independent_translation_candidates",
+        "translation_candidate_limit"
+      ],
+      "properties": {
+        "component_index": {"type": "integer", "minimum": 0},
+        "atom_indices": {"type": "array", "items": {"type": "integer", "minimum": 0}},
+        "atom_count": {"type": "integer", "minimum": 1},
+        "elements": {"type": "array", "items": {"$ref": "#/$defs/elementSymbol"}},
+        "translation_rank": {"type": "integer", "minimum": 0, "maximum": 3},
+        "dimensionality": {"enum": ["0D", "1D", "2D", "3D"]},
+        "independent_translation_candidates": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {"$ref": "#/$defs/integerVector3"}
+        },
+        "translation_candidate_limit": {"const": 12}
+      }
+    },
+    "topologyScale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "covalent_radius_scale",
+        "periodic_edge_count",
+        "component_count",
+        "components"
+      ],
+      "properties": {
+        "covalent_radius_scale": {"type": "number", "exclusiveMinimum": 0},
+        "periodic_edge_count": {"type": "integer", "minimum": 0},
+        "component_count": {"type": "integer", "minimum": 0},
+        "components": {"type": "array", "items": {"$ref": "#/$defs/topologyComponent"}}
+      }
+    },
+    "connectivityAnalysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "method_version",
+        "scale_factors",
+        "stable_across_scales",
+        "dimensionality_candidate",
+        "scales",
+        "claim_boundary"
+      ],
+      "properties": {
+        "method": {"const": "ase-natural-covalent-radii-periodic-graph"},
+        "method_version": {"const": "translation-rank-v1"},
+        "scale_factors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "number", "exclusiveMinimum": 0}
+        },
+        "stable_across_scales": {"type": "boolean"},
+        "dimensionality_candidate": {
+          "enum": ["0D", "1D", "2D", "3D", "MIXED", "SENSITIVE"]
+        },
+        "scales": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/topologyScale"}},
+        "claim_boundary": {"type": "string", "minLength": 1}
+      }
+    },
+    "screeningHypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "basis", "limitation"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "minLength": 1},
+        "basis": {"type": "string", "minLength": 1},
+        "limitation": {"type": "string", "minLength": 1}
+      }
+    },
+    "propertyScreening": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method_version",
+        "evidence_level",
+        "symmetry",
+        "metric_anisotropy",
+        "connectivity_dimensionality_candidate",
+        "d_or_f_block_elements",
+        "hypotheses",
+        "not_assessed"
+      ],
+      "properties": {
+        "method_version": {"const": "cif-structure-only-screening-v1"},
+        "evidence_level": {"const": "structure-only-candidate"},
+        "symmetry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "point_group",
+            "centrosymmetric",
+            "piezoelectric_symmetry_allowed",
+            "polar_point_group",
+            "bulk_electric_dipole_shg_symmetry_allowed"
+          ],
+          "properties": {
+            "point_group": {"type": ["string", "null"]},
+            "centrosymmetric": {"type": ["boolean", "null"]},
+            "piezoelectric_symmetry_allowed": {"type": ["boolean", "null"]},
+            "polar_point_group": {"type": ["boolean", "null"]},
+            "bulk_electric_dipole_shg_symmetry_allowed": {"type": ["boolean", "null"]}
+          }
+        },
+        "metric_anisotropy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cell_length_ratio_max_over_min",
+            "large_metric_ratio_candidate",
+            "threshold"
+          ],
+          "properties": {
+            "cell_length_ratio_max_over_min": {"$ref": "#/$defs/nullableNumber"},
+            "large_metric_ratio_candidate": {"type": ["boolean", "null"]},
+            "threshold": {"type": "number", "exclusiveMinimum": 0}
+          }
+        },
+        "connectivity_dimensionality_candidate": {
+          "enum": ["0D", "1D", "2D", "3D", "MIXED", "SENSITIVE"]
+        },
+        "d_or_f_block_elements": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/elementSymbol"},
+          "uniqueItems": true
+        },
+        "hypotheses": {"type": "array", "items": {"$ref": "#/$defs/screeningHypothesis"}},
+        "not_assessed": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "optimizationCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "available",
+        "recommended_for_screening",
+        "coordinates_ref",
+        "role",
+        "limitation"
+      ],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1},
+        "available": {"type": "boolean"},
+        "recommended_for_screening": {"type": "boolean"},
+        "coordinates_ref": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        },
+        "role": {"type": "string", "minLength": 1},
+        "limitation": {"type": "string", "minLength": 1}
+      }
+    },
+    "optimizationControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "optimizationGuidance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method_version",
+        "stability_assessed",
+        "energy_model_used",
+        "ranking_status",
+        "starting_points",
+        "recommended_controls",
+        "blockers",
+        "claim_boundary"
+      ],
+      "properties": {
+        "method_version": {"const": "optimization-starting-point-guidance-v1"},
+        "stability_assessed": {"const": false},
+        "energy_model_used": {"const": false},
+        "ranking_status": {"const": "NOT_RANKED"},
+        "starting_points": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/optimizationCandidate"}
+        },
+        "recommended_controls": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/optimizationControl"}
+        },
+        "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "claim_boundary": {"type": "string", "minLength": 1}
       }
     },
     "shortDistance": {
