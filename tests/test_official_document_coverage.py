@@ -546,10 +546,7 @@ class BlockerAndLossClosureTests(unittest.TestCase):
             findings=findings,
         )
         self.assertEqual(ceiling, "blocked")
-        self.assertEqual(
-            {finding.code for finding in findings},
-            {"SLICE_LOSS_ACCOUNTING_SEVERITY_BLOCKING"},
-        )
+        self.assertEqual(findings, [])
 
 
 class ExactQueryAuthorityTests(unittest.TestCase):

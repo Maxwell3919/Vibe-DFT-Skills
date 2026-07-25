@@ -2492,13 +2492,6 @@ def _slice_loss_accounting_ceiling(
         disposition = entry.get("disposition")
         severity = entry.get("severity")
         if severity == "blocking":
-            findings.append(
-                _finding(
-                    "SLICE_LOSS_ACCOUNTING_SEVERITY_BLOCKING",
-                    f"{location}/entries/{index}",
-                    f"{dimension} loss accounting includes a blocking loss",
-                )
-            )
             return "blocked"
         if closure_status == "complete" and disposition == "unresolved":
             findings.append(
