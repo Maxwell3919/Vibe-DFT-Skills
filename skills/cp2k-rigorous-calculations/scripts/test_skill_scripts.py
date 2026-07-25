@@ -527,18 +527,174 @@ class OfficialSourceTests(unittest.TestCase):
 
 
 class OfficialMirrorTests(unittest.TestCase):
+    def test_fetch_retries_connection_reset(self) -> None:
+        response = MagicMock()
+        response.__enter__.return_value = response
+        response.geturl.return_value = (
+            "https://manual.cp2k.org/cp2k-2026_2-branch/test.html"
+        )
+        response.read.return_value = b"official"
+        with (
+            patch.object(
+                sync_official_manuals.urllib.request,
+                "urlopen",
+                side_effect=[ConnectionResetError("dropped"), response],
+            ) as urlopen,
+            patch.object(sync_official_manuals.time, "sleep"),
+        ):
+            body = sync_official_manuals.fetch(
+                "https://manual.cp2k.org/cp2k-2026_2-branch/test.html",
+                attempts=2,
+            )
+        self.assertEqual(body, b"official")
+        self.assertEqual(urlopen.call_count, 2)
+
+    def test_fetch_retries_read_timeout(self) -> None:
+        response = MagicMock()
+        response.__enter__.return_value = response
+        response.geturl.return_value = (
+            "https://manual.cp2k.org/cp2k-2026_2-branch/test.html"
+        )
+        response.read.return_value = b"official"
+        with (
+            patch.object(
+                sync_official_manuals.urllib.request,
+                "urlopen",
+                side_effect=[TimeoutError("read timed out"), response],
+            ) as urlopen,
+            patch.object(sync_official_manuals.time, "sleep"),
+        ):
+            body = sync_official_manuals.fetch(
+                "https://manual.cp2k.org/cp2k-2026_2-branch/test.html",
+                attempts=2,
+            )
+        self.assertEqual(body, b"official")
+        self.assertEqual(urlopen.call_count, 2)
+
     def test_readthedocs_role_main_is_extracted(self) -> None:
         body = b"""<html><body><nav>private navigation</nav>
         <div class='document' role='main'><section><h1>FORCE_EVAL</h1>
         <p>Official section content.</p><p>Second official paragraph.</p>
         </section></div></body></html>"""
+        identity = {
+            "adapter_schema_version": "1.0",
+            "git_commit": sync_official_manuals.HTML2MD_COMMIT,
+        }
         rendered = sync_official_manuals.page_to_markdown(
             "force-eval",
             "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL.html",
             body,
+            converter=lambda _html: (
+                "# FORCE_EVAL\n\nOfficial section content.\n\n"
+                "Second official paragraph.\n"
+            ),
+            converter_identity=identity,
         ).decode("utf-8")
         self.assertIn("Official section content.", rendered)
         self.assertNotIn("private navigation", rendered)
+
+    def test_conversion_quality_rejects_missing_unicode(self) -> None:
+        with self.assertRaisesRegex(ValueError, "lost or reordered"):
+            sync_official_manuals.conversion_quality(
+                "Energy difference is 10−6 Ry and α is fixed.",
+                "Energy difference is 106 Ry and is fixed.",
+                "fixture",
+            )
+
+    def test_conversion_quality_handles_emphasis_inside_a_source_token(self) -> None:
+        quality = sync_official_manuals.conversion_quality(
+            "rho_mix(g) uses alphag squared.",
+            "rho\\_mix(g) uses alpha*g* squared.",
+            "fixture",
+        )
+        self.assertEqual(quality["status"], "pass")
+
+    def test_conversion_quality_handles_subscripts_inside_a_source_token(self) -> None:
+        quality = sync_official_manuals.conversion_quality(
+            "The G0W0 approach.",
+            "The G<sub>0</sub>W<sub>0</sub> approach.",
+            "fixture",
+        )
+        self.assertEqual(quality["status"], "pass")
+
+    def test_conversion_quality_preserves_literal_html_inside_code_fence(self) -> None:
+        quality = sync_official_manuals.conversion_quality(
+            "FFT<sup>-1</sup>",
+            "```\nFFT<sup>-1</sup>\n```",
+            "fixture",
+        )
+        self.assertEqual(quality["status"], "pass")
+
+    def test_article_preparation_removes_header_glyph_and_absolutizes_links(self) -> None:
+        body = """<html><body><div role="main"><h1>Title
+        <a class="headerlink" href="#title"></a></h1>
+        <p>Read <a href="../methods.html">methods</a>.</p>
+        </div></body></html>""".encode("utf-8")
+        html, source_text = sync_official_manuals.prepare_article(
+            "https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/GLOBAL.html",
+            body,
+            "fixture",
+        )
+        self.assertNotIn("", html)
+        self.assertNotIn("", source_text)
+        self.assertIn(
+            'href="https://manual.cp2k.org/cp2k-2026_2-branch/methods.html"',
+            html,
+        )
+
+    def test_article_preparation_flattens_sphinx_index_layout_table(self) -> None:
+        body = b"""<html><body><div role="main">
+        <table class="indextable"><tbody><tr><td>
+        <ul><li>ALPHA</li> <li>BETA</li> <li>GAMMA</li></ul>
+        </td></tr></tbody></table></div></body></html>"""
+        html, source_text = sync_official_manuals.prepare_article(
+            "https://manual.cp2k.org/cp2k-2026_2-branch/genindex.html",
+            body,
+            "genindex",
+        )
+        self.assertNotIn("<table", html)
+        self.assertNotIn("<td", html)
+        self.assertIn("<ul>", html)
+        self.assertIn("ALPHA", source_text)
+
+    def test_article_preparation_unwraps_table_cell_paragraphs(self) -> None:
+        body = b"""<html><body><article>
+        <table><thead><tr><th><p>Feature</p></th><th><p>Meaning</p></th></tr></thead>
+        <tbody><tr><td><p><code>OT</code></p></td>
+        <td><p><strong>Unsupported.</strong> General mesh.</p></td></tr></tbody>
+        </table><p>Trailing text remains.</p>
+        </article></body></html>"""
+        html, source_text = sync_official_manuals.prepare_article(
+            "https://manual.cp2k.org/example/table.html",
+            body,
+            "table",
+        )
+        self.assertNotIn("<th><p>", html)
+        self.assertNotIn("<td><p>", html)
+        self.assertIn("<code>OT</code>", html)
+        self.assertIn("<strong>Unsupported.</strong>", html)
+        self.assertIn("Trailing text remains.", source_text)
+
+    def test_html2md_adapter_removes_only_line_end_whitespace(self) -> None:
+        markdown = sync_official_manuals.run_html2md(
+            "<article><pre>  retained indent   \nnext\t \n</pre>"
+            "<p>Visible inline   spacing.</p></article>"
+        )
+        self.assertIn("  retained indent\n", markdown)
+        # Ordinary HTML collapses presentation-only runs of whitespace before
+        # Markdown conversion; the adapter must still keep the visible words.
+        self.assertIn("Visible inline spacing.", markdown)
+        self.assertFalse(
+            any(line.endswith((" ", "\t")) for line in markdown.splitlines())
+        )
+
+    def test_conversion_quality_rejects_unreadably_long_lines(self) -> None:
+        with self.assertRaisesRegex(ValueError, "unreadably long"):
+            sync_official_manuals.conversion_quality(
+                "Official",
+                "Official " + ("x" * 20_001),
+                "fixture",
+            )
 
     def test_checked_in_snapshot_matches_registry_and_inventory(self) -> None:
         result = sync_official_manuals.check_snapshot()

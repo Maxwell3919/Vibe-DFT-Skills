@@ -2,716 +2,260 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html
 - Raw SHA-256: 3b882b74509d0ba7dd7984bebbe2ceef3d00bc24d42460727842c25c466824fb
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-DFT
+---
 
-
+# DFT
 
-Controls electronic-structure settings for Quickstep and related Gaussian-basis DFT methods.
-
-[
-
-Edit on GitHub
-
-]
+Controls electronic-structure settings for Quickstep and related Gaussian-basis DFT methods. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L128)\]
 
 Subsections
 
-ACTIVE_SPACE
+-   [ACTIVE\_SPACE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/ACTIVE_SPACE.html)
+-   [ALMO\_SCF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/ALMO_SCF.html)
+-   [AUXILIARY\_DENSITY\_MATRIX\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/AUXILIARY_DENSITY_MATRIX_METHOD.html)
+-   [DENSITY\_FITTING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/DENSITY_FITTING.html)
+-   [EFIELD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/EFIELD.html)
+-   [ENERGY\_CORRECTION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/ENERGY_CORRECTION.html)
+-   [EXCITED\_STATES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/EXCITED_STATES.html)
+-   [EXTERNAL\_DENSITY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/EXTERNAL_DENSITY.html)
+-   [EXTERNAL\_POTENTIAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/EXTERNAL_POTENTIAL.html)
+-   [EXTERNAL\_VXC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/EXTERNAL_VXC.html)
+-   [HAIRY\_PROBES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/HAIRY_PROBES.html)
+-   [HARRIS\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/HARRIS_METHOD.html)
+-   [KG\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/KG_METHOD.html)
+-   [KPOINTS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/KPOINTS.html)
+-   [KPOINT\_SET](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/KPOINT_SET.html)
+-   [LOCALIZE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/LOCALIZE.html)
+-   [LOW\_SPIN\_ROKS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/LOW_SPIN_ROKS.html)
+-   [LS\_SCF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/LS_SCF.html)
+-   [MGRID](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/MGRID.html)
+-   [PERIODIC\_EFIELD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PERIODIC_EFIELD.html)
+-   [PLANAR\_AVERAGED\_V\_HARTREE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PLANAR_AVERAGED_V_HARTREE.html)
+-   [PLANAR\_COUNTER\_CHARGE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PLANAR_COUNTER_CHARGE.html)
+-   [POISSON](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON.html)
+-   [PRINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT.html)
+-   [QS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/QS.html)
+-   [REAL\_TIME\_PROPAGATION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/REAL_TIME_PROPAGATION.html)
+-   [RELATIVISTIC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/RELATIVISTIC.html)
+-   [SCCS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCCS.html)
+-   [SCF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html)
+-   [SCRF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCRF.html)
+-   [SIC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SIC.html)
+-   [SMEAGOL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SMEAGOL.html)
+-   [TRANSPORT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html)
+-   [XAS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html)
+-   [XAS\_TDP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS_TDP.html)
+-   [XC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XC.html)
 
-ALMO_SCF
+## Keywords
 
-AUXILIARY_DENSITY_MATRIX_METHOD
+-   **[AUTO\_BASIS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.AUTO_BASIS "CP2K_INPUT.FORCE_EVAL.DFT.AUTO_BASIS")**
 
-DENSITY_FITTING
+-   **[BASIS\_SET\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.BASIS_SET_FILE_NAME "CP2K_INPUT.FORCE_EVAL.DFT.BASIS_SET_FILE_NAME")**
 
-EFIELD
+-   **[CHARGE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.CHARGE "CP2K_INPUT.FORCE_EVAL.DFT.CHARGE")**
 
-ENERGY_CORRECTION
+-   [CORE\_CORR\_DIP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.CORE_CORR_DIP "CP2K_INPUT.FORCE_EVAL.DFT.CORE_CORR_DIP")
 
-EXCITED_STATES
+-   **[MULTIPLICITY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.MULTIPLICITY "CP2K_INPUT.FORCE_EVAL.DFT.MULTIPLICITY")**
 
-EXTERNAL_DENSITY
+-   [PLUS\_U\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.PLUS_U_METHOD "CP2K_INPUT.FORCE_EVAL.DFT.PLUS_U_METHOD")
 
-EXTERNAL_POTENTIAL
+-   **[POTENTIAL\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.POTENTIAL_FILE_NAME "CP2K_INPUT.FORCE_EVAL.DFT.POTENTIAL_FILE_NAME")**
 
-EXTERNAL_VXC
+-   [RELAX\_MULTIPLICITY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.RELAX_MULTIPLICITY "CP2K_INPUT.FORCE_EVAL.DFT.RELAX_MULTIPLICITY")
 
-HAIRY_PROBES
+-   [ROKS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.ROKS "CP2K_INPUT.FORCE_EVAL.DFT.ROKS")
 
-HARRIS_METHOD
+-   **[SORT\_BASIS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.SORT_BASIS "CP2K_INPUT.FORCE_EVAL.DFT.SORT_BASIS")**
 
-KG_METHOD
+-   [SUBCELLS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.SUBCELLS "CP2K_INPUT.FORCE_EVAL.DFT.SUBCELLS")
 
-KPOINTS
+-   [SURFACE\_DIPOLE\_CORRECTION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.SURFACE_DIPOLE_CORRECTION "CP2K_INPUT.FORCE_EVAL.DFT.SURFACE_DIPOLE_CORRECTION")
 
-KPOINT_SET
+-   [SURF\_DIP\_DIR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.SURF_DIP_DIR "CP2K_INPUT.FORCE_EVAL.DFT.SURF_DIP_DIR")
 
-LOCALIZE
+-   [SURF\_DIP\_POS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.SURF_DIP_POS "CP2K_INPUT.FORCE_EVAL.DFT.SURF_DIP_POS")
 
-LOW_SPIN_ROKS
+-   [SURF\_DIP\_SWITCH](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.SURF_DIP_SWITCH "CP2K_INPUT.FORCE_EVAL.DFT.SURF_DIP_SWITCH")
 
-LS_SCF
+-   **[UKS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.UKS "CP2K_INPUT.FORCE_EVAL.DFT.UKS")**
 
-MGRID
+-   **[WFN\_RESTART\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT.html#CP2K_INPUT.FORCE_EVAL.DFT.WFN_RESTART_FILE_NAME "CP2K_INPUT.FORCE_EVAL.DFT.WFN_RESTART_FILE_NAME")**
 
-PERIODIC_EFIELD
 
-PLANAR_AVERAGED_V_HARTREE
+## Keyword descriptions
 
-PLANAR_COUNTER_CHARGE
+### AUTO\_BASIS*: string\[ \]* *\= X X*
 
-POISSON
+**Keyword can be repeated.**
 
-PRINT
+**Usage:** *AUTO\_BASIS {basis\_type} {basis\_size}*
 
-QS
+**Mentions:** ⭐[Preliminaries](https://manual.cp2k.org/cp2k-2026_2-branch/methods/post_hartree_fock/preliminaries.html), ⭐[X-Ray Absorption from TDDFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/x-ray/tddft.html)
 
-REAL_TIME_PROPAGATION
+Specify size of automatically generated auxiliary (RI) basis sets: Options={small,medium,large,huge} \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L252)\]
 
-RELATIVISTIC
+### BASIS\_SET\_FILE\_NAME*: string* *\= BASIS\_SET*
 
-SCCS
+**Keyword can be repeated.**
 
-SCF
+**Usage:** *BASIS\_SET\_FILE\_NAME*
 
-SCRF
+**Mentions:** ⭐[Basis Sets](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/basis_sets.html)
 
-SIC
+Name of a basis-set library file, optionally including a path. This keyword can be repeated to search several basis-set files. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L134)\]
 
-SMEAGOL
+### CHARGE*: integer* *\= 0*
 
-TRANSPORT
+**Usage:** *CHARGE -1*
 
-XAS
+**Mentions:** ⭐[Troubleshooting](https://manual.cp2k.org/cp2k-2026_2-branch/getting-started/troubleshooting.html), ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html), ⭐[RESP Charges](https://manual.cp2k.org/cp2k-2026_2-branch/methods/electronic_structure/population/resp.html)
 
-XAS_TDP
+The total charge of the system \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L193)\]
 
-XC
+### CORE\_CORR\_DIP*: logical* *\= F*
 
-Keywords
+**Lone keyword:** `T`
 
-
+**Usage:** *CORE\_CORR\_DIP .TRUE.*
 
-AUTO_BASIS
+If the total CORE\_CORRECTION is non-zero and surface dipole correction is switched on, presence of this keyword will adjust electron density via MO occupation to reflect the total CORE\_CORRECTION. The default value is .FALSE. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L311)\]
 
-BASIS_SET_FILE_NAME
+### MULTIPLICITY*: integer* *\= 0*
 
-CHARGE
+**Aliases:** MULTIP
 
-CORE_CORR_DIP
+**Usage:** *MULTIPLICITY 3*
 
-MULTIPLICITY
+**Mentions:** ⭐[Troubleshooting](https://manual.cp2k.org/cp2k-2026_2-branch/getting-started/troubleshooting.html), ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html)
 
-PLUS_U_METHOD
+Two times the total spin plus one. Specify 3 for a triplet, 4 for a quartet, and so on. Default is 1 (singlet) for an even number and 2 (doublet) for an odd number of electrons. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L181)\]
 
-POTENTIAL_FILE_NAME
+### PLUS\_U\_METHOD*: enum* *\= MULLIKEN*
 
-RELAX_MULTIPLICITY
+**Usage:** *PLUS\_U\_METHOD Lowdin*
 
-ROKS
+**Valid values:**
 
-SORT_BASIS
+-   `LOWDIN` Method based on Lowdin population analysis (computationally expensive, since the diagonalization of the overlap matrix is required, but possibly more robust than Mulliken)
 
-SUBCELLS
+-   `MULLIKEN` Method based on Mulliken population analysis using the net AO and overlap populations (computationally cheap method)
 
-SURFACE_DIPOLE_CORRECTION
+-   `MULLIKEN_CHARGES` Method based on Mulliken gross orbital populations (GOP)
 
-SURF_DIP_DIR
 
-SURF_DIP_POS
+Method employed for the calculation of the DFT+U contribution \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L200)\]
 
-SURF_DIP_SWITCH
+### POTENTIAL\_FILE\_NAME*: string* *\= POTENTIAL*
 
-UKS
+**Usage:** *POTENTIAL\_FILE\_NAME*
 
-WFN_RESTART_FILE_NAME
+**Mentions:** ⭐[Pseudopotentials](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/pseudopotentials.html)
 
-Keyword descriptions
+Name of the pseudopotential library file, optionally including a path. The potential selected for each kind is set with KIND%POTENTIAL. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L143)\]
 
-
+### RELAX\_MULTIPLICITY*: real* *\= 0.00000000E+000*
 
-AUTO_BASIS
+**Aliases:** RELAX\_MULTIP
 
-:
+**Usage:** *RELAX\_MULTIPLICITY 0.00001*
 
-string[
+Tolerance in Hartrees. Do not enforce the occupation of alpha and beta MOs due to the initially defined multiplicity, but rather follow the Aufbau principle. A value greater than zero activates this option. If alpha/beta MOs differ in energy less than this tolerance, then alpha-MO occupation is preferred even if it is higher in energy (within the tolerance). Such spin-symmetry broken (spin-polarized) occupation is used as SCF input, which (is assumed to) bias the SCF towards a spin-polarized solution. Thus, larger tolerance increases chances of ending up with spin-polarization. This option is only valid for unrestricted (i.e. spin polarised) Kohn-Sham (UKS) calculations. It also needs non-zero [ADDED\_MOS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.ADDED_MOS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.ADDED_MOS") to actually affect the calculations, which is why it is not expected to work with [OT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#cp2k-input-force-eval-dft-scf-ot) and may raise errors when used with OT. For more details see [this discussion](https://github.com/cp2k/cp2k/issues/4389). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L218)\]
 
-]
+### ROKS*: logical* *\= F*
 
-=
+**Aliases:** RESTRICTED\_OPEN\_KOHN\_SHAM
 
-X
+**Lone keyword:** `T`
 
-
+**Usage:** *ROKS*
 
-Keyword can be repeated.
+Requests a restricted open Kohn-Sham calculation \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L172)\]
 
-Usage:
+### SORT\_BASIS*: enum* *\= DEFAULT*
 
-AUTO_BASIS {basis_type} {basis_size}
+**Usage:** *SORT\_BASIS EXP*
 
-Mentions:
+**Valid values:**
 
-⭐
+-   `DEFAULT` don’t sort
 
-Preliminaries
+-   `EXP` sort w.r.t. exponent
 
-, ⭐
 
-X-Ray Absorption from TDDFT
+**Mentions:** ⭐[HFX-RI for Γ-Point (non-periodic)](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/hartree-fock/ri_gamma.html)
 
-Specify size of automatically generated auxiliary (RI) basis sets: Options={small,medium,large,huge}
+Sorts basis functions according to a selected criterion. Sorting by exponent can improve data locality for selected exact-exchange and RI workflows. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L323)\]
 
-[
+### SUBCELLS*: real* *\= 2.00000000E+000*
 
-Edit on GitHub
+**Usage:** *SUBCELLS 1.5*
 
-]
+Read the grid size for subcell generation in the construction of neighbor lists. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L245)\]
 
-BASIS_SET_FILE_NAME
+### SURFACE\_DIPOLE\_CORRECTION*: logical* *\= F*
 
-:
+**Aliases:** SURFACE\_DIPOLE ,SURF\_DIP
 
-string
+**Lone keyword:** `T`
 
-=
+**Usage:** *SURF\_DIP*
 
-BASIS_SET
+**References:** [Bengtsson1999](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#bengtsson1999)
 
-
+For slab calculations with asymmetric geometries, activate the correction of the electrostatic potential with by compensating for the surface dipole. Implemented only for slabs with normal parallel to one Cartesian axis. The normal direction is given by the keyword SURF\_DIP\_DIR \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L260)\]
 
-Keyword can be repeated.
+### SURF\_DIP\_DIR*: enum* *\= Z*
 
-Usage:
+**Usage:** *SURF\_DIP\_DIR Z*
 
-BASIS_SET_FILE_NAME
+**Valid values:**
 
-Mentions:
+-   `X` Along x
 
-⭐
+-   `Y` Along y
 
-Basis Sets
+-   `Z` Along z
 
-Name of a basis-set library file, optionally including a path. This keyword can be repeated to search several basis-set files.
 
-[
+Cartesian axis parallel to surface normal. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L275)\]
 
-Edit on GitHub
+### SURF\_DIP\_POS*: real* *\= \-1.00000000E+000*
 
-]
+**Usage:** *SURF\_DIP\_POS -1.0\_dp*
 
-CHARGE
+This keyword assigns an user defined position in Angstroms in the direction normal to the surface (given by SURF\_DIP\_DIR). The default value is -1.0\_dp which appplies the correction at a position that has minimum electron density on the grid. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L287)\]
 
-:
+### SURF\_DIP\_SWITCH*: logical* *\= F*
 
-integer
+**Lone keyword:** `T`
 
-=
+**Usage:** *SURF\_DIP\_SWITCH .TRUE.*
 
-0
+WARNING: Experimental feature under development that will help the user to switch parameters to facilitate SCF convergence. In its current form the surface dipole correction is switched off if the calculation does not converge in (0.5\*MAX\_SCF + 1) outer\_scf steps. The default value is .FALSE. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L298)\]
 
-
+### UKS*: logical* *\= F*
 
-Usage:
+**Aliases:** UNRESTRICTED\_KOHN\_SHAM ,LSD ,SPIN\_POLARIZED
 
-CHARGE -1
+**Lone keyword:** `T`
 
-Mentions:
+**Usage:** *LSD*
 
-⭐
+**Mentions:** ⭐[Troubleshooting](https://manual.cp2k.org/cp2k-2026_2-branch/getting-started/troubleshooting.html), ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html), ⭐[Extended Tight Binding](https://manual.cp2k.org/cp2k-2026_2-branch/methods/semiempiricals/xtb.html)
 
-Troubleshooting
+Requests a spin-polarized calculation using alpha and beta orbitals, i.e. no spin restriction is applied \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L160)\]
 
-, ⭐
+### WFN\_RESTART\_FILE\_NAME*: string*
 
-How to make a SCF run converge
+**Aliases:** RESTART\_FILE\_NAME
 
-, ⭐
+**Usage:** *WFN\_RESTART\_FILE\_NAME*
 
-RESP Charges
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html), ⭐[Real-Time Propagation and Ehrenfest MD](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/ehrenfest.html)
 
-The total charge of the system
-
-[
-
-Edit on GitHub
-
-]
-
-CORE_CORR_DIP
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-CORE_CORR_DIP .TRUE.
-
-If the total CORE_CORRECTION is non-zero and surface dipole correction is switched on, presence of this keyword will adjust electron density via MO occupation to reflect the total CORE_CORRECTION. The default value is .FALSE.
-
-[
-
-Edit on GitHub
-
-]
-
-MULTIPLICITY
-
-:
-
-integer
-
-=
-
-0
-
-
-
-Aliases:
-
-MULTIP
-
-Usage:
-
-MULTIPLICITY 3
-
-Mentions:
-
-⭐
-
-Troubleshooting
-
-, ⭐
-
-How to make a SCF run converge
-
-Two times the total spin plus one. Specify 3 for a triplet, 4 for a quartet, and so on. Default is 1 (singlet) for an even number and 2 (doublet) for an odd number of electrons.
-
-[
-
-Edit on GitHub
-
-]
-
-PLUS_U_METHOD
-
-:
-
-enum
-
-=
-
-MULLIKEN
-
-
-
-Usage:
-
-PLUS_U_METHOD Lowdin
-
-Valid values:
-
-LOWDIN
-
-Method based on Lowdin population analysis (computationally expensive, since the diagonalization of the overlap matrix is required, but possibly more robust than Mulliken)
-
-MULLIKEN
-
-Method based on Mulliken population analysis using the net AO and overlap populations (computationally cheap method)
-
-MULLIKEN_CHARGES
-
-Method based on Mulliken gross orbital populations (GOP)
-
-Method employed for the calculation of the DFT+U contribution
-
-[
-
-Edit on GitHub
-
-]
-
-POTENTIAL_FILE_NAME
-
-:
-
-string
-
-=
-
-POTENTIAL
-
-
-
-Usage:
-
-POTENTIAL_FILE_NAME
-
-Mentions:
-
-⭐
-
-Pseudopotentials
-
-Name of the pseudopotential library file, optionally including a path. The potential selected for each kind is set with KIND%POTENTIAL.
-
-[
-
-Edit on GitHub
-
-]
-
-RELAX_MULTIPLICITY
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-
-
-Aliases:
-
-RELAX_MULTIP
-
-Usage:
-
-RELAX_MULTIPLICITY 0.00001
-
-Tolerance in Hartrees. Do not enforce the occupation of alpha and beta MOs due to the initially defined multiplicity, but rather follow the Aufbau principle. A value greater than zero activates this option. If alpha/beta MOs differ in energy less than this tolerance, then alpha-MO occupation is preferred even if it is higher in energy (within the tolerance). Such spin-symmetry broken (spin-polarized) occupation is used as SCF input, which (is assumed to) bias the SCF towards a spin-polarized solution. Thus, larger tolerance increases chances of ending up with spin-polarization. This option is only valid for unrestricted (i.e. spin polarised) Kohn-Sham (UKS) calculations. It also needs non-zero
-
-ADDED_MOS
-
-to actually affect the calculations, which is why it is not expected to work with
-
-OT
-
-and may raise errors when used with OT. For more details see
-
-this discussion
-
-.
-
-[
-
-Edit on GitHub
-
-]
-
-ROKS
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Aliases:
-
-RESTRICTED_OPEN_KOHN_SHAM
-
-Lone keyword:
-
-T
-
-Usage:
-
-ROKS
-
-Requests a restricted open Kohn-Sham calculation
-
-[
-
-Edit on GitHub
-
-]
-
-SORT_BASIS
-
-:
-
-enum
-
-=
-
-DEFAULT
-
-
-
-Usage:
-
-SORT_BASIS EXP
-
-Valid values:
-
-DEFAULT
-
-don’t sort
-
-EXP
-
-sort w.r.t. exponent
-
-Mentions:
-
-⭐
-
-HFX-RI for Γ-Point (non-periodic)
-
-Sorts basis functions according to a selected criterion. Sorting by exponent can improve data locality for selected exact-exchange and RI workflows.
-
-[
-
-Edit on GitHub
-
-]
-
-SUBCELLS
-
-:
-
-real
-
-=
-
-2.00000000E+000
-
-
-
-Usage:
-
-SUBCELLS 1.5
-
-Read the grid size for subcell generation in the construction of neighbor lists.
-
-[
-
-Edit on GitHub
-
-]
-
-SURFACE_DIPOLE_CORRECTION
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Aliases:
-
-SURFACE_DIPOLE ,SURF_DIP
-
-Lone keyword:
-
-T
-
-Usage:
-
-SURF_DIP
-
-References:
-
-Bengtsson1999
-
-For slab calculations with asymmetric geometries, activate the correction of the electrostatic potential with by compensating for the surface dipole. Implemented only for slabs with normal parallel to one Cartesian axis. The normal direction is given by the keyword SURF_DIP_DIR
-
-[
-
-Edit on GitHub
-
-]
-
-SURF_DIP_DIR
-
-:
-
-enum
-
-=
-
-Z
-
-
-
-Usage:
-
-SURF_DIP_DIR Z
-
-Valid values:
-
-X
-
-Along x
-
-Y
-
-Along y
-
-Z
-
-Along z
-
-Cartesian axis parallel to surface normal.
-
-[
-
-Edit on GitHub
-
-]
-
-SURF_DIP_POS
-
-:
-
-real
-
-=
-
--1.00000000E+000
-
-
-
-Usage:
-
-SURF_DIP_POS -1.0_dp
-
-This keyword assigns an user defined position in Angstroms in the direction normal to the surface (given by SURF_DIP_DIR). The default value is -1.0_dp which appplies the correction at a position that has minimum electron density on the grid.
-
-[
-
-Edit on GitHub
-
-]
-
-SURF_DIP_SWITCH
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-SURF_DIP_SWITCH .TRUE.
-
-WARNING: Experimental feature under development that will help the user to switch parameters to facilitate SCF convergence. In its current form the surface dipole correction is switched off if the calculation does not converge in (0.5*MAX_SCF + 1) outer_scf steps. The default value is .FALSE.
-
-[
-
-Edit on GitHub
-
-]
-
-UKS
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Aliases:
-
-UNRESTRICTED_KOHN_SHAM ,LSD ,SPIN_POLARIZED
-
-Lone keyword:
-
-T
-
-Usage:
-
-LSD
-
-Mentions:
-
-⭐
-
-Troubleshooting
-
-, ⭐
-
-How to make a SCF run converge
-
-, ⭐
-
-Extended Tight Binding
-
-Requests a spin-polarized calculation using alpha and beta orbitals, i.e. no spin restriction is applied
-
-[
-
-Edit on GitHub
-
-]
-
-WFN_RESTART_FILE_NAME
-
-:
-
-string
-
-
-
-Aliases:
-
-RESTART_FILE_NAME
-
-Usage:
-
-WFN_RESTART_FILE_NAME
-
-Mentions:
-
-⭐
-
-How to make a SCF run converge
-
-, ⭐
-
-Real-Time Propagation and Ehrenfest MD
-
-Name of the wavefunction restart file, may include a path. If no file is specified, the default is to open the file as generated by the wfn restart print key.
-
-[
-
-Edit on GitHub
-
-]
+Name of the wavefunction restart file, may include a path. If no file is specified, the default is to open the file as generated by the wfn restart print key. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_dft.F#L151)\]

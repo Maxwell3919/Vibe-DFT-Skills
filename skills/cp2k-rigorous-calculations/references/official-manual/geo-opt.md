@@ -2,502 +2,174 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html
 - Raw SHA-256: 70c0ee49a151de7bd6bd03d647cbaf2968a3981adb701f7c10d300d932712434
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-GEO_OPT
+---
 
-
+# GEO\_OPT
 
-This section sets the environment of the geometry optimizer.
-
-[
-
-Edit on GitHub
-
-]
+This section sets the environment of the geometry optimizer. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L101)\]
 
 Subsections
 
-BFGS
+-   [BFGS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT/BFGS.html)
+-   [CG](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT/CG.html)
+-   [LBFGS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT/LBFGS.html)
+-   [PRINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT/PRINT.html)
+-   [TRANSITION\_STATE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT/TRANSITION_STATE.html)
 
-CG
+## Keywords
 
-LBFGS
+-   [EPS\_SYMMETRY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.EPS_SYMMETRY "CP2K_INPUT.MOTION.GEO_OPT.EPS_SYMMETRY")
 
-PRINT
+-   **[KEEP\_SPACE\_GROUP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.KEEP_SPACE_GROUP "CP2K_INPUT.MOTION.GEO_OPT.KEEP_SPACE_GROUP")**
 
-TRANSITION_STATE
+-   [MAX\_DR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.MAX_DR "CP2K_INPUT.MOTION.GEO_OPT.MAX_DR")
 
-Keywords
+-   **[MAX\_FORCE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.MAX_FORCE "CP2K_INPUT.MOTION.GEO_OPT.MAX_FORCE")**
 
-
+-   **[MAX\_ITER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.MAX_ITER "CP2K_INPUT.MOTION.GEO_OPT.MAX_ITER")**
 
-EPS_SYMMETRY
+-   **[OPTIMIZER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.OPTIMIZER "CP2K_INPUT.MOTION.GEO_OPT.OPTIMIZER")**
 
-KEEP_SPACE_GROUP
+-   **[RMS\_DR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.RMS_DR "CP2K_INPUT.MOTION.GEO_OPT.RMS_DR")**
 
-MAX_DR
+-   [RMS\_FORCE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.RMS_FORCE "CP2K_INPUT.MOTION.GEO_OPT.RMS_FORCE")
 
-MAX_FORCE
+-   [SHOW\_SPACE\_GROUP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.SHOW_SPACE_GROUP "CP2K_INPUT.MOTION.GEO_OPT.SHOW_SPACE_GROUP")
 
-MAX_ITER
+-   [SPGR\_PRINT\_ATOMS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.SPGR_PRINT_ATOMS "CP2K_INPUT.MOTION.GEO_OPT.SPGR_PRINT_ATOMS")
 
-OPTIMIZER
+-   [STEP\_START\_VAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.STEP_START_VAL "CP2K_INPUT.MOTION.GEO_OPT.STEP_START_VAL")
 
-RMS_DR
+-   [SYMM\_EXCLUDE\_RANGE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.SYMM_EXCLUDE_RANGE "CP2K_INPUT.MOTION.GEO_OPT.SYMM_EXCLUDE_RANGE")
 
-RMS_FORCE
+-   [SYMM\_REDUCTION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.SYMM_REDUCTION "CP2K_INPUT.MOTION.GEO_OPT.SYMM_REDUCTION")
 
-SHOW_SPACE_GROUP
+-   **[TYPE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/GEO_OPT.html#CP2K_INPUT.MOTION.GEO_OPT.TYPE "CP2K_INPUT.MOTION.GEO_OPT.TYPE")**
 
-SPGR_PRINT_ATOMS
 
-STEP_START_VAL
+## Keyword descriptions
 
-SYMM_EXCLUDE_RANGE
+### EPS\_SYMMETRY*: real* *\= 1.00000000E-004*
 
-SYMM_REDUCTION
+**Usage:** *EPS\_SYMMETRY {REAL}*
 
-TYPE
+Accuracy for space group determination. EPS\_SYMMETRY is dimensionless. Roughly speaking, two scaled (fractional) atomic positions v1, v2 are considered identical if |v1 - v2| < EPS\_SYMMETRY. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L898)\]
 
-Keyword descriptions
+### KEEP\_SPACE\_GROUP*: logical* *\= F*
 
-
+**Lone keyword:** `T`
 
-EPS_SYMMETRY
+**Usage:** *KEEP\_SPACE\_GROUP .TRUE.*
 
-:
+**Mentions:** ⭐[K-Points](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/k-points.html), ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html)
 
-real
+Detect space group of the system and preserve it during optimization. The space group symmetry is applied to coordinates, forces, and the stress tensor. It works for supercell. It does not affect/reduce computational cost. Use EPS\_SYMMETRY to adjust the detection threshold. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L875)\]
 
-=
+### MAX\_DR*: real* *\= 3.00000000E-003 \[bohr\]*
 
-1.00000000E-004
+**Usage:** *MAX\_DR {real}*
 
-
+Convergence criterion for the maximum geometry change between the current and the last optimizer iteration. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L837)\]
 
-Usage:
+### MAX\_FORCE*: real* *\= 4.50000000E-004 \[bohr^-1\*hartree\]*
 
-EPS_SYMMETRY {REAL}
+**Usage:** *MAX\_FORCE {real}*
 
-Accuracy for space group determination. EPS_SYMMETRY is dimensionless. Roughly speaking, two scaled (fractional) atomic positions v1, v2 are considered identical if |v1 - v2| < EPS_SYMMETRY.
+**Mentions:** ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html), ⭐[Simulating Vibronic Effects in Optical Spectra](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/vibronicspec.html)
 
-[
+Convergence criterion for the maximum force component of the current configuration. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L845)\]
 
-Edit on GitHub
+### MAX\_ITER*: integer* *\= 200*
 
-]
+**Usage:** *MAX\_ITER {integer}*
 
-KEEP_SPACE_GROUP
+**Mentions:** ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html)
 
-:
+Specifies the maximum number of geometry optimization steps. One step might imply several force evaluations for the CG and LBFGS optimizers. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L829)\]
 
-logical
+### OPTIMIZER*: enum* *\= BFGS*
 
-=
+**Aliases:** MINIMIZER
 
-F
+**Usage:** *OPTIMIZER {BFGS|LBFGS|CG}*
 
-
+**Valid values:**
 
-Lone keyword:
+-   `BFGS` Most efficient minimizer, but only for ‘small’ systems, as it relies on diagonalization of a full Hessian matrix
 
-T
+-   `LBFGS` Limited-memory variant of BFGS suitable for large systems. Not as well fine-tuned but can be more robust.
 
-Usage:
+-   `CG` conjugate gradients, robust minimizer (depending on the line search) also OK for large systems
 
-KEEP_SPACE_GROUP .TRUE.
 
-Mentions:
+**References:** [Byrd1995](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#byrd1995)
 
-⭐
+**Mentions:** ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html)
 
-K-Points
+Specify which method to use to perform a geometry optimization. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L813)\]
 
-, ⭐
+### RMS\_DR*: real* *\= 1.50000000E-003 \[bohr\]*
 
-Geometry and cell optimization
+**Usage:** *RMS\_DR {real}*
 
-Detect space group of the system and preserve it during optimization. The space group symmetry is applied to coordinates, forces, and the stress tensor. It works for supercell. It does not affect/reduce computational cost. Use EPS_SYMMETRY to adjust the detection threshold.
+**Mentions:** ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html)
 
-[
+Convergence criterion for the root mean square (RMS) geometry change between the current and the last optimizer iteration. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L852)\]
 
-Edit on GitHub
+### RMS\_FORCE*: real* *\= 3.00000000E-004 \[bohr^-1\*hartree\]*
 
-]
+**Usage:** *RMS\_FORCE {real}*
 
-MAX_DR
+Convergence criterion for the root mean square (RMS) force of the current configuration. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L860)\]
 
-:
+### SHOW\_SPACE\_GROUP*: logical* *\= F*
 
-real
+**Lone keyword:** `T`
 
-=
+**Usage:** *SHOW\_SPACE\_GROUP .TRUE.*
 
-3.00000000E-003
+Detect and show space group of the system after optimization. It works for supercell. It does not affect/reduce computational cost. Use EPS\_SYMMETRY to adjust the detection threshold. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L887)\]
 
-[bohr]
+### SPGR\_PRINT\_ATOMS*: logical* *\= F*
 
-
+**Lone keyword:** `T`
 
-Usage:
+Print equivalent atoms list for each space group symmetry operation. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L929)\]
 
-MAX_DR {real}
+### STEP\_START\_VAL*: integer* *\= 0*
 
-Convergence criterion for the maximum geometry change between the current and the last optimizer iteration.
+**Usage:** *step\_start\_val*
 
-[
+The starting step value for the GEO\_OPT module. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L867)\]
 
-Edit on GitHub
+### SYMM\_EXCLUDE\_RANGE*: integer\[2\]*
 
-]
+**Keyword can be repeated.**
 
-MAX_FORCE
+**Usage:** *SYMM\_EXCLUDE\_RANGE {Int} {Int}*
 
-:
+Range of atoms to exclude from space group symmetry. These atoms are excluded from both identification and enforcement. This keyword can be repeated. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L920)\]
 
-real
+### SYMM\_REDUCTION*: real\[3\]* *\= 0.00000000E+000 0.00000000E+000 0.00000000E+000*
 
-=
+**Usage:** *SYMM\_REDUCTION 0.0 0.0 0.0*
 
-4.50000000E-004
+Direction of the external static electric field. Some symmetry operations are not compatible with the direction of an electric field. These operations are used when enforcing the space group. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L908)\]
 
-[bohr^-1*hartree]
+### TYPE*: enum* *\= MINIMIZATION*
 
-
+**Usage:** *TYPE (MINIMIZATION|TRANSITION\_STATE)*
 
-Usage:
+**Valid values:**
 
-MAX_FORCE {real}
+-   `MINIMIZATION` Performs a geometry minimization.
 
-Mentions:
+-   `TRANSITION_STATE` Performs a transition state optimization.
 
-⭐
 
-Geometry and cell optimization
+**Mentions:** ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html)
 
-, ⭐
-
-Simulating Vibronic Effects in Optical Spectra
-
-Convergence criterion for the maximum force component of the current configuration.
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_ITER
-
-:
-
-integer
-
-=
-
-200
-
-
-
-Usage:
-
-MAX_ITER {integer}
-
-Mentions:
-
-⭐
-
-Geometry and cell optimization
-
-Specifies the maximum number of geometry optimization steps. One step might imply several force evaluations for the CG and LBFGS optimizers.
-
-[
-
-Edit on GitHub
-
-]
-
-OPTIMIZER
-
-:
-
-enum
-
-=
-
-BFGS
-
-
-
-Aliases:
-
-MINIMIZER
-
-Usage:
-
-OPTIMIZER {BFGS|LBFGS|CG}
-
-Valid values:
-
-BFGS
-
-Most efficient minimizer, but only for ‘small’ systems, as it relies on diagonalization of a full Hessian matrix
-
-LBFGS
-
-Limited-memory variant of BFGS suitable for large systems. Not as well fine-tuned but can be more robust.
-
-CG
-
-conjugate gradients, robust minimizer (depending on the line search) also OK for large systems
-
-References:
-
-Byrd1995
-
-Mentions:
-
-⭐
-
-Geometry and cell optimization
-
-Specify which method to use to perform a geometry optimization.
-
-[
-
-Edit on GitHub
-
-]
-
-RMS_DR
-
-:
-
-real
-
-=
-
-1.50000000E-003
-
-[bohr]
-
-
-
-Usage:
-
-RMS_DR {real}
-
-Mentions:
-
-⭐
-
-Geometry and cell optimization
-
-Convergence criterion for the root mean square (RMS) geometry change between the current and the last optimizer iteration.
-
-[
-
-Edit on GitHub
-
-]
-
-RMS_FORCE
-
-:
-
-real
-
-=
-
-3.00000000E-004
-
-[bohr^-1*hartree]
-
-
-
-Usage:
-
-RMS_FORCE {real}
-
-Convergence criterion for the root mean square (RMS) force of the current configuration.
-
-[
-
-Edit on GitHub
-
-]
-
-SHOW_SPACE_GROUP
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-SHOW_SPACE_GROUP .TRUE.
-
-Detect and show space group of the system after optimization. It works for supercell. It does not affect/reduce computational cost. Use EPS_SYMMETRY to adjust the detection threshold.
-
-[
-
-Edit on GitHub
-
-]
-
-SPGR_PRINT_ATOMS
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Print equivalent atoms list for each space group symmetry operation.
-
-[
-
-Edit on GitHub
-
-]
-
-STEP_START_VAL
-
-:
-
-integer
-
-=
-
-0
-
-
-
-Usage:
-
-step_start_val
-
-The starting step value for the GEO_OPT module.
-
-[
-
-Edit on GitHub
-
-]
-
-SYMM_EXCLUDE_RANGE
-
-:
-
-integer
-
-[
-
-2
-
-]
-
-
-
-Keyword can be repeated.
-
-Usage:
-
-SYMM_EXCLUDE_RANGE {Int} {Int}
-
-Range of atoms to exclude from space group symmetry. These atoms are excluded from both identification and enforcement. This keyword can be repeated.
-
-[
-
-Edit on GitHub
-
-]
-
-SYMM_REDUCTION
-
-:
-
-real
-
-[
-
-3
-
-]
-
-=
-
-0.00000000E+000
-
-
-
-Usage:
-
-SYMM_REDUCTION 0.0 0.0 0.0
-
-Direction of the external static electric field. Some symmetry operations are not compatible with the direction of an electric field. These operations are used when enforcing the space group.
-
-[
-
-Edit on GitHub
-
-]
-
-TYPE
-
-:
-
-enum
-
-=
-
-MINIMIZATION
-
-
-
-Usage:
-
-TYPE (MINIMIZATION|TRANSITION_STATE)
-
-Valid values:
-
-MINIMIZATION
-
-Performs a geometry minimization.
-
-TRANSITION_STATE
-
-Performs a transition state optimization.
-
-Mentions:
-
-⭐
-
-Geometry and cell optimization
-
-Specify which kind of geometry optimization to perform
-
-[
-
-Edit on GitHub
-
-]
+Specify which kind of geometry optimization to perform \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/start/input_cp2k_motion.F#L800)\]

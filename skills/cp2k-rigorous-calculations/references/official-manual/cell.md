@@ -2,532 +2,211 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html
 - Raw SHA-256: 1407ebd96546241b3e9a339c1429e7d880785adebdd2f3bbd35c32e7391f1f3a
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-CELL
+---
 
-
+# CELL
 
-Input parameters needed to set up the simulation cell. Simple products and fractions combined with functions of a single number can be used like 2/3, 0.3*COS(60) or -SQRT(3)/2. The functions COS, EXP, LOG, LOG10, SIN, SQRT, and TAN are available.
+Input parameters needed to set up the simulation cell. Simple products and fractions combined with functions of a single number can be used like 2/3, 0.3\*COS(60) or -SQRT(3)/2. The functions COS, EXP, LOG, LOG10, SIN, SQRT, and TAN are available.
 
 Cell settings are parsed in the following precedence order:
 
-The external file set by CELL_FILE_NAME with a CELL_FILE_FORMAT;
+1.  The external file set by CELL\_FILE\_NAME with a CELL\_FILE\_FORMAT;
 
-The lengths and angles of cell vectors set by ABC and ALPHA_BETA_GAMMA;
+2.  The lengths and angles of cell vectors set by ABC and ALPHA\_BETA\_GAMMA;
 
-The vectors set by A, B, C together;
+3.  The vectors set by A, B, C together;
 
-If none above exist, the external file set by TOPOLOGY/COORD_FILE_NAME with suitable TOPOLOGY/COORD_FILE_FORMAT may also be parsed for FORCE_EVAL/SUBSYS/CELL but not for FORCE_EVAL/QMMM/CELL.
+4.  If none above exist, the external file set by TOPOLOGY/COORD\_FILE\_NAME with suitable TOPOLOGY/COORD\_FILE\_FORMAT may also be parsed for FORCE\_EVAL/SUBSYS/CELL but not for FORCE\_EVAL/QMMM/CELL. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L81)\]
 
-[
-
-Edit on GitHub
-
-]
 
 Subsections
 
-CELL_REF
+-   [CELL\_REF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL/CELL_REF.html)
 
-Keywords
+## Keywords
 
-
+-   [A](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.A "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.A")
 
-A
+-   **[ABC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.ABC "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.ABC")**
 
-ABC
+-   **[ALPHA\_BETA\_GAMMA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.ALPHA_BETA_GAMMA "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.ALPHA_BETA_GAMMA")**
 
-ALPHA_BETA_GAMMA
+-   [B](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.B "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.B")
 
-B
+-   [C](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.C "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.C")
 
-C
+-   [CANONICALIZE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.CANONICALIZE "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.CANONICALIZE")
 
-CANONICALIZE
+-   [CELL\_FILE\_FORMAT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.CELL_FILE_FORMAT "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.CELL_FILE_FORMAT")
 
-CELL_FILE_FORMAT
+-   [CELL\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.CELL_FILE_NAME "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.CELL_FILE_NAME")
 
-CELL_FILE_NAME
+-   [MULTIPLE\_UNIT\_CELL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.MULTIPLE_UNIT_CELL "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.MULTIPLE_UNIT_CELL")
 
-MULTIPLE_UNIT_CELL
+-   [PERIODIC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.PERIODIC "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.PERIODIC")
 
-PERIODIC
+-   **[SYMMETRY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/CELL.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.SYMMETRY "CP2K_INPUT.FORCE_EVAL.SUBSYS.CELL.SYMMETRY")**
 
-SYMMETRY
 
-Keyword descriptions
+## Keyword descriptions
 
-
+### A*: real\[3\]* *\= \[angstrom\]*
 
-A
+**Usage:** *A 10.000 0.000 0.000*
 
-:
+Specify the Cartesian components for the cell vector A. This defines the first column of the h matrix. Ignored if the keywords ABC or CELL\_FILE\_NAME are used. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L124)\]
 
-real
+### ABC*: real\[3\]* *\= \[angstrom\]*
 
-[
+**Usage:** *ABC 10.000 10.000 10.000*
 
-3
+**Mentions:** ⭐[K-Points](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/k-points.html)
 
-]
+Specify the lengths of the cell vectors A, B, and C, which defines the diagonal elements of h matrix for an orthorhombic cell. For non-orthorhombic cells it is possible either to specify the angles ALPHA, BETA, GAMMA via ALPHA\_BETA\_GAMMA keyword or alternatively use the keywords A, B, and C. The convention is that A lies along the X-axis, B is in the XY plane. Ignored if CELL\_FILE\_NAME is used. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L151)\]
 
-=
+### ALPHA\_BETA\_GAMMA*: real\[3\]* *\= 9.00000000E+001 9.00000000E+001 9.00000000E+001 \[deg\]*
 
-[angstrom]
+**Aliases:** ANGLES
 
-
+**Usage:** *ALPHA\_BETA\_GAMMA \[deg\] 90.0 90.0 120.0*
 
-Usage:
+**Mentions:** ⭐[K-Points](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/k-points.html)
 
-A 10.000 0.000 0.000
+Specify the angles between the vectors A, B and C when using the ABC keyword. The convention is that A lies along the X-axis, B is in the XY plane. ALPHA is the angle between B and C, BETA is the angle between A and C and GAMMA is the angle between A and B. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L163)\]
 
-Specify the Cartesian components for the cell vector A. This defines the first column of the h matrix. Ignored if the keywords ABC or CELL_FILE_NAME are used.
+### B*: real\[3\]* *\= \[angstrom\]*
 
-[
+**Usage:** *B 0.000 10.000 0.000*
 
-Edit on GitHub
+Specify the Cartesian components for the cell vector B. This defines the second column of the h matrix. Ignored if the keywords ABC or CELL\_FILE\_NAME are used. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L133)\]
 
-]
+### C*: real\[3\]* *\= \[angstrom\]*
 
-ABC
+**Usage:** *C 0.000 0.000 10.000*
 
-:
+Specify the Cartesian components for the cell vector C. This defines the third column of the h matrix. Ignored if the keywords ABC or CELL\_FILE\_NAME are used. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L142)\]
 
-real
+### CANONICALIZE*: enum* *\= AUTO*
 
-[
+**Lone keyword:** `TRUE`
 
-3
+**Usage:** *CANONICALIZE AUTO*
 
-]
+**Valid values:**
 
-=
+-   `AUTO` Keep the input orientation unless canonicalization is unambiguously safe
 
-[angstrom]
+-   `TRUE` Explicitly canonicalize the input cell
 
-
+-   `FALSE` Keep the input cell orientation
 
-Usage:
+-   `T` Alias for TRUE
 
-ABC 10.000 10.000 10.000
+-   `F` Alias for FALSE
 
-Mentions:
+-   `.TRUE.` Alias for TRUE
 
-⭐
+-   `.FALSE.` Alias for FALSE
 
-K-Points
 
-Specify the lengths of the cell vectors A, B, and C, which defines the diagonal elements of h matrix for an orthorhombic cell. For non-orthorhombic cells it is possible either to specify the angles ALPHA, BETA, GAMMA via ALPHA_BETA_GAMMA keyword or alternatively use the keywords A, B, and C. The convention is that A lies along the X-axis, B is in the XY plane. Ignored if CELL_FILE_NAME is used.
+Policy for transforming a general input cell to CP2K’s internal convention that A lies along the X-axis and B is in the XY plane. AUTO is conservative and keeps the input orientation when a silent transformation could affect Cartesian or direction-dependent input. TRUE explicitly requests canonicalization and transforms supported cell-dependent input. FALSE always keeps the input orientation. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L205)\]
 
-[
+### CELL\_FILE\_FORMAT*: enum* *\= CP2K*
 
-Edit on GitHub
+**Usage:** *CELL\_FILE\_FORMAT (CP2K|CIF|XSC|EXTXYZ|XYZ|PDB)*
 
-]
+**Valid values:**
 
-ALPHA_BETA_GAMMA
+-   `CP2K` Cell info in the CP2K native format
 
-:
+-   `CIF` Cell info from CIF file (from fields `_cell_length_a` or `_cell.length_a`, etc)
 
-real
+-   `XSC` Cell info in the XSC format (NAMD)
 
-[
+-   `EXTXYZ` Cell info as `lattice=...` field in the comment line of Extended XYZ format
 
-3
+-   `XYZ` Alias for Extended XYZ
 
-]
+-   `PDB` Cell info in the `CRYST1` record of PDB format
 
-=
 
-9.00000000E+001
+Format of the external file from which cell is parsed. If the format specifies a cell by lengths and angles of three vectors, then a cell matrix is constructed with the convention that A lies along the X-axis, B is in the XY plane. ALPHA is the angle between B and C, BETA is the angle between A and C, and GAMMA is the angle between A and B. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L184)\]
 
-[deg]
+### CELL\_FILE\_NAME*: string*
 
-
+**Usage:** *CELL\_FILE\_NAME*
 
-Aliases:
+The external file from which cell is parsed \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L177)\]
 
-ANGLES
+### MULTIPLE\_UNIT\_CELL*: integer\[3\]* *\= 1 1 1*
 
-Usage:
+**Usage:** *MULTIPLE\_UNIT\_CELL 1 1 1*
 
-ALPHA_BETA_GAMMA [deg] 90.0 90.0 120.0
+Specifies the numbers of repetition in space (X, Y, Z) of the defined cell, assuming it as a unit cell. This keyword affects only the CELL specification. The same keyword in SUBSYS%TOPOLOGY%MULTIPLE\_UNIT\_CELL should be modified in order to affect the coordinates specification. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L243)\]
 
-Mentions:
+### PERIODIC*: enum* *\= XYZ*
 
-⭐
+**Usage:** *PERIODIC (x|y|z|xy|xz|yz|xyz|none)*
 
-K-Points
+**Valid values:**
 
-Specify the angles between the vectors A, B and C when using the ABC keyword. The convention is that A lies along the X-axis, B is in the XY plane. ALPHA is the angle between B and C, BETA is the angle between A and C and GAMMA is the angle between A and B.
+-   `X`
 
-[
+-   `Y`
 
-Edit on GitHub
+-   `Z`
 
-]
+-   `XY`
 
-B
+-   `XZ`
 
-:
+-   `YZ`
 
-real
+-   `XYZ`
 
-[
+-   `NONE`
 
-3
 
-]
+Specify the directions for which periodic boundary conditions (PBC) will be applied. Important notice: This applies to the generation of the pair lists as well as to the application of the PBCs to positions. See the POISSON section to specify the periodicity used for the electrostatics. Typically the settings should be the same. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L228)\]
 
-=
+### SYMMETRY*: enum* *\= NONE*
 
-[angstrom]
+**Usage:** *SYMMETRY monoclinic*
 
-
+**Valid values:**
 
-Usage:
+-   `NONE` No cell symmetry
 
-B 0.000 10.000 0.000
+-   `TRICLINIC` Triclinic (a ≠ b ≠ c ≠ a, α ≠ β ≠ γ ≠ α ≠ 90°)
 
-Specify the Cartesian components for the cell vector B. This defines the second column of the h matrix. Ignored if the keywords ABC or CELL_FILE_NAME are used.
+-   `MONOCLINIC` Monoclinic (a ≠ b ≠ c, α = γ = 90°, β ≠ 90°)
 
-[
+-   `MONOCLINIC_GAMMA_AB` Monoclinic (a = b ≠ c, α = β = 90°, γ ≠ 90°)
 
-Edit on GitHub
+-   `ORTHORHOMBIC` Orthorhombic (a ≠ b ≠ c, α = β = γ = 90°)
 
-]
+-   `TETRAGONAL_AB` Tetragonal (a = b ≠ c, α = β = γ = 90°)
 
-C
+-   `TETRAGONAL_AC` Tetragonal (a = c ≠ b, α = β = γ = 90°)
 
-:
+-   `TETRAGONAL_BC` Tetragonal (a ≠ b = c, α = β = γ = 90°)
 
-real
+-   `TETRAGONAL` Tetragonal (alias for TETRAGONAL\_AB)
 
-[
+-   `RHOMBOHEDRAL` Rhombohedral (a = b = c, α = β = γ ≠ 90°)
 
-3
+-   `HEXAGONAL` Hexagonal (alias for HEXAGONAL\_GAMMA\_60)
 
-]
+-   `HEXAGONAL_GAMMA_60` Hexagonal (a = b ≠ c, α = β = 90°, γ = 60°)
 
-=
+-   `HEXAGONAL_GAMMA_120` Hexagonal (a = b ≠ c, α = β = 90°, γ = 120°)
 
-[angstrom]
+-   `CUBIC` Cubic (a = b = c, α = β = γ = 90°)
 
-
 
-Usage:
+**Mentions:** ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html)
 
-C 0.000 0.000 10.000
-
-Specify the Cartesian components for the cell vector C. This defines the third column of the h matrix. Ignored if the keywords ABC or CELL_FILE_NAME are used.
-
-[
-
-Edit on GitHub
-
-]
-
-CANONICALIZE
-
-:
-
-enum
-
-=
-
-AUTO
-
-
-
-Lone keyword:
-
-TRUE
-
-Usage:
-
-CANONICALIZE AUTO
-
-Valid values:
-
-AUTO
-
-Keep the input orientation unless canonicalization is unambiguously safe
-
-TRUE
-
-Explicitly canonicalize the input cell
-
-FALSE
-
-Keep the input cell orientation
-
-T
-
-Alias for TRUE
-
-F
-
-Alias for FALSE
-
-.TRUE.
-
-Alias for TRUE
-
-.FALSE.
-
-Alias for FALSE
-
-Policy for transforming a general input cell to CP2K’s internal convention that A lies along the X-axis and B is in the XY plane. AUTO is conservative and keeps the input orientation when a silent transformation could affect Cartesian or direction-dependent input. TRUE explicitly requests canonicalization and transforms supported cell-dependent input. FALSE always keeps the input orientation.
-
-[
-
-Edit on GitHub
-
-]
-
-CELL_FILE_FORMAT
-
-:
-
-enum
-
-=
-
-CP2K
-
-
-
-Usage:
-
-CELL_FILE_FORMAT (CP2K|CIF|XSC|EXTXYZ|XYZ|PDB)
-
-Valid values:
-
-CP2K
-
-Cell info in the CP2K native format
-
-CIF
-
-Cell info from CIF file (from fields
-
-_cell_length_a
-
-or
-
-_cell.length_a
-
-, etc)
-
-XSC
-
-Cell info in the XSC format (NAMD)
-
-EXTXYZ
-
-Cell info as
-
-lattice=...
-
-field in the comment line of Extended XYZ format
-
-XYZ
-
-Alias for Extended XYZ
-
-PDB
-
-Cell info in the
-
-CRYST1
-
-record of PDB format
-
-Format of the external file from which cell is parsed. If the format specifies a cell by lengths and angles of three vectors, then a cell matrix is constructed with the convention that A lies along the X-axis, B is in the XY plane. ALPHA is the angle between B and C, BETA is the angle between A and C, and GAMMA is the angle between A and B.
-
-[
-
-Edit on GitHub
-
-]
-
-CELL_FILE_NAME
-
-:
-
-string
-
-
-
-Usage:
-
-CELL_FILE_NAME
-
-The external file from which cell is parsed
-
-[
-
-Edit on GitHub
-
-]
-
-MULTIPLE_UNIT_CELL
-
-:
-
-integer
-
-[
-
-3
-
-]
-
-=
-
-1
-
-
-
-Usage:
-
-MULTIPLE_UNIT_CELL 1 1 1
-
-Specifies the numbers of repetition in space (X, Y, Z) of the defined cell, assuming it as a unit cell. This keyword affects only the CELL specification. The same keyword in SUBSYS%TOPOLOGY%MULTIPLE_UNIT_CELL should be modified in order to affect the coordinates specification.
-
-[
-
-Edit on GitHub
-
-]
-
-PERIODIC
-
-:
-
-enum
-
-=
-
-XYZ
-
-
-
-Usage:
-
-PERIODIC (x|y|z|xy|xz|yz|xyz|none)
-
-Valid values:
-
-X
-
-Y
-
-Z
-
-XY
-
-XZ
-
-YZ
-
-XYZ
-
-NONE
-
-Specify the directions for which periodic boundary conditions (PBC) will be applied. Important notice: This applies to the generation of the pair lists as well as to the application of the PBCs to positions. See the POISSON section to specify the periodicity used for the electrostatics. Typically the settings should be the same.
-
-[
-
-Edit on GitHub
-
-]
-
-SYMMETRY
-
-:
-
-enum
-
-=
-
-NONE
-
-
-
-Usage:
-
-SYMMETRY monoclinic
-
-Valid values:
-
-NONE
-
-No cell symmetry
-
-TRICLINIC
-
-Triclinic (a ≠ b ≠ c ≠ a, α ≠ β ≠ γ ≠ α ≠ 90°)
-
-MONOCLINIC
-
-Monoclinic (a ≠ b ≠ c, α = γ = 90°, β ≠ 90°)
-
-MONOCLINIC_GAMMA_AB
-
-Monoclinic (a = b ≠ c, α = β = 90°, γ ≠ 90°)
-
-ORTHORHOMBIC
-
-Orthorhombic (a ≠ b ≠ c, α = β = γ = 90°)
-
-TETRAGONAL_AB
-
-Tetragonal (a = b ≠ c, α = β = γ = 90°)
-
-TETRAGONAL_AC
-
-Tetragonal (a = c ≠ b, α = β = γ = 90°)
-
-TETRAGONAL_BC
-
-Tetragonal (a ≠ b = c, α = β = γ = 90°)
-
-TETRAGONAL
-
-Tetragonal (alias for TETRAGONAL_AB)
-
-RHOMBOHEDRAL
-
-Rhombohedral (a = b = c, α = β = γ ≠ 90°)
-
-HEXAGONAL
-
-Hexagonal (alias for HEXAGONAL_GAMMA_60)
-
-HEXAGONAL_GAMMA_60
-
-Hexagonal (a = b ≠ c, α = β = 90°, γ = 60°)
-
-HEXAGONAL_GAMMA_120
-
-Hexagonal (a = b ≠ c, α = β = 90°, γ = 120°)
-
-CUBIC
-
-Cubic (a = b = c, α = β = γ = 90°)
-
-Mentions:
-
-⭐
-
-Geometry and cell optimization
-
-Imposes an initial cell symmetry, according to the convention that A lies along the X-axis, B is in the XY plane. After the input cell information is parsed, the symmetry is enforced by reconstructing the cell matrix from lengths and angles of the cell vectors, taking averages if necessary. This process does not affect input atomic coordinates; in case a space group is to be detected and preserved for an optimization task, atomic coordinates should correspond to cell vectors already obeying the convention mentioned above.
-
-[
-
-Edit on GitHub
-
-]
+Imposes an initial cell symmetry, according to the convention that A lies along the X-axis, B is in the XY plane. After the input cell information is parsed, the symmetry is enforced by reconstructing the cell matrix from lengths and angles of the cell vectors, taking averages if necessary. This process does not affect input atomic coordinates; in case a space group is to be detected and preserved for an optimization task, atomic coordinates should correspond to cell vectors already obeying the convention mentioned above. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L253)\]

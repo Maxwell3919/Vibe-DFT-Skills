@@ -5,6 +5,8 @@ description: Create evidence-gap-aware LASP 3.7.3 plans for PES evaluation, SSW/
 
 # LASP Rigorous Simulations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using public LASP documentation; authorized-download manuals remain external and restricted.
+
 This candidate is deliberately fail closed. Public author literature supports LASP 3.7 capabilities at a high level. The official LASP Hub page reviewed on 2026-07-22 identifies the CPU distribution as LASP 3.7.3 for Linux with Intel MPI/Compiler 2017+, executable `Src/lasp`, and direct/MPI launcher examples. The advertised manual/examples require authorized download and were not obtained, so complete input grammar, units/defaults, completion markers, restart specification, full compatibility, and software terms remain unimplemented. Never convert that narrower evidence gap into guessed syntax.
 
 The candidate remains useful: it creates an explicit scientific plan, content-addresses opaque artifacts, checks privacy/legal declarations, flags corrupted generic text, validates project-authored extxyz structure independently of engine provenance, and produces a precise promotion delta. It never invokes LASP or claims a LASP run completed.

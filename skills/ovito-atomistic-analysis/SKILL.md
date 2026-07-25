@@ -5,6 +5,8 @@ description: Inventory XYZ or extended-XYZ trajectories, validate version- and e
 
 # OVITO Atomistic Analysis
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before relying on external OVITO documentation or package metadata.
+
 ## Hold the authority boundary
 
 Treat this directory as non-routable candidate evidence. Never call it installed, active,

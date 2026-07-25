@@ -36,7 +36,15 @@ Claim packages must carry `pass_cached_exact` records. `validate_claim_package.p
 
 ## Snapshot maintenance
 
-Run `scripts/sync_official_manuals.py --refresh --version <VERSION>` to build the complete page index and curated snapshot in a temporary directory, then replace the old snapshot only after every page succeeds. Run `--check` offline to verify the registry hash, inventory hash, topic set, file set and every page hash. Never hand-edit generated snapshot pages.
+Read [html2md-refresh-contract.md](html2md-refresh-contract.md), then run
+`scripts/sync_official_manuals.py --refresh --version <VERSION>` to build the
+complete page index and curated snapshot in a temporary directory. The refresh
+requires the pinned local `helloworld-Co/html2md` installation, records its
+identity, and replaces the old snapshot only after every page passes
+character-preservation and readability gates. Run `--check` offline to verify
+the converter identity, registry hash, inventory hash, topic set, file set,
+page hashes, UTF-8, provenance headers, and recorded quality results. Never
+hand-edit generated snapshot pages.
 
 ## Search order
 

@@ -5,6 +5,8 @@ description: Design and fail-closed audit offline GPUMD molecular-dynamics, Gree
 
 # GPUMD Rigorous Simulations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external GPUMD documentation body.
+
 Keep input syntax, executable identity, GPU compatibility, potential validity, technical completion, ensemble sampling, uncertainty, and scientific acceptance as separate gates. This development Skill never invokes `gpumd`, CUDA, HIP, a scheduler, a shell, or the network.
 
 ## Resolve the offline guard

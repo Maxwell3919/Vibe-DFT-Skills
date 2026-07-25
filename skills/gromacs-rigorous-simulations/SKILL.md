@@ -5,6 +5,8 @@ description: Design, resolve exact official commands for, safely probe, execute 
 
 # GROMACS Rigorous Simulations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external GROMACS documentation body.
+
 Keep system preparation, preprocessor success, execution completion, ensemble sampling, numerical stability, model validity, and human scientific acceptance separate. This development Skill now contains concrete version-bound commands and workflows. Its manual resolver may run only fixed version/help probes; its evidence guard never invokes `grompp`, `mdrun`, a scheduler, or a remote host. Run scientific or state-changing provider commands only when the user explicitly authorizes their exact scope.
 
 ## Start manual-first

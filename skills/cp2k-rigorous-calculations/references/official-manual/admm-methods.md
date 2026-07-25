@@ -2,204 +2,88 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/hartree-fock/admm.html
 - Raw SHA-256: 5eec0614fc0880a3223962cbf52c35137d7e7739072f1c4e1467e22508735a1a
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-HFX with ADMM
+---
 
-
+# HFX with ADMM
 
-The auxiliary density matrix method (
+The auxiliary density matrix method ([ADMM](https://manual.cp2k.org/cp2k-2026_2-branch/acronyms.html#term-ADMM)) reduces the cost of Hartree-Fock exchange in hybrid DFT calculations by projecting the density matrix from the primary orbital basis onto a smaller auxiliary basis. CP2K evaluates exact exchange in the auxiliary basis and adds a correction term for the difference between the primary and auxiliary exchange descriptions.
 
-ADMM
+ADMM is most useful when exact exchange is the bottleneck, especially with larger or more diffuse Gaussian basis sets. It is commonly used for hybrid DFT, and the ADMM2 variant is also supported by several post-SCF methods that reuse exact-exchange machinery.
 
-) reduces the cost of Hartree-Fock exchange in
-
-hybrid DFT calculations by projecting the density matrix from the primary orbital basis onto a
-
-smaller auxiliary basis. CP2K evaluates exact exchange in the auxiliary basis and adds a correction
-
-term for the difference between the primary and auxiliary exchange descriptions.
-
-ADMM is most useful when exact exchange is the bottleneck, especially with larger or more diffuse
-
-Gaussian basis sets. It is commonly used for hybrid DFT, and the ADMM2 variant is also supported by
-
-several post-SCF methods that reuse exact-exchange machinery.
-
-Basic Setup
-
-
+## Basic Setup
 
 An ADMM calculation needs three pieces of input:
 
-a hybrid functional or another setup that evaluates Hartree-Fock exchange,
+-   a hybrid functional or another setup that evaluates Hartree-Fock exchange,
 
-an auxiliary basis set for each atomic kind, specified with
+-   an auxiliary basis set for each atomic kind, specified with `BASIS_SET AUX_FIT`,
 
-BASIS_SET
+-   an [AUXILIARY\_DENSITY\_MATRIX\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/AUXILIARY_DENSITY_MATRIX_METHOD.html#cp2k-input-force-eval-dft-auxiliary-density-matrix-method) section that selects the ADMM variant and correction functional.
 
-AUX_FIT
-
-,
-
-an
-
-AUXILIARY_DENSITY_MATRIX_METHOD
-
-section that selects the ADMM variant and correction functional.
 
 For example:
 
+```
 &DFT
-
-BASIS_SET_FILE_NAME BASIS_MOLOPT_UZH
-
-BASIS_SET_FILE_NAME BASIS_ADMM_UZH
-
-POTENTIAL_FILE_NAME POTENTIAL_UZH
-
-&AUXILIARY_DENSITY_MATRIX_METHOD
-
-ADMM_TYPE ADMMS
-
-EXCH_CORRECTION_FUNC PBEX
-
-&END AUXILIARY_DENSITY_MATRIX_METHOD
-
-&XC
-
-&XC_FUNCTIONAL PBE
-
-&END XC_FUNCTIONAL
-
-&HF
-
-FRACTION 0.25
-
-&END HF
-
-&END XC
-
+  BASIS_SET_FILE_NAME BASIS_MOLOPT_UZH
+  BASIS_SET_FILE_NAME BASIS_ADMM_UZH
+  POTENTIAL_FILE_NAME POTENTIAL_UZH
+  &AUXILIARY_DENSITY_MATRIX_METHOD
+    ADMM_TYPE ADMMS
+    EXCH_CORRECTION_FUNC PBEX
+  &END AUXILIARY_DENSITY_MATRIX_METHOD
+  &XC
+    &XC_FUNCTIONAL PBE
+    &END XC_FUNCTIONAL
+    &HF
+      FRACTION 0.25
+    &END HF
+  &END XC
 &END DFT
 
 &SUBSYS
-
-&KIND O
-
-BASIS_SET ccGRB-D-q6
-
-BASIS_SET AUX_FIT admm-dz-q6
-
-POTENTIAL GTH-HYB-q6
-
-&END KIND
-
+  &KIND O
+    BASIS_SET ccGRB-D-q6
+    BASIS_SET AUX_FIT admm-dz-q6
+    POTENTIAL GTH-HYB-q6
+  &END KIND
 &END SUBSYS
+```
 
-Choosing the Auxiliary Basis
+## Choosing the Auxiliary Basis
 
-
+The auxiliary basis should be chosen for the primary basis family and for the intended accuracy. For MOLOPT-style calculations, the `BASIS_ADMM_MOLOPT` family provides compact auxiliary bases. The newer UZH basis-set collection includes `BASIS_ADMM_UZH` and related basis files for correlation consistent setups. All-electron calculations can use all-electron auxiliary basis sets when available.
 
-The auxiliary basis should be chosen for the primary basis family and for the intended accuracy. For
+The auxiliary basis is part of the approximation. A too small auxiliary basis can make the exchange correction large and reduce accuracy; a too large one gives back less speedup. For production work, test at least one larger auxiliary basis or compare against a smaller reference system without ADMM.
 
-MOLOPT-style calculations, the
+## Choosing the ADMM Variant
 
-BASIS_ADMM_MOLOPT
+[ADMM\_TYPE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/AUXILIARY_DENSITY_MATRIX_METHOD.html#CP2K_INPUT.FORCE_EVAL.DFT.AUXILIARY_DENSITY_MATRIX_METHOD.ADMM_TYPE "CP2K_INPUT.FORCE_EVAL.DFT.AUXILIARY_DENSITY_MATRIX_METHOD.ADMM_TYPE") is a shortcut that sets the projection, purification, and scaling options consistently. `ADMM1` and `ADMM2` are the original variants, while `ADMMS`, `ADMMP`, and `ADMMQ` use additional models introduced later. `ADMM2` is often the most broadly supported variant for workflows beyond ground-state hybrid DFT.
 
-family provides compact auxiliary bases. The
+The [EXCH\_CORRECTION\_FUNC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/AUXILIARY_DENSITY_MATRIX_METHOD.html#CP2K_INPUT.FORCE_EVAL.DFT.AUXILIARY_DENSITY_MATRIX_METHOD.EXCH_CORRECTION_FUNC "CP2K_INPUT.FORCE_EVAL.DFT.AUXILIARY_DENSITY_MATRIX_METHOD.EXCH_CORRECTION_FUNC") keyword selects the exchange functional used for the ADMM correction. It should be chosen consistently with the exchange part of the main exchange-correlation setup; `PBEX` is a common choice for PBE-based hybrid calculations.
 
-newer UZH basis-set collection includes
-
-BASIS_ADMM_UZH
-
-and related basis files for correlation
-
-consistent setups. All-electron calculations can use all-electron auxiliary basis sets when
-
-available.
-
-The auxiliary basis is part of the approximation. A too small auxiliary basis can make the exchange
-
-correction large and reduce accuracy; a too large one gives back less speedup. For production work,
-
-test at least one larger auxiliary basis or compare against a smaller reference system without ADMM.
-
-Choosing the ADMM Variant
-
-
-
-ADMM_TYPE
-
-is a shortcut that
-
-sets the projection, purification, and scaling options consistently.
-
-ADMM1
-
-and
-
-ADMM2
-
-are the
-
-original variants, while
-
-ADMMS
-
-,
-
-ADMMP
-
-, and
-
-ADMMQ
-
-use additional models introduced later.
-
-ADMM2
-
-is often the most broadly supported variant for workflows beyond ground-state hybrid DFT.
-
-The
-
-EXCH_CORRECTION_FUNC
-
-keyword selects the exchange functional used for the ADMM correction. It should be chosen
-
-consistently with the exchange part of the main exchange-correlation setup;
-
-PBEX
-
-is a common
-
-choice for PBE-based hybrid calculations.
-
-Practical Checks
-
-
+## Practical Checks
 
 When using ADMM:
 
-keep the same primary basis and potential convergence checks that would be used without ADMM,
+-   keep the same primary basis and potential convergence checks that would be used without ADMM,
 
-check the sensitivity to the auxiliary basis size,
+-   check the sensitivity to the auxiliary basis size,
 
-compare total energies, forces, or target properties against a non-ADMM reference for a small
+-   compare total energies, forces, or target properties against a non-ADMM reference for a small representative system,
 
-representative system,
+-   remember that ADMM accelerates the exchange calculation but does not replace convergence of the primary Gaussian basis, real-space grid, or SCF thresholds.
 
-remember that ADMM accelerates the exchange calculation but does not replace convergence of the
 
-primary Gaussian basis, real-space grid, or SCF thresholds.
+## See Also
 
-See Also
+-   [Guidon2009](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#guidon2009)
 
-
+-   [Guidon2010](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#guidon2010)
 
-Guidon2009
+-   [Merlot2014](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#merlot2014)
 
-Guidon2010
-
-Merlot2014
-
-Iannuzzi2026
+-   [Iannuzzi2026](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#iannuzzi2026)

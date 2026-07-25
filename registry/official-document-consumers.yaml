@@ -471,7 +471,7 @@ processors:
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
     dependency_lock_ref:
       path: contracts/official-document-pack-builder-lock.json
-      sha256: 3f8c0a577b8f1edb7bc4fe52849cfccc0b5dbc2c4350ea47521fa42fc36d48ff
+      sha256: 8c974a232f007686ca64a0963dc994931aba2ddb23cff8fd18e0a9a6f12b4e8c
     attested_runs: []
   official-document-pack-transformer:
     kind: transformer
@@ -484,7 +484,7 @@ processors:
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
     dependency_lock_ref:
       path: contracts/official-document-pack-builder-lock.json
-      sha256: 3f8c0a577b8f1edb7bc4fe52849cfccc0b5dbc2c4350ea47521fa42fc36d48ff
+      sha256: 8c974a232f007686ca64a0963dc994931aba2ddb23cff8fd18e0a9a6f12b4e8c
     attested_runs: []
   official-document-pack-scope-extractor:
     kind: extractor
@@ -497,6 +497,6 @@ processors:
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
     dependency_lock_ref:
       path: contracts/official-document-pack-builder-lock.json
-      sha256: 3f8c0a577b8f1edb7bc4fe52849cfccc0b5dbc2c4350ea47521fa42fc36d48ff
+      sha256: 8c974a232f007686ca64a0963dc994931aba2ddb23cff8fd18e0a9a6f12b4e8c
     attested_runs: []
 resolver_trust: {}

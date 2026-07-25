@@ -5,6 +5,8 @@ description: Record, compare, and maintain privacy-safe QE, VASP, CP2K, and SIES
 
 # DFT Campaign Efficiency
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using external code documentation to classify an efficiency observation.
+
 Learn only from measured campaign evidence. Preserve the scientific objective and acceptance criteria. Never present project experience as official behavior of any calculation code.
 
 ## Start from the case, not a template

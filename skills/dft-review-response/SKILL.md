@@ -5,6 +5,8 @@ description: Build and audit a local point-by-point JSON response draft from sup
 
 # DFT Review Response
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before promising or citing behavior from an external official document body.
+
 ## Start with the repository interface manual
 
 Read [references/repository-interface-manual.md](references/repository-interface-manual.md) first. It defines the implemented CLI, exact candidate artifacts, how new-calculation requests hand off to every active engine, postprocessing/campaign inputs, a runnable synthetic example, and author confirmation points.

@@ -5,6 +5,8 @@ description: Design and audit fail-closed machine-learned interatomic-potential 
 
 # Machine-learned potential workflows
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external framework, dataset, or model documentation body.
+
 This is a **development, non-routable Skill**. It makes dataset, split, training,
 evaluation, and deployment assumptions explicit for a fast or low-reasoning model.
 It does not import a provider framework, load a model archive, start training, run

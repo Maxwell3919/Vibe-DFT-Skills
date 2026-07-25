@@ -5,6 +5,8 @@ description: Build and audit a local JSON report draft from supplied claim, arti
 
 # DFT Reporting
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before reporting facts drawn from an external official document body.
+
 ## Start with the repository interface manual
 
 Read [references/repository-interface-manual.md](references/repository-interface-manual.md) first. It gives the exact CLI, candidate output artifacts, active upstream entry points for all four engines plus postprocessing and campaign records, a runnable synthetic chain, and release confirmation points.

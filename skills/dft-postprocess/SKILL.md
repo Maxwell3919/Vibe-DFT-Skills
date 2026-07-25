@@ -5,6 +5,8 @@ description: Inventory, extract, normalize, validate, analyze, and plot DFT resu
 
 # DFT Postprocess
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before relying on external code or postprocessor documentation bodies.
+
 Produce structured data before figures. Treat parsing, numerical analysis, visualization, and scientific interpretation as separate stages. Never infer a numerical conclusion from plot appearance alone.
 
 ## Start with inventory and contracts

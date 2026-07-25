@@ -2,744 +2,262 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html
 - Raw SHA-256: f7bfeb7d25276eb167788547f679bd593f78352b744bd59fe351999367349ad6
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-SCF
+---
 
-
+# SCF
 
-Parameters needed to perform an SCF run.
-
-[
-
-Edit on GitHub
-
-]
+Parameters needed to perform an SCF run. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L89)\]
 
 Subsections
 
-DIAGONALIZATION
+-   [DIAGONALIZATION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/DIAGONALIZATION.html)
+-   [GCE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/GCE.html)
+-   [MIXING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/MIXING.html)
+-   [MOM](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/MOM.html)
+-   [OT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html)
+-   [OUTER\_SCF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OUTER_SCF.html)
+-   [PRINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/PRINT.html)
+-   [SMEAR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/SMEAR.html)
 
-GCE
+## Keywords
 
-MIXING
+-   **[ADDED\_MOS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.ADDED_MOS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.ADDED_MOS")**
 
-MOM
+-   [CHOLESKY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.CHOLESKY "CP2K_INPUT.FORCE_EVAL.DFT.SCF.CHOLESKY")
 
-OT
+-   [EPS\_DIIS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_DIIS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_DIIS")
 
-OUTER_SCF
+-   [EPS\_EIGVAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_EIGVAL "CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_EIGVAL")
 
-PRINT
+-   [EPS\_LUMO](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_LUMO "CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_LUMO")
 
-SMEAR
+-   **[EPS\_SCF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_SCF "CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_SCF")**
 
-Keywords
+-   [EPS\_SCF\_HISTORY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_SCF_HISTORY "CP2K_INPUT.FORCE_EVAL.DFT.SCF.EPS_SCF_HISTORY")
 
-
+-   [FORCE\_SCF\_CALCULATION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.FORCE_SCF_CALCULATION "CP2K_INPUT.FORCE_EVAL.DFT.SCF.FORCE_SCF_CALCULATION")
 
-ADDED_MOS
+-   **[IGNORE\_CONVERGENCE\_FAILURE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.IGNORE_CONVERGENCE_FAILURE "CP2K_INPUT.FORCE_EVAL.DFT.SCF.IGNORE_CONVERGENCE_FAILURE")**
 
-CHOLESKY
+-   [LEVEL\_SHIFT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.LEVEL_SHIFT "CP2K_INPUT.FORCE_EVAL.DFT.SCF.LEVEL_SHIFT")
 
-EPS_DIIS
+-   [MAX\_DIIS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_DIIS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_DIIS")
 
-EPS_EIGVAL
+-   [MAX\_ITER\_LUMO](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_ITER_LUMO "CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_ITER_LUMO")
 
-EPS_LUMO
+-   **[MAX\_SCF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_SCF "CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_SCF")**
 
-EPS_SCF
+-   [MAX\_SCF\_HISTORY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_SCF_HISTORY "CP2K_INPUT.FORCE_EVAL.DFT.SCF.MAX_SCF_HISTORY")
 
-EPS_SCF_HISTORY
+-   [NCOL\_BLOCK](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.NCOL_BLOCK "CP2K_INPUT.FORCE_EVAL.DFT.SCF.NCOL_BLOCK")
 
-FORCE_SCF_CALCULATION
+-   [NROW\_BLOCK](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.NROW_BLOCK "CP2K_INPUT.FORCE_EVAL.DFT.SCF.NROW_BLOCK")
 
-IGNORE_CONVERGENCE_FAILURE
+-   [ROKS\_F](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.ROKS_F "CP2K_INPUT.FORCE_EVAL.DFT.SCF.ROKS_F")
 
-LEVEL_SHIFT
+-   [ROKS\_PARAMETERS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.ROKS_PARAMETERS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.ROKS_PARAMETERS")
 
-MAX_DIIS
+-   [ROKS\_SCHEME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.ROKS_SCHEME "CP2K_INPUT.FORCE_EVAL.DFT.SCF.ROKS_SCHEME")
 
-MAX_ITER_LUMO
+-   **[SCF\_GUESS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.SCF_GUESS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.SCF_GUESS")**
 
-MAX_SCF
 
-MAX_SCF_HISTORY
+## Keyword descriptions
 
-NCOL_BLOCK
+### ADDED\_MOS*: integer\[ \]* *\= 0*
 
-NROW_BLOCK
+**Usage:** *ADDED\_MOS*
 
-ROKS_F
+**Mentions:** ⭐[Density of States](https://manual.cp2k.org/cp2k-2026_2-branch/methods/electronic_structure/dos.html), ⭐[Molecular orbitals output](https://manual.cp2k.org/cp2k-2026_2-branch/methods/electronic_structure/molecular_orbitals.html)
 
-ROKS_PARAMETERS
+Number of additional molecular orbitals added for each spin channel. This is commonly needed for smearing, excited-state, or post-Hartree-Fock calculations. Use -1 to add all available orbitals. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L238)\]
 
-ROKS_SCHEME
+### CHOLESKY*: enum* *\= RESTORE*
 
-SCF_GUESS
+**Usage:** *CHOLESKY REDUCE*
 
-Keyword descriptions
+**Valid values:**
 
-
+-   `OFF` The cholesky algorithm is not used
 
-ADDED_MOS
+-   `REDUCE` Reduce is called
 
-:
+-   `RESTORE` Reduce is replaced by two restore
 
-integer[
+-   `INVERSE` Restore uses operator multiply by inverse of the triangular matrix
 
-]
+-   `INVERSE_DBCSR` Like inverse, but matrix stored as dbcsr, sparce matrix algebra used when possible
 
-=
 
-0
+If the cholesky method should be used for computing the inverse of S, and in this case calling which Lapack routines \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L180)\]
 
-
+### EPS\_DIIS*: real* *\= 1.00000000E-001*
 
-Usage:
+**Usage:** *EPS\_DIIS 5.0e-2*
 
-ADDED_MOS
+Threshold on the convergence to start using DIAG/DIIS or OT/DIIS. Default for OT/DIIS is never to switch. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L199)\]
 
-Mentions:
+### EPS\_EIGVAL*: real* *\= 1.00000000E-005*
 
-⭐
+**Usage:** *EPS\_EIGVAL 1.0*
 
-Density of States
+Throw away linear combinations of basis functions with a small eigenvalue in S \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L193)\]
 
-, ⭐
+### EPS\_LUMO*: real* *\= 1.00000000E-005*
 
-Molecular orbitals output
+**Aliases:** EPS\_LUMOS
 
-Number of additional molecular orbitals added for each spin channel. This is commonly needed for smearing, excited-state, or post-Hartree-Fock calculations. Use -1 to add all available orbitals.
+**Usage:** *EPS\_LUMO 1.0E-6*
 
-[
+Target accuracy for the calculation of the LUMO energies with the OT eigensolver. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L133)\]
 
-Edit on GitHub
+### EPS\_SCF*: real* *\= 1.00000000E-005*
 
-]
+**Usage:** *EPS\_SCF 1.e-6*
 
-CHOLESKY
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html), ⭐[Geometry and cell optimization](https://manual.cp2k.org/cp2k-2026_2-branch/methods/optimization/geometry_and_cell_opt.html), ⭐[Molecular Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html), ⭐[Monte Carlo](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/monte_carlo.html)
 
-:
+Target convergence threshold for the inner SCF cycle. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L168)\]
 
-enum
+### EPS\_SCF\_HISTORY*: real* *\= 0.00000000E+000*
 
-=
+**Aliases:** EPS\_SCF\_HIST
 
-RESTORE
+**Lone keyword:** `1.00000000E-005`
 
-
+**Usage:** *EPS\_SCF\_HISTORY 1.e-5*
 
-Usage:
+Target accuracy for the SCF convergence after the history pipeline is filled. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L174)\]
 
-CHOLESKY REDUCE
+### FORCE\_SCF\_CALCULATION*: logical* *\= F*
 
-Valid values:
+**Lone keyword:** `T`
 
-OFF
+**Usage:** *FORCE\_SCF\_CALCULATION logical\_value*
 
-The cholesky algorithm is not used
+Request a SCF type solution even for nonSCF methods. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L296)\]
 
-REDUCE
+### IGNORE\_CONVERGENCE\_FAILURE*: logical* *\= F*
 
-Reduce is called
+**Lone keyword:** `T`
 
-RESTORE
+**Usage:** *IGNORE\_CONVERGENCE\_FAILURE logical\_value*
 
-Reduce is replaced by two restore
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html)
 
-INVERSE
+If true, only a warning is issued if an SCF iteration has not converged. By default, a run is aborted if the required convergence criteria have not been achieved. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L286)\]
 
-Restore uses operator multiply by inverse of the triangular matrix
+### LEVEL\_SHIFT*: real* *\= 0.00000000E+000 \[hartree\]*
 
-INVERSE_DBCSR
+**Aliases:** LSHIFT
 
-Like inverse, but matrix stored as dbcsr, sparce matrix algebra used when possible
+**Usage:** *LEVEL\_SHIFT 0.1*
 
-If the cholesky method should be used for computing the inverse of S, and in this case calling which Lapack routines
+Use level shifting to improve convergence \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L159)\]
 
-[
+### MAX\_DIIS*: integer* *\= 4*
 
-Edit on GitHub
+**Aliases:** MAX\_DIIS\_BUFFER\_SIZE
 
-]
+**Usage:** *MAX\_DIIS 3*
 
-EPS_DIIS
+Maximum number of DIIS vectors to be used \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L152)\]
 
-:
+### MAX\_ITER\_LUMO*: integer* *\= 299*
 
-real
+**Aliases:** MAX\_ITER\_LUMOS
 
-=
+**Usage:** *MAX\_ITER\_LUMO 100*
 
-1.00000000E-001
+Maximum number of iterations for the calculation of the LUMO energies with the OT eigensolver. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L125)\]
 
-
+### MAX\_SCF*: integer* *\= 50*
 
-Usage:
+**Usage:** *MAX\_SCF 200*
 
-EPS_DIIS 5.0e-2
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html), ⭐[Monte Carlo](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/monte_carlo.html)
 
-Threshold on the convergence to start using DIAG/DIIS or OT/DIIS. Default for OT/DIIS is never to switch.
+Maximum number of inner SCF iterations for one electronic optimization. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L140)\]
 
-[
+### MAX\_SCF\_HISTORY*: integer* *\= 0*
 
-Edit on GitHub
+**Aliases:** MAX\_SCF\_HIST
 
-]
+**Lone keyword:** `1`
 
-EPS_EIGVAL
+**Usage:** *MAX\_SCF\_HISTORY 1*
 
-:
+Maximum number of SCF iterations after the history pipeline is filled \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L146)\]
 
-real
+### NCOL\_BLOCK*: integer* *\= 32*
 
-=
+**Usage:** *NCOL\_BLOCK 31*
 
-1.00000000E-005
+Sets the number of columns in a scalapack block \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L232)\]
 
-
+### NROW\_BLOCK*: integer* *\= 32*
 
-Usage:
+**Usage:** *NROW\_BLOCK 31*
 
-EPS_EIGVAL 1.0
+sets the number of rows in a scalapack block \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L226)\]
 
-Throw away linear combinations of basis functions with a small eigenvalue in S
+### ROKS\_F*: real* *\= 5.00000000E-001*
 
-[
+**Aliases:** F\_ROKS
 
-Edit on GitHub
+**Usage:** *ROKS\_F 1/2*
 
-]
+Allows to define the parameter f for the general ROKS scheme. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L258)\]
 
-EPS_LUMO
+### ROKS\_PARAMETERS*: real\[6\]* *\= \-5.00000000E-001 1.50000000E+000 5.00000000E-001 5.00000000E-001 1.50000000E+000 \-5.00000000E-001*
 
-:
+**Aliases:** ROKS\_PARAMETER
 
-real
+**Usage:** *ROKS\_PARAMETERS 1/2 1/2 1/2 1/2 1/2 1/2*
 
-=
+Allows to define all parameters for the high-spin ROKS scheme explicitly. The full set of 6 parameters has to be specified in the order acc, bcc, aoo, boo, avv, bvv \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L271)\]
 
-1.00000000E-005
+### ROKS\_SCHEME*: enum* *\= HIGH-SPIN*
 
-
+**Usage:** *ROKS\_SCHEME HIGH-SPIN*
 
-Aliases:
+**Valid values:**
 
-EPS_LUMOS
+-   `GENERAL`
 
-Usage:
+-   `HIGH-SPIN`
 
-EPS_LUMO 1.0E-6
 
-Target accuracy for the calculation of the LUMO energies with the OT eigensolver.
+Selects the ROKS scheme when ROKS is applied. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L246)\]
 
-[
+### SCF\_GUESS*: enum* *\= ATOMIC*
 
-Edit on GitHub
+**Usage:** *SCF\_GUESS RESTART*
 
-]
+**Valid values:**
 
-EPS_SCF
+-   `ATOMIC` Generate an atomic density using the atomic code and internal default values
 
-:
+-   `RESTART` Use the RESTART file as an initial guess (and ATOMIC if not present).
 
-real
+-   `RANDOM` Use random wavefunction coefficients.
 
-=
+-   `CORE` Diagonalize the core hamiltonian for an initial guess.
 
-1.00000000E-005
+-   `HISTORY_RESTART` Extrapolated from previous RESTART files.
 
-
+-   `MOPAC` Use same guess as MOPAC for semi-empirical methods or a simple diagonal density matrix for other methods
 
-Usage:
+-   `EHT` Use the EHT (gfn0-xTB) code to generate an initial wavefunction.
 
-EPS_SCF 1.e-6
+-   `SPARSE` Generate a sparse wavefunction using the atomic code (for OT based methods)
 
-Mentions:
+-   `NONE` Skip initial guess (only for non-self consistent methods).
 
-⭐
 
-How to make a SCF run converge
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html)
 
-, ⭐
-
-Geometry and cell optimization
-
-, ⭐
-
-Molecular Dynamics
-
-, ⭐
-
-Monte Carlo
-
-Target convergence threshold for the inner SCF cycle.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_SCF_HISTORY
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-
-
-Aliases:
-
-EPS_SCF_HIST
-
-Lone keyword:
-
-1.00000000E-005
-
-Usage:
-
-EPS_SCF_HISTORY 1.e-5
-
-Target accuracy for the SCF convergence after the history pipeline is filled.
-
-[
-
-Edit on GitHub
-
-]
-
-FORCE_SCF_CALCULATION
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-FORCE_SCF_CALCULATION logical_value
-
-Request a SCF type solution even for nonSCF methods.
-
-[
-
-Edit on GitHub
-
-]
-
-IGNORE_CONVERGENCE_FAILURE
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-IGNORE_CONVERGENCE_FAILURE logical_value
-
-Mentions:
-
-⭐
-
-How to make a SCF run converge
-
-If true, only a warning is issued if an SCF iteration has not converged. By default, a run is aborted if the required convergence criteria have not been achieved.
-
-[
-
-Edit on GitHub
-
-]
-
-LEVEL_SHIFT
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-[hartree]
-
-
-
-Aliases:
-
-LSHIFT
-
-Usage:
-
-LEVEL_SHIFT 0.1
-
-Use level shifting to improve convergence
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_DIIS
-
-:
-
-integer
-
-=
-
-4
-
-
-
-Aliases:
-
-MAX_DIIS_BUFFER_SIZE
-
-Usage:
-
-MAX_DIIS 3
-
-Maximum number of DIIS vectors to be used
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_ITER_LUMO
-
-:
-
-integer
-
-=
-
-299
-
-
-
-Aliases:
-
-MAX_ITER_LUMOS
-
-Usage:
-
-MAX_ITER_LUMO 100
-
-Maximum number of iterations for the calculation of the LUMO energies with the OT eigensolver.
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_SCF
-
-:
-
-integer
-
-=
-
-50
-
-
-
-Usage:
-
-MAX_SCF 200
-
-Mentions:
-
-⭐
-
-How to make a SCF run converge
-
-, ⭐
-
-Monte Carlo
-
-Maximum number of inner SCF iterations for one electronic optimization.
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_SCF_HISTORY
-
-:
-
-integer
-
-=
-
-0
-
-
-
-Aliases:
-
-MAX_SCF_HIST
-
-Lone keyword:
-
-1
-
-Usage:
-
-MAX_SCF_HISTORY 1
-
-Maximum number of SCF iterations after the history pipeline is filled
-
-[
-
-Edit on GitHub
-
-]
-
-NCOL_BLOCK
-
-:
-
-integer
-
-=
-
-32
-
-
-
-Usage:
-
-NCOL_BLOCK 31
-
-Sets the number of columns in a scalapack block
-
-[
-
-Edit on GitHub
-
-]
-
-NROW_BLOCK
-
-:
-
-integer
-
-=
-
-32
-
-
-
-Usage:
-
-NROW_BLOCK 31
-
-sets the number of rows in a scalapack block
-
-[
-
-Edit on GitHub
-
-]
-
-ROKS_F
-
-:
-
-real
-
-=
-
-5.00000000E-001
-
-
-
-Aliases:
-
-F_ROKS
-
-Usage:
-
-ROKS_F 1/2
-
-Allows to define the parameter f for the general ROKS scheme.
-
-[
-
-Edit on GitHub
-
-]
-
-ROKS_PARAMETERS
-
-:
-
-real
-
-[
-
-6
-
-]
-
-=
-
--5.00000000E-001
-
-1.50000000E+000
-
-5.00000000E-001
-
-1.50000000E+000
-
--5.00000000E-001
-
-
-
-Aliases:
-
-ROKS_PARAMETER
-
-Usage:
-
-ROKS_PARAMETERS 1/2 1/2 1/2 1/2 1/2 1/2
-
-Allows to define all parameters for the high-spin ROKS scheme explicitly. The full set of 6 parameters has to be specified in the order acc, bcc, aoo, boo, avv, bvv
-
-[
-
-Edit on GitHub
-
-]
-
-ROKS_SCHEME
-
-:
-
-enum
-
-=
-
-HIGH-SPIN
-
-
-
-Usage:
-
-ROKS_SCHEME HIGH-SPIN
-
-Valid values:
-
-GENERAL
-
-HIGH-SPIN
-
-Selects the ROKS scheme when ROKS is applied.
-
-[
-
-Edit on GitHub
-
-]
-
-SCF_GUESS
-
-:
-
-enum
-
-=
-
-ATOMIC
-
-
-
-Usage:
-
-SCF_GUESS RESTART
-
-Valid values:
-
-ATOMIC
-
-Generate an atomic density using the atomic code and internal default values
-
-RESTART
-
-Use the RESTART file as an initial guess (and ATOMIC if not present).
-
-RANDOM
-
-Use random wavefunction coefficients.
-
-CORE
-
-Diagonalize the core hamiltonian for an initial guess.
-
-HISTORY_RESTART
-
-Extrapolated from previous RESTART files.
-
-MOPAC
-
-Use same guess as MOPAC for semi-empirical methods or a simple diagonal density matrix for other methods
-
-EHT
-
-Use the EHT (gfn0-xTB) code to generate an initial wavefunction.
-
-SPARSE
-
-Generate a sparse wavefunction using the atomic code (for OT based methods)
-
-NONE
-
-Skip initial guess (only for non-self consistent methods).
-
-Mentions:
-
-⭐
-
-How to make a SCF run converge
-
-Selects how the initial wavefunction or density matrix is generated.
-
-[
-
-Edit on GitHub
-
-]
+Selects how the initial wavefunction or density matrix is generated. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L207)\]

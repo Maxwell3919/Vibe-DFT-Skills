@@ -5,6 +5,8 @@ description: Design, explain, audit, troubleshoot, and validate rigorous Quantum
 
 # QE Rigorous Calculations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using an external QE document not already present in the validated mirror.
+
 Separate objective definition, official behavior, input integrity, pseudopotential provenance, execution completion, numerical convergence, and physical validity. Never treat a QE default, a common recipe, one completed run, or one stable scalar as scientific adequacy.
 
 ## Run deterministic gates first

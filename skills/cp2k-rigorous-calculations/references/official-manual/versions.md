@@ -2,52 +2,32 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/versions.html
 - Raw SHA-256: 51fce8037174561a4ca59ecb99f6116f5b0d2a89dd9643858048688fbbef3bb2
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-CP2K Manual by Version
+---
 
-
+# CP2K Manual by Version
 
-2026.1
-
-2025.2
-
-2025.1
-
-2024.2/3
-
-2024.1
-
-2023.2
-
-2023.1
-
-2022.1
-
-9.1
-
-8.2
-
-8.1
-
-7.1
-
-6.1
-
-5.1
-
-4.1
-
-3.0
-
-2.6
-
-2.5
-
-2.4
-
-2.3
-
-2.2
-
-2.1
+-   [2026.1](https://manual.cp2k.org/cp2k-2026_1-branch/index.html)
+-   [2025.2](https://manual.cp2k.org/cp2k-2025_2-branch/index.html)
+-   [2025.1](https://manual.cp2k.org/cp2k-2025_1-branch/index.html)
+-   [2024.2/3](https://manual.cp2k.org/cp2k-2024_2-branch/index.html)
+-   [2024.1](https://manual.cp2k.org/cp2k-2024_1-branch/index.html)
+-   [2023.2](https://manual.cp2k.org/cp2k-2023_2-branch/index.html)
+-   [2023.1](https://manual.cp2k.org/cp2k-2023_1-branch/index.html)
+-   [2022.1](https://manual.cp2k.org/cp2k-2022_1-branch/index.html)
+-   [9.1](https://manual.cp2k.org/cp2k-9_1-branch/index.html)
+-   [8.2](https://manual.cp2k.org/cp2k-8_2-branch/index.html)
+-   [8.1](https://manual.cp2k.org/cp2k-8_1-branch/index.html)
+-   [7.1](https://manual.cp2k.org/cp2k-7_1-branch/index.html)
+-   [6.1](https://manual.cp2k.org/cp2k-6_1-branch/index.html)
+-   [5.1](https://manual.cp2k.org/cp2k-5_1-branch/index.html)
+-   [4.1](https://manual.cp2k.org/cp2k-4_1-branch/index.html)
+-   [3.0](https://manual.cp2k.org/cp2k-3_0-branch/index.html)
+-   [2.6](https://manual.cp2k.org/cp2k-2_6-branch/index.html)
+-   [2.5](https://manual.cp2k.org/cp2k-2_5-branch/index.html)
+-   [2.4](https://manual.cp2k.org/cp2k-2_4-branch/index.html)
+-   [2.3](https://manual.cp2k.org/cp2k-2_3-branch/index.html)
+-   [2.2](https://manual.cp2k.org/cp2k-2_2-branch/index.html)
+-   [2.1](https://manual.cp2k.org/cp2k-2_1-branch/index.html)

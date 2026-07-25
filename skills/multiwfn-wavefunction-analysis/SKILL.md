@@ -5,6 +5,8 @@ description: Plan, document, and audit version-bound Multiwfn wavefunction, real
 
 # Multiwfn Wavefunction Analysis
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using the external official PDFs; keep those local and do not redistribute them.
+
 Use this development Skill for maintenance and documentation planning only.
 Do not route it as an active Skill and do not launch, download, install, or feed
 Multiwfn unless a later task supplies separate authorization and an exact

@@ -5,6 +5,8 @@ description: Design, resolve exact official commands for, safely probe, execute 
 
 # LAMMPS Rigorous Simulations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external LAMMPS documentation body.
+
 Treat a LAMMPS input as executable code. Separate script safety, parser coverage, build capability, topology, model provenance, numerical protocol, restart lineage, technical completion, trajectory integrity, statistics, and scientific acceptance. This development Skill contains concrete 4Jul2026 commands and workflows. Its manual resolver may run only the fixed `-help` probe; the evidence guard never invokes LAMMPS, Python embedded in LAMMPS, a shell, a plugin, scheduler, or network. Run provider simulations only with explicit user authorization for the exact reviewed scope.
 
 ## Start manual-first

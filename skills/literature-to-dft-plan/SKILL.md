@@ -5,6 +5,8 @@ description: Convert supplied, content-addressed literature metadata and bounded
 
 # Literature to DFT Plan
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using an external repository contract or official software document body.
+
 ## Start with the repository interface manual
 
 Read [references/repository-interface-manual.md](references/repository-interface-manual.md) first. It records the exact offline CLI, request/output artifacts, active calculation entry points, postprocess/campaign handoffs, runnable synthetic chain, and human decisions that cannot be automated.

@@ -5,6 +5,8 @@ description: Plan and audit CatMAP 0.4.1 microkinetic evidence with explicit rea
 
 # CatMAP Microkinetics
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external official document body.
+
 This is a **development, non-routable Skill**. It validates a safe declarative JSON interchange and original synthetic fixtures. It does not import CatMAP, execute a setup file, accept a native log/pickle, run a solver, or establish a catalytic mechanism.
 
 ## Start here

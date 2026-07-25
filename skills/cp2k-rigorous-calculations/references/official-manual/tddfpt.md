@@ -2,838 +2,285 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html
 - Raw SHA-256: 318c22758b42349f3cd6737d5a6c5ec9432335542bec2959e5bcd6d326efa174
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-TDDFPT
+---
 
-
+# TDDFPT
 
-References:
+**References:** [Iannuzzi2005](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#iannuzzi2005), [Hanasaki2025](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#hanasaki2025), [HernandezSegura2025](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#hernandezsegura2025)
 
-Iannuzzi2005
-
-,
-
-Hanasaki2025
-
-,
-
-HernandezSegura2025
-
-Controls time-dependent density functional perturbation theory (TDDFPT) calculations for electronic excitations and related properties.
-
-[
-
-Edit on GitHub
-
-]
+Controls time-dependent density functional perturbation theory (TDDFPT) calculations for electronic excitations and related properties. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1627)\]
 
 Subsections
 
-DIPOLE_MOMENTS
+-   [DIPOLE\_MOMENTS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/DIPOLE_MOMENTS.html)
+-   [LINRES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/LINRES.html)
+-   [LRIGPW](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/LRIGPW.html)
+-   [MGRID](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/MGRID.html)
+-   [PRINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/PRINT.html)
+-   [REDUCED\_EXCITATION\_SPACE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/REDUCED_EXCITATION_SPACE.html)
+-   [SOC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/SOC.html)
+-   [STDA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/STDA.html)
+-   [XC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT/XC.html)
 
-LINRES
+## Keywords
 
-LRIGPW
+-   [SECTION\_PARAMETERS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.SECTION_PARAMETERS "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.SECTION_PARAMETERS")
 
-MGRID
+-   [ADMM\_KERNEL\_CORRECTION\_SYMMETRIC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.ADMM_KERNEL_CORRECTION_SYMMETRIC "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.ADMM_KERNEL_CORRECTION_SYMMETRIC")
 
-PRINT
+-   [ADMM\_KERNEL\_XC\_CORRECTION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.ADMM_KERNEL_XC_CORRECTION "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.ADMM_KERNEL_XC_CORRECTION")
 
-REDUCED_EXCITATION_SPACE
+-   [AUTO\_BASIS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.AUTO_BASIS "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.AUTO_BASIS")
 
-SOC
+-   **[CONVERGENCE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.CONVERGENCE "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.CONVERGENCE")**
 
-STDA
+-   [DIRECTIONAL\_EXCITON\_DESCRIPTORS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DIRECTIONAL_EXCITON_DESCRIPTORS "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DIRECTIONAL_EXCITON_DESCRIPTORS")
 
-XC
+-   [DO\_BSE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_BSE "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_BSE")
 
-Keywords
+-   [DO\_BSE\_GW\_ONLY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_BSE_GW_ONLY "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_BSE_GW_ONLY")
 
-
+-   [DO\_BSE\_W\_ONLY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_BSE_W_ONLY "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_BSE_W_ONLY")
 
-SECTION_PARAMETERS
+-   [DO\_LRIGPW](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_LRIGPW "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_LRIGPW")
 
-ADMM_KERNEL_CORRECTION_SYMMETRIC
+-   [DO\_SMEARING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_SMEARING "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.DO_SMEARING")
 
-ADMM_KERNEL_XC_CORRECTION
+-   [EOS\_SHIFT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.EOS_SHIFT "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.EOS_SHIFT")
 
-AUTO_BASIS
+-   **[EV\_SHIFT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.EV_SHIFT "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.EV_SHIFT")**
 
-CONVERGENCE
+-   [EXCITON\_DESCRIPTORS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.EXCITON_DESCRIPTORS "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.EXCITON_DESCRIPTORS")
 
-DIRECTIONAL_EXCITON_DESCRIPTORS
+-   **[KERNEL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.KERNEL "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.KERNEL")**
 
-DO_BSE
+-   [MAX\_ITER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.MAX_ITER "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.MAX_ITER")
 
-DO_BSE_GW_ONLY
+-   [MAX\_KV](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.MAX_KV "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.MAX_KV")
 
-DO_BSE_W_ONLY
+-   **[MIN\_AMPLITUDE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.MIN_AMPLITUDE "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.MIN_AMPLITUDE")**
 
-DO_LRIGPW
+-   **[NLUMO](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.NLUMO "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.NLUMO")**
 
-DO_SMEARING
+-   [NPROC\_STATE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.NPROC_STATE "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.NPROC_STATE")
 
-EOS_SHIFT
+-   **[NSTATES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.NSTATES "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.NSTATES")**
 
-EV_SHIFT
+-   [OE\_CORR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.OE_CORR "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.OE_CORR")
 
-EXCITON_DESCRIPTORS
+-   [ORTHOGONAL\_EPS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.ORTHOGONAL_EPS "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.ORTHOGONAL_EPS")
 
-KERNEL
+-   **[RESTART](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.RESTART "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.RESTART")**
 
-MAX_ITER
+-   **[RKS\_TRIPLETS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.RKS_TRIPLETS "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.RKS_TRIPLETS")**
 
-MAX_KV
+-   [SPINFLIP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.SPINFLIP "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.SPINFLIP")
 
-MIN_AMPLITUDE
+-   **[WFN\_RESTART\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/PROPERTIES/TDDFPT.html#CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.WFN_RESTART_FILE_NAME "CP2K_INPUT.FORCE_EVAL.PROPERTIES.TDDFPT.WFN_RESTART_FILE_NAME")**
 
-NLUMO
 
-NPROC_STATE
+## Keyword descriptions
 
-NSTATES
+### SECTION\_PARAMETERS*: logical* *\= F*
 
-OE_CORR
+**Lone keyword:** `T`
 
-ORTHOGONAL_EPS
+Activates the TDDFPT procedure. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1635)\]
 
-RESTART
+### ADMM\_KERNEL\_CORRECTION\_SYMMETRIC*: logical* *\= T*
 
-RKS_TRIPLETS
+**Lone keyword:** `T`
 
-SPINFLIP
+ADMM correction functional in kernel is applied symmetrically. Original implementation is using a non-symmetric formula. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1790)\]
 
-WFN_RESTART_FILE_NAME
+### ADMM\_KERNEL\_XC\_CORRECTION*: logical* *\= T*
 
-Keyword descriptions
+**Lone keyword:** `T`
 
-
+Use/Ignore ADMM correction xc functional for TD kernel. XC correction functional is defined in ground state XC section. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1782)\]
 
-SECTION_PARAMETERS
+### AUTO\_BASIS*: string\[ \]* *\= X X*
 
-:
+**Keyword can be repeated.**
 
-logical
+**Usage:** *AUTO\_BASIS {basis\_type} {basis\_size}*
 
-=
+Specify size of automatically generated auxiliary basis sets: Options={small,medium,large,huge} \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1805)\]
 
-F
+### CONVERGENCE*: real* *\= 1.00000000E-005 \[hartree\]*
 
-
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-Lone keyword:
+Target accuracy for excited state energies. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1743)\]
 
-T
+### DIRECTIONAL\_EXCITON\_DESCRIPTORS*: logical* *\= F*
 
-Activates the TDDFPT procedure.
+Print cartesian components of exciton descriptors. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1828)\]
 
-[
+### DO\_BSE*: logical* *\= F*
 
-Edit on GitHub
+**Lone keyword:** `T`
 
-]
+**Usage:** *DO\_BSE*
 
-ADMM_KERNEL_CORRECTION_SYMMETRIC
+Choosing BSE kernel. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1941)\]
 
-:
+### DO\_BSE\_GW\_ONLY*: logical* *\= F*
 
-logical
+**Lone keyword:** `T`
 
-=
+**Usage:** *DO\_BSE\_GW\_ONLY*
 
-T
+Debug option for BSE kernel. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1953)\]
 
-
+### DO\_BSE\_W\_ONLY*: logical* *\= F*
 
-Lone keyword:
+**Lone keyword:** `T`
 
-T
+**Usage:** *DO\_BSE\_W\_ONLY*
 
-ADMM correction functional in kernel is applied symmetrically. Original implementation is using a non-symmetric formula.
+Debug option for BSE kernel. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1947)\]
 
-[
+### DO\_LRIGPW*: logical* *\= F*
 
-Edit on GitHub
+Local resolution of identity for Coulomb contribution. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1798)\]
 
-]
+### DO\_SMEARING*: logical* *\= F*
 
-ADMM_KERNEL_XC_CORRECTION
+**Lone keyword:** `T`
 
-:
+Implying smeared occupation. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1813)\]
 
-logical
+### EOS\_SHIFT*: real* *\= 0.00000000E+000 \[eV\]*
 
-=
+**Aliases:** OPEN\_SHELL\_SHIFT
 
-T
+**Usage:** *EOS\_SHIFT 0.200*
 
-
+Constant shift of open shell eigenvalues. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1732)\]
 
-Lone keyword:
+### EV\_SHIFT*: real* *\= 0.00000000E+000 \[eV\]*
 
-T
+**Aliases:** VIRTUAL\_SHIFT
 
-Use/Ignore ADMM correction xc functional for TD kernel. XC correction functional is defined in ground state XC section.
+**Usage:** *EV\_SHIFT 0.500*
 
-[
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-Edit on GitHub
+Constant shift of virtual state eigenvalues. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1722)\]
 
-]
+### EXCITON\_DESCRIPTORS*: logical* *\= F*
 
-AUTO_BASIS
+Compute exciton descriptors. Details given in Manual section about Bethe Salpeter equation. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1820)\]
 
-:
+### KERNEL*: enum* *\= FULL*
 
-string[
+**Usage:** *KERNEL FULL*
 
-]
+**Valid values:**
 
-=
+-   `FULL`
 
-X
+-   `STDA`
 
-
+-   `NONE`
 
-Keyword can be repeated.
 
-Usage:
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-AUTO_BASIS {basis_type} {basis_size}
+Options to compute the kernel \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1683)\]
 
-Specify size of automatically generated auxiliary basis sets: Options={small,medium,large,huge}
+### MAX\_ITER*: integer* *\= 50*
 
-[
+Maximal number of iterations to be performed. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1651)\]
 
-Edit on GitHub
+### MAX\_KV*: integer* *\= 5000*
 
-]
+Maximal number of Krylov space vectors. Davidson iterations will be restarted upon reaching this limit. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1658)\]
 
-CONVERGENCE
+### MIN\_AMPLITUDE*: real* *\= 5.00000000E-002*
 
-:
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-real
+The smallest excitation amplitude to print. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1750)\]
 
-=
+### NLUMO*: integer* *\= \-1*
 
-1.00000000E-005
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-[hartree]
+Number of unoccupied orbitals to consider. Default is to use all unoccupied orbitals (-1). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1666)\]
 
-
+### NPROC\_STATE*: integer* *\= 0*
 
-Mentions:
+Number of MPI processes to be used per excited state. Default is to use all MPI processes (0). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1674)\]
 
-⭐
+### NSTATES*: integer* *\= 1*
 
-Time-Dependent DFT
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-Target accuracy for excited state energies.
+Number of excited states to converge. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1644)\]
 
-[
+### OE\_CORR*: enum* *\= NONE*
 
-Edit on GitHub
+**Valid values:**
 
-]
+-   `NONE` No orbital correction scheme is used
 
-DIRECTIONAL_EXCITON_DESCRIPTORS
+-   `LB94` van Leeuwen and Baerends. PRA, 49:2421, 1994
 
-:
+-   `GLLB` Gritsenko, van Leeuwen, van Lenthe, Baerends. PRA, 51:1944, 1995
 
-logical
+-   `SAOP` Gritsenko, Schipper, Baerends. Chem. Phys. Lett., 302:199, 1999
 
-=
+-   `SHIFT` Constant shift of virtual and/or open-shell orbitals
 
-F
 
-
+Orbital energy correction potential. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1708)\]
 
-Print cartesian components of exciton descriptors.
+### ORTHOGONAL\_EPS*: real* *\= 1.00000000E-004*
 
-[
+The largest possible overlap between the ground state and orthogonalised excited state wave-functions. Davidson iterations will be restarted when the overlap goes beyond this threshold in order to prevent numerical instability. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1757)\]
 
-Edit on GitHub
+### RESTART*: logical* *\= F*
 
-]
+**Lone keyword:** `T`
 
-DO_BSE
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-:
+Restart the TDDFPT calculation if a restart file exists \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1768)\]
 
-logical
+### RKS\_TRIPLETS*: logical* *\= F*
 
-=
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-F
+Compute triplet excited states using spin-unpolarised molecular orbitals. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1775)\]
 
-
+### SPINFLIP*: enum* *\= NONE*
 
-Lone keyword:
+**Usage:** *SPINFLIP NONCOLLINEAR*
 
-T
+**Valid values:**
 
-Usage:
+-   `NONE` Only molecular orbital energy differences are considered
 
-DO_BSE
+-   `COLLINEAR` MO energy diferences and Fock exchange contributions are considered
 
-Choosing BSE kernel.
+-   `NONCOLLINEAR` MO energy differences, Fock exchange and Noncollinear local exchange-correlation kernel are considered
 
-[
 
-Edit on GitHub
+**References:** [HernandezSegura2025](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#hernandezsegura2025)
 
-]
+Selects the type of spin-flip TDDFPT kernel \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1693)\]
 
-DO_BSE_GW_ONLY
+### WFN\_RESTART\_FILE\_NAME*: string*
 
-:
+**Aliases:** RESTART\_FILE\_NAME
 
-logical
+**Usage:** *WFN\_RESTART\_FILE\_NAME*
 
-=
+**Mentions:** ⭐[Time-Dependent DFT](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/tddft.html)
 
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-DO_BSE_GW_ONLY
-
-Debug option for BSE kernel.
-
-[
-
-Edit on GitHub
-
-]
-
-DO_BSE_W_ONLY
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-DO_BSE_W_ONLY
-
-Debug option for BSE kernel.
-
-[
-
-Edit on GitHub
-
-]
-
-DO_LRIGPW
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Local resolution of identity for Coulomb contribution.
-
-[
-
-Edit on GitHub
-
-]
-
-DO_SMEARING
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Implying smeared occupation.
-
-[
-
-Edit on GitHub
-
-]
-
-EOS_SHIFT
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-[eV]
-
-
-
-Aliases:
-
-OPEN_SHELL_SHIFT
-
-Usage:
-
-EOS_SHIFT 0.200
-
-Constant shift of open shell eigenvalues.
-
-[
-
-Edit on GitHub
-
-]
-
-EV_SHIFT
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-[eV]
-
-
-
-Aliases:
-
-VIRTUAL_SHIFT
-
-Usage:
-
-EV_SHIFT 0.500
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-Constant shift of virtual state eigenvalues.
-
-[
-
-Edit on GitHub
-
-]
-
-EXCITON_DESCRIPTORS
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Compute exciton descriptors. Details given in Manual section about Bethe Salpeter equation.
-
-[
-
-Edit on GitHub
-
-]
-
-KERNEL
-
-:
-
-enum
-
-=
-
-FULL
-
-
-
-Usage:
-
-KERNEL FULL
-
-Valid values:
-
-FULL
-
-STDA
-
-NONE
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-Options to compute the kernel
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_ITER
-
-:
-
-integer
-
-=
-
-50
-
-
-
-Maximal number of iterations to be performed.
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_KV
-
-:
-
-integer
-
-=
-
-5000
-
-
-
-Maximal number of Krylov space vectors. Davidson iterations will be restarted upon reaching this limit.
-
-[
-
-Edit on GitHub
-
-]
-
-MIN_AMPLITUDE
-
-:
-
-real
-
-=
-
-5.00000000E-002
-
-
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-The smallest excitation amplitude to print.
-
-[
-
-Edit on GitHub
-
-]
-
-NLUMO
-
-:
-
-integer
-
-=
-
--1
-
-
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-Number of unoccupied orbitals to consider. Default is to use all unoccupied orbitals (-1).
-
-[
-
-Edit on GitHub
-
-]
-
-NPROC_STATE
-
-:
-
-integer
-
-=
-
-0
-
-
-
-Number of MPI processes to be used per excited state. Default is to use all MPI processes (0).
-
-[
-
-Edit on GitHub
-
-]
-
-NSTATES
-
-:
-
-integer
-
-=
-
-1
-
-
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-Number of excited states to converge.
-
-[
-
-Edit on GitHub
-
-]
-
-OE_CORR
-
-:
-
-enum
-
-=
-
-NONE
-
-
-
-Valid values:
-
-NONE
-
-No orbital correction scheme is used
-
-LB94
-
-van Leeuwen and Baerends. PRA, 49:2421, 1994
-
-GLLB
-
-Gritsenko, van Leeuwen, van Lenthe, Baerends. PRA, 51:1944, 1995
-
-SAOP
-
-Gritsenko, Schipper, Baerends. Chem. Phys. Lett., 302:199, 1999
-
-SHIFT
-
-Constant shift of virtual and/or open-shell orbitals
-
-Orbital energy correction potential.
-
-[
-
-Edit on GitHub
-
-]
-
-ORTHOGONAL_EPS
-
-:
-
-real
-
-=
-
-1.00000000E-004
-
-
-
-The largest possible overlap between the ground state and orthogonalised excited state wave-functions. Davidson iterations will be restarted when the overlap goes beyond this threshold in order to prevent numerical instability.
-
-[
-
-Edit on GitHub
-
-]
-
-RESTART
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-Restart the TDDFPT calculation if a restart file exists
-
-[
-
-Edit on GitHub
-
-]
-
-RKS_TRIPLETS
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-Compute triplet excited states using spin-unpolarised molecular orbitals.
-
-[
-
-Edit on GitHub
-
-]
-
-SPINFLIP
-
-:
-
-enum
-
-=
-
-NONE
-
-
-
-Usage:
-
-SPINFLIP NONCOLLINEAR
-
-Valid values:
-
-NONE
-
-Only molecular orbital energy differences are considered
-
-COLLINEAR
-
-MO energy diferences and Fock exchange contributions are considered
-
-NONCOLLINEAR
-
-MO energy differences, Fock exchange and Noncollinear local exchange-correlation kernel are considered
-
-References:
-
-HernandezSegura2025
-
-Selects the type of spin-flip TDDFPT kernel
-
-[
-
-Edit on GitHub
-
-]
-
-WFN_RESTART_FILE_NAME
-
-:
-
-string
-
-
-
-Aliases:
-
-RESTART_FILE_NAME
-
-Usage:
-
-WFN_RESTART_FILE_NAME
-
-Mentions:
-
-⭐
-
-Time-Dependent DFT
-
-Name of the wave function restart file, may include a path. If no file is specified, the default is to open the file as generated by the wave function restart print key.
-
-[
-
-Edit on GitHub
-
-]
+Name of the wave function restart file, may include a path. If no file is specified, the default is to open the file as generated by the wave function restart print key. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_properties_dft.F#L1836)\]

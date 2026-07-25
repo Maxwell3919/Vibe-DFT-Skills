@@ -5,7 +5,7 @@
   <strong>面向可重复 DFT 与原子模拟工作流的可移植、证据门禁 Skill 集合</strong>
 </p>
 
-> **最后更新 / Last updated:** 2026-07-25 (Asia/Shanghai)
+> **最后更新 / Last updated:** 2026-07-26 (Asia/Shanghai)
 > **仓库状态 / Repository scope:** 26 source-backed Skills = 7 `active` + 19 `development`; 4 active calculation-code integrations; 19 planned software identities
 
 > **项目声明 / Project statement**
@@ -52,13 +52,41 @@ Status reporting separates source presence, lifecycle registration, deterministi
 
 ## 官方文档 pack 覆盖状态 / Official-document pack coverage status
 
-截至 2026-07-24，全部 26 个 source-backed Skills 都已生成确定性的 official-document registration pack（26/26）。普通 bundle 审计的结果仍是 `0 complete / 26 partial`。这只证明预期的 pack 已存在并能接受契约与语义审计；它不表示上游官方文档正文已经全部进入仓库，也不表示正文已经被完整、细粒度地切分。
+截至 2026-07-26，全部 26 个 source-backed Skills 都已生成确定性的 official-document registration pack（26/26）。普通 bundle 审计的结果仍是 `0 complete / 26 partial`。这只证明预期的 pack 已存在并能接受契约与语义审计；它不表示上游官方文档正文已经全部进入仓库，也不表示正文已经被完整、细粒度地切分。
 
-As of 2026-07-24, deterministic official-document registration packs exist for all 26 source-backed Skills (26/26), while the ordinary bundle audit still reports `0 complete / 26 partial`. Pack presence closes the expected registration-artifact check only; it does not mean that all upstream official-document content is present or completely divided into fine-grained slices.
+As of 2026-07-26, deterministic official-document registration packs exist for all 26 source-backed Skills (26/26), while the ordinary bundle audit still reports `0 complete / 26 partial`. Pack presence closes the expected registration-artifact check only; it does not mean that all upstream official-document content is present or completely divided into fine-grained slices.
 
 当前 57 个精确 authority-to-consumer bindings 对应 57 份 corpus manifests。它们共登记 3,421 个 discovered source identities，其中 462 个 included、2,959 个作为 reviewed exclusions 闭合。生成的 1,586 个 slices 全部是 `metadata-only`：421 个 `whole-source`、1,159 个 `source-symbol`、6 个 `json-pointer`；canonical packs 内物化的官方正文为 0。仓库另有 2,075 个 legacy official-document artifacts（13,412,851 bytes），它们位于 canonical pack domain 之外，并被 strict storage audit 阻断，不能作为 pack 正文物化或语义切分已完成的证据。
 
-The 57 exact authority-to-consumer bindings currently resolve to 57 corpus manifests. Together they register 3,421 discovered source identities: 462 included sources plus 2,959 reviewed exclusions. All 1,586 generated slices are `metadata-only`: 421 `whole-source`, 1,159 `source-symbol`, and 6 `json-pointer`; the canonical packs contain zero materialized official-document bodies. The repository separately retains 2,075 legacy official-document artifacts (13,412,851 bytes) outside the canonical pack domain. Strict storage audit blocks those artifacts, so they do not establish pack materialization or semantic-slice closure.
+The 57 exact authority-to-consumer bindings currently resolve to 57 corpus manifests. Together they register 3,421 discovered source identities: 462 included sources plus 2,959 reviewed exclusions. All 1,586 generated slices are `metadata-only`: 421 `whole-source`, 1,159 `source-symbol`, and 6 `json-pointer`; the canonical packs contain zero materialized official-document bodies. The repository separately retains 2,075 legacy official-document artifacts (18,950,704 bytes) outside the canonical pack domain. Strict storage audit blocks those artifacts, so they do not establish pack materialization or semantic-slice closure.
+
+第三方正文仍不进入 canonical pack。需要人工可读正文时，使用
+[`tools/sync_official_manual_cache.py`](tools/sync_official_manual_cache.py)
+按 Skill 在本机生成 Markdown；完整的来源、许可、receipt drift、字符保留和
+fail-closed 规则见
+[`docs/official-manual-markdown-cache.md`](docs/official-manual-markdown-cache.md)。
+每个 `SKILL.md` 都指向自己的 `references/manual-cache-route.md` 路由页。
+
+Third-party bodies remain outside the canonical pack. Use
+[`tools/sync_official_manual_cache.py`](tools/sync_official_manual_cache.py) to
+materialize readable Markdown locally for one Skill. The provenance, licensing,
+receipt-drift, character-retention, and fail-closed rules are documented in
+[`docs/official-manual-markdown-cache.md`](docs/official-manual-markdown-cache.md);
+every `SKILL.md` links to its own `references/manual-cache-route.md` route.
+
+2026-07-26 的本机全量验证快照覆盖 26 个 Skill、45 个 active authority 和
+6,622 份 Markdown（47,281,815 字节、808,015 行），并通过严格 UTF-8、
+`U+FFFD=0`、NUL=0、不可见控制字符=0 以及逐文件大小/SHA-256 校验。
+其中受限正文、publisher 文献、未注册的 docs-tree 正文和 receipt drift
+仍按各自标签 fail closed，不能因“本机可读”自动升级为版本敏感证据。
+
+The 2026-07-26 full local verification snapshot covers 26 Skills, 45 active
+authorities, and 6,622 Markdown documents (47,281,815 bytes; 808,015 lines).
+It passes strict UTF-8, zero replacement-character, zero NUL, zero invisible
+control-character, and per-file size/SHA-256 gates. Restricted bodies,
+publisher literature, unregistered docs-tree bodies, and receipt drift remain
+fail closed under their explicit labels; local readability never promotes
+them to version-sensitive evidence.
 
 官方文档覆盖按四层分别报告，后一层不能由前一层自动推出：
 

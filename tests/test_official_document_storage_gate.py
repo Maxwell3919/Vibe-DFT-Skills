@@ -32,12 +32,12 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
         self.assertEqual(report.namespace_path_count, 2079)
         self.assertEqual(report.artifact_path_count, 2075)
         self.assertEqual(report.local_control_count, 4)
-        self.assertEqual(report.local_control_bytes, 11_702)
+        self.assertEqual(report.local_control_bytes, 11_983)
         self.assertEqual(
             report.local_control_digest_sha256,
-            "480086ef3c1f9ab255717e38e2404fa5ae5cfee5fed24f27dd8ad0eecf8cf53b",
+            "6a2ddf8a50f03111d8ca246801ef0faca1666ed50af05b989a759bfc06f28b3e",
         )
-        self.assertEqual(report.artifact_bytes, 13_412_851)
+        self.assertEqual(report.artifact_bytes, 18_950_704)
         self.assertEqual(report.forbidden_path_count, 2075)
         self.assertEqual(report.release_blocking_path_count, 2075)
         self.assertEqual(report.worktree_drift_findings, ())
@@ -171,7 +171,7 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
         )
         self.assertEqual(delegated.invalid_findings, ())
         self.assertEqual(delegated.artifact_path_count, 2075)
-        self.assertEqual(delegated.artifact_bytes, 13_412_851)
+        self.assertEqual(delegated.artifact_bytes, 18_950_704)
 
         adjacent = storage_gate.evaluate_storage(
             tuple(

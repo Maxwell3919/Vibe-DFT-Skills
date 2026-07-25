@@ -2,152 +2,78 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON.html
 - Raw SHA-256: 859bf837154f3bd382984e7fbc4aa73665b0f59991f1bfc611b3456de67de401
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-POISSON
+---
 
-
+# POISSON
 
-Controls the Poisson solver and electrostatic boundary conditions used by DFT.
-
-[
-
-Edit on GitHub
-
-]
+Controls the Poisson solver and electrostatic boundary conditions used by DFT. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_poisson.F#L110)\]
 
 Subsections
 
-EWALD
+-   [EWALD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON/EWALD.html)
+-   [IMPLICIT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON/IMPLICIT.html)
+-   [MT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON/MT.html)
+-   [MULTIPOLE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON/MULTIPOLE.html)
+-   [WAVELET](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON/WAVELET.html)
 
-IMPLICIT
+## Keywords
 
-MT
+-   [PERIODIC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON.html#CP2K_INPUT.FORCE_EVAL.DFT.POISSON.PERIODIC "CP2K_INPUT.FORCE_EVAL.DFT.POISSON.PERIODIC")
 
-MULTIPOLE
+-   [POISSON\_SOLVER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/POISSON.html#CP2K_INPUT.FORCE_EVAL.DFT.POISSON.POISSON_SOLVER "CP2K_INPUT.FORCE_EVAL.DFT.POISSON.POISSON_SOLVER")
 
-WAVELET
 
-Keywords
+## Keyword descriptions
 
-
+### PERIODIC*: enum* *\= XYZ*
 
-PERIODIC
+**Usage:** *PERIODIC (x|y|z|xy|xz|yz|xyz|none)*
 
-POISSON_SOLVER
+**Valid values:**
 
-Keyword descriptions
+-   `X`
 
-
+-   `Y`
 
-PERIODIC
+-   `Z`
 
-:
+-   `XY`
 
-enum
+-   `XZ`
 
-=
+-   `YZ`
 
-XYZ
+-   `XYZ`
 
-
+-   `NONE`
 
-Usage:
 
-PERIODIC (x|y|z|xy|xz|yz|xyz|none)
+Specifies the directions in which periodic boundary conditions apply to electrostatics. See the CELL section for the periodicity used by geometry and pair lists; the settings are usually the same. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_poisson.F#L140)\]
 
-Valid values:
+### POISSON\_SOLVER*: enum* *\= PERIODIC*
 
-X
+**Aliases:** POISSON ,PSOLVER
 
-Y
+**Usage:** *POISSON\_SOLVER char*
 
-Z
+**Valid values:**
 
-XY
+-   `PERIODIC` PERIODIC is only available for fully (3D) periodic systems.
 
-XZ
+-   `ANALYTIC` ANALYTIC is available for 0D, 1D and 2D periodic solutions using analytical green functions in the g space (slow convergence).
 
-YZ
+-   `MT` MT (Martyna Tuckermann) decoupling that interacts only with the nearest neighbor. Beware results are completely wrong if the cell is smaller than twice the cluster size (with electronic density). Available for 0D and 2D systems.
 
-XYZ
+-   `MULTIPOLE` MULTIPOLE uses a scheme that fits the total charge with one gaussian per atom. Available only for cluster (0D) systems.
 
-NONE
+-   `WAVELET` WAVELET allows for 0D, 2D and 3D systems. For 2D systems all PERIODIC XY, XZ and YZ combinations are accepted. It does not require very large unit cells, only that the density goes to zero on the faces of the cell. The use of PREFERRED\_FFT\_LIBRARY FFTSG is required.
 
-Specifies the directions in which periodic boundary conditions apply to electrostatics. See the CELL section for the periodicity used by geometry and pair lists; the settings are usually the same.
+-   `IMPLICIT` IMPLICIT allows for 0D, 1D, 2D and 3D systems.
 
-[
 
-Edit on GitHub
+**References:** [Blöchl1995](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#blochl1995), [Martyna1999](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#martyna1999), [Genovese2006](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#genovese2006), [Genovese2007](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#genovese2007)
 
-]
-
-POISSON_SOLVER
-
-:
-
-enum
-
-=
-
-PERIODIC
-
-
-
-Aliases:
-
-POISSON ,PSOLVER
-
-Usage:
-
-POISSON_SOLVER char
-
-Valid values:
-
-PERIODIC
-
-PERIODIC is only available for fully (3D) periodic systems.
-
-ANALYTIC
-
-ANALYTIC is available for 0D, 1D and 2D periodic solutions using analytical green functions in the g space (slow convergence).
-
-MT
-
-MT (Martyna Tuckermann) decoupling that interacts only with the nearest neighbor. Beware results are completely wrong if the cell is smaller than twice the cluster size (with electronic density). Available for 0D and 2D systems.
-
-MULTIPOLE
-
-MULTIPOLE uses a scheme that fits the total charge with one gaussian per atom. Available only for cluster (0D) systems.
-
-WAVELET
-
-WAVELET allows for 0D, 2D and 3D systems. For 2D systems all PERIODIC XY, XZ and YZ combinations are accepted. It does not require very large unit cells, only that the density goes to zero on the faces of the cell. The use of PREFERRED_FFT_LIBRARY FFTSG is required.
-
-IMPLICIT
-
-IMPLICIT allows for 0D, 1D, 2D and 3D systems.
-
-References:
-
-Blöchl1995
-
-,
-
-Martyna1999
-
-,
-
-Genovese2006
-
-,
-
-Genovese2007
-
-Specify which kind of solver to use to solve the Poisson equation.
-
-[
-
-Edit on GitHub
-
-]
+Specify which kind of solver to use to solve the Poisson equation. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_poisson.F#L115)\]

@@ -2,648 +2,247 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html
 - Raw SHA-256: c253095cab627a11b9ad3dbc8e5c74e0ce53ee0bfb4d8183bc2697b38f107843
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-XAS
+---
 
-
+# XAS
 
-References:
+**References:** [Iannuzzi2007](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#iannuzzi2007)
 
-Iannuzzi2007
-
-Controls transition-potential and delta-SCF calculations of core-level excitation spectra. The occupied states from which the excitations are calculated should be specified. Localization of the orbitals may be useful.
-
-[
-
-Edit on GitHub
-
-]
+Controls transition-potential and delta-SCF calculations of core-level excitation spectra. The occupied states from which the excitations are calculated should be specified. Localization of the orbitals may be useful. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L88)\]
 
 Subsections
 
-LOCALIZE
+-   [LOCALIZE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS/LOCALIZE.html)
+-   [PRINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS/PRINT.html)
+-   [SCF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS/SCF.html)
 
-PRINT
+## Keywords
 
-SCF
+-   [SECTION\_PARAMETERS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.SECTION_PARAMETERS "CP2K_INPUT.FORCE_EVAL.DFT.XAS.SECTION_PARAMETERS")
 
-Keywords
+-   [ADDED\_MOS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.ADDED_MOS "CP2K_INPUT.FORCE_EVAL.DFT.XAS.ADDED_MOS")
 
-
+-   [ATOMS\_LIST](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.ATOMS_LIST "CP2K_INPUT.FORCE_EVAL.DFT.XAS.ATOMS_LIST")
 
-SECTION_PARAMETERS
+-   [DIPOLE\_FORM](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.DIPOLE_FORM "CP2K_INPUT.FORCE_EVAL.DFT.XAS.DIPOLE_FORM")
 
-ADDED_MOS
+-   [EPS\_ADDED](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.EPS_ADDED "CP2K_INPUT.FORCE_EVAL.DFT.XAS.EPS_ADDED")
 
-ATOMS_LIST
+-   [MAX\_ITER\_ADDED](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.MAX_ITER_ADDED "CP2K_INPUT.FORCE_EVAL.DFT.XAS.MAX_ITER_ADDED")
 
-DIPOLE_FORM
+-   [METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.METHOD "CP2K_INPUT.FORCE_EVAL.DFT.XAS.METHOD")
 
-EPS_ADDED
+-   [NGAUSS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.NGAUSS "CP2K_INPUT.FORCE_EVAL.DFT.XAS.NGAUSS")
 
-MAX_ITER_ADDED
+-   [ORBITAL\_LIST](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.ORBITAL_LIST "CP2K_INPUT.FORCE_EVAL.DFT.XAS.ORBITAL_LIST")
 
-METHOD
+-   [OVERLAP\_THRESHOLD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.OVERLAP_THRESHOLD "CP2K_INPUT.FORCE_EVAL.DFT.XAS.OVERLAP_THRESHOLD")
 
-NGAUSS
+-   [RESTART](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.RESTART "CP2K_INPUT.FORCE_EVAL.DFT.XAS.RESTART")
 
-ORBITAL_LIST
+-   [SPIN\_CHANNEL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.SPIN_CHANNEL "CP2K_INPUT.FORCE_EVAL.DFT.XAS.SPIN_CHANNEL")
 
-OVERLAP_THRESHOLD
+-   [STATE\_SEARCH](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.STATE_SEARCH "CP2K_INPUT.FORCE_EVAL.DFT.XAS.STATE_SEARCH")
 
-RESTART
+-   [STATE\_TYPE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.STATE_TYPE "CP2K_INPUT.FORCE_EVAL.DFT.XAS.STATE_TYPE")
 
-SPIN_CHANNEL
+-   [WFN\_RESTART\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.WFN_RESTART_FILE_NAME "CP2K_INPUT.FORCE_EVAL.DFT.XAS.WFN_RESTART_FILE_NAME")
 
-STATE_SEARCH
+-   [XAS\_CORE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.XAS_CORE "CP2K_INPUT.FORCE_EVAL.DFT.XAS.XAS_CORE")
 
-STATE_TYPE
+-   [XAS\_TOT\_EL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.XAS_TOT_EL "CP2K_INPUT.FORCE_EVAL.DFT.XAS.XAS_TOT_EL")
 
-WFN_RESTART_FILE_NAME
+-   [XES\_CORE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.XES_CORE "CP2K_INPUT.FORCE_EVAL.DFT.XAS.XES_CORE")
 
-XAS_CORE
+-   [XES\_EMPTY\_HOMO](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/XAS.html#CP2K_INPUT.FORCE_EVAL.DFT.XAS.XES_EMPTY_HOMO "CP2K_INPUT.FORCE_EVAL.DFT.XAS.XES_EMPTY_HOMO")
 
-XAS_TOT_EL
 
-XES_CORE
+## Keyword descriptions
 
-XES_EMPTY_HOMO
+### SECTION\_PARAMETERS*: logical* *\= F*
 
-Keyword descriptions
+**Lone keyword:** `T`
 
-
+**Usage:** *&XAS T*
 
-SECTION_PARAMETERS
+controls the activation of core-level spectroscopy simulations \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L97)\]
 
-:
+### ADDED\_MOS*: integer* *\= \-1*
 
-logical
+**Usage:** *ADDED\_MOS {integer}*
 
-=
+Number of additional MOS added spin up only \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L231)\]
 
-F
+### ATOMS\_LIST*: integer\[ \]*
 
-
+**Keyword can be repeated.**
 
-Lone keyword:
+**Aliases:** AT\_LIST
 
-T
+**Usage:** *ATOMS\_LIST {integer} {integer} .. {integer}*
 
-Usage:
+Indexes of the atoms to be excited. This keyword can be repeated several times (useful if you have to specify many indexes). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L204)\]
 
-&XAS T
+### DIPOLE\_FORM*: enum* *\= VELOCITY*
 
-controls the activation of core-level spectroscopy simulations
+**Aliases:** DIP\_FORM
 
-[
+**Usage:** *DIPOLE\_FORM string*
 
-Edit on GitHub
+**Valid values:**
 
-]
+-   `LENGTH` Length form ⟨ i | e r | j ⟩
 
-ADDED_MOS
+-   `VELOCITY` Velocity form ⟨ i | d/dr | j ⟩
 
-:
 
-integer
+Type of integral to get the oscillator strengths in the diipole approximation \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L156)\]
 
-=
+### EPS\_ADDED*: real* *\= 1.00000000E-005*
 
--1
+**Usage:** *EPS\_ADDED 1.e-6*
 
-
+target accuracy incalculation of the added orbitals \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L243)\]
 
-Usage:
+### MAX\_ITER\_ADDED*: integer* *\= 2999*
 
-ADDED_MOS {integer}
+**Usage:** *MAX\_ITER\_ADDED 100*
 
-Number of additional MOS added spin up only
+maximum number of iteration in calculation of added orbitals \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L237)\]
 
-[
+### METHOD*: enum* *\= NONE*
 
-Edit on GitHub
+**Aliases:** XAS\_METHOD
 
-]
+**Usage:** *METHOD TP\_HH*
 
-ATOMS_LIST
+**Valid values:**
 
-:
+-   `NONE` No core electron spectroscopy
 
-integer[
+-   `TP_HH` Transition potential half-hole
 
-]
+-   `TP_FH` Transition potential full-hole
 
-
+-   `TP_VAL` Hole in homo for X-ray emission only
 
-Keyword can be repeated.
+-   `TP_XHH` Transition potential excited half-hole
 
-Aliases:
+-   `TP_XFH` Transition potential excited full-hole
 
-AT_LIST
+-   `DSCF` DSCF calculations to compute the first (core)excited state
 
-Usage:
+-   `TP_FLEX` Transition potential with generalized core occupation and total number of electrons
 
-ATOMS_LIST {integer} {integer} .. {integer}
 
-Indexes of the atoms to be excited. This keyword can be repeated several times (useful if you have to specify many indexes).
+Method to be used to calculate core-level excitation spectra \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L105)\]
 
-[
+### NGAUSS*: integer* *\= 3*
 
-Edit on GitHub
+**Usage:** *NGAUSS {integer}*
 
-]
+Number of gto’s for the expansion of the STO of the type given by STATE\_TYPE \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L249)\]
 
-DIPOLE_FORM
+### ORBITAL\_LIST*: integer\[ \]*
 
-:
+**Keyword can be repeated.**
 
-enum
+**Aliases:** ORBITAL\_LIST
 
-=
+**Usage:** *ORBITAL\_LIST {integer} {integer} .. {integer}*
 
-VELOCITY
+Indices of the localized orbitals to be excited. This keyword can be repeated several times (useful if you have to specify many indexes). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L221)\]
 
-
+### OVERLAP\_THRESHOLD*: real* *\= 1.00000000E+000*
 
-Aliases:
+**Usage:** *OVERLAP\_THRESHOLD 8.e-1*
 
-DIP_FORM
+Threshold for including more than one initial core excited state per atom. The threshold is taken relative to the maximum overlap. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L214)\]
 
-Usage:
+### RESTART*: logical* *\= F*
 
-DIPOLE_FORM string
+**Lone keyword:** `T`
 
-Valid values:
+**Usage:** *RESTART*
 
-LENGTH
+Restart the excited state if the restart file exists \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L256)\]
 
-Length form ⟨ i | e r | j ⟩
+### SPIN\_CHANNEL*: integer* *\= 1*
 
-VELOCITY
+**Usage:** *SPIN\_CHANNEL 1*
 
-Velocity form ⟨ i | d/dr | j ⟩
+\# Spin channel of the excited orbital \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L197)\]
 
-Type of integral to get the oscillator strengths in the diipole approximation
+### STATE\_SEARCH*: integer* *\= \-1*
 
-[
+**Usage:** *STATE\_SEARCH 1*
 
-Edit on GitHub
+\# of states where to look for the one to be excited \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L190)\]
 
-]
+### STATE\_TYPE*: enum* *\= 1S*
 
-EPS_ADDED
+**Aliases:** TYPE
 
-:
+**Usage:** *STATE\_TYPE 1S*
 
-real
+**Valid values:**
 
-=
+-   `1S` 1s orbitals
 
-1.00000000E-005
+-   `2S` 2s orbitals
 
-
+-   `2P` 2p orbitals
 
-Usage:
+-   `3S` 3s orbitals
 
-EPS_ADDED 1.e-6
+-   `3P` 3p orbitals
 
-target accuracy incalculation of the added orbitals
+-   `3D` 3d orbitals
 
-[
+-   `4S` 4s orbitals
 
-Edit on GitHub
+-   `4P` 4p orbitals
 
-]
+-   `4D` 4d orbitals
 
-MAX_ITER_ADDED
+-   `4F` 4f orbitals
 
-:
 
-integer
+Type of the orbitals that are excited for the xas spectra calculation \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L177)\]
 
-=
+### WFN\_RESTART\_FILE\_NAME*: string*
 
-2999
+**Aliases:** RESTART\_FILE\_NAME
 
-
+**Usage:** *WFN\_RESTART\_FILE\_NAME*
 
-Usage:
+Root of the file names where to read the MOS from which to restart the calculation of the core level excited states \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L263)\]
 
-MAX_ITER_ADDED 100
+### XAS\_CORE*: real* *\= 5.00000000E-001*
 
-maximum number of iteration in calculation of added orbitals
+**Usage:** *XAS\_CORE 0.5*
 
-[
+Occupation of the core state in XAS calculation by TP\_FLEX. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L123)\]
 
-Edit on GitHub
+### XAS\_TOT\_EL*: real* *\= \-1.00000000E+000*
 
-]
+**Usage:** *XAS\_TOT\_EL 10*
 
-METHOD
+Total number of electrons for spin channel alpha, in XAS calculation by TP\_FLEX. If it is a negative value, the number of electrons is set to GS number of electrons minus the amount subtracted from the core state \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L130)\]
 
-:
+### XES\_CORE*: real* *\= 1.00000000E+000*
 
-enum
+**Usage:** *XES\_CORE 0.5*
 
-=
+Occupation of the core state in XES calculation by TP\_VAL. The HOMO is emptied by the same amount. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L139)\]
 
-NONE
+### XES\_EMPTY\_HOMO*: logical* *\= F*
 
-
+**Lone keyword:** `T`
 
-Aliases:
+**Usage:** *XES\_EMPTY\_HOMO*
 
-XAS_METHOD
-
-Usage:
-
-METHOD TP_HH
-
-Valid values:
-
-NONE
-
-No core electron spectroscopy
-
-TP_HH
-
-Transition potential half-hole
-
-TP_FH
-
-Transition potential full-hole
-
-TP_VAL
-
-Hole in homo for X-ray emission only
-
-TP_XHH
-
-Transition potential excited half-hole
-
-TP_XFH
-
-Transition potential excited full-hole
-
-DSCF
-
-DSCF calculations to compute the first (core)excited state
-
-TP_FLEX
-
-Transition potential with generalized core occupation and total number of electrons
-
-Method to be used to calculate core-level excitation spectra
-
-[
-
-Edit on GitHub
-
-]
-
-NGAUSS
-
-:
-
-integer
-
-=
-
-3
-
-
-
-Usage:
-
-NGAUSS {integer}
-
-Number of gto’s for the expansion of the STO of the type given by STATE_TYPE
-
-[
-
-Edit on GitHub
-
-]
-
-ORBITAL_LIST
-
-:
-
-integer[
-
-]
-
-
-
-Keyword can be repeated.
-
-Aliases:
-
-ORBITAL_LIST
-
-Usage:
-
-ORBITAL_LIST {integer} {integer} .. {integer}
-
-Indices of the localized orbitals to be excited. This keyword can be repeated several times (useful if you have to specify many indexes).
-
-[
-
-Edit on GitHub
-
-]
-
-OVERLAP_THRESHOLD
-
-:
-
-real
-
-=
-
-1.00000000E+000
-
-
-
-Usage:
-
-OVERLAP_THRESHOLD 8.e-1
-
-Threshold for including more than one initial core excited state per atom. The threshold is taken relative to the maximum overlap.
-
-[
-
-Edit on GitHub
-
-]
-
-RESTART
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-RESTART
-
-Restart the excited state if the restart file exists
-
-[
-
-Edit on GitHub
-
-]
-
-SPIN_CHANNEL
-
-:
-
-integer
-
-=
-
-1
-
-
-
-Usage:
-
-SPIN_CHANNEL 1
-
-# Spin channel of the excited orbital
-
-[
-
-Edit on GitHub
-
-]
-
-STATE_SEARCH
-
-:
-
-integer
-
-=
-
--1
-
-
-
-Usage:
-
-STATE_SEARCH 1
-
-# of states where to look for the one to be excited
-
-[
-
-Edit on GitHub
-
-]
-
-STATE_TYPE
-
-:
-
-enum
-
-=
-
-1S
-
-
-
-Aliases:
-
-TYPE
-
-Usage:
-
-STATE_TYPE 1S
-
-Valid values:
-
-1S
-
-1s orbitals
-
-2S
-
-2s orbitals
-
-2P
-
-2p orbitals
-
-3S
-
-3s orbitals
-
-3P
-
-3p orbitals
-
-3D
-
-3d orbitals
-
-4S
-
-4s orbitals
-
-4P
-
-4p orbitals
-
-4D
-
-4d orbitals
-
-4F
-
-4f orbitals
-
-Type of the orbitals that are excited for the xas spectra calculation
-
-[
-
-Edit on GitHub
-
-]
-
-WFN_RESTART_FILE_NAME
-
-:
-
-string
-
-
-
-Aliases:
-
-RESTART_FILE_NAME
-
-Usage:
-
-WFN_RESTART_FILE_NAME
-
-Root of the file names where to read the MOS from which to restart the calculation of the core level excited states
-
-[
-
-Edit on GitHub
-
-]
-
-XAS_CORE
-
-:
-
-real
-
-=
-
-5.00000000E-001
-
-
-
-Usage:
-
-XAS_CORE 0.5
-
-Occupation of the core state in XAS calculation by TP_FLEX.
-
-[
-
-Edit on GitHub
-
-]
-
-XAS_TOT_EL
-
-:
-
-real
-
-=
-
--1.00000000E+000
-
-
-
-Usage:
-
-XAS_TOT_EL 10
-
-Total number of electrons for spin channel alpha, in XAS calculation by TP_FLEX. If it is a negative value, the number of electrons is set to GS number of electrons minus the amount subtracted from the core state
-
-[
-
-Edit on GitHub
-
-]
-
-XES_CORE
-
-:
-
-real
-
-=
-
-1.00000000E+000
-
-
-
-Usage:
-
-XES_CORE 0.5
-
-Occupation of the core state in XES calculation by TP_VAL. The HOMO is emptied by the same amount.
-
-[
-
-Edit on GitHub
-
-]
-
-XES_EMPTY_HOMO
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-XES_EMPTY_HOMO
-
-Set the occupation of the HOMO in XES calculation by TP_VAL. The HOMO can be emptied or not, if the core is still full.
-
-[
-
-Edit on GitHub
-
-]
+Set the occupation of the HOMO in XES calculation by TP\_VAL. The HOMO can be emptied or not, if the core is still full. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_xas.F#L147)\]

@@ -5,6 +5,8 @@ description: Design, explain, audit, troubleshoot, and validate rigorous VASP ca
 
 # VASP Rigorous Calculations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using an external VASP Wiki page not already present in the validated mirror.
+
 Treat documented behavior, input integrity, reproducibility, execution completion, electronic convergence, ionic convergence, numerical convergence, task-specific validity, and physical validity as separate gates. Fail closed: missing or ambiguous evidence is `unresolved`, never an inferred pass.
 
 ## Apply the non-negotiable contract

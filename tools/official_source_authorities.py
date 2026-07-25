@@ -83,6 +83,7 @@ CANONICAL_SNAPSHOT_FIELDS = {
     "artifact_basis",
 }
 CP2K_MANIFEST_FIELDS = {
+    "converter",
     "index_page_count",
     "index_sha256",
     "manual_branch",
@@ -94,6 +95,7 @@ CP2K_MANIFEST_FIELDS = {
     "schema_version",
 }
 CP2K_PAGE_FIELDS = {
+    "conversion_quality",
     "indexed",
     "path",
     "raw_bytes",
@@ -103,6 +105,37 @@ CP2K_PAGE_FIELDS = {
     "source_path",
     "source_url",
 }
+CP2K_CONVERTER_FIELDS = {
+    "adapter_path",
+    "adapter_schema_version",
+    "adapter_sha256",
+    "dependencies",
+    "expected_upstream_commit",
+    "git_commit",
+    "project_name",
+    "project_version",
+    "upstream_url",
+}
+CP2K_CONVERTER_DEPENDENCIES = {
+    "jsdom",
+    "turndown",
+    "turndown-plugin-gfm",
+}
+CP2K_CONVERSION_QUALITY_FIELDS = {
+    "markdown_token_count",
+    "max_line_chars",
+    "non_ascii_characters_preserved",
+    "replacement_characters",
+    "source_non_ascii_chars",
+    "source_text_chars",
+    "source_text_sha256",
+    "source_token_count",
+    "sphinx_private_header_glyphs",
+    "status",
+    "token_sequence_preserved",
+}
+HTML2MD_UPSTREAM = "https://github.com/helloworld-Co/html2md"
+HTML2MD_COMMIT = "ca08965af93e6565806a79087868daa439565ffc"
 CP2K_INDEX_FIELDS = {
     "manual_branch",
     "manual_version",
@@ -540,6 +573,55 @@ def _canonical_snapshot_projection(
             failures.append(f"{location}/manifest_path: invalid {field}")
     if not _valid_utc_timestamp(manifest.get("retrieved_utc")):
         failures.append(f"{location}/manifest_path: invalid retrieved_utc")
+    converter = manifest.get("converter")
+    converter_location = f"{location}/manifest/converter"
+    if not isinstance(converter, dict) or set(converter) != CP2K_CONVERTER_FIELDS:
+        failures.append(f"{converter_location}: unsupported converter fields")
+    else:
+        if (
+            converter.get("adapter_path") != "scripts/html2md_adapter.js"
+            or converter.get("adapter_schema_version") != "1.0"
+            or converter.get("project_name") != "hello-html2md"
+            or converter.get("upstream_url") != HTML2MD_UPSTREAM
+            or converter.get("git_commit") != HTML2MD_COMMIT
+            or converter.get("expected_upstream_commit") != HTML2MD_COMMIT
+            or not isinstance(converter.get("project_version"), str)
+            or not converter["project_version"]
+        ):
+            failures.append(f"{converter_location}: unsupported pinned html2md identity")
+        adapter_sha256 = converter.get("adapter_sha256")
+        if (
+            not isinstance(adapter_sha256, str)
+            or SHA256.fullmatch(adapter_sha256) is None
+        ):
+            failures.append(f"{converter_location}/adapter_sha256: expected a SHA-256")
+        dependencies = converter.get("dependencies")
+        if (
+            not isinstance(dependencies, dict)
+            or set(dependencies) != CP2K_CONVERTER_DEPENDENCIES
+            or not all(
+                isinstance(value, str) and value
+                for value in dependencies.values()
+            )
+        ):
+            failures.append(f"{converter_location}/dependencies: incomplete identity")
+        adapter_relative = PurePosixPath(
+            "skills",
+            expected_skill or "",
+            "scripts",
+            "html2md_adapter.js",
+        )
+        adapter_raw, adapter_error = _read_regular_file(
+            root,
+            adapter_relative.as_posix(),
+            maximum_bytes=MAX_MANIFEST_BYTES,
+        )
+        if adapter_error is not None or adapter_raw is None:
+            failures.append(f"{converter_location}/adapter_path: {adapter_error}")
+        elif hashlib.sha256(adapter_raw).hexdigest() != adapter_sha256:
+            failures.append(
+                f"{converter_location}/adapter_sha256: does not match exact adapter bytes"
+            )
     version_scopes = entry.get("version_policy", {}).get("registered_scopes", [])
     if not isinstance(version_scopes, list) or len(version_scopes) != 1:
         failures.append(f"{location}: canonical snapshots require exactly one registered version scope")
@@ -721,6 +803,62 @@ def _canonical_snapshot_projection(
             failures.append(f"{page_location}/snapshot_sha256: does not match exact snapshot bytes")
         if page.get("snapshot_bytes") != len(snapshot_raw):
             failures.append(f"{page_location}/snapshot_bytes: does not match exact snapshot bytes")
+        quality = page.get("conversion_quality")
+        quality_location = f"{page_location}/conversion_quality"
+        if (
+            not isinstance(quality, dict)
+            or set(quality) != CP2K_CONVERSION_QUALITY_FIELDS
+        ):
+            failures.append(f"{quality_location}: unsupported quality fields")
+        else:
+            if (
+                quality.get("status") != "pass"
+                or quality.get("token_sequence_preserved") is not True
+                or quality.get("non_ascii_characters_preserved") is not True
+                or quality.get("replacement_characters") != 0
+                or quality.get("sphinx_private_header_glyphs") != 0
+                or not isinstance(quality.get("source_text_sha256"), str)
+                or SHA256.fullmatch(quality["source_text_sha256"]) is None
+            ):
+                failures.append(f"{quality_location}: positive quality gates are incomplete")
+            for field in (
+                "source_text_chars",
+                "source_token_count",
+                "source_non_ascii_chars",
+                "markdown_token_count",
+                "max_line_chars",
+            ):
+                if (
+                    not isinstance(quality.get(field), int)
+                    or isinstance(quality.get(field), bool)
+                    or quality[field] < 0
+                ):
+                    failures.append(f"{quality_location}/{field}: expected a nonnegative integer")
+            if (
+                isinstance(quality.get("source_token_count"), int)
+                and isinstance(quality.get("markdown_token_count"), int)
+                and quality["markdown_token_count"] < quality["source_token_count"]
+            ):
+                failures.append(f"{quality_location}: Markdown token count is smaller than source")
+            try:
+                snapshot_text = snapshot_raw.decode("utf-8", errors="strict")
+            except UnicodeDecodeError:
+                failures.append(f"{quality_location}: snapshot is not valid UTF-8")
+            else:
+                actual_max_line = max(
+                    (len(line) for line in snapshot_text.splitlines()),
+                    default=0,
+                )
+                if (
+                    quality.get("max_line_chars") != actual_max_line
+                    or actual_max_line > 20_000
+                    or "\ufffd" in snapshot_text
+                    or "\uf0c1" in snapshot_text
+                ):
+                    failures.append(
+                        f"{quality_location}: display-quality evidence does not "
+                        "match exact snapshot bytes"
+                    )
         if version_scope is not None and isinstance(source_url, str):
             canonical_source_id = cp2k_source_id(source_path)
             if canonical_source_id not in upstream_sources:

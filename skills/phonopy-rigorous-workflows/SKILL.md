@@ -5,6 +5,8 @@ description: Discover, plan, call, audit, and scientifically review version-pinn
 
 # Phonopy Rigorous Workflows
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external Phonopy documentation body.
+
 Use the official-manual route first. This skill is pinned to Phonopy `4.3.1`,
 official tag commit `baf530aed09071e1221b3c191918a168fc5f1d9b`, released
 2026-07-01 and checked 2026-07-19. The maintainer machine had no Phonopy

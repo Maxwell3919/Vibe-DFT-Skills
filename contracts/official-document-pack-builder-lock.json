@@ -80,7 +80,7 @@
     },
     {
       "path": "tools/official_source_authorities.py",
-      "sha256": "c38adf1304caea59aeca70cda66d3771698ae3f63491a7f82515adb6c792467c"
+      "sha256": "9f903d82765820eb59682ecf5a73aebba2816590556bbad5c7ecb53317c007b4"
     },
     {
       "path": "tools/operation_routes.py",

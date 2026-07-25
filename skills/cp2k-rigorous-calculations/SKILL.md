@@ -5,6 +5,8 @@ description: Design, explain, audit, troubleshoot, and validate rigorous CP2K ca
 
 # CP2K Rigorous Calculations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using an external official document body not already covered by the validated snapshot.
+
 Separate documented behavior, input integrity, external data provenance, execution completion, SCF or ionic convergence, numerical convergence, task-specific validity, and physical validity. Fail closed: missing or ambiguous evidence is unresolved, never an inferred pass.
 
 ## Apply the execution contract
@@ -161,6 +163,11 @@ python3 scripts/sync_official_manuals.py --refresh --version 2026.2
 python3 scripts/sync_official_manuals.py --check
 python3 scripts/sync_forward_fixtures.py --check
 ```
+
+Read [references/html2md-refresh-contract.md](references/html2md-refresh-contract.md)
+before refreshing. The manual Markdown must be generated through the pinned
+local `helloworld-Co/html2md` adapter and pass its UTF-8, token-order,
+non-ASCII-character, provenance, and human-readability gates.
 
 The forward fixture is pinned to an official `cp2k-output-tools` commit, privacy-sanitized, license-preserved, and deliberately negative because the source output contains runtime/MPI warnings. It validates legacy format recognition and blocker behavior only; it does not raise CP2K 2026.2 or postprocessing maturity.
 

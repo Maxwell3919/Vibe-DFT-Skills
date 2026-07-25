@@ -5,6 +5,8 @@ description: Audit and prepare traceable periodic or molecular structures with d
 
 # DFT Structure Preparation
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before relying on external structure-library documentation bodies.
+
 ## Hold the authority boundary
 
 Treat this directory as a non-routable candidate. Never describe it as installed, active,

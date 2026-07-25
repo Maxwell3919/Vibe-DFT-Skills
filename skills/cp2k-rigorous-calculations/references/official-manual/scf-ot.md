@@ -2,1254 +2,441 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html
 - Raw SHA-256: 7cbb09ce82c7db6537f4c7b4fbdbcd6e057fb675fe99ffb9c221682d6777d869
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-OT
+---
 
-
+# OT
 
-References:
+**References:** [VandeVondele2003](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#vandevondele2003), [Weber2008](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#weber2008)
 
-VandeVondele2003
+Sets the various options for the orbital transformation (OT) method. Default settings already provide an efficient, yet robust method. Most systems benefit from using the FULL\_ALL preconditioner combined with a small value (0.001) of ENERGY\_GAP. Well-behaved systems might benefit from using a DIIS minimizer.
 
-,
+**Advantages:** It’s fast, because no expensive diagonalisation is performed. If preconditioned correctly, method guaranteed to find minimum.
 
-Weber2008
+**Disadvantages:** Sensitive to preconditioning. A good preconditioner can be expensive. No smearing, or advanced SCF mixing possible: POOR convergence for metallic systems. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L558)\]
 
-Sets the various options for the orbital transformation (OT) method. Default settings already provide an efficient, yet robust method. Most systems benefit from using the FULL_ALL preconditioner combined with a small value (0.001) of ENERGY_GAP. Well-behaved systems might benefit from using a DIIS minimizer.
+## Keywords
 
-Advantages:
+-   [SECTION\_PARAMETERS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.SECTION_PARAMETERS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.SECTION_PARAMETERS")
 
-It’s fast, because no expensive diagonalisation is performed. If preconditioned correctly, method guaranteed to find minimum.
+-   **[ALGORITHM](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ALGORITHM "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ALGORITHM")**
 
-Disadvantages:
+-   [BROYDEN\_ADAPTIVE\_SIGMA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_ADAPTIVE_SIGMA "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_ADAPTIVE_SIGMA")
 
-Sensitive to preconditioning. A good preconditioner can be expensive. No smearing, or advanced SCF mixing possible: POOR convergence for metallic systems.
+-   [BROYDEN\_BETA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_BETA "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_BETA")
 
-[
+-   [BROYDEN\_ENABLE\_FLIP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_ENABLE_FLIP "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_ENABLE_FLIP")
 
-Edit on GitHub
+-   [BROYDEN\_ETA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_ETA "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_ETA")
 
-]
+-   [BROYDEN\_FORGET\_HISTORY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_FORGET_HISTORY "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_FORGET_HISTORY")
 
-Keywords
+-   [BROYDEN\_GAMMA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_GAMMA "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_GAMMA")
 
-
+-   [BROYDEN\_OMEGA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_OMEGA "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_OMEGA")
 
-SECTION_PARAMETERS
+-   [BROYDEN\_SIGMA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_SIGMA "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_SIGMA")
 
-ALGORITHM
+-   [BROYDEN\_SIGMA\_DECREASE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_SIGMA_DECREASE "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_SIGMA_DECREASE")
 
-BROYDEN_ADAPTIVE_SIGMA
+-   [BROYDEN\_SIGMA\_MIN](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_SIGMA_MIN "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.BROYDEN_SIGMA_MIN")
 
-BROYDEN_BETA
+-   [CHOLESKY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.CHOLESKY "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.CHOLESKY")
 
-BROYDEN_ENABLE_FLIP
+-   [ENERGIES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ENERGIES "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ENERGIES")
 
-BROYDEN_ETA
+-   [ENERGY\_GAP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ENERGY_GAP "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ENERGY_GAP")
 
-BROYDEN_FORGET_HISTORY
+-   [EPS\_IRAC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC")
 
-BROYDEN_GAMMA
+-   [EPS\_IRAC\_FILTER\_MATRIX](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC_FILTER_MATRIX "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC_FILTER_MATRIX")
 
-BROYDEN_OMEGA
+-   [EPS\_IRAC\_QUICK\_EXIT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC_QUICK_EXIT "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC_QUICK_EXIT")
 
-BROYDEN_SIGMA
+-   [EPS\_IRAC\_SWITCH](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC_SWITCH "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_IRAC_SWITCH")
 
-BROYDEN_SIGMA_DECREASE
+-   [EPS\_TAYLOR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_TAYLOR "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.EPS_TAYLOR")
 
-BROYDEN_SIGMA_MIN
+-   [GOLD\_TARGET](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.GOLD_TARGET "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.GOLD_TARGET")
 
-CHOLESKY
+-   [IRAC\_DEGREE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.IRAC_DEGREE "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.IRAC_DEGREE")
 
-ENERGIES
+-   **[LINESEARCH](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.LINESEARCH "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.LINESEARCH")**
 
-ENERGY_GAP
+-   [MAX\_IRAC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MAX_IRAC "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MAX_IRAC")
 
-EPS_IRAC
+-   [MAX\_SCF\_DIIS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MAX_SCF_DIIS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MAX_SCF_DIIS")
 
-EPS_IRAC_FILTER_MATRIX
+-   [MAX\_TAYLOR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MAX_TAYLOR "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MAX_TAYLOR")
 
-EPS_IRAC_QUICK_EXIT
+-   **[MINIMIZER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MINIMIZER "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.MINIMIZER")**
 
-EPS_IRAC_SWITCH
+-   [NONDIAG\_ENERGY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.NONDIAG_ENERGY "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.NONDIAG_ENERGY")
 
-EPS_TAYLOR
+-   [NONDIAG\_ENERGY\_STRENGTH](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.NONDIAG_ENERGY_STRENGTH "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.NONDIAG_ENERGY_STRENGTH")
 
-GOLD_TARGET
+-   [N\_HISTORY\_VEC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.N_HISTORY_VEC "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.N_HISTORY_VEC")
 
-IRAC_DEGREE
+-   [OCCUPATION\_PRECONDITIONER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.OCCUPATION_PRECONDITIONER "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.OCCUPATION_PRECONDITIONER")
 
-LINESEARCH
+-   [ON\_THE\_FLY\_LOC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ON_THE_FLY_LOC "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ON_THE_FLY_LOC")
 
-MAX_IRAC
+-   [ORTHO\_IRAC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ORTHO_IRAC "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ORTHO_IRAC")
 
-MAX_SCF_DIIS
+-   **[PRECONDITIONER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.PRECONDITIONER "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.PRECONDITIONER")**
 
-MAX_TAYLOR
+-   [PRECOND\_SOLVER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.PRECOND_SOLVER "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.PRECOND_SOLVER")
 
-MINIMIZER
+-   [ROTATION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ROTATION "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.ROTATION")
 
-NONDIAG_ENERGY
+-   [SAFE\_DIIS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.SAFE_DIIS "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.SAFE_DIIS")
 
-NONDIAG_ENERGY_STRENGTH
+-   [STEPSIZE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/SCF/OT.html#CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.STEPSIZE "CP2K_INPUT.FORCE_EVAL.DFT.SCF.OT.STEPSIZE")
 
-N_HISTORY_VEC
 
-OCCUPATION_PRECONDITIONER
+## Keyword descriptions
 
-ON_THE_FLY_LOC
+### SECTION\_PARAMETERS*: logical* *\= F*
 
-ORTHO_IRAC
+**Lone keyword:** `T`
 
-PRECONDITIONER
+**Usage:** *&OT T*
 
-PRECOND_SOLVER
+controls the activation of the ot method \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L575)\]
 
-ROTATION
+### ALGORITHM*: enum* *\= STRICT*
 
-SAFE_DIIS
+**Usage:** *ALGORITHM STRICT*
 
-STEPSIZE
+**Valid values:**
 
-Keyword descriptions
+-   `STRICT` Strict orthogonality: Taylor or diagonalization based algorithm.
 
-
+-   `IRAC` Orbital Transformation based Iterative Refinement of the Approximative Congruence transformation (OT/IR).
 
-SECTION_PARAMETERS
 
-:
+**References:** [VandeVondele2003](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#vandevondele2003), [VandeVondele2005](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#vandevondele2005), [Weber2008](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#weber2008)
 
-logical
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html)
 
-=
+Algorithm to be used for OT \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L583)\]
 
-F
+### BROYDEN\_ADAPTIVE\_SIGMA*: logical* *\= T*
 
-
+**Lone keyword:** `T`
 
-Lone keyword:
+**Usage:** *BROYDEN\_ADAPTIVE\_SIGMA ON*
 
-T
+Enable adaptive curvature estimation \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L752)\]
 
-Usage:
+### BROYDEN\_BETA*: real* *\= 9.00000000E-001*
 
-&OT T
+**Usage:** *BROYDEN\_BETA 0.9*
 
-controls the activation of the ot method
+Underrelaxation for the broyden mixer \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L696)\]
 
-[
+### BROYDEN\_ENABLE\_FLIP*: logical* *\= T*
 
-Edit on GitHub
+**Lone keyword:** `T`
 
-]
+**Usage:** *BROYDEN\_ENABLE\_FLIP ON*
 
-ALGORITHM
+Ensure positive definite update \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L759)\]
 
-:
+### BROYDEN\_ETA*: real* *\= 7.00000000E-001*
 
-enum
+**Usage:** *BROYDEN\_ETA 0.7*
 
-=
+Dampening of estimated energy curvature. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L717)\]
 
-STRICT
+### BROYDEN\_FORGET\_HISTORY*: logical* *\= F*
 
-
+**Lone keyword:** `T`
 
-Usage:
+**Usage:** *BROYDEN\_FORGET\_HISTORY OFF*
 
-ALGORITHM STRICT
+Forget history on bad approximation \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L745)\]
 
-Valid values:
+### BROYDEN\_GAMMA*: real* *\= 5.00000000E-001*
 
-STRICT
+**Usage:** *BROYDEN\_GAMMA 0.5*
 
-Strict orthogonality: Taylor or diagonalization based algorithm.
+Backtracking parameter \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L703)\]
 
-IRAC
+### BROYDEN\_OMEGA*: real* *\= 1.10000000E+000*
 
-Orbital Transformation based Iterative Refinement of the Approximative Congruence transformation (OT/IR).
+**Usage:** *BROYDEN\_OMEGA 1.1*
 
-References:
+Growth limit of curvature. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L724)\]
 
-VandeVondele2003
+### BROYDEN\_SIGMA*: real* *\= 2.50000000E-001*
 
-,
+**Usage:** *BROYDEN\_SIGMA 0.25*
 
-VandeVondele2005
+Curvature of energy functional. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L710)\]
 
-,
+### BROYDEN\_SIGMA\_DECREASE*: real* *\= 7.00000000E-001*
 
-Weber2008
+**Usage:** *BROYDEN\_SIGMA\_DECREASE 0.7*
 
-Mentions:
+Reduction of curvature on bad approximation. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L731)\]
 
-⭐
+### BROYDEN\_SIGMA\_MIN*: real* *\= 5.00000000E-002*
 
-How to make a SCF run converge
+**Usage:** *BROYDEN\_SIGMA\_MIN 0.05*
 
-Algorithm to be used for OT
+Minimum adaptive curvature. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L738)\]
 
-[
+### CHOLESKY*: enum* *\= REDUCE*
 
-Edit on GitHub
+**Usage:** *CHOLESKY REDUCE*
 
-]
+**Valid values:**
 
-BROYDEN_ADAPTIVE_SIGMA
+-   `OFF` The cholesky algorithm is not used
 
-:
+-   `REDUCE` Reduce is called
 
-logical
+-   `RESTORE` Reduce is replaced by two restore
 
-=
+-   `INVERSE` Restore uses operator multiply by inverse of the triangular matrix
 
-T
+-   `INVERSE_DBCSR` Like inverse, but matrix stored as dbcsr, sparce matrix algebra used when possible
 
-
 
-Lone keyword:
+If FULL\_ALL the cholesky decomposition of the S matrix is used. Options on the algorithm to be used. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L831)\]
 
-T
+### ENERGIES*: logical* *\= F*
 
-Usage:
+**Lone keyword:** `T`
 
-BROYDEN_ADAPTIVE_SIGMA ON
+**Usage:** *ENERGIES*
 
-Enable adaptive curvature estimation
+Optimize orbital energies for use in Fermi-Dirac smearing (requires ROTATION and FD smearing to be active). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L904)\]
 
-[
+### ENERGY\_GAP*: real* *\= \-1.00000000E+000*
 
-Edit on GitHub
+**Usage:** *ENERGY\_GAP 0.001*
 
-]
+Should be an estimate for the energy gap \[a.u.\] (HOMO-LUMO) and is used in preconditioning, especially effective with the FULL\_ALL preconditioner, in which case it should be an underestimate of the gap (can be a small number, e.g. 0.002). FULL\_SINGLE\_INVERSE takes it as lower bound (values below 0.05 can cause stability issues). In general, higher values will tame the preconditioner in case of poor initial guesses. A negative value will leave the choice to CP2K depending on type of preconditioner. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L864)\]
 
-BROYDEN_BETA
+### EPS\_IRAC*: real* *\= 1.00000000E-010*
 
-:
+**Usage:** *EPS\_IRAC 1.0E-5*
 
-real
+Targeted accuracy during the refinement iteration. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L627)\]
 
-=
+### EPS\_IRAC\_FILTER\_MATRIX*: real* *\= 0.00000000E+000*
 
-9.00000000E-001
+**Usage:** *EPS\_IRAC\_FILTER\_MATRIX 1.0E-5*
 
-
+Sets the threshold for filtering the matrices. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L620)\]
 
-Usage:
+### EPS\_IRAC\_QUICK\_EXIT*: real* *\= 1.00000000E-005*
 
-BROYDEN_BETA 0.9
+**Usage:** *EPS\_IRAC\_QUICK\_EXIT 1.0E-2*
 
-Underrelaxation for the broyden mixer
+Only one extra refinement iteration is done when the norm is below this value. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L634)\]
 
-[
+### EPS\_IRAC\_SWITCH*: real* *\= 1.00000000E-002*
 
-Edit on GitHub
+**Usage:** *EPS\_IRAC\_SWITCH 1.0E-3*
 
-]
+The algorithm switches to the polynomial refinement when the norm is below this value. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L642)\]
 
-BROYDEN_ENABLE_FLIP
+### EPS\_TAYLOR*: real* *\= 1.00000000E-016*
 
-:
+**Aliases:** EPSTAYLOR
 
-logical
+**Usage:** *EPS\_TAYLOR 1.0E-15*
 
-=
+Target accuracy of the taylor expansion for the matrix functions, should normally be kept as is. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L877)\]
 
-T
+### GOLD\_TARGET*: real* *\= 1.00000000E-002*
 
-
+**Usage:** *GOLD\_TARGET 0.1*
 
-Lone keyword:
+Target relative uncertainty in the location of the minimum for LINESEARCH GOLD \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L797)\]
 
-T
+### IRAC\_DEGREE*: integer* *\= 4*
 
-Usage:
+**Usage:** *IRAC\_DEGREE 4*
 
-BROYDEN_ENABLE_FLIP ON
+The refinement polynomial degree (2, 3 or 4). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L596)\]
 
-Ensure positive definite update
+### LINESEARCH*: enum* *\= 2PNT*
 
-[
+**Aliases:** LINE\_SEARCH
 
-Edit on GitHub
+**Usage:** *LINESEARCH GOLD*
 
-]
+**Valid values:**
 
-BROYDEN_ETA
+-   `ADAPT` extrapolates usually based on 3 points, uses additional points on demand, very robust.
 
-:
+-   `NONE` always take steps of fixed length
 
-real
+-   `2PNT` extrapolate based on 2 points
 
-=
+-   `3PNT` extrapolate based on 3 points
 
-7.00000000E-001
+-   `GOLD` perform 1D golden section search of the minimum (very expensive)
 
-
 
-Usage:
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html)
 
-BROYDEN_ETA 0.7
+1D line search algorithm to be used with the OT minimizer, in increasing order of robustness and cost. MINIMIZER CG combined with LINESEARCH GOLD should always find an electronic minimum. Whereas the 2PNT minimizer is almost always OK, 3PNT might be needed for systems in which successive OT CG steps do not decrease the total energy. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L766)\]
 
-Dampening of estimated energy curvature.
+### MAX\_IRAC*: integer* *\= 50*
 
-[
+**Usage:** *MAX\_IRAC 5*
 
-Edit on GitHub
+Maximum allowed refinement iteration. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L603)\]
 
-]
+### MAX\_SCF\_DIIS*: integer* *\= 0*
 
-BROYDEN_FORGET_HISTORY
+**Usage:** *MAX\_SCF\_DIIS 20*
 
-:
+Maximum DIIS SCF inner loop cycles. This can be used to extend SCF cycles after a switch to DIIS (see eps\_diis). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L680)\]
 
-logical
+### MAX\_TAYLOR*: integer* *\= 4*
 
-=
+**Usage:** *MAX\_TAYLOR 5*
 
-F
+Maximum order of the Taylor expansion before diagonalisation is preferred, for large parallel runs a slightly higher order could sometimes result in a small speedup. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L886)\]
 
-
+### MINIMIZER*: enum* *\= CG*
 
-Lone keyword:
+**Usage:** *MINIMIZER DIIS*
 
-T
+**Valid values:**
 
-Usage:
+-   `SD` Steepest descent: not recommended
 
-BROYDEN_FORGET_HISTORY OFF
+-   `CG` Conjugate Gradients: most reliable, use for difficult systems. The total energy should decrease at every OT CG step if the line search is appropriate.
 
-Forget history on bad approximation
+-   `DIIS` Direct inversion in the iterative subspace: less reliable than CG, but sometimes about 50% faster
 
-[
+-   `BROYDEN` Broyden mixing approximating the inverse Hessian
 
-Edit on GitHub
 
-]
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html)
 
-BROYDEN_GAMMA
+Minimizer to be used with the OT method \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L659)\]
 
-:
+### NONDIAG\_ENERGY*: logical* *\= F*
 
-real
+**Lone keyword:** `T`
 
-=
+**Usage:** *NONDIAG\_ENERGY*
 
-5.00000000E-001
+Add a non-diagonal energy penalty (FD smearing) \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L919)\]
 
-
+### NONDIAG\_ENERGY\_STRENGTH*: real* *\= 1.00000000E+000*
 
-Usage:
+**Usage:** *NONDIAG\_ENERGY\_STRENGTH*
 
-BROYDEN_GAMMA 0.5
+The prefactor for the non-diagonal energy penalty (FD smearing) \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L926)\]
 
-Backtracking parameter
+### N\_HISTORY\_VEC*: integer* *\= 7*
 
-[
+**Aliases:** NDIIS ,N\_DIIS ,N\_BROYDEN
 
-Edit on GitHub
+**Usage:** *N\_DIIS 4*
 
-]
+Number of history vectors to be used with DIIS or BROYDEN \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L688)\]
 
-BROYDEN_OMEGA
+### OCCUPATION\_PRECONDITIONER*: logical* *\= F*
 
-:
+**Lone keyword:** `T`
 
-real
+**Usage:** *OCCUPATION\_PRECONDITIONER*
 
-=
+Preconditioner with the occupation numbers (FD smearing) \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L912)\]
 
-1.10000000E+000
+### ON\_THE\_FLY\_LOC*: logical* *\= F*
 
-
+**Usage:** *ON\_THE\_FLY\_LOC T*
 
-Usage:
+On the fly localization of the molecular orbitals. Can only be used with OT/IRAC. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L650)\]
 
-BROYDEN_OMEGA 1.1
+### ORTHO\_IRAC*: enum* *\= CHOL*
 
-Growth limit of curvature.
+**Usage:** *ORTHO\_IRAC POLY*
 
-[
+**Valid values:**
 
-Edit on GitHub
+-   `CHOL` Cholesky.
 
-]
+-   `POLY` Polynomial.
 
-BROYDEN_SIGMA
+-   `LWDN` Loewdin.
 
-:
 
-real
+The orthogonality method. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L610)\]
 
-=
+### PRECONDITIONER*: enum* *\= FULL\_KINETIC*
 
-2.50000000E-001
+**Usage:** *PRECONDITIONER FULL\_ALL*
 
-
+**Valid values:**
 
-Usage:
+-   `FULL_ALL` Most effective state selective preconditioner based on diagonalization, requires the ENERGY\_GAP parameter to be an underestimate of the HOMO-LUMO gap. This preconditioner is recommended for almost all systems, except very large systems where make\_preconditioner would dominate the total computational cost.
 
-BROYDEN_SIGMA 0.25
+-   `FULL_SINGLE_INVERSE` Based on H-eS cholesky inversion, similar to FULL\_SINGLE in preconditioning efficiency but cheaper to construct, might be somewhat less robust. Recommended for large systems.
 
-Curvature of energy functional.
+-   `FULL_SINGLE` Based on H-eS diagonalisation, not as good as FULL\_ALL, but somewhat cheaper to apply.
 
-[
+-   `FULL_KINETIC` Cholesky inversion of S and T, fast construction, robust, and relatively good, use for very large systems.
 
-Edit on GitHub
+-   `FULL_S_INVERSE` Cholesky inversion of S, not as good as FULL\_KINETIC, yet equally expensive.
 
-]
+-   `NONE` skip preconditioning
 
-BROYDEN_SIGMA_DECREASE
 
-:
+**References:** [VandeVondele2003](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#vandevondele2003), [Weber2008](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#weber2008), [Schiffmann2015](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#schiffmann2015)
 
-real
+**Mentions:** ⭐[How to make a SCF run converge](https://manual.cp2k.org/cp2k-2026_2-branch/methods/dft/convergence.html)
 
-=
+Type of preconditioner to be used with all minimization schemes. They differ in effectiveness, cost of construction, cost of application. Properly preconditioned minimization can be orders of magnitude faster than doing nothing. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L805)\]
 
-7.00000000E-001
+### PRECOND\_SOLVER*: enum* *\= DEFAULT*
 
-
+**Usage:** *PRECOND\_SOLVER DIRECT*
 
-Usage:
+**Valid values:**
 
-BROYDEN_SIGMA_DECREASE 0.7
+-   `DEFAULT` the default
 
-Reduction of curvature on bad approximation.
+-   `DIRECT` Cholesky decomposition followed by triangular solve (works for FULL\_KINETIC/SINGLE\_INVERSE/S\_INVERSE)
 
-[
+-   `INVERSE_CHOLESKY` Cholesky decomposition followed by explicit inversion (works for FULL\_KINETIC/SINGLE\_INVERSE/S\_INVERSE)
 
-Edit on GitHub
+-   `INVERSE_UPDATE` Performs a Hotelling update of the inverse if a previous preconditioner is present. Mainly useful for GPU accelerated systems (works for FULL\_KINETIC/SINGLE\_INVERSE/S\_INVERSE)
 
-]
 
-BROYDEN_SIGMA_MIN
+How the preconditioner is applied to the residual. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L845)\]
 
-:
+### ROTATION*: logical* *\= F*
 
-real
+**Lone keyword:** `T`
 
-=
+**Usage:** *ROTATION*
 
-5.00000000E-002
+Introduce additional variables so that rotations of the occupied subspace are allowed as well, only needed for cases where the energy is not invariant under a rotation of the occupied subspace such as non-singlet restricted calculations or fractional occupations. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L894)\]
 
-
+### SAFE\_DIIS*: logical* *\= T*
 
-Usage:
+**Aliases:** SAFER\_DIIS
 
-BROYDEN_SIGMA_MIN 0.05
+**Usage:** *SAFE\_DIIS ON*
 
-Minimum adaptive curvature.
+Reject DIIS steps if they point away from the minimum, do SD in that case. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L672)\]
 
-[
+### STEPSIZE*: real* *\= \-1.00000000E+000*
 
-Edit on GitHub
+**Usage:** *STEPSIZE 0.4*
 
-]
-
-CHOLESKY
-
-:
-
-enum
-
-=
-
-REDUCE
-
-
-
-Usage:
-
-CHOLESKY REDUCE
-
-Valid values:
-
-OFF
-
-The cholesky algorithm is not used
-
-REDUCE
-
-Reduce is called
-
-RESTORE
-
-Reduce is replaced by two restore
-
-INVERSE
-
-Restore uses operator multiply by inverse of the triangular matrix
-
-INVERSE_DBCSR
-
-Like inverse, but matrix stored as dbcsr, sparce matrix algebra used when possible
-
-If FULL_ALL the cholesky decomposition of the S matrix is used. Options on the algorithm to be used.
-
-[
-
-Edit on GitHub
-
-]
-
-ENERGIES
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-ENERGIES
-
-Optimize orbital energies for use in Fermi-Dirac smearing (requires ROTATION and FD smearing to be active).
-
-[
-
-Edit on GitHub
-
-]
-
-ENERGY_GAP
-
-:
-
-real
-
-=
-
--1.00000000E+000
-
-
-
-Usage:
-
-ENERGY_GAP 0.001
-
-Should be an estimate for the energy gap [a.u.] (HOMO-LUMO) and is used in preconditioning, especially effective with the FULL_ALL preconditioner, in which case it should be an underestimate of the gap (can be a small number, e.g. 0.002). FULL_SINGLE_INVERSE takes it as lower bound (values below 0.05 can cause stability issues). In general, higher values will tame the preconditioner in case of poor initial guesses. A negative value will leave the choice to CP2K depending on type of preconditioner.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_IRAC
-
-:
-
-real
-
-=
-
-1.00000000E-010
-
-
-
-Usage:
-
-EPS_IRAC 1.0E-5
-
-Targeted accuracy during the refinement iteration.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_IRAC_FILTER_MATRIX
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-
-
-Usage:
-
-EPS_IRAC_FILTER_MATRIX 1.0E-5
-
-Sets the threshold for filtering the matrices.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_IRAC_QUICK_EXIT
-
-:
-
-real
-
-=
-
-1.00000000E-005
-
-
-
-Usage:
-
-EPS_IRAC_QUICK_EXIT 1.0E-2
-
-Only one extra refinement iteration is done when the norm is below this value.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_IRAC_SWITCH
-
-:
-
-real
-
-=
-
-1.00000000E-002
-
-
-
-Usage:
-
-EPS_IRAC_SWITCH 1.0E-3
-
-The algorithm switches to the polynomial refinement when the norm is below this value.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_TAYLOR
-
-:
-
-real
-
-=
-
-1.00000000E-016
-
-
-
-Aliases:
-
-EPSTAYLOR
-
-Usage:
-
-EPS_TAYLOR 1.0E-15
-
-Target accuracy of the taylor expansion for the matrix functions, should normally be kept as is.
-
-[
-
-Edit on GitHub
-
-]
-
-GOLD_TARGET
-
-:
-
-real
-
-=
-
-1.00000000E-002
-
-
-
-Usage:
-
-GOLD_TARGET 0.1
-
-Target relative uncertainty in the location of the minimum for LINESEARCH GOLD
-
-[
-
-Edit on GitHub
-
-]
-
-IRAC_DEGREE
-
-:
-
-integer
-
-=
-
-4
-
-
-
-Usage:
-
-IRAC_DEGREE 4
-
-The refinement polynomial degree (2, 3 or 4).
-
-[
-
-Edit on GitHub
-
-]
-
-LINESEARCH
-
-:
-
-enum
-
-=
-
-2PNT
-
-
-
-Aliases:
-
-LINE_SEARCH
-
-Usage:
-
-LINESEARCH GOLD
-
-Valid values:
-
-ADAPT
-
-extrapolates usually based on 3 points, uses additional points on demand, very robust.
-
-NONE
-
-always take steps of fixed length
-
-2PNT
-
-extrapolate based on 2 points
-
-3PNT
-
-extrapolate based on 3 points
-
-GOLD
-
-perform 1D golden section search of the minimum (very expensive)
-
-Mentions:
-
-⭐
-
-How to make a SCF run converge
-
-1D line search algorithm to be used with the OT minimizer, in increasing order of robustness and cost. MINIMIZER CG combined with LINESEARCH GOLD should always find an electronic minimum. Whereas the 2PNT minimizer is almost always OK, 3PNT might be needed for systems in which successive OT CG steps do not decrease the total energy.
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_IRAC
-
-:
-
-integer
-
-=
-
-50
-
-
-
-Usage:
-
-MAX_IRAC 5
-
-Maximum allowed refinement iteration.
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_SCF_DIIS
-
-:
-
-integer
-
-=
-
-0
-
-
-
-Usage:
-
-MAX_SCF_DIIS 20
-
-Maximum DIIS SCF inner loop cycles. This can be used to extend SCF cycles after a switch to DIIS (see eps_diis).
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_TAYLOR
-
-:
-
-integer
-
-=
-
-4
-
-
-
-Usage:
-
-MAX_TAYLOR 5
-
-Maximum order of the Taylor expansion before diagonalisation is preferred, for large parallel runs a slightly higher order could sometimes result in a small speedup.
-
-[
-
-Edit on GitHub
-
-]
-
-MINIMIZER
-
-:
-
-enum
-
-=
-
-CG
-
-
-
-Usage:
-
-MINIMIZER DIIS
-
-Valid values:
-
-SD
-
-Steepest descent: not recommended
-
-CG
-
-Conjugate Gradients: most reliable, use for difficult systems. The total energy should decrease at every OT CG step if the line search is appropriate.
-
-DIIS
-
-Direct inversion in the iterative subspace: less reliable than CG, but sometimes about 50% faster
-
-BROYDEN
-
-Broyden mixing approximating the inverse Hessian
-
-Mentions:
-
-⭐
-
-How to make a SCF run converge
-
-Minimizer to be used with the OT method
-
-[
-
-Edit on GitHub
-
-]
-
-NONDIAG_ENERGY
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-NONDIAG_ENERGY
-
-Add a non-diagonal energy penalty (FD smearing)
-
-[
-
-Edit on GitHub
-
-]
-
-NONDIAG_ENERGY_STRENGTH
-
-:
-
-real
-
-=
-
-1.00000000E+000
-
-
-
-Usage:
-
-NONDIAG_ENERGY_STRENGTH
-
-The prefactor for the non-diagonal energy penalty (FD smearing)
-
-[
-
-Edit on GitHub
-
-]
-
-N_HISTORY_VEC
-
-:
-
-integer
-
-=
-
-7
-
-
-
-Aliases:
-
-NDIIS ,N_DIIS ,N_BROYDEN
-
-Usage:
-
-N_DIIS 4
-
-Number of history vectors to be used with DIIS or BROYDEN
-
-[
-
-Edit on GitHub
-
-]
-
-OCCUPATION_PRECONDITIONER
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-OCCUPATION_PRECONDITIONER
-
-Preconditioner with the occupation numbers (FD smearing)
-
-[
-
-Edit on GitHub
-
-]
-
-ON_THE_FLY_LOC
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Usage:
-
-ON_THE_FLY_LOC T
-
-On the fly localization of the molecular orbitals. Can only be used with OT/IRAC.
-
-[
-
-Edit on GitHub
-
-]
-
-ORTHO_IRAC
-
-:
-
-enum
-
-=
-
-CHOL
-
-
-
-Usage:
-
-ORTHO_IRAC POLY
-
-Valid values:
-
-CHOL
-
-Cholesky.
-
-POLY
-
-Polynomial.
-
-LWDN
-
-Loewdin.
-
-The orthogonality method.
-
-[
-
-Edit on GitHub
-
-]
-
-PRECONDITIONER
-
-:
-
-enum
-
-=
-
-FULL_KINETIC
-
-
-
-Usage:
-
-PRECONDITIONER FULL_ALL
-
-Valid values:
-
-FULL_ALL
-
-Most effective state selective preconditioner based on diagonalization, requires the ENERGY_GAP parameter to be an underestimate of the HOMO-LUMO gap. This preconditioner is recommended for almost all systems, except very large systems where make_preconditioner would dominate the total computational cost.
-
-FULL_SINGLE_INVERSE
-
-Based on H-eS cholesky inversion, similar to FULL_SINGLE in preconditioning efficiency but cheaper to construct, might be somewhat less robust. Recommended for large systems.
-
-FULL_SINGLE
-
-Based on H-eS diagonalisation, not as good as FULL_ALL, but somewhat cheaper to apply.
-
-FULL_KINETIC
-
-Cholesky inversion of S and T, fast construction, robust, and relatively good, use for very large systems.
-
-FULL_S_INVERSE
-
-Cholesky inversion of S, not as good as FULL_KINETIC, yet equally expensive.
-
-NONE
-
-skip preconditioning
-
-References:
-
-VandeVondele2003
-
-,
-
-Weber2008
-
-,
-
-Schiffmann2015
-
-Mentions:
-
-⭐
-
-How to make a SCF run converge
-
-Type of preconditioner to be used with all minimization schemes. They differ in effectiveness, cost of construction, cost of application. Properly preconditioned minimization can be orders of magnitude faster than doing nothing.
-
-[
-
-Edit on GitHub
-
-]
-
-PRECOND_SOLVER
-
-:
-
-enum
-
-=
-
-DEFAULT
-
-
-
-Usage:
-
-PRECOND_SOLVER DIRECT
-
-Valid values:
-
-DEFAULT
-
-the default
-
-DIRECT
-
-Cholesky decomposition followed by triangular solve (works for FULL_KINETIC/SINGLE_INVERSE/S_INVERSE)
-
-INVERSE_CHOLESKY
-
-Cholesky decomposition followed by explicit inversion (works for FULL_KINETIC/SINGLE_INVERSE/S_INVERSE)
-
-INVERSE_UPDATE
-
-Performs a Hotelling update of the inverse if a previous preconditioner is present. Mainly useful for GPU accelerated systems (works for FULL_KINETIC/SINGLE_INVERSE/S_INVERSE)
-
-How the preconditioner is applied to the residual.
-
-[
-
-Edit on GitHub
-
-]
-
-ROTATION
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-ROTATION
-
-Introduce additional variables so that rotations of the occupied subspace are allowed as well, only needed for cases where the energy is not invariant under a rotation of the occupied subspace such as non-singlet restricted calculations or fractional occupations.
-
-[
-
-Edit on GitHub
-
-]
-
-SAFE_DIIS
-
-:
-
-logical
-
-=
-
-T
-
-
-
-Aliases:
-
-SAFER_DIIS
-
-Usage:
-
-SAFE_DIIS ON
-
-Reject DIIS steps if they point away from the minimum, do SD in that case.
-
-[
-
-Edit on GitHub
-
-]
-
-STEPSIZE
-
-:
-
-real
-
-=
-
--1.00000000E+000
-
-
-
-Usage:
-
-STEPSIZE 0.4
-
-Initial stepsize used for the line search, sometimes this parameter can be reduced to stabilize DIIS or to improve the CG behavior in the first few steps. The optimal value depends on the quality of the preconditioner. A negative values leaves the choice to CP2K depending on the preconditioner.
-
-[
-
-Edit on GitHub
-
-]
+Initial stepsize used for the line search, sometimes this parameter can be reduced to stabilize DIIS or to improve the CG behavior in the first few steps. The optimal value depends on the quality of the preconditioner. A negative values leaves the choice to CP2K depending on the preconditioner. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_scf.F#L787)\]

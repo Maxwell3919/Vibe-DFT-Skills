@@ -46,8 +46,8 @@ artifact_sets:
       - {kind: prefix, value: skills/cp2k-rigorous-calculations/references/official-manual/}
     baseline:
       path_count: 88
-      byte_count: 2706893
-      digest_sha256: 4dca51522b8a42e8cedee2c73165bd7a81d8cac3922607325c9b5ecb070622b5
+      byte_count: 8244746
+      digest_sha256: f7e58a40ddf76a2fe561d4ff8387e4cf07d3b00607ed4167f37cc09b2f1c4718
   cp2k-source-registry:
     provider_id: cp2k
     authority_ids: [cp2k-official-manual, cp2k-release-source-docs]
@@ -80,7 +80,7 @@ artifact_sets:
 local_controls:
   - provider_id: cp2k
     path: skills/cp2k-rigorous-calculations/references/official-source-policy.md
-    baseline: {mode: "100644", byte_count: 4399, blob_oid: f359be998d96036ecc1ce3fe4a79f7bd7dc875f8}
+    baseline: {mode: "100644", byte_count: 4680, blob_oid: c60cad4d7fbff2951046067772569fa31b759206}
   - provider_id: siesta
     path: skills/siesta-rigorous-calculations/references/official-artifact-fixtures.json
     baseline: {mode: "100644", byte_count: 2006, blob_oid: f8bfa7e534bd526e4eec93ff4193fcd4dbaf6c3f}

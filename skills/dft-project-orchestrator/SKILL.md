@@ -5,6 +5,8 @@ description: Audit a supplied DFT workflow plan, identify its next evidence-boun
 
 # DFT Project Orchestrator
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before routing work from external official documentation.
+
 ## Start with the repository interface manual
 
 Read [references/repository-interface-manual.md](references/repository-interface-manual.md) before using this candidate. It records the working directory, implemented CLI, real active-Skill entry points, artifact handoffs, route check, runnable synthetic example, and human confirmation points.

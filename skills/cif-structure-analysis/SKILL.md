@@ -5,6 +5,8 @@ description: Use when parsing or analyzing CIF files for traceable structure fac
 
 # CIF Structure Analysis
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external standards or library documentation body.
+
 ## Purpose
 
 Run the helper before making numeric structure claims. It emits a schema-validated JSON manifest and Markdown summary; optional PNGs are presentation artifacts. It can reject or flag avoidable input problems and propose bounded, unranked optimization starting points. It does not choose DFT parameters, evaluate an energy model, or identify a stable structure.

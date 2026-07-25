@@ -2,378 +2,154 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html
 - Raw SHA-256: bfc28ed4f064c51177b9a88fcf329823057af48dc6a34451e0547cdfb01cfef4
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-HIRSHFELD
+---
 
-
+# HIRSHFELD
 
-Controls the printing of the Hirshfeld (spin) population analysis
-
-[
-
-Edit on GitHub
-
-]
+Controls the printing of the Hirshfeld (spin) population analysis \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_print_dft.F#L1374)\]
 
 Subsections
 
-EACH
+-   [EACH](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD/EACH.html)
 
-Keywords
+## Keywords
 
-
+-   [SECTION\_PARAMETERS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.SECTION_PARAMETERS "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.SECTION_PARAMETERS")
 
-SECTION_PARAMETERS
+-   [ADD\_LAST](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.ADD_LAST "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.ADD_LAST")
 
-ADD_LAST
+-   [ATOMIC\_RADII](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.ATOMIC_RADII "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.ATOMIC_RADII")
 
-ATOMIC_RADII
+-   [COMMON\_ITERATION\_LEVELS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.COMMON_ITERATION_LEVELS "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.COMMON_ITERATION_LEVELS")
 
-COMMON_ITERATION_LEVELS
+-   [FILENAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.FILENAME "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.FILENAME")
 
-FILENAME
+-   [LOG\_PRINT\_KEY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.LOG_PRINT_KEY "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.LOG_PRINT_KEY")
 
-LOG_PRINT_KEY
+-   [REFERENCE\_CHARGE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.REFERENCE_CHARGE "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.REFERENCE_CHARGE")
 
-REFERENCE_CHARGE
+-   [SELF\_CONSISTENT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.SELF_CONSISTENT "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.SELF_CONSISTENT")
 
-SELF_CONSISTENT
+-   [SHAPE\_FUNCTION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.SHAPE_FUNCTION "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.SHAPE_FUNCTION")
 
-SHAPE_FUNCTION
+-   [USER\_RADIUS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.USER_RADIUS "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.USER_RADIUS")
 
-USER_RADIUS
+-   [\_\_CONTROL\_VAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/PRINT/HIRSHFELD.html#CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.__CONTROL_VAL "CP2K_INPUT.FORCE_EVAL.DFT.PRINT.HIRSHFELD.__CONTROL_VAL")
 
-__CONTROL_VAL
 
-Keyword descriptions
+## Keyword descriptions
 
-
+### SECTION\_PARAMETERS*: enum* *\= MEDIUM*
 
-SECTION_PARAMETERS
+**Lone keyword:** `SILENT`
 
-:
+**Usage:** *silent*
 
-enum
+**Valid values:**
 
-=
+-   `ON`
 
-MEDIUM
+-   `OFF`
 
-
+-   `SILENT`
 
-Lone keyword:
+-   `LOW`
 
-SILENT
+-   `MEDIUM`
 
-Usage:
+-   `HIGH`
 
-silent
+-   `DEBUG`
 
-Valid values:
 
-ON
+Level starting at which this property is printed \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input/cp_output_handling.F#L203)\]
 
-OFF
+### ADD\_LAST*: enum* *\= NO*
 
-SILENT
+**Usage:** *ADD\_LAST (NO|NUMERIC|SYMBOLIC)*
 
-LOW
+**Valid values:**
 
-MEDIUM
+-   `NO` Do not mark last iteration specifically
 
-HIGH
+-   `NUMERIC` Mark last iteration with its iteration number
 
-DEBUG
+-   `SYMBOLIC` Mark last iteration with lowercase letter l
 
-Level starting at which this property is printed
 
-[
+If the last iteration should be added, and if it should be marked symbolically (with lowercase letter l) or with the iteration number. Not every iteration level is able to identify the last iteration early enough to be able to output. When this keyword is activated all iteration levels are checked for the last iteration step. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input/cp_output_handling.F#L262)\]
 
-Edit on GitHub
+### ATOMIC\_RADII*: real\[ \]* *\= \[angstrom\]*
 
-]
+**Usage:** *ATOMIC\_RADII {real} {real} {real}*
 
-ADD_LAST
+Defines custom radii to setup the spherical Gaussians. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_print_dft.F#L1411)\]
 
-:
+### COMMON\_ITERATION\_LEVELS*: integer* *\= 1*
 
-enum
+**Usage:** *COMMON\_ITERATION\_LEVELS*
 
-=
+How many iterations levels should be written in the same file (no extra information about the actual iteration level is written to the file) \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input/cp_output_handling.F#L281)\]
 
-NO
+### FILENAME*: string* *\= \_\_STD\_OUT\_\_*
 
-
+**Usage:** *FILENAME ./filename*
 
-Usage:
+controls part of the filename for output. use \_\_STD\_OUT\_\_ (exactly as written here) for the screen or standard logger. use filename to obtain projectname-filename. use ./filename to get filename. A middle name (if present), iteration numbers and extension are always added to the filename. if you want to avoid it use =filename, in this case the filename is always exactly as typed. Please note that this can lead to clashes of filenames. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input/cp_output_handling.F#L292)\]
 
-ADD_LAST (NO|NUMERIC|SYMBOLIC)
+### LOG\_PRINT\_KEY*: logical* *\= F*
 
-Valid values:
+**Lone keyword:** `T`
 
-NO
+**Usage:** *LOG\_PRINT\_KEY*
 
-Do not mark last iteration specifically
+This keywords enables the logger for the print\_key (a message is printed on screen everytime data, controlled by this print\_key, are written) \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input/cp_output_handling.F#L308)\]
 
-NUMERIC
+### REFERENCE\_CHARGE*: enum* *\= ATOMIC*
 
-Mark last iteration with its iteration number
+**Usage:** *REFERENCE\_CHARGE {Atomic,Mulliken}*
 
-SYMBOLIC
+**Valid values:**
 
-Mark last iteration with lowercase letter l
+-   `ATOMIC` Use atomic core charges
 
-If the last iteration should be added, and if it should be marked symbolically (with lowercase letter l) or with the iteration number. Not every iteration level is able to identify the last iteration early enough to be able to output. When this keyword is activated all iteration levels are checked for the last iteration step.
+-   `MULLIKEN` Calculate Mulliken charges
 
-[
 
-Edit on GitHub
+Charge of atomic partitioning function for Hirshfeld method. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_print_dft.F#L1395)\]
 
-]
+### SELF\_CONSISTENT*: logical* *\= F*
 
-ATOMIC_RADII
+**Lone keyword:** `T`
 
-:
+**Usage:** *SELF\_CONSISTENT yes*
 
-real[
+Calculate charges from the Hirscheld-I (self\_consistent) method. This scales only the full shape function, not the added charge as in the original scheme. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_print_dft.F#L1378)\]
 
-]
+### SHAPE\_FUNCTION*: enum* *\= GAUSSIAN*
 
-=
+**Usage:** *SHAPE\_FUNCTION {Gaussian,Density}*
 
-[angstrom]
+**Valid values:**
 
-
+-   `GAUSSIAN` Single Gaussian with Colvalent radius
 
-Usage:
+-   `DENSITY` Atomic density expanded in multiple Gaussians
 
-ATOMIC_RADII {real} {real} {real}
 
-Defines custom radii to setup the spherical Gaussians.
+Type of shape function used for Hirshfeld partitioning. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_print_dft.F#L1385)\]
 
-[
+### USER\_RADIUS*: logical* *\= F*
 
-Edit on GitHub
+**Lone keyword:** `T`
 
-]
+**Usage:** *USER\_RADIUS yes*
 
-COMMON_ITERATION_LEVELS
+Use user defined radii to generate Gaussians. These radii are defined by the keyword ATOMIC\_RADII \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_print_dft.F#L1404)\]
 
-:
+### \_\_CONTROL\_VAL*: integer* *\= 8*
 
-integer
-
-=
-
-1
-
-
-
-Usage:
-
-COMMON_ITERATION_LEVELS
-
-How many iterations levels should be written in the same file (no extra information about the actual iteration level is written to the file)
-
-[
-
-Edit on GitHub
-
-]
-
-FILENAME
-
-:
-
-string
-
-=
-
-__STD_OUT__
-
-
-
-Usage:
-
-FILENAME ./filename
-
-controls part of the filename for output. use __STD_OUT__ (exactly as written here) for the screen or standard logger. use filename to obtain projectname-filename. use ./filename to get filename. A middle name (if present), iteration numbers and extension are always added to the filename. if you want to avoid it use =filename, in this case the filename is always exactly as typed. Please note that this can lead to clashes of filenames.
-
-[
-
-Edit on GitHub
-
-]
-
-LOG_PRINT_KEY
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-LOG_PRINT_KEY
-
-This keywords enables the logger for the print_key (a message is printed on screen everytime data, controlled by this print_key, are written)
-
-[
-
-Edit on GitHub
-
-]
-
-REFERENCE_CHARGE
-
-:
-
-enum
-
-=
-
-ATOMIC
-
-
-
-Usage:
-
-REFERENCE_CHARGE {Atomic,Mulliken}
-
-Valid values:
-
-ATOMIC
-
-Use atomic core charges
-
-MULLIKEN
-
-Calculate Mulliken charges
-
-Charge of atomic partitioning function for Hirshfeld method.
-
-[
-
-Edit on GitHub
-
-]
-
-SELF_CONSISTENT
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-SELF_CONSISTENT yes
-
-Calculate charges from the Hirscheld-I (self_consistent) method. This scales only the full shape function, not the added charge as in the original scheme.
-
-[
-
-Edit on GitHub
-
-]
-
-SHAPE_FUNCTION
-
-:
-
-enum
-
-=
-
-GAUSSIAN
-
-
-
-Usage:
-
-SHAPE_FUNCTION {Gaussian,Density}
-
-Valid values:
-
-GAUSSIAN
-
-Single Gaussian with Colvalent radius
-
-DENSITY
-
-Atomic density expanded in multiple Gaussians
-
-Type of shape function used for Hirshfeld partitioning.
-
-[
-
-Edit on GitHub
-
-]
-
-USER_RADIUS
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-USER_RADIUS yes
-
-Use user defined radii to generate Gaussians. These radii are defined by the keyword ATOMIC_RADII
-
-[
-
-Edit on GitHub
-
-]
-
-__CONTROL_VAL
-
-:
-
-integer
-
-=
-
-8
-
-
-
-hidden parameter that controls storage, printing,… of the print_key
-
-[
-
-Edit on GitHub
-
-]
+hidden parameter that controls storage, printing,… of the print\_key \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input/cp_output_handling.F#L214)\]

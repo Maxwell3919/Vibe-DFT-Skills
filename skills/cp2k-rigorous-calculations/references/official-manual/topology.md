@@ -2,666 +2,265 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html
 - Raw SHA-256: fc94acc8e2b30700568629fa68037989e86e0138a5929cc454a806393c1bc481
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-TOPOLOGY
+---
 
-
+# TOPOLOGY
 
-Section specifying information regarding how to handle the topology for classical runs.
-
-[
-
-Edit on GitHub
-
-]
+Section specifying information regarding how to handle the topology for classical runs. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1654)\]
 
 Subsections
 
-CENTER_COORDINATES
+-   [CENTER\_COORDINATES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/CENTER_COORDINATES.html)
+-   [DUMP\_PDB](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/DUMP_PDB.html)
+-   [DUMP\_PSF](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/DUMP_PSF.html)
+-   [EXCLUDE\_EI\_LIST](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/EXCLUDE_EI_LIST.html)
+-   [EXCLUDE\_VDW\_LIST](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/EXCLUDE_VDW_LIST.html)
+-   [FRAGMENTS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/FRAGMENTS.html)
+-   [GENERATE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/GENERATE.html)
+-   [MOL\_SET](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY/MOL_SET.html)
 
-DUMP_PDB
+## Keywords
 
-DUMP_PSF
+-   [AUTOGEN\_EXCLUDE\_LISTS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.AUTOGEN_EXCLUDE_LISTS "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.AUTOGEN_EXCLUDE_LISTS")
 
-EXCLUDE_EI_LIST
+-   [CHARGE\_BETA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CHARGE_BETA "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CHARGE_BETA")
 
-EXCLUDE_VDW_LIST
+-   [CHARGE\_EXTENDED](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CHARGE_EXTENDED "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CHARGE_EXTENDED")
 
-FRAGMENTS
+-   [CHARGE\_OCCUP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CHARGE_OCCUP "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CHARGE_OCCUP")
 
-GENERATE
+-   [CONN\_FILE\_FORMAT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CONN_FILE_FORMAT "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CONN_FILE_FORMAT")
 
-MOL_SET
+-   **[CONN\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CONN_FILE_NAME "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.CONN_FILE_NAME")**
 
-Keywords
+-   [COORD\_FILE\_FORMAT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.COORD_FILE_FORMAT "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.COORD_FILE_FORMAT")
 
-
+-   [COORD\_FILE\_NAME](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.COORD_FILE_NAME "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.COORD_FILE_NAME")
 
-AUTOGEN_EXCLUDE_LISTS
+-   [DISABLE\_EXCLUSION\_LISTS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.DISABLE_EXCLUSION_LISTS "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.DISABLE_EXCLUSION_LISTS")
 
-CHARGE_BETA
+-   [EXCLUDE\_EI](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.EXCLUDE_EI "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.EXCLUDE_EI")
 
-CHARGE_EXTENDED
+-   [EXCLUDE\_VDW](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.EXCLUDE_VDW "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.EXCLUDE_VDW")
 
-CHARGE_OCCUP
+-   [MEMORY\_PROGRESSION\_FACTOR](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.MEMORY_PROGRESSION_FACTOR "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.MEMORY_PROGRESSION_FACTOR")
 
-CONN_FILE_FORMAT
+-   [MOL\_CHECK](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.MOL_CHECK "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.MOL_CHECK")
 
-CONN_FILE_NAME
+-   [MULTIPLE\_UNIT\_CELL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.MULTIPLE_UNIT_CELL "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.MULTIPLE_UNIT_CELL")
 
-COORD_FILE_FORMAT
+-   [NUMBER\_OF\_ATOMS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.NUMBER_OF_ATOMS "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.NUMBER_OF_ATOMS")
 
-COORD_FILE_NAME
+-   [PARA\_RES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.PARA_RES "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.PARA_RES")
 
-DISABLE_EXCLUSION_LISTS
+-   [USE\_ELEMENT\_AS\_KIND](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.USE_ELEMENT_AS_KIND "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.USE_ELEMENT_AS_KIND")
 
-EXCLUDE_EI
+-   [USE\_G96\_VELOCITY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/SUBSYS/TOPOLOGY.html#CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.USE_G96_VELOCITY "CP2K_INPUT.FORCE_EVAL.SUBSYS.TOPOLOGY.USE_G96_VELOCITY")
 
-EXCLUDE_VDW
 
-MEMORY_PROGRESSION_FACTOR
+## Keyword descriptions
 
-MOL_CHECK
+### AUTOGEN\_EXCLUDE\_LISTS*: logical* *\= F*
 
-MULTIPLE_UNIT_CELL
+**Lone keyword:** `T`
 
-NUMBER_OF_ATOMS
+**Usage:** *AUTOGEN\_EXCLUDE\_LISTS logical*
 
-PARA_RES
+When True, the exclude lists are solely based on the bond data in the topology. The (minimal) number of bonds between two atoms is used to determine if the atom pair is added to an exclusion list. When False, 1-2 exclusion is based on bonds in the topology, 1-3 exclusion is based on bonds and bends in the topology, 1-4 exclusion is based on bonds, bends and dihedrals in the topology. This implies that a missing dihedral in the topology will cause the corresponding 1-4 pair not to be in the exclusion list, in case 1-4 exclusion is requested for VDW or EI interactions. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1785)\]
 
-USE_ELEMENT_AS_KIND
+### CHARGE\_BETA*: logical* *\= F*
 
-USE_G96_VELOCITY
+**Aliases:** CHARGE\_B
 
-Keyword descriptions
+**Lone keyword:** `T`
 
-
+**Usage:** *CHARGE\_BETA logical*
 
-AUTOGEN_EXCLUDE_LISTS
+Read MM charges from the BETA field of PDB file. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1677)\]
 
-:
+### CHARGE\_EXTENDED*: logical* *\= F*
 
-logical
+**Lone keyword:** `T`
 
-=
+**Usage:** *CHARGE\_EXTENDED logical*
 
-F
+Read MM charges from the very last field of PDB file (starting from column 81). No limitations of number of digits. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1685)\]
 
-
+### CHARGE\_OCCUP*: logical* *\= F*
 
-Lone keyword:
+**Aliases:** CHARGE\_O
 
-T
+**Lone keyword:** `T`
 
-Usage:
+**Usage:** *CHARGE\_OCCUP logical*
 
-AUTOGEN_EXCLUDE_LISTS logical
+Read MM charges from the OCCUP field of PDB file. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1669)\]
 
-When True, the exclude lists are solely based on the bond data in the topology. The (minimal) number of bonds between two atoms is used to determine if the atom pair is added to an exclusion list. When False, 1-2 exclusion is based on bonds in the topology, 1-3 exclusion is based on bonds and bends in the topology, 1-4 exclusion is based on bonds, bends and dihedrals in the topology. This implies that a missing dihedral in the topology will cause the corresponding 1-4 pair not to be in the exclusion list, in case 1-4 exclusion is requested for VDW or EI interactions.
+### CONN\_FILE\_FORMAT*: enum* *\= GENERATE*
 
-[
+**Aliases:** CONNECTIVITY
 
-Edit on GitHub
+**Usage:** *CONN\_FILE\_FORMAT (PSF|UPSF|MOL\_SET|GENERATE|OFF|G87|G96|AMBER|USER)*
 
-]
+**Valid values:**
 
-CHARGE_BETA
+-   `PSF` Use a PSF file to determine the connectivity. (support standard CHARMM/XPLOR and EXT CHARMM)
 
-:
+-   `UPSF` Read a PSF file in an unformatted way (useful for not so standard PSF).
 
-logical
+-   `MOL_SET` Use multiple PSF (for now…) files to generate the whole system.
 
-=
+-   `GENERATE` Use a simple distance criteria. (Look at keyword BONDPARM)
 
-F
+-   `OFF` Do not generate molecules. (e.g. for QS or ill defined systems)
 
-
+-   `G87` Use GROMOS G87 topology file.
 
-Aliases:
+-   `G96` Use GROMOS G96 topology file.
 
-CHARGE_B
+-   `AMBER` Use AMBER topology file for reading connectivity (compatible starting from AMBER V.7)
 
-Lone keyword:
+-   `USER` Allows the definition of molecules and residues based on the 5th and 6th column of the COORD section. This option can be handy for the definition of molecules with QS or to save memory in the case of very large systems (use PARA\_RES off).
 
-T
 
-Usage:
+Ways to determine and generate a molecules. Default is to use GENERATE \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L2322)\]
 
-CHARGE_BETA logical
+### CONN\_FILE\_NAME*: string*
 
-Read MM charges from the BETA field of PDB file.
+**Aliases:** CONN\_FILE
 
-[
+**Usage:** *CONN\_FILE\_NAME*
 
-Edit on GitHub
+**Mentions:** ⭐[QM/MM with Built-in Force Field](https://manual.cp2k.org/cp2k-2026_2-branch/methods/qm_mm/builtin.html)
 
-]
+Specifies the filename that contains the molecular connectivity. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L2315)\]
 
-CHARGE_EXTENDED
+### COORD\_FILE\_FORMAT*: enum* *\= OFF*
 
-:
+**Aliases:** COORDINATE
 
-logical
+**Usage:** *COORD\_FILE\_FORMAT (OFF|PDB|XYZ|G96|CRD|CIF|XTL|CP2K)*
 
-=
+**Valid values:**
 
-F
+-   `OFF` Coordinates read in the &COORD section of the input file
 
-
+-   `PDB` Coordinates provided through a PDB file format
 
-Lone keyword:
+-   `XYZ` Coordinates provided through an XYZ file format
 
-T
+-   `G96` Coordinates provided through a GROMOS96 file format
 
-Usage:
+-   `CRD` Coordinates provided through an AMBER file format
 
-CHARGE_EXTENDED logical
+-   `CIF` Coordinates provided through a CIF (Crystallographic Information File) file format
 
-Read MM charges from the very last field of PDB file (starting from column 81). No limitations of number of digits.
+-   `XTL` Coordinates provided through a XTL (MSI native) file format
 
-[
+-   `CP2K` Read the coordinates in CP2K &COORD section format from an external file. NOTE: This file will be overwritten with the latest coordinates.
 
-Edit on GitHub
 
-]
+Set up the way in which coordinates will be read. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1725)\]
 
-CHARGE_OCCUP
+### COORD\_FILE\_NAME*: string*
 
-:
+**Aliases:** COORD\_FILE
 
-logical
+**Usage:** *COORD\_FILE\_NAME*
 
-=
+Specifies the filename that contains coordinates. In case the CELL section is not set explicitly but this file contains cell information, including CIF, PDB and (Extended) XYZ formats, this file is also parsed for setting up the simulation cell. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1715)\]
 
-F
+### DISABLE\_EXCLUSION\_LISTS*: logical* *\= F*
 
-
+**Lone keyword:** `T`
 
-Aliases:
+**Usage:** *DISABLE\_EXCLUSION\_LISTS*
 
-CHARGE_O
+Do not build any exclusion lists. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1760)\]
 
-Lone keyword:
+### EXCLUDE\_EI*: enum* *\= 1-3*
 
-T
+**Usage:** *EXCLUDE\_EI (1-1||1-2||1-3||1-4)*
 
-Usage:
+**Valid values:**
 
-CHARGE_OCCUP logical
+-   `1-1`
 
-Read MM charges from the OCCUP field of PDB file.
+-   `1-2`
 
-[
+-   `1-3`
 
-Edit on GitHub
+-   `1-4`
 
-]
 
-CONN_FILE_FORMAT
+Specifies which kind of Electrostatic interaction to skip. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1776)\]
 
-:
+### EXCLUDE\_VDW*: enum* *\= 1-3*
 
-enum
+**Usage:** *EXCLUDE\_VDW (1-1||1-2||1-3||1-4)*
 
-=
+**Valid values:**
 
-GENERATE
+-   `1-1`
 
-
+-   `1-2`
 
-Aliases:
+-   `1-3`
 
-CONNECTIVITY
+-   `1-4`
 
-Usage:
 
-CONN_FILE_FORMAT (PSF|UPSF|MOL_SET|GENERATE|OFF|G87|G96|AMBER|USER)
+Specifies which kind of Van der Waals interaction to skip. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1767)\]
 
-Valid values:
+### MEMORY\_PROGRESSION\_FACTOR*: real* *\= 1.20000000E+000*
 
-PSF
+This keyword is quite technical and should normally not be changed by the user. It affects the memory allocation during the construction of the topology. It does NOT affect the memory used once the topology is built. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1813)\]
 
-Use a PSF file to determine the connectivity. (support standard CHARMM/XPLOR and EXT CHARMM)
+### MOL\_CHECK*: logical* *\= T*
 
-UPSF
+**Lone keyword:** `T`
 
-Read a PSF file in an unformatted way (useful for not so standard PSF).
+**Usage:** *MOL\_CHECK logical*
 
-MOL_SET
+Check molecules have the same number of atom and names. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1700)\]
 
-Use multiple PSF (for now…) files to generate the whole system.
+### MULTIPLE\_UNIT\_CELL*: integer\[3\]* *\= 1 1 1*
 
-GENERATE
+**Usage:** *MULTIPLE\_UNIT\_CELL 1 1 1*
 
-Use a simple distance criteria. (Look at keyword BONDPARM)
+Specifies the numbers of repetition in space (X, Y, Z) of the defined cell, assuming it as a unit cell. This keyword affects only the coordinates specification. The same keyword in SUBSYS%CELL%MULTIPLE\_UNIT\_CELL should be modified in order to affect the cell specification. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1804)\]
 
-OFF
+### NUMBER\_OF\_ATOMS*: integer* *\= \-1*
 
-Do not generate molecules. (e.g. for QS or ill defined systems)
+**Aliases:** NATOMS ,NATOM
 
-G87
+**Usage:** *NATOMS 768000*
 
-Use GROMOS G87 topology file.
+Optionally define the number of atoms read from an external file (see COORD\_FILE\_NAME) if the COORD\_FILE\_FORMAT CP2K is used \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1746)\]
 
-G96
+### PARA\_RES*: logical* *\= T*
 
-Use GROMOS G96 topology file.
+**Lone keyword:** `T`
 
-AMBER
+**Usage:** *PARA\_RES logical*
 
-Use AMBER topology file for reading connectivity (compatible starting from AMBER V.7)
+For a protein, each residue is now considered a molecule \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1693)\]
 
-USER
+### USE\_ELEMENT\_AS\_KIND*: logical* *\= F*
 
-Allows the definition of molecules and residues based on the 5th and 6th column of the COORD section. This option can be handy for the definition of molecules with QS or to save memory in the case of very large systems (use PARA_RES off).
+**Lone keyword:** `T`
 
-Ways to determine and generate a molecules. Default is to use GENERATE
+**Usage:** *USE\_ELEMENT\_AS\_KIND logical*
 
-[
+Kinds are generated according to the element name. Default=True for SE and TB methods. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1661)\]
 
-Edit on GitHub
+### USE\_G96\_VELOCITY*: logical* *\= F*
 
-]
+**Lone keyword:** `T`
 
-CONN_FILE_NAME
+**Usage:** *USE\_G96\_VELOCITY logical*
 
-:
-
-string
-
-
-
-Aliases:
-
-CONN_FILE
-
-Usage:
-
-CONN_FILE_NAME
-
-Mentions:
-
-⭐
-
-QM/MM with Built-in Force Field
-
-Specifies the filename that contains the molecular connectivity.
-
-[
-
-Edit on GitHub
-
-]
-
-COORD_FILE_FORMAT
-
-:
-
-enum
-
-=
-
-OFF
-
-
-
-Aliases:
-
-COORDINATE
-
-Usage:
-
-COORD_FILE_FORMAT (OFF|PDB|XYZ|G96|CRD|CIF|XTL|CP2K)
-
-Valid values:
-
-OFF
-
-Coordinates read in the &COORD section of the input file
-
-PDB
-
-Coordinates provided through a PDB file format
-
-XYZ
-
-Coordinates provided through an XYZ file format
-
-G96
-
-Coordinates provided through a GROMOS96 file format
-
-CRD
-
-Coordinates provided through an AMBER file format
-
-CIF
-
-Coordinates provided through a CIF (Crystallographic Information File) file format
-
-XTL
-
-Coordinates provided through a XTL (MSI native) file format
-
-CP2K
-
-Read the coordinates in CP2K &COORD section format from an external file. NOTE: This file will be overwritten with the latest coordinates.
-
-Set up the way in which coordinates will be read.
-
-[
-
-Edit on GitHub
-
-]
-
-COORD_FILE_NAME
-
-:
-
-string
-
-
-
-Aliases:
-
-COORD_FILE
-
-Usage:
-
-COORD_FILE_NAME
-
-Specifies the filename that contains coordinates. In case the CELL section is not set explicitly but this file contains cell information, including CIF, PDB and (Extended) XYZ formats, this file is also parsed for setting up the simulation cell.
-
-[
-
-Edit on GitHub
-
-]
-
-DISABLE_EXCLUSION_LISTS
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-DISABLE_EXCLUSION_LISTS
-
-Do not build any exclusion lists.
-
-[
-
-Edit on GitHub
-
-]
-
-EXCLUDE_EI
-
-:
-
-enum
-
-=
-
-1-3
-
-
-
-Usage:
-
-EXCLUDE_EI (1-1||1-2||1-3||1-4)
-
-Valid values:
-
-1-1
-
-1-2
-
-1-3
-
-1-4
-
-Specifies which kind of Electrostatic interaction to skip.
-
-[
-
-Edit on GitHub
-
-]
-
-EXCLUDE_VDW
-
-:
-
-enum
-
-=
-
-1-3
-
-
-
-Usage:
-
-EXCLUDE_VDW (1-1||1-2||1-3||1-4)
-
-Valid values:
-
-1-1
-
-1-2
-
-1-3
-
-1-4
-
-Specifies which kind of Van der Waals interaction to skip.
-
-[
-
-Edit on GitHub
-
-]
-
-MEMORY_PROGRESSION_FACTOR
-
-:
-
-real
-
-=
-
-1.20000000E+000
-
-
-
-This keyword is quite technical and should normally not be changed by the user. It affects the memory allocation during the construction of the topology. It does NOT affect the memory used once the topology is built.
-
-[
-
-Edit on GitHub
-
-]
-
-MOL_CHECK
-
-:
-
-logical
-
-=
-
-T
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-MOL_CHECK logical
-
-Check molecules have the same number of atom and names.
-
-[
-
-Edit on GitHub
-
-]
-
-MULTIPLE_UNIT_CELL
-
-:
-
-integer
-
-[
-
-3
-
-]
-
-=
-
-1
-
-
-
-Usage:
-
-MULTIPLE_UNIT_CELL 1 1 1
-
-Specifies the numbers of repetition in space (X, Y, Z) of the defined cell, assuming it as a unit cell. This keyword affects only the coordinates specification. The same keyword in SUBSYS%CELL%MULTIPLE_UNIT_CELL should be modified in order to affect the cell specification.
-
-[
-
-Edit on GitHub
-
-]
-
-NUMBER_OF_ATOMS
-
-:
-
-integer
-
-=
-
--1
-
-
-
-Aliases:
-
-NATOMS ,NATOM
-
-Usage:
-
-NATOMS 768000
-
-Optionally define the number of atoms read from an external file (see COORD_FILE_NAME) if the COORD_FILE_FORMAT CP2K is used
-
-[
-
-Edit on GitHub
-
-]
-
-PARA_RES
-
-:
-
-logical
-
-=
-
-T
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-PARA_RES logical
-
-For a protein, each residue is now considered a molecule
-
-[
-
-Edit on GitHub
-
-]
-
-USE_ELEMENT_AS_KIND
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-USE_ELEMENT_AS_KIND logical
-
-Kinds are generated according to the element name. Default=True for SE and TB methods.
-
-[
-
-Edit on GitHub
-
-]
-
-USE_G96_VELOCITY
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-USE_G96_VELOCITY logical
-
-Use the velocities in the G96 coordinate files as the starting velocity
-
-[
-
-Edit on GitHub
-
-]
+Use the velocities in the G96 coordinate files as the starting velocity \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_subsys.F#L1707)\]

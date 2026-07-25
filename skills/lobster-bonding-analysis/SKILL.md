@@ -5,6 +5,8 @@ description: Plan and audit provenance-bound LOBSTER 5.1.1 basis projection, COH
 
 # LOBSTER Bonding Analysis
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using external LOBSTER or method-source bodies; publisher restrictions remain binding.
+
 This is a **development, non-routable Skill**. It provides deterministic planning and synthetic-fixture validation, but it does not activate LOBSTER, run the licensed binary, or establish chemical-bonding conclusions.
 
 ## Start here

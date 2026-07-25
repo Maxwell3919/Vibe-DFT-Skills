@@ -2,726 +2,247 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html
 - Raw SHA-256: 8011288b61146f408ba50c18b1923c3717bd15a64300e760e9baf0c9dc2ff2c2
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-MD
+---
 
-
+# MD
 
-This section defines the whole set of parameters needed perform an MD run.
-
-[
-
-Edit on GitHub
-
-]
+This section defines the whole set of parameters needed perform an MD run. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L81)\]
 
 Subsections
 
-ADIABATIC_DYNAMICS
+-   [ADIABATIC\_DYNAMICS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/ADIABATIC_DYNAMICS.html)
+-   [AVERAGES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/AVERAGES.html)
+-   [BAROSTAT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/BAROSTAT.html)
+-   [CASCADE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/CASCADE.html)
+-   [INITIAL\_VIBRATION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/INITIAL_VIBRATION.html)
+-   [LANGEVIN](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/LANGEVIN.html)
+-   [MSST](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/MSST.html)
+-   [PRINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/PRINT.html)
+-   [REFTRAJ](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/REFTRAJ.html)
+-   [RESPA](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/RESPA.html)
+-   [SHELL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/SHELL.html)
+-   [THERMAL\_REGION](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/THERMAL_REGION.html)
+-   [THERMOSTAT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/THERMOSTAT.html)
+-   [VELOCITY\_SOFTENING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD/VELOCITY_SOFTENING.html)
 
-AVERAGES
+## Keywords
 
-BAROSTAT
+-   [ANGVEL\_TOL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.ANGVEL_TOL "CP2K_INPUT.MOTION.MD.ANGVEL_TOL")
 
-CASCADE
+-   [ANGVEL\_ZERO](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.ANGVEL_ZERO "CP2K_INPUT.MOTION.MD.ANGVEL_ZERO")
 
-INITIAL_VIBRATION
+-   [ANNEALING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.ANNEALING "CP2K_INPUT.MOTION.MD.ANNEALING")
 
-LANGEVIN
+-   [ANNEALING\_CELL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.ANNEALING_CELL "CP2K_INPUT.MOTION.MD.ANNEALING_CELL")
 
-MSST
+-   **[COMVEL\_TOL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.COMVEL_TOL "CP2K_INPUT.MOTION.MD.COMVEL_TOL")**
 
-PRINT
+-   [DISPLACEMENT\_TOL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.DISPLACEMENT_TOL "CP2K_INPUT.MOTION.MD.DISPLACEMENT_TOL")
 
-REFTRAJ
+-   [ECONS\_START\_VAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.ECONS_START_VAL "CP2K_INPUT.MOTION.MD.ECONS_START_VAL")
 
-RESPA
+-   **[ENSEMBLE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.ENSEMBLE "CP2K_INPUT.MOTION.MD.ENSEMBLE")**
 
-SHELL
+-   **[INITIALIZATION\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.INITIALIZATION_METHOD "CP2K_INPUT.MOTION.MD.INITIALIZATION_METHOD")**
 
-THERMAL_REGION
+-   [MAX\_STEPS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.MAX_STEPS "CP2K_INPUT.MOTION.MD.MAX_STEPS")
 
-THERMOSTAT
+-   [SCALE\_TEMP\_KIND](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.SCALE_TEMP_KIND "CP2K_INPUT.MOTION.MD.SCALE_TEMP_KIND")
 
-VELOCITY_SOFTENING
+-   **[STEPS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.STEPS "CP2K_INPUT.MOTION.MD.STEPS")**
 
-Keywords
+-   [STEP\_START\_VAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.STEP_START_VAL "CP2K_INPUT.MOTION.MD.STEP_START_VAL")
 
-
+-   **[TEMPERATURE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.TEMPERATURE "CP2K_INPUT.MOTION.MD.TEMPERATURE")**
 
-ANGVEL_TOL
+-   [TEMPERATURE\_ANNEALING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.TEMPERATURE_ANNEALING "CP2K_INPUT.MOTION.MD.TEMPERATURE_ANNEALING")
 
-ANGVEL_ZERO
+-   [TEMP\_KIND](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.TEMP_KIND "CP2K_INPUT.MOTION.MD.TEMP_KIND")
 
-ANNEALING
+-   **[TEMP\_TOL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.TEMP_TOL "CP2K_INPUT.MOTION.MD.TEMP_TOL")**
 
-ANNEALING_CELL
+-   **[TIMESTEP](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.TIMESTEP "CP2K_INPUT.MOTION.MD.TIMESTEP")**
 
-COMVEL_TOL
+-   [TIME\_START\_VAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/MOTION/MD.html#CP2K_INPUT.MOTION.MD.TIME_START_VAL "CP2K_INPUT.MOTION.MD.TIME_START_VAL")
 
-DISPLACEMENT_TOL
 
-ECONS_START_VAL
+## Keyword descriptions
 
-ENSEMBLE
+### ANGVEL\_TOL*: real* *\= \[au\_t^-1\*bohr\]*
 
-INITIALIZATION_METHOD
+**Usage:** *ANGVEL\_TOL 0.1*
 
-MAX_STEPS
+The maximum accepted angular velocity. This option is ignored when the system is periodic. Removes the components of the velocities that project on the external rotational degrees of freedom. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L194)\]
 
-SCALE_TEMP_KIND
+### ANGVEL\_ZERO*: logical* *\= F*
 
-STEPS
+**Lone keyword:** `T`
 
-STEP_START_VAL
+**Usage:** *ANGVEL\_ZERO LOGICAL*
 
-TEMPERATURE
+Set the initial angular velocity to zero. This option is ignored when the system is periodic or when initial velocities are defined. Technically, the part of the random initial velocities that projects on the external rotational degrees of freedom is subtracted. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L202)\]
 
-TEMPERATURE_ANNEALING
+### ANNEALING*: real* *\= 1.00000000E+000*
 
-TEMP_KIND
+**Usage:** *annealing*
 
-TEMP_TOL
+Specifies the rescaling factor for annealing velocities. Automatically enables the annealing procedure. This scheme works only for ensembles that do not have thermostats on particles. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L212)\]
 
-TIMESTEP
+### ANNEALING\_CELL*: real* *\= 1.00000000E+000*
 
-TIME_START_VAL
+**Usage:** *ANNEALING\_CELL*
 
-Keyword descriptions
+Specifies the rescaling factor for annealing velocities of the CELL Automatically enables the annealing procedure for the CELL. This scheme works only for ensambles that do not have thermostat on CELLS velocities. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L220)\]
 
-
+### COMVEL\_TOL*: real* *\= \[au\_t^-1\*bohr\]*
 
-ANGVEL_TOL
+**Usage:** *COMVEL\_TOL 0.1*
 
-:
+**Mentions:** ⭐[Molecular Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html)
 
-real
+The maximum accepted velocity of the center of mass. With Shell-Model, comvel may drift if MD%THERMOSTAT%REGION /= GLOBAL \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L187)\]
 
-=
+### DISPLACEMENT\_TOL*: real* *\= 5.29177209E+001 \[angstrom\]*
 
-[au_t^-1*bohr]
+**Usage:** *DISPLACEMENT\_TOL*
 
-
+This keyword sets a maximum atomic displacement in each Cartesian direction. The maximum velocity is evaluated and if it is too large to remain within the assigned limit, the time step is rescaled accordingly, and the first half step of the velocity verlet is repeated. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L235)\]
 
-Usage:
+### ECONS\_START\_VAL*: real* *\= 0.00000000E+000 \[hartree\]*
 
-ANGVEL_TOL 0.1
+**Usage:** *ECONS\_START\_VAL*
 
-The maximum accepted angular velocity. This option is ignored when the system is periodic. Removes the components of the velocities that project on the external rotational degrees of freedom.
+The starting value of the conserved quantity \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L147)\]
 
-[
+### ENSEMBLE*: enum* *\= NVE*
 
-Edit on GitHub
+**Usage:** *ensemble nve*
 
-]
+**Valid values:**
 
-ANGVEL_ZERO
+-   `NVE` constant energy (microcanonical)
 
-:
+-   `NVT` constant temperature and volume (canonical)
 
-logical
+-   `NPT_I` constant temperature and pressure using an isotropic cell
 
-=
+-   `NPT_F` constant temperature and pressure using a flexible cell
 
-F
+-   `MSST` simulate steady shock (uniaxial)
 
-
+-   `MSST_DAMPED` simulate steady shock (uniaxial) with extra viscosity
 
-Lone keyword:
+-   `HYDROSTATICSHOCK` simulate steady shock with hydrostatic pressure
 
-T
+-   `ISOKIN` constant kinetic energy
 
-Usage:
+-   `REFTRAJ` reading frames from a file called reftraj.xyz (e.g. for property calculation)
 
-ANGVEL_ZERO LOGICAL
+-   `LANGEVIN` langevin dynamics (constant temperature)
 
-Set the initial angular velocity to zero. This option is ignored when the system is periodic or when initial velocities are defined. Technically, the part of the random initial velocities that projects on the external rotational degrees of freedom is subtracted.
+-   `NPE_F` constant pressure ensemble (no thermostat)
 
-[
+-   `NPE_I` constant pressure ensemble using an isotropic cell (no thermostat)
 
-Edit on GitHub
+-   `NVT_ADIABATIC` adiabatic dynamics in constant temperature and volume ensemble (CAFES)
 
-]
+-   `NPT_IA` NPT\_I ensemble with frozen atoms in absolute coordinate
 
-ANNEALING
 
-:
+**References:** [Evans1983](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#evans1983), [VandeVondele2002](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#vandevondele2002), [Minary2003](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#minary2003)
 
-real
+**Mentions:** ⭐[QM/MM with Built-in Force Field](https://manual.cp2k.org/cp2k-2026_2-branch/methods/qm_mm/builtin.html), ⭐[Langevin Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/langevin_dynamics.html), ⭐[Molecular Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html)
 
-=
+The ensemble/integrator that you want to use for MD propagation \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L86)\]
 
-1.00000000E+000
+### INITIALIZATION\_METHOD*: enum* *\= DEFAULT*
 
-
+**Usage:** *INITIALIZATION\_METHOD DEFAULT*
 
-Usage:
+**Valid values:**
 
-annealing
+-   `DEFAULT` Assign random velocities and then scale according to TEMPERATURE
 
-Specifies the rescaling factor for annealing velocities. Automatically enables the annealing procedure. This scheme works only for ensembles that do not have thermostats on particles.
+-   `VIBRATIONAL` Initialise positions and velocities to give canonical ensemble with TEMPERATURE, using the method described in PRL 96, 115504 (2006)
 
-[
 
-Edit on GitHub
+**Mentions:** ⭐[Molecular Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html)
 
-]
+This keyword selects which method to use to initialize MD. If velecities are not set explicitly, DEFAULT optioin will assign random velocities and then scale according to TEMPERATURE; VIBRATIONAL option will then use previously calculated vibrational modes to initialise both the atomic positions and velocities so that the starting point for MD is as close to canonical ensemble as possible, without the need for lengthy equilibration steps. See PRL 96, 115504 (2006). The user input atomic positions in this case are expected to be already geometry optimised. Further options for VIBRATIONAL mode is can be set in INITIAL\_VIBRATION subsection. If unspecified, then the DEFAULT mode will be used. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L246)\]
 
-ANNEALING_CELL
+### MAX\_STEPS*: integer* *\= 1000000000*
 
-:
+**Usage:** *MAX\_STEPS 100*
 
-real
+The number of MD steps to perform, counting from step 1 \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L121)\]
 
-=
+### SCALE\_TEMP\_KIND*: logical* *\= F*
 
-1.00000000E+000
+**Lone keyword:** `T`
 
-
+**Usage:** *SCALE\_TEMP\_KIND LOGICAL*
 
-Usage:
+When necessary rescale the temperature per each kind separately \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L180)\]
 
-ANNEALING_CELL
+### STEPS*: integer* *\= 3*
 
-Specifies the rescaling factor for annealing velocities of the CELL Automatically enables the annealing procedure for the CELL. This scheme works only for ensambles that do not have thermostat on CELLS velocities.
+**Usage:** *STEPS 100*
 
-[
+**Mentions:** ⭐[Real-Time Propagation and Ehrenfest MD](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/ehrenfest.html)
 
-Edit on GitHub
+The number of MD steps to perform, counting from step\_start\_val. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L115)\]
 
-]
+### STEP\_START\_VAL*: integer* *\= 0*
 
-COMVEL_TOL
+**Usage:** *STEP\_START\_VAL*
 
-:
+The starting step value for the MD \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L134)\]
 
-real
+### TEMPERATURE*: real* *\= 3.00000000E+002 \[K\]*
 
-=
+**Usage:** *TEMPERATURE 325.0*
 
-[au_t^-1*bohr]
+**Mentions:** ⭐[Langevin Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/langevin_dynamics.html), ⭐[Molecular Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html)
 
-
+The temperature in K used to initialize the velocities with init and pos restart, and in the NPT/NVT simulations \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L154)\]
 
-Usage:
+### TEMPERATURE\_ANNEALING*: real* *\= 1.00000000E+000*
 
-COMVEL_TOL 0.1
+**Usage:** *TEMPERATURE\_ANNEALING*
 
-Mentions:
+Specifies the rescaling factor for the external temperature. This scheme works only for the Langevin ensemble. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L228)\]
 
-⭐
+### TEMP\_KIND*: logical* *\= F*
 
-Molecular Dynamics
+**Lone keyword:** `T`
 
-The maximum accepted velocity of the center of mass. With Shell-Model, comvel may drift if MD%THERMOSTAT%REGION /= GLOBAL
+**Usage:** *TEMP\_KIND LOGICAL*
 
-[
+Compute the temperature per each kind separately \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L173)\]
 
-Edit on GitHub
+### TEMP\_TOL*: real* *\= 0.00000000E+000 \[K\]*
 
-]
+**Aliases:** TEMP\_TO ,TEMPERATURE\_TOLERANCE
 
-DISPLACEMENT_TOL
+**Usage:** *TEMP\_TOL 0.0*
 
-:
+**Mentions:** ⭐[Molecular Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html)
 
-real
+The maximum accepted deviation of the (global) temperature from the desired target temperature before a rescaling of the velocities is performed. If it is 0 no rescaling is performed. NOTE: This keyword is obsolescent; Using a CSVR thermostat with a short timeconstant is recommended as a better alternative. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L162)\]
 
-=
+### TIMESTEP*: real* *\= 5.00000000E-001 \[fs\]*
 
-5.29177209E+001
+**Usage:** *TIMESTEP 1.0*
 
-[angstrom]
+**Mentions:** ⭐[Real-Time Bethe-Salpeter Propagation](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/optical/rtbse.html), ⭐[X-Ray Absorption from RTP and \\delta-Kick perturbation](https://manual.cp2k.org/cp2k-2026_2-branch/methods/properties/x-ray/delta-kick.html), ⭐[QM/MM with Built-in Force Field](https://manual.cp2k.org/cp2k-2026_2-branch/methods/qm_mm/builtin.html), ⭐[Real-Time Propagation and Ehrenfest MD](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/ehrenfest.html), ⭐[Molecular Dynamics](https://manual.cp2k.org/cp2k-2026_2-branch/methods/sampling/molecular_dynamics.html)
 
-
+The length of an integration step (in case RESPA the large TIMESTEP) \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L127)\]
 
-Usage:
+### TIME\_START\_VAL*: real* *\= 0.00000000E+000 \[fs\]*
 
-DISPLACEMENT_TOL
+**Usage:** *TIME\_START\_VAL*
 
-This keyword sets a maximum atomic displacement in each Cartesian direction. The maximum velocity is evaluated and if it is too large to remain within the assigned limit, the time step is rescaled accordingly, and the first half step of the velocity verlet is repeated.
-
-[
-
-Edit on GitHub
-
-]
-
-ECONS_START_VAL
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-[hartree]
-
-
-
-Usage:
-
-ECONS_START_VAL
-
-The starting value of the conserved quantity
-
-[
-
-Edit on GitHub
-
-]
-
-ENSEMBLE
-
-:
-
-enum
-
-=
-
-NVE
-
-
-
-Usage:
-
-ensemble nve
-
-Valid values:
-
-NVE
-
-constant energy (microcanonical)
-
-NVT
-
-constant temperature and volume (canonical)
-
-NPT_I
-
-constant temperature and pressure using an isotropic cell
-
-NPT_F
-
-constant temperature and pressure using a flexible cell
-
-MSST
-
-simulate steady shock (uniaxial)
-
-MSST_DAMPED
-
-simulate steady shock (uniaxial) with extra viscosity
-
-HYDROSTATICSHOCK
-
-simulate steady shock with hydrostatic pressure
-
-ISOKIN
-
-constant kinetic energy
-
-REFTRAJ
-
-reading frames from a file called reftraj.xyz (e.g. for property calculation)
-
-LANGEVIN
-
-langevin dynamics (constant temperature)
-
-NPE_F
-
-constant pressure ensemble (no thermostat)
-
-NPE_I
-
-constant pressure ensemble using an isotropic cell (no thermostat)
-
-NVT_ADIABATIC
-
-adiabatic dynamics in constant temperature and volume ensemble (CAFES)
-
-NPT_IA
-
-NPT_I ensemble with frozen atoms in absolute coordinate
-
-References:
-
-Evans1983
-
-,
-
-VandeVondele2002
-
-,
-
-Minary2003
-
-Mentions:
-
-⭐
-
-QM/MM with Built-in Force Field
-
-, ⭐
-
-Langevin Dynamics
-
-, ⭐
-
-Molecular Dynamics
-
-The ensemble/integrator that you want to use for MD propagation
-
-[
-
-Edit on GitHub
-
-]
-
-INITIALIZATION_METHOD
-
-:
-
-enum
-
-=
-
-DEFAULT
-
-
-
-Usage:
-
-INITIALIZATION_METHOD DEFAULT
-
-Valid values:
-
-DEFAULT
-
-Assign random velocities and then scale according to TEMPERATURE
-
-VIBRATIONAL
-
-Initialise positions and velocities to give canonical ensemble with TEMPERATURE, using the method described in PRL 96, 115504 (2006)
-
-Mentions:
-
-⭐
-
-Molecular Dynamics
-
-This keyword selects which method to use to initialize MD. If velecities are not set explicitly, DEFAULT optioin will assign random velocities and then scale according to TEMPERATURE; VIBRATIONAL option will then use previously calculated vibrational modes to initialise both the atomic positions and velocities so that the starting point for MD is as close to canonical ensemble as possible, without the need for lengthy equilibration steps. See PRL 96, 115504 (2006). The user input atomic positions in this case are expected to be already geometry optimised. Further options for VIBRATIONAL mode is can be set in INITIAL_VIBRATION subsection. If unspecified, then the DEFAULT mode will be used.
-
-[
-
-Edit on GitHub
-
-]
-
-MAX_STEPS
-
-:
-
-integer
-
-=
-
-1000000000
-
-
-
-Usage:
-
-MAX_STEPS 100
-
-The number of MD steps to perform, counting from step 1
-
-[
-
-Edit on GitHub
-
-]
-
-SCALE_TEMP_KIND
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-SCALE_TEMP_KIND LOGICAL
-
-When necessary rescale the temperature per each kind separately
-
-[
-
-Edit on GitHub
-
-]
-
-STEPS
-
-:
-
-integer
-
-=
-
-3
-
-
-
-Usage:
-
-STEPS 100
-
-Mentions:
-
-⭐
-
-Real-Time Propagation and Ehrenfest MD
-
-The number of MD steps to perform, counting from step_start_val.
-
-[
-
-Edit on GitHub
-
-]
-
-STEP_START_VAL
-
-:
-
-integer
-
-=
-
-0
-
-
-
-Usage:
-
-STEP_START_VAL
-
-The starting step value for the MD
-
-[
-
-Edit on GitHub
-
-]
-
-TEMPERATURE
-
-:
-
-real
-
-=
-
-3.00000000E+002
-
-[K]
-
-
-
-Usage:
-
-TEMPERATURE 325.0
-
-Mentions:
-
-⭐
-
-Langevin Dynamics
-
-, ⭐
-
-Molecular Dynamics
-
-The temperature in K used to initialize the velocities with init and pos restart, and in the NPT/NVT simulations
-
-[
-
-Edit on GitHub
-
-]
-
-TEMPERATURE_ANNEALING
-
-:
-
-real
-
-=
-
-1.00000000E+000
-
-
-
-Usage:
-
-TEMPERATURE_ANNEALING
-
-Specifies the rescaling factor for the external temperature. This scheme works only for the Langevin ensemble.
-
-[
-
-Edit on GitHub
-
-]
-
-TEMP_KIND
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Usage:
-
-TEMP_KIND LOGICAL
-
-Compute the temperature per each kind separately
-
-[
-
-Edit on GitHub
-
-]
-
-TEMP_TOL
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-[K]
-
-
-
-Aliases:
-
-TEMP_TO ,TEMPERATURE_TOLERANCE
-
-Usage:
-
-TEMP_TOL 0.0
-
-Mentions:
-
-⭐
-
-Molecular Dynamics
-
-The maximum accepted deviation of the (global) temperature from the desired target temperature before a rescaling of the velocities is performed. If it is 0 no rescaling is performed. NOTE: This keyword is obsolescent; Using a CSVR thermostat with a short timeconstant is recommended as a better alternative.
-
-[
-
-Edit on GitHub
-
-]
-
-TIMESTEP
-
-:
-
-real
-
-=
-
-5.00000000E-001
-
-[fs]
-
-
-
-Usage:
-
-TIMESTEP 1.0
-
-Mentions:
-
-⭐
-
-Real-Time Bethe-Salpeter Propagation
-
-, ⭐
-
-X-Ray Absorption from RTP and \delta-Kick perturbation
-
-, ⭐
-
-QM/MM with Built-in Force Field
-
-, ⭐
-
-Real-Time Propagation and Ehrenfest MD
-
-, ⭐
-
-Molecular Dynamics
-
-The length of an integration step (in case RESPA the large TIMESTEP)
-
-[
-
-Edit on GitHub
-
-]
-
-TIME_START_VAL
-
-:
-
-real
-
-=
-
-0.00000000E+000
-
-[fs]
-
-
-
-Usage:
-
-TIME_START_VAL
-
-The starting timer value for the MD
-
-[
-
-Edit on GitHub
-
-]
+The starting timer value for the MD \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/motion/input_cp2k_md.F#L140)\]

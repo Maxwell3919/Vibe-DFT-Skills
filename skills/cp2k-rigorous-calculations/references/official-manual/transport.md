@@ -2,884 +2,322 @@
 
 - Source: https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html
 - Raw SHA-256: 96865ca920fb063a1a96358fdd7fd7a07d50f069326b23aa391b59ec216ff573
+- Converter: helloworld-Co/html2md at `ca08965af93e6565806a79087868daa439565ffc`; adapter schema `1.0`.
 - Status: version-matched cached official text; reopen the source for current live verification.
 
-TRANSPORT
+---
 
-
+# TRANSPORT
 
-References:
+**References:** [Bruck2014](https://manual.cp2k.org/cp2k-2026_2-branch/bibliography.html#bruck2014)
 
-Bruck2014
-
-Specifies the parameters for transport, sets parameters for the OMEN code, see also
-
-https://nano-tcad.ee.ethz.ch
-
-.
-
-[
-
-Edit on GitHub
-
-]
+Specifies the parameters for transport, sets parameters for the OMEN code, see also [https://nano-tcad.ee.ethz.ch](https://nano-tcad.ee.ethz.ch). \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L61)\]
 
 Subsections
 
-BEYN
+-   [BEYN](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT/BEYN.html)
+-   [CONTACT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT/CONTACT.html)
+-   [PEXSI](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT/PEXSI.html)
+-   [PRINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT/PRINT.html)
 
-CONTACT
+## Keywords
 
-PEXSI
+-   [COLZERO\_THRESHOLD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.COLZERO_THRESHOLD "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.COLZERO_THRESHOLD")
 
-PRINT
+-   [CONTACT\_FILLING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.CONTACT_FILLING "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.CONTACT_FILLING")
 
-Keywords
+-   [CSR\_SCREENING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.CSR_SCREENING "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.CSR_SCREENING")
 
-
+-   [CUTOUT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.CUTOUT "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.CUTOUT")
 
-COLZERO_THRESHOLD
+-   [DENSITY\_MIXING](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.DENSITY_MIXING "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.DENSITY_MIXING")
 
-CONTACT_FILLING
+-   [ENERGY\_INTERVAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.ENERGY_INTERVAL "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.ENERGY_INTERVAL")
 
-CSR_SCREENING
+-   [EPS\_DECAY](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_DECAY "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_DECAY")
 
-CUTOUT
+-   [EPS\_EIGVAL\_DEGEN](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_EIGVAL_DEGEN "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_EIGVAL_DEGEN")
 
-DENSITY_MIXING
+-   [EPS\_FERMI](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_FERMI "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_FERMI")
 
-ENERGY_INTERVAL
+-   [EPS\_LIMIT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_LIMIT "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_LIMIT")
 
-EPS_DECAY
+-   [EPS\_LIMIT\_CC](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_LIMIT_CC "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_LIMIT_CC")
 
-EPS_EIGVAL_DEGEN
+-   [EPS\_MU](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_MU "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_MU")
 
-EPS_FERMI
+-   [EPS\_SINGULARITY\_CURVATURES](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_SINGULARITY_CURVATURES "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.EPS_SINGULARITY_CURVATURES")
 
-EPS_LIMIT
+-   [GPUS\_PER\_POINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.GPUS_PER_POINT "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.GPUS_PER_POINT")
 
-EPS_LIMIT_CC
+-   [INJECTION\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.INJECTION_METHOD "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.INJECTION_METHOD")
 
-EPS_MU
+-   [LINEAR\_SOLVER](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.LINEAR_SOLVER "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.LINEAR_SOLVER")
 
-EPS_SINGULARITY_CURVATURES
+-   [MATRIX\_INVERSION\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.MATRIX_INVERSION_METHOD "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.MATRIX_INVERSION_METHOD")
 
-GPUS_PER_POINT
+-   [MIN\_INTERVAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.MIN_INTERVAL "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.MIN_INTERVAL")
 
-INJECTION_METHOD
+-   [NUM\_INTERVAL](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.NUM_INTERVAL "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.NUM_INTERVAL")
 
-LINEAR_SOLVER
+-   [NUM\_POLE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.NUM_POLE "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.NUM_POLE")
 
-MATRIX_INVERSION_METHOD
+-   [N\_KPOINTS](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.N_KPOINTS "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.N_KPOINTS")
 
-MIN_INTERVAL
+-   [N\_POINTS\_INV](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.N_POINTS_INV "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.N_POINTS_INV")
 
-NUM_INTERVAL
+-   [OBC\_EQUILIBRIUM](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.OBC_EQUILIBRIUM "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.OBC_EQUILIBRIUM")
 
-NUM_POLE
+-   [QT\_FORMALISM](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.QT_FORMALISM "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.QT_FORMALISM")
 
-N_KPOINTS
+-   [REAL\_AXIS\_INTEGRATION\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.REAL_AXIS_INTEGRATION_METHOD "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.REAL_AXIS_INTEGRATION_METHOD")
 
-N_POINTS_INV
+-   [TASKS\_PER\_ENERGY\_POINT](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TASKS_PER_ENERGY_POINT "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TASKS_PER_ENERGY_POINT")
 
-OBC_EQUILIBRIUM
+-   [TASKS\_PER\_POLE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TASKS_PER_POLE "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TASKS_PER_POLE")
 
-QT_FORMALISM
+-   [TEMPERATURE](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TEMPERATURE "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TEMPERATURE")
 
-REAL_AXIS_INTEGRATION_METHOD
+-   [TRANSPORT\_METHOD](https://manual.cp2k.org/cp2k-2026_2-branch/CP2K_INPUT/FORCE_EVAL/DFT/TRANSPORT.html#CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TRANSPORT_METHOD "CP2K_INPUT.FORCE_EVAL.DFT.TRANSPORT.TRANSPORT_METHOD")
 
-TASKS_PER_ENERGY_POINT
 
-TASKS_PER_POLE
+## Keyword descriptions
 
-TEMPERATURE
+### COLZERO\_THRESHOLD*: real* *\= 1.00000000E-012*
 
-TRANSPORT_METHOD
+**Usage:** *COLZERO\_THRESHOLD*
 
-Keyword descriptions
+The smallest number that is not zero in the full diagonalization part. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L132)\]
 
-
+### CONTACT\_FILLING*: enum* *\= BAND\_STRUCTURE*
 
-COLZERO_THRESHOLD
+**Valid values:**
 
-:
+-   `BAND_STRUCTURE` Determine the Fermi levels from the band structure.
 
-real
+-   `DOS` Determine the Fermi levels from the density of states.
 
-=
 
-1.00000000E-012
+Determination of the contact Fermi levels. Note that this keyword only works when the TRANSPORT\_METHOD is specified as TRANSPORT. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L272)\]
 
-
+### CSR\_SCREENING*: logical* *\= T*
 
-Usage:
+**Lone keyword:** `T`
 
-COLZERO_THRESHOLD
+Whether distance screening should be applied to improve sparsity of CSR matrices. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L201)\]
 
-The smallest number that is not zero in the full diagonalization part.
+### CUTOUT*: integer\[2\]* *\= 0 0*
 
-[
+**Usage:** *CUTOUT*
 
-Edit on GitHub
+The number of atoms at the beginning and the end of the structure where the density should not be changed. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L240)\]
 
-]
+### DENSITY\_MIXING*: real* *\= 1.00000000E+000*
 
-CONTACT_FILLING
+**Usage:** *DENSITY\_MIXING*
 
-:
+Mixing parameter for a density mixing in OMEN. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L283)\]
 
-enum
+### ENERGY\_INTERVAL*: real* *\= 1.00000000E-003*
 
-=
+**Usage:** *ENERGY\_INTERVAL*
 
-BAND_STRUCTURE
+Distance between energy points in eV. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L181)\]
 
-
+### EPS\_DECAY*: real* *\= 1.00000000E-004*
 
-Valid values:
+**Usage:** *EPS\_DECAY*
 
-BAND_STRUCTURE
+The smallest imaginary part that a decaying eigenvalue may have not to be considered as propagating. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L150)\]
 
-Determine the Fermi levels from the band structure.
+### EPS\_EIGVAL\_DEGEN*: real* *\= 1.00000000E-006*
 
-DOS
+**Usage:** *EPS\_EIGVAL\_DEGEN*
 
-Determine the Fermi levels from the density of states.
+Filter for degenerate bands in the injection vector. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L169)\]
 
-Determination of the contact Fermi levels. Note that this keyword only works when the TRANSPORT_METHOD is specified as TRANSPORT.
+### EPS\_FERMI*: real* *\= 0.00000000E+000*
 
-[
+**Usage:** *EPS\_FERMI*
 
-Edit on GitHub
+Cutoff for the tail of the Fermi function. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L175)\]
 
-]
+### EPS\_LIMIT*: real* *\= 1.00000000E-004*
 
-CSR_SCREENING
+**Usage:** *EPS\_LIMIT*
 
-:
+The smallest eigenvalue that is kept. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L138)\]
 
-logical
+### EPS\_LIMIT\_CC*: real* *\= 1.00000000E-006*
 
-=
+**Usage:** *EPS\_LIMIT\_CC*
 
-T
+The smallest eigenvalue that is kept on the complex contour. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L144)\]
 
-
+### EPS\_MU*: real* *\= 1.00000000E-006*
 
-Lone keyword:
+**Usage:** *EPS\_MU*
 
-T
+Accuracy to which the Fermi level should be determined. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L163)\]
 
-Whether distance screening should be applied to improve sparsity of CSR matrices.
+### EPS\_SINGULARITY\_CURVATURES*: real* *\= 1.00000000E-012*
 
-[
+**Usage:** *EPS\_SINGULARITY\_CURVATURES*
 
-Edit on GitHub
+Filter for degenerate bands in the bandstructure. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L157)\]
 
-]
+### GPUS\_PER\_POINT*: integer* *\= 2*
 
-CUTOUT
+**Usage:** *GPUS\_PER\_POINT*
 
-:
+Number of GPUs per energy point for SplitSolve. Needs to be a power of two \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L126)\]
 
-integer
+### INJECTION\_METHOD*: enum* *\= BEYN*
 
-[
+**Usage:** *INJECTION\_METHOD*
 
-2
+**Valid values:**
 
-]
+-   `EVP` Full eigenvalue solver.
 
-=
+-   `BEYN` Beyn eigenvalue solver.
 
-0
 
-
+Method to solve the eigenvalue problem for the open boundary conditions. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L228)\]
 
-Usage:
+### LINEAR\_SOLVER*: enum* *\= FULL*
 
-CUTOUT
+**Usage:** *LINEAR\_SOLVER*
 
-The number of atoms at the beginning and the end of the structure where the density should not be changed.
+**Valid values:**
 
-[
+-   `SPLITSOLVE`
 
-Edit on GitHub
+-   `SUPERLU`
 
-]
+-   `MUMPS`
 
-DENSITY_MIXING
+-   `FULL`
 
-:
+-   `BANDED`
 
-real
+-   `PARDISO`
 
-=
+-   `UMFPACK`
 
-1.00000000E+000
 
-
+Preferred solver for solving the linear system of equations. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L208)\]
 
-Usage:
+### MATRIX\_INVERSION\_METHOD*: enum* *\= FULL*
 
-DENSITY_MIXING
+**Usage:** *MATRIX\_INVERSION\_METHOD*
 
-Mixing parameter for a density mixing in OMEN.
+**Valid values:**
 
-[
+-   `FULL`
 
-Edit on GitHub
+-   `PEXSI`
 
-]
+-   `PARDISO`
 
-ENERGY_INTERVAL
+-   `RGF`
 
-:
 
-real
+Preferred matrix inversion method. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L219)\]
 
-=
+### MIN\_INTERVAL*: real* *\= 1.00000000E-004*
 
-1.00000000E-003
+**Usage:** *MIN\_INTERVAL*
 
-
+Smallest enery distance in energy vector. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L187)\]
 
-Usage:
+### NUM\_INTERVAL*: integer* *\= 10*
 
-ENERGY_INTERVAL
+**Usage:** *NUM\_INTERVAL*
 
-Distance between energy points in eV.
+Max number of energy points per small interval. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L106)\]
 
-[
+### NUM\_POLE*: integer* *\= 64*
 
-Edit on GitHub
+**Usage:** *NUM\_POLE*
 
-]
+The number of terms in the PEXSI’s pole expansion method. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L94)\]
 
-EPS_DECAY
+### N\_KPOINTS*: integer* *\= 64*
 
-:
+**Usage:** *N\_KPOINTS*
 
-real
+The number of k points for determination of the singularities. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L100)\]
 
-=
+### N\_POINTS\_INV*: integer* *\= 64*
 
-1.00000000E-004
+**Usage:** *N\_POINTS\_INV*
 
-
+Number of integration points for the sigma solver on the complex contour. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L260)\]
 
-Usage:
+### OBC\_EQUILIBRIUM*: logical* *\= F*
 
-EPS_DECAY
+**Lone keyword:** `T`
 
-The smallest imaginary part that a decaying eigenvalue may have not to be considered as propagating.
+Compute the equilibrium density with open boundary conditions. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L266)\]
 
-[
+### QT\_FORMALISM*: enum* *\= QTBM*
 
-Edit on GitHub
+**Usage:** *QT\_FORMALISM*
 
-]
+**Valid values:**
 
-EPS_EIGVAL_DEGEN
+-   `NEGF` The non-equilibrium Green’s function formalism.
 
-:
+-   `QTBM` The quantum transmitting boundary method / wave-function formalism.
 
-real
 
-=
+Preferred quantum transport formalism to compute the current and density. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L83)\]
 
-1.00000000E-006
+### REAL\_AXIS\_INTEGRATION\_METHOD*: enum* *\= GAUSS\_CHEBYSHEV*
 
-
+**Usage:** *REAL\_AXIS\_INTEGRATION\_METHOD*
 
-Usage:
+**Valid values:**
 
-EPS_EIGVAL_DEGEN
+-   `GAUSS_CHEBYSHEV` Gauss-Chebyshev integration between singularity points.
 
-Filter for degenerate bands in the injection vector.
+-   `TRAPEZOIDAL_RULE` Trapezoidal rule on the total range.
 
-[
+-   `READ` Read integration points from a file (named E.dat).
 
-Edit on GitHub
 
-]
+Integration method for the real axis. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L248)\]
 
-EPS_FERMI
+### TASKS\_PER\_ENERGY\_POINT*: integer* *\= 1*
 
-:
+**Usage:** *TASKS\_PER\_ENERGY\_POINT*
 
-real
+Number of tasks per energy point. The value should be a divisor of the total number of MPI ranks. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L112)\]
 
-=
+### TASKS\_PER\_POLE*: integer* *\= 1*
 
-0.00000000E+000
+**Usage:** *TASKS\_PER\_POLE*
 
-
+Number of tasks per pole in the pole expansion method. The value should be a divisor of the total number of MPI ranks. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L119)\]
 
-Usage:
+### TEMPERATURE*: real* *\= 3.00000000E+002 \[K\]*
 
-EPS_FERMI
+**Usage:** *TEMPERATURE \[K\] 300.0*
 
-Cutoff for the tail of the Fermi function.
+Temperature. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L193)\]
 
-[
+### TRANSPORT\_METHOD*: enum* *\= TRANSPORT*
 
-Edit on GitHub
+**Usage:** *TRANSPORT\_METHOD*
 
-]
+**Valid values:**
 
-EPS_LIMIT
+-   `TRANSPORT` self-consistent CP2K and OMEN transport calculations
 
-:
+-   `LOCAL_SCF` CP2K valence Hamiltonian + OMEN self-consistent calculations on conduction electrons
 
-real
+-   `TRANSMISSION` self-consistent transmission calculations without applied bias voltage
 
-=
 
-1.00000000E-004
-
-
-
-Usage:
-
-EPS_LIMIT
-
-The smallest eigenvalue that is kept.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_LIMIT_CC
-
-:
-
-real
-
-=
-
-1.00000000E-006
-
-
-
-Usage:
-
-EPS_LIMIT_CC
-
-The smallest eigenvalue that is kept on the complex contour.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_MU
-
-:
-
-real
-
-=
-
-1.00000000E-006
-
-
-
-Usage:
-
-EPS_MU
-
-Accuracy to which the Fermi level should be determined.
-
-[
-
-Edit on GitHub
-
-]
-
-EPS_SINGULARITY_CURVATURES
-
-:
-
-real
-
-=
-
-1.00000000E-012
-
-
-
-Usage:
-
-EPS_SINGULARITY_CURVATURES
-
-Filter for degenerate bands in the bandstructure.
-
-[
-
-Edit on GitHub
-
-]
-
-GPUS_PER_POINT
-
-:
-
-integer
-
-=
-
-2
-
-
-
-Usage:
-
-GPUS_PER_POINT
-
-Number of GPUs per energy point for SplitSolve. Needs to be a power of two
-
-[
-
-Edit on GitHub
-
-]
-
-INJECTION_METHOD
-
-:
-
-enum
-
-=
-
-BEYN
-
-
-
-Usage:
-
-INJECTION_METHOD
-
-Valid values:
-
-EVP
-
-Full eigenvalue solver.
-
-BEYN
-
-Beyn eigenvalue solver.
-
-Method to solve the eigenvalue problem for the open boundary conditions.
-
-[
-
-Edit on GitHub
-
-]
-
-LINEAR_SOLVER
-
-:
-
-enum
-
-=
-
-FULL
-
-
-
-Usage:
-
-LINEAR_SOLVER
-
-Valid values:
-
-SPLITSOLVE
-
-SUPERLU
-
-MUMPS
-
-FULL
-
-BANDED
-
-PARDISO
-
-UMFPACK
-
-Preferred solver for solving the linear system of equations.
-
-[
-
-Edit on GitHub
-
-]
-
-MATRIX_INVERSION_METHOD
-
-:
-
-enum
-
-=
-
-FULL
-
-
-
-Usage:
-
-MATRIX_INVERSION_METHOD
-
-Valid values:
-
-FULL
-
-PEXSI
-
-PARDISO
-
-RGF
-
-Preferred matrix inversion method.
-
-[
-
-Edit on GitHub
-
-]
-
-MIN_INTERVAL
-
-:
-
-real
-
-=
-
-1.00000000E-004
-
-
-
-Usage:
-
-MIN_INTERVAL
-
-Smallest enery distance in energy vector.
-
-[
-
-Edit on GitHub
-
-]
-
-NUM_INTERVAL
-
-:
-
-integer
-
-=
-
-10
-
-
-
-Usage:
-
-NUM_INTERVAL
-
-Max number of energy points per small interval.
-
-[
-
-Edit on GitHub
-
-]
-
-NUM_POLE
-
-:
-
-integer
-
-=
-
-64
-
-
-
-Usage:
-
-NUM_POLE
-
-The number of terms in the PEXSI’s pole expansion method.
-
-[
-
-Edit on GitHub
-
-]
-
-N_KPOINTS
-
-:
-
-integer
-
-=
-
-64
-
-
-
-Usage:
-
-N_KPOINTS
-
-The number of k points for determination of the singularities.
-
-[
-
-Edit on GitHub
-
-]
-
-N_POINTS_INV
-
-:
-
-integer
-
-=
-
-64
-
-
-
-Usage:
-
-N_POINTS_INV
-
-Number of integration points for the sigma solver on the complex contour.
-
-[
-
-Edit on GitHub
-
-]
-
-OBC_EQUILIBRIUM
-
-:
-
-logical
-
-=
-
-F
-
-
-
-Lone keyword:
-
-T
-
-Compute the equilibrium density with open boundary conditions.
-
-[
-
-Edit on GitHub
-
-]
-
-QT_FORMALISM
-
-:
-
-enum
-
-=
-
-QTBM
-
-
-
-Usage:
-
-QT_FORMALISM
-
-Valid values:
-
-NEGF
-
-The non-equilibrium Green’s function formalism.
-
-QTBM
-
-The quantum transmitting boundary method / wave-function formalism.
-
-Preferred quantum transport formalism to compute the current and density.
-
-[
-
-Edit on GitHub
-
-]
-
-REAL_AXIS_INTEGRATION_METHOD
-
-:
-
-enum
-
-=
-
-GAUSS_CHEBYSHEV
-
-
-
-Usage:
-
-REAL_AXIS_INTEGRATION_METHOD
-
-Valid values:
-
-GAUSS_CHEBYSHEV
-
-Gauss-Chebyshev integration between singularity points.
-
-TRAPEZOIDAL_RULE
-
-Trapezoidal rule on the total range.
-
-READ
-
-Read integration points from a file (named E.dat).
-
-Integration method for the real axis.
-
-[
-
-Edit on GitHub
-
-]
-
-TASKS_PER_ENERGY_POINT
-
-:
-
-integer
-
-=
-
-1
-
-
-
-Usage:
-
-TASKS_PER_ENERGY_POINT
-
-Number of tasks per energy point. The value should be a divisor of the total number of MPI ranks.
-
-[
-
-Edit on GitHub
-
-]
-
-TASKS_PER_POLE
-
-:
-
-integer
-
-=
-
-1
-
-
-
-Usage:
-
-TASKS_PER_POLE
-
-Number of tasks per pole in the pole expansion method. The value should be a divisor of the total number of MPI ranks.
-
-[
-
-Edit on GitHub
-
-]
-
-TEMPERATURE
-
-:
-
-real
-
-=
-
-3.00000000E+002
-
-[K]
-
-
-
-Usage:
-
-TEMPERATURE [K] 300.0
-
-Temperature.
-
-[
-
-Edit on GitHub
-
-]
-
-TRANSPORT_METHOD
-
-:
-
-enum
-
-=
-
-TRANSPORT
-
-
-
-Usage:
-
-TRANSPORT_METHOD
-
-Valid values:
-
-TRANSPORT
-
-self-consistent CP2K and OMEN transport calculations
-
-LOCAL_SCF
-
-CP2K valence Hamiltonian + OMEN self-consistent calculations on conduction electrons
-
-TRANSMISSION
-
-self-consistent transmission calculations without applied bias voltage
-
-Preferred method for transport calculations.
-
-[
-
-Edit on GitHub
-
-]
+Preferred method for transport calculations. \[[Edit on GitHub](https://github.com/cp2k/cp2k/blob/master/src/input_cp2k_transport.F#L70)\]

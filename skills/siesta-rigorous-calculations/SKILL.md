@@ -5,6 +5,8 @@ description: Design, explain, audit, troubleshoot, and validate rigorous SIESTA 
 
 # SIESTA Rigorous Calculations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external SIESTA portal or release-source document body.
+
 Separate official behavior, scientific intent, input integrity, parent/restart lineage, execution, numerical convergence, task validity, physical validity, and scientific acceptance. Missing, ambiguous, version-mismatched, or parser-unsupported evidence blocks a positive conclusion.
 
 ## Start with the contracts

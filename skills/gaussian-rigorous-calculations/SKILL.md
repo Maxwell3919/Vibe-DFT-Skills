@@ -5,6 +5,8 @@ description: Design, troubleshoot, and audit fail-closed Gaussian 16 molecular e
 
 # Gaussian rigorous calculations
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any public Gaussian documentation body; never treat it as licensed executable access.
+
 This Skill is **in development and non-routable**. It provides a deterministic offline
 planning and audit layer, but it does not activate Gaussian, run a licensed binary,
 or issue a positive scientific claim. Preserve `claim_ceiling=no_positive_claim`

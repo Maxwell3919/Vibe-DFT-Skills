@@ -5,6 +5,8 @@ description: Validate supplied DFT execution requests and render a Slurm batch s
 
 # DFT HPC Execution
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before relying on external scheduler or standard documentation bodies.
+
 ## Start with the manuals
 
 Read [references/repository-interface-manual.md](references/repository-interface-manual.md) for the candidate CLI and DFT artifact handoffs. Read [references/slurm-operations.md](references/slurm-operations.md) before any Slurm operation. The latter uses only official SchedMD documentation and marks all cluster commands **external not tested**.

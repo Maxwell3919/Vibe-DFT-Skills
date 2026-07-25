@@ -5,6 +5,8 @@ description: Discover, plan, call, and audit version-matched VASPKIT preprocessi
 
 # VASPKIT Postprocess
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external VASPKIT documentation body.
+
 Treat this as a manual-grounded candidate, not as an installed or executed
 VASPKIT capability. The repository maintainer machine had no `vaspkit` command
 in `PATH` on 2026-07-18. Preserve three separate statements:

@@ -5,6 +5,8 @@ description: Design and audit fail-closed DeePMD-kit 3.1.3 dataset-layout manife
 
 # DeePMD rigorous workflows
 
+Read [the local official-manual cache route](references/manual-cache-route.md) before using any external DeePMD, dpdata, or DP-GEN documentation body.
+
 This Skill is in development and non-routable. It adds a provider-specific evidence
 layer beneath the generic `ml-potential-workflows` rules. It never imports DeePMD-kit,
 TensorFlow, PyTorch, JAX, Paddle, NumPy, dpdata, or LAMMPS; never reads array/model
