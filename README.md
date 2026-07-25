@@ -5,7 +5,7 @@
   <strong>面向可重复 DFT 与原子模拟工作流的可移植、证据门禁 Skill 集合</strong>
 </p>
 
-> **最后更新 / Last updated:** 2026-07-23 (Asia/Shanghai)
+> **最后更新 / Last updated:** 2026-07-24 (Asia/Shanghai)
 > **仓库状态 / Repository scope:** 26 source-backed Skills = 7 `active` + 19 `development`; 4 active calculation-code integrations; 19 planned software identities
 
 > **项目声明 / Project statement**
@@ -49,6 +49,46 @@ The figures are generated from synthetic fixtures by repository code. They demon
 这里严格区分五件事：源码存在、生命周期注册、仓库确定性测试、当前环境可用性、外部软件原生运行。`active` 只说明本仓库允许安装与路由，不说明本机已安装 QE、VASP、CP2K 或 SIESTA。除非另有明确记录，测试使用合成夹具、可公开记录的产物和离线资料，不构成外部软件的原生执行证据。
 
 Status reporting separates source presence, lifecycle registration, deterministic repository tests, environment availability, and native execution. `active` means repository-installable and routable; it does not mean QE, VASP, CP2K, or SIESTA is installed locally. Unless explicitly recorded otherwise, tests use synthetic fixtures, redistributable recorded artifacts, and offline material rather than native third-party runs.
+
+## 官方文档 pack 覆盖状态 / Official-document pack coverage status
+
+截至 2026-07-24，全部 26 个 source-backed Skills 都已生成确定性的 official-document registration pack（26/26）。普通 bundle 审计的结果仍是 `0 complete / 26 partial`。这只证明预期的 pack 已存在并能接受契约与语义审计；它不表示上游官方文档正文已经全部进入仓库，也不表示正文已经被完整、细粒度地切分。
+
+As of 2026-07-24, deterministic official-document registration packs exist for all 26 source-backed Skills (26/26), while the ordinary bundle audit still reports `0 complete / 26 partial`. Pack presence closes the expected registration-artifact check only; it does not mean that all upstream official-document content is present or completely divided into fine-grained slices.
+
+当前 57 个精确 authority-to-consumer bindings 对应 57 份 corpus manifests。它们共登记 3,421 个 discovered source identities，其中 462 个 included、2,959 个作为 reviewed exclusions 闭合。生成的 1,586 个 slices 全部是 `metadata-only`：421 个 `whole-source`、1,159 个 `source-symbol`、6 个 `json-pointer`；canonical packs 内物化的官方正文为 0。仓库另有 2,075 个 legacy official-document artifacts（13,412,851 bytes），它们位于 canonical pack domain 之外，并被 strict storage audit 阻断，不能作为 pack 正文物化或语义切分已完成的证据。
+
+The 57 exact authority-to-consumer bindings currently resolve to 57 corpus manifests. Together they register 3,421 discovered source identities: 462 included sources plus 2,959 reviewed exclusions. All 1,586 generated slices are `metadata-only`: 421 `whole-source`, 1,159 `source-symbol`, and 6 `json-pointer`; the canonical packs contain zero materialized official-document bodies. The repository separately retains 2,075 legacy official-document artifacts (13,412,851 bytes) outside the canonical pack domain. Strict storage audit blocks those artifacts, so they do not establish pack materialization or semantic-slice closure.
+
+官方文档覆盖按四层分别报告，后一层不能由前一层自动推出：
+
+| 层 / Layer | 要求与当前解释 / Requirement and current interpretation |
+|---|---|
+| registration | central authority、精确 consumer binding、bundle expectation、具有明确 version scope 与 hash identity 的 seed/source/scope catalogs，以及确定性生成 pack 全部闭合。当前 26/26 表示这一层的 pack 产物已生成。 / Central authority, exact consumer binding, bundle expectation, version-scoped and hash-bound seed/source/scope catalogs, and the deterministic generated pack are connected. The current 26/26 count refers to generated pack artifacts at this layer. |
+| inventory | 明确列出预期来源、主题、纳入项、reviewed exclusions、损失和阻断项；目录记录不能代替正文。 / Enumerate expected sources, subjects, inclusions, reviewed exclusions, losses, and blockers; an inventory is not the source content itself. |
+| content materialization | 在许可允许的边界内保存并哈希绑定实际官方正文，或提供可验证的等价解析证据；URL、标题、版本和声明的摘要本身不满足此层。 / Preserve and hash-bind actual official content where licensing permits, or provide equivalently verifiable resolution evidence; URLs, titles, versions, and claimed summaries alone do not satisfy this layer. |
+| semantic slicing | 使用 heading、byte/line/page range、JSON Pointer 或 source symbol 等可复核选择器，把已物化内容切成有意义的片段；`whole-source` 身份不算细粒度 semantic slice。 / Divide materialized content into meaningful, reviewable slices using selectors such as headings, byte/line/page ranges, JSON Pointers, or source symbols; a `whole-source` identity is not a fine-grained semantic slice. |
+
+因此，`complete` 只能由全部适用层的证据共同支持；registration 或 inventory 通过时仍必须保留 materialization、semantic-slice、许可和来源证明方面的 `partial`/`blocked` 状态。
+
+Accordingly, `complete` requires evidence across every applicable layer. Passing registration or inventory must not erase `partial` or `blocked` states for materialization, semantic slicing, licensing, or source attestation.
+
+最终稳定 dashboard 计数如下；bundle、各 dimension、四层 assurance 与 final overall 不能互相替代：
+
+| 视图 / View | 当前状态 / Current state |
+|---|---|
+| bundle semantic | `0 complete / 26 partial / 0 missing / 0 invalid` |
+| dimensions | corpus `11 partial / 15 blocked`; slice `10 partial / 16 blocked`; scope `5 partial / 21 blocked`; license `26 partial / 0 blocked`; storage `22 partial / 4 blocked`; freshness `26 unknown` |
+| assurance layers | registration `26 complete`; inventory `11 partial / 15 blocked`; content materialized `10 missing / 16 blocked`; semantic slice `1 partial / 9 missing / 16 blocked` |
+| aggregate | assurance overall `10 missing / 16 blocked`; final overall `1 missing / 25 blocked` |
+
+57 份 provider records 中，corpus 为 `32 partial / 25 blocked`，slice 为 `29 partial / 28 blocked`，license 为 `57 partial / 0 blocked`。只有 CP2K canonical manual 的 1 份 corpus 声明并通过 `upstream_universe_complete`；其余 pack 不能由本地 declarative catalog 自证上游全集完整。
+
+Across the 57 provider records, corpus status is `32 partial / 25 blocked`, slice status is `29 partial / 28 blocked`, and license status is `57 partial / 0 blocked`. Exactly one corpus—the canonical CP2K manual corpus—passes `upstream_universe_complete`; a local declarative catalog cannot self-certify the upstream universe for any other provider.
+
+本轮 red-team 修复已把 builder `--check` 接入 CI，阻止 registry hash 冒充 exact license-terms bytes，使 blocker 按 dimension 投影，强制 corpus↔slice 与 loss ledger 双向闭合，禁止 declarative self-certification 并哈希绑定 rolling aggregate，增强 active-only portable audit，并让 dashboard 行集由 registries 推导。这些控制修复不等于正文已经物化。剩余工作包括 subject→slice mapper attestation、15 个 blocked Skill rows 的 independent inventory wiring、materialized adapter 与权威 license attestation，以及本次 live drift 中 52/52 个 `unavailable` 检查；`unavailable` 不能写成 unchanged。
+
+The red-team fixes wire builder `--check` into CI, prevent registry hashes from masquerading as exact license-terms bytes, scope blockers by dimension, enforce bidirectional corpus↔slice and loss-ledger closure, reject declarative self-certification while binding rolling aggregates, harden the active-only portable audit, and derive dashboard rows from registries. These controls do not materialize document bodies. Remaining work includes subject→slice mapper attestation, independent inventory wiring for 15 blocked Skill rows, materialized adapters with authoritative license attestation, and 52/52 live drift checks that were `unavailable`, which must not be reported as unchanged.
 
 ## 官方网站与上游资料索引 / Official websites and upstream sources
 
@@ -362,12 +402,35 @@ When adding software or a capability:
 7. Synchronize software, Skill, environment, interface, route, source-authority, and postprocess-observable registries, plus source hashes, installer eligibility, and active-only test discovery.
 8. Promote explicitly at the same path only after legal real positive/negative fixtures, version-boundary tests, end-to-end handoff, repository checks, and review pass.
 
+### 扩展 official-document pack / Extending an official-document pack
+
+为新增 Skill、增加官方 provider 或扩大既有文档范围时，以下项目必须作为同一个可审查变更闭合；不能只新增链接、计数或手写生成产物：
+
+1. 在 `registry/official-source-authorities.yaml` 注册或复用唯一的 central authority，并保持版本、来源、访问和许可边界明确。
+2. 在 `registry/official-document-consumers.yaml` 增加精确 consumer binding，使 Skill、provider 与 authority 的身份一一对应。
+3. 在 `registry/official-document-bundle-expectations.yaml` 声明 bundle expectation；只有生成和校验完成后，才把目标标记为 required，而不是把缺失 pack 当成允许状态。
+4. 在对应 Skill 下提供通过 schema 校验、version scope 与 hash identity 明确且相互一致的 seed、source catalog 与 scope catalog；明确 included sources、reviewed exclusions、losses 和 blockers。
+5. 只通过 repository builder 确定性生成 canonical `references/official-source-pack/`；不要手工修改 generated pack，也不要把目录/metadata 身份写成正文物化或语义切分证据。
+6. 生成后运行 `python3 tools/build_official_document_packs.py --all --check`，并继续执行 bundle、storage、dashboard、active-only distribution 和全库校验；`--check` 必须验证生成物与输入、builder/contract 锁和 canonical 路径一致。
+7. 分别报告 registration、inventory、content materialization 和 semantic slicing；任何 `partial` 或 `blocked` 层都不得被 pack 存在或测试通过提升为“官方文档已完全切分”。
+
+When adding a Skill, provider, or official-document scope, close the following items in one reviewable change:
+
+1. Register or reuse the unique central authority in `registry/official-source-authorities.yaml`, with explicit version, origin, access, and license boundaries.
+2. Add the exact Skill/provider/authority consumer binding in `registry/official-document-consumers.yaml`.
+3. Declare the bundle expectation in `registry/official-document-bundle-expectations.yaml`; mark it required only after deterministic generation and validation succeed.
+4. Add schema-valid, version-scoped, hash-bound, and mutually consistent seed, source, and scope catalogs under the Skill, including inclusions, reviewed exclusions, losses, and blockers.
+5. Generate the canonical `references/official-source-pack/` only through the repository builder. Do not hand-edit generated output or promote catalog/metadata identities into content or semantic-slice evidence.
+6. Run `python3 tools/build_official_document_packs.py --all --check`, followed by bundle, storage, dashboard, active-only distribution, and full-repository validation. The check must bind generated output to its inputs, builder/contract lock, and canonical path.
+7. Report registration, inventory, content materialization, and semantic slicing separately; no pack-presence or passing-test signal may upgrade a remaining `partial` or `blocked` layer into a “fully split official documents” claim.
+
 ## 校验 / Validation
 
 提交或推送前必须 fresh 运行 / Run fresh before every commit or push:
 
 ```bash
 python3 tools/run_tests.py
+python3 tools/run_development_tests.py
 python3 tools/validate_all_skills.py
 python3 tools/audit_repository.py
 git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'

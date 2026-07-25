@@ -6,6 +6,63 @@ maturity_levels:
   - real-artifact-validated
   - tool-integration-validated
 
+validation_evidence:
+  postprocess-format-fixtures-v1:
+    evidence_class: format-fixture
+    path: tests/test_postprocess.py
+    sha256: "ec40ec7e7c87f7d34ad7319c238fcea807f7a221f290340191b639abf1280f20"
+    command: [python3, -m, unittest, discover, -s, tests, -v]
+    expected_result: {status: pass, return_code: 0}
+    test_ids:
+      - test_run_trace_normalizes_qe_and_vasp_without_equating_completion_with_geometry_convergence
+      - test_qe_bands_normalizer_uses_explicit_energy_reference
+      - test_qe_dos_normalizer_aggregates_standard_projected_files
+      - test_qe_filproj_fatband_requires_and_applies_selector
+      - test_vasp_electronic_normalizers_share_generic_schemas
+      - test_qe_phonon_and_epc_normalizers_keep_units_and_q_weight_limitations_explicit
+      - test_real_space_grid_and_bader_require_explicit_physical_references
+    target_tests:
+      run-trace/qe/python.qe-text: [test_run_trace_normalizes_qe_and_vasp_without_equating_completion_with_geometry_convergence]
+      run-trace/vasp/python.vasp-text: [test_run_trace_normalizes_qe_and_vasp_without_equating_completion_with_geometry_convergence]
+      bands/qe/python.qe-bands: [test_qe_bands_normalizer_uses_explicit_energy_reference]
+      bands/qe/python.qe-fatband: [test_qe_filproj_fatband_requires_and_applies_selector]
+      bands/vasp/python.vasp-bands: [test_vasp_electronic_normalizers_share_generic_schemas]
+      bands/vasp/python.vasp-fatband: [test_vasp_electronic_normalizers_share_generic_schemas]
+      dos-pdos/qe/python.qe-dos: [test_qe_dos_normalizer_aggregates_standard_projected_files]
+      dos-pdos/vasp/python.vasp-dos: [test_vasp_electronic_normalizers_share_generic_schemas]
+      phonon/qe/python.qe-phonon: [test_qe_phonon_and_epc_normalizers_keep_units_and_q_weight_limitations_explicit]
+      epc/qe/python.qe-epc: [test_qe_phonon_and_epc_normalizers_keep_units_and_q_weight_limitations_explicit]
+      real-space/qe/python.grid: [test_real_space_grid_and_bader_require_explicit_physical_references]
+      real-space/qe/python.bader-acf: [test_real_space_grid_and_bader_require_explicit_physical_references]
+      real-space/vasp/python.grid: [test_real_space_grid_and_bader_require_explicit_physical_references]
+      real-space/vasp/python.bader-acf: [test_real_space_grid_and_bader_require_explicit_physical_references]
+      real-space/siesta/python.grid: [test_real_space_grid_and_bader_require_explicit_physical_references]
+      real-space/mixed/python.grid: [test_real_space_grid_and_bader_require_explicit_physical_references]
+      real-space/mixed/python.bader-acf: [test_real_space_grid_and_bader_require_explicit_physical_references]
+  postprocess-synthetic-fixtures-v1:
+    evidence_class: synthetic
+    path: tests/test_postprocess.py
+    sha256: "ec40ec7e7c87f7d34ad7319c238fcea807f7a221f290340191b639abf1280f20"
+    command: [python3, -m, unittest, discover, -s, tests, -v]
+    expected_result: {status: pass, return_code: 0}
+    test_ids:
+      - test_band_comparison_and_projection_panels_consume_normalized_tables
+      - test_vaspkit_band_adapter_requires_explicit_energy_transform
+      - test_structure_views_parameterize_graphical_connectivity
+      - test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit
+    target_tests:
+      bands/qe/python.band-views: [test_band_comparison_and_projection_panels_consume_normalized_tables]
+      bands/vasp/python.vaspkit-table: [test_vaspkit_band_adapter_requires_explicit_energy_transform]
+      bands/vasp/python.band-views: [test_band_comparison_and_projection_panels_consume_normalized_tables]
+      real-space/qe/python.structure-views: [test_structure_views_parameterize_graphical_connectivity]
+      real-space/vasp/python.structure-views: [test_structure_views_parameterize_graphical_connectivity]
+      neb/qe/python.neb: [test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit]
+      neb/vasp/python.neb: [test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit]
+      neb/mixed/python.neb: [test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit]
+      optical/qe/python.optical: [test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit]
+      optical/vasp/python.optical: [test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit]
+      optical/mixed/python.optical: [test_neb_and_optical_generic_tables_keep_mapping_and_maturity_explicit]
+
 backends:
   python.qe-text:
     kind: builtin-python
@@ -39,11 +96,19 @@ backends:
     kind: builtin-python
     capability_key: null
     implemented: true
+  python.qe-fatband:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
   python.qe-dos:
     kind: builtin-python
     capability_key: null
     implemented: true
   python.vasp-bands:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.vasp-fatband:
     kind: builtin-python
     capability_key: null
     implemented: true
@@ -80,6 +145,10 @@ backends:
     capability_key: null
     implemented: true
   python.optical:
+    kind: builtin-python
+    capability_key: null
+    implemented: true
+  python.bader-acf:
     kind: builtin-python
     capability_key: null
     implemented: true
@@ -149,21 +218,37 @@ observables:
     plots: [energy-trace, force-trace]
     codes:
       qe:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [main-output]
         backends: [python.qe-text]
+        backend_routes:
+          python.qe-text:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
       vasp:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [main-output]
         backends: [python.vasp-text]
+        backend_routes:
+          python.vasp-text:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
       cp2k:
         maturity: design-only
         required_evidence: [main-output]
         backends: [python.cp2k-text, cp2k.output-parse]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
+          cp2k.output-parse:
+            maturity: design-only
       siesta:
         maturity: design-only
         required_evidence: [main-output]
         backends: [python.siesta-text]
+        backend_routes:
+          python.siesta-text:
+            maturity: design-only
   bands:
     title: Electronic bands and projected bands
     scope: Normalize eigenvalues, path coordinates, labels, spin channels, and projection weights.
@@ -173,21 +258,58 @@ observables:
     plots: [band-structure, fatband, bands-comparison, projection-overview, projection-panels]
     codes:
       qe:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [eigenvalues, energy-reference]
-        backends: [python.qe-bands, python.band-views, qe.bands]
+        backends: [python.qe-bands, python.qe-fatband, python.band-views, qe.bands]
+        backend_routes:
+          python.qe-bands:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.qe-fatband:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.band-views:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          qe.bands:
+            maturity: design-only
       vasp:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [eigenvalues, k-path, structure, energy-reference]
-        backends: [python.vasp-bands, python.vaspkit-table, python.band-views, python.py4vasp, python.pymatgen]
+        backends: [python.vasp-bands, python.vasp-fatband, python.vaspkit-table, python.band-views, python.py4vasp, python.pymatgen]
+        backend_routes:
+          python.vasp-bands:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.vasp-fatband:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.vaspkit-table:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          python.band-views:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          python.py4vasp:
+            maturity: design-only
+          python.pymatgen:
+            maturity: design-only
       cp2k:
         maturity: design-only
         required_evidence: [band-data, energy-reference]
         backends: [python.cp2k-text, cp2k.bands-convert]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
+          cp2k.bands-convert:
+            maturity: design-only
       siesta:
         maturity: design-only
         required_evidence: [band-data, energy-reference]
         backends: [python.siesta-text]
+        backend_routes:
+          python.siesta-text:
+            maturity: design-only
   dos-pdos:
     title: Total and projected density of states
     scope: Normalize energy grids, total channels, projected channels, spin conventions, and aggregation metadata.
@@ -197,21 +319,45 @@ observables:
     plots: [dos, pdos, bands-dos]
     codes:
       qe:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [dos-table, energy-reference]
         backends: [python.qe-dos, qe.dos, qe.projwfc]
+        backend_routes:
+          python.qe-dos:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          qe.dos:
+            maturity: design-only
+          qe.projwfc:
+            maturity: design-only
       vasp:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [dos-data, structure, energy-reference]
         backends: [python.vasp-dos, python.py4vasp, python.pymatgen]
+        backend_routes:
+          python.vasp-dos:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.py4vasp:
+            maturity: design-only
+          python.pymatgen:
+            maturity: design-only
       cp2k:
         maturity: design-only
         required_evidence: [dos-data, energy-reference]
         backends: [python.cp2k-text, cp2k.pdos-convolve]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
+          cp2k.pdos-convolve:
+            maturity: design-only
       siesta:
         maturity: design-only
         required_evidence: [dos-data, energy-reference]
         backends: [python.siesta-text]
+        backend_routes:
+          python.siesta-text:
+            maturity: design-only
   phonon:
     title: Phonon dispersion and density of states
     scope: Normalize q paths or meshes, frequencies, modes, interpolation provenance, and imaginary-frequency signs.
@@ -221,22 +367,43 @@ observables:
     plots: [phonon-dispersion, phonon-dos]
     codes:
       qe:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [phonon-frequencies]
         required_parameters: [frequency-unit]
         backends: [python.qe-phonon, qe.q2r, qe.matdyn, qe.dynmat]
+        backend_routes:
+          python.qe-phonon:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          qe.q2r:
+            maturity: design-only
+          qe.matdyn:
+            maturity: design-only
+          qe.dynmat:
+            maturity: design-only
       vasp:
         maturity: design-only
         required_evidence: [force-constants-or-phonon-data, q-path-or-mesh]
         backends: [phonon.phonopy, python.pymatgen]
+        backend_routes:
+          phonon.phonopy:
+            maturity: design-only
+          python.pymatgen:
+            maturity: design-only
       cp2k:
         maturity: design-only
         required_evidence: [force-constants-or-phonon-data, q-path-or-mesh]
         backends: [python.cp2k-text]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
       siesta:
         maturity: design-only
         required_evidence: [force-constants-or-phonon-data, q-path-or-mesh]
         backends: [python.siesta-text]
+        backend_routes:
+          python.siesta-text:
+            maturity: design-only
   epc:
     title: Electron-phonon coupling
     scope: Normalize smearing, q and mode contributions, lambda, alpha2F, logarithmic frequencies, and reported transition-temperature tables.
@@ -246,21 +413,40 @@ observables:
     plots: [alpha2f, cumulative-lambda, smearing-series, q-mode-contributions]
     codes:
       qe:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [epc-table, smearing-definition]
         backends: [python.qe-epc, qe.lambda, qe.alpha2f, qe.matdyn]
+        backend_routes:
+          python.qe-epc:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          qe.lambda:
+            maturity: design-only
+          qe.alpha2f:
+            maturity: design-only
+          qe.matdyn:
+            maturity: design-only
       vasp:
         maturity: design-only
         required_evidence: [epc-table, phonon-frequencies, smearing-definition]
         backends: [python.pymatgen]
+        backend_routes:
+          python.pymatgen:
+            maturity: design-only
       cp2k:
         maturity: design-only
         required_evidence: [epc-table, phonon-frequencies, smearing-definition]
         backends: [python.cp2k-text]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
       siesta:
         maturity: design-only
         required_evidence: [epc-table, phonon-frequencies, smearing-definition]
         backends: [python.siesta-text]
+        backend_routes:
+          python.siesta-text:
+            maturity: design-only
   real-space:
     title: Real-space fields, charge partitioning, and work function
     scope: Normalize cells, grids, scalar fields, planar averages, atomic partitions, vacuum windows, and energy references.
@@ -270,25 +456,86 @@ observables:
     plots: [planar-profile, cumulative-profile, crystallographic-field-section, structure-isosurface, structure-top-side-views]
     codes:
       qe:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [grid-field]
         required_parameters: [field-kind, field-unit]
-        backends: [python.grid, python.structure-views, visualization.vesta, qe.pp, qe.average, charge.bader, charge.critic2]
+        backends: [python.grid, python.bader-acf, python.structure-views, visualization.vesta, qe.pp, qe.average, charge.bader, charge.critic2]
+        backend_routes:
+          python.grid:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.bader-acf:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.structure-views:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          visualization.vesta:
+            maturity: design-only
+          qe.pp:
+            maturity: design-only
+          qe.average:
+            maturity: design-only
+          charge.bader:
+            maturity: design-only
+          charge.critic2:
+            maturity: design-only
       vasp:
-        maturity: real-artifact-validated
+        maturity: format-fixture-validated
         required_evidence: [grid-field]
         required_parameters: [field-kind, field-unit]
-        backends: [python.grid, python.structure-views, visualization.vesta, python.py4vasp, python.pymatgen, charge.bader, charge.critic2]
+        backends: [python.grid, python.bader-acf, python.structure-views, visualization.vesta, python.py4vasp, python.pymatgen, charge.bader, charge.critic2]
+        backend_routes:
+          python.grid:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.bader-acf:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.structure-views:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          visualization.vesta:
+            maturity: design-only
+          python.py4vasp:
+            maturity: design-only
+          python.pymatgen:
+            maturity: design-only
+          charge.bader:
+            maturity: design-only
+          charge.critic2:
+            maturity: design-only
       cp2k:
         maturity: design-only
         required_evidence: [grid-field]
         required_parameters: [field-kind, field-unit]
         backends: [python.cp2k-text]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
       siesta:
         maturity: format-fixture-validated
         required_evidence: [grid-field]
         required_parameters: [field-kind, field-unit]
         backends: [python.grid]
+        backend_routes:
+          python.grid:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+      mixed:
+        maturity: format-fixture-validated
+        required_evidence: [grid-field]
+        required_parameters: [field-kind, field-unit]
+        backends: [python.grid, python.bader-acf, visualization.vesta]
+        backend_routes:
+          python.grid:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          python.bader-acf:
+            maturity: format-fixture-validated
+            evidence_ref: postprocess-format-fixtures-v1
+          visualization.vesta:
+            maturity: design-only
   neb:
     title: Minimum-energy path and barrier
     scope: Normalize image order, reaction coordinate, energies, forces, convergence, and reference-energy transformations.
@@ -302,21 +549,46 @@ observables:
         required_evidence: [neb-table]
         required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
         backends: [python.neb]
+        backend_routes:
+          python.neb:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
       vasp:
         maturity: synthetic-validated
         required_evidence: [neb-table]
         required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
         backends: [python.neb, python.pymatgen]
+        backend_routes:
+          python.neb:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          python.pymatgen:
+            maturity: design-only
       cp2k:
         maturity: design-only
         required_evidence: [neb-table]
         required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
         backends: [python.cp2k-text]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
       siesta:
         maturity: design-only
         required_evidence: [neb-table]
         required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
         backends: [python.siesta-text]
+        backend_routes:
+          python.siesta-text:
+            maturity: design-only
+      mixed:
+        maturity: synthetic-validated
+        required_evidence: [neb-table]
+        required_parameters: [coordinate-column, energy-column, coordinate-unit, energy-unit, reference]
+        backends: [python.neb]
+        backend_routes:
+          python.neb:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
   optical:
     title: Dielectric and optical spectra
     scope: Normalize frequency or energy grids, complex dielectric components, tensor channels, and broadening metadata.
@@ -330,18 +602,47 @@ observables:
         required_evidence: [dielectric-data]
         required_parameters: [energy-column, components, broadening]
         backends: [python.optical, qe.epsilon]
+        backend_routes:
+          python.optical:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          qe.epsilon:
+            maturity: design-only
       vasp:
         maturity: synthetic-validated
         required_evidence: [dielectric-data]
         required_parameters: [energy-column, components, broadening]
         backends: [python.optical, python.py4vasp, python.pymatgen]
+        backend_routes:
+          python.optical:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1
+          python.py4vasp:
+            maturity: design-only
+          python.pymatgen:
+            maturity: design-only
       cp2k:
         maturity: design-only
         required_evidence: [dielectric-data]
         required_parameters: [energy-column, components, broadening]
         backends: [python.cp2k-text]
+        backend_routes:
+          python.cp2k-text:
+            maturity: design-only
       siesta:
         maturity: design-only
         required_evidence: [dielectric-data]
         required_parameters: [energy-column, components, broadening]
         backends: [python.siesta-text]
+        backend_routes:
+          python.siesta-text:
+            maturity: design-only
+      mixed:
+        maturity: synthetic-validated
+        required_evidence: [dielectric-data]
+        required_parameters: [energy-column, components, broadening]
+        backends: [python.optical]
+        backend_routes:
+          python.optical:
+            maturity: synthetic-validated
+            evidence_ref: postprocess-synthetic-fixtures-v1

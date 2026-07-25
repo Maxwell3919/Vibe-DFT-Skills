@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load the six canonical registries once and validate one shared snapshot."""
+"""Load the nine canonical registries once and validate one shared snapshot."""
 
 from __future__ import annotations
 
@@ -12,7 +12,16 @@ from typing import Any
 from environment_profiles import validation_errors as environment_validation_errors
 from interface_registry import validation_errors as interface_validation_errors
 from official_source_authorities import (
-    validate_and_project as validate_and_project_authorities,
+    validate_and_project_technical as validate_and_project_authorities,
+)
+from validate_official_document_coverage import (
+    consumer_registry_validation_errors,
+)
+from validate_official_document_bundles import (
+    expectation_registry_validation_errors,
+)
+from validate_official_document_storage import (
+    configuration_validation_errors as storage_discovery_validation_errors,
 )
 from operation_routes import validation_findings as operation_validation_findings
 from registry_yaml import RegistryYAMLError, load_yaml_strict_with_raw
@@ -34,6 +43,9 @@ class RegistrySnapshot:
     operation_routes: dict[str, Any]
     official_source_authorities: dict[str, Any]
     official_source_authority_projection: dict[str, dict[str, Any]]
+    official_document_consumers: dict[str, Any]
+    official_document_bundle_expectations: dict[str, Any]
+    official_document_storage_discovery: dict[str, Any]
     registry_sha256: dict[str, str]
     registry_raw: dict[str, bytes]
 
@@ -70,6 +82,13 @@ def load_registry_snapshot(
         "environments": "environment-profiles.yaml",
         "operation_routes": "operation-routes.yaml",
         "official_source_authorities": "official-source-authorities.yaml",
+        "official_document_consumers": "official-document-consumers.yaml",
+        "official_document_bundle_expectations": (
+            "official-document-bundle-expectations.yaml"
+        ),
+        "official_document_storage_discovery": (
+            "official-document-storage-discovery.yaml"
+        ),
     }
     loaded: dict[str, dict[str, Any]] = {}
     digests: dict[str, str] = {}
@@ -122,6 +141,28 @@ def load_registry_snapshot(
         f"official-source-authorities: {failure}"
         for failure in authority_failures
     )
+    failures.extend(
+        f"official-document-consumers: {failure}"
+        for failure in consumer_registry_validation_errors(
+            loaded["official_document_consumers"],
+            skills=loaded["skills"]["skills"],
+            authorities=loaded["official_source_authorities"]["authorities"],
+            root=selected_root,
+        )
+    )
+    failures.extend(
+        f"official-document-bundle-expectations: {failure}"
+        for failure in expectation_registry_validation_errors(
+            loaded["official_document_bundle_expectations"],
+            loaded["skills"],
+        )
+    )
+    failures.extend(
+        f"official-document-storage-discovery: {failure}"
+        for failure in storage_discovery_validation_errors(
+            loaded["official_document_storage_discovery"]
+        )
+    )
     if not failures:
         for finding in operation_validation_findings(
             loaded["operation_routes"],
@@ -148,6 +189,13 @@ def load_registry_snapshot(
         operation_routes=loaded["operation_routes"],
         official_source_authorities=loaded["official_source_authorities"],
         official_source_authority_projection=authority_projection,
+        official_document_consumers=loaded["official_document_consumers"],
+        official_document_bundle_expectations=(
+            loaded["official_document_bundle_expectations"]
+        ),
+        official_document_storage_discovery=(
+            loaded["official_document_storage_discovery"]
+        ),
         registry_sha256=digests,
         registry_raw=raw_documents,
     )

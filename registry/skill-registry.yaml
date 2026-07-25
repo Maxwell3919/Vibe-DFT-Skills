@@ -10,7 +10,7 @@ skills:
     kind: structure
     lifecycle: active
     path: skills/cif-structure-analysis
-    source_tree_sha256: "84f599ce27ad91ed0b601a06322b12a597003ffa752bb063f1d546add4369419"
+    source_tree_sha256: "c30761e0a8eb41a4e2521c60493d05ae994ff7714467e5161d27491deaf578af"
     side_effects: [local-write, local-execution]
     consumes: []
     produces:
@@ -25,7 +25,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/qe-rigorous-calculations
-    source_tree_sha256: "efad6e79af6c31de57d15bdae0541201e3b024ea118b93d6f332a91fa9e3b73c"
+    source_tree_sha256: "3eaeb8b6675448306dd4aa0c64fa850d7f704d1c99c12395c268db61241a59e3"
     side_effects: [network-read, local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -37,7 +37,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/vasp-rigorous-calculations
-    source_tree_sha256: "d1e0d4f5490734aec67fd55de78c524810744ac91bcb513c22686852422095ab"
+    source_tree_sha256: "416734f2c868d2e0a352bd6b3edee145de89d3c8897c21ee3a9ddacec3a5f627"
     side_effects: [local-execution]
     consumes:
       - structure-manifest@1.0
@@ -49,7 +49,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/cp2k-rigorous-calculations
-    source_tree_sha256: "c363355d6e32542edcd00aea34f13d9b26233c452434894982fbb0c1c9fec84a"
+    source_tree_sha256: "06ff087bfca6642f00bccfcf102848fef9181be48a4fb2cff194945a058164e3"
     side_effects: [network-read, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -61,7 +61,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/siesta-rigorous-calculations
-    source_tree_sha256: "b024392ae1fa790019020ec85f113b63165c921cba67b5f88b1ccee9dd6bc5ec"
+    source_tree_sha256: "9e9852ad51464bfbac082dc628c8eb3b2a3db667c9ac56dd74f4fa358410bb57"
     side_effects: [network-read, local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -73,7 +73,7 @@ skills:
     kind: postprocess
     lifecycle: active
     path: skills/dft-postprocess
-    source_tree_sha256: "d70ac3507092fc4dc6fb05a6c9c4133f0b19600a3f50e652736a66dba03bd8dc"
+    source_tree_sha256: "77075a35250bb5e076e247d441ebaff9fbbfb51f6c04d37954e1179b23300855"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -89,7 +89,7 @@ skills:
     kind: advisory
     lifecycle: active
     path: skills/dft-campaign-efficiency
-    source_tree_sha256: "ec280d800ae1efcf75a154ec841129e5d0ae80f0a7b6ffd505cc99037f4803cb"
+    source_tree_sha256: "944fcda8ce0afd3a03325633436cba7ce484f55440736691b1cdbb23e2e5011a"
     side_effects: [local-write, local-execution]
     consumes:
       - run-manifest@1.0
@@ -104,7 +104,7 @@ skills:
     kind: orchestration
     lifecycle: development
     path: skills/dft-project-orchestrator
-    source_tree_sha256: "cc073315cdc101df12298bce84550ef234c62eed916e73d9b82c0772f5809df4"
+    source_tree_sha256: "ea11fa56ff73845f144064282d3a88832e343824410bda5475747444f35b89e8"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -143,7 +143,7 @@ skills:
     kind: execution
     lifecycle: development
     path: skills/dft-hpc-execution
-    source_tree_sha256: "2e4d0deb437af5560471938a991416a89384edf49f5f5e8f294f6a53afac02d2"
+    source_tree_sha256: "890bc325223c9d3a4f850786d10c6ef35bee77af3ef56e85804dfa25ca3d4b1c"
     side_effects: [local-execution, remote-read, remote-write, scheduler-submit, scheduler-control]
     consumes:
       - execution-request@1.0
@@ -167,7 +167,7 @@ skills:
     kind: reporting
     lifecycle: development
     path: skills/dft-reporting
-    source_tree_sha256: "af9b64dd6e4c4942f3ac2200334d5644b0d0d985f090f1e0d78b6882d4ab1d2d"
+    source_tree_sha256: "9dbec1d615e2c3bb90c4f3428e543cbb26dd1a02408661a1c59a35210505cf27"
     side_effects: [local-write, local-execution]
     consumes:
       - claim-evidence-map@1.0
@@ -191,7 +191,7 @@ skills:
     kind: advisory
     lifecycle: development
     path: skills/literature-to-dft-plan
-    source_tree_sha256: "932bd9eab2827b80fb6dd7ff9eccb131ebd9083a248bdfff7e5ee1f3044bb4b8"
+    source_tree_sha256: "13e1402e0ba81e0052134432c2582b5277de1b96da453e58db7237918bcbd92e"
     side_effects: [network-read, local-execution]
     consumes: []
     produces:
@@ -206,7 +206,7 @@ skills:
     kind: reporting
     lifecycle: development
     path: skills/dft-review-response
-    source_tree_sha256: "8b320b5238f1dc7a52b34703599a74c1c01b5485cf7fd5c7366e2c8a3e33a972"
+    source_tree_sha256: "73310b1beb78e51adeae7efbee6a6d1c82698180b1dd106e8fc49bc7c1b419f5"
     side_effects: [local-write, local-execution]
     consumes:
       - review-comment-set@1.0
@@ -228,7 +228,7 @@ skills:
     kind: structure
     lifecycle: development
     path: skills/dft-structure-preparation
-    source_tree_sha256: "7f85cb64e00d729c936d516c23b7455bab81e0503480a6f18a62c264714ad82b"
+    source_tree_sha256: "8c34c126effb2e9498aa401f79c158687a3ab15b13dc5466e15f3bcd79d5cbce"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -260,7 +260,7 @@ skills:
     kind: calculation
     lifecycle: development
     path: skills/gaussian-rigorous-calculations
-    source_tree_sha256: "6387a696c0dd2df94812b4eaf1f7d0bdcaaf291edcba3cadca24d0a14a3d7841"
+    source_tree_sha256: "817cb9b72579ef55050ce8e018a8217b2a4e57d6124c37aa1a2f9bb892560ba4"
     side_effects: [local-write, local-execution]
     consumes:
       - molecular-structure-manifest@1.0
@@ -283,7 +283,7 @@ skills:
     kind: calculation
     lifecycle: development
     path: skills/gromacs-rigorous-simulations
-    source_tree_sha256: "efbb98566d765674f941d6f0aeb0cf3950b1cd89dbaae787c8969381e2988ced"
+    source_tree_sha256: "8c6ab9feef1b1d12db71489fa591dafbe3d5ab22cbf8c158d25a2add1a0b2eab"
     side_effects: [local-write, local-execution]
     consumes:
       - simulation-system-manifest@1.0
@@ -308,7 +308,7 @@ skills:
     kind: calculation
     lifecycle: development
     path: skills/lammps-rigorous-simulations
-    source_tree_sha256: "33b212d27591b6def3f413d5cf0fa1422dce465cdeced0a7b5232f2e1a822694"
+    source_tree_sha256: "4e1528f8cc1c636c00adfa8d53a5ded1c7384007aa8651785a310f52f3603e37"
     side_effects: [local-write, local-execution]
     consumes:
       - simulation-system-manifest@1.0
@@ -333,7 +333,7 @@ skills:
     kind: calculation
     lifecycle: development
     path: skills/deepmd-rigorous-workflows
-    source_tree_sha256: "1c5328e2d6a41a7e49154016cfa3dbabdd7d4dbf0dd429ee61cc488eeed1b07e"
+    source_tree_sha256: "0c034ea3ec48656d065124e2597fdc323f744e8fbd3e0e6fad88a6c89b07dece"
     side_effects: [local-write, local-execution]
     consumes:
       - ml-dataset-manifest@1.0
@@ -364,7 +364,7 @@ skills:
     kind: postprocess
     lifecycle: development
     path: skills/multiwfn-wavefunction-analysis
-    source_tree_sha256: "e59beae43cad3ef0e1a7ba6b2d39abe658427b1f954988ce702db4ffc6eea373"
+    source_tree_sha256: "78a4da8be431808beec83e8cd0e898272a3e419323173159ed86d5fb3da357ec"
     side_effects: [local-write, local-execution]
     consumes:
       - electronic-wavefunction-source@1.0
@@ -387,7 +387,7 @@ skills:
     kind: postprocess
     lifecycle: development
     path: skills/phonopy-rigorous-workflows
-    source_tree_sha256: "94aa284ce0b5e1645f7dcad8e0c962097e85870fde97592df709b11565e7ae6b"
+    source_tree_sha256: "77f818f6184d7da33a6c2feca4876b74cd9bf32457cfe0d8e9041f8fef6dfd59"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-snapshot@1.0
@@ -414,7 +414,7 @@ skills:
     kind: postprocess
     lifecycle: development
     path: skills/vaspkit-postprocess
-    source_tree_sha256: "3c8bf927e7adaf62cb85f74b974c867c7a46bd9664f39da137f33b1f70bf2d66"
+    source_tree_sha256: "d3fee9623fdbf081512f4e04da5237b6016964d396049ce314d172d9dd5cf907"
     side_effects: [local-write, local-execution]
     consumes:
       - calculation-record-envelope@1.0
@@ -439,7 +439,7 @@ skills:
     kind: scientific-workflow
     lifecycle: development
     path: skills/catmap-microkinetics
-    source_tree_sha256: "d61464a646d513fac2cf3849d12aeafdfda370a1bfb9074841dfaea570a50f6f"
+    source_tree_sha256: "f80d96dc3da8cb40e9cf3cdb489a9149737666093c507a2c3eb90dded5d049a1"
     side_effects: [local-write, local-execution]
     consumes:
       - reaction-network-manifest@1.0
@@ -466,7 +466,7 @@ skills:
     kind: postprocess
     lifecycle: development
     path: skills/lobster-bonding-analysis
-    source_tree_sha256: "996bad4e8c0cbb91725c9d3280159d859eaa1f6d6f3e2e5daf0002c8827415a3"
+    source_tree_sha256: "1180369d7935443eda40f70ebe0b599fdc210e58629d2a6964ecac78e5a5e992"
     side_effects: [local-write, local-execution]
     consumes:
       - electronic-wavefunction-source@1.0
@@ -489,7 +489,7 @@ skills:
     kind: postprocess
     lifecycle: development
     path: skills/ovito-atomistic-analysis
-    source_tree_sha256: "b34901827ef96a5fe4b2e3b738ebf80aca047e6ae3c0dab7f147488663b315d7"
+    source_tree_sha256: "249e5f18c60302d52fdae00eb223b914218e486a627625db206bb9cee7ecc763"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-snapshot@1.0
@@ -514,7 +514,7 @@ skills:
     kind: calculation
     lifecycle: development
     path: skills/ml-potential-workflows
-    source_tree_sha256: "7329f09dea586dfb8482cdbdd16bd4ff6d22db0bf240664ccb157a440dae1424"
+    source_tree_sha256: "36ad444aa470a04e147f655bab4734126a20803fe132340d118f4175f5a64424"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-snapshot@1.0
@@ -561,7 +561,7 @@ skills:
     kind: calculation
     lifecycle: development
     path: skills/gpumd-rigorous-simulations
-    source_tree_sha256: "d7e55f5921ce1d3a3ecd7464abbfc7b1c2afff4dfa215c271c85f9383092c67a"
+    source_tree_sha256: "7a01bfb84486f1930bea81a96f01f076a06682b61b1198bb9a57ef3ac4b308a3"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-snapshot@1.0
@@ -588,7 +588,7 @@ skills:
     kind: calculation
     lifecycle: development
     path: skills/lasp-rigorous-simulations
-    source_tree_sha256: "95ed28230eaffae562beda56a77bd02aa2d03aec4b4473983581e9182325f0f1"
+    source_tree_sha256: "05aceaf188141d410396677eaa83eac2a04b65468b99e7ec9a788091cefc2613"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-snapshot@1.0

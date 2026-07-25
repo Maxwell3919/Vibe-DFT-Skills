@@ -1,0 +1,92 @@
+schema_version: "1.0"
+authority_registry: registry/official-source-authorities.yaml
+migration_policy:
+  authority_evaluation: all-of
+  waiver_policy: forbidden
+  unclassified_namespace_path: invalid
+  baseline_policy: exact-git-index
+
+namespaces:
+  qe:
+    provider_id: qe
+    path_prefix: skills/qe-rigorous-calculations/references/official-
+  vasp:
+    provider_id: vasp
+    path_prefix: skills/vasp-rigorous-calculations/references/official-
+  cp2k:
+    provider_id: cp2k
+    path_prefix: skills/cp2k-rigorous-calculations/references/official-
+  siesta:
+    provider_id: siesta
+    path_prefix: skills/siesta-rigorous-calculations/references/official-
+
+artifact_sets:
+  qe-legacy:
+    provider_id: qe
+    authority_ids: [qe-official-docs, qe-release-source-docs]
+    selectors:
+      - {kind: prefix, value: skills/qe-rigorous-calculations/references/official-}
+    baseline:
+      path_count: 1819
+      byte_count: 8676290
+      digest_sha256: 8d199a50d34df5840e1c6fe6b00b4488affc73cf9c5faa56e00c1b6c2ddc5fa7
+  vasp-wiki:
+    provider_id: vasp
+    authority_ids: [vasp-official-wiki]
+    selectors:
+      - {kind: prefix, value: skills/vasp-rigorous-calculations/references/official-}
+    baseline:
+      path_count: 164
+      byte_count: 1737986
+      digest_sha256: 0cca6e8b6eb2bc988bc4235efbcc69852af974818826cd6ab00d42d7c186db93
+  cp2k-manual:
+    provider_id: cp2k
+    authority_ids: [cp2k-official-manual]
+    selectors:
+      - {kind: prefix, value: skills/cp2k-rigorous-calculations/references/official-manual/}
+    baseline:
+      path_count: 88
+      byte_count: 2706893
+      digest_sha256: 4dca51522b8a42e8cedee2c73165bd7a81d8cac3922607325c9b5ecb070622b5
+  cp2k-source-registry:
+    provider_id: cp2k
+    authority_ids: [cp2k-official-manual, cp2k-release-source-docs]
+    selectors:
+      - {kind: exact, value: skills/cp2k-rigorous-calculations/references/official-source-registry.json}
+    baseline:
+      path_count: 1
+      byte_count: 9258
+      digest_sha256: 597796cf21ee1fd7791183716dc7f02cda757951912ec0c9100d78e92498743e
+  siesta-portal-registry:
+    provider_id: siesta
+    authority_ids: [siesta-official-docs]
+    selectors:
+      - {kind: exact, value: skills/siesta-rigorous-calculations/references/official-source-registry.json}
+    baseline:
+      path_count: 1
+      byte_count: 2594
+      digest_sha256: 138fb3083adbc31834d04b9fdfb9e1d57df4f3d5f637b046a50cf746435d6a8a
+  siesta-release-derived:
+    provider_id: siesta
+    authority_ids: [siesta-release-source-docs]
+    selectors:
+      - {kind: exact, value: skills/siesta-rigorous-calculations/references/official-fdf-index.json}
+      - {kind: exact, value: skills/siesta-rigorous-calculations/references/official-source-supplements.json}
+    baseline:
+      path_count: 2
+      byte_count: 279830
+      digest_sha256: eec04514942c1af7163ce554e7b473df6b602459ba414f3c1262614ac0ef4b6d
+
+local_controls:
+  - provider_id: cp2k
+    path: skills/cp2k-rigorous-calculations/references/official-source-policy.md
+    baseline: {mode: "100644", byte_count: 4399, blob_oid: f359be998d96036ecc1ce3fe4a79f7bd7dc875f8}
+  - provider_id: siesta
+    path: skills/siesta-rigorous-calculations/references/official-artifact-fixtures.json
+    baseline: {mode: "100644", byte_count: 2006, blob_oid: f8bfa7e534bd526e4eec93ff4193fcd4dbaf6c3f}
+  - provider_id: siesta
+    path: skills/siesta-rigorous-calculations/references/official-artifact-forward-tests.md
+    baseline: {mode: "100644", byte_count: 1411, blob_oid: f4faff5bc154a85046f92d88cb7679d3e936cc45}
+  - provider_id: siesta
+    path: skills/siesta-rigorous-calculations/references/official-sources.md
+    baseline: {mode: "100644", byte_count: 3886, blob_oid: 48c4806386ef768790e1b8ddef8ec2e93613086e}

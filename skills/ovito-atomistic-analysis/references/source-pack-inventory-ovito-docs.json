@@ -1,0 +1,4341 @@
+{
+  "authority_id": "ovito-release-source-docs-3-15-5",
+  "commit_id": "0b2cdccef7452bf28212e15daf9df2dc7a545bcc",
+  "documentation_roots": [
+    {
+      "path": "doc",
+      "tree_object_id": "8ed0aeeee1169da30995b0b3e1fae46dfe2660c3"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "81010316dff21473256adb36de1600709eab6ab8",
+      "object_type": "blob",
+      "path": "doc/develop/contributor_license_agreement.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16b42ab2aa4b36d96616e5952145cbf3cef886de",
+      "object_type": "blob",
+      "path": "doc/manual/CMakeLists.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a63f8e6c352d65e8538626e678c29fc5433de88d",
+      "object_type": "blob",
+      "path": "doc/manual/_static/ovito_logo.glb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3cc81e13359eb619f5ea9be9572cda69ca1ecda7",
+      "object_type": "blob",
+      "path": "doc/manual/_static/ovito_logo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "02e652eb5b8e76dc5afc44f47a079b2542fff219",
+      "object_type": "blob",
+      "path": "doc/manual/_static/ovito_logo_poster.webp"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b3e984063e1f8e7e1867258dcd26257eb89b2324",
+      "object_type": "blob",
+      "path": "doc/manual/_static/style.css"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8a0a7e6ced904a5ad71b73b23025f4902beb329f",
+      "object_type": "blob",
+      "path": "doc/manual/_templates/breadcrumbs.html"
+    },
+    {
+      "mode": "100644",
+      "object_id": "676f0c91252a370b9b0be2b95f2615a719f80c4d",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/animation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "109c48e29aaa79cda058d2790b581e76385a7c91",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/aspherical_particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91dc076c988e14bbcdeb6709fc0691c8968d15b0",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/clone_pipeline.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a9636e50b628cfb2b44df85099e41c6ed56d1d5",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/code_generation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c49a25503590fe415d9125759ed08120a8644c6e",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/customize_init_state.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cdf4b8c344177812d78318448d4c4fdec875cdb2",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1241da99df10973f02d6999d233ea8655871fd43",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/modifier_snippets.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1058e5cbdec9face253e5a565c192182a13c0c5f",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/python_extensions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0c29dc30319f424042876b52affd1cd8026df209",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/remote_file_access.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a376fd980c0afd90b8b5540a02d7e473ec339521",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/remote_rendering.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0fc5260a71ade01843b0d741022cb6a8879830fb",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/transparent_particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "db2eee91191c8175cac33aa0a65f5fd6b7f25d86",
+      "object_type": "blob",
+      "path": "doc/manual/advanced_topics/viewport_layouts.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "10667b2094f3645cd20f826b81f68c4a42a77009",
+      "object_type": "blob",
+      "path": "doc/manual/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "19980d659fe5e0e0990d8b3cf72dd1d43aba025c",
+      "object_type": "blob",
+      "path": "doc/manual/development/build_linux.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4af8b8b6a8ab451519220a55254a535ffb5ba3e",
+      "object_type": "blob",
+      "path": "doc/manual/development/build_macosx.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bec1f310b3463a6a528068559bc2351d7340616a",
+      "object_type": "blob",
+      "path": "doc/manual/development/build_windows.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f9a0c7fb0c63037c3c373d0337b9746b0cbc7255",
+      "object_type": "blob",
+      "path": "doc/manual/development/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6e67e7106b8e7ae78c0f3f95addb98cfe7fad166",
+      "object_type": "blob",
+      "path": "doc/manual/development/requirements.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f527cdce883dd7f886b1ce7e300b59524fbdc723",
+      "object_type": "blob",
+      "path": "doc/manual/images/adjust_view_dialog/adjust_view_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "66020333a6b0d53fe761edffaa021576e196c961",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_settings_dialog/animation_settings_button.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "476f98b7a7588af1ba9250e82744f0ff54c375e8",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_settings_dialog/animation_settings_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd610b52c0fb1243b2a2d6969d83024587390eda",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/animation_mode.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "84e61841f8756353e6eed6c638662a1b5356053c",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/animation_settings.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c8972e28d313feba33cc3b00585ec98025c99ade",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/current_animation_frame.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "062e1edede6ed053420693e87a7a00485e66396e",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/goto_first.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e6465f3e9aa9fc602645de04132ce228b998629d",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/goto_last.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e1c4d2c9d239e0d97f69cc038c01b83118b599a",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/goto_next_frame.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60e417c0de6f8be1a241a953cd1a2ba8e5b2bc7a",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/goto_previous_frame.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "09ad1460d6708e4a517db7bbb88d8aac4ca1662b",
+      "object_type": "blob",
+      "path": "doc/manual/images/animation_toolbar/play_animation.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c35ec18256a41ba4111999c6e724f0a757219e98",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/general_settings.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8e1e377bb51becec6faa16567b1fee1b7bed68ce",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/modifier_templates.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "58fd7e1eda4a82064b0feba5caa87cdeefb6f53f",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/modifier_templates_shortcut.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b517470e72cdebbe486bc4bed27bd564bfcfab19",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/particle_settings.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a6cc93a89972266202453266c04a3c29c2a57adc",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/python_settings.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "699720b38108f45415a50d29b98823237ca8bad9",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/python_settings_install_package.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "41fc2af9d7e6aa87a8667608c9ddb32f48841750",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/video_encoder_settings.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e83de8af04bc07533985fa4615ebb71dadf661e",
+      "object_type": "blob",
+      "path": "doc/manual/images/app_settings/viewport_settings.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "31193dfbdcaf803b1ae3f6ca594f028f9155bf83",
+      "object_type": "blob",
+      "path": "doc/manual/images/clone_pipeline/clone_pipeline_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad546ae2fa247159d2144355babae055801a057b",
+      "object_type": "blob",
+      "path": "doc/manual/images/clone_pipeline/clone_pipeline_menu_item.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "45771a539bb0b16b05512d7d794abf4bf9381edb",
+      "object_type": "blob",
+      "path": "doc/manual/images/clone_pipeline/cloned_pipeline_editor.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "067bc16b5eb34b0910ae65d780223bc23292ef35",
+      "object_type": "blob",
+      "path": "doc/manual/images/clone_pipeline/cloned_pipeline_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "be0e5cf6b396ee5bb4df1971d466ec03c8d8afe4",
+      "object_type": "blob",
+      "path": "doc/manual/images/clone_pipeline/copy_pipeline_item_menu.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3d3a408faf944041faa85871717b8dc49ce3b3ca",
+      "object_type": "blob",
+      "path": "doc/manual/images/clone_pipeline/copy_pipeline_items_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b622e16c10238f8d16747e9edada5b2e3e64a785",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/delete_modifier.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a1d3207ac1ee77b10cacd4a06e78746ef8531d1f",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_disabled.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d492e799ac966a0efd629fbef8140ce586676180",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_disabled_large.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bedbeb0d79086a2f01db8ee507c5478c8f0fba57",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_enabled.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3e8743bbc7aafa0296a35daec7bf42966860c05a",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_enabled_large.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3dd7fccdf06321880f69d65631a363e4b813ba04",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_move_down.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa9a7d71b5615dde4c5f702f95df533adadd56e0",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_move_up.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "433945d700d4e22f7793a51c2a1e481155df890f",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_status_error.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c27980178f8e45eb925cbdf32de85bb400d090ba",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_status_info.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "81e9ed29a560c6e478283f003da23194a31a443b",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modifier_status_warning.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e3073f56d266a0ebd3c3ba4c314731775fec751",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/modify_tab_screenshot.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3580a797f578bf72405e07264db15aa37bf3980a",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/objclass_cameras.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e6f90338b3ce416aa6b8c049d62198dd65ddd5ab",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/objclass_geometry.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "07cf0102d3f31149f1eaf2abea4d9859fbb270c6",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/objclass_lights.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d3cb582b771a0bf03df1f2c9d615c969a6fbf9ec",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/objclass_shapes.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e74d6a9e3ccead21262a4a65eda6ed48b0745653",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/particle_inspection_utility.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "949dd2441038ee643ba26b1bf5fd995d624d7911",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/spinner_widget.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d8c602dbac847a4045ef1394f777aee567d9a8ba",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/spinner_widget_usage.gif"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e3652e5e9d94625c687058e4c27a892ef6225cce",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/tab_create.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e3f61c633d14cc6d014ce7778f4bdcf12de1530d",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/tab_modify.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4a158fef7e0da8fd19525f574f2c4966443866cf",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/tab_render.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bbd6636985d9b17d2026fcf0f5b0bac3be504590",
+      "object_type": "blob",
+      "path": "doc/manual/images/command_panel/tab_utilities.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5a86917d6a490fdfe6d1a4748f788092390e88de",
+      "object_type": "blob",
+      "path": "doc/manual/images/data_inspector/attributes_page.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ab20b4a1e3deddca71dda41e5641c6f16747be07",
+      "object_type": "blob",
+      "path": "doc/manual/images/data_inspector/bonds_page.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17308e8d8baac0e80ffe9e3b2dd9db5c596437e6",
+      "object_type": "blob",
+      "path": "doc/manual/images/data_inspector/data_tables_page.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "646629748657857082c6fb9fd9e8dc4ddc372f5b",
+      "object_type": "blob",
+      "path": "doc/manual/images/data_inspector/dislocations_page.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "75df8e48f965dd900d45a13150da577a0748af47",
+      "object_type": "blob",
+      "path": "doc/manual/images/data_inspector/particles_page.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "969887146ceff88583bf39d0f7ad0a92fcf71e20",
+      "object_type": "blob",
+      "path": "doc/manual/images/data_inspector/simulation_cell_page.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "90f8e34a6b7719800abb7a62ba86bf51e4836f67",
+      "object_type": "blob",
+      "path": "doc/manual/images/data_inspector/types_page.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb9855e3c0613fdd4456f5e021a3e904bbfcaf54",
+      "object_type": "blob",
+      "path": "doc/manual/images/graphics_config_dialog/graphics_config_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0ba60aef3899ed20a34fa15a8a8fb99d3baabc25",
+      "object_type": "blob",
+      "path": "doc/manual/images/graphics_config_dialog/viewport_menu_graphics_config.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5a9ee489fc42f73b16cd0e5afb1e30f2b3b4bef1",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/box_particles_example1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "140db1b38c34943f47a0910c9e39c4c9fe34e6d7",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/create_trajectory_applet.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "30e8f782c34fe2d65349184cffa9b06fa16478c7",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/ellipsoid_particles_example1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e586f23575b4df186d2348e797e5531430b12f9e",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/multi_viewport_layout.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b0943be3a44086a75550d1c9baee389302030ef9",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/particles_usershape_example.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0fff93f6868f13966278c5f4ba1d1566855268ce",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/semitransparent_particles.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9d1d44113cb6190eaf9f6d7857a16cf4becae90a",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/shear_marker.gif"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71da35fb7d07320ffa91e39951b411f44ba13aeb",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/spherical_particles.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "375a3ca623ab1a59768c656638aab63fe3e17ab3",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/spherocylinder_particles_example1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71a4a8dd27acda34e8b1386688005b4e874b8a91",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/superquadrics.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1113fb6937cd4b83a4e204ee1284ee0a2003a66",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/trajectory_display_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9d8fa29732e72f4f41d379a7ae8fa37d353d26ac",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/viewport_layout_rendering.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2d185b8a34893bd6e1ca2877fbb0dbb1701aec4f",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/viewport_layout_schematic.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e243906c0631be29e76b93cc5edf6f51a9ab4b8",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/viewport_layout_splitter_menu.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ac891a278893834ebedacde21f256881eabfbb4c",
+      "object_type": "blob",
+      "path": "doc/manual/images/howtos/viewport_layout_viewport_menu.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5179e5f4f3e8b2033f39a62dd7a2ed987b859309",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/ase_database_reader.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b6367007cf0bbbd243f58d7b06cdc505ab0727d8",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/cfg_atomeye_reader.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd846b71db6899a0a22333c73a7e5fef1a227898",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/gaussian_cube_reader.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1068c808974c36140f6800e589e99f7f19a74f1",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/gltf_export_powerpoint.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4741b1c056ece4b4da0099eeebfa595cbe75a8e4",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/gromacs_reader.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb37b1ab515da9b1f4f70e2796eda607821444d3",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/gsd_reader.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a0b4a4d43bb86bae3645fcc5acdc88ad37565502",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/lammps_data_reader.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2763a5f71aeae314c79b0af3f0a2734a7f8c0a18",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/lammps_data_reader_hybrid_style_selection.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a5b461f8617435c7c18f166ca82cf91c8a43fb73",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/lammps_dump_local_reader.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9486d0160abc4ee0e2db050d1787d89de216ffc",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/lammps_dump_local_reader_mapping_dialog.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ee227c639e52a5ec05ba362bb73413a64407f6fa",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/lammps_dump_reader.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d705d096cb456102ad7388122fc0d85d1e70b642",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/poscar_reader.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7c59dd355789060b9fdfe54fc09b76fa243bd305",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/remote_file_import_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "df173bba9da9253588c1bc6e98a431b4bef94c9d",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/trr_reader.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f1c38ef11633adb2429648c2efe15006ed7f97e3",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/voxel_grid_types.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7aeaaa3a91d25a5dca27d2c00ec9cf815a8c591f",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/xtc_reader.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "08e47c0c7e6460dc871c8fd50bb4c7599db43ed1",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/xyz_reader.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0f68d615e2a919d36f759584dabe4c8b283cdc0b",
+      "object_type": "blob",
+      "path": "doc/manual/images/io/xyz_reader_mapping_dialog.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9bc5bf5be72d35f680b3147122e555546048d3bb",
+      "object_type": "blob",
+      "path": "doc/manual/images/licensing/deactivate_installation_screenshot.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "12dfed8e0c143e537db26b6f01f050dc0201b0f8",
+      "object_type": "blob",
+      "path": "doc/manual/images/licensing/license_activation_dialog_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3811b64895bdf722cd76c798c89ed7a6e625913d",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/edit_delete.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "576cfc76c6b8868e648ad44ad39afc63b8bf8e81",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/edit_redo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f37c6963d5a09fca4392a9c624171b6ebd8ed75f",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/edit_undo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bf39bc063af03fd45f42d9e23cac1866a0e8c870",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_export.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1140d021f5c111b12685c777733308034f490477",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_import.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e3808a108e335b14e13711783a3717f7b6013375",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_new.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7c4ee7923234f46445b31d621fa802ac43c0e45c",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_open.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28ac66f09548e2880e9f6688e7fe4a3245a539d0",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_quit.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bbc77eb3d6c723dabcdf4660f81fcbeca56aaa66",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_reset.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a94e0eab97def13486256451f08973e0b68f9ad8",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_save.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "340a87eec0d97d7e9fc9ac9b7c20d633979c624f",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/file_save_as.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b51c8cd4e32a09a346187f18643f06a603d50e4f",
+      "object_type": "blob",
+      "path": "doc/manual/images/mainmenu/render_active_viewport.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0feba478e74b0feff73b32c4497dc5dbddac23cd",
+      "object_type": "blob",
+      "path": "doc/manual/images/maintoolbar/tool_move.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad992dc8b5de7f776b574db595b951663c5a17b1",
+      "object_type": "blob",
+      "path": "doc/manual/images/maintoolbar/tool_rotate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "43eb20c89c40f1e941814b91349e35f4c58ffc0c",
+      "object_type": "blob",
+      "path": "doc/manual/images/maintoolbar/tool_select.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3f4494166935d576ea05bc242fa54d1dfb6b6bb8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/affine_transformation_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a51461524fc79bc649c1de968f0ac9e03dd686cf",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ambient_occlusion_input.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b406c2d7eea04ad17d5bbd80f92a9a75b5b9d0f7",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ambient_occlusion_output.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f38f333a975517c3a7d3e40cfa7b958cbdd95296",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ambient_occlusion_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "14fe6109851700bb80a385fe5264efa832dd1bd3",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/assign_color_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cf1687d48d190aa364bdeec0539eff583893a270",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/atomic_strain_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f1a10f12c9037da60775313e0b7cdde6f247afae",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bin_and_reduce_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "804e91a6573be3f64281a5206efd5d252c2584c6",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bond_angle_analysis_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "605a2c33ac9d675f3c37e9aa272716b695dfb0f3",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bond_angle_distribution_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bdeec6f641369cd2a497371f774e1229129046e0",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bond_length_distribution_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2098693b3b86ea8ce32abb90ab6f2f841d3f7329",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bond_order_example_double_bonds.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f031cd1dd161afde432590db35ebc0503d5b19cf",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bond_order_example_fractional_bonds.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b896ce180626fe2d97adb87f2cfbab56144c0780",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bond_order_functional_groups.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "69034acd4e4f4bfed8ca02b2068b1051e30c395a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/bond_order_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1458286616f80cc1462c4458ab216f8362910e6",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/calculate_local_entropy_example.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4fc3e33a6284e8227f20605b5708a9ade27053b5",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/calculate_local_entropy_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "422e2453e8824861e7b03f57bd19e08188879600",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/centrosymmetry_formula.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6eafd74efad9a351e592c2871b225cd044761a9d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/centrosymmetry_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "143fc1054ca65cc936e9ee831a35c330fdbd1693",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/chill_plus_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "23c8dbd867dc742daf54dd48d6636d85c0b8852c",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/cluster_analysis_example_input.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1f40bc0cbf12562b3877dc87d8b895a70db90ba3",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/cluster_analysis_example_output.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0be1e82e481055b95eb1adaeb3dccc6b97211462",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/cluster_analysis_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8a55a48bc6b9f69fb764984fd9103a811a3a1723",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/cluster_analysis_table.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f8ba8d8d5b2e72351671403841d3e6d1c3b0e995",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/color_by_type_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "869b65325c9ba586eec46fe38954fde2130f8165",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/color_by_type_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ee101209bf0aa33ab9bcd2682401c9852364a4f",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/color_coding_custom_map.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ae0a84dc3b12d766c1d22c8ba22cc72423e90a4",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/color_coding_custom_map2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "77daa28973d2d14043ad2ff769f01648f6d10db4",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/color_coding_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "96e6dfc74190830bc14ffb3aaffd2eb5c4f0961a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/combine_datasets_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d54506a70cba65c98d5e47fe30da12131fb265f8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/common_neighbor_analysis_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6aff2ad77ff6b2b7d9589f31667aaab2b09590d7",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/compute_property_modifier_neighbor_formula.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17c511e6aa03bcf3f2bbe2708680dcf333000e8d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/compute_property_neighbor_expr.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "146d63b1cca378890434af81c116c316ef2446a8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/compute_property_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f481542a418eaa0100d082abd253810daac869ae",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_example_input.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "48b763ebcf8bc0dbdaf845ccf8cac23a79bb8e73",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_example_output.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "563cf3170e2ca75fec5e909e3012f4542315975f",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_alphashape.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d7a0393843e613b08ab7d2a3de268929519f81c",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_distance_calculation.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e54380109e90292a439c618a5032de0312f0e1a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_gaussian_method.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "72474b2cd1105347bbab6bcc399a4cd2491b9d24",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_molecules_sample.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ca06b6c3075a2746228b9cc8055682a667218e04",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_molecules_sample_alpha_shape.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8ee63baed82780b9627cfd4e961cb1e5184e3ea3",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_molecules_sample_gaussian_density.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd7996480040dbac44927d14b7995ee364e24360",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9cf81411589db55f492e6ee576087dfbfdfbdf2e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_particle.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "edfa16525f4adfaf8fcbea7cb3fca38ee3f856cc",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_regions.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2d158731f28d4401477073fcff38e06efabb185",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_regions.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8c5179d72c811d28ad83c6a4540b752031779d2e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_regions_example_atoms.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f06b643a36f84d427e39b2d709da3a379cddaf26",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_regions_example_surface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f53a14eb11b0746eb6739dfba223bb2ab2f49c2b",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_regions_example_table.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0fa299786494615455bc48774230d365a24e3d1c",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_spherical_void_sample.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "98daabcfaf61a816f57a3ccb642ec33a5f4a7e95",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_spherical_void_sample_alpha_shape.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f891f245480a28d0514f135a4c6df59d8ad3624",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/construct_surface_mesh_spherical_void_sample_gaussian_density.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c206d7429429c298271c36fe372e48719a0a6810",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/coordination_analysis_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a6aa8c295748e5056df6a5d9723a43f9f0652bc",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/coordination_analysis_partial_rdf.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a9055735e2baec705a39fc0e124adb7f5d47127",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/coordination_polyhedra_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "afe04446fe479c229fef02483ccc28e097e5993c",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/correlation_function_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ebb199d947218c0bda759eaa6ef35010e993ad81",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/create_bonds_example_input.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d0de97f50ffaaf4c5a42afd8b518fdfc33840995",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/create_bonds_example_output.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7f3e6ec4754ee96a94531d385f6323da976d62ae",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/create_bonds_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3a0d177857b5f25b6e29cd819e9de2f717fc30a8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/create_isosurface_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "02511722a28b2d0754836411b33d1d5b733633f2",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/create_isosurface_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c6d4c37ac03540762142736e930d57b59a714c8a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/delete_selected_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b626d657ce8e38e45c2a4c5a92dbdbe9727ecb22",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/difference_between_frames_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9a8bd750361d7215930eafdb93e73130f45106ce",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dislocation_analysis_example_input.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "90e25665d36c290f66242b4fc31c856a025f73d9",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dislocation_analysis_example_output.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "24ca32ba6b56203dde9a89b9902bc52fa2bad6d1",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dislocation_analysis_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a108b45c2f5f161dd35febd03b4c3d0ca32bbeb2",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/displacement_vectors_mapping.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "850449cfbc788feae50bfccd1e471d09722ee870",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/displacement_vectors_mapping.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d932de0c11702d369de35b655285edd6ac603043",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/displacement_vectors_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a55105cae85fb8c190c959c96493d8620076c037",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dxa/burgers_circuit.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "944adc53e55c58fddcc09ed37f5e0ae08128f31a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dxa/burgers_sum.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c6102b54da1ebe6f285ca50f0b71fbf3db0188f1",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dxa/dislocation_analysis_core_atoms_marked.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "44838ebef482a90f26a9d9972c3ab0aa0d311fee",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dxa/dxa_interface_mesh.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a864283044cc85bd95ac2be7e26d85824f8da9a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/dxa/edge_dislocation_tessellation.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ca6d7f17a18d6f1b44929dbf38f1a25448dfad0",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/edit_simulation_cell_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "18c43c1375e3e2ee7eb7f8d83fdbabd5ac6f933a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/edit_types_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e7b1571273ad4c9c6654d7e586a42e8a9130e0e2",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/elastic_strain_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42f604959cef68211f9d3555bfd5430c8693e385",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/elastic_strain_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70b02f0b332d73f795671f18c1cc8cc06b599a65",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/expand_selection_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7db652fb6aeee825563659723e7faf4ac03a1f9e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/expression_select_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0905397b9c74b4753de033305d445a0a1c88b946",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/face_between_adjacent_voro_cells.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5b2a8e9f0fd08fb72a3559cbc8a8f5b533e86da2",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/find_rings_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b89ff67a9fbcd85da9319b63778f3413ab617625",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/find_rings_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ec8dbabc7ecd4039f833569ff15428ae1bbced77",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/find_rings_schematic.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e22faf8bb5a02910215adfe5f82e0fe5442f1fed",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/flow_trajectory_example.gif"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3de175b2137256621fa8c32baea240a3618f8f83",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/freeze_property_example1_initial.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "81229d096b187ae0cc6b26cfb241bed6a750b1f6",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/freeze_property_example1_with.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "959c767641a1f03fc5e8b3e2ae322ed112fe87a8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/freeze_property_example1_without.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "26fd1e0949ea22d1d48d8bf0256d3daa1b33a2b4",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/freeze_property_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "929ef6fa85f725099000368268a0652e79dba93d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/generate_trajectories_coloring_example.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3a6dd457a3a0c506ad4ab6b37273d86ae7cd5b02",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/generate_trajectory_lines_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ab27f6f9fdf6e090132a1b56aeaeef7599124492",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grain_segmentation_orientations.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d85629c19c55bc5d6dda13de04927c7c06485a40",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grain_segmentation_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "03c787f9673745593d396e44b61a9df7dae811ae",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grain_segmentation_ptm.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6cd08b9de7b78434e3fc4362148afb82c994ce6a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grain_segmentation_segmented.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0d2534100ed55918f6f111274e2bd1da012a17e8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grain_segmentation_table.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "651a3c118d08a5b65a3ebc58875f8c646c6b2dd0",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grains_graphene_1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "514e30b736a8318e1436f5d63d36034ccf83486d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grains_graphene_2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "879af3a891555efba9db21d57353a3a846649207",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grains_graphene_3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2205007e6952e81b6a5e12a8f635dc93d2ab2a96",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grains_graphene_panel1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "46033dc1ed8fc9cccf489c053c9a4c4640276ef0",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grains_graphene_panel2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "98950bf54661ae87fa252c838c6515909c888998",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grains_graphene_panel3.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5e1c8c2c031e8f5301d42ca8eade35949cabb2e9",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/grid_type_celldata.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1856f8a3cd26a5f6888d24b0d988600a009c079",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/histogram_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e5731793243b40ee45595513fc6ab112cb1d0809",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_diamond_cubic.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d0aad2047845fb6e4da6889e7fc6c54517fa3da7",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_diamond_cubic_fcc.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b1752175e5745be03bd0a17e66e839791792156e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_diamond_hexagonal.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91ae616d8a63968543330e9fc05ab7e5ba3f79c1",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_diamond_hexagonal_hcp.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1e3e8166ed06cb0401a47e8ad3a7c5ebe5b5e2a2",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_fcc_planar_defects_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50d9e2ba787261e736764f8b07fec8551d44afde",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_fcc_planar_defects_ptm_settings.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04c19765ce2a276e3e23654bcc1d10f147e27d14",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_fcc_planar_defects_table.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "361dec63fc415cf9219e3bf848e55c62effb7c07",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_fcc_planar_faults_example_ptm.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c182ca4fe651180c31530f7d76df59f31ca66ef8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_fcc_planar_faults_example_results.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eac12ccd036553a8929ba4e4f0c323b3e5338d26",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/identify_fcc_planar_faults_types.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9c4cc0fb26b4df15742ef737e8f0a15a5af0357",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/interactive_molecular_dynamics_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f4f0203cf56e2ed4f0016bb4e99bd57df14efa50",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/interactive_molecular_dynamics_schematic.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cc4a35c1257cdde8aaef574cc5718efef60116a8",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/interactive_molecular_dynamics_schematic.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04fd6a15c45d483c61594dd50fe766669fd6e354",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/invert_selection_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "268cfd9c0f6224410b335b003e27aec6feedb2e9",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/load_trajectory_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70595d3636a549fc4bbdcb384cd49389a1b50456",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/load_trajectory_pipeline.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "278af6a0f11362b4ea1116aa94facf8bdafa8b1e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/load_trajectory_pipeline.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bd37547c743496dd55d5d769161962c0c7604252",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/load_trajectory_varying_bonds.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0f28f4a8baec7349748ea200d63c76988ba91d1b",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/load_trajectory_varying_bonds.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "993dafddfd377b10f0ef17a80ba39de723f5dd7f",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/manual_selection_fence_mode.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f1061d50880b0c64d427d01de423e6d67ab23c46",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/manual_selection_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5543fe5f1a04e850768af19f6fa7edca92bafddc",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/polyhedral_template_matching_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cd2c58a6978fbe0efb1cdb309efc6e794e50c502",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_bcc.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d10b0704f62bf8a8e1cb0f79d7b5ea81db54494d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_dcub.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c130d82fbf97928f90caba294ee730da87f4ef86",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_dhex.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a83070116615ec299149f0d7fbcbe0935db52c1b",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_fcc.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "85a18257f2fed9152bc1f0fcf6e6dfba8f36447e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_grp.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "96b34f0ec898a6d6517bbd9d6b17bacc313fbb65",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_hcp.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4f1a7489ce6d890107afc790fd25ba16c0c38799",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_ico.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ce2d0974e968018ec1e671d59d07b9246bf6c675",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/ptm_schematic_sc.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "685127783cdf9ad08ddf8f457503c161bc197b92",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/python_script_code_editor.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a85d5619de0b4d7dbe71a814dbb5af8941155712",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/python_script_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2a98b8bf4b7a4bb6cf644399607e0c4d3852aa0d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/reduce_property_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "11b36b297426626e36a9b0012d619bfe721c6216",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/render_lammps_regions_clip_and_cap_a.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bf7164ea4cdc3e36c4b16b450aaf40e933237885",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/render_lammps_regions_clip_and_cap_b.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dfe3a388e79f2146b7c7f31ca605efaff5528b8f",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/render_lammps_regions_clip_and_cap_c.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b0b0535743fd380541da390127f791ebd1de906b",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/render_lammps_regions_data_inspector.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6373f651c5eb101711591466f3f19d5ea73f808b",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/render_lammps_regions_opengl.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3d4bba68cc51f71cac0f96451bf6ae7be62fe8fc",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/render_lammps_regions_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3184c69da45ad2c1c98545c42efa4f8091184357",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/scatter_plot_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0173985d62931ebb432187377407915561ad793f",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/select_overlapping_particles_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8fea2b437108d08e6f574e87d30da1e2fdbffbfb",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/select_particle_type_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b946b17221f8b145125048d8dd1acf606a5bb5a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/show_periodic_images_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "466a5c9525a1b3d08bfa2c2bb6ae9943ef18cf0e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/shrink_wrap_box_after.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "016bc4ee53e8d0f5be6e19d0853fbbf866c9f152",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/shrink_wrap_box_before.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "84ed878859a544080e13ea3cbc8af3a70ed92ba1",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/slice_example_input.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "72fd5fcf392ece35d67b2c5c87f3ed3bb1917dd1",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/slice_example_output1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bff8fdd93edc3fa67475c81f7d5feb03c31bd45d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/slice_example_output2.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91e705dd8c97811972a1fca7ae8995e1647c4dac",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/slice_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "caa365224434cb3bb1af1ff3c466764c6b887b76",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/smooth_trajectory_averaging.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0668a5da704ea30ed0d7b87005617e91ebbd7b12",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/smooth_trajectory_interpolation.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "933eac98d53185bd05caed0bbc7410044fbc9264",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/smooth_trajectory_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bef4da1d545aedee59d6b5b35a6cc28e168d087e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/spatial_binning_example_dislocations.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d0d6b5147efa535a88bf518edeac75a26a512286",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/spatial_binning_example_particles.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eb11ca1fea82e87d9a2b65e1e6b79e65e8f772a4",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/spatial_binning_type_count.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "82e4c39351f8119439dfab7d9340224336290d97",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/spatial_binning_type_count_data_inspector.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "23d4904b675d1e80024416ecb5d8f1fded4103f1",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/spatial_binning_type_count_grid_inspector.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4d07cde703dcc232c48bb87ea98ab75ee733ce4d",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/spatial_binning_type_count_modifier.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7707f235953ddad35f1a555b46fa504a16f0cd31",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/structure_factor_command_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b7c25636f708eeda8c3ddd3a04f1d9d0cd548e3",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/structure_factor_debye-direct-comparison.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d136e01e9f115b345d91cbad6c262cc9f13df04c",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/structure_factor_debye-direct-comparison_cut.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "735196bd24c2ee73e8c38f873ce1a1bf9691b4d3",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/structure_factor_method-comparison.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9914381cdab972e8df42cd81020335373249bbc4",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/structure_factor_psf-fz-psf-comparison-small.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f54ef8c48a5fcf02cfdcd0a5127242e9065dcfad",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/time_averaging_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0304332021b144b9effdcae2a25fc151c822b467",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/time_series_example_plot.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "446fdfbdc4ad28b94d39e0a9264164590dd76a8f",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/time_series_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "48eec71cd1c4a9271889cf4925a136642429c5e6",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/unwrap_trajectories_example_after.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f5d9c6b4abc9c0cf02debd73ba6fb5f21cac727a",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/unwrap_trajectories_example_before.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c619030b30696242a773c7312f73b20c5c75dea2",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/voronoi_analysis_degenerate_face.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a52628a7d109ad737d929530e71a76f34d9f9339",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/voronoi_analysis_example1.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b330e19b496bc3ae779c7793304acdfc6a7d67c4",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/voronoi_analysis_example2.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "994470faeb9ec38b43f8cf250b68f309058ccb4e",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/voronoi_analysis_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d52dd563f46359f45ad5469dd7f9333224289cfe",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/vorotop_analysis_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1eededcd52dd53b290dacaa0ce5d7bbe73eca011",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/wigner_seitz_analysis_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ba9e409b640ff02811538f370853c4c4d17a7723",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/wigner_seitz_method.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ee48abe37b52f479e4163111f2c9cef42c022f3f",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/wigner_seitz_method.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2bad09acaa5d67e2395485cbadb0cf364b7ea832",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/wigner_seitz_pipeline_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ff4d0cced63990e45c3ec8d4898cb86f13d9f98",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/wrap_at_periodic_boundaries_example_after.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "28c563a523cea477a5ddf8674f6c8c021b6de702",
+      "object_type": "blob",
+      "path": "doc/manual/images/modifiers/wrap_at_periodic_boundaries_example_before.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7d55365ca98132e4a0ae285bea3e47c09b0ec497",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/3-11-0_bodies-after.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9fe0c470bcdbce1d1ba7fb337636d62fb998c56e",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/3-11-0_bodies-before.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0bf832b4c1ff932cd2c9fd0d2919334152957c7d",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/3-11-0_code-generator-schematic.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9b75f3544f841fff1c2c53fef5c0d15e1833002c",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/3-11-0_render-vectors.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8c79896de2e5c6a84e58612b159cd90bcecaf029",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/3-11-0_symmetric-colormap.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ac2ec7ec12e0ccdb2ec60fee945ceb3a2fc13c56",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/3-15-0_video_length_label.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a302f36db854b956553549f13e72e80b26a23de",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/Anari_logo.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "17248e7a8af5186718c69a79cd0ec42908ea0342",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/ase_database_reader.gif"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ed82c2ad56fb5bb2da7ce56c647095825ebe3b9d",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/color_legend_ticks_horizontal.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7975a4b90c12f04a85cf891e255bba25d3ca190e",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/color_legend_ticks_vertical.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6784cc404af11144b78d5e9e66dc374089c37e29",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/colormap_fast.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "abf50c8deb597d2c7e7a126000d2b6ee4ad322ed",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/compute_property_bonded_neighbors.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9f7d1efb0a9292f969799dbcf2f6c67d10ef2a7a",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/discrete_colormap_legend.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2cde65403ff8da02b319fde3f8ed67dc0cbdb84",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/discrete_colormap_settings.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4a18f91551261ce54d0c0684fcfbd44e3a02711c",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/edit_types_modifier.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e7245c49218d01eb361a8397e78cff914b2772b5",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/empty.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aba9fe2ddad12445b2ca2eedafdb2fcbc28bf1e3",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/export_modifier_snippet_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5914e985ef6320573943b2e071b792ddc1d1865e",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/expression_selection_type_names.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8d22e780ece130ff61dc40361514bd9ab1e650f9",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/file_reader_generate_bounding_box.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b9f006cd7f530e7e14b1d854cc59ac11651d731c",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/find_rings_example.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6f8665d71857671011394002d1205aff3ac103a3",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/lammps_regions.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f3d264cbbe782f4fcbc1025d9f664e5b3d5c1480",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/lines_spirales_demo.gif"
+    },
+    {
+      "mode": "100644",
+      "object_id": "10b7ebcf9bcb01f3b3c201512e9ef093328f631e",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/new_modifier_picker.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cd4779c5beff8b10771fc703cc5679ef7299a089",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/ospray_transparency_new.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "94bece0e0d22bec21fa19d0cc8b925e69e7c9de3",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/ospray_transparency_old.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a39d419972f5ea6fa1e92fd31a1971bc26f53a74",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/planar_faults.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1862c3c401b6d4f790fbe12d5cfe967179dd2220",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/python_extension_workflow.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "946df586c59042ddd159d05b66cf6e91b7c00dbe",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/python_modifier_traits.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "847f4811abccdfb7c6aa7b391be8369c76ef4f3f",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/python_settings_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "43f434e5aa16e254b9a482539d32c101104f4399",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/reduce_property.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9bcb8ceca0ecab727cbe8c4970a079d1b5b4bf87",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/remote_rendering_function.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "68167071c483e4140aa9f25b9935a958c95e0a8b",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/removed_simcell_particletypes.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5284bf96825c4f9485ac24e1dc105c00a7f9d0d5",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/request_a_feature.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5c5ba3bbfa81dd9ef157a19bd3f66842eea6af5a",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/shared_visual_elements.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "80d11bc1a9d7f7bc48acf16acf3ed1e2e394b982",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/spatial_binning.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dccc5110d6d5f57675d3ca435a4861dbb40d2f0d",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/surface_mesh_regions_gaussian_density_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "767eb822172248d0d5681f22e4db2e9fc9520250",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/timeline_show_structures.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "823cecfd61f41e5cf0202f46c581ad7ae868d231",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/timeline_show_timesteps.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "15e8afbf6512253bbbc5693fa148d553bc36e996",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/tripod_perspective_3-10-0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8555ad87c8c29e07903f2f0e2aed7626abf4baab",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/tripod_perspective_3-9-4.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "61527080e2a474e1c12c1090c200384bf3e85354",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/volumetric_grid_discrete.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74b0f249542c2297abe886d9b8391f491929fd3c",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/volumetric_grid_slice_discrete.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5df4c36afe310d7f9cb5e394689c89ef6a57bf33",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/volumetric_grid_slice_interpolated.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c38078ec8143f31414391b7e700095c980f54251",
+      "object_type": "blob",
+      "path": "doc/manual/images/new_features/windows_dark_mode_support.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c4680c91aa4c106262d83ab0d83490ac29192928",
+      "object_type": "blob",
+      "path": "doc/manual/images/ovito_logo.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "30c2cbab6996c8e80eb9a9dea3461656083293fb",
+      "object_type": "blob",
+      "path": "doc/manual/images/ovito_screenshot.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a10e3f90ad08829087ab40c5014c14601f433953",
+      "object_type": "blob",
+      "path": "doc/manual/images/python_settings_dialog/python_extension_gallery.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2742a9bc0cded11d07c2a8538e4911fd2a245e45",
+      "object_type": "blob",
+      "path": "doc/manual/images/python_settings_dialog/python_settings_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "345b2f1d7cbc2238e895eda7f3ce236f451d12d8",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/copy_picture_to_clipboard.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1f8bf1a579abb2b456a773e4a7c0739a37f6872b",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/opengl_renderer_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c694f7534e19ecc1cf8006128b10451687f966f8",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/ospray_render_outlines.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7738dfda0de8facf20b4d8e644260676e41a375e",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/ospray_renderer_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "913a2b5c9576887d2c0ba94638dc467044002500",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/ospray_renderer_princ_material_r10-m100-sb80-ior1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9798b248bc26ead4d979d6af392a5e0b3d1513a6",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/ospray_renderer_princ_material_r30-m10-sb80-ior1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "983dc278fbcb75c4e479bbf655aba3ddc41e6713",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/ospray_renderer_princ_material_r50-m30-sb80-ior0pt1.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "39ef50699354e6a11b7cba014e19494be237337f",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/ospray_renderer_standard_material.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74099028d37a6d37a6d776b6ab9f11507e4a92e0",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/povray_renderer_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ee81cb884dd6f50bfd57dd521c0e5c1e5eead41",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/remote_render_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "008510ce6768aad6800be58e3cb5b5b3ca3f9294",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/remote_render_utility.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b51c8cd4e32a09a346187f18643f06a603d50e4f",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/render_active_viewport.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c3e867499070ea36d5cabbc6b9e1103a73ddaa62",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/render_settings_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6acf98942acc4305d9ae07075dc4be7fbc3d81bd",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/render_tab.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8e9f584a1919a7a6fa51aac4b10509832e6261f3",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/renderer_example_opengl.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29050c62e8a879e05f7da5a829cf18db15396fa0",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/renderer_example_ospray.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "39f0aac39a9180a2417f54976752a41f79843b42",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/renderer_example_tachyon.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6d2fd037f6793889a24cf1ab2bb4c62826837823",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/renderer_example_visrtx.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "777fb5d2e6a8418c573972246582c21d2c4984e4",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/save_picture.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a45510517bc23c77f537d38018944e7b7b9a909b",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/show_render_frame_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dfbe3bb81fee1e2f1cd61d04fa2631ed92b0e987",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/show_render_frame_output.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ed40338635cbd3ceda36c260e657c1decc8aa2c",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/tachyon_renderer_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d41895e3f03850a3a0cb155773e7ead727993367",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_large_ao_cutoff.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ea50cabec2fb55bd7925336a211a41685eba41c0",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_render_outlines.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1d3a07899cfd2cb0e6ab9b508da5969ecf594a9a",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_renderer_matte_material.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "254d2c75fe713b8e80f02d1874a7a0f049aa2b6c",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_renderer_metal_material_r10-m0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "046dc69d7be97ec14285b827329b86ec16c52295",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_renderer_metal_material_r30-m0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4123aad2714767e2d77e0e9dadf9af300ce9fefc",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_renderer_metal_material_r60-m0.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "530ae9652ae43a52c02a8087ea0f52112b094c79",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_renderer_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "40076a2b2c776924601f22438a73b54f677446c5",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_renderer_standard_material.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "513a45fcb9582346601b53bf6672302e1b5dee5f",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_small_ao_cutoff.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "db0651bb8c7d1ea452fca5f4f356371737b743b3",
+      "object_type": "blob",
+      "path": "doc/manual/images/rendering/visrtx_viewport_outlines.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bdb6228bc01dc9aa6d9a1230f2ea6367a8ced1fa",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/bond_data_example.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "01a395746da98a01250c3dda7c8c5c6426891e5d",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/code_generation.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e5d1833cc0f0c744f8057d1407ca32584a13b96d",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/configure_trajectory_playback.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa853bfba93594918a76a7912ad51b67abb22d59",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/data_source_and_data_objects.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "07c586ccf9cb4f2a9a3bb22f742cb69399084f42",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/data_source_and_data_objects.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ee807731c6bbab7e07e85fb308bb5c11911d57e1",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/file_contains_multiple_timesteps.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b6ea19827ddd0007e02cdb90718e607aa0614b01",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/file_source_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2f54c0feb213d4a907431df1844395e079346d59",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/file_source_toolbar.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "02d0f4f19f9deebfb434b67a1e16ebebd3a026e5",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/file_wildcard_pattern.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "624e9f8eb96739299e1ed264366cf34e1e92ed47",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/grid_cell_based.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "368b700a338e53fe062a570309b99cf7d086f430",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/grid_vertex_based.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3eda5863e1a2d198013006a8a088485e0ba09fde",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/lammps_data_source_screenshot.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b5b7ae1529836b0bab1c562ad2330e1dce78d5a3",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/linked_file_object_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "22a29d9c06322eba52676733278cd7710c0aec97",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/particles_data_model.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7576595986072108cb6332cf862b96ac1645604f",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/particles_data_model.pptx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91bcf6a213d52d82fefc0f4b9a9beca304e99985",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/particles_type_list.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e515af2dd2f78bcbf12451544c8136b1a02d0d1b",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/particles_typed_property.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "66faec70ae08bad71d83fe0ccbdeb92c49a29dce",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/python_data_source_user_defined_parameters.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d495de75566fb0b04e85402ade8eb47747527f5b",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/trajectory_lines_example.gif"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3cab394dcf6cc72d5b8fc9113502da8244ef9f5d",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/triangle_mesh_example.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eb0f3777cf87b6c1af2cff19edd0938ed9a5267f",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/typed_property.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "241f0acc8b64bfba73b2c444fbe9964b6264b3d0",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/typed_property.pptx"
+    },
+    {
+      "mode": "100644",
+      "object_id": "325d55f14df100f7f07d7afc83e0ca54d1741e62",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/vectors_ellipsoids_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5c0ef55eff41f5e070c5009df3a12c5013b6edc1",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/vectors_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e44d5f53258378cbf5314e45c78bc1134ff5549",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/voxel_grid_2d.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "40e465d1594312998b74168505b26b0d9892142a",
+      "object_type": "blob",
+      "path": "doc/manual/images/scene_objects/voxel_grid_3d.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ee6ba6678448ad6fcb0b7fcdd31da034682aafe",
+      "object_type": "blob",
+      "path": "doc/manual/images/team/ovito_logo_128.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "be28f7f2cc780442eb20b9e4b6bb117220f5bbc5",
+      "object_type": "blob",
+      "path": "doc/manual/images/team/ovito_logo_256.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "01ba24b2cb7ab27eb7627df11e6cc9da90b800fc",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/animation_settings_dialog.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3f98c64c51637bdd51e0b91d37ef4cc9217ccb1b",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/final_frame0.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6b224255ab6de66495cc0e22c138e7d5d6a9d411",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/final_frame20.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0198d20056c746e7998c428968d4c059c88f01a9",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/final_frame40.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7578f88e33b0c7918580ceda285b266e6bc396e9",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/freeze_property_color.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "45f0c216e185337c92b2f861382eb75f1bff6032",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/freeze_property_selection.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7b2a31f47d4a793f564b7d7cebd8354a6e400968",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/intermediate_frame0.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0bed4c545f2df74259900c694405e0847102fd4b",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/intermediate_frame20.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "72b9881ab965229b017f975efb796271a2209a55",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/intermediate_frame40.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2672dae81f2d010d1b3bdc4461cd8e69e334c867",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/render_settings.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa8c6064d1f7736e617e1e2d4f16cab4108b80c7",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/marker_particles/slice_modifier_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "09d5648044c7b91f7aedf34e1b7b7e08cbc2749a",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/remote_render/export_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "13ea5e9aa8466845369c65e2c2be0b3d3cf6d192",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/remote_render/remote_render_settings_tab.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e20806ff261ccca48060124ae7d1d4a1f98090dc",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/remote_render/render_tab.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e23922db57d7af9c62a006a8aaa1b7f0fb96344c",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/remote_render/sample_setup.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f8332f10acf7f2b8c3b150e870f4e8a7363e7efb",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/turntable_animation/affine_transformation_modifier.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb937accab7175180631b64f142e7005e50c31e8",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/turntable_animation/animation_key_dialog.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "91b3480f29f3f6196c81b153c97ad587c469f352",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/turntable_animation/animation_settings_dialog.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "29c024ee879f5a784b3fa69902f7a7bcf0fcf74a",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/turntable_animation/euler_angles_input_fields.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "069f8845b1ad6a494fe221b085d027a5b331d575",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/turntable_animation/open_anim_key_dialog_button.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b901ed6db6dc9cb4190977def805c002dc83c668",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/turntable_animation/pivot_point_illustration.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0997f67b5bc35e12705e056b186addb8cc8e68ff",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/turntable_animation/turntable.gif"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8e095146966c9a6619d8eaf45dd9ea752f6f2afc",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/data_inspector.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "33874155a69f883cba8dd60d9fcebfa874db31f7",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/delete_selected_modifier.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "43036190216a7f8067d4d4339c41f24d96ff32dc",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/expand_selection_pipeline.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6fe78a5196bcea8cab7292c3d00b1462691bb653",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/input_structure.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "032db7731723b815b4e0c28cc8c4fb287c7ac694",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/only_nearest_neighbors.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ce0570e5f9a8c39b8671bb12bd04ebc6eb529e4",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/select_bonds_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "af64e9d4f0786495244f316ff4b5423f2c12f664",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/select_surface_mesh_regions.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d02f2d348759604b931321d64bd06f31ddb1c7f0",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/voronoi_cell_29.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ec2eba7b0d10593060051be563243ff9086b629d",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/voronoi_cell_final.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a16e77f142eb50f5b873db3f8eb865434c3881a7",
+      "object_type": "blob",
+      "path": "doc/manual/images/tutorials/voronoi_cell/voronoi_polyhedra.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4bf7e9346e78235f9ff40ccb03349b63b00abacb",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/create_camera_function.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "98dd76bae0b6703415918dc28a80b90d24b16bd7",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/file_source_animation_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "116dbc410dcfd96ca9f72512e79b3f24c04fa2a4",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/key_mode_button.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2e2d26aeec754aaeabe5581e34d58368f08289ed",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/keyframe_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2c7092152c238722db66042d26b85a7e1b8403c5",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/move_and_rotate_tool.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "00e0abdc66a5ffddbfd9d00dbad8a826d01c81db",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/numeric_move_tool.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "346923eff17823a4e744d08b5317dd687aeca75c",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/object_selection_box.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8e7f1b8b22af180ef431da6e2f4c73498e8fff39",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/slice_modifier_animatable_parameter.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "991f2143f55b10594305986a7fbf6d7de610d551",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/track_bar.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b70f168c4f10f6f073a0d5890c3bb168d6767a4d",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/animation/viewports_with_camera.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b59ef5f107414e42eb468c1b440d226cf43d73d0",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/importexport/datasets_side_by_side.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bfcea63cbad6172e364958282391490ac3297f82",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/importexport/pipeline_selector.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "90c00a5d5c0911609135c7715832c0c1b761025e",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/importexport/translate_tool.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fb9e60674d960469cc09779268ebbc466de41059",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/importexport/translate_tool_numeric_fields.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "75df8e48f965dd900d45a13150da577a0748af47",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/miscellaneous/data_inspector.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0f6e7db2061e5aee9011bfd2b62253b43b31e5c1",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/pipeline/export_modifiers_as_snippet_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd5d92f558c506a41b7439298c187d53129eba42",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/pipeline/export_modifiers_as_snippet_menu.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cc2f45fd0ea9649aa6485b705fdfdfef3fbcebac",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/pipeline/import_modifiers_from_snippet_dialog.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0991b3f4b72b05073d8c933be41e658ef0438045",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/pipeline/import_modifiers_from_snippet_menu.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "653319b55cff6bb91005bbb470203abbb6f7a523",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/pipeline/pipeline_editor.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d11579a58da689efabcbadee3422d109dcd9c1f4",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/pipeline/pipeline_editor.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9288398e94ff03f5fced05b9d6ecdfe307b6f700",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/pipeline/pipeline_example.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "732674fb26f30ea196a04b0d216e07170f8795d9",
+      "object_type": "blob",
+      "path": "doc/manual/images/usage/properties/particle_inspection_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "41f50a4b72e2458147986c1d2e4a982aa7ace07b",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_control_toolbar/maximize_viewport.bw.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f61b3c2f889a62a834f9fb5b69975f312ce509e8",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_control_toolbar/viewport_menu_screenshot.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "350325060100ad23a09bcf4e817ebbdbe5db9166",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_control_toolbar/viewport_preview_mode.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4254d1a3aa5179a708a7f95a013652a6ef3834bd",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_control_toolbar/viewport_screenshot.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "413a597c0caa8ab5ccc440070c1ffe2a902cf86b",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_control_toolbar/viewport_toolbar.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cc3a7ce7367ae6a3dce2bbfb817582ae978937b2",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_control_toolbar/zoom_scene_extents.bw.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "70b18a378d8bc63c54a8befad074e1db0a69d613",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/color_legend_example.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fd18d75efceae0befb0be744cb746da2242845b3",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/color_legend_overlay_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c051332d1e6dfba402c4c23bd59d3c7826a92a5a",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/coordinate_tripod_example.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "39c2eafc90605b157cabf909a6348f8ab85059fa",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/coordinate_tripod_overlay_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dae5462eacf62d8a5affdbe2aa76fe9b29eb209f",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/python_script_highlight_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "815d53aab2d90d9684b84ee08f69e5d8d57fe88d",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/python_script_overlay_code_editor.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5e9232c9b0c9255283e49a5ae8a747e991a52d60",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/python_script_overlay_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a090eba6b1c467a59916c78411714f56edbb419",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/python_script_plot_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "603921ccc42e017dc9994f2ead9e1d6c39ab0cef",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/python_script_scale_bar_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cbcca58acad74bfae0b85669dc8c6603e1e6c0f6",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/text_label_overlay_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b48e6caf13a10a2cd325172a26fc134e2d774772",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/viewport_layer_data_plot.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b0bd23c10c974fe3814c69f874eeca02bab21dae",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/viewport_layers_schematic.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "822d674331d325d950fd3a970ae6446a7d1c20dc",
+      "object_type": "blob",
+      "path": "doc/manual/images/viewport_layers/viewport_overlay_command_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f5bc0cc3df0cd464b50b088bd85b465354a32cc",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/bonds_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a66abc326e10eb313da664508981c8c36c649031",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/dislocations_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad2af2711d7f9c2f83d6784aff5bcfee82cc9796",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/particles_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ef32afa595087e6d00d7af068826dcf90371a2b3",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/simulation_cell_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5a451def4e95d229e3f5e6b59aaabcaa44c676f6",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/surface_mesh_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1cbb623aead072807070dce022a5fe33eb79be29",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/surface_mesh_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8d63bcefff063f0303600688226f377d76b8b8ac",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/trajectory_lines_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2fa062e127c9a222aa5ae39b7c371f4d8ba94a0c",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/triangle_mesh_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f77a026c645fa6178cef3bc2aeff7edc62063a9c",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/vector_offset_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e8d285c1c37731d95dd5cd9f98b42ff20c86511b",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/vectors_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2ce840860a26a6501782731a5b934e0c7b86176e",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/visual_elements_panel.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a7c5494e6c91e361827d5979faae8ca27b68f9ff",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/visual_elements_panel.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2262e198cc30bcd6a44853bc3fea2e25f46cfc5b",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_example.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a25f6a58e11ed0af30f67d8f4c6abf6380e9788",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_example_crosssection.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b063082960c16507ed74265399b572f197f2f08",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_example_interpolated.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c2206f601f853db3850cb79079e7f6646e3ae585",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_example_isosurface.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9100b1531194730a3058d41a1cb8cb9d1d71ae7a",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_example_volume.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a1b76f8cd88161ab00568c3f6ec59ce44afc0749",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_example_volume_with_transfer.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "307ef763c59c624aec70cfbd69b0097e332a7726",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_panel.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cb897ca30ead1acdd4c3713e6a933ef1629cc785",
+      "object_type": "blob",
+      "path": "doc/manual/images/visual_elements/voxel_grid_panel_volume.jpg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "513a98b078303f3bb591ccc482f4aa6d11747cf2",
+      "object_type": "blob",
+      "path": "doc/manual/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f1c0dea2cebc26f5ca425643501c4ff624c40cff",
+      "object_type": "blob",
+      "path": "doc/manual/index_llm.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d4a8b69ed9755bdc08d2779ac43a8ff0594c5b05",
+      "object_type": "blob",
+      "path": "doc/manual/installation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d267581ffbee53fc1fd99f1ddfdfa021f835595d",
+      "object_type": "blob",
+      "path": "doc/manual/introduction.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "60454d659bab4927be56041bca4b93251c89b9e3",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/FDL.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0192bcf38694ef10102093b2c18ba94b049d480e",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/GPL.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3c075539339fc58a2ce76dbd2b4513fb64565c63",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/GSD.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9adcb3f3053ce52b13624250f471b24abfb32808",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/PTM.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b829383ec1b4a339846241712a5de03aae1dcf8a",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/PySide6.instructions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5c1f6df2ead22997ee4ca98fd6a625016a4eec01",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/Qt6.instructions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9caa51c1a69b17288839c8bf2ba943c842033a20",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/boost.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5281e20990528f7db75792a7de465eb3899bc884",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/ffmpeg.instructions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de0598ae8c7ba01a2806e2065d5842a026d9d1da",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/geogram.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c72722977b358a8d76362ccac0326b9d94dfbe39",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/glm.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1583f220154e608cff6151ecf8c3a7a98812500",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/hdf5.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0f5c9977cf79d6760574f681114482c884308438",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e4efe5f283d33f687d1d8758c27403938b948d63",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/kissfft.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0dd1b366071664ec74395da37eb7d48e28fe3d51",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/libsodium.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "57ea390dad39d9f70bff4dc8fe947ab3255c2ce4",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/libssh.instructions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "76c8783f79b2e8d06d294c07637392af4f3dd10a",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/muparser.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4f9d621ad94316c4c846f981dfb4323a58e8e768",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/netcdf.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "df7b6066b529e5d3c1bcaef0e84b13a7cc476fdb",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/numpy.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f9f86d848fc981fd3e3c7ad4d69edaea12738f63",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/ovito_legacy.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "abfe1fef1e009e4f43e60f4bba98f047865833e5",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/pegtl.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "14dc8b735439e6c7e3f1be00ddbe4e61b7470185",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/pybind11.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5c75939bfec23c4cea4f91d7a7bac8ce95fc9b48",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/qcprot.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a646c2aa85a7e14e08b26216425fe328a2701b71",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/qwt.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "72126834f5877f7a273339c40fb0d11791599647",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/rapidyaml.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4ba859357029e545926b448ba60a0c0943a11f45",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/tachyon.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8c6ee2b271fd929317e5ace4df545479fd3c4e7d",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/traits.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e5c3e498cbe5fd54e9a48376484985a625ab0f45",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/visrtx.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0dcc60f5efb692be14fce590cf8b53705c12e97c",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/voroplusplus.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "167b2c630ac8cd770f19b47b17ec1b3f52a9ab5e",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/xdrfile.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b6e871edd6a99ebb6f99a90abc87b55c96c8541a",
+      "object_type": "blob",
+      "path": "doc/manual/licenses/zstandard.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "61c081d2cc6307dccc87bfb333cb1c37fb3a357b",
+      "object_type": "blob",
+      "path": "doc/manual/llm_export/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a1a3e13dfab6e81598bd9b95821607bdb5dcae8c",
+      "object_type": "blob",
+      "path": "doc/manual/new_features.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1f854b303928ce2afc6e57bf0ca1110bba00a762",
+      "object_type": "blob",
+      "path": "doc/manual/original_gfx/clone_displace_modes.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "de48e4f4a4e29dcbccc63251ff338a40d02e79aa",
+      "object_type": "blob",
+      "path": "doc/manual/original_gfx/fcc_planar_fault_types.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4cefd28e11005bf56e898ae3fca909c67f20202b",
+      "object_type": "blob",
+      "path": "doc/manual/original_gfx/grid_types.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6165209359c5cd02aa9ec1ccb2a610f8c68643ff",
+      "object_type": "blob",
+      "path": "doc/manual/original_gfx/viewport_layers_schematic.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b7cb4f23e4eaf821e05f14a97a7f95fa320340a7",
+      "object_type": "blob",
+      "path": "doc/manual/original_gfx/volume_rendering_transfer_func.svg"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9250a0bc3788d946a2b610ad95607c6f2b049b37",
+      "object_type": "blob",
+      "path": "doc/manual/original_gfx/voxel_grid_volume_repr.ovito"
+    },
+    {
+      "mode": "100644",
+      "object_id": "77452dc974d68012c9bb7ac9e3578a2fd5fa1932",
+      "object_type": "blob",
+      "path": "doc/manual/ovito.ico"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ae8a236a7dc1ddcd48852ee49a8c7cd2cb267fce",
+      "object_type": "blob",
+      "path": "doc/manual/ovito_pro.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4765a56fb180869eaed728081fcb4d99be6cfe20",
+      "object_type": "blob",
+      "path": "doc/manual/reference/app_settings/general_settings.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e4d5d110546df382932178cedb97eeac75c0d1cf",
+      "object_type": "blob",
+      "path": "doc/manual/reference/app_settings/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d77d43b0e2a23d969a7ca8354b71251c80aaf29b",
+      "object_type": "blob",
+      "path": "doc/manual/reference/app_settings/modifier_templates.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e1f01be70afb72e51ba4067fedc6db6a57ccb756",
+      "object_type": "blob",
+      "path": "doc/manual/reference/app_settings/particle_settings.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8bf4798d40a59bfea77f1dbdccf48aafd3cecc01",
+      "object_type": "blob",
+      "path": "doc/manual/reference/app_settings/python_settings.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6fa6475b4c183395ae8430d09adddb74668c7908",
+      "object_type": "blob",
+      "path": "doc/manual/reference/app_settings/video_encoder_settings.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a4546bc6637f9fd714c50d173a3754413d61289",
+      "object_type": "blob",
+      "path": "doc/manual/reference/app_settings/viewport_settings.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9fc0496573ce33a3abe3663e2945ba3bf3294440",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/attributes.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "01f6b6fd177d555b813b75692d29aad03d1a133c",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/bonds.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "80beebde38f529e736bf713d32b89d3dd7b29bb4",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/data_tables.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a67f5da1972a252dbd501274dfc90dc90d646ab2",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/dislocations.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f12ab438b52adff7be5db0eff725da5ee9bdfcd",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cf428350407777ca3de42dab1cc7f1a561412620",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "36b3a0eabd272c2570cb3d96a0079fabd4736999",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/simulation_cell.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fcd3b18c679c060c112f00e711ccf4f38f8f7079",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/types.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cf4a66b40af0f3a9a2fa56246f40c91f267a4c96",
+      "object_type": "blob",
+      "path": "doc/manual/reference/data_inspector/voxel_grids.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71c4214c14e6f667d61ab979b4b3775817830182",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/file_formats_input.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4ffc7d340107cbe0eafa26f86224db1a860f3b29",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/file_formats_output.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c5d8629adfc3d24a5c7ca0f13f9790d3edf42c7f",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/ase_database.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d3c4a079fc82867912c1a30dc630a7d67a511151",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/ase_trajectory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cceb0eaabad4e1c318366ae30f40bcdc28bf3520",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/cfg_atomeye.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50d0a46bb9d1580d6c53ee8baf0260ee3e4aba06",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/gaussian_cube.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a0d3bbd2167b2eaf73ea15a96215bc027f8a00e2",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/gromacs.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "672ac0a3a7da2a2d9143b9dc4c90fc6bfa0dad34",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/gsd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b584770d25d416b12aa3eb9079758111e28fc1c7",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/lammps_data.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "414473eabba1c970629d1afdf8da6ff7acc6a3da",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/lammps_dump.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "242fc5afbe77fff422184df9d9ff4aa9e4e53cdc",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/lammps_dump_grid.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16270380f3713fc418fc9e2080e0b83dd725559f",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/lammps_dump_local.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6470caafba4f40bfaa1f42210ca6842679cc7254",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/medea_sci.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b16c438250f2ac1a5bace773eabc924766f1362",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/medea_sli.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5b69c5041301893f0cd7d8c2c7c2a0af60a4c0e8",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/mol2.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5118f64443354d39f40b0d6dd181727c98ef423b",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/pdb.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e31c54ebe4d714776f66d2834dabf02f3dc36c50",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/poscar.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2f120f771a9a72c348cc0cac83a7c13bb54884c4",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/reaxff.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0ad8b27b0f8f255cb9758f4a916e318083411b84",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/trr.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8d081e7465bb11c4780e62d60cc88057cfa698db",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/xtc.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "42e0a324ff311779b388f2a1cde53a4a856d9623",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/input/xyz.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a55c62ac4a7496f9b53206ea3e73a6866c547e3",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/output/ase_trajectory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e973701fd15ddab420fac160137155e46f801ed7",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/output/gltf.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dcd72c2c949b3186b5dcbf49cc6a3104cb93ba1a",
+      "object_type": "blob",
+      "path": "doc/manual/reference/file_formats/output/gsd.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "86bf8d149851a8951305f2e48c1764acc6c59faa",
+      "object_type": "blob",
+      "path": "doc/manual/reference/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "61578e53ee392017c2e58cfafb8a9977d432ac29",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/bonds.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b2ab29947a8bdb7e421c77dd7bad377265ddc8b4",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/data_table.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "83ac482be3283686019040f7210f216cf8c6b314",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/dislocations.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "74b675e8db1e54be6b9a697334549be32dd40738",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "34ce589d3b096317245898dc04cda81465048c0d",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/lines.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4676adee8d5802764ae0ee06bbf19da07b41ced3",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ad4a3f9b67253f561794fe6a0928c1facd9b5e2",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/simulation_cell.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c5d4fee34fd56fc2e57b1ea0128674e09d1357b6",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/surface_mesh.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c95f6a39bf97784efdabc91419453c41a4c82e78",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/triangle_mesh.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6d6075b725bf97d445e6a249082b95e0ee67e16c",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/vectors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f62e8604153095ba2404e54c360bea94ea3b366f",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_objects/voxel_grid.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a8d2e2f3b27e8a7b101fd0eea2bcfc540e5c4f4f",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_sources/external_file.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc22591f6b74d1dcb703140be2bd90855aecc803",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_sources/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b3caa5484359df9f872132c2c7c206782b828ba8",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_sources/lammps_script.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16b5cb014f047db987e305c0836506da24428019",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/data_sources/python_script.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "79a570a8f58df4c4814824f36a51faf9d6331e46",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "54fcdd4e14dfafd9cbe328739846ec39cb2545e2",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/affine_transformation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0b0d19dac382472f3a8fb6965be1a22f0cdf6d76",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/ambient_occlusion.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "284c241570679f364031288a2cbca3ce582bcab6",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/assign_color.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "965d87c29c6708e2050a42b0329600981081ebe7",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/atomic_strain.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8888ef30a4c7389b8555ffe80b214ab321d6d464",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/bin_and_reduce.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b3b54361bc9bbf6b19ed6790a9d490a4954ef72a",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/bond_angle_analysis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "026fcbf70fc98d2ca9f2efa674345665b95ab3c8",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/bond_angle_distribution.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1165addfc73cf021dddd06d0096c1c6bbc10e0f9",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/bond_length_distribution.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2bd5993df1d19f0b3d0c7cbc1b30d03fdef6ac2d",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/bond_order.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "82b3df349269684a70fc83226e7c2201f96f1446",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/calculate_local_entropy.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b6e0064bbdc510290dce24351b0fefe9122b8a55",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/centrosymmetry.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a5e4638332f2021b28d55b552d19c3f6950ba41",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/chill_plus.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1b29789861866cf63b9632d36a9fecbbbe434684",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/clear_selection.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "35db36c9be199a29aadf7473478e74cafcb26eb3",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/cluster_analysis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9be1688acfed7c4b0cd5a111dabafc4e8be99ca5",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/color_by_type.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a5989640bb4af9165a276a0935eb017fb98f3fbd",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/color_coding.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ab633ea170a392fcc11460d815d9200941cef8a7",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/combine_particle_sets.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ff05466b6ba0787df4b5382091746621f2870e4",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/common_neighbor_analysis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7be8f9f21b5d60f5db4d1187e39857950de88009",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/compute_property.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "59be1688791f09035ef65f04a6cca48cd2a34bf0",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/construct_surface_mesh.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "45c00407f5bf66dc5c2640f29fa7521ccb893fb2",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/coordination_polyhedra.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "427ac225691d72907fbb759c0fb23f8b9ff14543",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/correlation_function.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "16ec273aadd4515772b8772ecf692527f0143c17",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/create_bonds.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "94ddcf426ffbd0efb514c819cbd943952785bbf0",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/create_isosurface.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a7cdaeb6fdde0a525956eba70b20fa96be2daad",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/delete_selected_particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "676bd7c3e6ffd3d951ee946fa9621ad818b97eb0",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/difference_between_frames.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e21795f65693cca8fc984c80fbb3cf451ee7c26a",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/dislocation_analysis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "efb38e47b74c23fd6a203e6f25a38c0c64ec575b",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/displacement_vectors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ae8e83418da02b67b4fd1ba52c9565017272e6bf",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/edit_simulation_cell.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8c27610b1bb3a1d6dc0330734dbd8dc1a97d1b20",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/edit_types.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "02c64d4fc5bd034bd4ce402c3e9f006b3f82be77",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/elastic_strain.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3a1351f3ef9a4601387bb7c2566d85b08a58454e",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/expand_selection.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7efa6fe72b1d5eb2226039f3c11f1365e1e0bfbd",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/expression_select.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "585994816dfa2593f0c7e75c7a1e246979d1d1ac",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/find_rings.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e2f39d5f6e217e86fa3ccc6b834b21ab679d5be1",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/freeze_property.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "12a24215510fba06fc2e4bd1c9d0fa753ecacbea",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/generate_trajectory_lines.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a88bea71a1dbb3ef17dc9d9de29d61ea22940b04",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/grain_segmentation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b43944ebe8a5944383fd5d616e0bd21eef51eff",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/histogram.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "92c7c02deff2feea941595a92b837fecf17db9e4",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/identify_diamond.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f2cb2e5f2d7325cb5ff127a41ee38e44d31ec64d",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/identify_fcc_planar_faults.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "20782f1f55877aa0d02e44e2551c76ba03402184",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2fb3424d146b1b3849dcbed26731bfd66956ff2d",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/invert_selection.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "530b197b00594ff8b291b6f29722ff64bd4d0f56",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/load_trajectory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3aa7a24ed2c84d7087cf707e7eecfbe417c0711d",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/manual_selection.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "05959b1cda1321f57ff1e486bbd26a8da3c94543",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/polyhedral_template_matching.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a3da856059c72b82f8b99c32e2f1333a41a41a9",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/python_script.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fdf552501440014d95b2efd0289ecafbeb763a16",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/radial_distribution_function.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7d5f85f9e14c9b896e31b277ea23435207b1c872",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/reduce_property.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aa79388f08d47c060af984d77df68bc2dba4f42a",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/render_lammps_regions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3070a1b5e2e88f55607a0bb38a2afe280e6052a8",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/scatter_plot.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a4219da324c9f4d5a51e6ad847d81a10455847b9",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/select_overlapping_particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "78b3dacf1dfa198ad402b75fe254d8abe3d2d10a",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/select_particle_type.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "2a0af5e96fd56151d40c471b5788d6e825c09015",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/show_periodic_images.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "63a971e6945c94997a8749710fdd15db6616aeb2",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/shrink_wrap_box.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d675fec9d339634756dde9c0f7e935d8c6adb5f9",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/slice.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4f4e75e801019fa55475db3abd72df2c60d5f17d",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/smooth_trajectory.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6baa8d36d830ac06d79b3de0f2001c455d5010d5",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/structure_factor.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "956683438a0816f068dda4867c9f3f8359ecccb5",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/time_averaging.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0e120b803d553dfa3ce5326b044e57b4205de496",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/time_series.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5cf77a827727363f4a699b408c567e80cc1f2126",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/unwrap_trajectories.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "59eeb8cf802753ad78f1c9ac819ec4c21e1c2ecf",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/voronoi_analysis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a5152880f4664bde6eac6dad3cfab2f1bb10ae38",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/vorotop_analysis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "621e9ce96f04cea5b834a32ad7f1152b5426fc6e",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/wigner_seitz_analysis.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cd3c95cb3c104e0dc8f2bdd68cfa64ea5cdafcf6",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/modifiers/wrap_at_periodic_boundaries.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9c407949dcdfb5faa2dad55d4cade82b715720b9",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/bonds.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ad0bf00824ef0965e1e0b29cf20e831aced58c4d",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/dislocations.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3a73612dbc48341d4b7f503ac415cbf96fcd02f4",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "737d84cdcfcff1619399e4c6fd64cc4a5df9e9f0",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/lines.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d2f5b8a82abb12a33aec7164811677b591f682c0",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1224a96b01c838f2bd5d73526752c12efa2d32f8",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/simulation_cell.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "61128eb021d2734ccba5948962af5c0f97593a31",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/surface_mesh.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a8a5ca53dbf12f49ab61f6027cae817ddbf7f51f",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/triangle_mesh.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f96136f80671fb776c94afcfda4641784398d066",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/vectors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fc42f37141f302e788182c32e8c7e77e1501c634",
+      "object_type": "blob",
+      "path": "doc/manual/reference/pipelines/visual_elements/voxel_grid.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "04c7be1d85e33f57e5cab3d397e94c7a9f25b5f3",
+      "object_type": "blob",
+      "path": "doc/manual/reference/rendering/animation_settings_dialog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e2256a7a6eb164f4964df9f26dc6fcb70fcc69d1",
+      "object_type": "blob",
+      "path": "doc/manual/reference/rendering/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7a606af8120a1dac905c0463802f7ca94a4b8f00",
+      "object_type": "blob",
+      "path": "doc/manual/reference/rendering/opengl_renderer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f92953ceac4ac91c788bdd82fad3c5c0ec42347b",
+      "object_type": "blob",
+      "path": "doc/manual/reference/rendering/ospray_renderer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a4dc9ddd2eaf7040f54879b83faa758eff0e13ae",
+      "object_type": "blob",
+      "path": "doc/manual/reference/rendering/render_settings.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "36458c0b88c4798cf0299d025ab42a1c16ae09d5",
+      "object_type": "blob",
+      "path": "doc/manual/reference/rendering/tachyon_renderer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3a93dfa5e778cf40468149cef9e67075e740e8e8",
+      "object_type": "blob",
+      "path": "doc/manual/reference/rendering/visrtx_renderer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "20ec07fe669651a4becd29d0167ace9cbe13c464",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/adjust_view_dialog.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "168f8e75745398f2e28a49c37a0e3f4029d8932a",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "099b9e763ca2d3bb501f072c10e644ac7aa4e84c",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/layers/color_legend_layer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9e5cd96306f0067b35a79a6b89aca00b54609d02",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/layers/coordinate_tripod_layer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1989ef82b1a9182234aab0cf72fd417f8fdae267",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/layers/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4dcb29edc6f3914a08f39d682a5c3537e90e3a3c",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/layers/python_script_layer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b7a2da5461e2432e451d3d4adb8d8b3759e3ad44",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/layers/text_label_layer.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6ffc81b2593024291a29bafdb95f26ebee64f6e6",
+      "object_type": "blob",
+      "path": "doc/manual/reference/viewports/viewport_graphics_config.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ba96dd66dcc84321a9c21958408e1dc88f1e566c",
+      "object_type": "blob",
+      "path": "doc/manual/spelling_wordlist.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c9bf9ae847980fdd0d2aa9380dea4a4573344f8b",
+      "object_type": "blob",
+      "path": "doc/manual/sphinx-build.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "26a303b8a2098c82998b73307c7ae72e9dd38fce",
+      "object_type": "blob",
+      "path": "doc/manual/tutorials/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b077e8c777a988dd05c2a6c2f290556678494b82",
+      "object_type": "blob",
+      "path": "doc/manual/tutorials/marker_particles.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "743d74519ee02960b34cc038923e9767a4abe0ab",
+      "object_type": "blob",
+      "path": "doc/manual/tutorials/remote_rendering.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e95b99d0f529fdc61bc59264ea4c8179bf77811a",
+      "object_type": "blob",
+      "path": "doc/manual/tutorials/turntable_animation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "78556b2eb779080d3e30f91082196939f8d2014b",
+      "object_type": "blob",
+      "path": "doc/manual/tutorials/voronoi_cell.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "80b089270ff43d5625fc908a8f6bc075b37e3044",
+      "object_type": "blob",
+      "path": "doc/manual/usage/data_model.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "644556f910f0087a7f90205e2767550eea8f1ac4",
+      "object_type": "blob",
+      "path": "doc/manual/usage/export.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1d3e3e48a0360940b9972e0e8ca0b7aef861d07c",
+      "object_type": "blob",
+      "path": "doc/manual/usage/import.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a89844af658a2891bcbb11878758872f88ef4a43",
+      "object_type": "blob",
+      "path": "doc/manual/usage/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b461d60207f6ef125dfc29e08d3f2d7eedcb3ba9",
+      "object_type": "blob",
+      "path": "doc/manual/usage/miscellaneous.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "efd2eef2395060c6b41e22915ecc685dbcf9a3bf",
+      "object_type": "blob",
+      "path": "doc/manual/usage/pipeline.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "301c61da61a93d8f1410451e46252ddc59c965c4",
+      "object_type": "blob",
+      "path": "doc/manual/usage/rendering.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6a8222a3a4eab6b11ddb1b9282c4224b9f734870",
+      "object_type": "blob",
+      "path": "doc/manual/usage/viewports.rst"
+    }
+  ],
+  "entry_count": 720,
+  "inventory_scope": "Complete exact v3.15.5 doc tree Git object inventory, including manual and Python documentation sources and assets; bodies and generated documentation are intentionally not embedded.",
+  "provider_id": "ovito",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v3.15.5",
+  "repository_url": "https://gitlab.com/stuko/ovito",
+  "root_tree_object_id": "ca3858309d1a1e7aaf3ded2a89b914b3f6397d6e",
+  "schema_version": "1.0",
+  "tag_object_id": "6ec5890aa7f4c9ee035bd0cccbe50f5c9134f043"
+}

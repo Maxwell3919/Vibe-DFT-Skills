@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and project canonical official-source authority policy."""
+"""Validate and project canonical official-source technical authority data."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ from pathlib import Path, PurePosixPath
 import re
 import stat
 import sys
-from typing import Any
-from urllib.parse import urlsplit
+from typing import Any, Mapping
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from registry_yaml import load_yaml_strict
 import strict_json
@@ -24,19 +24,24 @@ SCHEMA_VERSION = "1.0"
 IDENTIFIER = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 HOST = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*$")
 UTC_TIMESTAMP = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")
-ENTRY_FIELDS = {
-    "display_name",
+TECHNICAL_ENTRY_FIELDS = {
     "lifecycle",
+    "provider_class",
     "provider_id",
     "allowed_https_origins",
     "version_policy",
     "content_policy",
     "content_identity_policy",
     "canonical_snapshot",
-    "license_policy",
-    "redistribution_policy",
-    "limitations",
-    "provenance",
+}
+PROVIDER_CLASSES = {
+    "software",
+    "standard",
+    "platform",
+    "repository",
+    "model-artifact",
+    "dataset",
+    "publisher",
 }
 VERSION_POLICY_FIELDS = {
     "allowed_scopes",
@@ -60,12 +65,14 @@ CONTENT_POLICY_FIELDS = {
     "source_kinds",
     "allowed_path_prefixes",
     "query_policy",
+    "allowed_query_urls",
     "fragment_policy",
     "resolution_mode",
 }
 CONTENT_IDENTITY_POLICY_FIELDS = {"mode", "unpinned_action"}
 CONTENT_IDENTITY_MODES = {
     "platform-adapter-only",
+    "canonical-pinned-snapshot-or-platform-adapter",
     "canonical-pinned-open-snapshot-or-platform-adapter",
     "unresolved",
 }
@@ -96,6 +103,15 @@ CP2K_PAGE_FIELDS = {
     "source_path",
     "source_url",
 }
+CP2K_INDEX_FIELDS = {
+    "manual_branch",
+    "manual_version",
+    "page_count",
+    "pages",
+    "schema_version",
+    "source_sha256",
+    "source_url",
+}
 SOURCE_KINDS = {
     "official-manual",
     "official-reference",
@@ -104,20 +120,17 @@ SOURCE_KINDS = {
     "official-dataset",
     "official-api-metadata",
 }
-LICENSE_POLICY_FIELDS = {"status", "identifier", "terms_urls", "verification_status"}
-REDISTRIBUTION_POLICY_FIELDS = {
-    "allowed_values",
-    "bundle_content",
-    "external_runtime_content",
-}
-PROVENANCE_FIELDS = {"verified_utc", "official_fact_urls"}
-LICENSE_STATUSES = {"known-open", "known-restricted", "unknown"}
-REDISTRIBUTION_VALUES = {"redistributable", "runtime-only", "restricted", "unknown"}
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
 MAX_MANIFEST_BYTES = 4 * 1024 * 1024
 MAX_SNAPSHOT_BYTES = 16 * 1024 * 1024
 MAX_SNAPSHOT_COUNT = 4096
 MAX_TOTAL_SNAPSHOT_BYTES = 512 * 1024 * 1024
+
+
+def cp2k_source_id(source_path: str) -> str:
+    """Return the stable corpus ID for one canonical CP2K index path."""
+
+    return source_path.lower().replace("/", ".")
 
 
 def repo_root() -> Path:
@@ -215,8 +228,42 @@ def _url_allowed(url: str, origins: list[str], prefixes: list[str]) -> bool:
     return origin in origins and any(path.startswith(prefix) for prefix in prefixes)
 
 
-def _public_https_url(url: object) -> bool:
-    return _canonical_https_parts(url, require_path=True) is not None
+def _canonical_query_https_parts(
+    value: object,
+) -> tuple[str, str] | None:
+    """Return canonical origin/path for one exact query-bearing HTTPS URL."""
+
+    if not isinstance(value, str) or "#" in value or "?" not in value:
+        return None
+    base, separator, raw_query = value.partition("?")
+    if separator != "?" or not raw_query:
+        return None
+    base_parts = _canonical_https_parts(base, require_path=True)
+    if base_parts is None:
+        return None
+    try:
+        parsed = urlsplit(value)
+        pairs = parse_qsl(
+            parsed.query,
+            keep_blank_values=True,
+            strict_parsing=True,
+        )
+    except ValueError:
+        return None
+    if (
+        not pairs
+        or parsed.fragment
+        or parsed.query != raw_query
+        or any(not key for key, _ in pairs)
+    ):
+        return None
+    keys = [key for key, _ in pairs]
+    if len(keys) != len(set(keys)):
+        return None
+    canonical_query = urlencode(pairs)
+    if canonical_query != raw_query or value != f"{base}?{canonical_query}":
+        return None
+    return base_parts
 
 
 def _valid_version_scope(value: object, location: str, failures: list[str]) -> bool:
@@ -362,6 +409,9 @@ def _canonical_snapshot_projection(
     entry: dict[str, Any],
     root: Path | None,
     expected_skill: str | None,
+    *,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
 ) -> tuple[list[str], dict[str, Any] | None]:
     location = f"authorities/{authority_id}/canonical_snapshot"
     canonical = entry.get("canonical_snapshot")
@@ -394,7 +444,7 @@ def _canonical_snapshot_projection(
     declared_manifest_hash = canonical.get("manifest_raw_sha256")
     if not isinstance(declared_manifest_hash, str) or SHA256.fullmatch(declared_manifest_hash) is None:
         failures.append(f"{location}/manifest_raw_sha256: expected a SHA-256")
-    if canonical.get("artifact_basis") != "snapshot-file-exact-bytes":
+    if canonical.get("artifact_basis") != "derived-snapshot-file-exact-bytes":
         failures.append(f"{location}/artifact_basis: unsupported artifact basis")
     if root is None or relative is None or failures:
         if root is None:
@@ -407,6 +457,60 @@ def _canonical_snapshot_projection(
         maximum_bytes=MAX_MANIFEST_BYTES,
     )
     if read_error is not None or manifest_raw is None:
+        receipt = (
+            externalized_receipts.get(relative.as_posix())
+            if externalized_receipts is not None
+            else None
+        )
+        index_path = (relative.parent / "index.json").as_posix()
+        index_receipt = (
+            externalized_receipts.get(index_path)
+            if externalized_receipts is not None
+            else None
+        )
+        if (
+            read_error == "file is unavailable (FileNotFoundError)"
+            and isinstance(receipt, Mapping)
+            and set(receipt) == {"path", "sha256", "size"}
+            and receipt.get("path") == relative.as_posix()
+            and receipt.get("sha256") == declared_manifest_hash
+            and isinstance(receipt.get("size"), int)
+            and not isinstance(receipt.get("size"), bool)
+            and 0 <= receipt["size"] <= MAX_MANIFEST_BYTES
+            and (
+                index_receipt is None
+                or (
+                    isinstance(index_receipt, Mapping)
+                    and set(index_receipt) == {"path", "sha256", "size"}
+                    and index_receipt.get("path") == index_path
+                    and isinstance(index_receipt.get("sha256"), str)
+                    and SHA256.fullmatch(index_receipt["sha256"]) is not None
+                    and isinstance(index_receipt.get("size"), int)
+                    and not isinstance(index_receipt.get("size"), bool)
+                    and 0 <= index_receipt["size"] <= MAX_MANIFEST_BYTES
+                )
+            )
+        ):
+            if used_externalized_paths is not None:
+                used_externalized_paths.add(relative.as_posix())
+                if isinstance(index_receipt, Mapping):
+                    used_externalized_paths.add(index_path)
+            return [], {
+                "snapshot_id": snapshot_id,
+                "manifest_raw_sha256": declared_manifest_hash,
+                "index_raw_sha256": (
+                    index_receipt["sha256"]
+                    if isinstance(index_receipt, Mapping)
+                    else None
+                ),
+                "integrity_verified": False,
+                "upstream_source_count": None,
+                "upstream_universe_complete": False,
+                "upstream_sources_by_id": {},
+                "curated_source_count": None,
+                "sources_by_id": {},
+                "portable_externalized": True,
+            }
         failures.append(f"{location}/manifest_path: {read_error}")
         return failures, None
     actual_manifest_hash = hashlib.sha256(manifest_raw).hexdigest()
@@ -465,6 +569,79 @@ def _canonical_snapshot_projection(
         or manifest["index_page_count"] < len(pages)
     ):
         failures.append(f"{location}/manifest_path: invalid index_page_count")
+
+    manifest_parent = relative.parent
+    index_relative = manifest_parent / "index.json"
+    index_raw, index_error = _read_regular_file(
+        root,
+        index_relative.as_posix(),
+        maximum_bytes=MAX_MANIFEST_BYTES,
+    )
+    upstream_sources: dict[str, dict[str, Any]] = {}
+    if index_error is not None or index_raw is None:
+        failures.append(f"{location}/manifest_path: canonical index is unavailable ({index_error})")
+    else:
+        actual_index_hash = hashlib.sha256(index_raw).hexdigest()
+        if manifest.get("index_sha256") != actual_index_hash:
+            failures.append(
+                f"{location}/manifest_path: index_sha256 does not match exact index bytes"
+            )
+        index, index_parse_error = _load_json_object_strict(index_raw)
+        if index_parse_error is not None or index is None:
+            failures.append(
+                f"{location}/manifest_path: canonical index is invalid ({index_parse_error})"
+            )
+        elif set(index) != CP2K_INDEX_FIELDS:
+            failures.append(f"{location}/manifest_path: unsupported canonical index fields")
+        else:
+            index_pages = index.get("pages")
+            if (
+                index.get("schema_version") != "1.0"
+                or index.get("manual_branch") != manifest.get("manual_branch")
+                or index.get("manual_version") != manifest.get("manual_version")
+                or not isinstance(index_pages, list)
+                or not index_pages
+                or not all(isinstance(item, str) and item for item in index_pages)
+                or len(index_pages) != len(set(index_pages))
+                or index.get("page_count") != len(index_pages)
+                or manifest.get("index_page_count") != len(index_pages)
+            ):
+                failures.append(
+                    f"{location}/manifest_path: canonical index does not declare one "
+                    "exact complete source-path universe"
+                )
+            else:
+                source_ids: set[str] = set()
+                manual_branch_prefix = f"/{manifest['manual_branch']}/"
+                for source_path in index_pages:
+                    source_id = cp2k_source_id(source_path)
+                    if (
+                        len(source_id) > 128
+                        or re.fullmatch(r"[a-z0-9][a-z0-9._-]{0,127}", source_id)
+                        is None
+                        or source_id in source_ids
+                        or source_path.startswith("/")
+                        or "%"
+                        in source_path
+                        or "\\"
+                        in source_path
+                        or any(
+                            part in {"", ".", ".."}
+                            for part in source_path.split("/")
+                        )
+                    ):
+                        failures.append(
+                            f"{location}/manifest_path: canonical index contains an "
+                            "invalid or colliding source path"
+                        )
+                        break
+                    source_ids.add(source_id)
+                    upstream_sources[source_id] = {
+                        "canonical_url": (
+                            f"https://manual.cp2k.org{manual_branch_prefix}{source_path}"
+                        ),
+                        "source_path": source_path,
+                    }
 
     origins = entry.get("allowed_https_origins", [])
     prefixes = entry.get("content_policy", {}).get("allowed_path_prefixes", [])
@@ -545,27 +722,49 @@ def _canonical_snapshot_projection(
         if page.get("snapshot_bytes") != len(snapshot_raw):
             failures.append(f"{page_location}/snapshot_bytes: does not match exact snapshot bytes")
         if version_scope is not None and isinstance(source_url, str):
-            sources[source_id] = {
+            canonical_source_id = cp2k_source_id(source_path)
+            if canonical_source_id not in upstream_sources:
+                failures.append(
+                    f"{page_location}/source_path: source path is absent from the "
+                    "canonical upstream index"
+                )
+                continue
+            sources[canonical_source_id] = {
                 "canonical_url": source_url,
                 "version_scope": copy.deepcopy(version_scope),
-                "raw_sha256": actual_snapshot_hash,
-                "bytes": len(snapshot_raw),
+                "raw_sha256": page["raw_sha256"],
+                "raw_bytes": page["raw_bytes"],
+                "raw_integrity_verified": False,
+                "topic_alias": source_id,
+                "derived_snapshot": {
+                    "path": snapshot_relative,
+                    "sha256": actual_snapshot_hash,
+                    "bytes": len(snapshot_raw),
+                    "integrity_verified": True,
+                },
             }
     if failures:
         return failures, None
     return [], {
         "snapshot_id": snapshot_id,
         "manifest_raw_sha256": actual_manifest_hash,
+        "index_raw_sha256": hashlib.sha256(index_raw).hexdigest(),
         "integrity_verified": True,
+        "upstream_source_count": len(upstream_sources),
+        "upstream_universe_complete": True,
+        "upstream_sources_by_id": upstream_sources,
+        "curated_source_count": len(sources),
         "sources_by_id": sources,
     }
 
 
-def validate_and_project(
+def validate_and_project_technical(
     data: object,
     *,
     software_data: dict[str, Any] | None = None,
     source_root: Path | None = None,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
 ) -> tuple[list[str], dict[str, dict[str, Any]]]:
     failures: list[str] = []
     if not isinstance(data, dict):
@@ -579,7 +778,10 @@ def validate_and_project(
         failures.append("authorities: expected a nonempty mapping")
         return failures, {}
 
-    providers_by_lifecycle: dict[str, list[str]] = {"active": [], "planned": []}
+    software_providers_by_authority_lifecycle: dict[str, list[str]] = {
+        "active": [],
+        "planned": [],
+    }
     canonical_projections: dict[str, dict[str, Any] | None] = {}
     provider_skills: dict[str, str] = {}
     if isinstance(software_data, dict):
@@ -610,19 +812,27 @@ def validate_and_project(
         if not isinstance(entry, dict):
             failures.append(f"{location}: expected a mapping")
             continue
-        if set(entry) != ENTRY_FIELDS:
-            failures.append(f"{location}: expected fields {sorted(ENTRY_FIELDS)}")
-        if not isinstance(entry.get("display_name"), str) or not entry["display_name"].strip():
-            failures.append(f"{location}/display_name: expected a nonempty string")
+        missing_fields = TECHNICAL_ENTRY_FIELDS - set(entry)
+        if missing_fields:
+            failures.append(
+                f"{location}: missing technical fields {sorted(missing_fields)}"
+            )
         lifecycle = entry.get("lifecycle")
-        if lifecycle not in providers_by_lifecycle:
+        if lifecycle not in software_providers_by_authority_lifecycle:
             failures.append(f"{location}/lifecycle: expected active or planned")
             lifecycle = "planned"
+        provider_class = entry.get("provider_class")
+        if provider_class not in PROVIDER_CLASSES:
+            failures.append(
+                f"{location}/provider_class: unsupported provider class"
+            )
         provider_id = entry.get("provider_id")
         if not isinstance(provider_id, str) or IDENTIFIER.fullmatch(provider_id) is None:
             failures.append(f"{location}/provider_id: invalid provider identifier")
-        else:
-            providers_by_lifecycle[lifecycle].append(provider_id)
+        elif provider_class == "software":
+            software_providers_by_authority_lifecycle[lifecycle].append(
+                provider_id
+            )
 
         origins = _string_list(
             entry.get("allowed_https_origins"),
@@ -682,8 +892,44 @@ def validate_and_project(
                 or any(part in {".", ".."} for part in prefix.split("/"))
             ):
                 failures.append(f"{location}/content_policy/allowed_path_prefixes/{index}: invalid absolute path prefix")
-        if content.get("query_policy") != "forbidden":
-            failures.append(f"{location}/content_policy/query_policy: must be forbidden")
+        query_policy = content.get("query_policy")
+        if query_policy not in {"forbidden", "exact-allowlist"}:
+            failures.append(
+                f"{location}/content_policy/query_policy: unsupported policy"
+            )
+        allowed_query_urls = _string_list(
+            content.get("allowed_query_urls"),
+            f"{location}/content_policy/allowed_query_urls",
+            failures,
+            nonempty=query_policy == "exact-allowlist",
+        )
+        if query_policy == "forbidden" and allowed_query_urls:
+            failures.append(
+                f"{location}/content_policy/allowed_query_urls: forbidden query "
+                "policy requires an empty list"
+            )
+        if allowed_query_urls != sorted(allowed_query_urls):
+            failures.append(
+                f"{location}/content_policy/allowed_query_urls: exact URLs must "
+                "be sorted by raw URL"
+            )
+        for index, query_url in enumerate(allowed_query_urls):
+            parts = _canonical_query_https_parts(query_url)
+            if parts is None:
+                failures.append(
+                    f"{location}/content_policy/allowed_query_urls/{index}: "
+                    "expected one canonical query-bearing HTTPS URL with unique "
+                    "keys and canonical encoding"
+                )
+                continue
+            origin, path = parts
+            if origin not in origins or not any(
+                path.startswith(prefix) for prefix in prefixes
+            ):
+                failures.append(
+                    f"{location}/content_policy/allowed_query_urls/{index}: "
+                    "URL is outside the authority origin/path policy"
+                )
         if content.get("fragment_policy") != "forbidden":
             failures.append(f"{location}/content_policy/fragment_policy: must be forbidden")
         identity = entry.get("content_identity_policy")
@@ -698,6 +944,7 @@ def validate_and_project(
             failures.append(f"{location}/content_identity_policy/mode: unsupported mode")
         if lifecycle == "active" and identity_mode not in {
             "platform-adapter-only",
+            "canonical-pinned-snapshot-or-platform-adapter",
             "canonical-pinned-open-snapshot-or-platform-adapter",
         }:
             failures.append(
@@ -712,7 +959,10 @@ def validate_and_project(
                 f"{location}/content_identity_policy/unpinned_action: expected "
                 f"{expected_unpinned_action!r}"
             )
-        pinned_mode = identity_mode == "canonical-pinned-open-snapshot-or-platform-adapter"
+        pinned_mode = identity_mode in {
+            "canonical-pinned-snapshot-or-platform-adapter",
+            "canonical-pinned-open-snapshot-or-platform-adapter",
+        }
         expected_resolution = (
             "unresolved"
             if lifecycle == "planned"
@@ -723,47 +973,6 @@ def validate_and_project(
         if content.get("resolution_mode") != expected_resolution:
             failures.append(f"{location}/content_policy/resolution_mode: expected {expected_resolution!r}")
 
-        license_policy = entry.get("license_policy")
-        if not isinstance(license_policy, dict) or set(license_policy) != LICENSE_POLICY_FIELDS:
-            failures.append(f"{location}/license_policy: expected fields {sorted(LICENSE_POLICY_FIELDS)}")
-            license_policy = {}
-        license_status = license_policy.get("status")
-        if license_status not in LICENSE_STATUSES:
-            failures.append(f"{location}/license_policy/status: unsupported status")
-        identifier = license_policy.get("identifier")
-        if identifier is not None and (not isinstance(identifier, str) or not identifier.strip()):
-            failures.append(f"{location}/license_policy/identifier: expected null or nonempty string")
-        terms_urls = _string_list(
-            license_policy.get("terms_urls"),
-            f"{location}/license_policy/terms_urls",
-            failures,
-        )
-        for index, url in enumerate(terms_urls):
-            if not _public_https_url(url):
-                failures.append(f"{location}/license_policy/terms_urls/{index}: expected a public HTTPS URL")
-        if license_policy.get("verification_status") not in {"verified", "unresolved"}:
-            failures.append(f"{location}/license_policy/verification_status: unsupported status")
-        if lifecycle == "active" and license_status in {"known-open", "known-restricted"}:
-            if identifier is None or not terms_urls or license_policy.get("verification_status") != "verified":
-                failures.append(
-                    f"{location}/license_policy: known license status requires an identifier, terms URL, and verification"
-                )
-        if lifecycle == "active" and license_status == "unknown" and (
-            identifier is not None
-            or terms_urls
-            or license_policy.get("verification_status") != "unresolved"
-        ):
-            failures.append(
-                f"{location}/license_policy: unknown license status must not claim resolved license facts"
-            )
-        if lifecycle == "planned" and (
-            license_status != "unknown"
-            or identifier is not None
-            or terms_urls
-            or license_policy.get("verification_status") != "unresolved"
-        ):
-            failures.append(f"{location}/license_policy: planned authority must remain unresolved")
-
         canonical = entry.get("canonical_snapshot")
         if lifecycle == "planned" or identity_mode == "platform-adapter-only":
             if canonical is not None:
@@ -772,8 +981,6 @@ def validate_and_project(
         elif pinned_mode:
             if lifecycle != "active":
                 failures.append(f"{location}/content_identity_policy/mode: pinned mode requires an active authority")
-            if license_status != "known-open":
-                failures.append(f"{location}/canonical_snapshot: pinned bundled content requires a known-open license")
             if canonical is None:
                 failures.append(f"{location}/canonical_snapshot: pinned mode requires a canonical snapshot")
             canonical_failures, canonical_projection = _canonical_snapshot_projection(
@@ -781,6 +988,8 @@ def validate_and_project(
                 entry,
                 source_root,
                 provider_skills.get(provider_id) if isinstance(provider_id, str) else None,
+                externalized_receipts=externalized_receipts,
+                used_externalized_paths=used_externalized_paths,
             )
             failures.extend(canonical_failures)
             canonical_projections[authority_id] = canonical_projection
@@ -789,63 +998,10 @@ def validate_and_project(
                 failures.append(f"{location}/canonical_snapshot: unsupported identity mode cannot authorize a snapshot")
             canonical_projections[authority_id] = None
 
-        redistribution = entry.get("redistribution_policy")
-        if not isinstance(redistribution, dict) or set(redistribution) != REDISTRIBUTION_POLICY_FIELDS:
-            failures.append(f"{location}/redistribution_policy: expected fields {sorted(REDISTRIBUTION_POLICY_FIELDS)}")
-            redistribution = {}
-        allowed_values = _string_list(
-            redistribution.get("allowed_values"),
-            f"{location}/redistribution_policy/allowed_values",
-            failures,
-            allowed=REDISTRIBUTION_VALUES,
-            nonempty=True,
-        )
-        expected_values = {
-            "known-open": {"redistributable"},
-            "known-restricted": {"runtime-only", "restricted"},
-            "unknown": {"unknown"},
-        }.get(license_status, set())
-        if set(allowed_values) != expected_values:
-            failures.append(f"{location}/redistribution_policy/allowed_values: inconsistent with license status")
-        expected_bundle_content = "canonical-pinned-open-only" if pinned_mode else "forbidden"
-        if redistribution.get("bundle_content") != expected_bundle_content:
-            failures.append(
-                f"{location}/redistribution_policy/bundle_content: expected "
-                f"{expected_bundle_content!r}"
-            )
-        expected_runtime = "platform-verification-required" if lifecycle == "active" else "unavailable"
-        if redistribution.get("external_runtime_content") != expected_runtime:
-            failures.append(f"{location}/redistribution_policy/external_runtime_content: expected {expected_runtime!r}")
-
-        _string_list(entry.get("limitations"), f"{location}/limitations", failures, nonempty=True)
-        provenance = entry.get("provenance")
-        if not isinstance(provenance, dict) or set(provenance) != PROVENANCE_FIELDS:
-            failures.append(f"{location}/provenance: expected fields {sorted(PROVENANCE_FIELDS)}")
-            provenance = {}
-        fact_urls = _string_list(
-            provenance.get("official_fact_urls"),
-            f"{location}/provenance/official_fact_urls",
-            failures,
-            nonempty=lifecycle == "active",
-        )
-        verified_utc = provenance.get("verified_utc")
-        if lifecycle == "active":
-            if not _valid_timestamp(verified_utc):
-                failures.append(f"{location}/provenance/verified_utc: expected an exact UTC timestamp")
-            for index, url in enumerate(fact_urls):
-                if not _public_https_url(url):
-                    failures.append(f"{location}/provenance/official_fact_urls/{index}: expected a canonical public HTTPS URL")
-                elif not _url_allowed(url, origins, prefixes) and url not in terms_urls:
-                    failures.append(
-                        f"{location}/provenance/official_fact_urls/{index}: URL is outside "
-                        "authority locator policy and license terms"
-                    )
-        elif verified_utc is not None or fact_urls or origins or allowed_scopes or registered_scopes:
+        if lifecycle == "planned" and (
+            origins or allowed_scopes or registered_scopes
+        ):
             failures.append(f"{location}: planned authority must not claim verified source metadata")
-
-    for lifecycle, providers in providers_by_lifecycle.items():
-        if len(providers) != len(set(providers)):
-            failures.append(f"authorities: {lifecycle} provider_id values must be unique")
 
     if software_data is not None:
         software = software_data.get("software")
@@ -858,10 +1014,39 @@ def validate_and_project(
                 for provider_id, specification in software.items()
                 if isinstance(specification, dict) and specification.get("lifecycle") == "active"
             }
-            if set(providers_by_lifecycle["active"]) != active_providers:
-                failures.append("authorities: active providers must exactly match active software providers")
-            if set(providers_by_lifecycle["planned"]) != set(planned):
-                failures.append("authorities: planned providers must exactly match planned software providers")
+            planned_providers = set(planned)
+            known_software_providers = active_providers | planned_providers
+            active_authority_providers = set(
+                software_providers_by_authority_lifecycle["active"]
+            )
+            planned_authority_providers = set(
+                software_providers_by_authority_lifecycle["planned"]
+            )
+            unknown_authority_providers = (
+                active_authority_providers
+                | planned_authority_providers
+            ) - known_software_providers
+            if unknown_authority_providers:
+                failures.append(
+                    "authorities: software-class authority providers must exist "
+                    "in active or planned software registry entries"
+                )
+            missing_active_authorities = (
+                active_providers - active_authority_providers
+            )
+            if missing_active_authorities:
+                failures.append(
+                    "authorities: every active software provider requires at "
+                    "least one active software-class authority"
+                )
+            missing_planned_authorities = planned_providers - (
+                active_authority_providers | planned_authority_providers
+            )
+            if missing_planned_authorities:
+                failures.append(
+                    "authorities: every planned software provider requires at "
+                    "least one active or planned software-class authority"
+                )
     if failures:
         return failures, {}
 
@@ -873,9 +1058,13 @@ def validate_and_project(
         prefixes = entry["content_policy"]["allowed_path_prefixes"]
         snapshot[authority_id] = {
             "lifecycle": "active",
+            "provider_class": entry["provider_class"],
             "provider_id": entry["provider_id"],
             "allowed_https_origins": copy.deepcopy(origins),
             "allowed_path_prefixes": copy.deepcopy(prefixes),
+            "allowed_query_urls": copy.deepcopy(
+                entry["content_policy"]["allowed_query_urls"]
+            ),
             "locator_policy": {
                 "allowed_origins": copy.deepcopy(origins),
                 "allowed_path_prefixes": copy.deepcopy(prefixes),
@@ -885,12 +1074,27 @@ def validate_and_project(
             "version_scopes": copy.deepcopy(entry["version_policy"]["registered_scopes"]),
             "content_identity_policy": copy.deepcopy(entry["content_identity_policy"]),
             "canonical_snapshot": copy.deepcopy(canonical_projections.get(authority_id)),
-            "license_status": entry["license_policy"]["status"],
-            "license_identifier": entry["license_policy"]["identifier"],
-            "license_terms_urls": copy.deepcopy(entry["license_policy"]["terms_urls"]),
-            "redistribution": copy.deepcopy(entry["redistribution_policy"]["allowed_values"]),
         }
     return [], snapshot
+
+
+def validate_and_project(
+    data: object,
+    *,
+    software_data: dict[str, Any] | None = None,
+    source_root: Path | None = None,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
+) -> tuple[list[str], dict[str, dict[str, Any]]]:
+    """Compatibility alias for the policy-free technical projection."""
+
+    return validate_and_project_technical(
+        data,
+        software_data=software_data,
+        source_root=source_root,
+        externalized_receipts=externalized_receipts,
+        used_externalized_paths=used_externalized_paths,
+    )
 
 
 def validation_errors(
@@ -898,11 +1102,15 @@ def validation_errors(
     *,
     software_data: dict[str, Any] | None = None,
     source_root: Path | None = None,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
 ) -> list[str]:
     failures, _ = validate_and_project(
         data,
         software_data=software_data,
         source_root=source_root,
+        externalized_receipts=externalized_receipts,
+        used_externalized_paths=used_externalized_paths,
     )
     return failures
 
@@ -912,11 +1120,36 @@ def active_authority_snapshot(
     *,
     software_data: dict[str, Any] | None = None,
     source_root: Path | None = None,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    failures, snapshot = validate_and_project(
+    """Compatibility alias for :func:`active_authority_technical_snapshot`."""
+
+    return active_authority_technical_snapshot(
         data,
         software_data=software_data,
         source_root=source_root,
+        externalized_receipts=externalized_receipts,
+        used_externalized_paths=used_externalized_paths,
+    )
+
+
+def active_authority_technical_snapshot(
+    data: dict[str, Any],
+    *,
+    software_data: dict[str, Any] | None = None,
+    source_root: Path | None = None,
+    externalized_receipts: Mapping[str, Mapping[str, object]] | None = None,
+    used_externalized_paths: set[str] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Return active authority/version/locator/content-identity data only."""
+
+    failures, snapshot = validate_and_project_technical(
+        data,
+        software_data=software_data,
+        source_root=source_root,
+        externalized_receipts=externalized_receipts,
+        used_externalized_paths=used_externalized_paths,
     )
     if failures:
         raise ValueError("invalid official-source authority registry: " + "; ".join(failures))

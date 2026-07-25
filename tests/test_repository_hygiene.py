@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import io
+import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -227,6 +229,91 @@ class RepositoryHygieneTests(unittest.TestCase):
                 dirty_code = audit_hygiene.main(["--root", str(root)])
             self.assertEqual(dirty_code, audit_hygiene.EXIT_FINDINGS)
             self.assertIn(audit_hygiene.DUPLICATE_FILE_IDENTICAL, dirty_stderr.getvalue())
+
+    def test_standalone_cli_does_not_create_bytecode_without_environment_policy(self) -> None:
+        with self._repository() as temporary:
+            root = Path(temporary)
+            tools = root / "tools"
+            tools.mkdir()
+            shutil.copy2(ROOT / "tools" / "audit_hygiene.py", tools)
+            shutil.copy2(ROOT / "tools" / "registry_yaml.py", tools)
+
+            environment = os.environ.copy()
+            environment.pop("PYTHONDONTWRITEBYTECODE", None)
+            environment.pop("PYTHONPYCACHEPREFIX", None)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(tools / "audit_hygiene.py"),
+                    "--root",
+                    str(root),
+                ],
+                cwd=root,
+                env=environment,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            bytecode = sorted(
+                path.relative_to(root).as_posix()
+                for path in root.rglob("*")
+                if path.name == "__pycache__" or path.suffix in {".pyc", ".pyo"}
+            )
+
+            self.assertEqual(result.returncode, audit_hygiene.EXIT_OK, result.stderr)
+            self.assertEqual(bytecode, [])
+
+    def test_repository_audit_entrypoint_does_not_create_import_bytecode(self) -> None:
+        with self._repository() as temporary:
+            root = Path(temporary)
+            tools = root / "tools"
+            tools.mkdir()
+            for name in ("audit_repository.py", "audit_hygiene.py", "registry_yaml.py"):
+                shutil.copy2(ROOT / "tools" / name, tools)
+            stubs = {
+                "skill_registry.py": (
+                    "def planned_skill_names(*args, **kwargs): return ()\n"
+                    "def validate_active_sources(*args, **kwargs): return ()\n"
+                ),
+                "registry_snapshot.py": (
+                    "class RegistrySnapshot: pass\n"
+                    "class RegistrySnapshotError(Exception): pass\n"
+                    "def load_registry_snapshot(*args, **kwargs): return RegistrySnapshot()\n"
+                ),
+                "software_registry.py": "def repo_root(): raise AssertionError('not called')\n",
+                "sync_contract_codes.py": "CONTRACT_CODE_KINDS = {}\n",
+                "validate_contract.py": (
+                    "class CatalogError(Exception): pass\n"
+                    "def load_catalog(*args, **kwargs): raise AssertionError('not called')\n"
+                ),
+                "strict_json.py": (
+                    "class StrictJSONError(ValueError): pass\n"
+                    "def load_object(*args, **kwargs): raise AssertionError('not called')\n"
+                ),
+            }
+            for name, content in stubs.items():
+                (tools / name).write_text(content, encoding="utf-8")
+
+            environment = os.environ.copy()
+            environment.pop("PYTHONDONTWRITEBYTECODE", None)
+            environment.pop("PYTHONPYCACHEPREFIX", None)
+            result = subprocess.run(
+                [sys.executable, str(tools / "audit_repository.py"), "--help"],
+                cwd=root,
+                env=environment,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            bytecode = sorted(
+                path.relative_to(root).as_posix()
+                for path in root.rglob("*")
+                if path.name == "__pycache__" or path.suffix in {".pyc", ".pyo"}
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("--check-installed", result.stdout)
+            self.assertEqual(bytecode, [])
 
 
 if __name__ == "__main__":

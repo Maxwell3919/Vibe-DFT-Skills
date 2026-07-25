@@ -1,0 +1,196 @@
+{
+  "authority_entries": {
+    "gaussian-g16-c01-public-reference": {
+      "allowed_https_origins": [
+        "https://gaussian.com"
+      ],
+      "canonical_snapshot": null,
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/wp-json/wp/v2/pages/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-api-metadata"
+        ]
+      },
+      "display_name": "Gaussian 16 Rev. C.01 public reference metadata",
+      "license_policy": {
+        "identifier": null,
+        "status": "unknown",
+        "terms_urls": [],
+        "verification_status": "unresolved"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "Public WordPress page records identify mutable Gaussian 16 Rev. C.01 reference pages but do not grant a documentation-content redistribution license.",
+        "This authority excludes licensed manuals, examples, basis payloads, binaries, checkpoints, user data, and calculation artifacts.",
+        "The index-level metadata does not close every linked keyword, IOp, utility, option, or user-reference leaf page."
+      ],
+      "provenance": {
+        "official_fact_urls": [
+          "https://gaussian.com/wp-json/wp/v2/pages/17023",
+          "https://gaussian.com/wp-json/wp/v2/pages/6734",
+          "https://gaussian.com/wp-json/wp/v2/pages/4396",
+          "https://gaussian.com/wp-json/wp/v2/pages/5086",
+          "https://gaussian.com/wp-json/wp/v2/pages/2265"
+        ],
+        "verified_utc": "2026-07-23T19:38:15Z"
+      },
+      "provider_class": "software",
+      "provider_id": "gaussian",
+      "redistribution_policy": {
+        "allowed_values": [
+          "unknown"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "16-C.01-public-reference",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    },
+    "gaussian-g16-c02-release-materials": {
+      "allowed_https_origins": [
+        "https://gaussian.com"
+      ],
+      "canonical_snapshot": null,
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/wp-json/wp/v2/pages/",
+          "/g16/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-release-notes",
+          "official-reference",
+          "official-api-metadata"
+        ]
+      },
+      "display_name": "Gaussian 16 Rev. C.02 public release materials",
+      "license_policy": {
+        "identifier": null,
+        "status": "unknown",
+        "terms_urls": [],
+        "verification_status": "unresolved"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "C.02 release notes and the platform list are a public delta, not a complete C.02 keyword, IOp, input, output, utility, or operational reference.",
+        "No release-note or platform-document redistribution license was verified, so bundle content remains forbidden.",
+        "The C.01 user reference cannot be silently promoted into the C.02 corpus."
+      ],
+      "provenance": {
+        "official_fact_urls": [
+          "https://gaussian.com/wp-json/wp/v2/pages/15586",
+          "https://gaussian.com/g16/g16_plat.pdf"
+        ],
+        "verified_utc": "2026-07-23T19:38:20Z"
+      },
+      "provider_class": "software",
+      "provider_id": "gaussian",
+      "redistribution_policy": {
+        "allowed_values": [
+          "unknown"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "16-C.02-release-delta",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  },
+  "blocked_native_sources": [
+    {
+      "blocked_material_classes": [
+        "licensed-manual",
+        "licensed-example",
+        "binary",
+        "basis-payload",
+        "checkpoint",
+        "user-data",
+        "calculation-output"
+      ],
+      "disposition": "excluded",
+      "reason": "Public reference and release metadata do not authorize access, redistribution, execution, or scientific acceptance for restricted Gaussian material.",
+      "source_id": "gaussian-licensed-runtime-and-private-reference"
+    }
+  ],
+  "consumer_bindings": [
+    {
+      "authority_id": "gaussian-g16-c01-public-reference",
+      "binding_id": "gaussian-skill-g16-c01-public",
+      "claim_ceiling": "registered-skill-scope",
+      "consumer_lifecycle": "development",
+      "consumer_path": "skills/gaussian-rigorous-calculations",
+      "consumer_skill_id": "gaussian-rigorous-calculations",
+      "provider_id": "gaussian",
+      "purpose": "official-document-coverage"
+    },
+    {
+      "authority_id": "gaussian-g16-c02-release-materials",
+      "binding_id": "gaussian-skill-g16-c02-release",
+      "claim_ceiling": "registered-skill-scope",
+      "consumer_lifecycle": "development",
+      "consumer_path": "skills/gaussian-rigorous-calculations",
+      "consumer_skill_id": "gaussian-rigorous-calculations",
+      "provider_id": "gaussian",
+      "purpose": "official-document-coverage"
+    }
+  ],
+  "proposal_type": "official-source-authority-binding-proposal",
+  "schema_version": "1.0",
+  "seed_provider_bindings": [
+    {
+      "authority_id": "gaussian-g16-c01-public-reference",
+      "input_id": "gaussian-g16-c01-public",
+      "provider_id": "gaussian",
+      "source_catalog": "skills/gaussian-rigorous-calculations/references/source-catalog-g16-c01.json"
+    },
+    {
+      "authority_id": "gaussian-g16-c02-release-materials",
+      "input_id": "gaussian-g16-c02-delta",
+      "provider_id": "gaussian",
+      "source_catalog": "skills/gaussian-rigorous-calculations/references/source-catalog-g16-c02.json"
+    }
+  ],
+  "skill_id": "gaussian-rigorous-calculations"
+}

@@ -1,0 +1,2629 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "ml-source-pack-inputs",
+  "skill_id": "ml-potential-workflows",
+  "providers": [
+    {
+      "input_id": "mace-framework",
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "mace-release-source-0-3-16",
+      "provider_id": "mace",
+      "provider_class": "software",
+      "catalog_filename": "source-catalog-mace-framework-v0.3.16.json",
+      "storage_policy": "metadata-only",
+      "schema_version": "1.0",
+      "contract_name": "official-document-source-catalog",
+      "version_scope": {
+        "kind": "exact",
+        "value": "v0.3.16",
+        "retrieved_utc": "2026-07-23T19:35:04Z",
+        "snapshot_identity": {
+          "kind": "revision",
+          "value": "4d2da09413ac1407f37cdbb6b81fa28e4c15655e",
+          "content_sha256": "acc89435059b0e9031f01c39c2fbcf57ac2e051896ee9468e9c7204072cccab1"
+        }
+      },
+      "upstream_universe_complete": false,
+      "inventory_locator": "https://github.com/ACEsuit/mace/tree/v0.3.16",
+      "sources": [
+        {
+          "source_id": "mace-v0.3.16-code-tree",
+          "title": "MACE v0.3.16 package source tree identity",
+          "source_kind": "source-documentation",
+          "locator": "https://github.com/ACEsuit/mace/tree/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/mace",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:8053aa0d2d4966734927336b062fd1511e6698ea@4d2da09413ac1407f37cdbb6b81fa28e4c15655e",
+            "raw_sha256": "acc89435059b0e9031f01c39c2fbcf57ac2e051896ee9468e9c7204072cccab1",
+            "raw_bytes": 282,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "mace-v0.3.16-code-tree-whole",
+              "loss_ids": [
+                "mace-framework-bodies-external"
+              ],
+              "order": 0,
+              "title": "Entire exact package-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "acc89435059b0e9031f01c39c2fbcf57ac2e051896ee9468e9c7204072cccab1",
+                "raw_bytes": 282,
+                "selected_sha256": "acc89435059b0e9031f01c39c2fbcf57ac2e051896ee9468e9c7204072cccab1",
+                "selected_bytes": 282
+              },
+              "subject_ids": [
+                "mace.framework.release.identity",
+                "mace.framework.code.inventory",
+                "mace.framework.docs.absent"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "mace-v0.3.16-setup",
+          "title": "MACE v0.3.16 setup.cfg",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/ACEsuit/mace/blob/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/setup.cfg",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-blob:7c459413bdf982ba184f1e8a841da8e3f05603d6@4d2da09413ac1407f37cdbb6b81fa28e4c15655e",
+            "raw_sha256": "3b279d3b2abaf74b1107c7af244d48a7c6d7eba0c7525434328055efd58ddf12",
+            "raw_bytes": 2045,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "mace-v0.3.16-setup-whole",
+              "loss_ids": [
+                "mace-framework-bodies-external"
+              ],
+              "order": 0,
+              "title": "Exact setup.cfg receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "3b279d3b2abaf74b1107c7af244d48a7c6d7eba0c7525434328055efd58ddf12",
+                "raw_bytes": 2045,
+                "selected_sha256": "3b279d3b2abaf74b1107c7af244d48a7c6d7eba0c7525434328055efd58ddf12",
+                "selected_bytes": 2045
+              },
+              "subject_ids": [
+                "mace.framework.cli.entrypoints"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "mace-v0.3.16-license",
+          "title": "MACE v0.3.16 framework license",
+          "source_kind": "other",
+          "locator": "https://github.com/ACEsuit/mace/blob/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/LICENSE",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "sha256:42137790f854ae2b9d29a0a72a4da3f6fb9a21d820b3f276f23b0575af72e86e@4d2da09413ac1407f37cdbb6b81fa28e4c15655e:LICENSE",
+            "raw_sha256": "42137790f854ae2b9d29a0a72a4da3f6fb9a21d820b3f276f23b0575af72e86e",
+            "raw_bytes": 607,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "mace-v0.3.16-license-whole",
+              "loss_ids": [
+                "mace-framework-bodies-external"
+              ],
+              "order": 0,
+              "title": "Exact framework license receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "42137790f854ae2b9d29a0a72a4da3f6fb9a21d820b3f276f23b0575af72e86e",
+                "raw_bytes": 607,
+                "selected_sha256": "42137790f854ae2b9d29a0a72a4da3f6fb9a21d820b3f276f23b0575af72e86e",
+                "selected_bytes": 607
+              },
+              "subject_ids": [
+                "mace.framework.license"
+              ]
+            }
+          ]
+        }
+      ],
+      "subjects": [
+        {
+          "subject_id": "mace.framework.release.identity",
+          "title": "MACE exact framework release identity",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The MACE framework source is pinned to tag v0.3.16, commit 4d2da09413ac1407f37cdbb6b81fa28e4c15655e; no rolling branch may substitute for it.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "mace.framework.code.inventory",
+          "title": "MACE exact framework code-tree inventory",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "The exact mace/ tree is identified by git tree 8053aa0d2d4966734927336b062fd1511e6698ea, but its bodies remain external to this metadata-only pack.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "mace.framework.cli.entrypoints",
+          "title": "MACE exact console-script surface",
+          "category": "workflow",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "executable",
+          "statement": "The exact setup.cfg exposes eleven console scripts, including mace_run_train, mace_eval_configs, mace_prepare_data, and mace_create_lammps_model; none is authorized or executed here.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "mace.framework.license",
+          "title": "MACE framework license boundary",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The v0.3.16 framework LICENSE is MIT and applies to that source release only; it does not license the separate docs branch, model artifacts, datasets, or reference-DFT artifacts.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "mace.framework.docs.absent",
+          "title": "MACE exact-tag documentation gap",
+          "category": "scientific-limitation",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "Tag v0.3.16 contains no docs/ tree, so exact release source alone cannot establish complete MACE documentation coverage.",
+          "expected_disposition": "blocked"
+        }
+      ],
+      "reviewed_exclusions": [
+        {
+          "source_id": "mace-rolling-docs-separate-authority",
+          "title": "Rolling MACE ReadTheDocs corpus",
+          "locator": "https://mace-docs.readthedocs.io/en/latest/",
+          "reason_code": "out-of-scope",
+          "rationale": "Documentation is version-divergent and licensed separately; it is reviewed under the mace-docs provider input rather than silently merged with framework v0.3.16.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        }
+      ],
+      "losses": [
+        {
+          "loss_id": "mace-framework-bodies-external",
+          "stage": "storage",
+          "description": "Exact source bodies are not bundled; only external git-object identities and receipts are recorded.",
+          "materiality": "material",
+          "disposition": "external-only",
+          "affected_source_ids": [
+            "mace-v0.3.16-code-tree",
+            "mace-v0.3.16-setup",
+            "mace-v0.3.16-license"
+          ]
+        }
+      ],
+      "license": {
+        "identity": {
+          "identifier": "MIT",
+          "terms_urls": [
+            "https://github.com/ACEsuit/mace/blob/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/LICENSE"
+          ],
+          "verification": "verified"
+        },
+        "assessment": "allowed",
+        "allowed_storage_modes": [
+          "metadata-only",
+          "external-runtime-only"
+        ],
+        "official_terms_locator": "https://github.com/ACEsuit/mace/blob/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/LICENSE",
+        "limitations": [
+          "This assessment is limited to the exact framework release and grants nothing for docs, model weights, datasets, or reference-DFT artifacts."
+        ]
+      },
+      "limitations": [
+        "The catalog records exact external identities but does not embed or parse the complete framework tree.",
+        "The exact release contains no docs/ tree."
+      ],
+      "blockers": [
+        {
+          "code": "MACE_EXACT_TAG_DOCS_ABSENT",
+          "dimensions": ["corpus","slices"],
+          "description": "Complete exact-version documentation cannot be derived from tag v0.3.16 because that tag has no docs/ tree."
+        },
+        {
+          "code": "MACE_FRAMEWORK_CONTENT_EXTERNAL",
+          "dimensions": ["corpus","slices"],
+          "description": "The framework bytes remain external, so the pack cannot claim full local document coverage."
+        }
+      ]
+    },
+    {
+      "input_id": "mace-docs",
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "mace-docs-branch-bff7c94d",
+      "provider_id": "mace",
+      "provider_class": "software",
+      "catalog_filename": "source-catalog-mace-docs-bff7c94d.json",
+      "storage_policy": "metadata-only",
+      "schema_version": "1.0",
+      "contract_name": "official-document-source-catalog",
+      "version_scope": {
+        "kind": "revision",
+        "value": "bff7c94d8fbfdc3dde707ade12db5f36b97683b5",
+        "retrieved_utc": "2026-07-23T19:35:04Z",
+        "snapshot_identity": {
+          "kind": "revision",
+          "value": "bff7c94d8fbfdc3dde707ade12db5f36b97683b5",
+          "content_sha256": "bf94faeaa3ec0ca07892989690555471a254fdc05722f8fbf95288ab5e01e242"
+        }
+      },
+      "upstream_universe_complete": false,
+      "inventory_locator": "https://github.com/ACEsuit/mace/tree/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/docs",
+      "sources": [
+        {
+          "source_id": "mace-docs-tree-bff7c94d",
+          "title": "MACE docs branch source-tree identity",
+          "source_kind": "index",
+          "locator": "https://github.com/ACEsuit/mace/tree/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/docs",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:cca49082bb18146c734c07e1b6a42c03174bca97@bff7c94d8fbfdc3dde707ade12db5f36b97683b5",
+            "raw_sha256": "bf94faeaa3ec0ca07892989690555471a254fdc05722f8fbf95288ab5e01e242",
+            "raw_bytes": 293,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "mace-docs-tree-bff7c94d-whole",
+              "loss_ids": [
+                "mace-docs-bodies-external",
+                "mace-docs-version-mismatch"
+              ],
+              "order": 0,
+              "title": "Complete docs-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "bf94faeaa3ec0ca07892989690555471a254fdc05722f8fbf95288ab5e01e242",
+                "raw_bytes": 293,
+                "selected_sha256": "bf94faeaa3ec0ca07892989690555471a254fdc05722f8fbf95288ab5e01e242",
+                "selected_bytes": 293
+              },
+              "subject_ids": [
+                "mace.docs.branch.identity",
+                "mace.docs.inventory",
+                "mace.docs.version.divergence",
+                "mace.docs.unsafe.archive"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "mace-rtd-search-index",
+          "title": "MACE ReadTheDocs latest search index receipt",
+          "source_kind": "index",
+          "locator": "https://mace-docs.readthedocs.io/en/latest/searchindex.js",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "external-receipt",
+            "value": "readthedocs:latest:searchindex.js@2026-07-23T19:35:04Z",
+            "raw_sha256": "21c80820aeef51199175eb5d86bc90b39f37b9483e0faac829bafd0be2e71c70",
+            "raw_bytes": 53273,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "mace-rtd-search-index-whole",
+              "loss_ids": [
+                "mace-docs-bodies-external"
+              ],
+              "order": 0,
+              "title": "Entire rolling search-index receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "https-get",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "21c80820aeef51199175eb5d86bc90b39f37b9483e0faac829bafd0be2e71c70",
+                "raw_bytes": 53273,
+                "selected_sha256": "21c80820aeef51199175eb5d86bc90b39f37b9483e0faac829bafd0be2e71c70",
+                "selected_bytes": 53273
+              },
+              "subject_ids": [
+                "mace.docs.rendered.inventory"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "mace-foundation-models-page",
+          "title": "MACE foundation-model documentation source",
+          "source_kind": "guide",
+          "locator": "https://mace-docs.readthedocs.io/en/latest/_sources/guide/foundation_models.rst.txt",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "external-receipt",
+            "value": "readthedocs:latest:_sources/guide/foundation_models.rst.txt@2026-07-23T19:35:04Z",
+            "raw_sha256": "80972f3fb24e9da249e0fe8998b3ec7080f684b07baa263a14cb375278e596a7",
+            "raw_bytes": 10954,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "mace-foundation-models-page-whole",
+              "loss_ids": [
+                "mace-docs-bodies-external"
+              ],
+              "order": 0,
+              "title": "Entire foundation-model guide receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "https-get",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "80972f3fb24e9da249e0fe8998b3ec7080f684b07baa263a14cb375278e596a7",
+                "raw_bytes": 10954,
+                "selected_sha256": "80972f3fb24e9da249e0fe8998b3ec7080f684b07baa263a14cb375278e596a7",
+                "selected_bytes": 10954
+              },
+              "subject_ids": [
+                "mace.docs.model.license.split"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "mace-docs-branch-license",
+          "title": "MACE docs branch Academic Software License",
+          "source_kind": "other",
+          "locator": "https://github.com/ACEsuit/mace/blob/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/LICENSE",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "sha256:ce5396a0f78d8094866b925512007ba44190c65bd2b1b551a9bbed7c593a08e5@bff7c94d8fbfdc3dde707ade12db5f36b97683b5:LICENSE",
+            "raw_sha256": "ce5396a0f78d8094866b925512007ba44190c65bd2b1b551a9bbed7c593a08e5",
+            "raw_bytes": 16419,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "mace-docs-branch-license-whole",
+              "loss_ids": [
+                "mace-docs-bodies-external"
+              ],
+              "order": 0,
+              "title": "Exact docs-branch license receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "ce5396a0f78d8094866b925512007ba44190c65bd2b1b551a9bbed7c593a08e5",
+                "raw_bytes": 16419,
+                "selected_sha256": "ce5396a0f78d8094866b925512007ba44190c65bd2b1b551a9bbed7c593a08e5",
+                "selected_bytes": 16419
+              },
+              "subject_ids": [
+                "mace.docs.license"
+              ]
+            }
+          ]
+        }
+      ],
+      "subjects": [
+        {
+          "subject_id": "mace.docs.branch.identity",
+          "title": "MACE docs branch identity",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The source used by the rolling ReadTheDocs build is pinned here to docs-branch commit bff7c94d8fbfdc3dde707ade12db5f36b97683b5, not to framework tag v0.3.16.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "mace.docs.inventory",
+          "title": "MACE docs source inventory",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "The exact docs tree contains 36 paths, including 29 RST pages and non-text assets; the tree receipt does not embed the page bodies.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "mace.docs.rendered.inventory",
+          "title": "MACE rendered-page inventory",
+          "category": "provenance",
+          "requirement_strength": "supporting",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "The retrieved rolling search index enumerates 29 rendered pages at the recorded timestamp.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "mace.docs.version.divergence",
+          "title": "MACE framework/docs version divergence",
+          "category": "scientific-limitation",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The docs branch identifies itself as 0.3.13 and differs from framework v0.3.16; /en/v0.3.16/ is unavailable, so rolling pages cannot be represented as exact v0.3.16 documentation.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "mace.docs.license",
+          "title": "MACE docs license boundary",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The reviewed docs branch LICENSE is an Academic Software License with academic/noncommercial restrictions and is not the framework release MIT license.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "mace.docs.model.license.split",
+          "title": "MACE model-license split",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The foundation-model page records different licenses across model families; a framework or docs license never establishes a selected model artifact's license.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "mace.docs.unsafe.archive",
+          "title": "MACE docs unsafe archive exclusion",
+          "category": "validation-rule",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "ANI_trained_MACE.zip is present in the docs tree but is excluded from retrieval, storage, inspection, and loading.",
+          "expected_disposition": "blocked"
+        }
+      ],
+      "reviewed_exclusions": [
+        {
+          "source_id": "mace-docs-ani-archive",
+          "title": "ANI_trained_MACE.zip",
+          "locator": "https://github.com/ACEsuit/mace/blob/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/docs/ANI_trained_MACE.zip",
+          "reason_code": "out-of-scope",
+          "rationale": "The executable/serialized archive is not documentation text and is never downloaded or loaded by this Skill.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        },
+        {
+          "source_id": "mace-rtd-v0.3.16-unavailable",
+          "title": "MACE versioned ReadTheDocs v0.3.16 URL",
+          "locator": "https://mace-docs.readthedocs.io/en/v0.3.16/",
+          "reason_code": "unavailable",
+          "rationale": "The exact-version documentation endpoint returned unavailable during review; rolling documentation cannot silently replace it.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        }
+      ],
+      "losses": [
+        {
+          "loss_id": "mace-docs-bodies-external",
+          "stage": "storage",
+          "description": "The docs tree, rendered index, guide and license bodies remain external; only exact receipts are tracked.",
+          "materiality": "material",
+          "disposition": "external-only",
+          "affected_source_ids": [
+            "mace-docs-tree-bff7c94d",
+            "mace-rtd-search-index",
+            "mace-foundation-models-page",
+            "mace-docs-branch-license"
+          ]
+        },
+        {
+          "loss_id": "mace-docs-version-mismatch",
+          "stage": "mapping",
+          "description": "No official exact-v0.3.16 rendered docs corpus was available to close the framework/docs version gap.",
+          "materiality": "material",
+          "disposition": "blocked",
+          "affected_source_ids": [
+            "mace-docs-tree-bff7c94d"
+          ]
+        }
+      ],
+      "license": {
+        "identity": {
+          "identifier": "Academic Software License",
+          "terms_urls": [
+            "https://github.com/ACEsuit/mace/blob/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/LICENSE"
+          ],
+          "verification": "verified"
+        },
+        "assessment": "conditional",
+        "allowed_storage_modes": [
+          "metadata-only",
+          "excluded"
+        ],
+        "official_terms_locator": "https://github.com/ACEsuit/mace/blob/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/LICENSE",
+        "limitations": [
+          "The docs corpus is not treated as MIT and is not embedded.",
+          "Every model artifact requires a separate model-specific license record."
+        ]
+      },
+      "limitations": [
+        "The docs and framework versions are split intentionally and cannot be collapsed.",
+        "Only external receipts are retained; documentation bodies are not bundled."
+      ],
+      "blockers": [
+        {
+          "code": "MACE_DOCS_VERSION_DIVERGENCE",
+          "dimensions": ["corpus","slices"],
+          "description": "The reviewed docs commit is not framework v0.3.16 and no exact v0.3.16 rendered corpus was available."
+        },
+        {
+          "code": "MACE_DOCS_LICENSE_CONDITIONAL",
+          "dimensions": ["coverage"],
+          "description": "The docs branch is governed by restrictive terms, so full text bundling is not authorized."
+        },
+        {
+          "code": "MACE_MODEL_LICENSES_SPLIT",
+          "dimensions": ["coverage"],
+          "description": "Foundation-model families have separate licenses and no model artifact identity is established here."
+        }
+      ]
+    },
+    {
+      "input_id": "nequip-framework",
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "nequip-release-source-0-19-0",
+      "provider_id": "nequip",
+      "provider_class": "software",
+      "catalog_filename": "source-catalog-nequip-v0.19.0.json",
+      "storage_policy": "metadata-only",
+      "schema_version": "1.0",
+      "contract_name": "official-document-source-catalog",
+      "version_scope": {
+        "kind": "exact",
+        "value": "v0.19.0",
+        "retrieved_utc": "2026-07-23T19:35:04Z",
+        "snapshot_identity": {
+          "kind": "revision",
+          "value": "ea3ac14154338da83386be75d619b0cd964ffb42",
+          "content_sha256": "f7600baff543526ae6923f7a6882ad2bcfd2ea2525cec49c7e201bd9b8092fc4"
+        }
+      },
+      "upstream_universe_complete": false,
+      "inventory_locator": "https://github.com/mir-group/nequip/tree/v0.19.0",
+      "sources": [
+        {
+          "source_id": "nequip-v0.19.0-docs-tree",
+          "title": "NequIP v0.19.0 docs tree",
+          "source_kind": "index",
+          "locator": "https://github.com/mir-group/nequip/tree/ea3ac14154338da83386be75d619b0cd964ffb42/docs",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:226363fcb0b02bb9565dc02e4e253570ccfd001c@ea3ac14154338da83386be75d619b0cd964ffb42",
+            "raw_sha256": "f7600baff543526ae6923f7a6882ad2bcfd2ea2525cec49c7e201bd9b8092fc4",
+            "raw_bytes": 504,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "nequip-v0.19.0-docs-tree-whole",
+              "loss_ids": [
+                "nequip-bodies-external",
+                "nequip-exact-rendered-site-unavailable"
+              ],
+              "order": 0,
+              "title": "Complete exact docs-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "f7600baff543526ae6923f7a6882ad2bcfd2ea2525cec49c7e201bd9b8092fc4",
+                "raw_bytes": 504,
+                "selected_sha256": "f7600baff543526ae6923f7a6882ad2bcfd2ea2525cec49c7e201bd9b8092fc4",
+                "selected_bytes": 504
+              },
+              "subject_ids": [
+                "nequip.framework.release.identity",
+                "nequip.docs.inventory",
+                "nequip.docs.rolling.drift"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "nequip-v0.19.0-code-tree",
+          "title": "NequIP v0.19.0 code tree for autodoc closure",
+          "source_kind": "source-documentation",
+          "locator": "https://github.com/mir-group/nequip/tree/ea3ac14154338da83386be75d619b0cd964ffb42/nequip",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:c01d329934e33b9413de02c3c57954f2df5699ce@ea3ac14154338da83386be75d619b0cd964ffb42",
+            "raw_sha256": "e68dc47c80a185d2decbabcc04e4e2a60e4bee3f252272b88e3285f2d23fa428",
+            "raw_bytes": 337,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "nequip-v0.19.0-code-tree-whole",
+              "loss_ids": [
+                "nequip-bodies-external"
+              ],
+              "order": 0,
+              "title": "Complete exact code-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "e68dc47c80a185d2decbabcc04e4e2a60e4bee3f252272b88e3285f2d23fa428",
+                "raw_bytes": 337,
+                "selected_sha256": "e68dc47c80a185d2decbabcc04e4e2a60e4bee3f252272b88e3285f2d23fa428",
+                "selected_bytes": 337
+              },
+              "subject_ids": [
+                "nequip.docs.autodoc.closure"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "nequip-v0.19.0-license",
+          "title": "NequIP v0.19.0 framework license",
+          "source_kind": "other",
+          "locator": "https://github.com/mir-group/nequip/blob/ea3ac14154338da83386be75d619b0cd964ffb42/LICENSE",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "sha256:dd12c7845cf76c622e4a7d2745ff65a89510d681ca079385b7b395e49f6c4f37@ea3ac14154338da83386be75d619b0cd964ffb42:LICENSE",
+            "raw_sha256": "dd12c7845cf76c622e4a7d2745ff65a89510d681ca079385b7b395e49f6c4f37",
+            "raw_bytes": 1142,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "nequip-v0.19.0-license-whole",
+              "loss_ids": [
+                "nequip-bodies-external"
+              ],
+              "order": 0,
+              "title": "Exact framework license receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "dd12c7845cf76c622e4a7d2745ff65a89510d681ca079385b7b395e49f6c4f37",
+                "raw_bytes": 1142,
+                "selected_sha256": "dd12c7845cf76c622e4a7d2745ff65a89510d681ca079385b7b395e49f6c4f37",
+                "selected_bytes": 1142
+              },
+              "subject_ids": [
+                "nequip.framework.license.boundary"
+              ]
+            }
+          ]
+        }
+      ],
+      "subjects": [
+        {
+          "subject_id": "nequip.framework.release.identity",
+          "title": "NequIP exact release identity",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "NequIP is pinned to tag v0.19.0, commit ea3ac14154338da83386be75d619b0cd964ffb42.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "nequip.docs.inventory",
+          "title": "NequIP exact docs inventory",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "The exact docs tree contains 77 paths, including 68 source pages: 30 Markdown and 38 RST.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "nequip.docs.autodoc.closure",
+          "title": "NequIP autodoc source closure",
+          "category": "workflow",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "A complete rendered API requires both the exact docs tree and the exact 153-path nequip/ code tree used by autodoc; this metadata pack embeds neither.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "nequip.docs.rolling.drift",
+          "title": "NequIP rolling-doc drift",
+          "category": "scientific-limitation",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The current ReadTheDocs latest build is from a different main revision and exact tag URLs are unavailable, so it cannot silently substitute for v0.19.0.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "nequip.framework.license.boundary",
+          "title": "NequIP framework/checkpoint/data license split",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The v0.19.0 source license is MIT; checkpoints, packaged models and training data require separate identities and license evidence.",
+          "expected_disposition": "partial"
+        }
+      ],
+      "reviewed_exclusions": [
+        {
+          "source_id": "nequip-rtd-latest-drift",
+          "title": "NequIP rolling ReadTheDocs latest",
+          "locator": "https://nequip.readthedocs.io/en/latest/",
+          "reason_code": "out-of-scope",
+          "rationale": "The rolling build differs from the exact v0.19.0 revision and remains a comparison source rather than the exact-version authority.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        }
+      ],
+      "losses": [
+        {
+          "loss_id": "nequip-bodies-external",
+          "stage": "storage",
+          "description": "Exact docs, code and license bodies are represented only by external git-object receipts.",
+          "materiality": "material",
+          "disposition": "external-only",
+          "affected_source_ids": [
+            "nequip-v0.19.0-docs-tree",
+            "nequip-v0.19.0-code-tree",
+            "nequip-v0.19.0-license"
+          ]
+        },
+        {
+          "loss_id": "nequip-exact-rendered-site-unavailable",
+          "stage": "retrieval",
+          "description": "No exact v0.19.0 rendered ReadTheDocs site was available for comparison with the source tree.",
+          "materiality": "material",
+          "disposition": "blocked",
+          "affected_source_ids": [
+            "nequip-v0.19.0-docs-tree"
+          ]
+        }
+      ],
+      "license": {
+        "identity": {
+          "identifier": "MIT",
+          "terms_urls": [
+            "https://github.com/mir-group/nequip/blob/ea3ac14154338da83386be75d619b0cd964ffb42/LICENSE"
+          ],
+          "verification": "verified"
+        },
+        "assessment": "allowed",
+        "allowed_storage_modes": [
+          "metadata-only",
+          "external-runtime-only"
+        ],
+        "official_terms_locator": "https://github.com/mir-group/nequip/blob/ea3ac14154338da83386be75d619b0cd964ffb42/LICENSE",
+        "limitations": [
+          "The MIT framework license does not establish checkpoint, packaged-model, or dataset rights."
+        ]
+      },
+      "limitations": [
+        "Autodoc completeness requires external code bodies as well as docs bodies.",
+        "The rolling rendered site is not the exact tag."
+      ],
+      "blockers": [
+        {
+          "code": "NEQUIP_EXACT_RENDERED_DOCS_UNAVAILABLE",
+          "dimensions": ["corpus","slices"],
+          "description": "An exact v0.19.0 rendered documentation site was not available."
+        },
+        {
+          "code": "NEQUIP_CONTENT_EXTERNAL",
+          "dimensions": ["corpus","slices"],
+          "description": "The exact docs and autodoc code bodies remain external."
+        }
+      ]
+    },
+    {
+      "input_id": "fairchem-v1",
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "fairchem-v1-release-source-1-10-0",
+      "provider_id": "fairchem-v1",
+      "provider_class": "software",
+      "catalog_filename": "source-catalog-fairchem-v1.10.0.json",
+      "storage_policy": "metadata-only",
+      "schema_version": "1.0",
+      "contract_name": "official-document-source-catalog",
+      "version_scope": {
+        "kind": "exact",
+        "value": "fairchem_core-1.10.0",
+        "retrieved_utc": "2026-07-23T19:35:04Z",
+        "snapshot_identity": {
+          "kind": "revision",
+          "value": "977a80328f2be44649b414a9907a1d6ef2f81e95",
+          "content_sha256": "65be98ceed61255dbeee713d962c502ddab8f0b1e69d52127c2567be20404e8e"
+        }
+      },
+      "upstream_universe_complete": false,
+      "inventory_locator": "https://github.com/FAIR-Chem/fairchem/tree/fairchem_core-1.10.0",
+      "sources": [
+        {
+          "source_id": "fairchem-v1.10.0-docs-tree",
+          "title": "FairChem v1.10.0 docs tree",
+          "source_kind": "index",
+          "locator": "https://github.com/FAIR-Chem/fairchem/tree/977a80328f2be44649b414a9907a1d6ef2f81e95/docs",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:6275175a7a2435b46dd49070cf9ee4496c02096d@977a80328f2be44649b414a9907a1d6ef2f81e95",
+            "raw_sha256": "65be98ceed61255dbeee713d962c502ddab8f0b1e69d52127c2567be20404e8e",
+            "raw_bytes": 481,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-v1.10.0-docs-tree-whole",
+              "loss_ids": [
+                "fairchem-v1-autoapi-not-materialized",
+                "fairchem-v1-bodies-external"
+              ],
+              "order": 0,
+              "title": "Complete exact docs-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "65be98ceed61255dbeee713d962c502ddab8f0b1e69d52127c2567be20404e8e",
+                "raw_bytes": 481,
+                "selected_sha256": "65be98ceed61255dbeee713d962c502ddab8f0b1e69d52127c2567be20404e8e",
+                "selected_bytes": 481
+              },
+              "subject_ids": [
+                "fairchem.v1.release.identity",
+                "fairchem.v1.docs.inventory",
+                "fairchem.v1.docs.build.gaps",
+                "fairchem.v1.docs.binary.assets",
+                "fairchem.v1.v2.incompatibility"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-v1.10.0-src-tree",
+          "title": "FairChem v1.10.0 source tree for AutoAPI closure",
+          "source_kind": "source-documentation",
+          "locator": "https://github.com/FAIR-Chem/fairchem/tree/977a80328f2be44649b414a9907a1d6ef2f81e95/src",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:086ecf2755e25cf1a2f53024ca8ff7e6a8eb7408@977a80328f2be44649b414a9907a1d6ef2f81e95",
+            "raw_sha256": "0d6d7574dd8957ea6ac884fab6c59f3ad5068a3f0a8ae356cf5cc7c564d2d89e",
+            "raw_bytes": 35,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-v1.10.0-src-tree-whole",
+              "loss_ids": [
+                "fairchem-v1-autoapi-not-materialized",
+                "fairchem-v1-bodies-external"
+              ],
+              "order": 0,
+              "title": "Complete exact source-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "0d6d7574dd8957ea6ac884fab6c59f3ad5068a3f0a8ae356cf5cc7c564d2d89e",
+                "raw_bytes": 35,
+                "selected_sha256": "0d6d7574dd8957ea6ac884fab6c59f3ad5068a3f0a8ae356cf5cc7c564d2d89e",
+                "selected_bytes": 35
+              },
+              "subject_ids": [
+                "fairchem.v1.docs.autoapi.closure"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-v1.10.0-license",
+          "title": "FairChem v1.10.0 repository license",
+          "source_kind": "other",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/977a80328f2be44649b414a9907a1d6ef2f81e95/LICENSE.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "sha256:3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d@977a80328f2be44649b414a9907a1d6ef2f81e95:LICENSE.md",
+            "raw_sha256": "3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d",
+            "raw_bytes": 1093,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-v1.10.0-license-whole",
+              "loss_ids": [
+                "fairchem-v1-bodies-external"
+              ],
+              "order": 0,
+              "title": "Exact repository license receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d",
+                "raw_bytes": 1093,
+                "selected_sha256": "3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d",
+                "selected_bytes": 1093
+              },
+              "subject_ids": [
+                "fairchem.v1.framework.license",
+                "fairchem.v1.weights.license.unknown"
+              ]
+            }
+          ]
+        }
+      ],
+      "subjects": [
+        {
+          "subject_id": "fairchem.v1.release.identity",
+          "title": "FairChem v1 exact release identity",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "FairChem v1 is pinned to tag fairchem_core-1.10.0, commit 977a80328f2be44649b414a9907a1d6ef2f81e95.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v1.docs.inventory",
+          "title": "FairChem v1 docs inventory",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "The exact v1 docs tree contains 60 paths, including 47 Markdown pages and binary assets.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v1.docs.build.gaps",
+          "title": "FairChem v1 JupyterBook build gaps",
+          "category": "scientific-limitation",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The source table of contents contains generated AutoAPI references, one missing page, and commented/excluded pages; source-tree identity alone cannot claim complete rendered coverage.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "fairchem.v1.docs.binary.assets",
+          "title": "FairChem v1 binary docs assets",
+          "category": "validation-rule",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "Database and pickle assets present under docs are inventory metadata only and are never retrieved, opened, or deserialized.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "fairchem.v1.docs.autoapi.closure",
+          "title": "FairChem v1 AutoAPI source closure",
+          "category": "workflow",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "Generated API pages depend on the exact source tree; this metadata-only catalog records the tree identity but not generated page bodies.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v1.framework.license",
+          "title": "FairChem v1 framework license",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The reviewed repository source is MIT; this does not establish any legacy pretrained checkpoint license.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v1.weights.license.unknown",
+          "title": "FairChem v1 legacy checkpoint rights",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "Legacy model pages identify datasets and checkpoints but do not provide sufficient artifact-specific weight-license evidence; weights remain excluded and unresolved.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "fairchem.v1.v2.incompatibility",
+          "title": "FairChem v1/v2 hard boundary",
+          "category": "validation-rule",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "FairChem v1 APIs and pretrained artifacts are not interchangeable with the breaking v2 rewrite.",
+          "expected_disposition": "partial"
+        }
+      ],
+      "reviewed_exclusions": [
+        {
+          "source_id": "fairchem-v1-binary-doc-assets",
+          "title": "FairChem v1 docs database and pickle assets",
+          "locator": "https://github.com/FAIR-Chem/fairchem/tree/977a80328f2be44649b414a9907a1d6ef2f81e95/docs",
+          "reason_code": "out-of-scope",
+          "rationale": "Binary assets are visible in the tree inventory but are not documentation text and are never fetched or deserialized.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        },
+        {
+          "source_id": "fairchem-v2-current-site",
+          "title": "Current FairChem v2 site",
+          "locator": "https://fair-chem.github.io/",
+          "reason_code": "out-of-scope",
+          "rationale": "The current site describes v2 and cannot replace the exact v1.10.0 source corpus.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        }
+      ],
+      "losses": [
+        {
+          "loss_id": "fairchem-v1-bodies-external",
+          "stage": "storage",
+          "description": "Exact v1 docs, source and license bodies remain external.",
+          "materiality": "material",
+          "disposition": "external-only",
+          "affected_source_ids": [
+            "fairchem-v1.10.0-docs-tree",
+            "fairchem-v1.10.0-src-tree",
+            "fairchem-v1.10.0-license"
+          ]
+        },
+        {
+          "loss_id": "fairchem-v1-autoapi-not-materialized",
+          "stage": "extraction",
+          "description": "Generated AutoAPI bodies and one missing TOC page cannot be recovered from this metadata-only catalog.",
+          "materiality": "material",
+          "disposition": "blocked",
+          "affected_source_ids": [
+            "fairchem-v1.10.0-docs-tree",
+            "fairchem-v1.10.0-src-tree"
+          ]
+        }
+      ],
+      "license": {
+        "identity": {
+          "identifier": "MIT",
+          "terms_urls": [
+            "https://github.com/FAIR-Chem/fairchem/blob/977a80328f2be44649b414a9907a1d6ef2f81e95/LICENSE.md"
+          ],
+          "verification": "verified"
+        },
+        "assessment": "allowed",
+        "allowed_storage_modes": [
+          "metadata-only",
+          "external-runtime-only"
+        ],
+        "official_terms_locator": "https://github.com/FAIR-Chem/fairchem/blob/977a80328f2be44649b414a9907a1d6ef2f81e95/LICENSE.md",
+        "limitations": [
+          "This assessment covers the repository source only and not legacy pretrained checkpoints or datasets."
+        ]
+      },
+      "limitations": [
+        "Generated AutoAPI and missing TOC content prevent a complete rendered corpus.",
+        "Legacy checkpoint licenses remain unresolved."
+      ],
+      "blockers": [
+        {
+          "code": "FAIRCHEM_V1_AUTOAPI_INCOMPLETE",
+          "dimensions": ["corpus","slices"],
+          "description": "Generated AutoAPI pages and a missing source page are not present as a complete exact corpus."
+        },
+        {
+          "code": "FAIRCHEM_V1_WEIGHTS_LICENSE_UNKNOWN",
+          "dimensions": ["coverage"],
+          "description": "Artifact-specific license and byte identity for legacy checkpoints are unresolved."
+        },
+        {
+          "code": "FAIRCHEM_V1_BINARY_ASSETS_EXCLUDED",
+          "dimensions": ["coverage"],
+          "description": "Binary docs assets are intentionally not retrieved or loaded."
+        }
+      ]
+    },
+    {
+      "input_id": "fairchem-v2",
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "fairchem-v2-release-source-2-21-0",
+      "provider_id": "fairchem-v2",
+      "provider_class": "software",
+      "catalog_filename": "source-catalog-fairchem-v2.21.0.json",
+      "storage_policy": "metadata-only",
+      "schema_version": "1.0",
+      "contract_name": "official-document-source-catalog",
+      "version_scope": {
+        "kind": "exact",
+        "value": "fairchem_core-2.21.0",
+        "retrieved_utc": "2026-07-23T19:35:04Z",
+        "snapshot_identity": {
+          "kind": "revision",
+          "value": "f47a0a6f0f594ea051b70091304864242df933e1",
+          "content_sha256": "d6616eb791f4e8761ca07979fdc52b26696856d29cd4f3c710cf28c7b02a2e2d"
+        }
+      },
+      "upstream_universe_complete": false,
+      "inventory_locator": "https://github.com/FAIR-Chem/fairchem/tree/fairchem_core-2.21.0",
+      "sources": [
+        {
+          "source_id": "fairchem-v2.21.0-docs-tree",
+          "title": "FairChem v2.21.0 docs tree",
+          "source_kind": "index",
+          "locator": "https://github.com/FAIR-Chem/fairchem/tree/f47a0a6f0f594ea051b70091304864242df933e1/docs",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:b0b636aa635a4da17cfe0de12621ded835573306@f47a0a6f0f594ea051b70091304864242df933e1",
+            "raw_sha256": "d6616eb791f4e8761ca07979fdc52b26696856d29cd4f3c710cf28c7b02a2e2d",
+            "raw_bytes": 544,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-v2.21.0-docs-tree-whole",
+              "loss_ids": [
+                "fairchem-v2-bodies-external",
+                "fairchem-v2-nontext-assets-excluded"
+              ],
+              "order": 0,
+              "title": "Complete exact docs-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "d6616eb791f4e8761ca07979fdc52b26696856d29cd4f3c710cf28c7b02a2e2d",
+                "raw_bytes": 544,
+                "selected_sha256": "d6616eb791f4e8761ca07979fdc52b26696856d29cd4f3c710cf28c7b02a2e2d",
+                "selected_bytes": 544
+              },
+              "subject_ids": [
+                "fairchem.v2.release.identity",
+                "fairchem.v2.docs.inventory",
+                "fairchem.v2.docs.orphans",
+                "fairchem.v2.docs.binary.assets",
+                "fairchem.v2.rolling.drift",
+                "fairchem.v2.v1.incompatibility"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-v2.21.0-src-tree",
+          "title": "FairChem v2.21.0 source tree",
+          "source_kind": "source-documentation",
+          "locator": "https://github.com/FAIR-Chem/fairchem/tree/f47a0a6f0f594ea051b70091304864242df933e1/src",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "git-tree:c064c974cfd07aac3d44e981660b690322c64259@f47a0a6f0f594ea051b70091304864242df933e1",
+            "raw_sha256": "269edc075f4942c2245ff2266c33491637b638062b1ac0d1da0b00310275a58c",
+            "raw_bytes": 35,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-v2.21.0-src-tree-whole",
+              "loss_ids": [
+                "fairchem-v2-bodies-external",
+                "fairchem-v2-nontext-assets-excluded"
+              ],
+              "order": 0,
+              "title": "Complete exact source-tree receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "269edc075f4942c2245ff2266c33491637b638062b1ac0d1da0b00310275a58c",
+                "raw_bytes": 35,
+                "selected_sha256": "269edc075f4942c2245ff2266c33491637b638062b1ac0d1da0b00310275a58c",
+                "selected_bytes": 35
+              },
+              "subject_ids": [
+                "fairchem.v2.source.api.closure"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-v2.21.0-license",
+          "title": "FairChem v2.21.0 repository license",
+          "source_kind": "other",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "sha256:3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d@f47a0a6f0f594ea051b70091304864242df933e1:LICENSE.md",
+            "raw_sha256": "3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d",
+            "raw_bytes": 1093,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-v2.21.0-license-whole",
+              "loss_ids": [
+                "fairchem-v2-bodies-external"
+              ],
+              "order": 0,
+              "title": "Exact repository license receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d",
+                "raw_bytes": 1093,
+                "selected_sha256": "3e10827938aae9e591647722c830065a95b3af2721f0d7f02f373869b40fe81d",
+                "selected_bytes": 1093
+              },
+              "subject_ids": [
+                "fairchem.v2.framework.license"
+              ]
+            }
+          ]
+        }
+      ],
+      "subjects": [
+        {
+          "subject_id": "fairchem.v2.release.identity",
+          "title": "FairChem v2 exact release identity",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "FairChem v2 is pinned to tag fairchem_core-2.21.0, commit f47a0a6f0f594ea051b70091304864242df933e1.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v2.docs.inventory",
+          "title": "FairChem v2 docs inventory",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "The exact docs tree contains 95 paths and 66 Markdown source pages; the MyST table of contents selects 64 pages.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v2.docs.orphans",
+          "title": "FairChem v2 orphan-page coverage",
+          "category": "validation-rule",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "oc20_slabs.md and benchmark.md are source pages outside the 64-page MyST table of contents and must not disappear from source-tree coverage.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v2.docs.binary.assets",
+          "title": "FairChem v2 binary documentation assets",
+          "category": "validation-rule",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "Notebook, trajectory, pickle, CIF, XYZ and image assets are recorded only at tree-inventory level and are never executed, deserialized, or treated as documentation text.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "fairchem.v2.source.api.closure",
+          "title": "FairChem v2 source/API closure",
+          "category": "workflow",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "The exact source-tree identity is retained for API-reference closure, but source bodies and embedded tensor assets remain external.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v2.rolling.drift",
+          "title": "FairChem v2 rolling-site drift",
+          "category": "scientific-limitation",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The rolling main documentation differs from exact tag 2.21.0 and cannot substitute without an explicit drift review.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "fairchem.v2.framework.license",
+          "title": "FairChem v2 framework license",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The reviewed repository source is MIT; the UMA model repository, pretrained weights, datasets and reference-DFT artifacts have separate rights records.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.v2.v1.incompatibility",
+          "title": "FairChem v2/v1 hard boundary",
+          "category": "validation-rule",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "FairChem v2 is a breaking rewrite and does not accept v1 APIs or pretrained artifacts as interchangeable evidence.",
+          "expected_disposition": "partial"
+        }
+      ],
+      "reviewed_exclusions": [
+        {
+          "source_id": "fairchem-v2-binary-doc-assets",
+          "title": "FairChem v2 notebooks and binary documentation assets",
+          "locator": "https://github.com/FAIR-Chem/fairchem/tree/f47a0a6f0f594ea051b70091304864242df933e1/docs",
+          "reason_code": "out-of-scope",
+          "rationale": "Non-text assets are retained in tree inventory only and never executed, opened, or deserialized.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        },
+        {
+          "source_id": "fairchem-v2-rolling-main",
+          "title": "FairChem rolling main documentation",
+          "locator": "https://fair-chem.github.io/",
+          "reason_code": "out-of-scope",
+          "rationale": "The rolling site differs from the exact 2.21.0 source and is not an exact-version replacement.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        }
+      ],
+      "losses": [
+        {
+          "loss_id": "fairchem-v2-bodies-external",
+          "stage": "storage",
+          "description": "Exact v2 docs, source and license bodies remain external.",
+          "materiality": "material",
+          "disposition": "external-only",
+          "affected_source_ids": [
+            "fairchem-v2.21.0-docs-tree",
+            "fairchem-v2.21.0-src-tree",
+            "fairchem-v2.21.0-license"
+          ]
+        },
+        {
+          "loss_id": "fairchem-v2-nontext-assets-excluded",
+          "stage": "extraction",
+          "description": "Non-text assets are inventoried but not interpreted, executed, or deserialized.",
+          "materiality": "unknown",
+          "disposition": "blocked",
+          "affected_source_ids": [
+            "fairchem-v2.21.0-docs-tree",
+            "fairchem-v2.21.0-src-tree"
+          ]
+        }
+      ],
+      "license": {
+        "identity": {
+          "identifier": "MIT",
+          "terms_urls": [
+            "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md"
+          ],
+          "verification": "verified"
+        },
+        "assessment": "allowed",
+        "allowed_storage_modes": [
+          "metadata-only",
+          "external-runtime-only"
+        ],
+        "official_terms_locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md",
+        "limitations": [
+          "The MIT repository license does not establish UMA model, dataset, or reference-DFT artifact rights."
+        ]
+      },
+      "limitations": [
+        "The rolling rendered site differs from exact release 2.21.0.",
+        "Non-text assets remain external and uninterpreted."
+      ],
+      "blockers": [
+        {
+          "code": "FAIRCHEM_V2_ROLLING_DRIFT",
+          "dimensions": ["corpus","slices"],
+          "description": "The rolling site is not an exact rendering of the reviewed 2.21.0 tree."
+        },
+        {
+          "code": "FAIRCHEM_V2_NON_TEXT_ASSETS_EXCLUDED",
+          "dimensions": ["coverage"],
+          "description": "Notebook and serialized/binary assets remain external and are not interpreted."
+        },
+        {
+          "code": "FAIRCHEM_V2_CONTENT_EXTERNAL",
+          "dimensions": ["corpus","slices"],
+          "description": "The exact documentation and source bodies are not bundled."
+        }
+      ]
+    },
+    {
+      "input_id": "uma-models",
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "fairchem-uma-model-repository",
+      "provider_id": "fairchem-uma",
+      "provider_class": "model-artifact",
+      "catalog_filename": "source-catalog-fairchem-uma-f611b917.json",
+      "storage_policy": "metadata-only",
+      "schema_version": "1.0",
+      "contract_name": "official-document-source-catalog",
+      "version_scope": {
+        "kind": "revision",
+        "value": "f611b917d9c68566bbbeccbb0aa0f7cad1696cb2",
+        "retrieved_utc": "2026-07-23T19:35:04Z",
+        "snapshot_identity": {
+          "kind": "revision",
+          "value": "f611b917d9c68566bbbeccbb0aa0f7cad1696cb2",
+          "content_sha256": "87bfbdf1c9d1823f6c9c1e07909709c76e4accc32de6f7bc0aec1c913a0f6fb5"
+        }
+      },
+      "upstream_universe_complete": false,
+      "inventory_locator": "https://huggingface.co/api/models/facebook/UMA",
+      "sources": [
+        {
+          "source_id": "uma-public-api-metadata",
+          "title": "Public Hugging Face UMA repository metadata",
+          "source_kind": "api-record",
+          "locator": "https://huggingface.co/api/models/facebook/UMA",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "huggingface-model-api:facebook/UMA@f611b917d9c68566bbbeccbb0aa0f7cad1696cb2",
+            "raw_sha256": "87bfbdf1c9d1823f6c9c1e07909709c76e4accc32de6f7bc0aec1c913a0f6fb5",
+            "raw_bytes": 12144,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "uma-public-api-metadata-whole",
+              "loss_ids": [
+                "uma-gated-card-unavailable",
+                "uma-weight-hashes-unavailable"
+              ],
+              "order": 0,
+              "title": "Entire public API response receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "official-api",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "87bfbdf1c9d1823f6c9c1e07909709c76e4accc32de6f7bc0aec1c913a0f6fb5",
+                "raw_bytes": 12144,
+                "selected_sha256": "87bfbdf1c9d1823f6c9c1e07909709c76e4accc32de6f7bc0aec1c913a0f6fb5",
+                "selected_bytes": 12144
+              },
+              "subject_ids": [
+                "uma.repository.identity",
+                "uma.repository.gated",
+                "uma.model.names.metadata",
+                "uma.model.license.restricted",
+                "uma.weight.byte.identity.blocked",
+                "uma.model.card.blocked",
+                "uma.reference.yaml.blocked"
+              ]
+            }
+          ]
+        }
+      ],
+      "subjects": [
+        {
+          "subject_id": "uma.repository.identity",
+          "title": "UMA model-repository revision",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The public API reported repository revision f611b917d9c68566bbbeccbb0aa0f7cad1696cb2 at retrieval time.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "uma.repository.gated",
+          "title": "UMA gated-access state",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "facebook/UMA is manually gated; public metadata does not authorize access to or redistribution of gated model-card and artifact bytes.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "uma.model.names.metadata",
+          "title": "UMA checkpoint-name metadata",
+          "category": "provenance",
+          "requirement_strength": "supporting",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "capability",
+          "statement": "Public metadata enumerates uma-m-1p1.pt, uma-s-1.pt, uma-s-1p1.pt, uma-s-1p2.pt and uma-s-1p2p1.pt as names only; no artifact bytes are included.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "uma.model.license.restricted",
+          "title": "UMA model license boundary",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The public repository metadata reports license:other and gated FAIR Chemistry License v1 plus Acceptable Use Policy terms; the FairChem framework MIT license does not apply to UMA weights.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "uma.weight.byte.identity.blocked",
+          "title": "UMA weight-byte identity",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "A repository revision is not a checkpoint byte SHA-256; no weight byte hash was acquired, and weights are never downloaded, opened, or loaded.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "uma.model.card.blocked",
+          "title": "UMA model-card evidence",
+          "category": "scientific-limitation",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "The raw gated model card was unavailable without accepted access terms, so task/domain/license claims remain incomplete.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "uma.reference.yaml.blocked",
+          "title": "UMA reference configuration evidence",
+          "category": "input-parameter",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "parameter",
+          "statement": "Gated reference YAML files are not retrieved; provider defaults, heads, element references and task settings remain unresolved.",
+          "expected_disposition": "blocked"
+        }
+      ],
+      "reviewed_exclusions": [
+        {
+          "source_id": "uma-gated-model-card",
+          "title": "Gated UMA model card",
+          "locator": "https://huggingface.co/facebook/UMA/blob/f611b917d9c68566bbbeccbb0aa0f7cad1696cb2/README.md",
+          "reason_code": "unavailable",
+          "rationale": "The raw card requires gated access and accepted terms; it was not retrieved.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        },
+        {
+          "source_id": "uma-gated-artifact-tree",
+          "title": "Gated UMA weights and reference YAML files",
+          "locator": "https://huggingface.co/facebook/UMA/tree/f611b917d9c68566bbbeccbb0aa0f7cad1696cb2",
+          "reason_code": "unavailable",
+          "rationale": "Checkpoint and reference-configuration bytes remain gated and are never downloaded, opened, inspected, or loaded.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        }
+      ],
+      "losses": [
+        {
+          "loss_id": "uma-gated-card-unavailable",
+          "stage": "retrieval",
+          "description": "The raw model card and reference configuration bodies were unavailable without gated access.",
+          "materiality": "material",
+          "disposition": "blocked",
+          "affected_source_ids": [
+            "uma-public-api-metadata"
+          ]
+        },
+        {
+          "loss_id": "uma-weight-hashes-unavailable",
+          "stage": "retrieval",
+          "description": "No checkpoint bytes or artifact byte hashes were retrieved; repository revision is insufficient.",
+          "materiality": "material",
+          "disposition": "blocked",
+          "affected_source_ids": [
+            "uma-public-api-metadata"
+          ]
+        }
+      ],
+      "license": {
+        "identity": {
+          "identifier": "FAIR Chemistry License v1 plus Acceptable Use Policy",
+          "terms_urls": [
+            "https://huggingface.co/facebook/UMA"
+          ],
+          "verification": "unverified"
+        },
+        "assessment": "conditional",
+        "allowed_storage_modes": [
+          "metadata-only",
+          "excluded"
+        ],
+        "official_terms_locator": "https://huggingface.co/facebook/UMA",
+        "limitations": [
+          "Public metadata reports license:other; gated terms must be accepted and reviewed outside this repository.",
+          "No model-card, reference YAML, or weight bytes may be bundled."
+        ]
+      },
+      "limitations": [
+        "Only a public metadata response is recorded.",
+        "No model-card body, reference configuration, checkpoint byte hash, or model execution evidence exists."
+      ],
+      "blockers": [
+        {
+          "code": "UMA_GATED_ACCESS_REQUIRED",
+          "dimensions": ["coverage"],
+          "description": "The official model repository requires accepted gated access for authoritative card and artifact bytes."
+        },
+        {
+          "code": "UMA_WEIGHT_SHA256_UNKNOWN",
+          "dimensions": ["coverage"],
+          "description": "No checkpoint byte SHA-256 is available and repository revision is not a substitute."
+        },
+        {
+          "code": "UMA_MODEL_TERMS_REVIEW_REQUIRED",
+          "dimensions": ["coverage"],
+          "description": "Custom model terms and acceptable-use restrictions require external legal review."
+        }
+      ]
+    },
+    {
+      "input_id": "fairchem-datasets",
+      "adapter_id": "declarative-catalog-v1",
+      "authority_id": "fairchem-dataset-reference-docs",
+      "provider_id": "fairchem-datasets",
+      "provider_class": "dataset",
+      "catalog_filename": "source-catalog-fairchem-datasets-v2.21.0.json",
+      "storage_policy": "metadata-only",
+      "schema_version": "1.0",
+      "contract_name": "official-document-source-catalog",
+      "version_scope": {
+        "kind": "exact",
+        "value": "fairchem_core-2.21.0",
+        "retrieved_utc": "2026-07-23T19:35:04Z",
+        "snapshot_identity": {
+          "kind": "revision",
+          "value": "f47a0a6f0f594ea051b70091304864242df933e1",
+          "content_sha256": "d6616eb791f4e8761ca07979fdc52b26696856d29cd4f3c710cf28c7b02a2e2d"
+        }
+      },
+      "upstream_universe_complete": false,
+      "inventory_locator": "https://github.com/FAIR-Chem/fairchem/tree/f47a0a6f0f594ea051b70091304864242df933e1/docs",
+      "sources": [
+        {
+          "source_id": "fairchem-uma-doc",
+          "title": "FairChem exact UMA documentation page",
+          "source_kind": "guide",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/core/uma.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/core/uma.md",
+            "raw_sha256": "072f4d1e77358dfd7ad3e1d5c97318a6b4848c566510c5b5b2db26b09d839c62",
+            "raw_bytes": 6891,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-uma-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external"
+              ],
+              "order": 0,
+              "title": "Entire exact UMA page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "072f4d1e77358dfd7ad3e1d5c97318a6b4848c566510c5b5b2db26b09d839c62",
+                "raw_bytes": 6891,
+                "selected_sha256": "072f4d1e77358dfd7ad3e1d5c97318a6b4848c566510c5b5b2db26b09d839c62",
+                "selected_bytes": 6891
+              },
+              "subject_ids": [
+                "fairchem.dataset.rights.four-layer",
+                "fairchem.reference-dft.restricted-components"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-omol25-doc",
+          "title": "FairChem exact OMol25 dataset page",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/molecules/datasets/omol25.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/molecules/datasets/omol25.md",
+            "raw_sha256": "80fee81ec03f7288fef0335d3b94d741a880f114217a1b17392efdc9dbef1b85",
+            "raw_bytes": 2763,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-omol25-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external",
+                "fairchem-external-dataset-artifact-revisions"
+              ],
+              "order": 0,
+              "title": "Entire exact OMol25 page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "80fee81ec03f7288fef0335d3b94d741a880f114217a1b17392efdc9dbef1b85",
+                "raw_bytes": 2763,
+                "selected_sha256": "80fee81ec03f7288fef0335d3b94d741a880f114217a1b17392efdc9dbef1b85",
+                "selected_bytes": 2763
+              },
+              "subject_ids": [
+                "fairchem.dataset.omol25.license-protocol",
+                "fairchem.dataset.rights.four-layer"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-omc25-doc",
+          "title": "FairChem exact OMC25 dataset page",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/molecules/datasets/omc25.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/molecules/datasets/omc25.md",
+            "raw_sha256": "d02c9bbbef1dba8658c13f60f5b711556bb254db0bd5bc7113b58ad006185bf7",
+            "raw_bytes": 2204,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-omc25-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external",
+                "fairchem-external-dataset-artifact-revisions"
+              ],
+              "order": 0,
+              "title": "Entire exact OMC25 page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "d02c9bbbef1dba8658c13f60f5b711556bb254db0bd5bc7113b58ad006185bf7",
+                "raw_bytes": 2204,
+                "selected_sha256": "d02c9bbbef1dba8658c13f60f5b711556bb254db0bd5bc7113b58ad006185bf7",
+                "selected_bytes": 2204
+              },
+              "subject_ids": [
+                "fairchem.dataset.omc25.license-protocol",
+                "fairchem.dataset.rights.four-layer"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-omat24-doc",
+          "title": "FairChem exact OMat24 dataset page",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/inorganic_materials/datasets/omat24.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/inorganic_materials/datasets/omat24.md",
+            "raw_sha256": "8d487ddde16e5b43c9655199e4af889940accf3f58610392138468306d63d7df",
+            "raw_bytes": 10922,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-omat24-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external",
+                "fairchem-external-dataset-artifact-revisions"
+              ],
+              "order": 0,
+              "title": "Entire exact OMat24 page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "8d487ddde16e5b43c9655199e4af889940accf3f58610392138468306d63d7df",
+                "raw_bytes": 10922,
+                "selected_sha256": "8d487ddde16e5b43c9655199e4af889940accf3f58610392138468306d63d7df",
+                "selected_bytes": 10922
+              },
+              "subject_ids": [
+                "fairchem.dataset.omat24.license-protocol",
+                "fairchem.dataset.rights.four-layer",
+                "fairchem.reference-dft.restricted-components"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-odac23-doc",
+          "title": "FairChem exact ODAC23 dataset page",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/dac/datasets/odac23.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/dac/datasets/odac23.md",
+            "raw_sha256": "14c3bf15ca75839551d285eb3dcc8f07ca1c29663b00b9a4c98faf72f74e32ee",
+            "raw_bytes": 4184,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-odac23-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external",
+                "fairchem-external-dataset-artifact-revisions"
+              ],
+              "order": 0,
+              "title": "Entire exact ODAC23 page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "14c3bf15ca75839551d285eb3dcc8f07ca1c29663b00b9a4c98faf72f74e32ee",
+                "raw_bytes": 4184,
+                "selected_sha256": "14c3bf15ca75839551d285eb3dcc8f07ca1c29663b00b9a4c98faf72f74e32ee",
+                "selected_bytes": 4184
+              },
+              "subject_ids": [
+                "fairchem.dataset.odac23.license-protocol",
+                "fairchem.dataset.rights.four-layer",
+                "fairchem.reference-dft.restricted-components"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-oc20-doc",
+          "title": "FairChem exact OC20 dataset page",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/catalysts/datasets/oc20.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/catalysts/datasets/oc20.md",
+            "raw_sha256": "8acc6821e19f6753ef9bd5b06bbbb74c1bd3ceae62656cbeaf23042db06e434f",
+            "raw_bytes": 38981,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-oc20-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external",
+                "fairchem-external-dataset-artifact-revisions"
+              ],
+              "order": 0,
+              "title": "Entire exact OC20 page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "8acc6821e19f6753ef9bd5b06bbbb74c1bd3ceae62656cbeaf23042db06e434f",
+                "raw_bytes": 38981,
+                "selected_sha256": "8acc6821e19f6753ef9bd5b06bbbb74c1bd3ceae62656cbeaf23042db06e434f",
+                "selected_bytes": 38981
+              },
+              "subject_ids": [
+                "fairchem.dataset.oc20.license-protocol",
+                "fairchem.dataset.rights.four-layer",
+                "fairchem.reference-dft.restricted-components"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-oc22-doc",
+          "title": "FairChem exact OC22 dataset page",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/catalysts/datasets/oc22.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/catalysts/datasets/oc22.md",
+            "raw_sha256": "79969fcccb521b313f6f671421bead75152d72eb79c52d1c9f05bc7142282a54",
+            "raw_bytes": 6185,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-oc22-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external",
+                "fairchem-external-dataset-artifact-revisions"
+              ],
+              "order": 0,
+              "title": "Entire exact OC22 page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "79969fcccb521b313f6f671421bead75152d72eb79c52d1c9f05bc7142282a54",
+                "raw_bytes": 6185,
+                "selected_sha256": "79969fcccb521b313f6f671421bead75152d72eb79c52d1c9f05bc7142282a54",
+                "selected_bytes": 6185
+              },
+              "subject_ids": [
+                "fairchem.dataset.oc22.license-protocol",
+                "fairchem.dataset.rights.four-layer",
+                "fairchem.reference-dft.restricted-components"
+              ]
+            }
+          ]
+        },
+        {
+          "source_id": "fairchem-oc25-doc",
+          "title": "FairChem exact OC25 dataset page",
+          "source_kind": "reference-page",
+          "locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/catalysts/datasets/oc25.md",
+          "disposition": "included",
+          "external_identity": {
+            "kind": "revision",
+            "value": "f47a0a6f0f594ea051b70091304864242df933e1:docs/catalysts/datasets/oc25.md",
+            "raw_sha256": "b41709f986b627d07425d7a840ee99230120e8d7bdb073370bc8284e0243b7c6",
+            "raw_bytes": 2046,
+            "retrieved_utc": "2026-07-23T19:35:04Z"
+          },
+          "slices": [
+            {
+              "slice_id": "fairchem-oc25-doc-whole",
+              "loss_ids": [
+                "fairchem-dataset-doc-bodies-external",
+                "fairchem-external-dataset-artifact-revisions"
+              ],
+              "order": 0,
+              "title": "Entire exact OC25 page receipt",
+              "selector": {
+                "layer": "raw-source",
+                "kind": "whole-source",
+                "value": "*"
+              },
+              "external_receipt": {
+                "retrieval_method": "git-object",
+                "retrieved_utc": "2026-07-23T19:35:04Z",
+                "raw_sha256": "b41709f986b627d07425d7a840ee99230120e8d7bdb073370bc8284e0243b7c6",
+                "raw_bytes": 2046,
+                "selected_sha256": "b41709f986b627d07425d7a840ee99230120e8d7bdb073370bc8284e0243b7c6",
+                "selected_bytes": 2046
+              },
+              "subject_ids": [
+                "fairchem.dataset.oc25.license-protocol",
+                "fairchem.dataset.rights.four-layer",
+                "fairchem.reference-dft.restricted-components"
+              ]
+            }
+          ]
+        }
+      ],
+      "subjects": [
+        {
+          "subject_id": "fairchem.dataset.omol25.license-protocol",
+          "title": "OMol25 license and reference protocol",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The exact OMol25 page states CC-BY-4.0 dataset terms and ORCA 6 reference calculations using wB97M-V/def2-TZVPD; this does not grant ORCA software or raw-output redistribution rights.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.dataset.omc25.license-protocol",
+          "title": "OMC25 license and reference protocol",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The exact OMC25 page states CC-BY-4.0 dataset terms and VASP PBE+D3 reference calculations; VASP and PAW/POTCAR rights remain separate.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.dataset.omat24.license-protocol",
+          "title": "OMat24 license and reference protocol",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The exact OMat24 page states CC-BY-4.0 dataset terms and VASP 5.4 PBE/PBE+U reference calculations; pseudopotential and raw-output rights are not inherited.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.dataset.odac23.license-protocol",
+          "title": "ODAC23 license and reference protocol",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The exact ODAC23 page states CC-BY-4.0 dataset terms and VASP 5.4 PBE+D3 reference calculations; gated storage and reference artifacts remain separate.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.dataset.oc20.license-protocol",
+          "title": "OC20 license and reference protocol",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The exact OC20 page states CC-BY-4.0 dataset terms and VASP 5.4 RPBE reference calculations; this is not a license for VASP, PAW/POTCAR contents, or raw outputs.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.dataset.oc22.license-protocol",
+          "title": "OC22 license and reference protocol",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The exact OC22 page states CC-BY-4.0 dataset terms and VASP 5.4 PBE+U reference calculations; software, pseudopotential and raw-output rights remain separate.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.dataset.oc25.license-protocol",
+          "title": "OC25 license and reference protocol",
+          "category": "provenance",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "documented-claim",
+          "statement": "The exact OC25 page states CC-BY-4.0 dataset terms and VASP 6.4 RPBE+D3 reference calculations; external access and artifact rights remain independently gated.",
+          "expected_disposition": "partial"
+        },
+        {
+          "subject_id": "fairchem.dataset.rights.four-layer",
+          "title": "Framework/model/data/reference-DFT rights separation",
+          "category": "validation-rule",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "FairChem framework source, UMA model artifacts, dataset distributions, and reference-DFT software/pseudopotential/raw-output materials require four independent identity and rights records.",
+          "expected_disposition": "blocked"
+        },
+        {
+          "subject_id": "fairchem.reference-dft.restricted-components",
+          "title": "Reference-DFT restricted components",
+          "category": "scientific-limitation",
+          "requirement_strength": "required",
+          "evidence_class": "official-provider-required",
+          "subject_kind": "limitation",
+          "statement": "Dataset documentation may describe a DFT protocol but cannot grant VASP/ORCA software, PAW/POTCAR or other potential contents, private raw outputs, or gated Argonne/Globus storage access.",
+          "expected_disposition": "blocked"
+        }
+      ],
+      "reviewed_exclusions": [
+        {
+          "source_id": "fairchem-external-dataset-bytes",
+          "title": "External FairChem dataset distributions",
+          "locator": "https://fair-chem.github.io/",
+          "reason_code": "out-of-scope",
+          "rationale": "Only exact first-party documentation receipts are included; dataset bytes, archives, samples and gated storage are not downloaded or bundled.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        },
+        {
+          "source_id": "fairchem-reference-dft-artifacts",
+          "title": "Reference DFT raw outputs and potentials",
+          "locator": "https://github.com/FAIR-Chem/fairchem",
+          "reason_code": "out-of-scope",
+          "rationale": "Raw calculations, proprietary executables and restricted pseudopotential contents are outside this documentation-only metadata authority.",
+          "reviewed_utc": "2026-07-23T19:35:04Z"
+        }
+      ],
+      "losses": [
+        {
+          "loss_id": "fairchem-dataset-doc-bodies-external",
+          "stage": "storage",
+          "description": "Exact dataset and UMA documentation bodies remain external; only byte receipts and rights-layer subjects are stored.",
+          "materiality": "material",
+          "disposition": "external-only",
+          "affected_source_ids": [
+            "fairchem-uma-doc",
+            "fairchem-omol25-doc",
+            "fairchem-omc25-doc",
+            "fairchem-omat24-doc",
+            "fairchem-odac23-doc",
+            "fairchem-oc20-doc",
+            "fairchem-oc22-doc",
+            "fairchem-oc25-doc"
+          ]
+        },
+        {
+          "loss_id": "fairchem-external-dataset-artifact-revisions",
+          "stage": "mapping",
+          "description": "Documentation revision does not establish each external dataset archive's byte identity, storage revision, or effective access terms.",
+          "materiality": "material",
+          "disposition": "blocked",
+          "affected_source_ids": [
+            "fairchem-omol25-doc",
+            "fairchem-omc25-doc",
+            "fairchem-omat24-doc",
+            "fairchem-odac23-doc",
+            "fairchem-oc20-doc",
+            "fairchem-oc22-doc",
+            "fairchem-oc25-doc"
+          ]
+        }
+      ],
+      "license": {
+        "identity": {
+          "identifier": "MIT",
+          "terms_urls": [
+            "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md"
+          ],
+          "verification": "verified"
+        },
+        "assessment": "allowed",
+        "allowed_storage_modes": [
+          "metadata-only"
+        ],
+        "official_terms_locator": "https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md",
+        "limitations": [
+          "This license assessment covers the exact repository documentation source only.",
+          "The documented CC-BY-4.0 dataset statements, external dataset bytes, provider software and reference-DFT artifacts remain separate rights layers."
+        ]
+      },
+      "limitations": [
+        "No external dataset byte identity or archive revision is established.",
+        "No proprietary software, pseudopotential, raw-output, model-weight, or gated-storage right is granted."
+      ],
+      "blockers": [
+        {
+          "code": "FAIRCHEM_DATASET_ARTIFACT_IDENTITIES_MISSING",
+          "dimensions": ["coverage"],
+          "description": "Exact external dataset archive identities and receipts are not recorded."
+        },
+        {
+          "code": "FAIRCHEM_REFERENCE_DFT_RIGHTS_UNRESOLVED",
+          "dimensions": ["coverage"],
+          "description": "Reference software, potential, raw-output and gated-storage rights remain independent and unresolved."
+        },
+        {
+          "code": "FAIRCHEM_DATASET_DOCS_EXTERNAL",
+          "dimensions": ["corpus","slices"],
+          "description": "The exact documentation page bodies remain external."
+        }
+      ]
+    }
+  ],
+  "local_subjects": [
+    {
+      "subject_id": "ml.boundary.four-rights-records",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/ml-potential-workflows/SKILL.md",
+        "skills/ml-potential-workflows/references/provider-matrix.md"
+      ],
+      "statement": "The Skill requires separate framework, model, dataset, and reference-DFT rights records and never infers one from another.",
+      "expected_disposition": "not-applicable"
+    },
+    {
+      "subject_id": "ml.boundary.no-load-no-download",
+      "subject_kind": "workflow",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/ml-potential-workflows/SKILL.md",
+        "skills/ml-potential-workflows/references/calling-and-recipes.md",
+        "skills/ml-potential-workflows/scripts/extract_official_source_scope.py"
+      ],
+      "statement": "The source extractor is offline and neither downloads nor loads checkpoints, model packages, datasets, provider libraries, or serialized assets.",
+      "expected_disposition": "not-applicable"
+    },
+    {
+      "subject_id": "ml.lifecycle.development-only",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/ml-potential-workflows/SKILL.md"
+      ],
+      "statement": "The Skill remains development, non-routable, non-executing, and at claim_ceiling=no_positive_claim.",
+      "expected_disposition": "not-applicable"
+    },
+    {
+      "subject_id": "ml.catalog.provider-version-separation",
+      "subject_kind": "limitation",
+      "evidence_class": "scientific-methodology",
+      "origin_paths": [
+        "skills/ml-potential-workflows/references/provider-workflow-catalog.json",
+        "skills/ml-potential-workflows/references/official-sources.md"
+      ],
+      "statement": "MACE framework/docs revisions, NequIP exact/rolling docs, FairChem v1/v2 APIs, UMA model repositories, and external dataset records must remain distinct identities.",
+      "expected_disposition": "not-applicable"
+    },
+    {
+      "subject_id": "ml.authority.identity-proposal",
+      "subject_kind": "workflow",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/ml-potential-workflows/references/source-pack-authority-proposal.json"
+      ],
+      "statement": "The machine-readable central authority and consumer-binding proposal is review-only and does not mutate or activate any central registry entry.",
+      "expected_disposition": "excluded"
+    }
+  ],
+  "authority_proposals": [
+    {
+      "authority_id": "mace-release-source-0-3-16",
+      "provider_id": "mace",
+      "provider_class": "software",
+      "proposed_lifecycle": "active",
+      "canonical_roots": [
+        "https://github.com/ACEsuit/mace"
+      ],
+      "version_policy": {
+        "kind": "exact-revision",
+        "value": "4d2da09413ac1407f37cdbb6b81fa28e4c15655e",
+        "drift": "fail-closed"
+      },
+      "license_policy": {
+        "assessment": "allowed",
+        "scope": "framework source only",
+        "separate_records_required": [
+          "docs",
+          "model-artifacts",
+          "datasets",
+          "reference-dft"
+        ]
+      },
+      "storage_policy": {
+        "bundle_content": "forbidden",
+        "allowed_modes": [
+          "metadata-only"
+        ]
+      },
+      "consumer_binding": {
+        "skill_id": "ml-potential-workflows",
+        "input_id": "mace-framework",
+        "status_ceiling": "blocked"
+      },
+      "limitations": [
+        "Activation requires central review; this proposal does not edit the registry.",
+        "The exact framework tag contains no docs/ tree."
+      ]
+    },
+    {
+      "authority_id": "mace-docs-branch-bff7c94d",
+      "provider_id": "mace",
+      "provider_class": "software",
+      "proposed_lifecycle": "active",
+      "canonical_roots": [
+        "https://github.com/ACEsuit/mace",
+        "https://mace-docs.readthedocs.io/"
+      ],
+      "version_policy": {
+        "kind": "revision-plus-retrieval-receipts",
+        "value": "bff7c94d8fbfdc3dde707ade12db5f36b97683b5",
+        "drift": "fail-closed"
+      },
+      "license_policy": {
+        "assessment": "conditional",
+        "scope": "docs branch and rolling build only",
+        "separate_records_required": [
+          "framework",
+          "model-artifacts"
+        ]
+      },
+      "storage_policy": {
+        "bundle_content": "forbidden",
+        "allowed_modes": [
+          "metadata-only"
+        ]
+      },
+      "consumer_binding": {
+        "skill_id": "ml-potential-workflows",
+        "input_id": "mace-docs",
+        "status_ceiling": "blocked"
+      },
+      "limitations": [
+        "Docs revision and license differ from framework v0.3.16.",
+        "No exact v0.3.16 rendered documentation corpus is available."
+      ]
+    },
+    {
+      "authority_id": "nequip-release-source-0-19-0",
+      "provider_id": "nequip",
+      "provider_class": "software",
+      "proposed_lifecycle": "active",
+      "canonical_roots": [
+        "https://github.com/mir-group/nequip"
+      ],
+      "version_policy": {
+        "kind": "exact-revision",
+        "value": "ea3ac14154338da83386be75d619b0cd964ffb42",
+        "drift": "fail-closed"
+      },
+      "license_policy": {
+        "assessment": "allowed",
+        "scope": "framework source and exact docs source only",
+        "separate_records_required": [
+          "checkpoints",
+          "packaged-models",
+          "datasets"
+        ]
+      },
+      "storage_policy": {
+        "bundle_content": "forbidden",
+        "allowed_modes": [
+          "metadata-only"
+        ]
+      },
+      "consumer_binding": {
+        "skill_id": "ml-potential-workflows",
+        "input_id": "nequip-framework",
+        "status_ceiling": "blocked"
+      },
+      "limitations": [
+        "An exact rendered v0.19.0 site is unavailable.",
+        "Autodoc requires both docs and code source identities."
+      ]
+    },
+    {
+      "authority_id": "fairchem-v1-release-source-1-10-0",
+      "provider_id": "fairchem-v1",
+      "provider_class": "software",
+      "proposed_lifecycle": "active",
+      "canonical_roots": [
+        "https://github.com/FAIR-Chem/fairchem"
+      ],
+      "version_policy": {
+        "kind": "exact-revision",
+        "value": "977a80328f2be44649b414a9907a1d6ef2f81e95",
+        "drift": "fail-closed"
+      },
+      "license_policy": {
+        "assessment": "allowed",
+        "scope": "v1 repository source only",
+        "separate_records_required": [
+          "legacy-model-artifacts",
+          "datasets",
+          "reference-dft"
+        ]
+      },
+      "storage_policy": {
+        "bundle_content": "forbidden",
+        "allowed_modes": [
+          "metadata-only"
+        ]
+      },
+      "consumer_binding": {
+        "skill_id": "ml-potential-workflows",
+        "input_id": "fairchem-v1",
+        "status_ceiling": "blocked"
+      },
+      "limitations": [
+        "Generated AutoAPI and a missing TOC page prevent full rendered coverage.",
+        "Legacy checkpoint licenses remain unresolved."
+      ]
+    },
+    {
+      "authority_id": "fairchem-v2-release-source-2-21-0",
+      "provider_id": "fairchem-v2",
+      "provider_class": "software",
+      "proposed_lifecycle": "active",
+      "canonical_roots": [
+        "https://github.com/FAIR-Chem/fairchem"
+      ],
+      "version_policy": {
+        "kind": "exact-revision",
+        "value": "f47a0a6f0f594ea051b70091304864242df933e1",
+        "drift": "fail-closed"
+      },
+      "license_policy": {
+        "assessment": "allowed",
+        "scope": "v2 repository source only",
+        "separate_records_required": [
+          "uma-model-artifacts",
+          "datasets",
+          "reference-dft"
+        ]
+      },
+      "storage_policy": {
+        "bundle_content": "forbidden",
+        "allowed_modes": [
+          "metadata-only"
+        ]
+      },
+      "consumer_binding": {
+        "skill_id": "ml-potential-workflows",
+        "input_id": "fairchem-v2",
+        "status_ceiling": "blocked"
+      },
+      "limitations": [
+        "The rolling site differs from exact release 2.21.0.",
+        "Non-text assets are not interpreted."
+      ]
+    },
+    {
+      "authority_id": "fairchem-uma-model-repository",
+      "provider_id": "fairchem-uma",
+      "provider_class": "model-artifact",
+      "proposed_lifecycle": "active",
+      "canonical_roots": [
+        "https://huggingface.co/facebook/UMA"
+      ],
+      "version_policy": {
+        "kind": "repository-revision-plus-artifact-sha256",
+        "value": "f611b917d9c68566bbbeccbb0aa0f7cad1696cb2",
+        "drift": "fail-closed"
+      },
+      "license_policy": {
+        "assessment": "conditional",
+        "scope": "gated UMA model repository",
+        "separate_records_required": [
+          "framework",
+          "each-checkpoint-byte-identity",
+          "datasets",
+          "reference-dft"
+        ]
+      },
+      "storage_policy": {
+        "bundle_content": "forbidden",
+        "allowed_modes": [
+          "metadata-only",
+          "excluded"
+        ]
+      },
+      "consumer_binding": {
+        "skill_id": "ml-potential-workflows",
+        "input_id": "uma-models",
+        "status_ceiling": "blocked"
+      },
+      "limitations": [
+        "No checkpoint bytes or model-card body were retrieved.",
+        "Repository revision is not a checkpoint byte identity."
+      ]
+    },
+    {
+      "authority_id": "fairchem-dataset-reference-docs",
+      "provider_id": "fairchem-datasets",
+      "provider_class": "dataset",
+      "proposed_lifecycle": "active",
+      "canonical_roots": [
+        "https://github.com/FAIR-Chem/fairchem"
+      ],
+      "version_policy": {
+        "kind": "exact-documentation-revision",
+        "value": "f47a0a6f0f594ea051b70091304864242df933e1",
+        "drift": "fail-closed"
+      },
+      "license_policy": {
+        "assessment": "allowed-for-source-docs-only",
+        "scope": "dataset and reference-protocol documentation",
+        "separate_records_required": [
+          "each-external-dataset-artifact",
+          "reference-software",
+          "pseudopotentials",
+          "raw-outputs",
+          "gated-storage"
+        ]
+      },
+      "storage_policy": {
+        "bundle_content": "forbidden",
+        "allowed_modes": [
+          "metadata-only"
+        ]
+      },
+      "consumer_binding": {
+        "skill_id": "ml-potential-workflows",
+        "input_id": "fairchem-datasets",
+        "status_ceiling": "blocked"
+      },
+      "limitations": [
+        "Dataset pages do not establish archive byte identity or all effective access terms.",
+        "Reference-DFT protocol descriptions do not grant software, potential, or raw-output rights."
+      ]
+    }
+  ],
+  "proposal_limitations": [
+    "This proposal is an isolated Skill artifact and does not edit, activate, or bind any central registry entry.",
+    "Every proposed authority forbids bundled content and remains metadata-only.",
+    "Central adoption must preserve exact provider/version/license separation and the aggregate blocked ceiling."
+  ],
+  "seed_limitations": [
+    "All provider inputs are external metadata receipts; official documentation bodies are not bundled.",
+    "MACE framework and docs revisions and source identities are intentionally separate.",
+    "FairChem v1, FairChem v2, UMA model artifacts, datasets, and reference-DFT identities are intentionally separate.",
+    "No provider framework, checkpoint, dataset, archive, notebook, pickle, or serialized asset is imported, downloaded, opened, deserialized, or executed."
+  ],
+  "seed_blockers": [
+    "MACE has no exact v0.3.16 documentation corpus, and its docs branch has a different revision and independent source identity.",
+    "NequIP exact rendered v0.19.0 docs are unavailable and autodoc bodies remain external.",
+    "FairChem v1 generated AutoAPI/missing page and unresolved legacy checkpoint byte identities prevent complete coverage.",
+    "FairChem v2 rolling drift and excluded non-text assets prevent complete rendered coverage.",
+    "UMA model-card, reference YAML, checkpoint byte identities, and gated-access records remain unavailable or unresolved.",
+    "External FairChem dataset archive identities and reference-DFT software, potential, raw-output, and gated-storage provenance remain unresolved."
+  ]
+}

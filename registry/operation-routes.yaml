@@ -117,10 +117,10 @@ routes:
     tool_sequence:
       explain: [qe.reference]
       design: [qe.plan, qe.reference, qe.audit-input]
-      audit_input: [qe.audit-input]
-      audit_run: [qe.audit-run]
-      convergence: [qe.convergence]
-      handoff: [qe.audit-run, qe.validate-handoff]
+      audit_input: [qe.audit-input, qe.reference]
+      audit_run: [qe.audit-run, qe.reference]
+      convergence: [qe.convergence, qe.reference]
+      handoff: [qe.audit-run, qe.reference, qe.validate-handoff]
     side_effects: [network-read, local-write, local-execution]
     minimum_evidence:
       - QE version and executable identity
@@ -159,14 +159,14 @@ routes:
         requires_authorization: false
         maximum_claim: input_gates_only
       qe.audit-run:
-        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, audit, --input, <input>, --output, <output>, --run-dir, <run-dir>, --pseudo-dir, <pseudo-dir>, --pseudo-manifest, <pseudo-manifest>, --expected-version, <version>, --plan, <plan-json>, --out, <audit-json>]
+        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, audit, --input, <input>, --output, <output>, --stderr, <stderr>, --run-dir, <run-dir>, --pseudo-dir, <pseudo-dir>, --pseudo-manifest, <pseudo-manifest>, --expected-version, <version>, --plan, <plan-json>, --out, <audit-json>]
         success_exit_codes: [0]
         limited_exit_codes: []
         side_effects: [local-write, local-execution]
         requires_authorization: false
         maximum_claim: technical_run_gates_only
       qe.convergence:
-        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, convergence, --csv, <series-csv>, --plan, <plan-json>, --protocol-id, <protocol-id>, --parameter, <parameter>, --parameter-unit, <parameter-unit>, --observable, <observable>, --observable-unit, <unit>, --absolute-tolerance, <tolerance>, --tail, <tail>, --out, <convergence-json>]
+        argv: [python3, -B, skills/qe-rigorous-calculations/scripts/qe_guard.py, convergence, --csv, <series-csv>, --plan, <plan-json>, --protocol-id, <protocol-id>, --parameter, <parameter>, --parameter-unit, <parameter-unit>, --observable, <observable>, --observable-unit, <unit>, --direction, <direction>, --absolute-tolerance, <tolerance>, --tail, <tail>, --out, <convergence-json>]
         success_exit_codes: [0]
         limited_exit_codes: []
         side_effects: [local-write, local-execution]
@@ -182,10 +182,10 @@ routes:
     claim_gate_profile:
       no_positive_claim: {all_of: [], any_of: []}
       documented_behavior_only: {all_of: [], any_of: [official-source-coverage]}
-      input_gates_only: {all_of: [input-integrity], any_of: []}
-      technical_run_gates_only: {all_of: [input-integrity, execution-completion], any_of: []}
-      numerical_candidate_only: {all_of: [input-integrity, execution-completion, numerical-convergence], any_of: []}
-      eligible_for_expert_review: {all_of: [input-integrity, execution-completion, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+      input_gates_only: {all_of: [official-source-coverage, input-integrity], any_of: []}
+      technical_run_gates_only: {all_of: [official-source-coverage, input-integrity, execution-completion], any_of: []}
+      numerical_candidate_only: {all_of: [official-source-coverage, input-integrity, execution-completion, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [official-source-coverage, input-integrity, execution-completion, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
     handoff:
       status: enabled
       produces:
@@ -216,10 +216,10 @@ routes:
     tool_sequence:
       explain: [vasp.reference]
       design: [vasp.reference, vasp.audit-input]
-      audit_input: [vasp.audit-input]
-      audit_run: [vasp.audit-run]
-      convergence: [vasp.convergence]
-      handoff: [vasp.validate-claim, vasp.validate-handoff]
+      audit_input: [vasp.audit-input, vasp.reference]
+      audit_run: [vasp.audit-run, vasp.reference]
+      convergence: [vasp.convergence, vasp.reference]
+      handoff: [vasp.validate-claim, vasp.reference, vasp.validate-handoff]
     side_effects: [local-execution]
     minimum_evidence:
       - VASP version/build and explicit task
@@ -250,7 +250,7 @@ routes:
         requires_authorization: false
         maximum_claim: input_gates_only
       vasp.audit-run:
-        argv: [python3, -B, skills/vasp-rigorous-calculations/scripts/audit_vasp_case.py, <case>, --mode, run, --task-type, <task>, --pretty]
+        argv: [python3, -B, skills/vasp-rigorous-calculations/scripts/audit_vasp_case.py, <case>, --mode, run, --task-type, <task>, --expected-vasp-version, <expected_vasp_version>, --pretty]
         success_exit_codes: [0]
         limited_exit_codes: []
         side_effects: [local-execution]
@@ -280,10 +280,10 @@ routes:
     claim_gate_profile:
       no_positive_claim: {all_of: [], any_of: []}
       documented_behavior_only: {all_of: [], any_of: [official-source-coverage]}
-      input_gates_only: {all_of: [input-integrity, input-reproducibility], any_of: []}
-      technical_run_gates_only: {all_of: [input-integrity, input-reproducibility, execution-completion, electronic-convergence, output-warnings, version-identity], any_of: []}
-      numerical_candidate_only: {all_of: [input-integrity, input-reproducibility, execution-completion, electronic-convergence, output-warnings, version-identity, numerical-convergence], any_of: []}
-      eligible_for_expert_review: {all_of: [input-integrity, input-reproducibility, execution-completion, electronic-convergence, output-warnings, version-identity, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+      input_gates_only: {all_of: [official-source-coverage, input-integrity, input-reproducibility], any_of: []}
+      technical_run_gates_only: {all_of: [official-source-coverage, input-integrity, input-reproducibility, input-output-consistency, execution-completion, electronic-convergence, output-warnings, version-identity], any_of: []}
+      numerical_candidate_only: {all_of: [official-source-coverage, input-integrity, input-reproducibility, input-output-consistency, execution-completion, electronic-convergence, output-warnings, version-identity, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [official-source-coverage, input-integrity, input-reproducibility, input-output-consistency, execution-completion, electronic-convergence, output-warnings, version-identity, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
     handoff:
       status: enabled
       produces:
@@ -315,10 +315,10 @@ routes:
     tool_sequence:
       explain: [cp2k.reference]
       design: [cp2k.reference, cp2k.audit-input]
-      audit_input: [cp2k.audit-input]
-      audit_run: [cp2k.audit-run]
-      convergence: [cp2k.convergence]
-      handoff: [cp2k.validate-claim, cp2k.validate-handoff]
+      audit_input: [cp2k.audit-input, cp2k.reference]
+      audit_run: [cp2k.audit-run, cp2k.reference]
+      convergence: [cp2k.convergence, cp2k.reference]
+      handoff: [cp2k.validate-claim, cp2k.reference, cp2k.validate-handoff]
     side_effects: [network-read, local-execution]
     minimum_evidence:
       - CP2K version/build, executable variant, task, and method
@@ -379,10 +379,10 @@ routes:
     claim_gate_profile:
       no_positive_claim: {all_of: [], any_of: []}
       documented_behavior_only: {all_of: [], any_of: [official-source-coverage]}
-      input_gates_only: {all_of: [input-integrity, input-reproducibility, external-data-provenance], any_of: []}
-      technical_run_gates_only: {all_of: [input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity], any_of: []}
-      numerical_candidate_only: {all_of: [input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity, numerical-convergence], any_of: []}
-      eligible_for_expert_review: {all_of: [input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+      input_gates_only: {all_of: [official-source-coverage, input-integrity, input-reproducibility, external-data-provenance], any_of: []}
+      technical_run_gates_only: {all_of: [official-source-coverage, input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity], any_of: []}
+      numerical_candidate_only: {all_of: [official-source-coverage, input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [official-source-coverage, input-integrity, input-reproducibility, external-data-provenance, execution-completion, input-output-binding, electronic-convergence, output-warnings, version-identity, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
     handoff:
       status: enabled
       produces:
@@ -480,9 +480,9 @@ routes:
       no_positive_claim: {all_of: [], any_of: []}
       documented_behavior_only: {all_of: [], any_of: [official-source-resolution]}
       input_gates_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance], any_of: []}
-      technical_run_gates_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, official-version-match], any_of: []}
-      numerical_candidate_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, official-version-match, numerical-convergence], any_of: []}
-      eligible_for_expert_review: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, official-version-match, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
+      technical_run_gates_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, output-observables, official-version-match], any_of: []}
+      numerical_candidate_only: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, output-observables, official-version-match, numerical-convergence], any_of: []}
+      eligible_for_expert_review: {all_of: [scientific-plan, official-source-resolution, input-integrity, pseudopotential-provenance, input-output-consistency, execution-completion, electronic-convergence, output-warnings, output-observables, official-version-match, numerical-convergence, task-specific-validation, expert-review-readiness], any_of: []}
     handoff:
       status: enabled
       produces:
@@ -572,7 +572,7 @@ routes:
       input_gates_only: {all_of: [source-inventory, observable-route], any_of: []}
       technical_run_gates_only: {all_of: [source-inventory, observable-route, dataset-validation], any_of: []}
       numerical_candidate_only: {all_of: [source-inventory, observable-route, dataset-validation, numerical-analysis-validation], any_of: []}
-      eligible_for_expert_review: {all_of: [source-inventory, observable-route, dataset-validation, artifact-validation, expert-review-readiness], any_of: []}
+      eligible_for_expert_review: {all_of: [source-inventory, observable-route, dataset-validation, numerical-analysis-validation, artifact-validation, expert-review-readiness], any_of: []}
     handoff:
       status: enabled
       produces:

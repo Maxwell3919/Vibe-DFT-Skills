@@ -12,16 +12,17 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import resolve_official_sources
+
 
 AUDIT_SCHEMA_VERSION = "2.0"
-SCRIPT_DIR = Path(__file__).resolve().parent
-SKILL_ROOT = SCRIPT_DIR.parent
-MIRROR_MANIFEST = SKILL_ROOT / "references" / "official-wiki" / "manifest.json"
 
 TRUE_VALUES = {"T", ".TRUE.", "TRUE", "1", "YES", "Y"}
 FALSE_VALUES = {"F", ".FALSE.", "FALSE", "0", "NO", "N"}
 FLOAT_PATTERN = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?")
 INTEGER_PATTERN = re.compile(r"[-+]?\d+")
+VASP_VERSION_PATTERN = re.compile(r"(?:vasp\.)?([1-9]\d*\.\d+\.\d+)", re.IGNORECASE)
+VASP_STARTUP_BANNER = re.compile(r"^vasp\.([1-9]\d*\.\d+\.\d+)(?:\s|$)", re.IGNORECASE)
 RUN_TASKS = {
     "generic",
     "static",
@@ -88,6 +89,13 @@ def strict_integer(token: str, context: str) -> int:
     if not INTEGER_PATTERN.fullmatch(token.strip()):
         raise ValueError(f"{context} is not one integer")
     return int(token)
+
+
+def normalize_vasp_version(value: str) -> str:
+    match = VASP_VERSION_PATTERN.fullmatch(value.strip())
+    if match is None:
+        raise ValueError("expected VASP version must be an exact MAJOR.MINOR.PATCH value")
+    return match.group(1)
 
 
 def strip_comment(text: str) -> str:
@@ -427,42 +435,84 @@ def parse_outcar(path: Path) -> dict[str, Any]:
         "fatal_markers": [],
     }
     electronic_iterations: dict[int, int] = {}
-    explicit_ediff_marker = False
+    ediff_reached_steps: set[int] = set()
+    current_ionic_step: int | None = None
+    last_iteration_line: int | None = None
+    startup_segments: list[dict[str, Any]] = []
+    current_segment: dict[str, Any] | None = None
+    echo_values: dict[str, list[float | int]] = {
+        "encut_ev": [],
+        "ediff": [],
+        "nelm": [],
+        "nkpts": [],
+    }
+    echo_overflow: set[str] = set()
     with path.open(errors="replace") as handle:
         for line_number, raw in enumerate(handle, 1):
             line = raw.strip()
-            if result["version"] is None:
-                match = re.search(r"\bvasp\.([0-9][^\s]*)", line, re.IGNORECASE)
-                if match:
-                    result["version"] = match.group(0)
+            startup_match = VASP_STARTUP_BANNER.match(line)
+            if startup_match:
+                current_segment = {
+                    "line": line_number,
+                    "version": startup_match.group(1),
+                    "banner_sha256": hashlib.sha256(
+                        line.encode("utf-8", errors="replace")
+                    ).hexdigest(),
+                    "timing_accounting_header_line": None,
+                    "elapsed_time_line": None,
+                }
+                startup_segments.append(current_segment)
+                current_ionic_step = None
             for key, pattern in (
                 ("encut_ev", r"\bENCUT\s*=\s*([-+0-9.Ee]+)"),
                 ("ediff", r"\bEDIFF\s*=\s*([-+0-9.Ee]+)"),
             ):
-                if result[key] is None:
-                    match = re.search(pattern, line)
-                    if match:
-                        value = float(match.group(1))
-                        result[key] = value if math.isfinite(value) else None
-            if result["nelm"] is None:
-                match = re.search(r"\bNELM\s*=\s*(\d+)", line)
+                match = re.search(pattern, line)
                 if match:
-                    result["nelm"] = int(match.group(1))
-            if result["nkpts"] is None:
-                match = re.search(r"\bNKPTS\s*=\s*(\d+)", line)
-                if match:
-                    result["nkpts"] = int(match.group(1))
+                    value = float(match.group(1))
+                    if math.isfinite(value):
+                        if len(echo_values[key]) < 100:
+                            echo_values[key].append(value)
+                        else:
+                            echo_overflow.add(key)
+                        if result[key] is None:
+                            result[key] = value
+            match = re.search(r"\bNELM\s*=\s*(\d+)", line)
+            if match:
+                value = int(match.group(1))
+                if len(echo_values["nelm"]) < 100:
+                    echo_values["nelm"].append(value)
+                else:
+                    echo_overflow.add("nelm")
+                if result["nelm"] is None:
+                    result["nelm"] = value
+            match = re.search(r"\bNKPTS\s*=\s*(\d+)", line)
+            if match:
+                value = int(match.group(1))
+                if len(echo_values["nkpts"]) < 100:
+                    echo_values["nkpts"].append(value)
+                else:
+                    echo_overflow.add("nkpts")
+                if result["nkpts"] is None:
+                    result["nkpts"] = value
             match = re.search(r"\bIteration\s+(\d+)\(\s*(\d+)\)", line)
             if match:
                 ionic_step, electronic_step = int(match.group(1)), int(match.group(2))
+                current_ionic_step = ionic_step
+                last_iteration_line = line_number
                 electronic_iterations[ionic_step] = max(electronic_iterations.get(ionic_step, 0), electronic_step)
             lowered = line.lower()
-            if "aborting loop because ediff is reached" in lowered:
-                explicit_ediff_marker = True
+            if "aborting loop because ediff is reached" in lowered and current_ionic_step is not None:
+                ediff_reached_steps.add(current_ionic_step)
             if "reached required accuracy" in lowered:
                 result["ionic_converged"] = True
-            if "General timing and accounting informations for this job" in line or "Elapsed time (sec)" in line:
-                result["completed"] = True
+            if (
+                "General timing and accounting informations for this job" in line
+                and current_segment is not None
+            ):
+                current_segment["timing_accounting_header_line"] = line_number
+            if "Elapsed time (sec)" in line and current_segment is not None:
+                current_segment["elapsed_time_line"] = line_number
             if "stopcar" in lowered or "soft stop" in lowered:
                 if len(result["stop_markers"]) < 20:
                     result["stop_markers"].append(
@@ -500,15 +550,77 @@ def parse_outcar(path: Path) -> dict[str, Any]:
                             "text_redacted": True,
                         }
                     )
+    result["startup_segments"] = [
+        {
+            "line": segment["line"],
+            "version": segment["version"],
+            "timing_accounting_header_line": segment["timing_accounting_header_line"],
+            "elapsed_time_line": segment["elapsed_time_line"],
+        }
+        for segment in startup_segments[:20]
+    ]
+    result["echo_values"] = {
+        key: sorted(set(values))
+        for key, values in echo_values.items()
+    }
+    result["echo_observation_overflow"] = sorted(echo_overflow)
+    result["startup_segment_count"] = len(startup_segments)
+    only_segment = startup_segments[0] if len(startup_segments) == 1 else None
+    if only_segment is not None and only_segment["line"] <= 20:
+        result["version"] = only_segment["version"]
+        result["version_banner_sha256"] = only_segment["banner_sha256"]
+    result["completion_evidence"] = {
+        "startup_segment_count": len(startup_segments),
+        "timing_accounting_header_line": (
+            only_segment["timing_accounting_header_line"]
+            if only_segment is not None
+            else None
+        ),
+        "elapsed_time_line": (
+            only_segment["elapsed_time_line"]
+            if only_segment is not None
+            else None
+        ),
+        "last_iteration_line": last_iteration_line,
+    }
+    trailing_run_evidence = bool(
+        only_segment is not None
+        and only_segment["elapsed_time_line"] is not None
+        and last_iteration_line is not None
+        and last_iteration_line > only_segment["elapsed_time_line"]
+    )
+    result["trailing_run_evidence"] = trailing_run_evidence
+    result["completed"] = bool(
+        only_segment is not None
+        and only_segment["timing_accounting_header_line"] is not None
+        and only_segment["elapsed_time_line"] is not None
+        and only_segment["timing_accounting_header_line"]
+        <= only_segment["elapsed_time_line"]
+        and not trailing_run_evidence
+    )
     if electronic_iterations:
         result["ionic_steps"] = max(electronic_iterations)
-    if explicit_ediff_marker:
+        result["electronic_ediff_reached_steps"] = sorted(ediff_reached_steps)[:50]
+    if (
+        len(startup_segments) == 1
+        and electronic_iterations
+        and set(electronic_iterations) <= ediff_reached_steps
+    ):
         result["electronic_converged"] = True
-        result["electronic_convergence_basis"] = "explicit-ediff-marker"
-    elif result["completed"] and result["nelm"] and electronic_iterations:
-        exhausted = [step for step, count in electronic_iterations.items() if count >= result["nelm"]]
+        result["electronic_convergence_basis"] = "explicit-ediff-marker-for-every-observed-step"
+    elif (
+        len(startup_segments) == 1
+        and result["completed"]
+        and result["nelm"]
+        and electronic_iterations
+    ):
+        exhausted = [
+            step
+            for step, count in electronic_iterations.items()
+            if count >= result["nelm"] and step not in ediff_reached_steps
+        ]
         result["electronic_converged"] = not exhausted
-        result["electronic_convergence_basis"] = "iteration-count-versus-nelm"
+        result["electronic_convergence_basis"] = "per-step-ediff-marker-or-iteration-count-versus-nelm"
         if exhausted:
             result["electronic_steps_at_nelm"] = exhausted[:50]
     return result
@@ -516,34 +628,44 @@ def parse_outcar(path: Path) -> dict[str, Any]:
 
 def mirror_coverage(tags: dict[str, str]) -> dict[str, Any]:
     try:
-        manifest = json.loads(MIRROR_MANIFEST.read_text(encoding="utf-8"))
-    except OSError:
-        return {"status": "unavailable", "error": "local mirror manifest cannot be read", "covered": {}, "missing": sorted(tags)}
-    except json.JSONDecodeError:
-        return {"status": "unavailable", "error": "local mirror manifest is invalid JSON", "covered": {}, "missing": sorted(tags)}
-    pages = {}
-    for record in manifest.get("pages", []):
-        title = str(record.get("title", ""))
-        keys = {title.upper(), title.removeprefix("Category:").upper()}
-        for key in keys:
-            pages[key] = record
-    covered = {
-        tag: {
-            "title": pages[tag]["title"],
-            "url": pages[tag]["url"],
-            "revision": pages[tag]["revid"],
-            "local_path": pages[tag]["markdown_path"],
+        resolution = resolve_official_sources.resolve(sorted(tags))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {
+            "status": resolve_official_sources.BLOCKED_STATUS,
+            "maximum_conclusion": "official_source_claim_blocked",
+            "covered": {},
+            "missing": sorted(tags),
+            "corrupt": [],
+            "integrity": {
+                "anchor_status": "blocked",
+                "anchor_reason": "resolver_input_unavailable_or_invalid",
+            },
+            "limitation": (
+                "The local official-source evidence could not be verified; "
+                "this is not evidence that the live VASP Wiki is silent."
+            ),
         }
-        for tag in sorted(tags)
-        if tag in pages
+    covered = {
+        item["query"]: {
+            "title": item["title"],
+            "url": item["url"],
+            "revision": item["revision"],
+            "local_path": item["local_path"],
+            "markdown_sha256": item["markdown_sha256"],
+            "raw_json_sha256": item["raw_json_sha256"],
+            "wikitext_sha256": item["wikitext_sha256"],
+        }
+        for item in resolution["resolved"]
     }
-    missing = sorted(set(tags) - set(covered))
     return {
-        "status": "pass" if not missing else "partial",
-        "retrieved_utc": manifest.get("retrieved_utc"),
+        "status": resolution["status"],
+        "maximum_conclusion": resolution["maximum_conclusion"],
+        "retrieved_utc": resolution["mirror_retrieved_utc"],
         "covered": covered,
-        "missing": missing,
-        "limitation": "Missing means absent from the local mirror, not absent from the live official VASP Wiki.",
+        "missing": resolution["missing"],
+        "corrupt": resolution["corrupt"],
+        "integrity": resolution["integrity"],
+        "limitation": resolution["rule"],
     }
 
 
@@ -559,19 +681,34 @@ def summarize(findings: list[dict[str, str]]) -> dict[str, int]:
     }
 
 
-def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[str, Any]:
+def audit(
+    case: Path,
+    mode: str = "input",
+    task_type: str = "generic",
+    expected_vasp_version: str | None = None,
+) -> dict[str, Any]:
     if mode not in {"input", "run"}:
         raise ValueError("mode must be input or run")
     if task_type not in RUN_TASKS:
         raise ValueError(f"unsupported task type: {task_type}")
+    normalized_expected_version = (
+        normalize_vasp_version(expected_vasp_version)
+        if expected_vasp_version is not None
+        else None
+    )
     findings: list[dict[str, str]] = []
     result: dict[str, Any] = {
         "audit_schema_version": AUDIT_SCHEMA_VERSION,
         "auditor": "audit_vasp_case.py",
         "mode": mode,
         "task_type": task_type,
+        "expected_vasp_version": normalized_expected_version,
         "case_id": "unavailable",
         "files": {},
+        "input_output_consistency": {
+            "status": "not_evaluated",
+            "checks": [],
+        },
         "findings": findings,
     }
     if not case.is_dir():
@@ -602,10 +739,19 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
         result["verdict"] = "blocked"
         return result
 
-    input_hashes = [sha256_file(case / "INCAR"), poscar["sha256"], potcar["sha256"]]
-    result["case_id"] = "case-" + hashlib.sha256("".join(input_hashes).encode()).hexdigest()[:16]
+    input_hashes = {
+        "INCAR": sha256_file(case / "INCAR"),
+        "POSCAR": poscar["sha256"],
+        "POTCAR": potcar["sha256"],
+    }
+    kpoints_path = case / "KPOINTS"
+    if kpoints_path.is_file():
+        input_hashes["KPOINTS"] = sha256_file(kpoints_path)
+    identity_payload = json.dumps(input_hashes, sort_keys=True, separators=(",", ":"))
+    result["case_id"] = "case-" + hashlib.sha256(identity_payload.encode()).hexdigest()[:16]
+    result["case_identity_inputs"] = sorted(input_hashes)
     result["files"]["INCAR"] = {
-        "sha256": input_hashes[0],
+        "sha256": input_hashes["INCAR"],
         "tag_names": sorted(tags),
         "selected_values": {key: tags[key] for key in sorted(tags) if key in SAFE_VALUE_TAGS},
         "duplicate_tags": duplicates,
@@ -615,6 +761,40 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
     result["files"]["POTCAR"] = potcar
     result["official_source_coverage"] = mirror_coverage(tags)
 
+    source_status = result["official_source_coverage"]["status"]
+    source_integrity = result["official_source_coverage"].get("integrity", {})
+    if source_status == resolve_official_sources.METADATA_ONLY_STATUS:
+        findings.append(
+            finding(
+                "warning",
+                "official-source-metadata-unverified",
+                "Official-source titles resolved, but their manifest/body chain is not independently pinned",
+                "metadata resolution is not an official-source integrity pass",
+                "input_integrity",
+            )
+        )
+    elif source_integrity.get("anchor_status") == "blocked" or result[
+        "official_source_coverage"
+    ].get("corrupt"):
+        findings.append(
+            finding(
+                "error",
+                "official-source-integrity-blocked",
+                "The pinned local official-source manifest/body chain is unavailable or invalid",
+                "exact source integrity is required before using local documentation",
+                "input_integrity",
+            )
+        )
+    for tag in result["official_source_coverage"]["missing"]:
+        findings.append(
+            finding(
+                "error",
+                "incar-tag-not-in-core-catalog",
+                f"{tag} is absent from the current local core INCAR-tag catalog; its validity is unresolved",
+                "local catalog limitation, not evidence of absence from live VASP",
+                "input_integrity",
+            )
+        )
     for tag in duplicates:
         findings.append(finding("error", "duplicate-incar-tag", f"{tag} is assigned more than once", "input ambiguity", "input_integrity"))
     for item in malformed:
@@ -670,7 +850,6 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
     elif isinstance(encut, (int, float)) and potcar["enmax_ev"] and encut < max(potcar["enmax_ev"]):
         findings.append(finding("warning", "encut-below-max-enmax", f"ENCUT={encut:g} eV is below maximum POTCAR ENMAX={max(potcar['enmax_ev']):g} eV", "requires intentional justification and observable-specific convergence evidence", "input_integrity"))
 
-    kpoints_path = case / "KPOINTS"
     if not kpoints_path.is_file() and "KSPACING" not in tags:
         findings.append(finding("error", "sampling-not-specified", "Neither KPOINTS nor KSPACING is present", "input completeness", "input_integrity"))
     elif kpoints_path.is_file():
@@ -752,6 +931,26 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
     else:
         outcar = parse_outcar(outcar_path)
         result["files"]["OUTCAR"] = outcar
+        if outcar["startup_segment_count"] > 1:
+            findings.append(
+                finding(
+                    "error",
+                    "outcar-multiple-startup-segments",
+                    "OUTCAR contains more than one VASP startup segment",
+                    "concatenated or restarted output cannot inherit earlier completion",
+                    "execution_completion",
+                )
+            )
+        if outcar["trailing_run_evidence"]:
+            findings.append(
+                finding(
+                    "error",
+                    "outcar-trailing-run-evidence",
+                    "OUTCAR contains electronic-iteration evidence after its elapsed-time record",
+                    "timing evidence cannot complete a later or appended run tail",
+                    "execution_completion",
+                )
+            )
         if not outcar["completed"]:
             findings.append(finding("error", "outcar-incomplete", "OUTCAR lacks final timing/accounting evidence", "execution completion", "execution_completion"))
         if outcar["stop_markers"]:
@@ -764,9 +963,160 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
         if relaxing and outcar["ionic_converged"] is not True:
             findings.append(finding("error", "ionic-convergence-unresolved", "Relaxation lacks the standard required-accuracy evidence", "OUTCAR observation", "ionic_convergence"))
         if outcar["version"] is None:
-            findings.append(finding("warning", "vasp-version-unresolved", "VASP version was not found in OUTCAR", "version/source matching", "execution_completion"))
-        if isinstance(encut, (int, float)) and outcar["encut_ev"] is not None and not math.isclose(encut, outcar["encut_ev"], rel_tol=0, abs_tol=1e-8):
-            findings.append(finding("error", "encut-input-output-mismatch", "OUTCAR ENCUT differs from INCAR ENCUT", "echoed setting comparison", "execution_completion"))
+            findings.append(finding("warning", "vasp-version-unresolved", "A strict VASP startup version banner was not found near the start of OUTCAR", "version/source matching", "version_identity"))
+        if normalized_expected_version is None:
+            findings.append(finding("warning", "expected-vasp-version-unresolved", "Run audit requires an independently declared expected VASP version", "version/source matching", "version_identity"))
+        elif outcar["version"] is not None and outcar["version"] != normalized_expected_version:
+            findings.append(finding("error", "vasp-version-mismatch", "OUTCAR VASP version differs from the declared expected version", "version/source matching", "version_identity"))
+
+        consistency_checks: list[dict[str, str]] = []
+        for tag, output_key in (
+            ("ENCUT", "encut_ev"),
+            ("EDIFF", "ediff"),
+            ("NELM", "nelm"),
+        ):
+            if tag not in parsed_numbers:
+                continue
+            output_values = outcar["echo_values"][output_key]
+            if output_key in outcar["echo_observation_overflow"]:
+                status = "unresolved"
+                findings.append(
+                    finding(
+                        "warning",
+                        f"{tag.lower()}-output-echo-overflow",
+                        f"OUTCAR contains too many {tag} echoes for bounded binding",
+                        "echoed setting comparison",
+                        "input_output_consistency",
+                    )
+                )
+            elif not output_values:
+                status = "unresolved"
+                findings.append(
+                    finding(
+                        "warning",
+                        f"{tag.lower()}-output-echo-unresolved",
+                        f"OUTCAR does not contain a parseable {tag} echo for input-output binding",
+                        "echoed setting comparison",
+                        "input_output_consistency",
+                    )
+                )
+            elif any(parsed_numbers[tag] != value for value in output_values):
+                status = "fail"
+                findings.append(
+                    finding(
+                        "error",
+                        f"{tag.lower()}-input-output-mismatch",
+                        f"OUTCAR {tag} differs from the explicit INCAR value",
+                        "echoed setting comparison",
+                        "input_output_consistency",
+                    )
+                )
+            else:
+                status = "pass"
+            consistency_checks.append(
+                {
+                    "field": tag,
+                    "status": status,
+                    "basis": "exact-numeric-input-output-echo",
+                }
+            )
+
+        parsed_kpoints = result["files"].get("KPOINTS")
+        if isinstance(parsed_kpoints, dict):
+            kpoints_mode = str(parsed_kpoints.get("mode", "unresolved"))
+            if kpoints_mode == "explicit":
+                expected_nkpts = parsed_kpoints.get("declared_count")
+                output_nkpts = outcar["echo_values"]["nkpts"]
+                if "nkpts" in outcar["echo_observation_overflow"]:
+                    kpoints_status = "unresolved"
+                    findings.append(
+                        finding(
+                            "warning",
+                            "nkpts-output-echo-overflow",
+                            "OUTCAR contains too many NKPTS echoes for bounded binding",
+                            "KPOINTS format comparison",
+                            "input_output_consistency",
+                        )
+                    )
+                elif not output_nkpts:
+                    kpoints_status = "unresolved"
+                    findings.append(
+                        finding(
+                            "warning",
+                            "nkpts-output-echo-unresolved",
+                            "OUTCAR does not contain a parseable NKPTS echo for explicit KPOINTS binding",
+                            "KPOINTS format comparison",
+                            "input_output_consistency",
+                        )
+                    )
+                elif any(value != expected_nkpts for value in output_nkpts):
+                    kpoints_status = "fail"
+                    findings.append(
+                        finding(
+                            "error",
+                            "kpoints-input-output-mismatch",
+                            "OUTCAR NKPTS differs from the explicit KPOINTS point count",
+                            "KPOINTS format comparison",
+                            "input_output_consistency",
+                        )
+                    )
+                else:
+                    kpoints_status = "pass"
+                kpoints_basis = "explicit-kpoint-count-versus-nkpts"
+            else:
+                kpoints_status = "unresolved"
+                kpoints_basis = f"{kpoints_mode}-cannot-be-proven-from-nkpts-alone"
+                findings.append(
+                    finding(
+                        "warning",
+                        "kpoints-output-comparison-unresolved",
+                        f"KPOINTS mode {kpoints_mode} cannot be bound exactly from OUTCAR NKPTS alone",
+                        "KPOINTS format limitation",
+                        "input_output_consistency",
+                    )
+                )
+            consistency_checks.append(
+                {
+                    "field": "KPOINTS",
+                    "status": kpoints_status,
+                    "basis": kpoints_basis,
+                }
+            )
+        elif "KSPACING" in tags:
+            consistency_checks.append(
+                {
+                    "field": "KPOINTS",
+                    "status": "unresolved",
+                    "basis": "kspacing-cannot-be-proven-from-nkpts-alone",
+                }
+            )
+            findings.append(
+                finding(
+                    "warning",
+                    "kpoints-output-comparison-unresolved",
+                    "KSPACING-derived sampling cannot be bound exactly from OUTCAR NKPTS alone",
+                    "KPOINTS format limitation",
+                    "input_output_consistency",
+                )
+            )
+
+        consistency_failed = any(
+            item["status"] == "fail" for item in consistency_checks
+        )
+        consistency_unresolved = any(
+            item["status"] == "unresolved" for item in consistency_checks
+        )
+        consistency_status = (
+            "fail"
+            if consistency_failed
+            else "unresolved"
+            if consistency_unresolved
+            else "pass"
+        )
+        result["input_output_consistency"] = {
+            "status": consistency_status,
+            "checks": consistency_checks,
+        }
         if outcar["warnings"]:
             findings.append(finding("warning", "outcar-warnings", f"OUTCAR contains {len(outcar['warnings'])} captured warning line(s)", "output observation", "execution_completion"))
 
@@ -775,6 +1125,7 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
     gates: dict[str, str] = {
         "input_integrity": "fail" if input_failed else "pass",
         "input_reproducibility": "unresolved" if input_unresolved else "pass",
+        "input_output_consistency": "not_evaluated",
         "execution_completion": "not_evaluated",
         "electronic_convergence": "not_evaluated",
         "ionic_convergence": "not_evaluated" if relaxing else "not_applicable",
@@ -787,6 +1138,11 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
         "scientific_claim": "blocked",
     }
     if mode == "run":
+        gates["input_output_consistency"] = (
+            result["input_output_consistency"]["status"]
+            if outcar
+            else "unresolved"
+        )
         gates["execution_completion"] = (
             "pass"
             if outcar and outcar["completed"] and not outcar["stop_markers"] and not outcar["fatal_markers"]
@@ -797,12 +1153,24 @@ def audit(case: Path, mode: str = "input", task_type: str = "generic") -> dict[s
             if relaxing:
                 gates["ionic_convergence"] = "pass" if outcar["ionic_converged"] else "unresolved"
             gates["output_warnings"] = "unresolved" if outcar["warnings"] else "pass"
-            gates["version_identity"] = "pass" if outcar["version"] else "unresolved"
-    technical_run_pass = mode == "run" and all(
+            if outcar["startup_segment_count"] > 1:
+                gates["version_identity"] = "fail"
+            elif outcar["version"] is None or normalized_expected_version is None:
+                gates["version_identity"] = "unresolved"
+            elif outcar["version"] == normalized_expected_version:
+                gates["version_identity"] = "pass"
+            else:
+                gates["version_identity"] = "fail"
+    source_coverage_usable = source_status in {
+        resolve_official_sources.LOCAL_VERIFIED_STATUS,
+        "platform_attested",
+    }
+    technical_run_pass = mode == "run" and source_coverage_usable and all(
         gates[name] in {"pass", "not_applicable"}
         for name in (
             "input_integrity",
             "input_reproducibility",
+            "input_output_consistency",
             "execution_completion",
             "electronic_convergence",
             "ionic_convergence",
@@ -830,6 +1198,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("case", type=Path)
     parser.add_argument("--mode", choices=("input", "run"), required=True, help="Select pre-run input audit or completed-run audit")
     parser.add_argument("--task-type", choices=sorted(RUN_TASKS), required=True)
+    parser.add_argument("--expected-vasp-version", help="Expected MAJOR.MINOR.PATCH VASP version for run-mode identity matching")
     parser.add_argument("--pretty", action="store_true")
     return parser
 
@@ -837,7 +1206,12 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     try:
-        result = audit(args.case, mode=args.mode, task_type=args.task_type)
+        result = audit(
+            args.case,
+            mode=args.mode,
+            task_type=args.task_type,
+            expected_vasp_version=args.expected_vasp_version,
+        )
     except OSError:
         print(json.dumps({"error": "required VASP input cannot be read"}, ensure_ascii=False), file=sys.stderr)
         return 2

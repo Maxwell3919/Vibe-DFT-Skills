@@ -78,12 +78,17 @@ class PostprocessTests(unittest.TestCase):
             set(registry["observables"]),
             {"run-trace", "bands", "dos-pdos", "phonon", "epc", "real-space", "neb", "optical"},
         )
-        self.assertEqual(registry["observables"]["run-trace"]["codes"]["qe"]["maturity"], "real-artifact-validated")
-        self.assertEqual(registry["observables"]["bands"]["codes"]["vasp"]["maturity"], "real-artifact-validated")
+        self.assertEqual(registry["observables"]["run-trace"]["codes"]["qe"]["maturity"], "format-fixture-validated")
+        self.assertEqual(registry["observables"]["bands"]["codes"]["vasp"]["maturity"], "format-fixture-validated")
         self.assertEqual(registry["observables"]["run-trace"]["codes"]["cp2k"]["maturity"], "design-only")
         self.assertEqual(registry["observables"]["run-trace"]["codes"]["siesta"]["maturity"], "design-only")
         self.assertEqual(registry["observables"]["real-space"]["codes"]["siesta"]["maturity"], "format-fixture-validated")
         self.assertEqual(registry["observables"]["real-space"]["codes"]["siesta"]["backends"], ["python.grid"])
+        vasp_band_routes = registry["observables"]["bands"]["codes"]["vasp"]["backend_routes"]
+        self.assertEqual(vasp_band_routes["python.vasp-bands"]["maturity"], "format-fixture-validated")
+        self.assertEqual(vasp_band_routes["python.vaspkit-table"]["maturity"], "synthetic-validated")
+        self.assertEqual(vasp_band_routes["python.py4vasp"]["maturity"], "design-only")
+        self.assertNotIn("evidence_ref", vasp_band_routes["python.py4vasp"])
 
     def test_registry_rejects_unknown_maturity_and_special_case_content(self) -> None:
         from copy import deepcopy
@@ -95,6 +100,49 @@ class PostprocessTests(unittest.TestCase):
         failures = validate_registry(invalid)
         self.assertTrue(any("unknown maturity" in item for item in failures))
         self.assertTrue(any("non-general content" in item for item in failures))
+
+    def test_registry_rejects_backend_maturity_inheritance_and_unpinned_evidence(self) -> None:
+        from copy import deepcopy
+        from dftpost.registry import load_registry, validate_registry
+
+        invalid = deepcopy(load_registry())
+        vasp_bands = invalid["observables"]["bands"]["codes"]["vasp"]
+        vasp_bands["backend_routes"]["python.py4vasp"] = {
+            "maturity": "synthetic-validated",
+            "evidence_ref": "postprocess-synthetic-fixtures-v1",
+        }
+        del vasp_bands["backend_routes"]["python.vasp-bands"]["evidence_ref"]
+        synthetic_evidence = invalid["validation_evidence"]["postprocess-synthetic-fixtures-v1"]
+        synthetic_evidence["command"] = ["true"]
+        synthetic_evidence["target_tests"].pop("bands/vasp/python.vaspkit-table")
+        failures = validate_registry(invalid)
+        self.assertTrue(
+            any("python.py4vasp" in item and "unimplemented backend must be design-only" in item for item in failures),
+            failures,
+        )
+        self.assertTrue(
+            any("python.vasp-bands" in item and "non-design maturity requires evidence_ref" in item for item in failures),
+            failures,
+        )
+        self.assertTrue(any("canonical CI unittest discovery command" in item for item in failures), failures)
+        self.assertTrue(
+            any("python.vaspkit-table" in item and "does not map exact backend target" in item for item in failures),
+            failures,
+        )
+
+    def test_registry_rejects_maturity_above_immutable_evidence_ceiling(self) -> None:
+        from copy import deepcopy
+        from dftpost.registry import load_registry, validate_registry
+
+        invalid = deepcopy(load_registry())
+        route = invalid["observables"]["bands"]["codes"]["vasp"]
+        route["maturity"] = "real-artifact-validated"
+        route["backend_routes"]["python.vasp-bands"]["maturity"] = "real-artifact-validated"
+        failures = validate_registry(invalid)
+        self.assertTrue(
+            any("python.vasp-bands" in item and "evidence ceiling" in item for item in failures),
+            failures,
+        )
 
     def test_planner_blocks_design_only_and_builds_supported_route(self) -> None:
         from dftpost.planning import build_postprocess_plan
@@ -113,6 +161,7 @@ class PostprocessTests(unittest.TestCase):
             )
             self.assertEqual(supported["status"], "planned")
             self.assertEqual(supported["backend"]["id"], "python.qe-text")
+            self.assertEqual(supported["backend"]["maturity"], "format-fixture-validated")
             self.assertEqual(validation_errors("plan", supported), [])
 
             for code in ("cp2k", "siesta"):
@@ -159,6 +208,7 @@ class PostprocessTests(unittest.TestCase):
             )
             self.assertEqual(vasp_electronic["status"], "planned")
             self.assertEqual(vasp_electronic["backend"]["id"], "python.vasp-bands")
+            self.assertEqual(vasp_electronic["backend"]["maturity"], "format-fixture-validated")
             self.assertIn("vasp-bands", vasp_electronic["steps"][0]["command"])
 
             incomplete_optical = build_postprocess_plan(
@@ -174,6 +224,98 @@ class PostprocessTests(unittest.TestCase):
             )
             self.assertEqual(optical["status"], "planned")
             self.assertIn("optical-table", optical["steps"][0]["command"])
+
+    def test_cli_maturity_is_registry_derived_and_cannot_be_self_promoted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            reference = root / "nscf.out"
+            reference.write_text("the Fermi energy is 0.0 ev\n")
+            bands = root / "bands.gnu"
+            bands.write_text("0 -1\n1 -0.5\n\n0 1\n1 0.5\n")
+            base_command = [
+                sys.executable,
+                str(POST_SCRIPTS / "dftpost_cli.py"),
+                "qe-bands",
+                str(bands),
+                "--energy-reference",
+                str(reference),
+                "--dataset-id",
+                "dataset-cli-maturity-001",
+            ]
+
+            promoted = subprocess.run(
+                [
+                    *base_command,
+                    "--maturity",
+                    "real-artifact-validated",
+                    "--out-dir",
+                    str(root / "promoted"),
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(promoted.returncode, 0)
+            self.assertIn("exceeds registered backend maturity", promoted.stderr)
+            self.assertFalse((root / "promoted" / "bands.dataset.json").exists())
+
+            derived = subprocess.run(
+                [*base_command, "--out-dir", str(root / "derived")],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(derived.returncode, 0, derived.stderr)
+            dataset = json.loads((root / "derived" / "bands.dataset.json").read_text())
+            self.assertEqual(dataset["maturity"], "format-fixture-validated")
+
+    def test_python_api_maturity_is_registry_derived_and_cannot_be_self_promoted(self) -> None:
+        from dftpost.electronic import normalize_qe_bands
+        from dftpost.vaspkit import normalize_vaspkit_bands
+        from dftpost.vesta import render_vesta_isosurface
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            reference = root / "nscf.out"
+            reference.write_text("the Fermi energy is 0.0 ev\n")
+            bands = root / "bands.gnu"
+            bands.write_text("0 -1\n1 -0.5\n\n0 1\n1 0.5\n")
+            with self.assertRaisesRegex(ValueError, "exceeds registered backend maturity"):
+                normalize_qe_bands(
+                    bands,
+                    reference,
+                    root / "promoted-qe",
+                    "dataset-api-qe-promoted-001",
+                    maturity="real-artifact-validated",
+                )
+
+            band_data = root / "BAND.dat"
+            band_data.write_text("0.0 -1.0 1.0\n0.5 -0.5 0.4\n")
+            labels = root / "KLABELS"
+            labels.write_text("K-Label Coordinate\nGAMMA 0.0\nX 0.5\n")
+            with self.assertRaisesRegex(ValueError, "exceeds registered backend maturity"):
+                normalize_vaspkit_bands(
+                    band_data,
+                    labels,
+                    root / "promoted-vaspkit",
+                    "dataset-api-vaspkit-promoted-001",
+                    energy_offset_ev=0.0,
+                    energy_reference_description="explicit test reference",
+                    maturity="real-artifact-validated",
+                )
+
+            grid = root / "field.cube"
+            grid.write_text("not reached because maturity fails first\n")
+            with self.assertRaisesRegex(ValueError, "backend route is design-only"):
+                render_vesta_isosurface(
+                    grid,
+                    "qe",
+                    root / "promoted-vesta",
+                    "dataset-api-vesta-promoted-001",
+                    field_kind="charge-density",
+                    field_unit="caller-native",
+                    level=0.01,
+                    level_unit="caller-native",
+                    maturity="tool-integration-validated",
+                )
 
     def test_tool_runner_dry_run_and_success_records(self) -> None:
         from dftpost.runner import run_external_command
@@ -1188,6 +1330,19 @@ class PostprocessTests(unittest.TestCase):
             siesta_dataset = json.loads(siesta_grid["dataset"].read_text())
             self.assertEqual(validation_errors("dataset", siesta_dataset), [])
             self.assertEqual(siesta_dataset["code"], "siesta")
+            for code in ("vasp", "mixed"):
+                generic_grid = normalize_grid_field(
+                    cube,
+                    code,
+                    root / f"{code}-grid-out",
+                    f"dataset-real-space-{code}-grid-001",
+                    field_kind="charge-density",
+                    field_unit="e/bohr^3",
+                    axis=2,
+                )
+                generic_dataset = json.loads(generic_grid["dataset"].read_text())
+                self.assertEqual(validation_errors("dataset", generic_dataset), [])
+                self.assertEqual(generic_dataset["code"], code)
             with self.assertRaisesRegex(ValueError, "requires potential_to_ev"):
                 normalize_grid_field(
                     cube,
@@ -1221,6 +1376,16 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(validation_errors("dataset", bader_dataset), [])
             self.assertEqual(bader_analysis["electron_closure_status"], "pass")
             self.assertAlmostEqual(bader_analysis["reference_minus_basin_sum"], 0.0)
+            for code in ("qe", "mixed"):
+                generic_bader = normalize_bader_acf(
+                    acf,
+                    code,
+                    root / f"{code}-bader-out",
+                    f"dataset-real-space-{code}-bader-001",
+                )
+                generic_dataset = json.loads(generic_bader["dataset"].read_text())
+                self.assertEqual(validation_errors("dataset", generic_dataset), [])
+                self.assertEqual(generic_dataset["code"], code)
             with self.assertRaisesRegex(ValueError, "count must match"):
                 normalize_bader_acf(
                     acf,
@@ -1583,6 +1748,23 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(neb_dataset["maturity"], "synthetic-validated")
             self.assertAlmostEqual(neb_analysis["forward_barrier"], 1.2)
             self.assertAlmostEqual(neb_analysis["reverse_barrier"], 1.0)
+            for code in ("vasp", "mixed"):
+                generic_neb = normalize_neb_table(
+                    neb_source,
+                    code,
+                    root / f"{code}-neb-out",
+                    f"dataset-neb-{code}-synthetic-001",
+                    coordinate_column="coordinate",
+                    energy_column="energy",
+                    coordinate_unit="dimensionless",
+                    energy_unit="eV",
+                    reference="initial",
+                    force_column="max_force",
+                    force_unit="eV/angstrom",
+                )
+                generic_dataset = json.loads(generic_neb["dataset"].read_text())
+                self.assertEqual(validation_errors("dataset", generic_dataset), [])
+                self.assertEqual(generic_dataset["code"], code)
 
             optical_source = root / "optical-fixture.csv"
             optical_source.write_text(
@@ -1606,6 +1788,19 @@ class PostprocessTests(unittest.TestCase):
             self.assertEqual(optical_dataset["maturity"], "synthetic-validated")
             self.assertEqual(optical_analysis["component_count"], 2)
             self.assertGreater(optical_analysis["component_extrema"]["xx"]["absorption_max_cm_1"], 0.0)
+            for code in ("qe", "mixed"):
+                generic_optical = normalize_optical_table(
+                    optical_source,
+                    code,
+                    root / f"{code}-optical-out",
+                    f"dataset-optical-{code}-synthetic-001",
+                    energy_column="energy",
+                    components={"xx": ("xx_re", "xx_im")},
+                    broadening_declaration="synthetic fixture; no physical broadening",
+                )
+                generic_dataset = json.loads(generic_optical["dataset"].read_text())
+                self.assertEqual(validation_errors("dataset", generic_dataset), [])
+                self.assertEqual(generic_dataset["code"], code)
 
 
 if __name__ == "__main__":

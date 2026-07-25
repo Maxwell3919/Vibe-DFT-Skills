@@ -1,0 +1,701 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:official-corpus-manifest:1.0",
+  "title": "Vibe DFT Skills official documentation corpus manifest",
+  "description": "A content-addressed inventory of one version-bounded official documentation corpus. Structural validation is necessary but not sufficient: validate_official_document_coverage.py must also prove that discovered_source_ids are exactly the disjoint union of included_sources and reviewed_exclusions.",
+  "$comment": "This record inventories source units; it does not by itself prove that document transformation, Skill coverage, or redistribution is complete.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "corpus_id",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "corpus_id",
+    "authority_id",
+    "provider_id",
+    "version_scope",
+    "status",
+    "discovery",
+    "included_sources",
+    "reviewed_exclusions",
+    "blockers",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "official-corpus-manifest"},
+    "corpus_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "authority_id": {"$ref": "#/$defs/hyphenId"},
+    "provider_id": {"$ref": "#/$defs/hyphenId"},
+    "version_scope": {"$ref": "#/$defs/versionScope"},
+    "status": {"$ref": "#/$defs/completenessStatus"},
+    "discovery": {"$ref": "#/$defs/discovery"},
+    "included_sources": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/includedSource"}
+    },
+    "reviewed_exclusions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/reviewedExclusion"}
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/blocker"}
+    },
+    "limitations": {"$ref": "#/$defs/limitations"},
+    "producer": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"status": {"const": "complete"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "discovery": {
+            "properties": {"upstream_universe_complete": {"const": true}},
+            "required": ["upstream_universe_complete"]
+          },
+          "version_scope": {
+            "properties": {
+              "kind": {
+                "enum": ["exact", "revision", "latest-at-retrieval"]
+              }
+            },
+            "required": ["kind"]
+          },
+          "blockers": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "partial"}},
+        "required": ["status"]
+      },
+      "then": {"properties": {"limitations": {"minItems": 1}}}
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "blocked"}},
+        "required": ["status"]
+      },
+      "then": {"properties": {"blockers": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "completenessStatus": {
+      "enum": ["complete", "partial", "blocked"]
+    },
+    "privacySafeText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "limitations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/privacySafeText"}
+    },
+    "versionScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "retrieved_utc",
+        "snapshot_identity"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "exact",
+            "revision",
+            "release-line",
+            "latest-at-retrieval",
+            "unversioned"
+          ]
+        },
+        "value": {
+          "oneOf": [
+            {"type": "string", "minLength": 1, "maxLength": 200},
+            {"type": "null"}
+          ]
+        },
+        "retrieved_utc": {
+          "oneOf": [
+            {"type": "string", "format": "date-time"},
+            {"type": "null"}
+          ]
+        },
+        "snapshot_identity": {
+          "oneOf": [
+            {"$ref": "#/$defs/snapshotIdentity"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {"enum": ["unversioned", "latest-at-retrieval"]}
+            },
+            "required": ["kind"]
+          },
+          "then": {"properties": {"value": {"type": "null"}}},
+          "else": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"kind": {"const": "latest-at-retrieval"}},
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "retrieved_utc": {"type": "string", "format": "date-time"},
+              "snapshot_identity": {"$ref": "#/$defs/snapshotIdentity"}
+            }
+          },
+          "else": {
+            "properties": {
+              "retrieved_utc": {"type": "null"},
+              "snapshot_identity": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "snapshotIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value", "content_sha256"],
+      "properties": {
+        "kind": {"enum": ["revision", "etag", "sha256"]},
+        "value": {"type": "string", "minLength": 1, "maxLength": 500},
+        "content_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "upstream_universe_complete",
+        "inventory_scope",
+        "authority_root",
+        "authority_revision",
+        "inventory_format",
+        "inventory_storage_mode",
+        "inventory_locator",
+        "inventory_sha256",
+        "inventory_receipt",
+        "enumerator",
+        "discovered_source_ids"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "official-index",
+            "official-api",
+            "release-tree",
+            "source-tree",
+            "manual-inventory",
+            "other"
+          ]
+        },
+        "upstream_universe_complete": {"type": "boolean"},
+        "inventory_scope": {
+          "enum": ["upstream-universe", "bounded-authority-subset"]
+        },
+        "authority_root": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "maxLength": 2000
+        },
+        "authority_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "inventory_format": {
+          "enum": [
+        "source-id-list-v1",
+        "cp2k-canonical-manifest-v1",
+        "cp2k-official-index-v1",
+        "declarative-source-catalog-v1",
+        "qe-official-manifest-v1",
+        "vasp-wiki-manifest-v1"
+      ]
+        },
+        "inventory_storage_mode": {
+          "enum": ["embedded-open", "external-runtime-only"]
+        },
+        "inventory_locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "inventory_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "inventory_receipt": {
+          "oneOf": [
+            {"$ref": "#/$defs/resolverReceipt"},
+            {"type": "null"}
+          ]
+        },
+        "enumerator": {"$ref": "#/$defs/enumerator"},
+        "discovered_source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sourceId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "upstream_universe_complete": {"const": true}
+            },
+            "required": ["upstream_universe_complete"]
+          },
+          "then": {
+            "properties": {
+              "inventory_scope": {"const": "upstream-universe"}
+            }
+          },
+          "else": {
+            "properties": {
+              "inventory_scope": {"const": "bounded-authority-subset"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "inventory_storage_mode": {"const": "embedded-open"}
+            },
+            "required": ["inventory_storage_mode"]
+          },
+          "then": {
+            "properties": {
+              "inventory_locator": {"$ref": "#/$defs/relativePath"},
+              "inventory_receipt": {"type": "null"}
+            }
+          },
+          "else": {
+            "properties": {
+              "inventory_locator": {"$ref": "#/$defs/httpsUrl"},
+              "inventory_receipt": {"$ref": "#/$defs/resolverReceipt"}
+            }
+          }
+        }
+      ]
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\r\\n]+$"
+    },
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "maxLength": 2000
+    },
+    "enumerator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enumerator_id",
+        "enumerator_version",
+        "trust_mode",
+        "implementation_ref",
+        "configuration_ref",
+        "dependency_lock_ref",
+        "input_sha256",
+        "output_sha256",
+        "attestation_id"
+      ],
+      "properties": {
+        "enumerator_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "enumerator_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "trust_mode": {
+          "enum": ["unverified", "central-pinned", "platform-attested"]
+        },
+        "implementation_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/localFileRef"},
+            {"type": "null"}
+          ]
+        },
+        "configuration_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/localFileRef"},
+            {"type": "null"}
+          ]
+        },
+        "dependency_lock_ref": {
+          "oneOf": [
+            {"$ref": "#/$defs/localFileRef"},
+            {"type": "null"}
+          ]
+        },
+        "input_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "output_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "attestation_id": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "trust_mode": {
+                "enum": ["central-pinned", "platform-attested"]
+              }
+            },
+            "required": ["trust_mode"]
+          },
+          "then": {
+            "properties": {
+              "implementation_ref": {"$ref": "#/$defs/localFileRef"},
+              "configuration_ref": {"$ref": "#/$defs/localFileRef"},
+              "dependency_lock_ref": {"$ref": "#/$defs/localFileRef"}
+            }
+          },
+          "else": {
+            "properties": {
+              "implementation_ref": {"type": "null"},
+              "configuration_ref": {"type": "null"},
+              "dependency_lock_ref": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {"trust_mode": {"const": "platform-attested"}},
+            "required": ["trust_mode"]
+          },
+          "then": {
+            "properties": {
+              "attestation_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              }
+            }
+          },
+          "else": {
+            "properties": {"attestation_id": {"type": "null"}}
+          }
+        }
+      ]
+    },
+    "localFileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    },
+    "sourceIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "value",
+        "raw_sha256",
+        "raw_bytes",
+        "resolver_receipt"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "sha256",
+            "revision",
+            "etag",
+            "external-receipt",
+            "canonical-manifest-metadata"
+          ]
+        },
+        "value": {"type": "string", "minLength": 1, "maxLength": 500},
+        "raw_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "raw_bytes": {"type": "integer", "minimum": 1},
+        "resolver_receipt": {
+          "oneOf": [
+            {"$ref": "#/$defs/resolverReceipt"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": ["sha256", "canonical-manifest-metadata"]
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "resolver_receipt": {"type": "null"}
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {"kind": {"const": "sha256"}},
+                  "required": ["kind"]
+                },
+                "then": {
+                  "properties": {
+                    "value": {
+                      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "else": {
+            "properties": {
+              "resolver_receipt": {"$ref": "#/$defs/resolverReceipt"}
+            }
+          }
+        }
+      ]
+    },
+    "sourceId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,127}$"
+    },
+    "resolverReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "resolver_id",
+        "canonical_url",
+        "retrieved_utc",
+        "raw_sha256",
+        "raw_bytes",
+        "selected_sha256",
+        "selected_bytes",
+        "selection_attestation_id",
+        "evidence_sha256",
+        "trust_mode",
+        "registry_path",
+        "registry_sha256",
+        "trust_id",
+        "verification_status"
+      ],
+      "properties": {
+        "receipt_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "resolver_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "canonical_url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "maxLength": 2000
+        },
+        "retrieved_utc": {"type": "string", "format": "date-time"},
+        "raw_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "raw_bytes": {"type": "integer", "minimum": 1},
+        "selected_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "selected_bytes": {"type": "integer", "minimum": 1},
+        "selection_attestation_id": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        },
+        "evidence_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "trust_mode": {
+          "enum": ["unverified", "central-pinned", "platform-attested"]
+        },
+        "registry_path": {
+          "const": "registry/official-document-consumers.yaml"
+        },
+        "registry_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "trust_id": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        },
+        "verification_status": {
+          "enum": ["unverified", "central-pinned", "platform-attested"]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"trust_mode": {"const": "unverified"}},
+            "required": ["trust_mode"]
+          },
+          "then": {
+            "properties": {
+              "trust_id": {"type": "null"},
+              "selection_attestation_id": {"type": "null"},
+              "verification_status": {"const": "unverified"}
+            }
+          },
+          "else": {
+            "properties": {
+              "trust_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "includedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "source_kind",
+        "locator",
+        "version_scope",
+        "identity"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/sourceId"
+        },
+        "source_kind": {
+          "enum": [
+            "manual-page",
+            "reference-page",
+            "guide",
+            "release-note",
+            "api-record",
+            "source-documentation",
+            "pdf",
+            "index",
+            "other"
+          ]
+        },
+        "locator": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://",
+          "maxLength": 2000
+        },
+        "version_scope": {"$ref": "#/$defs/versionScope"},
+        "identity": {"$ref": "#/$defs/sourceIdentity"}
+      }
+    },
+    "reviewedExclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "reason_code",
+        "rationale",
+        "reviewed_by",
+        "reviewed_utc"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/sourceId"
+        },
+        "reason_code": {
+          "enum": [
+            "duplicate",
+            "out-of-scope",
+            "navigation-only",
+            "obsolete",
+            "generated-alias",
+            "unavailable",
+            "other"
+          ]
+        },
+        "rationale": {"$ref": "#/$defs/privacySafeText"},
+        "reviewed_by": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "reviewed_utc": {"type": "string", "format": "date-time"}
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "description"],
+      "properties": {
+        "code": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "description": {"$ref": "#/$defs/privacySafeText"}
+      }
+    }
+  }
+}

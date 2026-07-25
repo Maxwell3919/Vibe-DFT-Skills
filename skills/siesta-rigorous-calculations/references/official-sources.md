@@ -16,6 +16,11 @@ The automated parameter/source set is pinned to official SIESTA tag `5.4.2`, com
 
 `official-fdf-index.json` is mechanically generated from 47 hash-pinned official manual source files and contains 572 active FDF definitions. Each record preserves label, normalized lookup key, value type, documented default text, macro class, source file/line, and commit-pinned URL. `official-source-supplements.json` separately records source-observed behavior absent from manual FDF macros, including `GeometryMustConverge` and parser anchors. Never relabel a source supplement as manual documentation.
 
+The manual's `DOS.kgrid.?`, `PDOS.kgrid.?`, and `LDOS.kgrid.?` entries are
+families, not arbitrary wildcards. The deterministic resolver accepts only the
+reviewed `MonkhorstPack`, `Cutoff`, and `File` variants and blocks every other
+suffix.
+
 ## Version and retrieval gates
 
 1. Require an explicit plan/executable version.

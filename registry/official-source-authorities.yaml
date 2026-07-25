@@ -1,23 +1,32 @@
-schema_version: "1.0"
-
-# This registry recognizes official documentation locations. Only a reviewed,
-# exact-byte canonical snapshot declared here may establish offline content
-# identity; every unpinned source still requires a platform adapter. Bundle
-# fields and adapter receipts cannot add or widen authority entries.
+# Canonical official-source authority registry. Exact authorities are
+# lifecycle-decoupled metadata policies; they do not activate Skills or software.
+schema_version: '1.0'
 authorities:
   qe-official-docs:
     display_name: Quantum ESPRESSO official documentation
     lifecycle: active
+    provider_class: software
     provider_id: qe
-    allowed_https_origins: ["https://www.quantum-espresso.org"]
+    allowed_https_origins:
+    - https://www.quantum-espresso.org
     version_policy:
-      allowed_scopes: [exact]
+      allowed_scopes:
+      - exact
       registered_scopes:
-        - {scope: exact, exact_version: "7.5", minimum_version: null, maximum_version: null, release_series: null}
+      - scope: exact
+        exact_version: '7.5'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
     content_policy:
-      source_kinds: [official-manual, official-reference, official-release-notes]
-      allowed_path_prefixes: ["/Doc/"]
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      allowed_path_prefixes:
+      - /Doc/
       query_policy: forbidden
+      allowed_query_urls: []
       fragment_policy: forbidden
       resolution_mode: platform-verified-only
     content_identity_policy:
@@ -30,28 +39,42 @@ authorities:
       terms_urls: []
       verification_status: unresolved
     redistribution_policy:
-      allowed_values: [unknown]
+      allowed_values:
+      - unknown
       bundle_content: forbidden
       external_runtime_content: platform-verification-required
     limitations:
-      - Official origin and documentation path are recognized, but source bytes and licensing remain externally verified facts.
+    - Official origin and documentation path are recognized, but source bytes and licensing remain externally verified facts.
     provenance:
-      verified_utc: "2026-07-18T00:00:00Z"
-      official_fact_urls: ["https://www.quantum-espresso.org/Doc/"]
-
-  vasp-official-wiki:
-    display_name: VASP official Wiki
+      verified_utc: '2026-07-18T00:00:00Z'
+      official_fact_urls:
+      - https://www.quantum-espresso.org/Doc/
+  qe-release-source-docs:
+    display_name: Quantum ESPRESSO 7.5 release-source documentation
     lifecycle: active
-    provider_id: vasp
-    allowed_https_origins: ["https://vasp.at", "https://www.vasp.at"]
+    provider_class: software
+    provider_id: qe
+    allowed_https_origins:
+    - https://gitlab.com
     version_policy:
-      allowed_scopes: [latest-at-retrieval]
+      allowed_scopes:
+      - exact
       registered_scopes:
-        - {scope: latest-at-retrieval, exact_version: null, minimum_version: null, maximum_version: null, release_series: null}
+      - scope: exact
+        exact_version: '7.5'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
     content_policy:
-      source_kinds: [official-manual, official-reference, official-release-notes]
-      allowed_path_prefixes: ["/wiki/"]
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /QEF/q-e/-/raw/770a0b2d12928a67048e2f3da8d10d057e52179e/
       query_policy: forbidden
+      allowed_query_urls: []
       fragment_policy: forbidden
       resolution_mode: platform-verified-only
     content_identity_policy:
@@ -59,71 +82,280 @@ authorities:
       unpinned_action: adapter-required
     canonical_snapshot: null
     license_policy:
-      status: known-restricted
-      identifier: "VASP website terms of use"
-      terms_urls: ["https://vasp.at/footer/termsofuse/"]
+      status: known-open
+      identifier: GPL-2.0-or-later
+      terms_urls:
+      - https://gitlab.com/QEF/q-e/-/raw/770a0b2d12928a67048e2f3da8d10d057e52179e/License
       verification_status: verified
     redistribution_policy:
-      allowed_values: [runtime-only, restricted]
+      allowed_values:
+      - redistributable
       bundle_content: forbidden
       external_runtime_content: platform-verification-required
     limitations:
-      - Wiki authority does not establish compatibility with a specific VASP binary version or redistribution permission.
+    - Exact release-source documentation is recognized, but embedded or derived redistribution remains blocked until corpus partition, notices, source form, modification records, and third-party exceptions are closed.
     provenance:
-      verified_utc: "2026-07-18T00:00:00Z"
-      official_fact_urls: ["https://vasp.at/wiki/Main_page", "https://vasp.at/footer/termsofuse/"]
-
+      verified_utc: '2026-07-23T17:39:00Z'
+      official_fact_urls:
+      - https://gitlab.com/QEF/q-e/-/raw/770a0b2d12928a67048e2f3da8d10d057e52179e/License
+      - https://gitlab.com/QEF/q-e/-/raw/770a0b2d12928a67048e2f3da8d10d057e52179e/README.md
+  vasp-official-wiki:
+    display_name: VASP official Wiki
+    lifecycle: active
+    provider_class: software
+    provider_id: vasp
+    allowed_https_origins:
+    - https://vasp.at
+    - https://www.vasp.at
+    version_policy:
+      allowed_scopes:
+      - latest-at-retrieval
+      registered_scopes:
+      - scope: latest-at-retrieval
+        exact_version: null
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      allowed_path_prefixes:
+      - /wiki/
+      query_policy: exact-allowlist
+      allowed_query_urls:
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=16120&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=22293&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=25364&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=25497&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=26949&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=26951&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=26953&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=26956&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=26986&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27002&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27011&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27202&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27205&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27209&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27290&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27291&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=27887&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=28126&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=29259&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=29456&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=29859&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=29868&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=29876&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=30963&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=31076&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=31110&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=31117&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=31482&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=32299&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=32552&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=32772&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=32792&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=32794&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=32813&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=33125&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=33294&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=33371&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=33504&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34124&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34129&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34205&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34299&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34375&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34546&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34646&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34757&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=34976&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35361&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35382&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35395&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35404&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35517&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35705&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35874&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35974&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35979&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36272&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36282&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36499&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36500&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36501&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36502&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36503&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36504&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36559&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36602&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36604&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36612&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=36630&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37108&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37111&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37118&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37119&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37120&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37162&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37170&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37190&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37297&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37346&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37501&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37503&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: GFDL-1.2-only
+      terms_urls:
+      - https://www.vasp.at/wiki/Main_page
+      - https://www.gnu.org/licenses/old-licenses/fdl-1.2.txt
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The Wiki text license does not cover VASP software, POTCAR data, Portal downloads, or third-party assets; embedded derivatives remain blocked until revision-bound history, attribution, license-copy, modification, and exception obligations close.
+    provenance:
+      verified_utc: '2026-07-23T17:39:00Z'
+      official_fact_urls:
+      - https://www.vasp.at/wiki/Main_page
+      - https://www.gnu.org/licenses/old-licenses/fdl-1.2.txt
   cp2k-official-manual:
     display_name: CP2K official versioned manual
     lifecycle: active
+    provider_class: software
     provider_id: cp2k
-    allowed_https_origins: ["https://manual.cp2k.org"]
+    allowed_https_origins:
+    - https://manual.cp2k.org
     version_policy:
-      allowed_scopes: [exact]
+      allowed_scopes:
+      - exact
       registered_scopes:
-        - {scope: exact, exact_version: "2026.2", minimum_version: null, maximum_version: null, release_series: null}
+      - scope: exact
+        exact_version: '2026.2'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
     content_policy:
-      source_kinds: [official-manual, official-reference, official-release-notes]
-      allowed_path_prefixes: ["/cp2k-2026_2-branch/"]
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      allowed_path_prefixes:
+      - /cp2k-2026_2-branch/
       query_policy: forbidden
+      allowed_query_urls: []
       fragment_policy: forbidden
       resolution_mode: canonical-pin-or-platform-verified
     content_identity_policy:
-      mode: canonical-pinned-open-snapshot-or-platform-adapter
+      mode: canonical-pinned-snapshot-or-platform-adapter
       unpinned_action: adapter-required
     canonical_snapshot:
       snapshot_id: cp2k-manual-2026-2
       manifest_path: skills/cp2k-rigorous-calculations/references/official-manual/manifest.json
       manifest_raw_sha256: 37242192094a13384491108850b96c06c0e7cdd058913913bd0681b558e55349
-      artifact_basis: snapshot-file-exact-bytes
+      artifact_basis: derived-snapshot-file-exact-bytes
     license_policy:
-      status: known-open
-      identifier: "GPL-2.0-or-later"
-      terms_urls: ["https://github.com/cp2k/cp2k/blob/master/LICENSE"]
-      verification_status: verified
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
     redistribution_policy:
-      allowed_values: [redistributable]
-      bundle_content: canonical-pinned-open-only
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
       external_runtime_content: platform-verification-required
     limitations:
-      - The canonical snapshot pins the bundled excerpts, not the distinct upstream raw page bytes; any refresh requires a reviewed manifest and digest update.
+    - The canonical snapshot pins content identity only; rendered manual and derived full-page redistribution remain blocked pending documentation-license scope, source-to-build provenance, notices, and modification records.
     provenance:
-      verified_utc: "2026-07-18T00:00:00Z"
-      official_fact_urls: ["https://manual.cp2k.org/cp2k-2026_2-branch/", "https://github.com/cp2k/cp2k/blob/master/LICENSE"]
-
+      verified_utc: '2026-07-18T00:00:00Z'
+      official_fact_urls:
+      - https://manual.cp2k.org/cp2k-2026_2-branch/
+  cp2k-release-source-docs:
+    display_name: CP2K 2026.2 exact release-source documentation
+    lifecycle: active
+    provider_class: software
+    provider_id: cp2k
+    allowed_https_origins:
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: '2026.2'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /cp2k/cp2k/67b5da876dd6a76b8b021d5a04d1c81ba79a4c50/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The exact release source and root license bytes are recognized, but documentation-specific license scope and source-to-generated-manual provenance remain unresolved.
+    provenance:
+      verified_utc: '2026-07-23T17:39:00Z'
+      official_fact_urls:
+      - https://raw.githubusercontent.com/cp2k/cp2k/67b5da876dd6a76b8b021d5a04d1c81ba79a4c50/LICENSE
+      - https://raw.githubusercontent.com/cp2k/cp2k/67b5da876dd6a76b8b021d5a04d1c81ba79a4c50/docs/index.md
   siesta-official-docs:
     display_name: SIESTA official versioned documentation
     lifecycle: active
+    provider_class: software
     provider_id: siesta
-    allowed_https_origins: ["https://docs.siesta-project.org"]
+    allowed_https_origins:
+    - https://docs.siesta-project.org
     version_policy:
-      allowed_scopes: [exact]
+      allowed_scopes:
+      - exact
       registered_scopes:
-        - {scope: exact, exact_version: "5.4", minimum_version: null, maximum_version: null, release_series: null}
+      - scope: exact
+        exact_version: '5.4'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
     content_policy:
-      source_kinds: [official-manual, official-reference, official-release-notes]
-      allowed_path_prefixes: ["/projects/siesta/en/5.4/"]
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      allowed_path_prefixes:
+      - /projects/siesta/en/5.4/
       query_policy: forbidden
+      allowed_query_urls: []
       fragment_policy: forbidden
       resolution_mode: platform-verified-only
     content_identity_policy:
@@ -132,283 +364,2671 @@ authorities:
     canonical_snapshot: null
     license_policy:
       status: known-restricted
-      identifier: "CC-BY-NC-SA-4.0"
-      terms_urls: ["https://gitlab.com/siesta-project/documentation/siesta-docs/-/blob/master/LICENSE"]
+      identifier: CC-BY-NC-SA-4.0
+      terms_urls:
+      - https://gitlab.com/siesta-project/documentation/siesta-docs/-/raw/ca6da4c46538bccce34776cdbb075fa4bfc2c6dc/LICENSE
       verification_status: verified
     redistribution_policy:
-      allowed_values: [runtime-only, restricted]
+      allowed_values:
+      - runtime-only
+      - restricted
       bundle_content: forbidden
       external_runtime_content: platform-verification-required
     limitations:
-      - The versioned documentation root is recognized; content identity and redistribution permission remain external trust decisions.
+    - The versioned documentation root is recognized; content identity and redistribution permission remain external trust decisions.
     provenance:
-      verified_utc: "2026-07-18T00:00:00Z"
-      official_fact_urls: ["https://docs.siesta-project.org/projects/siesta/en/5.4/", "https://gitlab.com/siesta-project/documentation/siesta-docs/-/blob/master/LICENSE"]
-
-  gaussian-official-reference:
-    display_name: Gaussian official reference placeholder
-    lifecycle: planned
-    provider_id: gaussian
-    allowed_https_origins: []
-    version_policy: &planned-version-policy
-      allowed_scopes: []
-      registered_scopes: []
-    content_policy: &planned-content-policy
-      source_kinds: []
-      allowed_path_prefixes: []
+      verified_utc: '2026-07-23T17:39:00Z'
+      official_fact_urls:
+      - https://docs.siesta-project.org/projects/siesta/en/5.4/
+      - https://gitlab.com/siesta-project/documentation/siesta-docs/-/raw/ca6da4c46538bccce34776cdbb075fa4bfc2c6dc/LICENSE
+  siesta-release-source-docs:
+    display_name: SIESTA 5.4.2 release-source documentation
+    lifecycle: active
+    provider_class: software
+    provider_id: siesta
+    allowed_https_origins:
+    - https://gitlab.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 5.4.2
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /siesta-project/siesta/-/raw/e486d12067b96ff688179f0496d0ec21b6fae0ab/
       query_policy: forbidden
+      allowed_query_urls: []
       fragment_policy: forbidden
-      resolution_mode: unresolved
-    content_identity_policy: &planned-content-identity-policy
-      mode: unresolved
-      unpinned_action: block
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
     canonical_snapshot: null
-    license_policy: &planned-license-policy
+    license_policy:
+      status: known-open
+      identifier: GPL-3.0-only
+      terms_urls:
+      - https://gitlab.com/siesta-project/siesta/-/raw/e486d12067b96ff688179f0496d0ec21b6fae0ab/COPYING
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact release TeX and source supplements are recognized, but embedded derived records remain blocked until COPYING, source form, notices, modification records, and source-to-slice replay close.
+    provenance:
+      verified_utc: '2026-07-23T17:39:00Z'
+      official_fact_urls:
+      - https://gitlab.com/siesta-project/siesta/-/raw/e486d12067b96ff688179f0496d0ec21b6fae0ab/COPYING
+      - https://gitlab.com/siesta-project/siesta/-/raw/e486d12067b96ff688179f0496d0ec21b6fae0ab/README.md
+  ase-release-source-docs-3-29-0:
+    display_name: ASE 3.29.0 release-source documentation
+    lifecycle: active
+    provider_class: repository
+    provider_id: ase
+    allowed_https_origins:
+    - https://gitlab.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 3.29.0
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /ase/ase/-/raw/f27c0005ae6a67ea419f996e728668865bfc1f86/doc/ase/
+      - /ase/ase/-/raw/f27c0005ae6a67ea419f996e728668865bfc1f86/doc/ase/io/
+      - /ase/ase/-/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: LGPL-2.1-or-later
+      terms_urls:
+      - https://gitlab.com/ase/ase/-/raw/3.29.0/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - This exact snapshot does not cover every ASE version accepted by the Skill dependency range.
+    - Only the ASE structure-I/O surface consumed by this pack is selected.
+    - Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence.
+    - The Skill admits ASE versions older than this exact documentation snapshot.
+    - Only the ASE surface directly consumed by structure views is selected.
+    - This metadata inventory proves the bounded exact tree and path universe only; it does not prove rendered documentation completeness or provider behavior.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://gitlab.com/ase/ase/-/raw/f27c0005ae6a67ea419f996e728668865bfc1f86/doc/ase/data.rst
+  bader-1-05-official-page:
+    display_name: Henkelman-group Bader 1.05 official page
+    lifecycle: active
+    provider_class: repository
+    provider_id: bader
+    allowed_https_origins:
+    - https://theory.cm.utexas.edu
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: '1.05'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-repository
+      allowed_path_prefixes:
+      - /henkelman/code/bader/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
       status: unknown
       identifier: null
       terms_urls: []
       verification_status: unresolved
-    redistribution_policy: &planned-redistribution-policy
-      allowed_values: [unknown]
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The rolling program page identifies version 1.05 but does not provide a Git revision for the source archive.
+    - The page does not provide a Git tag; the source archive still needs an exact archive digest.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://theory.cm.utexas.edu/henkelman/code/bader/
+  catmap-release-source-docs-0-4-1:
+    display_name: catmap exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: catmap
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 0.4.1
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /SUNCAT-Center/catmap/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: GPL-3.0-only
+      terms_urls:
+      - https://raw.githubusercontent.com/SUNCAT-Center/catmap/ed04f9146a787b0e63b6febd96d8fe3b314c251b/COPYING.txt
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The tag is exact but tagged setup/module version strings and the rolling manual label conflict; the authority cannot resolve that conflict or prove native behavior.
+    - The exact tag-tree inventory does not establish a version-consistent rendered manual, native runtime, solver behavior, numerical validity, or mechanism acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/SUNCAT-Center/catmap/tree/v0.4.1
+  deepmd-release-source-docs-3-1-3:
+    display_name: deepmd exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: deepmd
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 3.1.3
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /deepmodeling/deepmd-kit/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: LGPL-3.0-or-later
+      terms_urls:
+      - https://raw.githubusercontent.com/deepmodeling/deepmd-kit/b2c8511ee32355e744e17e05d95c6d8acbac9526/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact source authority does not license or validate datasets, trained models, reference DFT outputs, optional backends, or native execution.
+    - This exact metadata inventory does not establish dependency compatibility, native CLI behavior, backend equivalence, model validity, or scientific acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/deepmodeling/deepmd-kit/tree/v3.1.3
+  dpdata-release-source-docs-1-0-2:
+    display_name: dpdata exact official source metadata
+    lifecycle: active
+    provider_class: repository
+    provider_id: dpdata
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 1.0.2
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /deepmodeling/dpdata/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: LGPL-3.0-or-later
+      terms_urls:
+      - https://raw.githubusercontent.com/deepmodeling/dpdata/bc617b72063d3bd48084a85c1ebbc63c389e17b5/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact source authority does not license or validate datasets, trained models, reference DFT outputs, optional backends, or native execution.
+    - This exact metadata inventory does not establish dependency compatibility, native CLI behavior, backend equivalence, model validity, or scientific acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/deepmodeling/dpdata/tree/v1.0.2
+  dpgen-release-source-docs-0-13-3:
+    display_name: dpgen exact official source metadata
+    lifecycle: active
+    provider_class: repository
+    provider_id: dpgen
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 0.13.3
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /deepmodeling/dpgen/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: LGPL-3.0-or-later
+      terms_urls:
+      - https://raw.githubusercontent.com/deepmodeling/dpgen/66232e5f05f90d6e399b1c25fd0d914ea3e40af8/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact source authority does not license or validate datasets, trained models, reference DFT outputs, optional backends, or native execution.
+    - This exact metadata inventory does not establish dependency compatibility, native CLI behavior, backend equivalence, model validity, or scientific acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/deepmodeling/dpgen/tree/v0.13.3
+  fairchem-dataset-reference-docs:
+    display_name: fairchem-datasets exact official source metadata
+    lifecycle: active
+    provider_class: dataset
+    provider_id: fairchem-datasets
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: fairchem_core-2.21.0
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-dataset
+      - official-manual
+      - official-reference
+      allowed_path_prefixes:
+      - /FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/catalysts/datasets/
+      - /FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/core/
+      - /FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/dac/datasets/
+      - /FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/inorganic_materials/datasets/
+      - /FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/molecules/datasets/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: MIT
+      terms_urls:
+      - https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Dataset pages do not establish archive byte identity or all effective access terms.
+    - Reference-DFT protocol descriptions do not grant software, potential, or raw-output rights.
+    - No external dataset byte identity or archive revision is established.
+    - No proprietary software, pseudopotential, raw-output, model-weight, or gated-storage right is granted.
+    provenance:
+      verified_utc: '2026-07-23T19:35:04Z'
+      official_fact_urls:
+      - https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/docs/catalysts/datasets/oc20.md
+  fairchem-uma-model-repository:
+    display_name: fairchem-uma exact official source metadata
+    lifecycle: active
+    provider_class: model-artifact
+    provider_id: fairchem-uma
+    allowed_https_origins:
+    - https://huggingface.co
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: f611b917d9c68566bbbeccbb0aa0f7cad1696cb2
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-api-metadata
+      allowed_path_prefixes:
+      - /api/models/facebook/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - No checkpoint bytes or model-card body were retrieved.
+    - Repository revision is not a checkpoint byte identity.
+    - Only a public metadata response is recorded.
+    - No model-card body, reference configuration, checkpoint byte hash, or model execution evidence exists.
+    provenance:
+      verified_utc: '2026-07-23T19:35:04Z'
+      official_fact_urls:
+      - https://huggingface.co/api/models/facebook/UMA
+  fairchem-v1-release-source-1-10-0:
+    display_name: fairchem-v1 exact official source metadata
+    lifecycle: active
+    provider_class: repository
+    provider_id: fairchem-v1
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: fairchem_core-1.10.0
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /FAIR-Chem/fairchem/blob/977a80328f2be44649b414a9907a1d6ef2f81e95/
+      - /FAIR-Chem/fairchem/tree/977a80328f2be44649b414a9907a1d6ef2f81e95/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: MIT
+      terms_urls:
+      - https://github.com/FAIR-Chem/fairchem/blob/977a80328f2be44649b414a9907a1d6ef2f81e95/LICENSE.md
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Generated AutoAPI and a missing TOC page prevent full rendered coverage.
+    - Legacy checkpoint licenses remain unresolved.
+    - Generated AutoAPI and missing TOC content prevent a complete rendered corpus.
+    provenance:
+      verified_utc: '2026-07-23T19:35:04Z'
+      official_fact_urls:
+      - https://github.com/FAIR-Chem/fairchem/blob/977a80328f2be44649b414a9907a1d6ef2f81e95/LICENSE.md
+  fairchem-v2-release-source-2-21-0:
+    display_name: fairchem-v2 exact official source metadata
+    lifecycle: active
+    provider_class: repository
+    provider_id: fairchem-v2
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: fairchem_core-2.21.0
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/
+      - /FAIR-Chem/fairchem/tree/f47a0a6f0f594ea051b70091304864242df933e1/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: MIT
+      terms_urls:
+      - https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The rolling site differs from exact release 2.21.0.
+    - Non-text assets are not interpreted.
+    - The rolling rendered site differs from exact release 2.21.0.
+    - Non-text assets remain external and uninterpreted.
+    provenance:
+      verified_utc: '2026-07-23T19:35:04Z'
+      official_fact_urls:
+      - https://github.com/FAIR-Chem/fairchem/blob/f47a0a6f0f594ea051b70091304864242df933e1/LICENSE.md
+  gaussian-g16-c01-public-reference:
+    display_name: Gaussian 16 Rev. C.01 public reference metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: gaussian
+    allowed_https_origins:
+    - https://gaussian.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 16-C.01-public-reference
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-api-metadata
+      - official-reference
+      allowed_path_prefixes:
+      - /wp-json/wp/v2/pages/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Public WordPress page records identify mutable Gaussian 16 Rev. C.01 reference pages but do not grant a documentation-content redistribution license.
+    - This authority excludes licensed manuals, examples, basis payloads, binaries, checkpoints, user data, and calculation artifacts.
+    - The index-level metadata does not close every linked keyword, IOp, utility, option, or user-reference leaf page.
+    - The public C.01 reference is mutable and has no immutable release snapshot.
+    - This metadata-only catalog does not store page text, licensed manuals, examples, basis payloads, binaries, checkpoints, or user data.
+    - The linked keyword, IOp, utility, and user-reference leaf pages are not yet individually receipt-bound.
+    provenance:
+      verified_utc: '2026-07-23T19:38:15Z'
+      official_fact_urls:
+      - https://gaussian.com/wp-json/wp/v2/pages/17023
+  gaussian-g16-c02-release-materials:
+    display_name: Gaussian 16 Rev. C.02 public release materials
+    lifecycle: active
+    provider_class: software
+    provider_id: gaussian
+    allowed_https_origins:
+    - https://gaussian.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 16-C.02-release-delta
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-api-metadata
+      - official-reference
+      - official-release-notes
+      allowed_path_prefixes:
+      - /g16/
+      - /wp-json/wp/v2/pages/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - C.02 release notes and the platform list are a public delta, not a complete C.02 keyword, IOp, input, output, utility, or operational reference.
+    - No release-note or platform-document redistribution license was verified, so bundle content remains forbidden.
+    - The C.01 user reference cannot be silently promoted into the C.02 corpus.
+    - C.02 release materials are a delta and do not make the C.01 public user reference version-matched C.02 documentation.
+    - No licensed manual, installer, binary, example, basis payload, or checkpoint is stored.
+    provenance:
+      verified_utc: '2026-07-23T19:38:20Z'
+      official_fact_urls:
+      - https://gaussian.com/g16/g16_plat.pdf
+  gemmi-0-7-5-source-docs:
+    display_name: Gemmi 0.7.5 release-source documentation
+    lifecycle: active
+    provider_class: repository
+    provider_id: gemmi
+    allowed_https_origins:
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 0.7.5
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-repository
+      allowed_path_prefixes:
+      - /project-gemmi/gemmi/5cc1c23c6007e0e6cbd69289c6f7c0bff50e943e/docs/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Gemmi documents CIF2 and DDLm as unsupported; the Skill must preserve its separate CIF2 route.
+    - Gemmi documents CIF2 and DDLm as unsupported; those inputs are routed elsewhere.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://raw.githubusercontent.com/project-gemmi/gemmi/5cc1c23c6007e0e6cbd69289c6f7c0bff50e943e/docs/cif.rst
+  gpumd-release-source-docs-5-3:
+    display_name: gpumd exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: gpumd
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: '5.3'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /brucefan1983/GPUMD/tree/v5.3/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: GPL-3.0-or-later
+      terms_urls:
+      - https://raw.githubusercontent.com/brucefan1983/GPUMD/f2b46c5d528e985a5bf68becd442b18c0e04396c/LICENCE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact release source documentation does not prove local build/runtime identity, GPU compatibility, model/data rights, native behavior, convergence, or scientific validity.
+    - The exact source-tree inventory does not establish a native GPU build, binary behavior, model/data licensing, NEP transferability, transport convergence, or scientific acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/brucefan1983/GPUMD/tree/v5.3/doc
+  gromacs-release-source-docs-2026-3:
+    display_name: gromacs exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: gromacs
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: '2026.3'
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /gromacs/gromacs/tree/v2026.3/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: LGPL-2.1-only
+      terms_urls:
+      - https://raw.githubusercontent.com/gromacs/gromacs/121090014570a53a17ea391bcddae45e5ea05eb4/COPYING
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact release source documentation does not prove local build/runtime identity, optional features, force-field assets, native behavior, convergence, or scientific validity.
+    - The exact documentation-tree inventory does not establish installed binary identity, build features, force-field provenance, native behavior, sampling convergence, or scientific acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/gromacs/gromacs/tree/v2026.3/docs
+  iucr-comcifs-cif-standards:
+    display_name: IUCr COMCIFS CIF standards sources
+    lifecycle: active
+    provider_class: standard
+    provider_id: iucr
+    allowed_https_origins:
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: CIF-1.1+CIF-2.0+core-3.2.0
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-repository
+      allowed_path_prefixes:
+      - /COMCIFS/cif_api/1ddf445dc3dc82c211396b02e8af5bea3230a211/
+      - /COMCIFS/cif_core/6b12b6782b66e57dd18b2f413e1c7bcde4d59907/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - CIF grammar and dictionary source identity is exact, but documentation licensing and the full IUCr portal universe remain unresolved.
+    - The formal IUCr portal could not be byte-bound by the offline-compatible fetch path.
+    - CIF dictionary redistribution terms remain unresolved.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://raw.githubusercontent.com/COMCIFS/cif_api/1ddf445dc3dc82c211396b02e8af5bea3230a211/README.md
+  json-schema-standard-2020-12:
+    display_name: JSON Schema Draft 2020-12 Core and Validation specifications
+    lifecycle: active
+    provider_class: standard
+    provider_id: json-schema
+    allowed_https_origins:
+    - https://json-schema.org
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 2020-12
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      allowed_path_prefixes:
+      - /draft/2020-12/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-restricted
+      identifier: IETF-Trust-Legal-Provisions
+      terms_urls:
+      - https://trustee.ietf.org/license-info
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - runtime-only
+      - restricted
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The authority covers central schema validation only and grants no conformance claim to the candidate CLI.
+    - The authority covers only exact Draft 2020-12 specification provenance and grants no conformance claim to a consumer.
+    - This provider covers the external dialect used by central contract validators, not the candidate CLI's hand-written checks.
+    - The two pages cover only the dialect/core and validation-vocabulary scope named by this Skill.
+    - No conformance claim is made for the candidate's hand-written validators.
+    provenance:
+      verified_utc: '2026-07-23T20:02:38Z'
+      official_fact_urls:
+      - https://json-schema.org/draft/2020-12/json-schema-core.html
+  lammps-release-source-docs-patch-4jul2026:
+    display_name: lammps exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: lammps
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 4Jul2026
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /lammps/lammps/tree/patch_4Jul2026/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: GPL-2.0-only
+      terms_urls:
+      - https://raw.githubusercontent.com/lammps/lammps/b54f0e7b0fb0003d6cec2e53c3b222211f4915c0/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact release source documentation does not prove the local binary build, compiled package/style availability, potential identity, runtime behavior, convergence, or scientific acceptance.
+    - The exact documentation-tree inventory does not establish native availability, compiled package/style coverage, command semantics, numerical convergence, or scientific acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/lammps/lammps/tree/patch_4Jul2026/doc
+  lasp-author-literature:
+    display_name: LASP author literature and open repository metadata
+    lifecycle: active
+    provider_class: publisher
+    provider_id: lasp-authors
+    allowed_https_origins:
+    - https://doi.org
+    - https://pmc.ncbi.nlm.nih.gov
+    version_policy:
+      allowed_scopes:
+      - unversioned
+      registered_scopes:
+      - scope: unversioned
+        exact_version: null
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-api-metadata
+      - official-reference
+      allowed_path_prefixes:
+      - /10.1002/
+      - /10.1021/
+      - /10.1039/
+      - /articles/PMC11672538/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The authority covers metadata-only external identities for author literature and an external PMC response; it does not bundle article content.
+    - The PMC article terms do not establish rights to LASP software, manuals, examples, interfaces, models, datasets, structures, trajectories, or calculation outputs.
+    - LASP 3.7 literature context cannot establish the exact 3.7.3 native operational contract or execution authorization.
+    - The HTTP-only LASP Hub is outside this active HTTPS authority.
+    - The bounded author-literature set supplies architecture and method context, not exact LASP 3.7.3 operational syntax.
+    - DOI records are content-negotiated metadata identities; the PMC article body remains external and is not stored.
+    - Literature-version context 3.7 cannot be silently promoted to distribution-version identity 3.7.3.
+    - The HTTP-only LASP Hub is recorded only in the authority/binding proposal blocker and is never used as a catalog locator.
+    provenance:
+      verified_utc: '2026-07-23T19:46:58Z'
+      official_fact_urls:
+      - https://doi.org/10.1002/wcms.1415
+      - https://pmc.ncbi.nlm.nih.gov/articles/PMC11672538/
+  lobster-acs-method-literature:
+    display_name: LOBSTER and COHP provider-required ACS literature metadata
+    lifecycle: active
+    provider_class: publisher
+    provider_id: acs
+    allowed_https_origins:
+    - https://doi.org
+    version_policy:
+      allowed_scopes:
+      - unversioned
+      registered_scopes:
+      - scope: unversioned
+        exact_version: null
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-api-metadata
+      allowed_path_prefixes:
+      - /10.1021/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The authority covers content-negotiated DOI metadata identity only and does not authorize storage or redistribution of article text, figures, tables, or supporting information.
+    - Method literature can define COHP-family concepts but cannot establish native LOBSTER 5.1.1 syntax, defaults, runtime files, completion markers, output schemas, basis resources, or entitlement.
+    - DOI metadata is mutable and remains subject to platform verification.
+    - The records identify provider-required primary literature but do not store or reproduce publication text, figures, tables, supporting information, or native LOBSTER syntax.
+    - The DOI metadata is mutable and does not constitute a version-matched LOBSTER 5.1.1 manual.
+    - COHP and COBI method literature cannot establish executable argv, lobsterin grammar, file schemas, completion markers, defaults, basis resources, or authorization.
+    provenance:
+      verified_utc: '2026-07-23T19:46:29Z'
+      official_fact_urls:
+      - https://doi.org/10.1021/acs.jpcc.1c00718
+  lobster-wiley-method-literature:
+    display_name: LOBSTER provider-required Wiley literature metadata
+    lifecycle: active
+    provider_class: publisher
+    provider_id: wiley
+    allowed_https_origins:
+    - https://doi.org
+    version_policy:
+      allowed_scopes:
+      - unversioned
+      registered_scopes:
+      - scope: unversioned
+        exact_version: null
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-api-metadata
+      allowed_path_prefixes:
+      - /10.1002/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The authority covers content-negotiated DOI metadata identity only and does not authorize storage or redistribution of publication bodies or supplementary assets.
+    - The papers span method generations and workflows and cannot be substituted for an exact LOBSTER 5.1.1 manual or licensed example set.
+    - Scientific definitions and limitations require claim-specific reading outside the bundle; metadata identity alone is not scientific evidence.
+    - The records identify provider-required primary and workflow literature but do not store publication text, figures, tables, supporting information, or native LOBSTER payloads.
+    - The literature spans method generations and cannot be promoted to an exact LOBSTER 5.1.1 operational contract.
+    - Projection, population, automation, and file-role claims still require claim-specific paper review; the DOI metadata alone supplies identity rather than scientific content.
+    provenance:
+      verified_utc: '2026-07-23T19:46:29Z'
+      official_fact_urls:
+      - https://doi.org/10.1002/cplu.202200123
+  mace-docs-branch-bff7c94d:
+    display_name: mace exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: mace
+    allowed_https_origins:
+    - https://github.com
+    - https://mace-docs.readthedocs.io
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: bff7c94d8fbfdc3dde707ade12db5f36b97683b5
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /ACEsuit/mace/blob/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/
+      - /ACEsuit/mace/tree/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/
+      - /en/latest/
+      - /en/latest/_sources/guide/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-restricted
+      identifier: Academic Software License
+      terms_urls:
+      - https://github.com/ACEsuit/mace/blob/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - runtime-only
+      - restricted
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Docs revision and license differ from framework v0.3.16.
+    - No exact v0.3.16 rendered documentation corpus is available.
+    - The docs and framework versions are split intentionally and cannot be collapsed.
+    - Only external receipts are retained; documentation bodies are not bundled.
+    provenance:
+      verified_utc: '2026-07-23T19:35:04Z'
+      official_fact_urls:
+      - https://github.com/ACEsuit/mace/blob/bff7c94d8fbfdc3dde707ade12db5f36b97683b5/LICENSE
+      - https://mace-docs.readthedocs.io/en/latest/_sources/guide/foundation_models.rst.txt
+  mace-release-source-0-3-16:
+    display_name: mace exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: mace
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: v0.3.16
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      allowed_path_prefixes:
+      - /ACEsuit/mace/blob/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/
+      - /ACEsuit/mace/tree/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: MIT
+      terms_urls:
+      - https://github.com/ACEsuit/mace/blob/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Activation requires central review; this proposal does not edit the registry.
+    - The exact framework tag contains no docs/ tree.
+    - The catalog records exact external identities but does not embed or parse the complete framework tree.
+    - The exact release contains no docs/ tree.
+    provenance:
+      verified_utc: '2026-07-23T19:35:04Z'
+      official_fact_urls:
+      - https://github.com/ACEsuit/mace/blob/4d2da09413ac1407f37cdbb6b81fa28e4c15655e/LICENSE
+  multiwfn-manual-external-identity-2026-7-10:
+    display_name: Multiwfn 2026.7.10 restricted external-only manual identity
+    lifecycle: active
+    provider_class: software
+    provider_id: multiwfn
+    allowed_https_origins:
+    - https://sobereva.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 2026.7.10
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      allowed_path_prefixes:
+      - /multiwfn/misc/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-restricted
+      identifier: LicenseRef-Multiwfn-Custom-Terms
+      terms_urls:
+      - https://sobereva.com/multiwfn/download.html
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - runtime-only
+      - restricted
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - 'Restricted external-only authority: only exact metadata and an historical external byte identity are recognized. HTTPS retrieval failed in the reviewed environment; manual/quick-start bodies, extracted slices, derivative rights, program/manual deltas, native execution, and scientific claims remain blocked.'
+    - Multiwfn manual and quick-start content are restricted to external-only receipts; the inventory does not establish a secure retrieval route, complete official-site universe, page/section coverage, executable identity, native behavior, scientific validity, or permission to redistribute derived manual content.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://sobereva.com/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf
+  nequip-release-source-0-19-0:
+    display_name: nequip exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: nequip
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: v0.19.0
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /mir-group/nequip/blob/ea3ac14154338da83386be75d619b0cd964ffb42/
+      - /mir-group/nequip/tree/ea3ac14154338da83386be75d619b0cd964ffb42/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: MIT
+      terms_urls:
+      - https://github.com/mir-group/nequip/blob/ea3ac14154338da83386be75d619b0cd964ffb42/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - An exact rendered v0.19.0 site is unavailable.
+    - Autodoc requires both docs and code source identities.
+    - Autodoc completeness requires external code bodies as well as docs bodies.
+    - The rolling rendered site is not the exact tag.
+    provenance:
+      verified_utc: '2026-07-23T19:35:04Z'
+      official_fact_urls:
+      - https://github.com/mir-group/nequip/blob/ea3ac14154338da83386be75d619b0cd964ffb42/LICENSE
+  openpbs-release-docs-23-06-06:
+    display_name: OpenPBS 23.06.06 exact release manpage sources
+    lifecycle: active
+    provider_class: platform
+    provider_id: openpbs
+    allowed_https_origins:
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 23.06.06
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-repository
+      allowed_path_prefixes:
+      - /openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: AGPL-3.0-or-later
+      terms_urls:
+      - https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact release source does not validate an installed site and does not close the candidate ngpus assumption.
+    - The exact release source does not validate any installed site version or policy.
+    - The candidate's ngpus rendering assumption is not closed by the selected pbs_resources source and remains blocked.
+    provenance:
+      verified_utc: '2026-07-23T20:02:38Z'
+      official_fact_urls:
+      - https://raw.githubusercontent.com/openpbs/openpbs/be361a18ef37652bece0811ec709f0fe4fc52710/doc/man1/pbs_resources.7B
+  ovito-pypi-release-metadata-3-15-5:
+    display_name: OVITO exact PyPI 3.15.5 release metadata
+    lifecycle: active
+    provider_class: repository
+    provider_id: ovito
+    allowed_https_origins:
+    - https://pypi.org
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 3.15.5
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-api-metadata
+      - official-reference
+      - official-release-notes
+      allowed_path_prefixes:
+      - /pypi/ovito/3.15.5/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: MIT
+      terms_urls:
+      - https://pypi.org/project/ovito/3.15.5/
+      - https://gitlab.com/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/LICENSE.MIT.txt
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The recognized source identity does not prove package/desktop edition equivalence, entitlement, installed/imported bytes, native behavior, numerical validation, rendering determinism, or scientific acceptance.
+    - Exact PyPI metadata and wheel digests do not establish artifact bytes, signatures, imported module identity, Basic/Pro desktop identity, entitlement, runtime behavior, modifier validity, or scientific acceptance.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://pypi.org/pypi/ovito/3.15.5/json
+  ovito-release-source-docs-3-15-5:
+    display_name: OVITO exact v3.15.5 release-source documentation
+    lifecycle: active
+    provider_class: repository
+    provider_id: ovito
+    allowed_https_origins:
+    - https://gitlab.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 3.15.5
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /stuko/ovito/-/tree/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: GFDL-1.2-or-later
+      terms_urls:
+      - https://gitlab.com/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/LICENSE.txt
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The recognized source identity does not prove package/desktop edition equivalence, entitlement, installed/imported bytes, native behavior, numerical validation, rendering determinism, or scientific acceptance.
+    - The exact doc-tree inventory does not establish body coverage, generated-reference closure, edition/entitlement identity, package artifact identity, native execution, modifier numerical validation, rendering determinism, or scientific acceptance.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://gitlab.com/stuko/ovito/-/tree/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/doc
+  phonopy-release-source-docs-4-3-1:
+    display_name: phonopy exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: phonopy
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 4.3.1
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /phonopy/phonopy/tree/v4.3.1/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: BSD-3-Clause
+      terms_urls:
+      - https://raw.githubusercontent.com/phonopy/phonopy/baf530aed09071e1221b3c191918a168fc5f1d9b/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact source documentation does not prove local version identity, calculator interface execution, displacement/force lineage, convergence, or physical validity.
+    - The exact source-document inventory does not establish the installed phonopy version, calculator executable behavior, force identity, numerical convergence, or scientific acceptance.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/phonopy/phonopy/tree/v4.3.1/doc
+  pycifrw-5-0-1-source-docs:
+    display_name: PyCifRW 5.0.1 release-source documentation
+    lifecycle: active
+    provider_class: repository
+    provider_id: pycifrw
+    allowed_https_origins:
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 5.0.1
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-repository
+      allowed_path_prefixes:
+      - /jamesrhester/pycifrw/046dae8fead29d9f7c0b7df2544f943558b55b8b/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The selected README is not a complete PyCifRW API or grammar corpus.
+    - The compact docs directory is not the complete PyCifRW API and grammar universe.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://raw.githubusercontent.com/jamesrhester/pycifrw/046dae8fead29d9f7c0b7df2544f943558b55b8b/README.md
+  pymatgen-release-source-docs-2026-5-4:
+    display_name: pymatgen exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: pymatgen
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 2026.5.4
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /materialsproject/pymatgen/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: MIT
+      terms_urls:
+      - https://raw.githubusercontent.com/materialsproject/pymatgen/v2026.5.4/LICENSE
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence.
+    - This metadata inventory proves the bounded exact tree and path universe only; it does not prove rendered documentation completeness or provider behavior.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/materialsproject/pymatgen/tree/v2026.5.4
+  rdkit-release-source-docs-2026-03-4:
+    display_name: rdkit exact official source metadata
+    lifecycle: active
+    provider_class: software
+    provider_id: rdkit
+    allowed_https_origins:
+    - https://github.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 2026.03.4
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /rdkit/rdkit/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: BSD-3-Clause
+      terms_urls:
+      - https://raw.githubusercontent.com/rdkit/rdkit/Release_2026_03_4/license.txt
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence.
+    - This metadata inventory proves the bounded exact tree and path universe only; it does not prove rendered documentation completeness or provider behavior.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-23T20:17:38Z'
+      official_fact_urls:
+      - https://github.com/rdkit/rdkit/tree/Release_2026_03_4
+  slurm-live-manual-26-05:
+    display_name: Slurm 26.05 live official manuals at retrieval
+    lifecycle: active
+    provider_class: platform
+    provider_id: slurm
+    allowed_https_origins:
+    - https://slurm.schedmd.com
+    version_policy:
+      allowed_scopes:
+      - latest-at-retrieval
+      registered_scopes:
+      - scope: latest-at-retrieval
+        exact_version: null
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      allowed_path_prefixes:
+      - /
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Rolling pages and official syntax do not identify the installed cluster version or site policy.
+    - Rolling live pages may drift and do not identify an installed cluster version.
+    - Official syntax does not determine account, partition, QoS, modules, launcher, filesystem, accounting, or site policy.
+    provenance:
+      verified_utc: '2026-07-23T20:02:38Z'
+      official_fact_urls:
+      - https://slurm.schedmd.com/gres.html
+  spglib-release-source-docs-2-7-0:
+    display_name: spglib 2.7.0 release-source documentation
+    lifecycle: active
+    provider_class: repository
+    provider_id: spglib
+    allowed_https_origins:
+    - https://github.com
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 2.7.0
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /spglib/spglib/12355c77fb7c505a55f52cae36341d73b781a065/docs/
+      - /spglib/spglib/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: known-open
+      identifier: BSD-3-Clause
+      terms_urls:
+      - https://raw.githubusercontent.com/spglib/spglib/v2.7.0/COPYING
+      verification_status: verified
+    redistribution_policy:
+      allowed_values:
+      - redistributable
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - This exact snapshot does not cover every spglib version accepted by the Skill dependency range.
+    - Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence.
+    - The Skill admits spglib versions newer than this exact documentation snapshot.
+    - This metadata inventory proves the bounded exact tree and path universe only; it does not prove rendered documentation completeness or provider behavior.
+    - External raw identity is the SHA-256 of canonical sorted git ls-tree -r receipt lines '<mode> <object_type> <object_id>\t<path>\n' for every inventory entry; the local inventory JSON is metadata evidence only and contains no official document body bytes.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://github.com/spglib/spglib/tree/v2.7.0
+      - https://raw.githubusercontent.com/spglib/spglib/12355c77fb7c505a55f52cae36341d73b781a065/docs/api.md
+  vaspkit-1-5-documentation:
+    display_name: VASPKIT 1.5 documentation repository revision
+    lifecycle: active
+    provider_class: software
+    provider_id: vaspkit
+    allowed_https_origins:
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 383a7103505b5b9436dedbf04df42ebb6e248638
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-repository
+      allowed_path_prefixes:
+      - /vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The documentation revision does not establish exact VASPKIT binary identity or redistribution rights.
+    - The documentation commit does not establish exact binary identity or redistribution rights.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/tutorials.rst.txt
+  vaspkit-documentation-repository-383a710:
+    display_name: VASPKIT exact documentation repository commit 383a710
+    lifecycle: active
+    provider_class: software
+    provider_id: vaspkit
+    allowed_https_origins:
+    - https://github.com
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 1.5-docs-383a7103505b5b9436dedbf04df42ebb6e248638
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-release-notes
+      - official-repository
+      allowed_path_prefixes:
+      - /vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/
+      - /vaspkit/vaspkit.github.io/tree/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The exact docs commit and two raw-page receipts do not prove complete semantic slicing, documentation redistribution rights, exact binary/menu behavior, private configuration, POTCAR identity, parent VASP acceptance, or scientific validity.
+    - Two exact raw pages are hash-verified, and the full docs tree is path/object inventoried, but the remaining page bodies, semantic heading slices, build replay, documentation license, exact binary, private configuration, POTCAR, and parent VASP evidence remain external.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://github.com/vaspkit/vaspkit.github.io/tree/383a7103505b5b9436dedbf04df42ebb6e248638
+      - https://raw.githubusercontent.com/vaspkit/vaspkit.github.io/383a7103505b5b9436dedbf04df42ebb6e248638/_sources/features.rst.txt
+  vesta-official-manual:
+    display_name: VESTA official rolling manual
+    lifecycle: active
+    provider_class: repository
+    provider_id: vesta
+    allowed_https_origins:
+    - https://jp-minerals.org
+    version_policy:
+      allowed_scopes:
+      - latest-at-retrieval
+      registered_scopes:
+      - scope: latest-at-retrieval
+        exact_version: null
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-manual
+      - official-reference
+      - official-repository
+      allowed_path_prefixes:
+      - /vesta/en/doc/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - The rolling manual is not bound to an exact installed VESTA executable, and its license remains separately reviewed.
+    - The rolling manual is not bound to an exact installed VESTA executable.
+    provenance:
+      verified_utc: '2026-07-24T00:00:00Z'
+      official_fact_urls:
+      - https://jp-minerals.org/vesta/en/doc/VESTAch17.html
+  vibe-dft-skills-repository-contracts:
+    display_name: Vibe DFT Skills exact repository contracts and policies
+    lifecycle: active
+    provider_class: repository
+    provider_id: vibe-dft-skills
+    allowed_https_origins:
+    - https://raw.githubusercontent.com
+    version_policy:
+      allowed_scopes:
+      - exact
+      registered_scopes:
+      - scope: exact
+        exact_version: 24dd8a9b7fd2758a7c44b82ee7dbb386693b2315
+        minimum_version: null
+        maximum_version: null
+        release_series: null
+    content_policy:
+      source_kinds:
+      - official-repository
+      allowed_path_prefixes:
+      - /Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-hpc-execution/references/
+      - /Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-project-orchestrator/references/
+      - /Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-reporting/references/
+      - /Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-review-response/references/
+      - /Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/literature-to-dft-plan/references/
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: platform-verified-only
+    content_identity_policy:
+      mode: platform-adapter-only
+      unpinned_action: adapter-required
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: platform-verification-required
+    limitations:
+    - Exact repository identity cannot establish scheduler behavior, cluster configuration, execution, or scientific acceptance.
+    - The authority proves repository interface identity only and cannot establish execution, scientific validity, or acceptance.
+    - This authority proves only exact repository policy and contract identity; it cannot establish any input-specific external source, scientific result, native execution, or acceptance.
+    - This authority proves exact repository interface identity only; it cannot authenticate a manuscript, reviewer, journal, runtime source, scientific result, or human decision.
+    - This authority proves exact repository interface identity only; it cannot enumerate or authenticate a runtime literature universe.
+    - Repository policy remains local and cannot earn external-provider coverage.
+    - The provider carries repository-interface provenance only; all repository-policy subjects remain not applicable to external provider coverage.
+    - The catalog is a revision receipt for repository provenance, not an external scientific-document authority.
+    - Repository policy subjects remain local and cannot earn official-provider coverage.
+    - This provider carries repository-interface provenance only and has no journal, reviewer, manuscript, or literature subject.
+    - All response evidence remains bound to the supplied claim map and exact runtime refs.
+    - This provider is a repository-interface carrier only and contains no external literature subject.
+    - The open-ended runtime literature universe is deliberately outside this catalog.
+    provenance:
+      verified_utc: '2026-07-23T20:02:38Z'
+      official_fact_urls:
+      - https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-hpc-execution/references/official-source-index.json
+  gaussian-official-reference:
+    display_name: Gaussian official reference placeholder
+    lifecycle: planned
+    provider_class: software
+    provider_id: gaussian
+    allowed_https_origins: []
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
+    canonical_snapshot: null
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
       bundle_content: forbidden
       external_runtime_content: unavailable
-    limitations: &planned-limitations
-      - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
-    provenance: &planned-provenance
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
       verified_utc: null
       official_fact_urls: []
-
   gromacs-official-reference:
     display_name: GROMACS official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: gromacs
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   lammps-official-reference:
     display_name: LAMMPS official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: lammps
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   deepmd-official-reference:
     display_name: DeePMD-kit official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: deepmd
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   multiwfn-official-reference:
     display_name: Multiwfn official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: multiwfn
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   phonopy-official-reference:
     display_name: Phonopy official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: phonopy
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   vaspkit-official-reference:
     display_name: VASPKIT official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: vaspkit
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   catmap-official-reference:
     display_name: CatMAP official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: catmap
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   lobster-official-reference:
     display_name: LOBSTER official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: lobster
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   ovito-official-reference:
     display_name: OVITO official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: ovito
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   pymatgen-official-reference:
     display_name: pymatgen official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: pymatgen
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   rdkit-official-reference:
     display_name: RDKit official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: rdkit
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   mace-official-reference:
     display_name: MACE official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: mace
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   nequip-official-reference:
     display_name: NequIP official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: nequip
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   gpumd-official-reference:
     display_name: GPUMD official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: gpumd
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   lasp-official-reference:
     display_name: LASP official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: lasp
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   gemnet-oc-official-reference:
     display_name: GemNet-OC official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: gemnet-oc
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   equiformer-v2-official-reference:
     display_name: Equiformer V2 official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: equiformer-v2
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []
   fairchem-uma-official-reference:
     display_name: FAIR-Chem UMA official reference placeholder
     lifecycle: planned
+    provider_class: software
     provider_id: fairchem-uma
     allowed_https_origins: []
-    version_policy: *planned-version-policy
-    content_policy: *planned-content-policy
-    content_identity_policy: *planned-content-identity-policy
+    version_policy:
+      allowed_scopes: []
+      registered_scopes: []
+    content_policy:
+      source_kinds: []
+      allowed_path_prefixes: []
+      query_policy: forbidden
+      allowed_query_urls: []
+      fragment_policy: forbidden
+      resolution_mode: unresolved
+    content_identity_policy:
+      mode: unresolved
+      unpinned_action: block
     canonical_snapshot: null
-    license_policy: *planned-license-policy
-    redistribution_policy: *planned-redistribution-policy
-    limitations: *planned-limitations
-    provenance: *planned-provenance
+    license_policy:
+      status: unknown
+      identifier: null
+      terms_urls: []
+      verification_status: unresolved
+    redistribution_policy:
+      allowed_values:
+      - unknown
+      bundle_content: forbidden
+      external_runtime_content: unavailable
+    limitations:
+    - Unverified roadmap placeholder; it cannot authorize source trust, content resolution, or a positive claim.
+    provenance:
+      verified_utc: null
+      official_fact_urls: []

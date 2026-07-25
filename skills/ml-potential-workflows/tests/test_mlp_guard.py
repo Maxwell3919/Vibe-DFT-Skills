@@ -13,6 +13,7 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+import extract_official_source_scope as source_scope  # noqa: E402
 import mlp_guard as guard  # noqa: E402
 
 
@@ -710,6 +711,299 @@ class BoundaryAndCliTests(unittest.TestCase):
         serialized = json.dumps(result, sort_keys=True)
         self.assertNotIn("private-frame", serialized)
         self.assertNotIn("/Users/", serialized)
+
+
+class OfficialSourceSeedTests(unittest.TestCase):
+    def source_inputs(self) -> dict[str, object]:
+        return source_scope.load_json(
+            ROOT / "references" / "source-pack-inputs.json"
+        )
+
+    def generated_json(self, relative: str) -> dict[str, object]:
+        return json.loads(
+            (source_scope.REPOSITORY_ROOT / relative).read_text(encoding="utf-8")
+        )
+
+    def test_generated_outputs_match_canonical_renderer(self) -> None:
+        outputs = source_scope.render_outputs()
+        self.assertEqual(len(outputs), 10)
+        for relative, expected in outputs.items():
+            with self.subTest(relative=relative):
+                self.assertEqual(
+                    (source_scope.REPOSITORY_ROOT / relative).read_bytes(),
+                    expected,
+                )
+        self.assertEqual(source_scope.write_or_check(check=True), ())
+
+    def test_seed_is_multi_provider_hash_bound_and_blocked(self) -> None:
+        seed = self.generated_json(
+            "skills/ml-potential-workflows/references/source-pack-seed.json"
+        )
+        self.assertEqual(seed["status_ceiling"], "blocked")
+        self.assertEqual(
+            seed["scope_extractor_id"],
+            "ml-provider-source-scope-v1",
+        )
+        self.assertEqual(
+            [item["input_id"] for item in seed["providers"]],
+            [
+                "mace-framework",
+                "mace-docs",
+                "nequip-framework",
+                "fairchem-v1",
+                "fairchem-v2",
+                "uma-models",
+                "fairchem-datasets",
+            ],
+        )
+        scope_ref = seed["scope_catalog_ref"]
+        scope_raw = (source_scope.REPOSITORY_ROOT / scope_ref["path"]).read_bytes()
+        self.assertEqual(scope_ref["sha256"], source_scope.sha256_bytes(scope_raw))
+        for provider in seed["providers"]:
+            source_ref = provider["source_ref"]
+            source_raw = (
+                source_scope.REPOSITORY_ROOT / source_ref["path"]
+            ).read_bytes()
+            self.assertEqual(
+                source_ref["sha256"],
+                source_scope.sha256_bytes(source_raw),
+            )
+        self.assertGreaterEqual(len(seed["blockers"]), 6)
+        self.assertFalse(
+            any(
+                "central authority" in blocker.casefold()
+                and (
+                    "not reviewed" in blocker.casefold()
+                    or "not activated" in blocker.casefold()
+                )
+                for blocker in seed["blockers"]
+            )
+        )
+
+    def test_every_catalog_is_external_only_and_subject_complete(self) -> None:
+        seed = self.generated_json(
+            "skills/ml-potential-workflows/references/source-pack-seed.json"
+        )
+        for provider in seed["providers"]:
+            catalog = self.generated_json(provider["source_ref"]["path"])
+            declared = set(catalog["subjects"])
+            sliced: set[str] = set()
+            for source_id, source in catalog["discovered_sources"].items():
+                with self.subTest(
+                    input_id=provider["input_id"],
+                    source_id=source_id,
+                ):
+                    self.assertNotIn("content_ref", source)
+                    content = source["content"]
+                    locator = content["locator"].lower()
+                    self.assertNotIn("/resolve/", locator)
+                    self.assertNotIn("/download/", locator)
+                    self.assertFalse(locator.endswith(source_scope.MODEL_SUFFIXES))
+                    if source["disposition"] == "excluded":
+                        self.assertEqual(content["content_mode"], "excluded")
+                        continue
+                    self.assertEqual(source["disposition"], "included")
+                    self.assertEqual(content["content_mode"], "external-content")
+                    self.assertIn("receipt", content)
+                    for item in source["selectors"]:
+                        self.assertNotIn("content_ref", item)
+                        self.assertEqual(item["layer"], "raw-source")
+                        self.assertIn("selected_identity", item)
+                        sliced.update(item["subject_ids"])
+            self.assertEqual(sliced, declared)
+            self.assertIs(catalog["upstream_universe_complete"], False)
+            self.assertTrue(catalog["blockers"])
+
+    def test_every_catalog_loss_is_exactly_linked_by_affected_source(self) -> None:
+        seed = self.generated_json(
+            "skills/ml-potential-workflows/references/source-pack-seed.json"
+        )
+        for provider in seed["providers"]:
+            catalog = self.generated_json(provider["source_ref"]["path"])
+            expected_by_source = {
+                source_id: set()
+                for source_id in catalog["discovered_sources"]
+            }
+            for loss_id, loss in catalog["losses"].items():
+                for source_id in loss["affected_source_ids"]:
+                    self.assertIn(source_id, expected_by_source)
+                    expected_by_source[source_id].add(loss_id)
+
+            for source_id, source in catalog["discovered_sources"].items():
+                with self.subTest(
+                    input_id=provider["input_id"],
+                    source_id=source_id,
+                ):
+                    if source["disposition"] == "excluded":
+                        continue
+                    self.assertEqual(len(source["selectors"]), 1)
+                    actual = source["selectors"][0].get("loss_ids", [])
+                    self.assertEqual(len(actual), len(set(actual)))
+                    self.assertEqual(
+                        set(actual),
+                        expected_by_source[source_id],
+                    )
+
+    def test_technical_identity_and_version_boundaries_are_not_collapsed(
+        self,
+    ) -> None:
+        seed = self.generated_json(
+            "skills/ml-potential-workflows/references/source-pack-seed.json"
+        )
+        catalogs = {
+            item["input_id"]: self.generated_json(item["source_ref"]["path"])
+            for item in seed["providers"]
+        }
+        self.assertTrue(all("license" not in catalog for catalog in catalogs.values()))
+        self.assertNotEqual(
+            catalogs["mace-framework"]["inventory_identity"],
+            catalogs["mace-docs"]["inventory_identity"],
+        )
+        self.assertNotEqual(
+            catalogs["mace-framework"]["authority_revision"],
+            catalogs["mace-docs"]["authority_revision"],
+        )
+        self.assertNotEqual(
+            catalogs["fairchem-v1"]["authority_revision"],
+            catalogs["fairchem-v2"]["authority_revision"],
+        )
+        self.assertEqual(
+            catalogs["uma-models"]["provider_id"],
+            "fairchem-uma",
+        )
+        self.assertEqual(
+            catalogs["fairchem-datasets"]["provider_id"],
+            "fairchem-datasets",
+        )
+
+    def test_scope_preserves_separate_artifact_identity_layers(self) -> None:
+        scope = self.generated_json(
+            "skills/ml-potential-workflows/references/source-pack-scope-catalog.json"
+        )
+        by_id = {item["subject_id"]: item for item in scope["subjects"]}
+        required = {
+            "mace.framework.artifact-identity",
+            "mace.docs.model.identity.split",
+            "nequip.framework.artifact-identity.boundary",
+            "fairchem.v1.weights.identity.unknown",
+            "fairchem.v2.framework.identity",
+            "uma.model.artifact.gated",
+            "fairchem.dataset.identities.four-layer",
+            "fairchem.reference-dft.restricted-components",
+            "ml.boundary.four-rights-records",
+        }
+        self.assertTrue(required.issubset(by_id))
+        official = [
+            item
+            for item in scope["subjects"]
+            if item["evidence_class"] == "official-provider-required"
+        ]
+        self.assertTrue(official)
+        self.assertNotIn("covered", {item["expected_disposition"] for item in official})
+        for item in scope["subjects"]:
+            if item["evidence_class"] == "official-provider-required":
+                self.assertTrue(item["provider_input_ids"])
+            else:
+                self.assertEqual(item["provider_input_ids"], [])
+
+    def test_authority_proposal_is_machine_readable_and_bundle_forbidden(self) -> None:
+        proposal = self.generated_json(
+            "skills/ml-potential-workflows/references/source-pack-authority-proposal.json"
+        )
+        self.assertEqual(proposal["proposal_status"], "review-required")
+        self.assertEqual(
+            {item["provider_class"] for item in proposal["authorities"]},
+            {"software", "model-artifact", "dataset"},
+        )
+        self.assertEqual(
+            {item["consumer_binding"]["input_id"] for item in proposal["authorities"]},
+            {
+                "mace-framework",
+                "mace-docs",
+                "nequip-framework",
+                "fairchem-v1",
+                "fairchem-v2",
+                "uma-models",
+                "fairchem-datasets",
+            },
+        )
+        for item in proposal["authorities"]:
+            self.assertEqual(item["proposed_lifecycle"], "active")
+            self.assertEqual(item["storage_policy"]["bundle_content"], "forbidden")
+            self.assertEqual(
+                item["consumer_binding"]["status_ceiling"],
+                "blocked",
+            )
+
+    def test_extractor_rejects_embedded_or_checkpoint_sources(self) -> None:
+        value = self.source_inputs()
+        source = value["providers"][5]["sources"][0]
+        source["content_ref"] = {
+            "path": "skills/ml-potential-workflows/SKILL.md",
+            "sha256": "a" * 64,
+            "bytes": 1,
+        }
+        with self.assertRaisesRegex(
+            source_scope.SourceSeedError,
+            "external_identity only",
+        ):
+            source_scope.render_outputs(value)
+
+        value = self.source_inputs()
+        value["providers"][5]["sources"][0]["locator"] = (
+            "https://huggingface.co/facebook/UMA/blob/main/uma-s-1p2.pt"
+        )
+        with self.assertRaisesRegex(
+            source_scope.SourceSeedError,
+            "serialized model bytes",
+        ):
+            source_scope.render_outputs(value)
+
+    def test_extractor_rejects_duplicate_provider_input(self) -> None:
+        value = self.source_inputs()
+        value["providers"][1]["input_id"] = value["providers"][0]["input_id"]
+        with self.assertRaisesRegex(
+            source_scope.SourceSeedError,
+            "duplicate identifier",
+        ):
+            source_scope.render_outputs(value)
+
+    def test_extractor_rejects_nested_or_escaping_catalog_filename(self) -> None:
+        for filename in (
+            "../source-catalog-escape.json",
+            "nested/source-catalog-escape.json",
+            "catalog-without-reviewed-prefix.json",
+        ):
+            with self.subTest(filename=filename):
+                value = self.source_inputs()
+                value["providers"][0]["catalog_filename"] = filename
+                with self.assertRaisesRegex(
+                    source_scope.SourceSeedError,
+                    "direct references/source-catalog",
+                ):
+                    source_scope.render_outputs(value)
+
+    def test_extractor_source_has_no_network_provider_or_model_loader(self) -> None:
+        source = (
+            ROOT / "scripts" / "extract_official_source_scope.py"
+        ).read_text(encoding="utf-8")
+        self.assertIn("DEVELOPMENT_MAINTENANCE_CHECK_IS_OFFLINE = True", source)
+        for forbidden in (
+            "import requests",
+            "import urllib",
+            "import socket",
+            "import subprocess",
+            "import torch",
+            "import pickle",
+            "import mace",
+            "import nequip",
+            "import fairchem",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, source)
+
+    def test_check_cli_passes_without_writing(self) -> None:
+        self.assertEqual(source_scope.main(["--check"]), 0)
 
 
 if __name__ == "__main__":

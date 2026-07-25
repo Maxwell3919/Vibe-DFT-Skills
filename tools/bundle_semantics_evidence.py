@@ -411,6 +411,7 @@ def _authority_entry(context: Mapping[str, Any]) -> Mapping[str, Any]:
         or identity_policy.get("mode")
         not in {
             "platform-adapter-only",
+            "canonical-pinned-snapshot-or-platform-adapter",
             "canonical-pinned-open-snapshot-or-platform-adapter",
         }
         or identity_policy.get("unpinned_action") != "adapter-required"
@@ -598,7 +599,10 @@ def _official_pinned_snapshot(obligation_id: str, context: Mapping[str, Any]) ->
     manifest_digest = snapshot.get("manifest_raw_sha256")
     if (
         identity_policy.get("mode")
-        != "canonical-pinned-open-snapshot-or-platform-adapter"
+        not in {
+            "canonical-pinned-snapshot-or-platform-adapter",
+            "canonical-pinned-open-snapshot-or-platform-adapter",
+        }
         or snapshot.get("integrity_verified") is not True
         or not isinstance(manifest_digest, str)
         or re.fullmatch(r"[0-9a-f]{64}", manifest_digest) is None
@@ -608,6 +612,14 @@ def _official_pinned_snapshot(obligation_id: str, context: Mapping[str, Any]) ->
             "OFFICIAL_SOURCE_CANONICAL_SNAPSHOT_UNAVAILABLE",
             "/content/pinned_source_ref",
             "The canonical snapshot manifest is absent or lacks verified exact-byte integrity.",
+        )
+    if entry.get("bundle_content_policy") != "canonical-pinned-open-only":
+        return _blocked(
+            obligation_id,
+            "OFFICIAL_SOURCE_BUNDLE_CONTENT_NOT_AUTHORIZED",
+            "/content/pinned_source_ref",
+            "The canonical snapshot proves identity but the authority policy does "
+            "not authorize embedded redistribution.",
         )
     ref = _mapping(content.get("pinned_source_ref"))
     authority = _mapping(record.get("authority"))
@@ -630,13 +642,19 @@ def _official_pinned_snapshot(obligation_id: str, context: Mapping[str, Any]) ->
             "/content/pinned_source_ref/source_id",
             "The pinned source ID is not present in the verified canonical snapshot.",
         )
-    expected = {
-        "canonical_url": authority.get("canonical_url"),
-        "version_scope": record.get("version_scope"),
-        "raw_sha256": content.get("raw_sha256"),
-        "bytes": content.get("bytes"),
-    }
-    if any(source.get(key) != value for key, value in expected.items()):
+    if source.get("raw_integrity_verified") is not True:
+        return _blocked(
+            obligation_id,
+            "OFFICIAL_SOURCE_CANONICAL_SNAPSHOT_UNAVAILABLE",
+            "/content/pinned_source_ref/source_id",
+            "The canonical source lacks verified exact raw-byte integrity.",
+        )
+    if (
+        source.get("canonical_url") != authority.get("canonical_url")
+        or source.get("version_scope") != record.get("version_scope")
+        or source.get("raw_sha256") != content.get("raw_sha256")
+        or source.get("raw_bytes") != content.get("bytes")
+    ):
         return _fail(
             obligation_id,
             "OFFICIAL_SOURCE_CANONICAL_SNAPSHOT_CONTENT_MISMATCH",

@@ -18,7 +18,7 @@ from typing import Any
 
 
 TOOL_VERSION = "2.0.0"
-AUDITOR_VERSION = "2.2.0"
+AUDITOR_VERSION = "2.4.0"
 SCHEMA_VERSION = "2.0"
 CSV_FIELDS = ["setting", "observable", "protocol_id", "audit_report", "input_file", "output_file"]
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")

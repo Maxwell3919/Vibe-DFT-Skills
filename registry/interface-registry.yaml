@@ -332,6 +332,104 @@ interfaces:
     schema_path: contracts/official-source-record.schema.json
     schema_sha256: c0963e4e6e734563fa850356d300db14785c0e3c8e66072ed52f21558b675b95
     producer_policy: mixed
+  official-corpus-manifest@1.0:
+    display_name: Official documentation corpus manifest
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  official-corpus-manifest@1.1:
+    display_name: Official documentation corpus manifest
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-corpus-manifest-1.1.schema.json
+    schema_sha256: aeb5877a9e7492ff49d67c4f0760550f5ae95a9867b64ce1a15f139ff00c53cc
+    producer_policy: mixed
+  document-slice-manifest@1.0:
+    display_name: Ordered official document slice manifest
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  document-slice-manifest@1.1:
+    display_name: Ordered official document slice manifest
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/document-slice-manifest-1.1.schema.json
+    schema_sha256: d524e7e7cb0421d83d9acc093667249c861dbebfb891314e3fe2377315beee5c
+    producer_policy: skill
+  official-source-license-review@1.0:
+    display_name: Official source license and storage review
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: mixed
+  skill-document-coverage@1.0:
+    display_name: Skill official documentation coverage map
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  skill-document-coverage@1.1:
+    display_name: Skill official documentation coverage map
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/skill-document-coverage-1.1.schema.json
+    schema_sha256: 3e216b1d2b097dc75f2b3270ba8c025273bab2ad7f076ebf8457ddcb0b984a70
+    producer_policy: skill
+  skill-document-scope-inventory@1.0:
+    display_name: Canonical Skill documentation scope inventory
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/skill-document-scope-inventory.schema.json
+    schema_sha256: 5ea913aa333993c767d58f9c1a3013f52eec6c005978df04dd8c6f0ccfdaea59
+    producer_policy: mixed
+  official-document-pack-seed@1.0:
+    display_name: Deterministic official-document pack seed
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-document-pack-seed.schema.json
+    schema_sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
+    producer_policy: skill
+  official-document-source-catalog@1.0:
+    display_name: Declarative official-document source catalog
+    lifecycle: planned
+    domain: official-documentation
+    schema_path: null
+    schema_sha256: null
+    producer_policy: skill
+  official-document-source-catalog@1.1:
+    display_name: Declarative official-document source catalog
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-document-source-catalog-1.1.schema.json
+    schema_sha256: d0d025f7bd9120b362a8d6ce2c38a22334200cf06b6ea482a0df1c0733706170
+    producer_policy: skill
+  official-document-scope-catalog@1.0:
+    display_name: Extracted official-document semantic scope catalog
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/official-document-scope-catalog.schema.json
+    schema_sha256: c0fc882cefce30c9d512f69528be8183292a90a3d9bf8556973722e8f3f3f49d
+    producer_policy: skill
+  qe-source-pack-input@1.0:
+    display_name: Quantum ESPRESSO official-document compact pack input
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/qe-source-pack-input.schema.json
+    schema_sha256: 0049a823b2126cfb8b9ff1446e37d986da874c3c4b567aef9f7e4230a41e04f4
+    producer_policy: skill
+  vasp-source-pack-input@1.0:
+    display_name: VASP Wiki official-document compact pack input
+    lifecycle: active
+    domain: official-documentation
+    schema_path: contracts/vasp-source-pack-input.schema.json
+    schema_sha256: e7dc24246fb9f98502fddad64cc391800f7a694f0510e60df8332497a4060ca9
+    producer_policy: skill
   evidence-record@1.0:
     display_name: Generic non-human evidence record
     lifecycle: active
@@ -354,7 +452,7 @@ interfaces:
     lifecycle: active
     domain: bundle-governance
     schema_path: contracts/bundle-validation-report.schema.json
-    schema_sha256: e9d161d142629054cc19f04c9b02a8f80098f66822d1619156cc47591075bf6e
+    schema_sha256: 05cd6d267889179cd57beec5feb70af116652f6f73bfe9a650cdae21f7032c26
     producer_policy: mixed
     classification:
       document_kind: content-addressed-record

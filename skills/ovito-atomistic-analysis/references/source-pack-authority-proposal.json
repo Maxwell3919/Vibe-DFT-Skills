@@ -1,0 +1,192 @@
+{
+  "authorities": [
+    {
+      "allowed_https_origins": [
+        "https://gitlab.com"
+      ],
+      "authority_id": "ovito-release-source-docs-3-15-5",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "0b2cdccef7452bf28212e15daf9df2dc7a545bcc"
+          },
+          "origin": "https://gitlab.com",
+          "path_prefix": "/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/"
+        }
+      ],
+      "canonical_snapshot": null,
+      "consumer_binding": {
+        "authority_id": "ovito-release-source-docs-3-15-5",
+        "binding_id": "ovito-atomistic-analysis-ovito-docs",
+        "claim_effect": "none",
+        "provider_input_id": "ovito-docs",
+        "required_disposition": "blocked",
+        "skill_id": "ovito-atomistic-analysis"
+      },
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-manual",
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "display_name": "OVITO exact v3.15.5 release-source documentation",
+      "license_policy": {
+        "identifier": "GFDL-1.2-or-later",
+        "status": "known-open",
+        "terms_urls": [
+          "https://gitlab.com/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/LICENSE.txt"
+        ],
+        "verification_status": "verified"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "The recognized source identity does not prove package/desktop edition equivalence, entitlement, installed/imported bytes, native behavior, numerical validation, rendering determinism, or scientific acceptance."
+      ],
+      "proposed_lifecycle": "active",
+      "provenance": {
+        "official_fact_urls": [
+          "https://gitlab.com/stuko/ovito/-/tree/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/doc",
+          "https://gitlab.com/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/LICENSE.txt"
+        ],
+        "verified_utc": "2026-07-24T00:00:00Z"
+      },
+      "provider_class": "software",
+      "provider_id": "ovito",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "3.15.5",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    },
+    {
+      "allowed_https_origins": [
+        "https://pypi.org"
+      ],
+      "authority_id": "ovito-pypi-release-metadata-3-15-5",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "sha256",
+            "value": "77b53b8113e8d10b4dc02eb487e6fb75bfa1cfa2a7272925e03bc16940891f2b"
+          },
+          "origin": "https://pypi.org",
+          "path_prefix": "/pypi/ovito/3.15.5/"
+        }
+      ],
+      "canonical_snapshot": null,
+      "consumer_binding": {
+        "authority_id": "ovito-pypi-release-metadata-3-15-5",
+        "binding_id": "ovito-atomistic-analysis-ovito-pypi",
+        "claim_effect": "none",
+        "provider_input_id": "ovito-pypi",
+        "required_disposition": "partial",
+        "skill_id": "ovito-atomistic-analysis"
+      },
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/pypi/ovito/3.15.5/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-api-metadata",
+          "official-reference",
+          "official-release-notes"
+        ]
+      },
+      "display_name": "OVITO exact PyPI 3.15.5 release metadata",
+      "license_policy": {
+        "identifier": "MIT",
+        "status": "known-open",
+        "terms_urls": [
+          "https://pypi.org/project/ovito/3.15.5/",
+          "https://gitlab.com/stuko/ovito/-/raw/0b2cdccef7452bf28212e15daf9df2dc7a545bcc/LICENSE.MIT.txt"
+        ],
+        "verification_status": "verified"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "The recognized source identity does not prove package/desktop edition equivalence, entitlement, installed/imported bytes, native behavior, numerical validation, rendering determinism, or scientific acceptance."
+      ],
+      "proposed_lifecycle": "active",
+      "provenance": {
+        "official_fact_urls": [
+          "https://pypi.org/project/ovito/3.15.5/",
+          "https://pypi.org/pypi/ovito/3.15.5/json"
+        ],
+        "verified_utc": "2026-07-24T00:00:00Z"
+      },
+      "provider_class": "software",
+      "provider_id": "ovito",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "3.15.5",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "Keep release-source documentation, standalone Python module, Basic desktop, Pro desktop/ovitos, entitlement, third-party components, and user artifacts as distinct authority and license surfaces.",
+    "Bundle content remains forbidden; metadata-only exact identities do not authorize artifact downloads, installation, import, execution, Pro activation, or scientific claims."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, entitlement, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "ovito-atomistic-analysis"
+}

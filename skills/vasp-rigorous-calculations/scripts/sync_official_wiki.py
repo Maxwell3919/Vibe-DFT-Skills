@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mirror searchable official VASP Wiki pages with provenance and integrity checks."""
+"""Mirror a bounded VASP Wiki subset with provenance and integrity checks."""
 
 from __future__ import annotations
 
@@ -262,6 +262,11 @@ def build_markdown(page: dict[str, Any], retrieved: str) -> bytes:
 def collect_titles(scope: str) -> tuple[dict[str, list[str]], list[str]]:
     if scope == "core":
         return {}, sorted(set(CORE_PAGES))
+    if scope != "bounded-categories":
+        raise ValueError(
+            "scope must be core or bounded-categories; no full-Wiki "
+            "enumerator is implemented"
+        )
     category_map = {category: category_titles(category) for category in CATEGORIES}
     titles = sorted(set(CORE_PAGES).union(*(set(items) for items in category_map.values())))
     return category_map, titles
@@ -429,7 +434,10 @@ def check(root: Path) -> int:
         for item in failures:
             print(item, file=sys.stderr)
         return 1
-    print(f"Verified {len(pages)} mirrored official VASP Wiki pages")
+    print(
+        f"Integrity-checked {len(pages)} pages in bounded scope "
+        f"{manifest.get('scope')!r}; full-Wiki coverage is not claimed"
+    )
     return 0
 
 
@@ -439,7 +447,15 @@ def main() -> int:
     mode.add_argument("--refresh", action="store_true")
     mode.add_argument("--check", action="store_true")
     parser.add_argument("--workers", type=int, default=4)
-    parser.add_argument("--scope", choices=("core", "full"), default="core")
+    parser.add_argument(
+        "--scope",
+        choices=("core", "bounded-categories"),
+        default="core",
+        help=(
+            "core or the bounded union of three named categories; neither "
+            "scope claims full-Wiki coverage"
+        ),
+    )
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     args = parser.parse_args()
     if args.workers < 1 or args.workers > 16:

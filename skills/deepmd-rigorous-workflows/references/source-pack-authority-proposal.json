@@ -1,0 +1,239 @@
+{
+  "authorities": [
+    {
+      "authority_id": "deepmd-release-source-docs-3-1-3",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "b2c8511ee32355e744e17e05d95c6d8acbac9526"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/deepmodeling/deepmd-kit/b2c8511ee32355e744e17e05d95c6d8acbac9526/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "deepmd-release-source-docs-3-1-3",
+        "binding_id": "deepmd-rigorous-workflows-deepmd-docs",
+        "claim_effect": "none",
+        "provider_input_id": "deepmd-docs",
+        "required_disposition": "blocked",
+        "skill_id": "deepmd-rigorous-workflows"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "LGPL-3.0-or-later",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/deepmodeling/deepmd-kit/b2c8511ee32355e744e17e05d95c6d8acbac9526/LICENSE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source authority does not license or validate datasets, trained models, reference DFT outputs, optional backends, or native execution."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "deepmd",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "3.1.3",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    },
+    {
+      "authority_id": "dpdata-release-source-docs-1-0-2",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "bc617b72063d3bd48084a85c1ebbc63c389e17b5"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/deepmodeling/dpdata/bc617b72063d3bd48084a85c1ebbc63c389e17b5/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "dpdata-release-source-docs-1-0-2",
+        "binding_id": "deepmd-rigorous-workflows-dpdata-docs",
+        "claim_effect": "none",
+        "provider_input_id": "dpdata-docs",
+        "required_disposition": "blocked",
+        "skill_id": "deepmd-rigorous-workflows"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "LGPL-3.0-or-later",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/deepmodeling/dpdata/bc617b72063d3bd48084a85c1ebbc63c389e17b5/LICENSE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source authority does not license or validate datasets, trained models, reference DFT outputs, optional backends, or native execution."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "dpdata",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "1.0.2",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    },
+    {
+      "authority_id": "dpgen-release-source-docs-0-13-3",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "66232e5f05f90d6e399b1c25fd0d914ea3e40af8"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/deepmodeling/dpgen/66232e5f05f90d6e399b1c25fd0d914ea3e40af8/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "dpgen-release-source-docs-0-13-3",
+        "binding_id": "deepmd-rigorous-workflows-dpgen-docs",
+        "claim_effect": "none",
+        "provider_input_id": "dpgen-docs",
+        "required_disposition": "blocked",
+        "skill_id": "deepmd-rigorous-workflows"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "LGPL-3.0-or-later",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/deepmodeling/dpgen/66232e5f05f90d6e399b1c25fd0d914ea3e40af8/LICENSE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source authority does not license or validate datasets, trained models, reference DFT outputs, optional backends, or native execution."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "dpgen",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "0.13.3",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "Authority and consumer records must land before builder execution.",
+    "LAMMPS compatibility and all model/data/artifact rights remain separate external evidence."
+  ],
+  "central_dependency_proposals": [
+    {
+      "authority_id": "lammps-release-source-docs-patch-4jul2026",
+      "consumer_skill_id": "deepmd-rigorous-workflows",
+      "disposition": "blocked",
+      "reason": "The documented DeePMD LAMMPS deployment surface requires an independently versioned LAMMPS authority and compatibility evidence."
+    }
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [
+    {
+      "environment_profile_id": "dpdata-python-1-0-2",
+      "provider_class": "software",
+      "provider_id": "dpdata",
+      "reason": "dpdata is a distinct provider missing from software and environment registries.",
+      "requested_state": "planned",
+      "role": "data-conversion-library"
+    },
+    {
+      "environment_profile_id": "dpgen-python-0-13-3",
+      "provider_class": "software",
+      "provider_id": "dpgen",
+      "reason": "DP-GEN is a distinct provider missing from software and environment registries.",
+      "requested_state": "planned",
+      "role": "ml-potential-workflow-tool"
+    }
+  ],
+  "schema_version": "1.0",
+  "skill_id": "deepmd-rigorous-workflows"
+}

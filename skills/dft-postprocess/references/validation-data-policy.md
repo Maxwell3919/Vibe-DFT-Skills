@@ -30,6 +30,12 @@ Label each implementation as one of:
 
 Never use a higher label without its corresponding evidence. A real artifact from one case validates the exercised format path, not every software version or physical regime.
 
+Register maturity at the `observable × code × backend` level. Every non-`design-only` backend route must reference an immutable validation record that pins the repository test source by SHA-256, maps that exact backend target to one or more discovered test ids, records the canonical CI command, and requires a zero-exit `pass` result. Inline constructed fixtures are therefore identified by the complete pinned test-source bytes. The record is a validation prescription, not a historical-pass assertion: CI must execute that command against the pinned source. A changed test source invalidates the registry until the evidence record is reviewed and re-pinned.
+
+`real-artifact-validated` additionally requires an immutable, privacy-safe real-artifact receipt; `tool-integration-validated` requires an immutable end-to-end executable receipt. Repository format fixtures cannot support either label. No current backend route carries either receipt, so current runtime ceilings are `format-fixture-validated` or `synthetic-validated`.
+
+The CLI and public Python normalizers derive maturity from the validated backend route. Their optional `maturity` argument is a backward-compatible downward claim ceiling only. A caller cannot raise the registered maturity.
+
 ## Show evidence to the user
 
 For every completed real-data validation, return all of the following in the same response:

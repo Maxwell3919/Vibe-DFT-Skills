@@ -1,0 +1,130 @@
+{
+  "authority_entries": {
+    "lasp-author-literature": {
+      "allowed_https_origins": [
+        "https://doi.org",
+        "https://pmc.ncbi.nlm.nih.gov"
+      ],
+      "canonical_snapshot": null,
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/10.1021/",
+          "/10.1002/",
+          "/10.1039/",
+          "/articles/PMC11672538/"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-api-metadata"
+        ]
+      },
+      "display_name": "LASP author literature and open repository metadata",
+      "license_policy": {
+        "identifier": null,
+        "status": "unknown",
+        "terms_urls": [],
+        "verification_status": "unresolved"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "The authority covers metadata-only external identities for author literature and an external PMC response; it does not bundle article content.",
+        "The PMC article terms do not establish rights to LASP software, manuals, examples, interfaces, models, datasets, structures, trajectories, or calculation outputs.",
+        "LASP 3.7 literature context cannot establish the exact 3.7.3 native operational contract or execution authorization.",
+        "The HTTP-only LASP Hub is outside this active HTTPS authority."
+      ],
+      "provenance": {
+        "official_fact_urls": [
+          "https://doi.org/10.1021/prechem.4c00060",
+          "https://pmc.ncbi.nlm.nih.gov/articles/PMC11672538/",
+          "https://doi.org/10.1002/wcms.1415",
+          "https://doi.org/10.1039/C7SC01459G",
+          "https://doi.org/10.1021/acs.jctc.3c00873"
+        ],
+        "verified_utc": "2026-07-23T19:46:58Z"
+      },
+      "provider_class": "publisher",
+      "provider_id": "lasp-authors",
+      "redistribution_policy": {
+        "allowed_values": [
+          "unknown"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "unversioned"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": null,
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "unversioned"
+          }
+        ]
+      }
+    }
+  },
+  "blocked_native_sources": [
+    {
+      "blocked_material_classes": [
+        "manual",
+        "example",
+        "binary",
+        "edition",
+        "interface",
+        "model",
+        "dataset",
+        "structure",
+        "trajectory",
+        "calculation-output"
+      ],
+      "disposition": "blocked",
+      "locators": [
+        "http://www.lasphub.com/",
+        "http://www.lasphub.com/#/lasp/download"
+      ],
+      "reason": "The reviewed official Hub and 3.7.3 download/manual route are HTTP-only, while the central authority contract requires HTTPS. Literature cannot substitute for the authorized 3.7.3 operational manual and examples.",
+      "required_to_unblock": [
+        "An authoritative HTTPS LASP Hub or exact manual route",
+        "An authorized exact 3.7.3 manual and example identity retained outside Git",
+        "Complete software, interface, model, and redistribution terms",
+        "Version-matched native execution and parser evidence"
+      ],
+      "source_id": "lasp-3-7-3-native-hub-manual-and-payloads"
+    }
+  ],
+  "consumer_bindings": [
+    {
+      "authority_id": "lasp-author-literature",
+      "binding_id": "lasp-skill-author-literature",
+      "claim_ceiling": "registered-skill-scope",
+      "consumer_lifecycle": "development",
+      "consumer_path": "skills/lasp-rigorous-simulations",
+      "consumer_skill_id": "lasp-rigorous-simulations",
+      "provider_id": "lasp-authors",
+      "purpose": "official-document-coverage"
+    }
+  ],
+  "proposal_type": "official-source-authority-binding-proposal",
+  "schema_version": "1.0",
+  "seed_provider_bindings": [
+    {
+      "authority_id": "lasp-author-literature",
+      "input_id": "lasp-author-literature",
+      "provider_id": "lasp-authors",
+      "source_catalog": "skills/lasp-rigorous-simulations/references/source-catalog-lasp-author-literature.json"
+    }
+  ],
+  "skill_id": "lasp-rigorous-simulations"
+}

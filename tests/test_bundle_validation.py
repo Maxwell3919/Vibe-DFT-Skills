@@ -876,7 +876,8 @@ class BundleValidationTests(unittest.TestCase):
                             "canonical_url": data["authority"]["canonical_url"],
                             "version_scope": version_scope,
                             "raw_sha256": content_hash,
-                            "bytes": 128,
+                            "raw_bytes": 128,
+                            "raw_integrity_verified": True,
                         }
                     },
                 },
@@ -886,6 +887,7 @@ class BundleValidationTests(unittest.TestCase):
                     "https://github.com/cp2k/cp2k/blob/master/LICENSE"
                 ],
                 "redistribution": ["redistributable"],
+                "bundle_content_policy": "canonical-pinned-open-only",
             }
         }
         record = validate_bundle.LoadedRecord(
@@ -899,6 +901,49 @@ class BundleValidationTests(unittest.TestCase):
         )
         self.assertFalse(
             validate_bundle._source_requires_external_trust(record, policy)
+        )
+
+        raw_integrity_unverified = copy.deepcopy(policy)
+        raw_integrity_unverified["cp2k-official-manual"]["canonical_snapshot"][
+            "sources_by_id"
+        ]["cp2k-input"]["raw_integrity_verified"] = False
+        self.assertTrue(
+            validate_bundle._source_requires_external_trust(
+                record,
+                raw_integrity_unverified,
+            )
+        )
+
+        raw_bytes_mismatch = copy.deepcopy(policy)
+        raw_bytes_mismatch["cp2k-official-manual"]["canonical_snapshot"][
+            "sources_by_id"
+        ]["cp2k-input"]["raw_bytes"] = 129
+        self.assertTrue(
+            validate_bundle._source_requires_external_trust(
+                record,
+                raw_bytes_mismatch,
+            )
+        )
+
+        derived_snapshot_only = copy.deepcopy(raw_integrity_unverified)
+        derived_snapshot_only["cp2k-official-manual"]["canonical_snapshot"][
+            "sources_by_id"
+        ]["cp2k-input"]["derived_snapshot"] = {
+            "sha256": content_hash,
+            "bytes": 128,
+            "integrity_verified": True,
+        }
+        self.assertTrue(
+            validate_bundle._source_requires_external_trust(
+                record,
+                derived_snapshot_only,
+            )
+        )
+
+        identity_only = copy.deepcopy(policy)
+        identity_only["cp2k-official-manual"]["bundle_content_policy"] = "forbidden"
+        self.assertTrue(
+            validate_bundle._source_requires_external_trust(record, identity_only)
         )
 
         for field, value in (
@@ -932,12 +977,31 @@ class BundleValidationTests(unittest.TestCase):
             for interface_id, specification in snapshot.interfaces["interfaces"].items()
             if specification["lifecycle"] == "active"
         }
-        self.assertEqual(len(active), 26)
+        self.assertEqual(len(active), 35)
         self.assertEqual(bundle_semantics.builtin_ownership_errors(), [])
         special_paths = {
             "agent-action-envelope@1.0": TOOLS / "validate_agent_answer.py",
             "bundle-manifest@1.0": VALIDATOR,
             "bundle-validation-report@1.0": VALIDATOR,
+        }
+        specialized_paths = {
+            interface_id: TOOLS / "validate_official_document_coverage.py"
+            for interface_id in (
+                "official-corpus-manifest@1.1",
+                "document-slice-manifest@1.1",
+                "skill-document-scope-inventory@1.0",
+                "skill-document-coverage@1.1",
+            )
+        }
+        builder_paths = {
+            interface_id: TOOLS / "build_official_document_packs.py"
+            for interface_id in (
+                "official-document-pack-seed@1.0",
+                "official-document-source-catalog@1.1",
+                "official-document-scope-catalog@1.0",
+                "qe-source-pack-input@1.0",
+                "vasp-source-pack-input@1.0",
+            )
         }
         for interface_id, specification in active.items():
             with self.subTest(interface=interface_id):
@@ -948,6 +1012,20 @@ class BundleValidationTests(unittest.TestCase):
                     self.assertEqual(
                         specification.get("classification", {}).get("routing_scope"),
                         "governance-only",
+                    )
+                    continue
+                if interface_id in specialized_paths:
+                    self.assertTrue(specialized_paths[interface_id].is_file())
+                    self.assertEqual(
+                        specification["domain"],
+                        "official-documentation",
+                    )
+                    continue
+                if interface_id in builder_paths:
+                    self.assertTrue(builder_paths[interface_id].is_file())
+                    self.assertEqual(
+                        specification["domain"],
+                        "official-documentation",
                     )
                     continue
                 self.assertTrue(contract.is_record_ref_target)

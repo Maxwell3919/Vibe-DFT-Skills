@@ -21,13 +21,18 @@
 
 `scripts/resolve_official_sources.py` distinguishes:
 
-- `cached_version_matched`: version, branch, registry and page hashes match the checked snapshot;
-- `live_verified`: the exact page was reopened successfully over verified TLS;
-- `url_only_not_live_verified`: the resolver constructed a URL but has no matching cached/live content.
+- `cached_exact`: version, branch, registry, source URL, source-content hash and local snapshot hash all match the checked snapshot;
+- `live_matches_cached`: a live HTTP 200 response has the exact registered final URL, a valid retrieval timestamp, and content bytes whose SHA-256 matches `cached_exact`;
+- `live_changed_from_cached`: the exact official URL reopened, but its content hash differs from the checked snapshot;
+- `live_unavailable_cached_exact`: the checked snapshot remains exact, but a requested live receipt was unavailable or malformed;
+- `url_only`: the resolver constructed a registered URL but has no exact cached content;
+- `unresolved`: the live content has no checked baseline or another identity requirement cannot be established.
 
-Cached text supports documented behavior only as of its recorded retrieval time. A URL-only result supports navigation but not a positive version-sensitive official claim.
+Only `cached_exact` and a `live_matches_cached` result produced by the resolver in the current process can support a positive version-sensitive official claim, and both are bound to the checked-in source-content and snapshot hashes. A serialized bundle cannot prove that its self-declared live receipt was produced by a network retrieval: copied URLs, hashes, byte counts, status and timestamps are untrusted data. Legacy `cached_version_matched` or `live_verified` labels fail closed. `live_changed_from_cached`, `live_unavailable_cached_exact`, `url_only`, and `unresolved` support no positive claim.
 
-Live retrieval records the final URL, HTTP status, retrieval time, and content SHA-256. It does not store the page. Reopen the cited page when answering a version-sensitive question.
+Live retrieval records the exact final URL, HTTP status, retrieval time, byte count, and content SHA-256. It does not store the page. Reopen the cited page when answering a version-sensitive question, but never treat TLS success alone as content identity.
+
+Claim packages must carry `pass_cached_exact` records. `validate_claim_package.py` independently reconstructs those records from the checked-in snapshot. Use its explicit `--live-replay` mode when the validation process itself must reopen every required URL and compare the returned bytes with the cached source hashes. Without that replay, a package that claims `pass_live_matches_cached` is blocked. No independent signed platform-attestation interface is currently implemented; do not promote a bundle receipt by schema, status, hash-shaped strings or timestamp syntax alone.
 
 ## Snapshot maintenance
 

@@ -1,0 +1,42 @@
+{
+  "consumer_path": "skills/siesta-rigorous-calculations",
+  "contract_name": "official-document-authority-consumer-proposal",
+  "limitations": [
+    "This Skill-local proposal cannot create, widen, or override the canonical authority and consumer registries."
+  ],
+  "proposal_status": "skill-local-non-authoritative",
+  "providers": [
+    {
+      "authority_id": "siesta-official-docs",
+      "consumer_binding": {
+        "binding_id": "siesta-skill-siesta-docs",
+        "claim_ceiling": "registered-skill-scope",
+        "consumer_lifecycle": "active",
+        "purpose": "official-document-coverage"
+      },
+      "input_id": "siesta-portal",
+      "provider_id": "siesta",
+      "source_catalog_ref": {
+        "path": "skills/siesta-rigorous-calculations/references/source-pack-siesta-portal.json",
+        "sha256": "18d82537c59a5182ab354205c817d06ae1f8559a1e540ab4c05df7293360431b"
+      }
+    },
+    {
+      "authority_id": "siesta-release-source-docs",
+      "consumer_binding": {
+        "binding_id": "siesta-skill-siesta-release-source",
+        "claim_ceiling": "registered-skill-scope",
+        "consumer_lifecycle": "active",
+        "purpose": "official-document-coverage"
+      },
+      "input_id": "siesta-release",
+      "provider_id": "siesta",
+      "source_catalog_ref": {
+        "path": "skills/siesta-rigorous-calculations/references/source-pack-siesta-release.json",
+        "sha256": "2bea2bda2643dec932e58cec98796c3b1c0f64034e108c719137a53f70a77a68"
+      }
+    }
+  ],
+  "schema_version": "1.0",
+  "skill_id": "siesta-rigorous-calculations"
+}

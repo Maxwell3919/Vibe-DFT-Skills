@@ -1,0 +1,1 @@
+{"bundle_type":"official-document-coverage","records":{"corpora":["corpus-deepmd-docs.json","corpus-dpdata-docs.json","corpus-dpgen-docs.json"],"coverage":"coverage.json","scope_inventory":"scope-inventory.json","slice_manifests":["slices-deepmd-docs.json","slices-dpdata-docs.json","slices-dpgen-docs.json"]},"schema_version":"1.0","skill_id":"deepmd-rigorous-workflows"}

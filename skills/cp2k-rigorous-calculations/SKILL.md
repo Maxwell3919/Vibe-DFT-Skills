@@ -120,6 +120,8 @@ After a passing run audit and evidence-linked convergence candidate, build a loc
 python3 scripts/validate_claim_package.py claim-package.json --pretty
 ```
 
+The package must contain `cached_exact` official-source records; a serialized live receipt is untrusted and cannot upgrade itself. When a fresh network identity check is required, run `python3 scripts/validate_claim_package.py claim-package.json --live-replay --pretty`; the validator then reopens every required URL itself and requires exact agreement with the checked-in source hashes. No signed external-attestation route is currently implemented.
+
 The validator binds the selected audit to the convergence series, independently checks cached official-source hashes and version/topic coverage, hashes review evidence without emitting paths, and rejects missing, duplicate, unexpected, unresolved, or mismatched records. Its highest result is `eligible_for_expert_review`; it never grants scientific acceptance.
 
 ### 9. Emit terminal handoffs

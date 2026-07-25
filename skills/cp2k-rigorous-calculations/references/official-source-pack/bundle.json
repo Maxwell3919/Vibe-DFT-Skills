@@ -1,0 +1,1 @@
+{"bundle_type":"official-document-coverage","records":{"corpora":["corpus-cp2k-manual.json","corpus-cp2k-release.json"],"coverage":"coverage.json","scope_inventory":"scope-inventory.json","slice_manifests":["slices-cp2k-manual.json","slices-cp2k-release.json"]},"schema_version":"1.0","skill_id":"cp2k-rigorous-calculations"}

@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0",
+  "contract_name": "official-document-pack-builder-lock",
+  "builder_version": "1.0",
+  "python_major_minor_allowlist": [
+    "3.12",
+    "3.14"
+  ],
+  "dependency_manifest_ref": {
+    "path": "requirements-dev.txt",
+    "sha256": "91f71b54096bbeb9e7f780d82e230a261697384933d37fcc575d9bcb1b10194e"
+  },
+  "python_dependencies": [
+    {
+      "distribution": "PyYAML",
+      "version": "6.0.3"
+    },
+    {
+      "distribution": "jsonschema",
+      "version": "4.26.0"
+    }
+  ],
+  "configuration_contract_refs": [
+    {
+      "path": "contracts/official-document-pack-seed.schema.json",
+      "sha256": "82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599"
+    },
+    {
+      "path": "contracts/official-document-scope-catalog.schema.json",
+      "sha256": "c0fc882cefce30c9d512f69528be8183292a90a3d9bf8556973722e8f3f3f49d"
+    }
+  ],
+  "adapters": {
+    "declarative-catalog-v1": {
+      "input_contract_ref": {
+        "path": "contracts/official-document-source-catalog-1.1.schema.json",
+        "sha256": "d0d025f7bd9120b362a8d6ce2c38a22334200cf06b6ea482a0df1c0733706170"
+      },
+      "replay_required": false,
+      "replay_runtime_paths": []
+    },
+    "qe-input-manifest-v1": {
+      "input_contract_ref": {
+        "path": "contracts/qe-source-pack-input.schema.json",
+        "sha256": "0049a823b2126cfb8b9ff1446e37d986da874c3c4b567aef9f7e4230a41e04f4"
+      },
+      "replay_required": true,
+      "replay_runtime_paths": [
+        "tools/extract_official_document_pack_inputs.py",
+        "skills/qe-rigorous-calculations/scripts/qe_guard.py"
+      ]
+    },
+    "vasp-wiki-manifest-v1": {
+      "input_contract_ref": {
+        "path": "contracts/vasp-source-pack-input.schema.json",
+        "sha256": "e7dc24246fb9f98502fddad64cc391800f7a694f0510e60df8332497a4060ca9"
+      },
+      "replay_required": true,
+      "replay_runtime_paths": [
+        "tools/extract_official_document_pack_inputs.py"
+      ]
+    }
+  },
+  "runtime_refs": [
+    {
+      "path": "skills/qe-rigorous-calculations/scripts/qe_guard.py",
+      "sha256": "b9934d79c8126a722df4aa1ae0c3ec548a232856409a15511d8167549789ea6d"
+    },
+    {
+      "path": "tools/environment_profiles.py",
+      "sha256": "3cf8335c975126c901e1d2f5b1982cfa554023a9944bd8961670a7c56068bdde"
+    },
+    {
+      "path": "tools/extract_official_document_pack_inputs.py",
+      "sha256": "9c1915f60831af9ffbac1a382449e4d9c685ba1026f3ef11553c81bfb760157c"
+    },
+    {
+      "path": "tools/interface_registry.py",
+      "sha256": "5c0503ffcea3ae7b1ebc2a5080ee03e5c8b2ab4a441f9776c283b98cedb55e08"
+    },
+    {
+      "path": "tools/official_source_authorities.py",
+      "sha256": "c38adf1304caea59aeca70cda66d3771698ae3f63491a7f82515adb6c792467c"
+    },
+    {
+      "path": "tools/operation_routes.py",
+      "sha256": "230f479540a5545d0a6f1ec4f26219fdeef3c384274229a4daeb29de8a52c5bf"
+    },
+    {
+      "path": "tools/registry_snapshot.py",
+      "sha256": "2d76e7549e2397e854ff955180751dc74e12c8160e90eb13a525bbe4bdadb2a0"
+    },
+    {
+      "path": "tools/registry_yaml.py",
+      "sha256": "5ea0c4749becc424cc185eec00ca39276eaf58b8fa5d4641c055952dcf680c22"
+    },
+    {
+      "path": "tools/skill_registry.py",
+      "sha256": "3048c2ec12fa8e6a7b038ba77deb3ecc897580c99ffcd165748d09a2aed9d60b"
+    },
+    {
+      "path": "tools/software_registry.py",
+      "sha256": "21376cc5ad0597f3e18de2c347a7e0cfc71593db32d0d2d784d09e7e238b5f26"
+    },
+    {
+      "path": "tools/strict_json.py",
+      "sha256": "199474f061a4aa0b8c987506b7e5777a62194c6ee062102cc04b3eaf5c4a0f7b"
+    },
+    {
+      "path": "tools/validate_contract.py",
+      "sha256": "a8bb93f47e27bb057918c2eb1147d1de6e8192e3a1c3f8609e1204aef7cbbb53"
+    },
+    {
+      "path": "tools/validate_official_document_bundles.py",
+      "sha256": "a9346034ed2a8f0354bc385bdfad88566edf9ec94234db12ef8c1d8eb57a6012"
+    },
+    {
+      "path": "tools/validate_official_document_coverage.py",
+      "sha256": "cfbea1c55bd23c44c6e309c728fd50049b7c9646fff197aaa3deaf2a07fa6135"
+    },
+    {
+      "path": "tools/validate_official_document_storage.py",
+      "sha256": "11146abc7504299b47aa139e8fa5aef6292501b331c16a1d9f6292f5c0812788"
+    }
+  ],
+  "output_contract_refs": [
+    {
+      "path": "contracts/common-definitions-1.0.schema.json",
+      "sha256": "c7fac55ccc98ca6c2ffc0851cdaf83bf6a3cec63d6e5d4a22054c43c8c3647d8"
+    },
+    {
+      "path": "contracts/skill-document-scope-inventory.schema.json",
+      "sha256": "5ea913aa333993c767d58f9c1a3013f52eec6c005978df04dd8c6f0ccfdaea59"
+    },
+    {
+      "path": "contracts/official-corpus-manifest-1.1.schema.json",
+      "sha256": "aeb5877a9e7492ff49d67c4f0760550f5ae95a9867b64ce1a15f139ff00c53cc"
+    },
+    {
+      "path": "contracts/document-slice-manifest-1.1.schema.json",
+      "sha256": "d524e7e7cb0421d83d9acc093667249c861dbebfb891314e3fe2377315beee5c"
+    },
+    {
+      "path": "contracts/skill-document-coverage-1.1.schema.json",
+      "sha256": "3e216b1d2b097dc75f2b3270ba8c025273bab2ad7f076ebf8457ddcb0b984a70"
+    }
+  ]
+}

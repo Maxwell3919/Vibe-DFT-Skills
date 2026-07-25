@@ -1,0 +1,36 @@
+{
+  "authority_id": "multiwfn-manual-external-identity-2026-7-10",
+  "documents": [
+    {
+      "bytes": 36639888,
+      "document_id": "multiwfn-manual-2026-7-10",
+      "http_locator": "http://sobereva.com/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf",
+      "last_modified": "Thu, 09 Jul 2026 22:03:23 GMT",
+      "pages": 1150,
+      "retrieved_utc": "2026-07-22T00:00:00Z",
+      "sha256": "81de19c5c9d0fcbdcc03705b94301ab08e0bd2455e81db0e31651ffcdab6bd37",
+      "transport": "http-only-receipt",
+      "version": "2026.7.10"
+    },
+    {
+      "bytes": 371599,
+      "document_id": "multiwfn-quick-start-2026-7-05",
+      "document_update_date": "2026-07-05",
+      "http_locator": "http://sobereva.com/multiwfn/misc/Multiwfn%20quick%20start.pdf",
+      "pages": 10,
+      "retrieved_utc": "2026-07-22T00:00:00Z",
+      "sha256": "6fe307a8794d3e34cac2e8d22ccee64290d83f2df76ba4b86f811678aa21afec",
+      "transport": "http-only-receipt"
+    }
+  ],
+  "https_candidate": {
+    "locator": "https://sobereva.com/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf",
+    "probe_result": "tls-handshake-failed",
+    "probed_utc": "2026-07-24T00:00:00Z"
+  },
+  "inventory_scope": "External byte identities and page counts only. PDF bodies, extracted text, page images, section boundaries, binaries, examples, and source archives are not stored.",
+  "official_download_page": "http://sobereva.com/multiwfn/download.html",
+  "provider_id": "multiwfn",
+  "record_type": "external-document-identity-inventory",
+  "schema_version": "1.0"
+}

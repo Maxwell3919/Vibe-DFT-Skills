@@ -1,0 +1,70 @@
+name: official-source-drift
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: official-source-drift
+  cancel-in-progress: false
+
+jobs:
+  live-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install validation dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Restore the previous report as a comparison baseline
+        id: previous
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/previous"
+          previous_run_id="$(
+            gh run list \
+              --workflow official-source-drift.yml \
+              --status completed \
+              --limit 1 \
+              --json databaseId \
+              --jq '.[0].databaseId // empty'
+          )"
+          if [[ -n "$previous_run_id" ]] && \
+             gh run download "$previous_run_id" \
+               --name official-source-drift-report \
+               --dir "$RUNNER_TEMP/previous"; then
+            echo "baseline=$RUNNER_TEMP/previous/official-source-drift.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "baseline=" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Discover live exact-identity drift
+        shell: bash
+        run: |
+          set -euo pipefail
+          baseline_args=()
+          if [[ -n "${{ steps.previous.outputs.baseline }}" ]]; then
+            baseline_args=(--baseline "${{ steps.previous.outputs.baseline }}")
+          fi
+          python3 tools/check_official_source_drift.py \
+            "${baseline_args[@]}" \
+            --output "$RUNNER_TEMP/official-source-drift.json"
+          python3 -m json.tool "$RUNNER_TEMP/official-source-drift.json"
+      - name: Retain the machine-readable report
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-source-drift-report
+          path: ${{ runner.temp }}/official-source-drift.json
+          if-no-files-found: error
+          retention-days: 90

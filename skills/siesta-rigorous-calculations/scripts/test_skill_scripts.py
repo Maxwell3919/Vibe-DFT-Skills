@@ -11,7 +11,15 @@ import unittest
 from unittest.mock import patch
 
 from analyze_convergence import analyze, load_series, validate_plan_contract
-from audit_siesta_case import audit, canonical, load_reference_contracts, pattern_matches, parse_output_text
+from audit_siesta_case import (
+    audit,
+    canonical,
+    load_reference_contracts,
+    pattern_matches,
+    parse_output_text,
+    resolve_fdf_xc_identity,
+    resolve_manifest_xc_identity,
+)
 from create_siesta_plan import build_plan, validate_plan
 from resolve_official_sources import resolve, verified_fetch
 
@@ -185,6 +193,36 @@ class PlanAndReferenceTests(unittest.TestCase, CaseBuilder):
         self.assertNotEqual(manifest["artifact_runtime_version"], manifest["source_tag"])
         self.assertEqual(len(manifest["artifacts"]), 4)
 
+    def test_official_xc_aliases_preserve_role_ordered_identities(self) -> None:
+        cases = (
+            ("LDA", "CA", "LDA-PZ"),
+            ("LSD", "PZ", "LSD-CA"),
+            ("GGA", "BLYP", "GGA-LYP"),
+            ("VDW", "DRSLL", "VDW-DF1"),
+            ("VDW", "LMKLL", "VDW-DF2"),
+        )
+        for functional, authors, manifest_identity in cases:
+            with self.subTest(
+                functional=functional,
+                authors=authors,
+                manifest_identity=manifest_identity,
+            ):
+                self.assertEqual(
+                    resolve_fdf_xc_identity([functional], [authors]),
+                    resolve_manifest_xc_identity(manifest_identity),
+                )
+
+    def test_supplement_urls_use_the_exact_pinned_commit(self) -> None:
+        _, supplements, _ = load_reference_contracts()
+        commit = supplements["source_commit"]
+        self.assertEqual(len(commit), 40)
+        for record in supplements["records"]:
+            expected = (
+                f"https://gitlab.com/siesta-project/siesta/-/blob/{commit}/"
+                f"{record['source_file']}#L{record['source_line']}"
+            )
+            self.assertEqual(record["source_url"], expected)
+
 
 class SiestaAuditTests(unittest.TestCase, CaseBuilder):
     def test_valid_bulk_input_passes_technical_input_gates(self) -> None:
@@ -293,6 +331,19 @@ class SiestaAuditTests(unittest.TestCase, CaseBuilder):
             self.assertEqual(status, 2)
             self.assertIn("FDF_LABEL_NOT_IN_PINNED_INDEX", {item["code"] for item in report["findings"]})
 
+    def test_unknown_dos_kgrid_family_variant_blocks_official_resolution(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            input_path, plan = self.make_case(
+                Path(temporary),
+                fdf_text(extra="DOS.kgrid.ImaginaryPrivateControl 1\n"),
+            )
+            report, status = self.run_audit(input_path, plan)
+            self.assertEqual(status, 2)
+            self.assertIn(
+                "FDF_LABEL_NOT_IN_PINNED_INDEX",
+                {item["code"] for item in report["findings"]},
+            )
+
     def test_implicit_pseudopotential_precedence_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             input_path, plan = self.make_case(Path(temporary), fdf_text(pseudo_spec="Si"), pseudos=("Si.psf", "Si.psml"))
@@ -332,6 +383,167 @@ class SiestaAuditTests(unittest.TestCase, CaseBuilder):
             report, status = self.run_audit(input_path, plan_path)
             self.assertEqual(status, 2)
             self.assertIn("PSEUDO_SOC_INCOMPATIBLE", {item["code"] for item in report["findings"]})
+
+    def test_spin_orbit_input_requires_fully_relativistic_pseudo(self) -> None:
+        for spin in ("spin-orbit", "spin-orbit+onsite"):
+            with self.subTest(spin=spin), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                text = fdf_text().replace("Spin non-polarized", f"Spin {spin}")
+                input_path, plan_path = self.make_case(root, text)
+                report, status = self.run_audit(input_path, plan_path)
+                self.assertEqual(status, 2)
+                self.assertIn(
+                    "PSEUDO_SOC_INCOMPATIBLE",
+                    {item["code"] for item in report["findings"]},
+                )
+
+    def test_pbe_input_rejects_pbesol_pseudopotential_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            input_path, plan_path = self.make_case(
+                root,
+                fdf_text(pseudo_spec="Si.psf"),
+                pseudos=("Si.psf",),
+            )
+            manifest_path = root / "pseudopotential-manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["pseudopotentials"][0]["xc_family"] = "GGA-PBEsol"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report, status = self.run_audit(input_path, plan_path)
+            self.assertEqual(status, 2)
+            self.assertIn("PSEUDO_XC_MISMATCH", {item["code"] for item in report["findings"]})
+
+    def test_role_ordered_gga_pbe_xc_identity_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            input_path, plan_path = self.make_case(
+                root,
+                fdf_text(pseudo_spec="Si.psf"),
+                pseudos=("Si.psf",),
+            )
+            report, status = self.run_audit(input_path, plan_path)
+            self.assertEqual(status, 0)
+            self.assertNotIn(
+                "XC_FUNCTIONAL_AUTHORS_INVALID",
+                {item["code"] for item in report["findings"]},
+            )
+
+    def test_xc_functional_authors_role_reversal_blocks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            text = fdf_text(pseudo_spec="Si.psf").replace(
+                "XC.Functional GGA\nXC.Authors PBE",
+                "XC.Functional PBE\nXC.Authors GGA",
+            )
+            input_path, plan_path = self.make_case(
+                root,
+                text,
+                pseudos=("Si.psf",),
+            )
+            report, status = self.run_audit(input_path, plan_path)
+            self.assertEqual(status, 2)
+            self.assertIn(
+                "XC_FUNCTIONAL_AUTHORS_INVALID",
+                {item["code"] for item in report["findings"]},
+            )
+
+    def test_xc_lda_alias_pair_maps_to_same_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            text = fdf_text(pseudo_spec="Si.psf").replace(
+                "XC.Functional GGA\nXC.Authors PBE",
+                "XC.Functional LSD\nXC.Authors CA",
+            )
+            input_path, plan_path = self.make_case(
+                root,
+                text,
+                pseudos=("Si.psf",),
+            )
+            manifest_path = root / "pseudopotential-manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["pseudopotentials"][0]["xc_family"] = "LDA-PZ"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report, status = self.run_audit(input_path, plan_path)
+            self.assertEqual(status, 0)
+            self.assertNotIn(
+                "PSEUDO_XC_MISMATCH",
+                {item["code"] for item in report["findings"]},
+            )
+
+    def test_unknown_xc_author_blocks_as_invalid_combination(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            text = fdf_text(pseudo_spec="Si.psf").replace(
+                "XC.Authors PBE",
+                "XC.Authors ImaginaryPrivateFunctional",
+            )
+            input_path, plan_path = self.make_case(
+                root,
+                text,
+                pseudos=("Si.psf",),
+            )
+            report, status = self.run_audit(input_path, plan_path)
+            self.assertEqual(status, 2)
+            self.assertIn(
+                "XC_FUNCTIONAL_AUTHORS_INVALID",
+                {item["code"] for item in report["findings"]},
+            )
+
+    def test_incompatible_known_xc_functional_authors_pair_blocks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            text = fdf_text(pseudo_spec="Si.psf").replace(
+                "XC.Functional GGA",
+                "XC.Functional LDA",
+            )
+            input_path, plan_path = self.make_case(
+                root,
+                text,
+                pseudos=("Si.psf",),
+            )
+            report, status = self.run_audit(input_path, plan_path)
+            self.assertEqual(status, 2)
+            self.assertIn(
+                "XC_FUNCTIONAL_AUTHORS_INVALID",
+                {item["code"] for item in report["findings"]},
+            )
+
+    def test_unknown_pseudopotential_xc_identity_blocks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            input_path, plan_path = self.make_case(
+                root,
+                fdf_text(pseudo_spec="Si.psf"),
+                pseudos=("Si.psf",),
+            )
+            manifest_path = root / "pseudopotential-manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["pseudopotentials"][0]["xc_family"] = "GGA-Imaginary"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            report, status = self.run_audit(input_path, plan_path)
+            self.assertEqual(status, 2)
+            self.assertIn(
+                "PSEUDO_XC_IDENTITY_UNSUPPORTED",
+                {item["code"] for item in report["findings"]},
+            )
+
+    def test_planned_observable_must_be_extracted_from_run_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            plan_path = self.make_plan(root, observable="stress_tensor")
+            text = fdf_text()
+            input_path, _ = self.make_case(root, text, plan_path=plan_path)
+            output = root / "run.out"
+            output.write_text(output_text(text), encoding="utf-8")
+            report, status = self.run_audit(
+                input_path,
+                plan_path,
+                mode="run",
+                output_path=output,
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(report["gates"]["output_observables"], "blocked")
+            self.assertIn("REQUIRED_OBSERVABLE_MISSING", {item["code"] for item in report["findings"]})
 
     def test_output_version_mismatch_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -582,6 +794,40 @@ class OfficialResolverTests(unittest.TestCase):
         self.assertEqual(status, 3)
         self.assertEqual(report["matches"][0]["label"], "DOS.kgrid.?")
 
+    def test_wildcard_parameter_families_accept_documented_variants(self) -> None:
+        for family in ("DOS", "LDOS", "PDOS"):
+            for variant in ("MonkhorstPack", "Cutoff", "File"):
+                with self.subTest(family=family, variant=variant):
+                    report, status = resolve([f"{family}.kgrid.{variant}"])
+                    self.assertEqual(status, 3)
+                    self.assertEqual(
+                        report["matches"][0]["label"],
+                        f"{family}.kgrid.?",
+                    )
+
+    def test_wildcard_parameter_family_rejects_unknown_variants(self) -> None:
+        for family in ("DOS", "LDOS", "PDOS"):
+            with self.subTest(family=family):
+                term = f"{family}.kgrid.ImaginaryPrivateControl"
+                report, status = resolve([term])
+                self.assertEqual(status, 2)
+                self.assertEqual(report["unknown_terms"], [term])
+
+    def test_supplement_live_check_uses_record_hash(self) -> None:
+        expected_hash = "952e3dc3d385f1399f024f332ec22d5dee962efc62280937833471deba1769c8"
+        with patch(
+            "resolve_official_sources.verified_fetch",
+            return_value={"status": "verified"},
+        ) as mocked:
+            report, status = resolve(["GeometryMustConverge"], live_check=True)
+        self.assertEqual(status, 0)
+        self.assertEqual(report["decision"], "pass")
+        self.assertEqual(mocked.call_args.args[1], expected_hash)
+        self.assertIn(
+            "/-/raw/e486d12067b96ff688179f0496d0ec21b6fae0ab/Src/read_options.F90",
+            mocked.call_args.args[0],
+        )
+
     def test_ambiguous_parameter_blocks(self) -> None:
         report, status = resolve(["MM.Cutoff"])
         self.assertEqual(status, 2)
@@ -604,6 +850,40 @@ class OfficialResolverTests(unittest.TestCase):
             result = verified_fetch("https://gitlab.com/test", expected)
         self.assertEqual(result["status"], "verified")
         self.assertIsNotNone(mocked.call_args.kwargs.get("context"))
+
+    def test_changed_allowlisted_topic_body_is_navigation_only(self) -> None:
+        class Response:
+            status = 200
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def read(self): return b"changed but allowlisted topic body"
+            def geturl(self):
+                return (
+                    "https://docs.siesta-project.org/projects/siesta/en/5.4/"
+                    "reference/siesta.html"
+                )
+
+        with patch(
+            "resolve_official_sources.urlopen", return_value=Response()
+        ):
+            live_result = verified_fetch(
+                "https://docs.siesta-project.org/projects/siesta/en/5.4/"
+                "reference/siesta.html"
+            )
+        self.assertEqual(live_result["status"], "navigation_only")
+        self.assertIsNone(live_result["expected_sha256"])
+
+        with patch(
+            "resolve_official_sources.verified_fetch",
+            return_value=live_result,
+        ):
+            report, status = resolve(["fdf"], live_check=True)
+        self.assertEqual(status, 2)
+        self.assertEqual(report["decision"], "block")
+        self.assertEqual(
+            report["matches"][0]["live_check"]["status"],
+            "navigation_only",
+        )
 
 
 class ConvergenceTests(unittest.TestCase, CaseBuilder):

@@ -1,0 +1,1 @@
+{"bundle_type":"official-document-coverage","records":{"corpora":["corpus-gaussian-g16-c01-public.json","corpus-gaussian-g16-c02-delta.json"],"coverage":"coverage.json","scope_inventory":"scope-inventory.json","slice_manifests":["slices-gaussian-g16-c01-public.json","slices-gaussian-g16-c02-delta.json"]},"schema_version":"1.0","skill_id":"gaussian-rigorous-calculations"}

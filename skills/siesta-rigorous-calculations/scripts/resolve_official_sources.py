@@ -14,6 +14,8 @@ import sys
 from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
 
+from siesta_fdf_labels import matches_official_label
+
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REFERENCES = SKILL_ROOT / "references"
@@ -27,13 +29,8 @@ def normalize(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.casefold())
 
 
-def official_pattern(value: str) -> str:
-    return re.sub(r"[^a-z0-9?]+", "", value.casefold())
-
-
 def pattern_matches(term: str, pattern: str) -> bool:
-    expression = "^" + re.escape(official_pattern(pattern)).replace(r"\?", ".+") + "$"
-    return re.fullmatch(expression, normalize(term)) is not None
+    return matches_official_label(term, pattern)
 
 
 def load_contracts() -> tuple[dict, dict, dict]:
@@ -69,7 +66,14 @@ def verified_fetch(url: str, expected_sha256: str | None = None) -> dict:
             if host not in ALLOWED_HOSTS:
                 raise ValueError("official source redirected outside approved SIESTA domains")
             observed = hashlib.sha256(body).hexdigest()
-            status = "verified" if expected_sha256 is None or observed == expected_sha256 else "hash_mismatch"
+            if expected_sha256 is None:
+                status = "navigation_only"
+            else:
+                status = (
+                    "verified"
+                    if observed == expected_sha256
+                    else "hash_mismatch"
+                )
             return {
                 "status": status,
                 "http_status": getattr(response, "status", 200),
@@ -84,12 +88,28 @@ def verified_fetch(url: str, expected_sha256: str | None = None) -> dict:
 
 
 def parameter_live_status(record: dict, index: dict) -> dict:
-    source = next((item for item in index["source_files"] if item["path"] == record["source_file"]), None)
-    if source is None:
+    source = next(
+        (
+            item
+            for item in index["source_files"]
+            if item["path"] == record["source_file"]
+        ),
+        None,
+    )
+    expected_sha256 = record.get("source_sha256")
+    if expected_sha256 is None and source is not None:
+        expected_sha256 = source.get("sha256")
+    if not isinstance(expected_sha256, str) or not re.fullmatch(
+        r"[a-f0-9]{64}",
+        expected_sha256,
+    ):
         return {"status": "unresolved", "error_type": "SourceHashMissing"}
-    encoded_path = "/".join(quote(part) for part in source["path"].split("/"))
+    encoded_path = "/".join(
+        quote(part)
+        for part in record["source_file"].split("/")
+    )
     url = f"https://gitlab.com/siesta-project/siesta/-/raw/{index['source_commit']}/{encoded_path}"
-    return verified_fetch(url, source["sha256"])
+    return verified_fetch(url, expected_sha256)
 
 
 def resolve(terms: list[str], live_check: bool = False) -> tuple[dict, int]:
@@ -172,6 +192,7 @@ def resolve(terms: list[str], live_check: bool = False) -> tuple[dict, int]:
         "ambiguous_or_unresolved_terms": unresolved,
         "limitations": [
             "Offline resolution proves only that a pinned local index/registry record exists; exit 3 is intentionally non-passing.",
+            "A successful topic URL fetch without an exact expected hash or central attestation proves navigation availability only and cannot raise the claim ceiling.",
             "A parameter default documents software behavior and is not a scientific recommendation.",
             "Read the surrounding official source and match the executable version before a version-sensitive claim.",
         ],

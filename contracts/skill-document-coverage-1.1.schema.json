@@ -1,0 +1,569 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:skill-document-coverage:1.1",
+  "title": "Vibe DFT Skills document coverage map",
+  "description": "A content-addressed mapping from declared Skill scope to corpus slices, with overall status derived from technical dimensions.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "coverage_id",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "coverage_id",
+    "skill_id",
+    "status",
+    "corpus_refs",
+    "slice_manifest_refs",
+    "scope_inventory_ref",
+    "mappings",
+    "blockers",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1"
+    },
+    "contract_name": {
+      "const": "skill-document-coverage"
+    },
+    "coverage_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "skill_id": {
+      "$ref": "#/$defs/hyphenId"
+    },
+    "status": {
+      "$ref": "#/$defs/technicalStatus"
+    },
+    "corpus_refs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:official-corpus-manifest:1.1#/$defs/corpusRef"
+      }
+    },
+    "slice_manifest_refs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "urn:vibe-dft-skills:contract:document-slice-manifest:1.1#/$defs/sliceManifestRef"
+      }
+    },
+    "scope_inventory_ref": {
+      "$ref": "#/$defs/scopeInventoryRef"
+    },
+    "mappings": {
+      "$ref": "#/$defs/mappingMap"
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    },
+    "limitations": {
+      "$ref": "#/$defs/textList"
+    },
+    "producer": {
+      "$ref": "urn:vibe-dft-skills:contract:official-corpus-manifest:1.1#/$defs/producer"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "properties": {
+              "overall": {
+                "const": "complete"
+              }
+            },
+            "required": [
+              "overall"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "properties": {
+              "overall": {
+                "const": "partial"
+              }
+            },
+            "required": [
+              "overall"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "limitations": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "properties": {
+              "overall": {
+                "const": "blocked"
+              }
+            },
+            "required": [
+              "overall"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "maxLength": 128
+    },
+    "completenessStatus": {
+      "enum": [
+        "complete",
+        "partial",
+        "blocked"
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "textList": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    },
+    "technicalStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "overall",
+        "corpus",
+        "slices",
+        "scope",
+        "mappings"
+      ],
+      "properties": {
+        "overall": {
+          "$ref": "#/$defs/completenessStatus"
+        },
+        "corpus": {
+          "$ref": "#/$defs/completenessStatus"
+        },
+        "slices": {
+          "$ref": "#/$defs/completenessStatus"
+        },
+        "scope": {
+          "$ref": "#/$defs/completenessStatus"
+        },
+        "mappings": {
+          "$ref": "#/$defs/completenessStatus"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "corpus": {
+                "const": "complete"
+              },
+              "slices": {
+                "const": "complete"
+              },
+              "scope": {
+                "const": "complete"
+              },
+              "mappings": {
+                "const": "complete"
+              }
+            },
+            "required": [
+              "corpus",
+              "slices",
+              "scope",
+              "mappings"
+            ]
+          },
+          "then": {
+            "properties": {
+              "overall": {
+                "const": "complete"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "corpus": {
+                    "const": "blocked"
+                  }
+                },
+                "required": [
+                  "corpus"
+                ]
+              },
+              {
+                "properties": {
+                  "slices": {
+                    "const": "blocked"
+                  }
+                },
+                "required": [
+                  "slices"
+                ]
+              },
+              {
+                "properties": {
+                  "scope": {
+                    "const": "blocked"
+                  }
+                },
+                "required": [
+                  "scope"
+                ]
+              },
+              {
+                "properties": {
+                  "mappings": {
+                    "const": "blocked"
+                  }
+                },
+                "required": [
+                  "mappings"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "overall": {
+                "const": "blocked"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "allOf": [
+              {
+                "properties": {
+                  "corpus": {
+                    "enum": [
+                      "complete",
+                      "partial"
+                    ]
+                  },
+                  "slices": {
+                    "enum": [
+                      "complete",
+                      "partial"
+                    ]
+                  },
+                  "scope": {
+                    "enum": [
+                      "complete",
+                      "partial"
+                    ]
+                  },
+                  "mappings": {
+                    "enum": [
+                      "complete",
+                      "partial"
+                    ]
+                  }
+                },
+                "required": [
+                  "corpus",
+                  "slices",
+                  "scope",
+                  "mappings"
+                ]
+              },
+              {
+                "not": {
+                  "properties": {
+                    "corpus": {
+                      "const": "complete"
+                    },
+                    "slices": {
+                      "const": "complete"
+                    },
+                    "scope": {
+                      "const": "complete"
+                    },
+                    "mappings": {
+                      "const": "complete"
+                    }
+                  },
+                  "required": [
+                    "corpus",
+                    "slices",
+                    "scope",
+                    "mappings"
+                  ]
+                }
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "overall": {
+                "const": "partial"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "scopeInventoryRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inventory_id",
+        "sha256"
+      ],
+      "properties": {
+        "inventory_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    },
+    "sliceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slice_manifest_id",
+        "slice_id"
+      ],
+      "properties": {
+        "slice_manifest_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "slice_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        }
+      }
+    },
+    "coverageMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapping_status",
+        "disposition",
+        "slice_refs",
+        "rationale",
+        "limitations"
+      ],
+      "properties": {
+        "mapping_status": {
+          "$ref": "#/$defs/completenessStatus"
+        },
+        "disposition": {
+          "enum": [
+            "covered",
+            "partial",
+            "blocked",
+            "not-applicable",
+            "excluded"
+          ]
+        },
+        "slice_refs": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/sliceRef"
+          }
+        },
+        "rationale": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limitations": {
+          "$ref": "#/$defs/textList"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "mapping_status": {
+              "const": "complete"
+            },
+            "disposition": {
+              "const": "covered"
+            },
+            "slice_refs": {
+              "minItems": 1
+            },
+            "rationale": {
+              "type": "null"
+            },
+            "limitations": {
+              "maxItems": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "mapping_status": {
+              "const": "partial"
+            },
+            "disposition": {
+              "const": "partial"
+            },
+            "slice_refs": {
+              "minItems": 1
+            },
+            "rationale": {
+              "$ref": "#/$defs/text"
+            },
+            "limitations": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "properties": {
+            "mapping_status": {
+              "const": "blocked"
+            },
+            "disposition": {
+              "const": "blocked"
+            },
+            "slice_refs": {
+              "maxItems": 0
+            },
+            "rationale": {
+              "$ref": "#/$defs/text"
+            },
+            "limitations": {
+              "minItems": 1
+            }
+          }
+        },
+        {
+          "properties": {
+            "mapping_status": {
+              "const": "complete"
+            },
+            "disposition": {
+              "enum": [
+                "not-applicable",
+                "excluded"
+              ]
+            },
+            "slice_refs": {
+              "maxItems": 0
+            },
+            "rationale": {
+              "$ref": "#/$defs/text"
+            },
+            "limitations": {
+              "maxItems": 0
+            }
+          }
+        }
+      ]
+    },
+    "mappingMap": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 100000,
+      "propertyNames": {
+        "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+      },
+      "patternProperties": {
+        "^[a-z0-9][a-z0-9._-]{2,127}$": {
+          "$ref": "#/$defs/coverageMapping"
+        }
+      },
+      "additionalProperties": false
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "description",
+        "dimension"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "dimension": {
+          "enum": [
+            "corpus",
+            "slices",
+            "scope",
+            "mappings"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,20 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
+  "quickstep_base_source_topics": [
+    "global",
+    "force-eval",
+    "dft",
+    "qs",
+    "scf",
+    "mgrid",
+    "xc",
+    "poisson",
+    "subsys",
+    "cell",
+    "kind",
+    "basis-methods",
+    "pseudopotential-methods"
+  ],
   "common_claim_checks": [
     "observable-definition",
     "official-source-review",

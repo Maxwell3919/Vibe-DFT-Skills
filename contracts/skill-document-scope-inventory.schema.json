@@ -1,0 +1,344 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:skill-document-scope-inventory:1.0",
+  "title": "Vibe DFT Skills canonical documentation scope inventory",
+  "description": "A content-addressed, independently referenced inventory of the Skill surfaces for which official-document coverage must be measured. It prevents a coverage record from silently deleting a real declared subject and remaining internally self-consistent.",
+  "$comment": "The coverage validator verifies exact source-file hashes and requires declared_scope to equal this inventory. A complete inventory is a reviewed governance assertion unless a deterministic extractor is identified; it does not increase execution or scientific maturity.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "inventory_id",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "inventory_id",
+    "skill_id",
+    "skill_registry_binding",
+    "status",
+    "skill_source_refs",
+    "enumeration",
+    "subjects",
+    "blockers",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "skill-document-scope-inventory"},
+    "inventory_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "skill_id": {"$ref": "#/$defs/hyphenId"},
+    "skill_registry_binding": {"$ref": "#/$defs/skillRegistryBinding"},
+    "status": {"$ref": "#/$defs/completenessStatus"},
+    "skill_source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sourceFileRef"}
+    },
+    "enumeration": {"$ref": "#/$defs/enumeration"},
+    "subjects": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/scopeSubject"}
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/blocker"}
+    },
+    "limitations": {"$ref": "#/$defs/limitations"},
+    "producer": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/producer"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"status": {"const": "complete"}},
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "blockers": {"maxItems": 0},
+          "enumeration": {
+            "properties": {"scope_complete": {"const": true}},
+            "required": ["scope_complete"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "partial"}},
+        "required": ["status"]
+      },
+      "then": {"properties": {"limitations": {"minItems": 1}}}
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "blocked"}},
+        "required": ["status"]
+      },
+      "then": {"properties": {"blockers": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "hyphenId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "completenessStatus": {
+      "enum": ["complete", "partial", "blocked"]
+    },
+    "privacySafeText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "limitations": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/privacySafeText"}
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\\\r\\n]+$"
+    },
+    "sourceFileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    },
+    "originRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "selector"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "selector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": {
+              "enum": [
+                "whole-file",
+                "heading",
+                "line-range",
+                "json-pointer",
+                "source-symbol"
+              ]
+            },
+            "value": {"$ref": "#/$defs/privacySafeText"}
+          }
+        }
+      }
+    },
+    "skillRegistryBinding": {
+      "type": "object",
+      "$comment": "source_tree_sha256 uses the explicitly recorded canonical VIBE-DFT-SKILL-SOURCE-TREE-v2 domain. It binds every ordinary Skill source file but excludes exactly references/official-source-pack/**, whose bytes are protected by the independent bundle registration and official-document contract gates.",
+      "additionalProperties": false,
+      "required": [
+        "registry_path",
+        "registry_sha256",
+        "skill_path",
+        "lifecycle",
+        "source_tree_hash_domain",
+        "source_tree_sha256"
+      ],
+      "properties": {
+        "registry_path": {"const": "registry/skill-registry.yaml"},
+        "registry_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "skill_path": {"$ref": "#/$defs/relativePath"},
+        "lifecycle": {"enum": ["active", "development"]},
+        "source_tree_hash_domain": {
+          "const": "VIBE-DFT-SKILL-SOURCE-TREE-v2"
+        },
+        "source_tree_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    },
+    "extractor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_id",
+        "tool_version",
+        "trust_mode",
+        "implementation_ref",
+        "configuration_ref",
+        "dependency_lock_ref",
+        "input_sha256",
+        "output_sha256",
+        "attestation_id"
+      ],
+      "properties": {
+        "tool_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "tool_version": {"type": "string", "minLength": 1, "maxLength": 100},
+        "trust_mode": {
+          "enum": ["central-pinned", "platform-attested"]
+        },
+        "implementation_ref": {
+          "$ref": "#/$defs/sourceFileRef"
+        },
+        "configuration_ref": {
+          "$ref": "#/$defs/sourceFileRef"
+        },
+        "dependency_lock_ref": {
+          "$ref": "#/$defs/sourceFileRef"
+        },
+        "input_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "output_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "attestation_id": {
+          "oneOf": [
+            {
+              "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+            },
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"trust_mode": {"const": "platform-attested"}},
+            "required": ["trust_mode"]
+          },
+          "then": {
+            "properties": {
+              "attestation_id": {
+                "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+              }
+            }
+          },
+          "else": {
+            "properties": {"attestation_id": {"type": "null"}}
+          }
+        }
+      ]
+    },
+    "enumeration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "scope_complete",
+        "extractor",
+        "reviewed_by",
+        "reviewed_utc"
+      ],
+      "properties": {
+        "method": {
+          "enum": [
+            "canonical-reviewed-inventory",
+            "deterministic-extractor"
+          ]
+        },
+        "scope_complete": {"type": "boolean"},
+        "extractor": {
+          "oneOf": [
+            {"$ref": "#/$defs/extractor"},
+            {"type": "null"}
+          ]
+        },
+        "reviewed_by": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "reviewed_utc": {"type": "string", "format": "date-time"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method": {"const": "deterministic-extractor"}
+            },
+            "required": ["method"]
+          },
+          "then": {"properties": {"extractor": {"$ref": "#/$defs/extractor"}}},
+          "else": {"properties": {"extractor": {"type": "null"}}}
+        }
+      ]
+    },
+    "scopeSubject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_id",
+        "subject_kind",
+        "evidence_class",
+        "origin_refs",
+        "statement"
+      ],
+      "properties": {
+        "subject_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "subject_kind": {
+          "enum": [
+            "claim",
+            "documented-claim",
+            "capability",
+            "task",
+            "workflow",
+            "executable",
+            "parameter",
+            "input-keyword",
+            "output-field",
+            "observable",
+            "backend",
+            "limitation"
+          ]
+        },
+        "evidence_class": {
+          "enum": [
+            "official-provider-required",
+            "repository-policy",
+            "deterministic-tool-behavior",
+            "scientific-methodology"
+          ]
+        },
+        "origin_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/originRef"}
+        },
+        "statement": {"$ref": "#/$defs/privacySafeText"}
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "description"],
+      "properties": {
+        "code": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "description": {"$ref": "#/$defs/privacySafeText"}
+      }
+    }
+  }
+}

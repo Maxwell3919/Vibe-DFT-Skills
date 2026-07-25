@@ -229,6 +229,64 @@ class ContractTests(unittest.TestCase):
                     )
                 )
 
+    def test_capability_catalog_accepts_supported_schema_1_1(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "catalog.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": "1.1",
+                        "profiles": {"synthetic": {}},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                audit_repository.capability_catalog_errors(path),
+                [],
+            )
+
+    def test_observable_code_coverage_allows_registered_aggregates_only(
+        self,
+    ) -> None:
+        observables = {
+            "combined": {
+                "codes": {
+                    "qe": {},
+                    "vasp": {},
+                    "cp2k": {},
+                    "siesta": {},
+                    "mixed": {},
+                }
+            }
+        }
+        self.assertEqual(
+            audit_repository.observable_code_coverage_errors(
+                observables,
+                calculation_codes=("qe", "vasp", "cp2k", "siesta"),
+                aggregate_codes=("mixed",),
+            ),
+            [],
+        )
+        missing = copy.deepcopy(observables)
+        del missing["combined"]["codes"]["cp2k"]
+        self.assertTrue(
+            audit_repository.observable_code_coverage_errors(
+                missing,
+                calculation_codes=("qe", "vasp", "cp2k", "siesta"),
+                aggregate_codes=("mixed",),
+            )
+        )
+        unknown = copy.deepcopy(observables)
+        unknown["combined"]["codes"]["unregistered"] = {}
+        self.assertTrue(
+            audit_repository.observable_code_coverage_errors(
+                unknown,
+                calculation_codes=("qe", "vasp", "cp2k", "siesta"),
+                aggregate_codes=("mixed",),
+            )
+        )
+
     def test_invalid_run_manifest_is_rejected(self) -> None:
         failures = validate_contract.validation_errors("run", {"schema_version": "1.0"})
         self.assertTrue(failures)

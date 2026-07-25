@@ -1,0 +1,732 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:document-slice-manifest:1.1",
+  "title": "Vibe DFT Skills document slice manifest",
+  "description": "A content-addressed map from corpus sources to ordered slices, exact byte identities, processor attestations, and inline loss accounting.",
+  "x-vibe-document-kind": "content-addressed-record",
+  "x-vibe-record-id-field": "slice_manifest_id",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "slice_manifest_id",
+    "corpus_ref",
+    "status",
+    "sources",
+    "blockers",
+    "limitations",
+    "producer"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.1"
+    },
+    "contract_name": {
+      "const": "document-slice-manifest"
+    },
+    "slice_manifest_id": {
+      "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+    },
+    "corpus_ref": {
+      "$ref": "urn:vibe-dft-skills:contract:official-corpus-manifest:1.1#/$defs/corpusRef"
+    },
+    "status": {
+      "$ref": "#/$defs/completenessStatus"
+    },
+    "sources": {
+      "$ref": "#/$defs/sourceSliceMap"
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    },
+    "limitations": {
+      "$ref": "#/$defs/textList"
+    },
+    "producer": {
+      "$ref": "urn:vibe-dft-skills:contract:official-corpus-manifest:1.1#/$defs/producer"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "complete"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "maxItems": 0
+          },
+          "sources": {
+            "additionalProperties": {
+              "properties": {
+                "processor": {
+                  "properties": {
+                    "assurance_mode": {
+                      "enum": [
+                        "pinned",
+                        "attested"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "assurance_mode"
+                  ]
+                },
+                "source_loss_accounting": {
+                  "properties": {
+                    "closure_status": {
+                      "const": "complete"
+                    }
+                  },
+                  "required": [
+                    "closure_status"
+                  ]
+                },
+                "slices": {
+                  "items": {
+                    "properties": {
+                      "loss_accounting": {
+                        "properties": {
+                          "closure_status": {
+                            "const": "complete"
+                          }
+                        },
+                        "required": [
+                          "closure_status"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "partial"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "limitations": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "completenessStatus": {
+      "enum": [
+        "complete",
+        "partial",
+        "blocked"
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "textList": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    },
+    "rawByteRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start_byte",
+        "byte_count"
+      ],
+      "properties": {
+        "start_byte": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740990
+        },
+        "byte_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layer",
+        "kind",
+        "value"
+      ],
+      "properties": {
+        "layer": {
+          "enum": [
+            "raw-source",
+            "derived-artifact"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "heading",
+            "byte-range",
+            "json-pointer",
+            "line-range",
+            "page-range",
+            "whole-source",
+            "source-symbol",
+            "other"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "whole-source"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "const": "*"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "embeddedSliceContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_mode",
+        "artifact",
+        "hash_basis"
+      ],
+      "properties": {
+        "content_mode": {
+          "const": "embedded-content"
+        },
+        "artifact": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/fileIdentity"
+        },
+        "hash_basis": {
+          "const": "exact-artifact-bytes"
+        }
+      }
+    },
+    "selectedContentIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "sliceReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retrieval_method",
+        "retrieved_utc",
+        "raw_sha256",
+        "raw_bytes",
+        "selected_content"
+      ],
+      "properties": {
+        "retrieval_method": {
+          "enum": [
+            "https-get",
+            "official-api",
+            "git-object",
+            "other"
+          ]
+        },
+        "retrieved_utc": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 40
+        },
+        "raw_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "raw_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "selected_content": {
+          "$ref": "#/$defs/selectedContentIdentity"
+        }
+      }
+    },
+    "externalSliceContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_mode",
+        "locator",
+        "receipt",
+        "hash_basis"
+      ],
+      "properties": {
+        "content_mode": {
+          "const": "external-content"
+        },
+        "locator": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/httpsUrl"
+        },
+        "receipt": {
+          "$ref": "#/$defs/sliceReceipt"
+        },
+        "hash_basis": {
+          "const": "external-receipt-bytes"
+        }
+      }
+    },
+    "metadataSliceContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_mode",
+        "locator",
+        "identity",
+        "hash_basis"
+      ],
+      "properties": {
+        "content_mode": {
+          "const": "metadata-only"
+        },
+        "locator": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/httpsUrl"
+        },
+        "identity": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/byteIdentity"
+        },
+        "hash_basis": {
+          "const": "metadata-identity-bytes"
+        }
+      }
+    },
+    "sliceContent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/embeddedSliceContent"
+        },
+        {
+          "$ref": "#/$defs/externalSliceContent"
+        },
+        {
+          "$ref": "#/$defs/metadataSliceContent"
+        }
+      ]
+    },
+    "lossEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loss_id",
+        "category",
+        "severity",
+        "disposition",
+        "description"
+      ],
+      "properties": {
+        "loss_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "category": {
+          "enum": [
+            "layout",
+            "table",
+            "formula",
+            "image",
+            "asset",
+            "link",
+            "code",
+            "admonition",
+            "footnote",
+            "anchor",
+            "metadata",
+            "encoding",
+            "other"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "informational",
+            "material",
+            "blocking"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "preserved",
+            "normalized",
+            "external-only",
+            "omitted",
+            "unresolved"
+          ]
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        }
+      }
+    },
+    "lossAccounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "closure_status",
+        "entries"
+      ],
+      "properties": {
+        "closure_status": {
+          "$ref": "#/$defs/completenessStatus"
+        },
+        "entries": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/lossEntry"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "closure_status": {
+                "const": "complete"
+              }
+            },
+            "required": [
+              "closure_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "entries": {
+                "items": {
+                  "properties": {
+                    "severity": {
+                      "enum": [
+                        "informational",
+                        "material"
+                      ]
+                    },
+                    "disposition": {
+                      "enum": [
+                        "preserved",
+                        "normalized",
+                        "external-only",
+                        "omitted"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "processorAttestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attestation_id",
+        "kind",
+        "artifact"
+      ],
+      "properties": {
+        "attestation_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "kind": {
+          "enum": [
+            "implementation",
+            "configuration",
+            "dependency-lock",
+            "execution"
+          ]
+        },
+        "artifact": {
+          "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/fileIdentity"
+        }
+      }
+    },
+    "sliceProcessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "processor_id",
+        "processor_version",
+        "assurance_mode",
+        "input_sha256",
+        "output_sha256",
+        "deterministic",
+        "attestations"
+      ],
+      "properties": {
+        "processor_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "processor_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "assurance_mode": {
+          "enum": [
+            "unverified",
+            "pinned",
+            "attested"
+          ]
+        },
+        "input_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "output_sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        },
+        "deterministic": {
+          "const": true
+        },
+        "attestations": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/processorAttestation"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "assurance_mode": {
+                "const": "unverified"
+              }
+            },
+            "required": [
+              "assurance_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "attestations": {
+                "maxItems": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "attestations": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slice_id",
+        "selector",
+        "raw_byte_range",
+        "content",
+        "subject_ids",
+        "loss_accounting"
+      ],
+      "properties": {
+        "slice_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "selector": {
+          "$ref": "#/$defs/selector"
+        },
+        "raw_byte_range": {
+          "$ref": "#/$defs/rawByteRange"
+        },
+        "content": {
+          "$ref": "#/$defs/sliceContent"
+        },
+        "subject_ids": {
+          "type": "array",
+          "maxItems": 10000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+          }
+        },
+        "loss_accounting": {
+          "$ref": "#/$defs/lossAccounting"
+        }
+      }
+    },
+    "sourceSlices": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_identity",
+        "raw_source_extent_bytes",
+        "processor",
+        "slices",
+        "source_loss_accounting"
+      ],
+      "properties": {
+        "source_identity": {
+          "$ref": "urn:vibe-dft-skills:contract:official-corpus-manifest:1.1#/$defs/sourceIdentity"
+        },
+        "raw_source_extent_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "processor": {
+          "$ref": "#/$defs/sliceProcessor"
+        },
+        "slices": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100000,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/slice"
+          }
+        },
+        "source_loss_accounting": {
+          "$ref": "#/$defs/lossAccounting"
+        }
+      }
+    },
+    "sourceSliceMap": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 100000,
+      "propertyNames": {
+        "$ref": "urn:vibe-dft-skills:contract:official-document-source-catalog:1.1#/$defs/sourceId"
+      },
+      "patternProperties": {
+        "^[a-z0-9][a-z0-9._-]{0,127}$": {
+          "$ref": "#/$defs/sourceSlices"
+        }
+      },
+      "additionalProperties": false
+    },
+    "sliceManifestRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slice_manifest_id",
+        "sha256"
+      ],
+      "properties": {
+        "slice_manifest_id": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "sha256": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "description",
+        "dimension"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/safeId"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "dimension": {
+          "enum": [
+            "source-identity",
+            "raw-range",
+            "content-identity",
+            "processor",
+            "loss-closure"
+          ]
+        }
+      }
+    }
+  }
+}

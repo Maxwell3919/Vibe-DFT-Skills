@@ -1,0 +1,302 @@
+{
+  "schema_version": "1.0",
+  "skill_id": "literature-to-dft-plan",
+  "seed": {
+    "status_ceiling": "blocked",
+    "limitations": [
+      "This metadata-only seed records repository interface provenance and never embeds or authenticates article bodies, abstracts, datasets, or scientific claims.",
+      "The literature universe is open ended and input specific; no finite all-literature corpus is asserted."
+    ],
+    "blockers": [
+      "Every real source still requires its own exact official-source record, authority resolution, content identity, and retrieval receipt.",
+      "Repository snapshot identity, semantic closure, and an attested central pack-processor run remain unresolved."
+    ]
+  },
+  "providers": [
+    {
+      "input_id": "repository-contracts-literature-plan",
+      "authority_id": "vibe-dft-skills-repository-contracts",
+      "provider_id": "vibe-dft-skills",
+      "catalog_file": "source-catalog-repository-interfaces.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {
+          "kind": "revision",
+          "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315",
+          "retrieved_utc": "2026-07-23T20:02:38Z",
+          "snapshot_identity": null
+        },
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills/tree/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/contracts",
+        "sources": [
+          {
+            "source_id": "literature-plan-repository-source-index",
+            "title": "literature-to-dft-plan repository source policy",
+            "source_kind": "index",
+            "locator": "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/literature-to-dft-plan/references/official-source-index.json",
+            "disposition": "included",
+            "receipt": {
+              "path": "skills/literature-to-dft-plan/references/official-source-index.json",
+              "kind": "revision",
+              "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315:skills/literature-to-dft-plan/references/official-source-index.json",
+              "retrieved_utc": "2026-07-23T20:02:38Z",
+              "retrieval_method": "git-object"
+            },
+            "slices": [
+              {
+                "slice_id": "literature-plan-repository-source-index-whole",
+                "order": 0,
+                "title": "Exact repository source-policy index",
+                "selector": {
+                  "layer": "raw-source",
+                  "kind": "whole-source",
+                  "value": "*"
+                },
+                "subject_ids": [],
+                "loss_ids": [
+                  "repository-bodies-external"
+                ]
+              }
+            ]
+          }
+        ],
+        "subjects": [],
+        "reviewed_exclusions": [],
+        "losses": [
+          {
+            "loss_id": "repository-bodies-external",
+            "stage": "storage",
+            "description": "Repository contracts and policies remain exact local references and are not duplicated in this metadata catalog.",
+            "materiality": "non-material",
+            "disposition": "external-only",
+            "affected_source_ids": [
+              "literature-plan-repository-source-index"
+            ]
+          }
+        ],
+        "license": {
+          "identity": {
+            "identifier": null,
+            "terms_urls": [],
+            "verification": "unknown"
+          },
+          "assessment": "unresolved",
+          "allowed_storage_modes": [
+            "metadata-only",
+            "excluded"
+          ],
+          "official_terms_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills",
+          "limitations": [
+            "No root repository license was found; no literature right is inferred from repository provenance."
+          ]
+        },
+        "limitations": [
+          "This provider is a repository-interface carrier only and contains no external literature subject.",
+          "The open-ended runtime literature universe is deliberately outside this catalog."
+        ],
+        "blockers": []
+      }
+    }
+  ],
+  "scope_subjects": [
+    {
+      "subject_id": "literature.lifecycle.development-only",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/SKILL.md",
+        "skills/literature-to-dft-plan/references/maturity-matrix.json"
+      ],
+      "statement": "The Skill remains development, non-routable, and no-positive-claim; its candidate plan is not an activated calculation input.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.boundary.offline-supplied-metadata",
+      "subject_kind": "workflow",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/scripts/literature_plan_cli.py",
+        "skills/literature-to-dft-plan/SKILL.md"
+      ],
+      "statement": "The candidate processes only supplied bounded metadata and facts; it does not query a paper database, DOI resolver, publisher, network, scheduler, or scientific executable.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.source.real-record-required",
+      "subject_kind": "workflow",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/references/source-and-license-policy.md",
+        "skills/literature-to-dft-plan/references/official-source-index.json"
+      ],
+      "statement": "Every non-synthetic real source requires an exact official-source-record reference and external authority resolution.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.source.metadata-not-truth",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/references/source-and-license-policy.md",
+        "skills/literature-to-dft-plan/references/repository-interface-manual.md"
+      ],
+      "statement": "A DOI, title, URL, citation string, or content hash is identity metadata and does not establish truth, authority, completeness, or redistribution permission.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.corpus.all-literature-excluded",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/SKILL.md",
+        "skills/literature-to-dft-plan/references/official-source-index.json"
+      ],
+      "statement": "No finite universal literature corpus is defined, bundled, or claimed complete; the source inventory is bounded by each request.",
+      "expected_disposition": "excluded",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.claim.bounded-fact-locator",
+      "subject_kind": "workflow",
+      "evidence_class": "scientific-methodology",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/references/repository-interface-manual.md",
+        "skills/literature-to-dft-plan/references/official-source-index.json"
+      ],
+      "statement": "A planned scientific fact remains tied to a bounded page, section, table, figure, or equivalent locator and retains source limitations.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.plan.no-parameter-invention",
+      "subject_kind": "limitation",
+      "evidence_class": "scientific-methodology",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/SKILL.md",
+        "skills/literature-to-dft-plan/references/fail-closed-contract.md"
+      ],
+      "statement": "Missing version-sensitive method or parameter evidence remains unknown and blocks promotion instead of being inferred from another version or source.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.handoff.human-selection",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/SKILL.md",
+        "skills/literature-to-dft-plan/references/environment-and-authorization.md"
+      ],
+      "statement": "A human selects sources, methods, and scientific acceptance; the candidate does not authorize execution or publication claims.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "literature.privacy.source-bodies-excluded",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/literature-to-dft-plan/SKILL.md",
+        "skills/literature-to-dft-plan/references/source-and-license-policy.md"
+      ],
+      "statement": "Article bodies, copied abstracts used as evidence, credentials, private paths, restricted potentials, and unpublished results are excluded.",
+      "expected_disposition": "excluded",
+      "provider_input_ids": []
+    }
+  ],
+  "authority_proposal": {
+    "schema_version": "1.0",
+    "proposal_type": "central-official-source-authority-and-consumer-bindings",
+    "skill_id": "literature-to-dft-plan",
+    "lifecycle_effect": "none",
+    "authority_entries": {
+      "vibe-dft-skills-repository-contracts": {
+        "display_name": "Vibe DFT Skills exact repository contracts and policies",
+        "lifecycle": "active",
+        "provider_class": "repository",
+        "provider_id": "vibe-dft-skills",
+        "allowed_https_origins": [
+          "https://raw.githubusercontent.com"
+        ],
+        "version_policy": {
+          "allowed_scopes": [
+            "exact"
+          ],
+          "registered_scopes": [
+            {
+              "scope": "exact",
+              "exact_version": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315",
+              "minimum_version": null,
+              "maximum_version": null,
+              "release_series": null
+            }
+          ]
+        },
+        "content_policy": {
+          "source_kinds": [
+            "official-repository"
+          ],
+          "allowed_path_prefixes": [
+            "/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/"
+          ],
+          "query_policy": "forbidden",
+          "allowed_query_urls": [],
+          "fragment_policy": "forbidden",
+          "resolution_mode": "platform-verified-only"
+        },
+        "content_identity_policy": {
+          "mode": "platform-adapter-only",
+          "unpinned_action": "adapter-required"
+        },
+        "canonical_snapshot": null,
+        "license_policy": {
+          "status": "unknown",
+          "identifier": null,
+          "terms_urls": [],
+          "verification_status": "unresolved"
+        },
+        "redistribution_policy": {
+          "allowed_values": [
+            "unknown"
+          ],
+          "bundle_content": "forbidden",
+          "external_runtime_content": "platform-verification-required"
+        },
+        "limitations": [
+          "This authority proves exact repository interface identity only; it cannot enumerate or authenticate a runtime literature universe."
+        ],
+        "provenance": {
+          "verified_utc": "2026-07-23T20:02:38Z",
+          "official_fact_urls": [
+            "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/literature-to-dft-plan/references/official-source-index.json"
+          ]
+        }
+      }
+    },
+    "consumer_bindings": [
+      {
+        "binding_id": "literature-to-dft-plan-repository-contracts",
+        "consumer_skill_id": "literature-to-dft-plan",
+        "consumer_lifecycle": "development",
+        "consumer_path": "skills/literature-to-dft-plan",
+        "authority_id": "vibe-dft-skills-repository-contracts",
+        "provider_id": "vibe-dft-skills",
+        "purpose": "official-document-coverage",
+        "claim_ceiling": "registered-skill-scope"
+      }
+    ],
+    "central_blockers": [
+      "The authority and consumer binding have not been applied centrally.",
+      "No root repository license or finite all-literature inventory exists; runtime source authorities remain per-input."
+    ],
+    "invariants": [
+      "The proposal cannot change development lifecycle, routing, installability, execution permission, or no_positive_claim.",
+      "No repository authority may stand in for an article, publisher, dataset, or other input-specific authority."
+    ]
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "authorities": [
+    {
+      "authority_id": "ase-release-source-docs-3-29-0",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "f27c0005ae6a67ea419f996e728668865bfc1f86"
+          },
+          "origin": "https://gitlab.com",
+          "path_prefix": "/ase/ase/-/raw/f27c0005ae6a67ea419f996e728668865bfc1f86/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "ase-release-source-docs-3-29-0",
+        "binding_id": "dft-structure-preparation-ase-docs",
+        "claim_effect": "none",
+        "provider_input_id": "ase-docs",
+        "required_disposition": "blocked",
+        "skill_id": "dft-structure-preparation"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "LGPL-2.1-or-later",
+        "status": "known-open",
+        "terms_urls": [
+          "https://gitlab.com/ase/ase/-/raw/f27c0005ae6a67ea419f996e728668865bfc1f86/LICENSE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "ase",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "3.29.0",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    },
+    {
+      "authority_id": "pymatgen-release-source-docs-2026-5-4",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "8495e941504cd5123701635b6572942c78d9589c"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/materialsproject/pymatgen/8495e941504cd5123701635b6572942c78d9589c/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "pymatgen-release-source-docs-2026-5-4",
+        "binding_id": "dft-structure-preparation-pymatgen-docs",
+        "claim_effect": "none",
+        "provider_input_id": "pymatgen-docs",
+        "required_disposition": "blocked",
+        "skill_id": "dft-structure-preparation"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "MIT",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/materialsproject/pymatgen/8495e941504cd5123701635b6572942c78d9589c/LICENSE"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "pymatgen",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "2026.5.4",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    },
+    {
+      "authority_id": "spglib-release-source-docs-2-7-0",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "12355c77fb7c505a55f52cae36341d73b781a065"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/spglib/spglib/12355c77fb7c505a55f52cae36341d73b781a065/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "spglib-release-source-docs-2-7-0",
+        "binding_id": "dft-structure-preparation-spglib-docs",
+        "claim_effect": "none",
+        "provider_input_id": "spglib-docs",
+        "required_disposition": "blocked",
+        "skill_id": "dft-structure-preparation"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "BSD-3-Clause",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/spglib/spglib/12355c77fb7c505a55f52cae36341d73b781a065/COPYING"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "spglib",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "2.7.0",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    },
+    {
+      "authority_id": "rdkit-release-source-docs-2026-03-4",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "commit",
+            "value": "8afba32ec539dcb2369bc84549d802aca3f7eb39"
+          },
+          "origin": "https://raw.githubusercontent.com",
+          "path_prefix": "/rdkit/rdkit/8afba32ec539dcb2369bc84549d802aca3f7eb39/"
+        }
+      ],
+      "consumer_binding": {
+        "authority_id": "rdkit-release-source-docs-2026-03-4",
+        "binding_id": "dft-structure-preparation-rdkit-docs",
+        "claim_effect": "none",
+        "provider_input_id": "rdkit-docs",
+        "required_disposition": "blocked",
+        "skill_id": "dft-structure-preparation"
+      },
+      "content_policy": {
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-reference",
+          "official-repository",
+          "official-release-notes"
+        ]
+      },
+      "license_policy": {
+        "identifier": "BSD-3-Clause",
+        "status": "known-open",
+        "terms_urls": [
+          "https://raw.githubusercontent.com/rdkit/rdkit/8afba32ec539dcb2369bc84549d802aca3f7eb39/license.txt"
+        ],
+        "verification_status": "verified"
+      },
+      "limitations": [
+        "Exact source-tree authority does not close generated documentation, asset, binary-package, native-execution, or scientific acceptance evidence."
+      ],
+      "proposed_lifecycle": "active",
+      "provider_class": "software",
+      "provider_id": "rdkit",
+      "redistribution_policy": {
+        "allowed_values": [
+          "redistributable"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "2026.03.4",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "Authority and consumer entries must land before the generated pack can build.",
+    "pymatgen-core 2026.5.18 has no matched exact documentation authority in this proposal; affected subjects stay blocked."
+  ],
+  "invariants": [
+    "No authority proposal changes Skill or software lifecycle, routing, installability, execution permission, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [
+    {
+      "environment_profile_id": "ase-python-3-29-0",
+      "provider_class": "software",
+      "provider_id": "ase",
+      "reason": "ASE is used by the Skill but absent from the canonical software registry.",
+      "role": "structure-library",
+      "requested_state": "planned"
+    },
+    {
+      "environment_profile_id": "spglib-python-2-7-0",
+      "provider_class": "software",
+      "provider_id": "spglib",
+      "reason": "spglib is currently reference-only and absent from the canonical software registry.",
+      "role": "symmetry-library",
+      "requested_state": "planned"
+    }
+  ],
+  "schema_version": "1.0",
+  "skill_id": "dft-structure-preparation"
+}

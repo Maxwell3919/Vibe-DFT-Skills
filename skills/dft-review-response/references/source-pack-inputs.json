@@ -1,0 +1,313 @@
+{
+  "schema_version": "1.0",
+  "skill_id": "dft-review-response",
+  "seed": {
+    "status_ceiling": "blocked",
+    "limitations": [
+      "This pack stores repository-interface identities and semantic scope only; it embeds no reviewer text, manuscript, literature body, scientific result, or response submission.",
+      "Literature and manuscript evidence authorities are runtime-input-specific and are never replaced by a universal review-response provider."
+    ],
+    "blockers": [
+      "Input-specific official-source, manuscript, artifact, and human-decision authenticity remain external obligations.",
+      "Repository snapshot identity, semantic closure, and an attested central pack-processor run remain unresolved."
+    ]
+  },
+  "providers": [
+    {
+      "input_id": "repository-contracts-review-response",
+      "authority_id": "vibe-dft-skills-repository-contracts",
+      "provider_id": "vibe-dft-skills",
+      "catalog_file": "source-catalog-repository-interfaces.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {
+          "kind": "revision",
+          "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315",
+          "retrieved_utc": "2026-07-23T20:02:38Z",
+          "snapshot_identity": null
+        },
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills/tree/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/contracts",
+        "sources": [
+          {
+            "source_id": "review-response-repository-source-index",
+            "title": "dft-review-response repository source policy",
+            "source_kind": "index",
+            "locator": "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-review-response/references/official-source-index.json",
+            "disposition": "included",
+            "receipt": {
+              "path": "skills/dft-review-response/references/official-source-index.json",
+              "kind": "revision",
+              "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315:skills/dft-review-response/references/official-source-index.json",
+              "retrieved_utc": "2026-07-23T20:02:38Z",
+              "retrieval_method": "git-object"
+            },
+            "slices": [
+              {
+                "slice_id": "review-response-repository-source-index-whole",
+                "order": 0,
+                "title": "Exact repository source-policy index",
+                "selector": {
+                  "layer": "raw-source",
+                  "kind": "whole-source",
+                  "value": "*"
+                },
+                "subject_ids": [],
+                "loss_ids": [
+                  "repository-bodies-external"
+                ]
+              }
+            ]
+          }
+        ],
+        "subjects": [],
+        "reviewed_exclusions": [],
+        "losses": [
+          {
+            "loss_id": "repository-bodies-external",
+            "stage": "storage",
+            "description": "Repository contracts and policies remain exact local references and are not duplicated in this metadata catalog.",
+            "materiality": "non-material",
+            "disposition": "external-only",
+            "affected_source_ids": [
+              "review-response-repository-source-index"
+            ]
+          }
+        ],
+        "license": {
+          "identity": {
+            "identifier": null,
+            "terms_urls": [],
+            "verification": "unknown"
+          },
+          "assessment": "unresolved",
+          "allowed_storage_modes": [
+            "metadata-only",
+            "excluded"
+          ],
+          "official_terms_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills",
+          "limitations": [
+            "No root repository license was found; no journal or manuscript right is inferred from repository provenance."
+          ]
+        },
+        "limitations": [
+          "This provider carries repository-interface provenance only and has no journal, reviewer, manuscript, or literature subject.",
+          "All response evidence remains bound to the supplied claim map and exact runtime refs."
+        ],
+        "blockers": []
+      }
+    }
+  ],
+  "scope_subjects": [
+    {
+      "subject_id": "review.lifecycle.development-only",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-review-response/SKILL.md",
+        "skills/dft-review-response/references/maturity-matrix.json"
+      ],
+      "statement": "The Skill remains development, non-routable, and no-positive-claim; candidate outputs are not active review interfaces or submissions.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.boundary.local-json-only",
+      "subject_kind": "workflow",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/dft-review-response/scripts/review_response_cli.py",
+        "skills/dft-review-response/references/environment-and-authorization.md"
+      ],
+      "statement": "The candidate processes bounded local JSON and writes one fresh candidate package; it does not edit a manuscript, contact a journal, send a response, or run scientific software.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.identity.strict-no-overwrite",
+      "subject_kind": "workflow",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/dft-review-response/scripts/review_response_cli.py",
+        "skills/dft-review-response/references/fail-closed-contract.md"
+      ],
+      "statement": "Stable no-follow reads, exact raw-byte hashes, and no-replace output publication are local deterministic controls.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.evidence.claim-map-bound",
+      "subject_kind": "workflow",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-review-response/references/repository-interface-manual.md",
+        "skills/dft-review-response/references/official-source-index.json"
+      ],
+      "statement": "Each response point remains bound to exact claim-map, official-source, artifact, manuscript, and decision refs supplied by the production bundle.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.authority.runtime-resolver-external",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-review-response/references/official-source-index.json",
+        "skills/dft-review-response/references/repository-interface-manual.md"
+      ],
+      "statement": "The candidate does not create citation authority; every literature-dependent point retains its input-specific external source resolver and bounded locator.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.authority.universal-provider-excluded",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-review-response/references/official-source-index.json"
+      ],
+      "statement": "A universal journal, manuscript, or literature provider is excluded because authorities are input-specific and open ended.",
+      "expected_disposition": "excluded",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.response.no-positive-unsupported",
+      "subject_kind": "limitation",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/dft-review-response/scripts/review_response_cli.py",
+        "skills/dft-review-response/references/fail-closed-contract.md"
+      ],
+      "statement": "Unsupported acceptance language and positive scientific claims remain blocked; fluent response prose cannot remove an evidence gap.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.workflow.point-by-point",
+      "subject_kind": "workflow",
+      "evidence_class": "scientific-methodology",
+      "origin_paths": [
+        "skills/dft-review-response/references/point-by-point-playbook.md",
+        "skills/dft-review-response/SKILL.md"
+      ],
+      "statement": "Responses preserve a point-by-point chain from reviewer issue to bounded evidence, change, limitation, and unresolved next action.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.handoff.human-submit",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-review-response/SKILL.md",
+        "skills/dft-review-response/references/environment-and-authorization.md"
+      ],
+      "statement": "Scientific acceptance, manuscript changes, reviewer-facing wording, and submission remain human decisions outside the candidate.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "review.privacy.restricted-content-excluded",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-review-response/SKILL.md",
+        "skills/dft-review-response/references/official-source-index.json"
+      ],
+      "statement": "Reviewer identity, journal text, manuscript content, credentials, private paths, restricted potentials, and unpublished result bodies are excluded from fixtures and source packs.",
+      "expected_disposition": "excluded",
+      "provider_input_ids": []
+    }
+  ],
+  "authority_proposal": {
+    "schema_version": "1.0",
+    "proposal_type": "central-official-source-authority-and-consumer-bindings",
+    "skill_id": "dft-review-response",
+    "lifecycle_effect": "none",
+    "authority_entries": {
+      "vibe-dft-skills-repository-contracts": {
+        "display_name": "Vibe DFT Skills exact repository contracts and policies",
+        "lifecycle": "active",
+        "provider_class": "repository",
+        "provider_id": "vibe-dft-skills",
+        "allowed_https_origins": [
+          "https://raw.githubusercontent.com"
+        ],
+        "version_policy": {
+          "allowed_scopes": [
+            "exact"
+          ],
+          "registered_scopes": [
+            {
+              "scope": "exact",
+              "exact_version": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315",
+              "minimum_version": null,
+              "maximum_version": null,
+              "release_series": null
+            }
+          ]
+        },
+        "content_policy": {
+          "source_kinds": [
+            "official-repository"
+          ],
+          "allowed_path_prefixes": [
+            "/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/"
+          ],
+          "query_policy": "forbidden",
+          "allowed_query_urls": [],
+          "fragment_policy": "forbidden",
+          "resolution_mode": "platform-verified-only"
+        },
+        "content_identity_policy": {
+          "mode": "platform-adapter-only",
+          "unpinned_action": "adapter-required"
+        },
+        "canonical_snapshot": null,
+        "license_policy": {
+          "status": "unknown",
+          "identifier": null,
+          "terms_urls": [],
+          "verification_status": "unresolved"
+        },
+        "redistribution_policy": {
+          "allowed_values": [
+            "unknown"
+          ],
+          "bundle_content": "forbidden",
+          "external_runtime_content": "platform-verification-required"
+        },
+        "limitations": [
+          "This authority proves exact repository interface identity only; it cannot authenticate a manuscript, reviewer, journal, runtime source, scientific result, or human decision."
+        ],
+        "provenance": {
+          "verified_utc": "2026-07-23T20:02:38Z",
+          "official_fact_urls": [
+            "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-review-response/references/official-source-index.json"
+          ]
+        }
+      }
+    },
+    "consumer_bindings": [
+      {
+        "binding_id": "dft-review-response-repository-contracts",
+        "consumer_skill_id": "dft-review-response",
+        "consumer_lifecycle": "development",
+        "consumer_path": "skills/dft-review-response",
+        "authority_id": "vibe-dft-skills-repository-contracts",
+        "provider_id": "vibe-dft-skills",
+        "purpose": "official-document-coverage",
+        "claim_ceiling": "registered-skill-scope"
+      }
+    ],
+    "central_blockers": [
+      "The authority and consumer binding have not been applied centrally.",
+      "Runtime source, artifact, manuscript, and human-decision authorities remain outside this shared carrier."
+    ],
+    "invariants": [
+      "The proposal cannot change development lifecycle, routing, installability, external messaging, or no_positive_claim.",
+      "No repository authority may stand in for a journal, reviewer, manuscript, literature source, artifact, or human decision."
+    ]
+  }
+}

@@ -1,0 +1,544 @@
+{
+  "schema_version": "1.0",
+  "skill_id": "dft-project-orchestrator",
+  "seed": {
+    "status_ceiling": "blocked",
+    "limitations": [
+      "This pack is metadata-only and embeds neither repository contract bodies nor JSON Schema specification bodies.",
+      "JSON Schema provenance is limited to dialect and validation-vocabulary semantics; it does not prove the candidate's hand-written checks are a conforming JSON Schema implementation."
+    ],
+    "blockers": [
+      "Repository snapshot identity and exact JSON Schema specification-body identity remain incomplete.",
+      "The central pack processors have no attested run and semantic source-tree closure remains under review."
+    ]
+  },
+  "providers": [
+    {
+      "input_id": "repository-contracts-orchestrator",
+      "authority_id": "vibe-dft-skills-repository-contracts",
+      "provider_id": "vibe-dft-skills",
+      "catalog_file": "source-catalog-repository-interfaces.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {
+          "kind": "revision",
+          "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315",
+          "retrieved_utc": "2026-07-23T20:02:38Z",
+          "snapshot_identity": null
+        },
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills/tree/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/contracts",
+        "sources": [
+          {
+            "source_id": "orchestrator-repository-source-index",
+            "title": "dft-project-orchestrator repository and external-source index",
+            "source_kind": "index",
+            "locator": "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-project-orchestrator/references/official-source-index.json",
+            "disposition": "included",
+            "receipt": {
+              "path": "skills/dft-project-orchestrator/references/official-source-index.json",
+              "kind": "revision",
+              "value": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315:skills/dft-project-orchestrator/references/official-source-index.json",
+              "retrieved_utc": "2026-07-23T20:02:38Z",
+              "retrieval_method": "git-object"
+            },
+            "slices": [
+              {
+                "slice_id": "orchestrator-repository-source-index-whole",
+                "order": 0,
+                "title": "Exact repository source index",
+                "selector": {
+                  "layer": "raw-source",
+                  "kind": "whole-source",
+                  "value": "*"
+                },
+                "subject_ids": [],
+                "loss_ids": [
+                  "repository-bodies-external"
+                ]
+              }
+            ]
+          }
+        ],
+        "subjects": [],
+        "reviewed_exclusions": [],
+        "losses": [
+          {
+            "loss_id": "repository-bodies-external",
+            "stage": "storage",
+            "description": "Repository contracts and policy bodies stay at exact local refs and are not copied into this metadata catalog.",
+            "materiality": "non-material",
+            "disposition": "external-only",
+            "affected_source_ids": [
+              "orchestrator-repository-source-index"
+            ]
+          }
+        ],
+        "license": {
+          "identity": {
+            "identifier": null,
+            "terms_urls": [],
+            "verification": "unknown"
+          },
+          "assessment": "unresolved",
+          "allowed_storage_modes": [
+            "metadata-only",
+            "excluded"
+          ],
+          "official_terms_locator": "https://github.com/Maxwell3919/Vibe-DFT-Skills",
+          "limitations": [
+            "No root repository license was found; exact revision identity does not grant redistribution rights."
+          ]
+        },
+        "limitations": [
+          "The provider carries repository-interface provenance only; all repository-policy subjects remain not applicable to external provider coverage."
+        ],
+        "blockers": []
+      }
+    },
+    {
+      "input_id": "json-schema-2020-12",
+      "authority_id": "json-schema-standard-2020-12",
+      "provider_id": "json-schema",
+      "catalog_file": "source-catalog-json-schema-2020-12.json",
+      "catalog": {
+        "schema_version": "1.0",
+        "contract_name": "official-document-source-catalog",
+        "version_scope": {
+          "kind": "exact",
+          "value": "2020-12",
+          "retrieved_utc": "2026-07-23T20:02:38Z",
+          "snapshot_identity": null
+        },
+        "upstream_universe_complete": false,
+        "inventory_locator": "https://json-schema.org/draft/2020-12",
+        "sources": [
+          {
+            "source_id": "json-schema-core-2020-12",
+            "title": "JSON Schema Core 2020-12",
+            "source_kind": "reference-page",
+            "locator": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+            "disposition": "included",
+            "receipt": {
+              "kind": "external-receipt",
+              "value": "https://json-schema.org/draft/2020-12/json-schema-core.html",
+              "raw_sha256": "f8b080be1d8b8eb318ea712c7bad4bf83734b3ee81379baf0c0290292ab5e652",
+              "raw_bytes": 342564,
+              "retrieved_utc": "2026-07-23T20:02:38Z",
+              "retrieval_method": "https-get"
+            },
+            "slices": [
+              {
+                "slice_id": "json-schema-core-2020-12-whole",
+                "order": 0,
+                "title": "Core dialect and vocabulary specification",
+                "selector": {
+                  "layer": "raw-source",
+                  "kind": "whole-source",
+                  "value": "*"
+                },
+                "subject_ids": [
+                  "jsonschema.draft202012.dialect"
+                ],
+                "loss_ids": [
+                  "json-schema-bodies-external"
+                ]
+              }
+            ]
+          },
+          {
+            "source_id": "json-schema-validation-2020-12",
+            "title": "JSON Schema Validation 2020-12",
+            "source_kind": "reference-page",
+            "locator": "https://json-schema.org/draft/2020-12/json-schema-validation.html",
+            "disposition": "included",
+            "receipt": {
+              "kind": "external-receipt",
+              "value": "https://json-schema.org/draft/2020-12/json-schema-validation.html",
+              "raw_sha256": "ad91ab6839d7b1f1209c496663c90e406a4530fe333d3e7aade0968e8c590f2f",
+              "raw_bytes": 169423,
+              "retrieved_utc": "2026-07-23T20:02:38Z",
+              "retrieval_method": "https-get"
+            },
+            "slices": [
+              {
+                "slice_id": "json-schema-validation-2020-12-whole",
+                "order": 0,
+                "title": "Validation vocabulary specification",
+                "selector": {
+                  "layer": "raw-source",
+                  "kind": "whole-source",
+                  "value": "*"
+                },
+                "subject_ids": [
+                  "jsonschema.draft202012.validation-vocabulary"
+                ],
+                "loss_ids": [
+                  "json-schema-bodies-external"
+                ]
+              }
+            ]
+          }
+        ],
+        "subjects": [
+          {
+            "subject_id": "jsonschema.draft202012.dialect",
+            "title": "Draft 2020-12 dialect identity and core vocabulary",
+            "category": "validation-rule",
+            "requirement_strength": "supporting",
+            "evidence_class": "official-provider-required"
+          },
+          {
+            "subject_id": "jsonschema.draft202012.validation-vocabulary",
+            "title": "Draft 2020-12 validation vocabulary",
+            "category": "validation-rule",
+            "requirement_strength": "supporting",
+            "evidence_class": "official-provider-required"
+          }
+        ],
+        "reviewed_exclusions": [
+          {
+            "source_id": "json-schema-specification-landing",
+            "title": "JSON Schema specification landing page",
+            "locator": "https://json-schema.org/specification",
+            "reason_code": "navigation-only",
+            "rationale": "The landing page is not used as a substitute for the separately pinned Core and Validation specifications.",
+            "reviewed_utc": "2026-07-23T20:02:38Z"
+          }
+        ],
+        "losses": [
+          {
+            "loss_id": "json-schema-bodies-external",
+            "stage": "storage",
+            "description": "Specification bodies remain external; only exact HTTPS receipts and semantic subjects are stored.",
+            "materiality": "material",
+            "disposition": "external-only",
+            "affected_source_ids": [
+              "json-schema-core-2020-12",
+              "json-schema-validation-2020-12"
+            ]
+          }
+        ],
+        "license": {
+          "identity": {
+            "identifier": "IETF-Trust-Legal-Provisions",
+            "terms_urls": [
+              "https://trustee.ietf.org/license-info"
+            ],
+            "verification": "verified"
+          },
+          "assessment": "conditional",
+          "allowed_storage_modes": [
+            "metadata-only",
+            "external-runtime-only",
+            "excluded"
+          ],
+          "official_terms_locator": "https://trustee.ietf.org/license-info",
+          "limitations": [
+            "The specification copyright notice points to IETF Trust terms; this pack stores metadata only and does not assess derivative or code-component obligations."
+          ]
+        },
+        "limitations": [
+          "The two pages cover only the dialect/core and validation-vocabulary scope named by this Skill.",
+          "No conformance claim is made for the candidate's hand-written validators."
+        ],
+        "blockers": [
+          {
+            "code": "JSONSCHEMA.BODIES.EXTERNAL",
+            "description": "The metadata-only receipts do not provide offline specification bodies or an attested exact-content resolver.",
+            "dimensions": [
+              "corpus",
+              "slices"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "scope_subjects": [
+    {
+      "subject_id": "orchestrator.lifecycle.development-only",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/SKILL.md",
+        "skills/dft-project-orchestrator/references/maturity-matrix.json"
+      ],
+      "statement": "The Skill remains development, non-routable, and no-positive-claim; active repository contracts do not activate the candidate.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "orchestrator.boundary.inspect-only",
+      "subject_kind": "workflow",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/scripts/orchestrator_cli.py",
+        "skills/dft-project-orchestrator/SKILL.md"
+      ],
+      "statement": "Candidate commands inspect local JSON and emit stdout reports; they do not execute a calculation, issue a lease, dispatch a Skill, write an event, or contact a scheduler.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "orchestrator.identity.strict-exact-bytes",
+      "subject_kind": "workflow",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/scripts/orchestrator_cli.py",
+        "skills/dft-project-orchestrator/references/fail-closed-contract.md"
+      ],
+      "statement": "Bounded strict JSON, stable no-follow reads, and exact raw-byte identity are local deterministic controls.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "orchestrator.decision.first-match-fail-closed",
+      "subject_kind": "workflow",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/references/weak-model-decision-table.json",
+        "skills/dft-project-orchestrator/references/decision-table.md"
+      ],
+      "statement": "The canonical decision table is first-match by ascending priority and defaults to an evidence-insufficient blocked action with one minimum next step.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "orchestrator.authorization.human-external",
+      "subject_kind": "limitation",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/references/environment-and-authorization.md"
+      ],
+      "statement": "Execution authorization, scientific acceptance, and Skill promotion are distinct external human authorities.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "orchestrator.state.separate-gates",
+      "subject_kind": "limitation",
+      "evidence_class": "scientific-methodology",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/references/fail-closed-contract.md",
+        "skills/dft-project-orchestrator/references/practical-playbooks.md"
+      ],
+      "statement": "Scheduler state, process exit, application completion, observable-specific numerical evidence, and scientific acceptance remain separate gates.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "orchestrator.source.repository-contracts",
+      "subject_kind": "documented-claim",
+      "evidence_class": "repository-policy",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/references/official-source-index.json",
+        "skills/dft-project-orchestrator/references/source-catalog-repository-interfaces.json"
+      ],
+      "statement": "Workflow-plan, decision-record, and execution-request are exact repository-local normative interfaces; they are not external scientific sources.",
+      "expected_disposition": "not-applicable",
+      "provider_input_ids": []
+    },
+    {
+      "subject_id": "jsonschema.draft202012.dialect",
+      "subject_kind": "documented-claim",
+      "evidence_class": "official-provider-required",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/references/official-source-index.json"
+      ],
+      "statement": "JSON Schema Draft 2020-12 Core defines the dialect identity and core vocabulary named by the repository source index.",
+      "expected_disposition": "partial",
+      "provider_input_ids": [
+        "json-schema-2020-12"
+      ]
+    },
+    {
+      "subject_id": "jsonschema.draft202012.validation-vocabulary",
+      "subject_kind": "documented-claim",
+      "evidence_class": "official-provider-required",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/references/official-source-index.json"
+      ],
+      "statement": "JSON Schema Draft 2020-12 Validation defines the validation vocabulary named by the repository source index.",
+      "expected_disposition": "partial",
+      "provider_input_ids": [
+        "json-schema-2020-12"
+      ]
+    },
+    {
+      "subject_id": "orchestrator.jsonschema.conformance-excluded",
+      "subject_kind": "limitation",
+      "evidence_class": "deterministic-tool-behavior",
+      "origin_paths": [
+        "skills/dft-project-orchestrator/scripts/orchestrator_cli.py"
+      ],
+      "statement": "The candidate's hand-written strict checks are not claimed to be a JSON Schema Draft 2020-12 validator or conformance implementation.",
+      "expected_disposition": "excluded",
+      "provider_input_ids": []
+    }
+  ],
+  "authority_proposal": {
+    "schema_version": "1.0",
+    "proposal_type": "central-official-source-authority-and-consumer-bindings",
+    "skill_id": "dft-project-orchestrator",
+    "lifecycle_effect": "none",
+    "authority_entries": {
+      "vibe-dft-skills-repository-contracts": {
+        "display_name": "Vibe DFT Skills exact repository contracts and policies",
+        "lifecycle": "active",
+        "provider_class": "repository",
+        "provider_id": "vibe-dft-skills",
+        "allowed_https_origins": [
+          "https://raw.githubusercontent.com"
+        ],
+        "version_policy": {
+          "allowed_scopes": [
+            "exact"
+          ],
+          "registered_scopes": [
+            {
+              "scope": "exact",
+              "exact_version": "24dd8a9b7fd2758a7c44b82ee7dbb386693b2315",
+              "minimum_version": null,
+              "maximum_version": null,
+              "release_series": null
+            }
+          ]
+        },
+        "content_policy": {
+          "source_kinds": [
+            "official-repository"
+          ],
+          "allowed_path_prefixes": [
+            "/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/"
+          ],
+          "query_policy": "forbidden",
+          "allowed_query_urls": [],
+          "fragment_policy": "forbidden",
+          "resolution_mode": "platform-verified-only"
+        },
+        "content_identity_policy": {
+          "mode": "platform-adapter-only",
+          "unpinned_action": "adapter-required"
+        },
+        "canonical_snapshot": null,
+        "license_policy": {
+          "status": "unknown",
+          "identifier": null,
+          "terms_urls": [],
+          "verification_status": "unresolved"
+        },
+        "redistribution_policy": {
+          "allowed_values": [
+            "unknown"
+          ],
+          "bundle_content": "forbidden",
+          "external_runtime_content": "platform-verification-required"
+        },
+        "limitations": [
+          "The authority proves repository interface identity only and cannot establish execution, scientific validity, or acceptance."
+        ],
+        "provenance": {
+          "verified_utc": "2026-07-23T20:02:38Z",
+          "official_fact_urls": [
+            "https://raw.githubusercontent.com/Maxwell3919/Vibe-DFT-Skills/24dd8a9b7fd2758a7c44b82ee7dbb386693b2315/skills/dft-project-orchestrator/references/official-source-index.json"
+          ]
+        }
+      },
+      "json-schema-standard-2020-12": {
+        "display_name": "JSON Schema Draft 2020-12 Core and Validation specifications",
+        "lifecycle": "active",
+        "provider_class": "standard",
+        "provider_id": "json-schema",
+        "allowed_https_origins": [
+          "https://json-schema.org"
+        ],
+        "version_policy": {
+          "allowed_scopes": [
+            "exact"
+          ],
+          "registered_scopes": [
+            {
+              "scope": "exact",
+              "exact_version": "2020-12",
+              "minimum_version": null,
+              "maximum_version": null,
+              "release_series": null
+            }
+          ]
+        },
+        "content_policy": {
+          "source_kinds": [
+            "official-reference"
+          ],
+          "allowed_path_prefixes": [
+            "/draft/2020-12/"
+          ],
+          "query_policy": "forbidden",
+          "allowed_query_urls": [],
+          "fragment_policy": "forbidden",
+          "resolution_mode": "platform-verified-only"
+        },
+        "content_identity_policy": {
+          "mode": "platform-adapter-only",
+          "unpinned_action": "adapter-required"
+        },
+        "canonical_snapshot": null,
+        "license_policy": {
+          "status": "unknown",
+          "identifier": null,
+          "terms_urls": [],
+          "verification_status": "unresolved"
+        },
+        "redistribution_policy": {
+          "allowed_values": [
+            "unknown"
+          ],
+          "bundle_content": "forbidden",
+          "external_runtime_content": "platform-verification-required"
+        },
+        "limitations": [
+          "The authority covers only exact Draft 2020-12 specification provenance and grants no conformance claim to a consumer."
+        ],
+        "provenance": {
+          "verified_utc": "2026-07-23T20:02:38Z",
+          "official_fact_urls": [
+            "https://json-schema.org/draft/2020-12/json-schema-core.html",
+            "https://json-schema.org/draft/2020-12/json-schema-validation.html"
+          ]
+        }
+      }
+    },
+    "consumer_bindings": [
+      {
+        "binding_id": "dft-project-orchestrator-repository-contracts",
+        "consumer_skill_id": "dft-project-orchestrator",
+        "consumer_lifecycle": "development",
+        "consumer_path": "skills/dft-project-orchestrator",
+        "authority_id": "vibe-dft-skills-repository-contracts",
+        "provider_id": "vibe-dft-skills",
+        "purpose": "official-document-coverage",
+        "claim_ceiling": "registered-skill-scope"
+      },
+      {
+        "binding_id": "dft-project-orchestrator-json-schema-2020-12",
+        "consumer_skill_id": "dft-project-orchestrator",
+        "consumer_lifecycle": "development",
+        "consumer_path": "skills/dft-project-orchestrator",
+        "authority_id": "json-schema-standard-2020-12",
+        "provider_id": "json-schema",
+        "purpose": "official-document-coverage",
+        "claim_ceiling": "registered-skill-scope"
+      }
+    ],
+    "central_blockers": [
+      "Both authority entries and both development consumer bindings remain unapplied.",
+      "Repository and JSON Schema licensing plus processor attestation remain unresolved."
+    ],
+    "invariants": [
+      "The proposal cannot change development lifecycle, routing, installability, execution permission, or no_positive_claim.",
+      "JSON Schema authority cannot turn a hand-written candidate validator into a conforming implementation."
+    ]
+  }
+}

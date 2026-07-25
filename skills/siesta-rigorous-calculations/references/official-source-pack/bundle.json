@@ -1,0 +1,1 @@
+{"bundle_type":"official-document-coverage","records":{"corpora":["corpus-siesta-portal.json","corpus-siesta-release.json"],"coverage":"coverage.json","scope_inventory":"scope-inventory.json","slice_manifests":["slices-siesta-portal.json","slices-siesta-release.json"]},"schema_version":"1.0","skill_id":"siesta-rigorous-calculations"}

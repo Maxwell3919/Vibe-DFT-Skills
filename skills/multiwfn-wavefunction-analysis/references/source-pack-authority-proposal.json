@@ -1,0 +1,103 @@
+{
+  "authorities": [
+    {
+      "allowed_https_origins": [
+        "https://sobereva.com"
+      ],
+      "authority_id": "multiwfn-manual-external-identity-2026-7-10",
+      "canonical_roots": [
+        {
+          "identity": {
+            "kind": "sha256",
+            "value": "81de19c5c9d0fcbdcc03705b94301ab08e0bd2455e81db0e31651ffcdab6bd37"
+          },
+          "origin": "https://sobereva.com",
+          "path_prefix": "/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf"
+        }
+      ],
+      "canonical_snapshot": null,
+      "consumer_binding": {
+        "authority_id": "multiwfn-manual-external-identity-2026-7-10",
+        "binding_id": "multiwfn-wavefunction-analysis-multiwfn-manual",
+        "claim_effect": "none",
+        "provider_input_id": "multiwfn-manual",
+        "required_disposition": "blocked",
+        "skill_id": "multiwfn-wavefunction-analysis"
+      },
+      "content_identity_policy": {
+        "mode": "platform-adapter-only",
+        "unpinned_action": "adapter-required"
+      },
+      "content_policy": {
+        "allowed_path_prefixes": [
+          "/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf"
+        ],
+        "allowed_query_urls": [],
+        "fragment_policy": "forbidden",
+        "query_policy": "forbidden",
+        "resolution_mode": "platform-verified-only",
+        "source_kinds": [
+          "official-manual",
+          "official-reference"
+        ]
+      },
+      "display_name": "Multiwfn 2026.7.10 restricted external-only manual identity",
+      "license_policy": {
+        "identifier": "LicenseRef-Multiwfn-Custom-Terms",
+        "status": "known-restricted",
+        "terms_urls": [
+          "https://sobereva.com/multiwfn/download.html"
+        ],
+        "verification_status": "verified"
+      },
+      "lifecycle": "active",
+      "limitations": [
+        "Restricted external-only authority: only exact metadata and an historical external byte identity are recognized. HTTPS retrieval failed in the reviewed environment; manual/quick-start bodies, extracted slices, derivative rights, program/manual deltas, native execution, and scientific claims remain blocked."
+      ],
+      "proposed_lifecycle": "active",
+      "provenance": {
+        "official_fact_urls": [
+          "https://sobereva.com/multiwfn/download.html",
+          "https://sobereva.com/multiwfn/misc/Multiwfn_manual_2026.7.10.pdf"
+        ],
+        "verified_utc": "2026-07-24T00:00:00Z"
+      },
+      "provider_class": "software",
+      "provider_id": "multiwfn",
+      "redistribution_policy": {
+        "allowed_values": [
+          "runtime-only",
+          "restricted"
+        ],
+        "bundle_content": "forbidden",
+        "external_runtime_content": "platform-verification-required"
+      },
+      "version_policy": {
+        "allowed_scopes": [
+          "exact"
+        ],
+        "registered_scopes": [
+          {
+            "exact_version": "2026.7.10",
+            "maximum_version": null,
+            "minimum_version": null,
+            "release_series": null,
+            "scope": "exact"
+          }
+        ]
+      }
+    }
+  ],
+  "central_blockers": [
+    "The central authority must not treat the syntactic HTTPS origin as a verified live transport; the reviewed HTTPS probe failed and the known receipt came from HTTP.",
+    "Manual/quick-start bodies and derived slices remain forbidden until secure retrieval and custom license/derivative rights are explicitly resolved."
+  ],
+  "invariants": [
+    "No proposal changes Skill/software lifecycle, routing, installability, execution permission, terms acceptance, or claim ceiling."
+  ],
+  "lifecycle_effect": "none",
+  "proposal_type": "official-source-authority-and-consumer-bindings",
+  "provider_registry_proposals": [],
+  "schema_version": "1.0",
+  "skill_id": "multiwfn-wavefunction-analysis"
+}

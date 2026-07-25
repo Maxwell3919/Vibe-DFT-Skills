@@ -372,6 +372,15 @@ class InterfaceRegistryTests(unittest.TestCase):
                 "claim-evidence-map@1.0",
                 "agent-action-envelope@1.0",
                 "official-source-record@1.0",
+                "official-document-pack-seed@1.0",
+                "official-document-scope-catalog@1.0",
+                "qe-source-pack-input@1.0",
+                "vasp-source-pack-input@1.0",
+                "official-document-source-catalog@1.1",
+                "official-corpus-manifest@1.1",
+                "document-slice-manifest@1.1",
+                "skill-document-scope-inventory@1.0",
+                "skill-document-coverage@1.1",
                 "evidence-record@1.0",
                 "bundle-manifest@1.0",
                 "bundle-validation-report@1.0",
@@ -452,14 +461,55 @@ class InterfaceRegistryTests(unittest.TestCase):
         registry = interface_registry.load_registry()
         catalog = validate_contract.load_catalog(ROOT / "contracts")
         self.assertEqual(bundle_semantics.builtin_ownership_errors(), [])
+        official_document_contracts = {
+            "official-corpus-manifest",
+            "document-slice-manifest",
+            "skill-document-scope-inventory",
+            "skill-document-coverage",
+        }
+        official_document_input_contracts = {
+            "official-document-pack-seed",
+            "official-document-source-catalog",
+            "official-document-scope-catalog",
+            "qe-source-pack-input",
+            "vasp-source-pack-input",
+        }
         for interface_id, specification in registry["interfaces"].items():
             if specification["lifecycle"] != "active":
                 continue
-            contract = catalog.resolve(interface_id.split("@", 1)[0])
+            contract = catalog.resolve(interface_id)
             obligations = contract.schema.get("x-vibe-semantic-obligations")
             if obligations is None:
-                self.assertIn(contract.name, {"bundle-manifest", "bundle-validation-report"})
-                self.assertTrue((ROOT / "tools" / "validate_bundle.py").is_file())
+                if contract.name in official_document_contracts:
+                    self.assertEqual(
+                        specification["domain"],
+                        "official-documentation",
+                    )
+                    self.assertTrue(
+                        (
+                            ROOT
+                            / "tools"
+                            / "validate_official_document_coverage.py"
+                        ).is_file()
+                    )
+                elif contract.name in official_document_input_contracts:
+                    self.assertEqual(
+                        specification["domain"],
+                        "official-documentation",
+                    )
+                    self.assertTrue(
+                        (
+                            ROOT
+                            / "tools"
+                            / "build_official_document_packs.py"
+                        ).is_file()
+                    )
+                else:
+                    self.assertIn(
+                        contract.name,
+                        {"bundle-manifest", "bundle-validation-report"},
+                    )
+                    self.assertTrue((ROOT / "tools" / "validate_bundle.py").is_file())
             elif contract.name == "agent-action-envelope":
                 self.assertTrue((ROOT / "tools" / "validate_agent_answer.py").is_file())
             else:
@@ -467,6 +517,34 @@ class InterfaceRegistryTests(unittest.TestCase):
                     bundle_semantics.builtin_evaluator(contract.name),
                     f"active semantic contract has no exact-one owner: {contract.name}",
                 )
+
+    def test_official_document_v11_registry_entries_are_active_and_unversioned_selector_fails(self) -> None:
+        registry = interface_registry.load_registry()
+        policy_free_contracts = (
+            "official-document-source-catalog",
+            "official-corpus-manifest",
+            "document-slice-manifest",
+            "skill-document-coverage",
+        )
+        for name in policy_free_contracts:
+            with self.subTest(contract_name=name):
+                self.assertEqual(registry["interfaces"][f"{name}@1.1"]["lifecycle"], "active")
+                self.assertEqual(registry["interfaces"][f"{name}@1.0"]["lifecycle"], "planned")
+                self.assertNotIn(name, registry["interfaces"])
+
+    def test_official_v1_legacy_contracts_are_not_active_owners(self) -> None:
+        registry = interface_registry.load_registry()
+        for interface_id in (
+            "official-document-source-catalog@1.0",
+            "official-corpus-manifest@1.0",
+            "document-slice-manifest@1.0",
+            "official-source-license-review@1.0",
+            "skill-document-coverage@1.0",
+        ):
+            self.assertEqual(
+                registry["interfaces"][interface_id]["lifecycle"],
+                "planned",
+            )
 
     def test_hash_drift_is_rejected(self) -> None:
         registry = copy.deepcopy(interface_registry.load_registry())

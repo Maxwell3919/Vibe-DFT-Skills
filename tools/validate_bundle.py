@@ -1013,8 +1013,10 @@ def _source_requires_external_trust(
         and isinstance(source, dict)
         and source.get("canonical_url") == authority.get("canonical_url")
         and source.get("version_scope") == data.get("version_scope")
+        and source.get("raw_integrity_verified") is True
         and source.get("raw_sha256") == content.get("raw_sha256")
-        and source.get("bytes") == content.get("bytes")
+        and source.get("raw_bytes") == content.get("bytes")
+        and policy.get("bundle_content_policy") == "canonical-pinned-open-only"
         and policy.get("license_status") == "known-open"
         and "redistributable" in policy.get("redistribution", ())
         and license_data.get("status") == "known-open"

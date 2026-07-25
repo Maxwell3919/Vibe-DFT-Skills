@@ -1,0 +1,649 @@
+{
+  "authority_id": "catmap-release-source-docs-0-4-1",
+  "commit_id": "ed04f9146a787b0e63b6febd96d8fe3b314c251b",
+  "documentation_roots": [
+    {
+      "path": "docs",
+      "tree_object_id": "e36256b8db7f20a81397e70a4e8029ad387dc532"
+    },
+    {
+      "path": "tutorials",
+      "tree_object_id": "8bd0b8c273062c42f2db2b7c3e1a64ec78bccab8"
+    }
+  ],
+  "entries": [
+    {
+      "mode": "100644",
+      "object_id": "df11eec7e3b6780ef953b224542a2fc1f965ba95",
+      "object_type": "blob",
+      "path": "docs/Makefile"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7850432a24804e86a619830b329f497fd743ee38",
+      "object_type": "blob",
+      "path": "docs/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c795f24c0c99b8c3586b782d40f802e8119f770c",
+      "object_type": "blob",
+      "path": "docs/make.bat"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a428b0bacbe28fd721952a94d4330c55e3268dc1",
+      "object_type": "blob",
+      "path": "docs/source/_static/2_CO_coverage.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "aaf01019cc24027e4c5cda664a0421380d9c179e",
+      "object_type": "blob",
+      "path": "docs/source/_static/2_all_rates.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b21a658c6d45a3719c9de8fbf635ad0e7d0d56d",
+      "object_type": "blob",
+      "path": "docs/source/_static/2_coverage.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4379dab3d4de94ff320c6ae008fc47a2b778d739",
+      "object_type": "blob",
+      "path": "docs/source/_static/2_pretty_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c7b8ccbd6f21b850a1144fcbc5f85f5fc6c49856",
+      "object_type": "blob",
+      "path": "docs/source/_static/2_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "08a809e8e85f0d47359e355789a184dda2913e35",
+      "object_type": "blob",
+      "path": "docs/source/_static/2_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d728d78b6153f9ef53843926c4e98014fc12ffc3",
+      "object_type": "blob",
+      "path": "docs/source/_static/3_211_pretty_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "315632aa33055312e15ea83433da695f2f137c94",
+      "object_type": "blob",
+      "path": "docs/source/_static/3_dual_pretty_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c75f34f7ddc9d88a8e25155f26e9518a41c3df91",
+      "object_type": "blob",
+      "path": "docs/source/_static/3_free_energy_diagram.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7f3f215cab4ffc4f88c72b25e6aebb85ec521b99",
+      "object_type": "blob",
+      "path": "docs/source/_static/3_hires_pretty_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "eaf5000f7c13deac6ffcd2a8bf81f596739972fb",
+      "object_type": "blob",
+      "path": "docs/source/_static/3_pretty_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "03d8602fab96f4597efd011f1cc0488476bf19ff",
+      "object_type": "blob",
+      "path": "docs/source/_static/3_rate_control.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dca767114c0a57511128c27ebacd157848ddaba7",
+      "object_type": "blob",
+      "path": "docs/source/_static/3_ugly_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b2ea1d7ba1db06eed2b8372ba0e22ace962293b5",
+      "object_type": "blob",
+      "path": "docs/source/_static/4_log_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6794a53c7ee72ba598f107cc26a54e6757bbcee8",
+      "object_type": "blob",
+      "path": "docs/source/_static/4_production_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "a293badbc418ea90599c91db9daff7b55a9ea29a",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_E_avg.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "01957ac7c10cf74bbf605a8a2ef58b062b225c19",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_cross_interaction.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71b2e9718bc59d04050641f9f804f8c035d8d9fa",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_cross_interactions_coverage.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c5d80cd103a633fff546a1a1e36b45d1ba0ede56",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_cross_interactions_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e5e9895d251b7564808f50755ae6768e47f8d757",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_interaction_derivative.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c2a050414157f9593b2b0a669746cf205a841a60",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_interaction_energy.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5cd5629fcde66e501bec4d7d30fd13e04f844182",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_maxcov_coverage.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "75029d92d7882ea098c8aa8544bde575921cadd3",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_multisite_coverage.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "71b4d3d6364d48cdbfc3a1138307aff89d838ddc",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_multisite_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4fddf5a3391bd3c6259368c6af26cefa2a82145f",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_response_funcs.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1ea7cf9232d28b479a4cb2dd9126159fb8473adb",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_self_interaction.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d1f2c138466bcd43691d70ac6f9c27b83df9bf45",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_self_interactions_coverage.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b83016038d9742c8154231441d323be79df86541",
+      "object_type": "blob",
+      "path": "docs/source/_static/5_self_interactions_rate.png"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c91bf635203083d55b31b424ac621ddd8a2bcf89",
+      "object_type": "blob",
+      "path": "docs/source/conf.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4bab00c3a0541d011fa4ee2d35e8656d24fa6eae",
+      "object_type": "blob",
+      "path": "docs/source/index.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9f3bfa02c4d6bed5df387b5799920208d606014c",
+      "object_type": "blob",
+      "path": "docs/source/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ff7fde078a78fadec1ea96c85eab712ba3f1d12e",
+      "object_type": "blob",
+      "path": "docs/source/installation.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b71ff07e1144197f1131aab9e1a6c2423257585b",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.analyze.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "179c0790967d3e203d6e87cfe1cedabd3713b045",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.data.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "62897732b2f1aff4562d15e29755472ccd7513dc",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.mappers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "24d774eddf2e1888aa4aa35532c01329b613cf92",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.parsers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ef1d073a85c34205f11fc2cafc7118d0c2aed409",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "e28fa3a1e83e2792dc77eb4970624215520627f7",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.scalers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0de355e193d4bf3461cfd1ee7709590b72bac514",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.solvers.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fbd95be5b87cf29d9e1a62db651eab2d866e08d4",
+      "object_type": "blob",
+      "path": "docs/source/reference/catmap.thermodynamics.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c2d3bf7cfbeaa16e192b1c0850a0170a4963a37b",
+      "object_type": "blob",
+      "path": "docs/source/reference/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c35cc2bf413bff6bd9512869cd3fdf7e2bce1533",
+      "object_type": "blob",
+      "path": "docs/source/reference/modules.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "c2bb2f7c1c587d82a78591ae0cf2a0a955559f15",
+      "object_type": "blob",
+      "path": "docs/source/topics/accessing_reformatting_output.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b56899528fc7e0288184c4265c0403ee49394692",
+      "object_type": "blob",
+      "path": "docs/source/topics/code_overview.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8b65fa557ff8212c32c9c2458a294661e341a393",
+      "object_type": "blob",
+      "path": "docs/source/topics/custom_gasses.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "80ce591159051787f750150d2a142bc92493dd7a",
+      "object_type": "blob",
+      "path": "docs/source/topics/developer_info.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7fb519f87d1e0d18a70d3b7614194ce215009527",
+      "object_type": "blob",
+      "path": "docs/source/topics/electrochemistry.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "757f48c531b44dca657baf4f49de95a453eca853",
+      "object_type": "blob",
+      "path": "docs/source/topics/including_adsorbate_adsorbate_interactions.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "36021dca6f996d60cead9462a56ffee7135cc7e2",
+      "object_type": "blob",
+      "path": "docs/source/topics/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fb5deeb9f10cf652016c1842091c1b10396fd86b",
+      "object_type": "blob",
+      "path": "docs/source/topics/output_variables.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9332039a0607fc7aed96455c02c0d50e06e9ddf7",
+      "object_type": "blob",
+      "path": "docs/source/topics/thermodynamic_descriptors.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "484b20ef5fa992ceb8a733e6d97a0c41823a054b",
+      "object_type": "blob",
+      "path": "docs/source/troubleshooting/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "24312668e61a646e2c40662bc9444fd58970931d",
+      "object_type": "blob",
+      "path": "docs/source/tutorials/creating_a_microkinetic_model.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "0a6580929342ed2576d88d041f7e6fa5649da4c2",
+      "object_type": "blob",
+      "path": "docs/source/tutorials/generating_an_input_file.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7ab6c0defa7e5f2afa02ad71eb106400f359d858",
+      "object_type": "blob",
+      "path": "docs/source/tutorials/index.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "13c3c5b8d202355964f16f038f01c9f7c9c840e6",
+      "object_type": "blob",
+      "path": "docs/source/tutorials/refining_a_microkinetic_model.rst"
+    },
+    {
+      "mode": "100644",
+      "object_id": "10601a8df351ab49de5c0ee09b74eee8f10f9cb4",
+      "object_type": "blob",
+      "path": "tutorials/1-generating_input_file/generate_input.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "51ebe5a3178d827113c655fb3993f90709d39a46",
+      "object_type": "blob",
+      "path": "tutorials/2-creating_microkinetic_model/CO_oxidation.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "38ad6296f641869899be1261959625144ade06d9",
+      "object_type": "blob",
+      "path": "tutorials/2-creating_microkinetic_model/energies.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b563d79520a321a9584ca0712b8e20ee24274512",
+      "object_type": "blob",
+      "path": "tutorials/2-creating_microkinetic_model/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "05393ab607aa6afeef3e9896eaebea975c6f0284",
+      "object_type": "blob",
+      "path": "tutorials/3-refining_microkinetic_model/CO_oxidation.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b943a6d01702803cc8b26aa862c8f6c4aa4a3c55",
+      "object_type": "blob",
+      "path": "tutorials/3-refining_microkinetic_model/energies.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "7781141f188b2e1e6055812b900c67a595a4af89",
+      "object_type": "blob",
+      "path": "tutorials/3-refining_microkinetic_model/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "ce8875c52e89042689f709cf4dc903e382e4c4e9",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/1_tutorial.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "64a26d4840440ee5253b36e9afaf6ed8119501db",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/1_tutorial.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b36bd4fad5fa16aa0329b397139d2d85dea41bf2",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/2_cathub.ipynb"
+    },
+    {
+      "mode": "100644",
+      "object_id": "50ad99718fa4ec4858e070f76551ea458ab5fa9d",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/2_cathub.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "adb84a96b4dea66b66e7a2cf207a52c69a62158f",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/README.md"
+    },
+    {
+      "mode": "100644",
+      "object_id": "bb20ad66d467ccc6e679598e47d02b6721c58ad2",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/frequencies.db"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d04c3f3157724ab632384ffb60b99432ea81ed70",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/molecules.db"
+    },
+    {
+      "mode": "100644",
+      "object_id": "729386827e90217b382699cda87dbb56cb0f5dd7",
+      "object_type": "blob",
+      "path": "tutorials/ase_database/surfaces.db"
+    },
+    {
+      "mode": "100644",
+      "object_id": "cb6d8a1d1ade195d7be09f0982fb298294bfd351",
+      "object_type": "blob",
+      "path": "tutorials/custom_gasses/fit_shomate.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "d923946ea139c8f12b571ae53f318e87c5407e04",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/HER/HER.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "73a90d10380aeaaa5caf815e79d4fe03a9856d00",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/HER/HER_input.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "1cdbe258d72fdea121480699d416617c8823c9ad",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/HER/README"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6155e05f7900c5ee32d213c2bf7ab37ddd122cd1",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/HER/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "9ac2e69b2e148d0470323bc9ecd4e4f8dfa599ed",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_scaling/ORR.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dfe327b9536e89e4b98a9368eecad65bbbd15022",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_scaling/README"
+    },
+    {
+      "mode": "100644",
+      "object_id": "6619bb72856b1471ba3beaa821010a3b18d74b1e",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_scaling/make_input.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "47be9b174838a378713b10df56c4134c139eed7f",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_scaling/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4a4226f3d10aa3d9b11a5fe4089206f196877852",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_thermo/ORR.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b7caafa522a0137ce4ea80ea851e491589b639e3",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_thermo/README"
+    },
+    {
+      "mode": "100644",
+      "object_id": "fa739b2e1b0e9cc8fa4252bb9f21bab8dad2b392",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_thermo/make_input.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5107e9aeaf3ddd094911e1c23fba901609e2f72f",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/ORR_thermo/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "f0ae2c4e1d687efaa8b04d187a056e4e5dd2c66f",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/electrons/electrons.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4f70ade0d7dc20064d6c9be396484fcb9a7afab6",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/electrons/input.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b334a1edf4db99ec1860aa96976c15b3c331811c",
+      "object_type": "blob",
+      "path": "tutorials/electrochemistry/electrons/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "dd93cbbd589230af5540993123075693f674cfff",
+      "object_type": "blob",
+      "path": "tutorials/including_adsorbate_interactions/CO_oxidation.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "3001c3467b4ba70678b6cc374c2b098f66657779",
+      "object_type": "blob",
+      "path": "tutorials/including_adsorbate_interactions/coverage_energies.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "06898c32d12414c2b6df589f4315f27782b3b651",
+      "object_type": "blob",
+      "path": "tutorials/including_adsorbate_interactions/energies.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "5b14f28177825de2fd4dc9c5f37b1f897eea6b20",
+      "object_type": "blob",
+      "path": "tutorials/including_adsorbate_interactions/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b74172b2239653cd737c897e2a735fe0532214ea",
+      "object_type": "blob",
+      "path": "tutorials/output_variables/CO_oxidation.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "b943a6d01702803cc8b26aa862c8f6c4aa4a3c55",
+      "object_type": "blob",
+      "path": "tutorials/output_variables/energies.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4fa6852bfe492cb1b9f5a1783efed6777017132c",
+      "object_type": "blob",
+      "path": "tutorials/output_variables/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "19d9fab468dedb18bfec7a33d3f74c121238a9b1",
+      "object_type": "blob",
+      "path": "tutorials/output_variables/mkm_job_output_all.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "4438334847da949075b8096ef65c88e72fddbf72",
+      "object_type": "blob",
+      "path": "tutorials/second_order_interactions/EtOH.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8f4b7ff6f5bdec873b6df6abeda7ccf0e43f244e",
+      "object_type": "blob",
+      "path": "tutorials/second_order_interactions/energies.txt"
+    },
+    {
+      "mode": "100755",
+      "object_id": "3f9862a4615d683199e16726aa58fc9db03cc185",
+      "object_type": "blob",
+      "path": "tutorials/second_order_interactions/mkm_job.py"
+    },
+    {
+      "mode": "100644",
+      "object_id": "55bcc64669360ad578eb363d4e70ee17c0b648c3",
+      "object_type": "blob",
+      "path": "tutorials/thermodynamic_descriptors/CO_oxidation.mkm"
+    },
+    {
+      "mode": "100644",
+      "object_id": "56298f745c465130f3adc7cb857d53f34f60437d",
+      "object_type": "blob",
+      "path": "tutorials/thermodynamic_descriptors/energies.txt"
+    },
+    {
+      "mode": "100644",
+      "object_id": "8e37ca3bf64e8694eabac5365dee63049981b8e6",
+      "object_type": "blob",
+      "path": "tutorials/thermodynamic_descriptors/mkm_job.py"
+    }
+  ],
+  "entry_count": 104,
+  "inventory_scope": "Complete Git object inventory for exact tag documentation and tutorials; bodies and executable examples are intentionally not embedded.",
+  "provider_id": "catmap",
+  "record_type": "git-tree-document-inventory",
+  "release_ref": "v0.4.1",
+  "repository_url": "https://github.com/SUNCAT-Center/catmap",
+  "root_tree_object_id": "3a4bf816fa468e2e7be70bb6ef63d541ae70c572",
+  "schema_version": "1.0",
+  "tag_object_id": null
+}
