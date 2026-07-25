@@ -34,6 +34,10 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 SELECTOR_LAYER_FIXES = {"raw-source"}
 
 LIMITATION_CLEAN_TEXT = "Selector kind json-pointer is retained; no virtual selector body bytes are introduced by migration."
+MIGRATION_INVENTORY_LIMITATION = (
+    "The inventory identity binds the exact pre-migration catalog bytes as "
+    "migration metadata; it does not identify any upstream document body."
+)
 
 
 @dataclass(frozen=True)
@@ -2388,6 +2392,8 @@ def convert_catalog_v10_to_v11(
     if has_json_pointer:
         if LIMITATION_CLEAN_TEXT not in out_limitations:
             out_limitations.append(LIMITATION_CLEAN_TEXT)
+    if MIGRATION_INVENTORY_LIMITATION not in out_limitations:
+        out_limitations.append(MIGRATION_INVENTORY_LIMITATION)
 
     inventory_identity = _safe_copy(projected_inventory_identity)
     projected_snapshot_identity: dict[str, Any] | None = None

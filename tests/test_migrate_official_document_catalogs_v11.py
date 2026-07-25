@@ -18,6 +18,7 @@ if str(TOOLS) not in sys.path:
 
 from migrate_official_document_catalogs_v11 import (  # noqa: E402
     LEGACY_RECORD_ACTIONS,
+    MIGRATION_INVENTORY_LIMITATION,
     MigrationError,
     convert_catalog_v10_to_v11,
 )
@@ -146,6 +147,24 @@ def _canonical_sha256(value: object) -> str:
 class OfficialDocumentCatalogMigrationV11Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        first_seed_path = sorted(
+            ROOT.glob("skills/*/references/source-pack-seed.json")
+        )[0]
+        first_seed = json.loads(first_seed_path.read_text(encoding="utf-8"))
+        first_declarative = next(
+            provider
+            for provider in first_seed["providers"]
+            if provider["adapter_id"] == "declarative-catalog-v1"
+        )
+        first_catalog = json.loads(
+            (ROOT / first_declarative["source_ref"]["path"]).read_text(
+                encoding="utf-8"
+            )
+        )
+        if first_catalog.get("schema_version") == "1.1":
+            raise unittest.SkipTest(
+                "one-time v1.0 source fixtures were atomically migrated to v1.1"
+            )
         cls.cases = _catalog_cases()
         cls.schema = json.loads(
             (ROOT / "contracts" / "official-document-source-catalog-1.1.schema.json")
@@ -274,6 +293,12 @@ class OfficialDocumentCatalogMigrationV11Tests(unittest.TestCase):
                 for selector in selectors
             ),
             6,
+        )
+        self.assertTrue(
+            all(
+                MIGRATION_INVENTORY_LIMITATION in catalog["limitations"]
+                for catalog in result.converted
+            )
         )
 
     def test_receipts_and_selected_identities_are_exact_legacy_projections(self) -> None:
