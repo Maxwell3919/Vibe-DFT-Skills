@@ -32,9 +32,9 @@ class Cp2kSourcePackCatalogTests(unittest.TestCase):
             if item["disposition"] == "excluded"
         }
         self.assertEqual(len(included), 86)
-        self.assertEqual(len(excluded), 2860)
+        self.assertEqual(len(excluded), 2944)
         self.assertFalse(included & excluded)
-        self.assertEqual(len(included | excluded), 2946)
+        self.assertEqual(len(included | excluded), 3030)
         self.assertTrue(manual["upstream_universe_complete"])
 
     def test_raw_and_derived_identities_are_not_confused(self) -> None:
@@ -159,7 +159,7 @@ class Cp2kSourcePackCatalogTests(unittest.TestCase):
             for source in manual["discovered_sources"].values()
             if source["disposition"] == "excluded"
         ]
-        self.assertEqual(len(excluded), 2860)
+        self.assertEqual(len(excluded), 2944)
         self.assertTrue(
             all(
                 source["content"]["locator"].startswith(

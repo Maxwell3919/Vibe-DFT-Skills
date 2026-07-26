@@ -5,6 +5,11 @@
   <strong>面向可重复 DFT 与原子模拟工作流的可移植、证据门禁 Skill 集合</strong>
 </p>
 
+> **鸣谢 / Acknowledgement:** 官方网页转 Markdown 使用
+> [`helloworld-Co/html2md`](https://github.com/helloworld-Co/html2md)。
+> Official HTML-to-Markdown conversion is powered by
+> [`helloworld-Co/html2md`](https://github.com/helloworld-Co/html2md).
+
 > **最后更新 / Last updated:** 2026-07-26 (Asia/Shanghai)
 > **仓库状态 / Repository scope:** 26 source-backed Skills = 7 `active` + 19 `development`; 4 active calculation-code integrations; 19 planned software identities
 
@@ -56,37 +61,37 @@ Status reporting separates source presence, lifecycle registration, deterministi
 
 As of 2026-07-26, deterministic official-document registration packs exist for all 26 source-backed Skills (26/26), while the ordinary bundle audit still reports `0 complete / 26 partial`. Pack presence closes the expected registration-artifact check only; it does not mean that all upstream official-document content is present or completely divided into fine-grained slices.
 
-当前 57 个精确 authority-to-consumer bindings 对应 57 份 corpus manifests。它们共登记 3,421 个 discovered source identities，其中 462 个 included、2,959 个作为 reviewed exclusions 闭合。生成的 1,586 个 slices 全部是 `metadata-only`：421 个 `whole-source`、1,159 个 `source-symbol`、6 个 `json-pointer`；canonical packs 内物化的官方正文为 0。仓库另有 2,075 个 legacy official-document artifacts（13,412,851 bytes），它们位于 canonical pack domain 之外，并被 strict storage audit 阻断，不能作为 pack 正文物化或语义切分已完成的证据。
+当前 canonical packs 只保存 source identity、receipt、scope 和 slice metadata；仓库跟踪的 legacy official-document 正文 artifacts 已降为 0。完整官方正文按 provider 留在本地缓存，不再复制进 Git。
 
-The 57 exact authority-to-consumer bindings currently resolve to 57 corpus manifests. Together they register 3,421 discovered source identities: 462 included sources plus 2,959 reviewed exclusions. All 1,586 generated slices are `metadata-only`: 421 `whole-source`, 1,159 `source-symbol`, and 6 `json-pointer`; the canonical packs contain zero materialized official-document bodies. The repository separately retains 2,075 legacy official-document artifacts (18,950,704 bytes) outside the canonical pack domain. Strict storage audit blocks those artifacts, so they do not establish pack materialization or semantic-slice closure.
+Canonical packs now retain source identities, receipts, scopes, and slice metadata only; tracked legacy official-document body artifacts have been reduced to zero. Full provider bodies remain in the local cache rather than being copied into Git.
 
 第三方正文仍不进入 canonical pack。需要人工可读正文时，使用
 [`tools/sync_official_manual_cache.py`](tools/sync_official_manual_cache.py)
-按 Skill 在本机生成 Markdown；完整的来源、许可、receipt drift、字符保留和
+按 Skill 在本机生成 Markdown；完整的来源、receipt drift、字符保留和
 fail-closed 规则见
 [`docs/official-manual-markdown-cache.md`](docs/official-manual-markdown-cache.md)。
 每个 `SKILL.md` 都指向自己的 `references/manual-cache-route.md` 路由页。
 
 Third-party bodies remain outside the canonical pack. Use
 [`tools/sync_official_manual_cache.py`](tools/sync_official_manual_cache.py) to
-materialize readable Markdown locally for one Skill. The provenance, licensing,
+materialize readable Markdown locally for one Skill. The provenance,
 receipt-drift, character-retention, and fail-closed rules are documented in
 [`docs/official-manual-markdown-cache.md`](docs/official-manual-markdown-cache.md);
 every `SKILL.md` links to its own `references/manual-cache-route.md` route.
 
-2026-07-26 的本机全量验证快照覆盖 26 个 Skill、45 个 active authority 和
-6,622 份 Markdown（47,281,815 字节、808,015 行），并通过严格 UTF-8、
-`U+FFFD=0`、NUL=0、不可见控制字符=0 以及逐文件大小/SHA-256 校验。
-其中受限正文、publisher 文献、未注册的 docs-tree 正文和 receipt drift
-仍按各自标签 fail closed，不能因“本机可读”自动升级为版本敏感证据。
+2026-07-26 的本机全量验证快照覆盖全部 26 个 source-backed Skill 和
+14,635 份 Markdown 或 metadata-route 文档，并通过严格 UTF-8、`U+FFFD=0`、
+NUL=0、不可见控制字符=0 以及逐文件大小/SHA-256 校验。逐 Skill 数量、
+四套 active provider 全量检查及明确的上游缺口见
+[`docs/official-manual-cache-status.md`](docs/official-manual-cache-status.md)。
 
-The 2026-07-26 full local verification snapshot covers 26 Skills, 45 active
-authorities, and 6,622 Markdown documents (47,281,815 bytes; 808,015 lines).
-It passes strict UTF-8, zero replacement-character, zero NUL, zero invisible
-control-character, and per-file size/SHA-256 gates. Restricted bodies,
-publisher literature, unregistered docs-tree bodies, and receipt drift remain
-fail closed under their explicit labels; local readability never promotes
-them to version-sensitive evidence.
+The 2026-07-26 full local verification snapshot covers all 26 source-backed
+Skills and 14,635 Markdown or metadata-route documents. It passes strict UTF-8,
+zero replacement-character, zero NUL, zero invisible-control-character, and
+per-file size/SHA-256 gates. See
+[`docs/official-manual-cache-status.md`](docs/official-manual-cache-status.md)
+for per-Skill counts, all four active-provider checks, and explicit upstream
+gaps.
 
 官方文档覆盖按四层分别报告，后一层不能由前一层自动推出：
 
@@ -94,33 +99,38 @@ them to version-sensitive evidence.
 |---|---|
 | registration | central authority、精确 consumer binding、bundle expectation、具有明确 version scope 与 hash identity 的 seed/source/scope catalogs，以及确定性生成 pack 全部闭合。当前 26/26 表示这一层的 pack 产物已生成。 / Central authority, exact consumer binding, bundle expectation, version-scoped and hash-bound seed/source/scope catalogs, and the deterministic generated pack are connected. The current 26/26 count refers to generated pack artifacts at this layer. |
 | inventory | 明确列出预期来源、主题、纳入项、reviewed exclusions、损失和阻断项；目录记录不能代替正文。 / Enumerate expected sources, subjects, inclusions, reviewed exclusions, losses, and blockers; an inventory is not the source content itself. |
-| content materialization | 在许可允许的边界内保存并哈希绑定实际官方正文，或提供可验证的等价解析证据；URL、标题、版本和声明的摘要本身不满足此层。 / Preserve and hash-bind actual official content where licensing permits, or provide equivalently verifiable resolution evidence; URLs, titles, versions, and claimed summaries alone do not satisfy this layer. |
+| content materialization | 在已注册技术路由可取得正文时，于本地缓存保存并哈希绑定实际官方正文；URL、标题、版本和声明的摘要本身不满足此层。 / Preserve and hash-bind actual official content in the local cache when the registered technical route can retrieve it; URLs, titles, versions, and claimed summaries alone do not satisfy this layer. |
 | semantic slicing | 使用 heading、byte/line/page range、JSON Pointer 或 source symbol 等可复核选择器，把已物化内容切成有意义的片段；`whole-source` 身份不算细粒度 semantic slice。 / Divide materialized content into meaningful, reviewable slices using selectors such as headings, byte/line/page ranges, JSON Pointers, or source symbols; a `whole-source` identity is not a fine-grained semantic slice. |
 
-因此，`complete` 只能由全部适用层的证据共同支持；registration 或 inventory 通过时仍必须保留 materialization、semantic-slice、许可和来源证明方面的 `partial`/`blocked` 状态。
+因此，`complete` 只能由全部适用层的证据共同支持；registration 或 inventory 通过时仍必须保留 materialization、semantic-slice 和来源证明方面的 `partial`/`blocked` 状态。
 
-Accordingly, `complete` requires evidence across every applicable layer. Passing registration or inventory must not erase `partial` or `blocked` states for materialization, semantic slicing, licensing, or source attestation.
+Accordingly, `complete` requires evidence across every applicable layer. Passing registration or inventory must not erase `partial` or `blocked` states for materialization, semantic slicing, or source attestation.
 
 最终稳定 dashboard 计数如下；bundle、各 dimension、四层 assurance 与 final overall 不能互相替代：
 
 | 视图 / View | 当前状态 / Current state |
 |---|---|
 | bundle semantic | `0 complete / 26 partial / 0 missing / 0 invalid` |
-| dimensions | corpus `11 partial / 15 blocked`; slice `10 partial / 16 blocked`; scope `5 partial / 21 blocked`; license `26 partial / 0 blocked`; storage `22 partial / 4 blocked`; freshness `26 unknown` |
+| dimensions | corpus `11 partial / 15 blocked`; slice `10 partial / 16 blocked`; scope `5 partial / 21 blocked`; storage is body-free in Git; freshness is checked by the local cache/provider refresh |
 | assurance layers | registration `26 complete`; inventory `11 partial / 15 blocked`; content materialized `10 missing / 16 blocked`; semantic slice `1 partial / 9 missing / 16 blocked` |
 | aggregate | assurance overall `10 missing / 16 blocked`; final overall `1 missing / 25 blocked` |
 
-57 份 provider records 中，corpus 为 `32 partial / 25 blocked`，slice 为 `29 partial / 28 blocked`，license 为 `57 partial / 0 blocked`。只有 CP2K canonical manual 的 1 份 corpus 声明并通过 `upstream_universe_complete`；其余 pack 不能由本地 declarative catalog 自证上游全集完整。
+57 份 provider records 中，corpus 为 `32 partial / 25 blocked`，slice 为 `29 partial / 28 blocked`。本地 declarative catalog 不能自行证明上游全集完整；完整 provider 检查另见本地缓存状态页。
 
-Across the 57 provider records, corpus status is `32 partial / 25 blocked`, slice status is `29 partial / 28 blocked`, and license status is `57 partial / 0 blocked`. Exactly one corpus—the canonical CP2K manual corpus—passes `upstream_universe_complete`; a local declarative catalog cannot self-certify the upstream universe for any other provider.
+Across the 57 provider records, corpus status is `32 partial / 25 blocked` and slice status is `29 partial / 28 blocked`. A local declarative catalog cannot self-certify the upstream universe; full provider checks are reported separately in the local-cache status page.
 
-本轮 red-team 修复已把 builder `--check` 接入 CI，阻止 registry hash 冒充 exact license-terms bytes，使 blocker 按 dimension 投影，强制 corpus↔slice 与 loss ledger 双向闭合，禁止 declarative self-certification 并哈希绑定 rolling aggregate，增强 active-only portable audit，并让 dashboard 行集由 registries 推导。这些控制修复不等于正文已经物化。剩余工作包括 subject→slice mapper attestation、15 个 blocked Skill rows 的 independent inventory wiring、materialized adapter 与权威 license attestation，以及本次 live drift 中 52/52 个 `unavailable` 检查；`unavailable` 不能写成 unchanged。
+本轮修复已把 builder `--check` 接入 CI，使 blocker 按 dimension 投影，强制 corpus↔slice 与 loss ledger 双向闭合，禁止 declarative self-certification 并哈希绑定 rolling aggregate，增强 active-only portable audit，并让 dashboard 行集由 registries 推导。这些控制修复不等于正文已经物化。正文由本地 cache 与 provider checks 独立验证，明确缺口不写成 unchanged。
 
-The red-team fixes wire builder `--check` into CI, prevent registry hashes from masquerading as exact license-terms bytes, scope blockers by dimension, enforce bidirectional corpus↔slice and loss-ledger closure, reject declarative self-certification while binding rolling aggregates, harden the active-only portable audit, and derive dashboard rows from registries. These controls do not materialize document bodies. Remaining work includes subject→slice mapper attestation, independent inventory wiring for 15 blocked Skill rows, materialized adapters with authoritative license attestation, and 52/52 live drift checks that were `unavailable`, which must not be reported as unchanged.
+The current controls wire builder `--check` into CI, scope blockers by
+dimension, enforce bidirectional corpus↔slice and loss-ledger closure, reject
+declarative self-certification while binding rolling aggregates, harden the
+active-only portable audit, and derive dashboard rows from registries. Document
+bodies are verified separately by the local cache and provider checks, and
+explicit gaps are never reported as unchanged.
 
 ## 官方网站与上游资料索引 / Official websites and upstream sources
 
-下列链接于 2026-07-22 现场核验，覆盖本库直接关联的科学软件、标准和执行基础设施。这个索引只用于定位第一方资料：列出官网不表示本机已安装、仓库已支持、上游项目为本库背书或已经完成原生验证。精确 lifecycle 以 [`registry/software-registry.yaml`](registry/software-registry.yaml) 和 [`registry/skill-registry.yaml`](registry/skill-registry.yaml) 为准；版本、平台、许可和阻断项以 [`registry/environment-profiles.yaml`](registry/environment-profiles.yaml) 及各 Skill 的 version-pinned references 为准。通用 Python/构建依赖见 `requirements-dev.txt`，不在这里逐项罗列。
+下列链接于 2026-07-22 现场核验，覆盖本库直接关联的科学软件、标准和执行基础设施。这个索引只用于定位第一方资料：列出官网不表示本机已安装、仓库已支持、上游项目为本库背书或已经完成原生验证。精确 lifecycle 以 [`registry/software-registry.yaml`](registry/software-registry.yaml) 和 [`registry/skill-registry.yaml`](registry/skill-registry.yaml) 为准；版本、平台和技术阻断项以 [`registry/environment-profiles.yaml`](registry/environment-profiles.yaml) 及各 Skill 的 version-pinned references 为准。通用 Python/构建依赖见 `requirements-dev.txt`，不在这里逐项罗列。
 
 The links below were checked on 2026-07-22 and cover the scientific upstreams, standards, and execution infrastructure directly represented by this repository. This is a provenance and navigation index, not an installation, support, endorsement, or native-validation claim. The registries remain authoritative for lifecycle and environment state; version-specific deep links remain in each Skill's references.
 
@@ -139,27 +149,27 @@ The links below were checked on 2026-07-22 and cover the scientific upstreams, s
 
 以下 19 个 registry identity 均为 `software: planned`，其关联 Skill 均为 `development`：不可安装、不可路由、不会启动外部软件，也没有原生验证或正向科学声明。这里的 rolling 官网入口用于发现当前资料；本库采用的精确版本仍由 profile 和 Skill reference 固定。
 
-| Registry ID | 软件与关联 Skill / Software and Skill | 官方入口 / Official entry points | 许可或访问边界 / License or access boundary |
-|---|---|---|---|
-| `gaussian` | Gaussian · `gaussian-rigorous-calculations` | [Gaussian, Inc.](https://gaussian.com/) · [User's Reference](https://gaussian.com/man/) · [release notes](https://gaussian.com/relnotes/) | 专有商业软件；公开网页不授予二进制、源码或安装介质的再分发权。 / Proprietary and licensed. |
-| `gromacs` | GROMACS · `gromacs-rigorous-simulations` | [官网](https://www.gromacs.org/) · [官方手册](https://manual.gromacs.org/) · [官方 GitLab](https://gitlab.com/gromacs/gromacs) | `LGPL-2.1-or-later`；手册 major/minor 应匹配安装版本。 |
-| `lammps` | LAMMPS · `lammps-rigorous-simulations` | [官网](https://www.lammps.org/) · [官方手册](https://docs.lammps.org/) · [官方 GitHub](https://github.com/lammps/lammps) | 普通发行版为 `GPL-2.0-only`；build packages 和势文件另行核验。 |
-| `deepmd` | DeePMD-kit · `deepmd-rigorous-workflows` | [官方文档](https://docs.deepmodeling.com/projects/deepmd/en/stable/) · [官方 GitHub](https://github.com/deepmodeling/deepmd-kit) | 框架为 `LGPL-3.0-or-later`；数据、模型和第三方 backend 单独授权。 |
-| `multiwfn` | Multiwfn · `multiwfn-wavefunction-analysis` | [作者官网](http://sobereva.com/multiwfn/) · [下载与许可](http://sobereva.com/multiwfn/download.html) | 当前官方站可靠入口为 HTTP；使用自定义许可与引用要求，不自行改写为 SPDX 许可。 |
-| `phonopy` | Phonopy · `phonopy-rigorous-workflows` | [官方文档](https://phonopy.github.io/phonopy/) · [安装](https://phonopy.github.io/phonopy/install.html) · [官方 GitHub](https://github.com/phonopy/phonopy) | `BSD-3-Clause`；force calculator、赝势和输入数据仍有独立来源。 |
-| `vaspkit` | VASPKIT · `vaspkit-postprocess` | [项目官网](https://vaspkit.com/) · [官方文档源码](https://github.com/vaspkit/vaspkit.github.io) · [官方二进制发布](https://sourceforge.net/projects/vaspkit/files/Binaries/) | 官网当前存在 TLS/DNS 不稳定，后两项为官方备用入口；免费使用不等于开源或可再分发。 |
-| `catmap` | CatMAP · `catmap-microkinetics` | [官方文档](https://catmap.readthedocs.io/en/latest/) · [SUNCAT 官方 GitHub](https://github.com/SUNCAT-Center/catmap) | `GPL-3.0`；输入能量、数据库和可执行 `.mkm` 配置另行审查。 |
-| `lobster` | LOBSTER · `lobster-bonding-analysis` | [RWTH 官方主页](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=1) · [下载/版本入口](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6) | 受限、实名注册、非营利科研许可；二进制、手册和随包资源不得提交。 |
-| `ovito` | OVITO · `ovito-atomistic-analysis` | [官网](https://www.ovito.org/) · [官方文档](https://docs.ovito.org/) · [许可与版本边界](https://docs.ovito.org/licenses/index.html) | Basic/Python module 与 Pro 是不同许可面；Pro 需要付费 entitlement。 |
-| `pymatgen` | pymatgen · `dft-structure-preparation` | [官网与文档](https://pymatgen.org/) · [Materials Project 官方 GitHub](https://github.com/materialsproject/pymatgen) | `MIT`；wrapper/core 版本拆分记录，但仍是一个 registry software identity。 |
-| `rdkit` | RDKit · `dft-structure-preparation` | [官网](https://www.rdkit.org/) · [官方文档](https://www.rdkit.org/docs/) · [官方 GitHub](https://github.com/rdkit/rdkit) | `BSD-3-Clause`；官网可能对自动化客户端返回 406，分子清洗、立体化学和构象结果仍需任务门禁。 |
-| `mace` | MACE · `ml-potential-workflows` | [官方文档](https://mace-docs.readthedocs.io/en/latest/) · [ACEsuit 官方 GitHub](https://github.com/ACEsuit/mace) | 框架为 `MIT`；foundation-model/checkpoint 许可逐个核验。 |
-| `nequip` | NequIP · `ml-potential-workflows` | [项目门户](https://www.nequip.net/) · [官方文档](https://nequip.readthedocs.io/en/latest/) · [官方 GitHub](https://github.com/mir-group/nequip) | 框架为 `MIT`；模型、扩展和编译产物可采用不同许可。 |
-| `gpumd` | GPUMD · `gpumd-rigorous-simulations` | [官方文档](https://gpumd.org/) · [官方 GitHub](https://github.com/brucefan1983/GPUMD) | `GPL-3.0-or-later`；NEP 势、训练集和第三方接口独立核验。 |
-| `lasp` | LASP · `lasp-rigorous-simulations` | [LASP Hub 下载页](http://www.lasphub.com/#/lasp/download) · [复旦大学课题组官方页](https://faculty.fudan.edu.cn/fdzpliu/zh_CN/zhym/644124/list/index.htm) | 商业版权软件；LASP Hub 当前可靠入口为 HTTP，未发现可核验的官方公共 GitHub 仓库。 |
-| `gemnet-oc` | GemNet-OC · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [v1 model catalog](https://fair-chem.github.io/models-1/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) | 预留的 FairChem v1 路线；代码许可不能替代具体 checkpoint 许可。 |
-| `equiformer-v2` | EquiformerV2 · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [v1 model catalog](https://fair-chem.github.io/models-1/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) | 预留的 FairChem v1 路线；模型身份、任务头和工件哈希必须独立绑定。 |
-| `fairchem-uma` | FAIR-Chem UMA · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [UMA 文档](https://fair-chem.github.io/uma/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) | 代码为 `MIT`；UMA checkpoint 是 gated model，并受独立模型许可约束。 |
+| Registry ID | 软件与关联 Skill / Software and Skill | 官方入口 / Official entry points |
+|---|---|---|
+| `gaussian` | Gaussian · `gaussian-rigorous-calculations` | [Gaussian, Inc.](https://gaussian.com/) · [User's Reference](https://gaussian.com/man/) · [release notes](https://gaussian.com/relnotes/) |
+| `gromacs` | GROMACS · `gromacs-rigorous-simulations` | [官网](https://www.gromacs.org/) · [官方手册](https://manual.gromacs.org/) · [官方 GitLab](https://gitlab.com/gromacs/gromacs) |
+| `lammps` | LAMMPS · `lammps-rigorous-simulations` | [官网](https://www.lammps.org/) · [官方手册](https://docs.lammps.org/) · [官方 GitHub](https://github.com/lammps/lammps) |
+| `deepmd` | DeePMD-kit · `deepmd-rigorous-workflows` | [官方文档](https://docs.deepmodeling.com/projects/deepmd/en/stable/) · [官方 GitHub](https://github.com/deepmodeling/deepmd-kit) |
+| `multiwfn` | Multiwfn · `multiwfn-wavefunction-analysis` | [作者官网](http://sobereva.com/multiwfn/) · [下载页](http://sobereva.com/multiwfn/download.html) |
+| `phonopy` | Phonopy · `phonopy-rigorous-workflows` | [官方文档](https://phonopy.github.io/phonopy/) · [安装](https://phonopy.github.io/phonopy/install.html) · [官方 GitHub](https://github.com/phonopy/phonopy) |
+| `vaspkit` | VASPKIT · `vaspkit-postprocess` | [项目官网](https://vaspkit.com/) · [官方文档源码](https://github.com/vaspkit/vaspkit.github.io) · [官方发布](https://sourceforge.net/projects/vaspkit/files/Binaries/) |
+| `catmap` | CatMAP · `catmap-microkinetics` | [官方文档](https://catmap.readthedocs.io/en/latest/) · [SUNCAT 官方 GitHub](https://github.com/SUNCAT-Center/catmap) |
+| `lobster` | LOBSTER · `lobster-bonding-analysis` | [RWTH 官方主页](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=1) · [下载/版本入口](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6) |
+| `ovito` | OVITO · `ovito-atomistic-analysis` | [官网](https://www.ovito.org/) · [官方文档](https://docs.ovito.org/) |
+| `pymatgen` | pymatgen · `dft-structure-preparation` | [官网与文档](https://pymatgen.org/) · [Materials Project 官方 GitHub](https://github.com/materialsproject/pymatgen) |
+| `rdkit` | RDKit · `dft-structure-preparation` | [官网](https://www.rdkit.org/) · [官方文档](https://www.rdkit.org/docs/) · [官方 GitHub](https://github.com/rdkit/rdkit) |
+| `mace` | MACE · `ml-potential-workflows` | [官方文档](https://mace-docs.readthedocs.io/en/latest/) · [ACEsuit 官方 GitHub](https://github.com/ACEsuit/mace) |
+| `nequip` | NequIP · `ml-potential-workflows` | [项目门户](https://www.nequip.net/) · [官方文档](https://nequip.readthedocs.io/en/latest/) · [官方 GitHub](https://github.com/mir-group/nequip) |
+| `gpumd` | GPUMD · `gpumd-rigorous-simulations` | [官方文档](https://gpumd.org/) · [官方 GitHub](https://github.com/brucefan1983/GPUMD) |
+| `lasp` | LASP · `lasp-rigorous-simulations` | [LASP Hub 下载页](http://www.lasphub.com/#/lasp/download) · [复旦大学课题组官方页](https://faculty.fudan.edu.cn/fdzpliu/zh_CN/zhym/644124/list/index.htm) |
+| `gemnet-oc` | GemNet-OC · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [v1 model catalog](https://fair-chem.github.io/models-1/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) |
+| `equiformer-v2` | EquiformerV2 · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [v1 model catalog](https://fair-chem.github.io/models-1/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) |
+| `fairchem-uma` | FAIR-Chem UMA · `ml-potential-workflows` | [FAIR-Chem 官方文档](https://fair-chem.github.io/) · [UMA 文档](https://fair-chem.github.io/uma/) · [官方 GitHub](https://github.com/facebookresearch/fairchem) |
 
 ### 标准、直接依赖与执行基础设施 / Standards, direct dependencies, and execution infrastructure
 
@@ -180,7 +190,7 @@ The links below were checked on 2026-07-22 and cover the scientific upstreams, s
 |---|---|---|---|
 | `cif-structure-analysis` | [IUCr CIF](https://www.iucr.org/resources/cif), [ASE](https://docs.ase-lib.org/), [Gemmi](https://gemmi.readthedocs.io/en/stable/), [PyCifRW](https://github.com/jamesrhester/pycifrw), [spglib](https://spglib.readthedocs.io/en/stable/) | 解析 CIF1/CIF2 与原始晶体学证据；检查结构质量；分析周期近邻、局域几何、多尺度连通维度与对称性；给出结构性质初筛和未排序的优化起点候选。 / Parse traceable CIF evidence; screen quality; analyze periodic neighbors, local geometry, multi-scale connectivity and symmetry; emit structure-only property screens and unranked optimization starting points. | 能在昂贵 DFT 前发现坏输入、显式暴露阈值敏感性并收束候选起点；所有性质与稳定性结论仍保持 fail closed。 / Catches risky inputs and narrows starting candidates before expensive DFT while keeping property and stability claims fail closed. |
 | `qe-rigorous-calculations` | [Quantum ESPRESSO](https://www.quantum-espresso.org/) · [official input documentation](https://www.quantum-espresso.org/Doc/INPUT_PW.html) | `pw.x`、`ph.x`、`neb.x` 等平面波/赝势 DFT 工作流的输入设计、官方参数解析、运行审计、重启谱系和可观测量收敛。 / Evidence-gated input design, official-parameter resolution, run auditing, restart lineage, and observable-specific convergence for QE. | 开源、方法和后处理生态广，便于复现与扩展；输入程序多、单位/默认值和赝势选择复杂。选作开放周期 DFT 主路线。 / Open and extensible with broad methods; multi-program semantics and pseudopotential/convergence choices require strict gates. |
-| `vasp-rigorous-calculations` | [VASP](https://vasp.at/) · [VASP Wiki](https://vasp.at/wiki/) | 审计 INCAR、POSCAR、KPOINTS、POTCAR 元数据、OUTCAR/`vasprun.xml`、完成性、收敛及高级方法。 / Audit inputs, outputs, completion, convergence, and advanced VASP workflows. | 固体材料工作流成熟、应用广；软件和 POTCAR 受许可约束，参数相互作用复杂。因实际材料计算覆盖率高而保留，但永不提交 POTCAR 内容。 / Mature and widely used, but proprietary and parameter-coupled; licensed content never enters Git. |
+| `vasp-rigorous-calculations` | [VASP](https://vasp.at/) · [VASP Wiki](https://vasp.at/wiki/) | 审计 INCAR、POSCAR、KPOINTS、POTCAR 元数据、OUTCAR/`vasprun.xml`、完成性、收敛及高级方法。 / Audit inputs, outputs, completion, convergence, and advanced VASP workflows. | 固体材料工作流成熟、应用广，且参数相互作用复杂；POTCAR 正文始终留在运行环境之外的安全位置，不进入 Git。 / Mature and widely used with complex parameter interactions; POTCAR bodies remain outside Git. |
 | `cp2k-rigorous-calculations` | [CP2K](https://www.cp2k.org/) · [2026.2 manual](https://manual.cp2k.org/cp2k-2026_2-branch/) | Quickstep、GPW/GAPW、基组/赝势、周期与分子体系、优化、MD、振动和高级方法的设计与审计。 / Plan and audit CP2K GPW/GAPW calculations across molecular, periodic, optimization, MD, and response tasks. | 对混合体系、分子动力学和多种理论层级灵活，开源且并行能力强；输入树、基组和网格组合复杂。用于补足纯平面波路线。 / Flexible open framework for mixed systems and MD; input hierarchy and basis/grid convergence are demanding. |
 | `siesta-rigorous-calculations` | [SIESTA](https://siesta-project.org/siesta/) · [5.4 documentation](https://docs.siesta-project.org/projects/siesta/en/5.4/) | FDF 输入、数值原子轨道、PSF/PSML/VPS、完成性、父任务/重启、能带/DOS/声子/输运等任务边界。 / Audit SIESTA FDF, localized bases, pseudopotentials, lineage, completion, and task-specific evidence. | 局域基组适合较大体系并提供 TranSIESTA/TBtrans 方向；基组依赖和 mesh/k 点收敛不能照搬平面波经验。用于覆盖局域轨道和输运路线。 / Efficient localized-orbital route for larger systems and transport; basis dependence requires separate convergence evidence. |
 | `dft-postprocess` | Repository Python tools; optional adapters to the calculation codes and external analysis packages | 盘点、抽取、归一化、验证、分析与绘图，输出 postprocess plan、tool execution、normalized dataset 和 artifact manifest。 / Inventory, extract, normalize, validate, analyze, and plot DFT outputs with provenance-bearing artifacts. | 统一数据/图件接口并减少重复脚本；成熟度必须按 `code × observable × backend` 单独检查，图画出来不等于科学结论成立。 / Shared deterministic data and figure layer; every backend/observable route remains independently maturity-gated. |
@@ -225,9 +235,9 @@ The benefit is reviewable lineage rather than a bare edited CIF: parent hashes, 
 
 These modules have source, references, gates, and tests, but remain non-routable until version-matched primary documentation, legally reusable real artifacts, native execution, scientific limits, and end-to-end acceptance are complete. Source depth is not a support claim.
 
-2026-07-22 的内容优先回填为全部 19 个 `development` Skills 增加了可直接用于规划、审查和故障定位的实操 playbook：包括任务分解、关键输入、父任务谱系、单位与格式、restart、输出验收、常见失效、收敛与科学边界。软件命令和版本行为优先绑定官网手册或官方源码；公开资料不足的 LASP、受许可约束的 LOBSTER/Gaussian 等路线保持 fail closed。此次回填没有改变任何 lifecycle、路由、安装、action、native-validation 或 claim-ceiling 状态。
+2026-07-22 的内容优先回填为全部 19 个 `development` Skills 增加了可直接用于规划、审查和故障定位的实操 playbook：包括任务分解、关键输入、父任务谱系、单位与格式、restart、输出验收、常见失效、收敛与科学边界。软件命令和版本行为优先绑定官网手册或官方源码；官方技术正文不可取得的路线保持 fail closed。此次回填没有改变任何 lifecycle、路由、安装、action、native-validation 或 claim-ceiling 状态。
 
-The 2026-07-22 content-first pass adds planning, audit, and troubleshooting playbooks to all 19 `development` Skills, covering task decomposition, decisive inputs, parent lineage, units and formats, restart semantics, output acceptance, common failures, convergence, and scientific limits. Commands and version behavior are tied to official manuals or upstream source where available; sparsely documented or licensed surfaces remain fail closed. This pass changes no lifecycle, routing, installation, action, native-validation, or claim-ceiling state.
+The 2026-07-22 content-first pass adds planning, audit, and troubleshooting playbooks to all 19 `development` Skills, covering task decomposition, decisive inputs, parent lineage, units and formats, restart semantics, output acceptance, common failures, convergence, and scientific limits. Commands and version behavior are tied to official manuals or upstream source where available; technically unavailable official bodies remain fail closed. This pass changes no lifecycle, routing, installation, action, native-validation, or claim-ceiling state.
 
 ### 跨软件协作 / Cross-cutting modules
 
@@ -244,18 +254,18 @@ The 2026-07-22 content-first pass adds planning, audit, and troubleshooting play
 | Skill | 软件与官网 / Software and official site | 上游软件能力或预定范围 / Upstream or intended scope | 当前 Skill 实现与成熟度 / Current implemented surface and maturity | 优点、局限与采用理由 / Strengths, limits, and why included |
 |---|---|---|---|---|
 | `dft-structure-preparation` | stdlib native candidate；[ASE](https://docs.ase-lib.org/)、[pymatgen](https://pymatgen.org/)、[RDKit](https://www.rdkit.org/) 为分离的 provider 路线 | 通用整数超胞、受限应变、晶格轴 slab/vacuum、取向后 slab 异质界面、小范围共格匹配、显式插层/删除/替换、吸附与 host-guest 放置、导出规划。 / General integer supercells, bounded strain, lattice-axis slabs, coherent oriented-slab interfaces, explicit site edits, adsorbate/host-guest placement, and export planning. | stdlib `0.2.0-candidate` 已用 synthetic fixtures 验证 lineage、site mapping、预算和碰撞门禁；任意 Miller 面、termination、自动位点搜索、twist/moiré 和 provider 集成仍未验收，整体保持 development、不可安装和不可路由。 / Native candidate geometry and lineage gates are synthetic-validated; broader provider routes remain unaccepted and the Skill stays development/non-routable. | 在 DFT 前确定性排除超预算、失配或硬碰撞候选，并保留每个 parent/child 映射；几何排序不等于稳定性。 / Deterministically rejects over-budget, mismatched, or colliding candidates while preserving lineage; geometric ranking is not stability. |
-| `gaussian-rigorous-calculations` | [Gaussian](https://gaussian.com/) | 分子量子化学输入、优化、频率、checkpoint 和电子结构任务。 / Molecular quantum chemistry, optimization, frequencies, and checkpoints. | 当前为版本化官方目录、离线计划/输入输出门禁和合成夹具；不启动 `g16`，不声称 native completion。 / Versioned documentation catalog and offline guards only; it does not launch `g16`. | 方法覆盖广；专有许可和平台差异要求隔离。用于补足周期材料代码之外的分子任务。 / Broad molecular methods, with proprietary and platform boundaries. |
+| `gaussian-rigorous-calculations` | [Gaussian](https://gaussian.com/) | 分子量子化学输入、优化、频率、checkpoint 和电子结构任务。 / Molecular quantum chemistry, optimization, frequencies, and checkpoints. | 当前为版本化官方目录、离线计划/输入输出门禁和合成夹具；不启动 `g16`，不声称 native completion。 / Versioned documentation catalog and offline guards only; it does not launch `g16`. | 方法覆盖广，但版本和平台差异要求隔离。用于补足周期材料代码之外的分子任务。 / Broad molecular methods with version and platform boundaries. |
 | `gromacs-rigorous-simulations` | [GROMACS](https://www.gromacs.org/) · [manual](https://manual.gromacs.org/) | 拓扑准备、`grompp`、`mdrun`、checkpoint/restart 和轨迹分析。 / Topology, preprocessing, MD, restart, and analysis. | 当前目录和 guard 只生成/审计候选记录；不会启动 `gmx`、`grompp` 或 `mdrun`。 / Catalogs and guards audit candidate records; no GROMACS executable is launched. | 高性能生物分子 MD；力场、拓扑和采样有效性与 DFT 分离。用于延伸时间尺度。 / High-performance MD whose force-field and sampling validity remain separate. |
 | `lammps-rigorous-simulations` | [LAMMPS](https://www.lammps.org/) · [manual](https://docs.lammps.org/) | 材料/粒子体系的经典或 ML 势 MD 与并行模拟。 / Classical or ML-potential atomistic simulation. | 当前固定命令/输入语义并离线审计 manifest、log 和 restart lineage；不启动 LAMMPS。 / Versioned command semantics and offline manifest/log/lineage checks; no native launch. | 极具扩展性；`units`、`atom_style`、势和 build package 改变语义。用于跨越 DFT 尺度。 / Flexible and scalable, with strongly configuration-dependent semantics. |
 | `deepmd-rigorous-workflows` | [DeePMD-kit](https://docs.deepmodeling.com/projects/deepmd/en/stable/) | DFT 数据、训练、冻结/压缩、评估和 MD 部署。 / Dataset, training, model export, evaluation, and deployment. | 当前只校验计划、元数据、provenance 和合成记录；不导入 DeePMD、不读真实数组、不训练/冻结/部署。 / Metadata and synthetic-record guards only; no framework import, array ingestion, training, or deployment. | 训练/推理生态完整；数据覆盖、单位、版本和外推风险决定可信度。 / Integrated scalable ecosystem whose validity is data- and domain-limited. |
-| `ml-potential-workflows` | [MACE](https://mace-docs.readthedocs.io/), [NequIP](https://nequip.readthedocs.io/), [FAIR-Chem/UMA](https://fair-chem.github.io/) | 多框架数据、训练、checkpoint、评估、部署和比较；预留 GemNet-OC、EquiformerV2、UMA。 / Cross-framework ML potentials, including reserved GemNet-OC, EquiformerV2, and UMA routes. | 当前提供 provider 目录、计划/lineage/外推门禁和合成夹具；不导入框架或加载 checkpoint。 / Provider catalogs and synthetic planning/lineage/extrapolation gates; no framework or checkpoint is loaded. | 支持按体系选择模型；框架、训练数据、参考能、许可和任务头不可直接比较。 / Enables model selection without hiding incompatible data, references, licenses, or task heads. |
+| `ml-potential-workflows` | [MACE](https://mace-docs.readthedocs.io/), [NequIP](https://nequip.readthedocs.io/), [FAIR-Chem/UMA](https://fair-chem.github.io/) | 多框架数据、训练、checkpoint、评估、部署和比较；预留 GemNet-OC、EquiformerV2、UMA。 / Cross-framework ML potentials, including reserved GemNet-OC, EquiformerV2, and UMA routes. | 当前提供 provider 目录、计划/lineage/外推门禁和合成夹具；不导入框架或加载 checkpoint。 / Provider catalogs and synthetic planning/lineage/extrapolation gates; no framework or checkpoint is loaded. | 支持按体系选择模型；框架、训练数据、参考能、格式和任务头不可直接比较。 / Enables model selection without hiding incompatible data, references, formats, or task heads. |
 | `gpumd-rigorous-simulations` | [GPUMD](https://gpumd.org/) | GPU MD、NEP、热输运和相关原子模拟。 / GPU MD, NEP, and thermal transport. | 已固定 v5.3 的无参数工作目录入口和 I/O/单位边界；确定性覆盖仍以解析型 LJ 合成夹具为主，未运行二进制，NEP/热输运保持受限。 / Pins the v5.3 working-directory invocation and I/O boundaries; deterministic coverage is synthetic and no binary was run. | 对 GPU/热输运高效；势版本、后端和统计收敛必须固定。 / Efficient, but potential, backend, and statistical convergence must be explicit. |
 | `lasp-rigorous-simulations` | [LASP download](http://www.lasphub.com/#/lasp/download) · [author review](https://doi.org/10.1021/prechem.4c00060) | 全局势能面、神经网络势、过渡态和采样。 / Global PES exploration, neural potentials, transition states, and sampling. | 当前仅记录公开发行、可执行入口和 opaque artifact provenance；因授权手册/二进制不可得，输入语法、单位、完成标志和 restart 均阻断。 / Documentary inventory and opaque-artifact provenance only; input/output semantics remain blocked. | 适合复杂 PES；公开版本化证据有限，因此保留 fail closed。 / Valuable for difficult PES work, but public interface evidence is limited. |
 | `multiwfn-wavefunction-analysis` | [Multiwfn](http://sobereva.com/multiwfn/) | 波函数、实空间、拓扑、轨道、布居、相互作用和谱图分析。 / Broad wavefunction and real-space analyses. | 当前提供官方菜单/recipe 目录、版本探针和离线 transcript/table 审计；不启动 Multiwfn。 / Official menu/recipe catalog and offline transcript/table checks; no native program launch. | 功能广且可脚本化；菜单、格式和分析定义易误用。用于连接量子化学输出与解释。 / Broad but menu- and definition-sensitive analysis. |
 | `phonopy-rigorous-workflows` | [Phonopy](https://phonopy.github.io/phonopy/) | 力常数、band、DOS/PDOS、热力学、NAC、QHA、Grüneisen 和多计算器交接。 / Harmonic/quasi-harmonic properties and calculator handoffs. | 当前固定 v4.3.1 的 15 个入口、catalog、recipe 和 fail-closed 计划/产物检查；未执行原生 Phonopy/DFT。 / Pins v4.3.1 entry points, catalogs, recipes, and offline gates; no native Phonopy/DFT run. | 社区标准且接口广；力、超胞、映射和 q 网格必须收敛。v4 引入多项破坏性 CLI/默认值变化，旧脚本须按迁移指南核对。 / Standard multi-code layer; v4 has documented breaking CLI/default changes requiring migration review. |
 | `vaspkit-postprocess` | [VASPKIT](https://vaspkit.com/) | VASP 输入准备、结构/k 路径、DOS/PDOS、能带、场、功函数、光学和 MD 分析。 / Broad menu/CLI VASP preparation and postprocessing. | 当前含 174 个任务号目录、官方调用方式与常用 recipe；确定性 parser 仅覆盖窄的合成 211/252 能带表路线，未运行 VASPKIT。 / 174-task catalog and documented recipes; deterministic parsing is limited to synthetic 211/252 band-table paths, with no native run. | 上手快、覆盖广；任务号/提示随版本变化，不能替代 VASP 父任务验收。 / Convenient and broad, but version-sensitive and subordinate to parent-run evidence. |
 | `catmap-microkinetics` | [CatMAP](https://catmap.readthedocs.io/) | 从能量、热化学和反应网络构建微观动力学模型。 / Microkinetic modeling from energies and reaction networks. | 当前为官方 API/catalog 查询、输入/结果候选门禁和合成夹具；不导入或运行 CatMAP。 / Official API/catalog lookup and synthetic input/result guards; CatMAP is not imported or run. | 将 DFT 连接到动力学；网络、描述符和热化学假设主导结论。 / Connects DFT to kinetics, with assumption-sensitive outcomes. |
-| `lobster-bonding-analysis` | [RWTH LOBSTER page](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6) | COHP/COOP、键级、电荷和局域轨道投影。 / Local-orbital bonding projections and population analyses. | 当前仅有受限的候选输入/输出、版本/投影门禁和合成夹具；不启动 LOBSTER，也不输出正向成键结论。 / Restricted candidate I/O and projection guards with synthetic fixtures; no native run or positive bonding claim. | 成键分解直观；许可、兼容代码/基组、spilling 和投影质量是硬门禁。 / Interpretable bonding analysis with strict license and projection-quality gates. |
+| `lobster-bonding-analysis` | [RWTH LOBSTER page](https://schmeling.ac.rwth-aachen.de/cohp/index.php?menuID=6) | COHP/COOP、键级、电荷和局域轨道投影。 / Local-orbital bonding projections and population analyses. | 当前仅有候选输入/输出、版本/投影门禁和合成夹具；不启动 LOBSTER，也不输出正向成键结论。 / Candidate I/O and projection guards with synthetic fixtures; no native run or positive bonding claim. | 成键分解直观；兼容代码/基组、spilling 和投影质量是硬门禁。 / Interpretable bonding analysis with strict compatibility and projection-quality gates. |
 | `ovito-atomistic-analysis` | [OVITO](https://www.ovito.org/) | 粒子/轨迹 I/O、modifier pipeline、缺陷/结构/位移分析和渲染。 / Particle/trajectory pipelines, analysis, and rendering. | 当前提供结构/轨迹 inventory、pipeline spec、格式/单位/particle-id 门禁和合成测试；不导入或运行 OVITO。 / Inventory and pipeline contracts with unit/ID/format gates and synthetic tests; OVITO is not imported or run. | GUI 与 Python 兼顾探索和自动化；Basic/Pro 与格式映射必须显式，图像不替代证据。 / Strong GUI/Python workflow with edition and format boundaries. |
 
 ## 调用与联动 / Routing and collaboration
@@ -334,7 +344,7 @@ The main Python dependencies are ASE, Gemmi, PyCifRW, NumPy, jsonschema, spglib,
 | Route | 真正执行时需要 / Required for native execution |
 |---|---|
 | QE | 与任务匹配的 QE executables（如 `pw.x`、`ph.x`、`neb.x`）、UPF 赝势，以及按平台需要的 MPI/调度器；后处理程序按 observable 准备。 / Matching QE executables, UPF files, and optional MPI/scheduler. |
-| VASP | 合法授权的 `vasp_std`、`vasp_gam` 或 `vasp_ncl`，匹配的 POTCAR 数据集，以及 MPI/调度器。POTCAR 内容必须留在仓库之外。 / Licensed VASP binaries and POTCAR dataset; POTCAR content stays outside Git. |
+| VASP | 目标环境中可用的 `vasp_std`、`vasp_gam` 或 `vasp_ncl`，匹配的 runtime-only POTCAR 数据集，以及 MPI/调度器。POTCAR 内容必须留在仓库之外。 / Locally available VASP binaries and a matching runtime-only POTCAR dataset; POTCAR content stays outside Git. |
 | CP2K | 匹配 build 的 CP2K executable、BASIS/POTENTIAL 数据，以及按需的 MPI/调度器。 / A version/build-matched CP2K executable, basis/potential data, and optional MPI/scheduler. |
 | SIESTA | SIESTA executable、匹配的 PSF/PSML/VPS，以及按需的 MPI/调度器；TranSIESTA/TBtrans 只在明确任务中准备。 / SIESTA and matching pseudopotentials; TranSIESTA/TBtrans only for explicit routes. |
 
@@ -346,7 +356,7 @@ This table describes prerequisites for future native acceptance. It is not an in
 
 | 类别 / Class | 软件或模块 / Software or modules | 主要准备与阻断 / Main preparation and blockers |
 |---|---|---|
-| 专有或受限 / Proprietary or restricted | Gaussian、LOBSTER、LASP、OVITO Pro | 先取得合法许可、对应版本软件/手册和可再分发边界；二进制、许可文件和受限资料不得入库。 / Obtain legal access, exact-version software/manuals, and redistribution terms; restricted artifacts stay outside Git. |
+| 外部可用性受控 / Externally controlled availability | Gaussian、LOBSTER、LASP、OVITO Pro | 在目标执行环境中核验对应版本软件与可读官方手册；二进制、凭据和非公开资料不得入库。 / Verify the exact software version and readable official manuals in the target environment; binaries, credentials, and non-public artifacts stay outside Git. |
 | Python 科学栈 / Python scientific stack | Phonopy、CatMAP、pymatgen、RDKit、MACE、NequIP、FAIR-Chem、DeePMD | 使用独立锁定环境，记录 Python、包、模型/checkpoint 和 CPU/GPU backend；这些依赖不由 `requirements-dev.txt` 完整提供。 / Use pinned isolated environments and record package, model, and backend identities; the repository baseline is not sufficient. |
 | 编译型 CPU/MPI / Compiled CPU or MPI | GROMACS、LAMMPS | 记录源码/release、编译器、MPI、启用 package、可执行 SHA-256 和调度环境。 / Record release/source, compiler, MPI, enabled packages, executable digest, and scheduler environment. |
 | GPU/backend 特定 / GPU or backend specific | GPUMD CUDA/ROCm、DeePMD、MACE、NequIP | 需要匹配 GPU 架构、驱动、CUDA/ROCm、框架 build 和确定性设置；CPU/GPU 结果不能默认等价。 / Match GPU architecture, driver, runtime, framework build, and determinism settings. |
@@ -358,9 +368,9 @@ This table describes prerequisites for future native acceptance. It is not an in
 
 Planning or auditing supplied artifacts does not require a local native executable, but the target version must be explicit and no execution claim is allowed. Keep private hosts, accounts, cluster paths, tokens, restricted potentials, and unpublished calculation trees out of Git.
 
-Development 软件的版本、平台、授权和阻断项记录在 [`registry/environment-profiles.yaml`](registry/environment-profiles.yaml)。这些 profile 是维护快照，不会安装软件，也不会自动激活 Skill。外部后处理工具缺失时必须返回 `TOOL_UNAVAILABLE` 或 `design-only`，不能静默换算法。
+Development 软件的版本、平台、技术可用性和阻断项记录在 [`registry/environment-profiles.yaml`](registry/environment-profiles.yaml)。这些 profile 是维护快照，不会安装软件，也不会自动激活 Skill。外部后处理工具缺失时必须返回 `TOOL_UNAVAILABLE` 或 `design-only`，不能静默换算法。
 
-Version, platform, license, and blocker notes for development software live in [`registry/environment-profiles.yaml`](registry/environment-profiles.yaml). Profiles are documentary snapshots: they neither install software nor activate a Skill. A missing external backend must remain `TOOL_UNAVAILABLE` or `design-only` rather than silently changing algorithms.
+Version, platform, technical-availability, and blocker notes for development software live in [`registry/environment-profiles.yaml`](registry/environment-profiles.yaml). Profiles are documentary snapshots: they neither install software nor activate a Skill. A missing external backend must remain `TOOL_UNAVAILABLE` or `design-only` rather than silently changing algorithms.
 
 ## 安装与使用 / Install and use
 
@@ -373,10 +383,6 @@ gh repo clone Maxwell3919/Vibe-DFT-Skills
 # or: git clone https://github.com/Maxwell3919/Vibe-DFT-Skills.git
 cd Vibe-DFT-Skills
 ```
-
-公开可见性不改变第三方软件许可、受限内容边界或科学证据门槛；本仓库当前未声明顶层开源许可证。
-
-Public visibility does not change third-party licensing, restricted-content boundaries, or scientific evidence gates. The repository currently declares no top-level open-source license.
 
 安装器只暴露 7 个 `active` Skills，并以符号链接安装到显式目标目录。它不会覆盖已有真实目录或指向其他位置的链接。
 
@@ -463,28 +469,28 @@ docs/         integration plan and reproducible showcase assets
 1. 在软件注册表中先创建 `planned` 身份；没有源码的 Skill 使用 `planned + path: null`。
 2. 开始真实实现后，在同一稳定名称下创建 `skills/<name>/` 并改为 `development`，仍保持不可安装/不可路由。
 3. `SKILL.md` 只保留核心流程；详细手册、任务目录和 recipe 放在一层 `references/`；重复且脆弱的操作实现为经过测试的脚本。
-4. 记录官方来源、版本探针、真实 CLI/API、输入输出、单位、退出/失败语义、许可、provenance、restart/lineage 和科学限制。
+4. 记录官方来源、版本探针、真实 CLI/API、输入输出、单位、退出/失败语义、provenance、restart/lineage 和科学限制。
 5. 为低推理模型提供首条命中、默认阻断的机器可读决策表；未知版本、缺文件、单位不明或证据冲突必须 fail closed。
 6. 新后处理能力必须对每个 `observable × code × backend` 明确标记 implemented、maturity-gated 或 `design-only`。
 7. 同步 `software-registry`、`skill-registry`、`environment-profiles`、`interface-registry`、`operation-routes`、`official-source-authorities`、后处理 observable registry、源码哈希、安装器资格和 active-only 测试发现。
-8. 通过合法真实正/负例、版本边界、端到端 handoff、全库测试和维护评审后，才在同一路径显式晋升为 `active`。
+8. 通过真实正/负例、版本边界、端到端 handoff、全库测试和维护评审后，才在同一路径显式晋升为 `active`。
 
 When adding software or a capability:
 
 1. Reserve a `planned` software identity; an identity-only Skill uses `planned + path: null`.
 2. Move to a stable `skills/<name>/` source tree with lifecycle `development`, still non-installable and non-routable.
 3. Keep `SKILL.md` concise, detailed manuals and recipes one level under `references/`, and fragile repeated behavior in tested scripts.
-4. Record primary sources, version probes, real CLI/API calls, inputs/outputs, units, failure semantics, licensing, provenance, restart lineage, and scientific limits.
+4. Record primary sources, version probes, real CLI/API calls, inputs/outputs, units, failure semantics, provenance, restart lineage, and scientific limits.
 5. Provide a first-match, default-block machine-readable decision table; unknown versions, missing evidence, ambiguous units, and conflicts fail closed.
 6. Decide every new `observable × code × backend` route explicitly.
 7. Synchronize software, Skill, environment, interface, route, source-authority, and postprocess-observable registries, plus source hashes, installer eligibility, and active-only test discovery.
-8. Promote explicitly at the same path only after legal real positive/negative fixtures, version-boundary tests, end-to-end handoff, repository checks, and review pass.
+8. Promote explicitly at the same path only after real positive/negative fixtures, version-boundary tests, end-to-end handoff, repository checks, and review pass.
 
 ### 扩展 official-document pack / Extending an official-document pack
 
 为新增 Skill、增加官方 provider 或扩大既有文档范围时，以下项目必须作为同一个可审查变更闭合；不能只新增链接、计数或手写生成产物：
 
-1. 在 `registry/official-source-authorities.yaml` 注册或复用唯一的 central authority，并保持版本、来源、访问和许可边界明确。
+1. 在 `registry/official-source-authorities.yaml` 注册或复用唯一的 central authority，并保持版本、来源、访问和技术检索边界明确。
 2. 在 `registry/official-document-consumers.yaml` 增加精确 consumer binding，使 Skill、provider 与 authority 的身份一一对应。
 3. 在 `registry/official-document-bundle-expectations.yaml` 声明 bundle expectation；只有生成和校验完成后，才把目标标记为 required，而不是把缺失 pack 当成允许状态。
 4. 在对应 Skill 下提供通过 schema 校验、version scope 与 hash identity 明确且相互一致的 seed、source catalog 与 scope catalog；明确 included sources、reviewed exclusions、losses 和 blockers。
@@ -494,7 +500,7 @@ When adding software or a capability:
 
 When adding a Skill, provider, or official-document scope, close the following items in one reviewable change:
 
-1. Register or reuse the unique central authority in `registry/official-source-authorities.yaml`, with explicit version, origin, access, and license boundaries.
+1. Register or reuse the unique central authority in `registry/official-source-authorities.yaml`, with explicit version, origin, access, and technical retrieval boundaries.
 2. Add the exact Skill/provider/authority consumer binding in `registry/official-document-consumers.yaml`.
 3. Declare the bundle expectation in `registry/official-document-bundle-expectations.yaml`; mark it required only after deterministic generation and validation succeed.
 4. Add schema-valid, version-scoped, hash-bound, and mutually consistent seed, source, and scope catalogs under the Skill, including inclusions, reviewed exclusions, losses, and blockers.

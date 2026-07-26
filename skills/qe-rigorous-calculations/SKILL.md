@@ -9,6 +9,10 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Separate objective definition, official behavior, input integrity, pseudopotential provenance, execution completion, numerical convergence, and physical validity. Never treat a QE default, a common recipe, one completed run, or one stable scalar as scientific adequacy.
 
+## Organize the calculation campaign
+
+For a new calculation-side workspace, read [the QE workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Before the first calculation side effect, have the user select `off`, `silent-update`, or `milestone-review`; do not infer the choice from silence. Use `tools/manage_calculation_workspace.py` to create the fixed structure/input/run/derived/figure/report layout and, when enabled, its immutable taskbook revision chain. In review mode, pause at recorded structure, input, result, and figure milestones until the user reviews them. In silent mode, update the taskbook without routine pauses but do not treat that mode as execution authorization, permission to change the scientific route, or scientific acceptance. Inventory a pre-existing workspace first and never move or clean an active QE `outdir` or run directory merely to impose the layout.
+
 ## Run deterministic gates first
 
 - Read [references/fail-closed-contract.md](references/fail-closed-contract.md) for every calculation design, input/output audit, or convergence task.
@@ -25,7 +29,7 @@ The guard intentionally automates only a conservative, allowlisted `pw.x` core. 
 ## Enforce the source boundary
 
 - Use only `https://www.quantum-espresso.org/Doc/` and documents directly discovered there for official QE software claims.
-- Read [references/official-manual-index.md](references/official-manual-index.md), then only the executable, parameter, guide page, release note, or PDF page needed.
+- Refresh and verify the local provider cache through [references/manual-cache-route.md](references/manual-cache-route.md), read its generated `index.md`, then open only the executable, parameter, guide page, release note, or PDF page needed.
 - Match the manual version to the version printed by the relevant executable. Apply the version gate in the official index when they differ.
 - Recheck the recorded official URL for version-sensitive behavior whenever network access is available.
 - Label project observations and current analysis separately. Do not store project experience in this skill.

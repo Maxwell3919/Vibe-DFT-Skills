@@ -1100,11 +1100,18 @@ class MirrorHelperTests(unittest.TestCase):
         self.assertIn("ENCUT", titles)
         category_titles.assert_not_called()
 
-    def test_full_scope_label_is_rejected(self) -> None:
-        with patch.object(sync_official_wiki, "category_titles") as category_titles:
-            with self.assertRaises(ValueError):
-                sync_official_wiki.collect_titles("full")
-        category_titles.assert_not_called()
+    def test_complete_scope_uses_main_namespace_enumerator(self) -> None:
+        with patch.object(
+            sync_official_wiki,
+            "all_main_namespace_titles",
+            return_value=["ENCUT", "PREC"],
+        ) as all_pages:
+            categories, titles = sync_official_wiki.collect_titles(
+                "all-main-namespace"
+            )
+        self.assertEqual(categories, {})
+        self.assertEqual(titles, ["ENCUT", "PREC"])
+        all_pages.assert_called_once_with()
 
     def test_bounded_category_scope_is_explicitly_named(self) -> None:
         with patch.object(
@@ -1170,6 +1177,22 @@ class MirrorHelperTests(unittest.TestCase):
             self.assertFalse(old.joinpath("page-999-stale.md").exists())
             self.assertEqual(old.joinpath("manifest.json").read_text(), "{}\n")
             self.assertEqual(root.joinpath("references", "official-wiki-index.md").read_text(), "# new index\n")
+
+    def test_cached_mirror_is_complete_main_namespace(self) -> None:
+        root = sync_official_wiki.DEFAULT_CACHE_ROOT
+        manifest = json.loads(
+            (
+                root
+                / "references"
+                / "official-wiki"
+                / "manifest.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["scope"], "all-main-namespace")
+        self.assertTrue(manifest["upstream_universe_complete"])
+        self.assertGreaterEqual(manifest["page_count"], 1000)
+        self.assertGreater(manifest["internal_link_count"], 1000)
+        self.assertEqual(sync_official_wiki.check(root), 0)
 
 
 if __name__ == "__main__":

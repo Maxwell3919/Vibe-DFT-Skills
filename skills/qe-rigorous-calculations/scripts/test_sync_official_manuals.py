@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
 import sys
 import tempfile
@@ -28,7 +29,19 @@ spec.loader.exec_module(module)
 class OfficialMirrorTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.references = SKILL_ROOT / "references"
+        cls.provider_root = (
+            Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+            / "vibe-dft-skills"
+            / "official-provider-mirrors"
+            / "qe-rigorous-calculations"
+            / "provider-root"
+        )
+        cls.references = cls.provider_root / "references"
+        if not (cls.references / "official-manifest.json").is_file():
+            raise unittest.SkipTest(
+                "complete QE provider cache is absent; run "
+                "sync_official_manuals.py --refresh"
+            )
         cls.manifest = json.loads((cls.references / "official-manifest.json").read_text(encoding="utf-8"))
 
     def check_html_input_manual(self, filename: str, expected_items: int, expected_sections: int) -> None:
@@ -122,7 +135,7 @@ class OfficialMirrorTests(unittest.TestCase):
     def test_cache_only_sync_preserves_source_retrieval_time(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir:
             copied_root = Path(tempdir) / SKILL_ROOT.name
-            shutil.copytree(SKILL_ROOT, copied_root)
+            shutil.copytree(self.provider_root, copied_root)
             before = json.loads((copied_root / "references" / "official-manifest.json").read_text(encoding="utf-8"))
             module.sync(copied_root)
             after = json.loads((copied_root / "references" / "official-manifest.json").read_text(encoding="utf-8"))

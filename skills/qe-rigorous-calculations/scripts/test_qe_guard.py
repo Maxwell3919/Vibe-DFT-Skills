@@ -609,7 +609,10 @@ class QeGuardTests(unittest.TestCase):
         )
         payload = json.loads(result.stdout)
         match = payload["matches"][0]
-        reference_path = SCRIPT_DIR.parent / match["reference_file"]
+        reference_path = (
+            qe_guard.REFERENCES
+            / Path(match["reference_file"]).relative_to("references")
+        )
         content = reference_path.read_text(encoding="utf-8")
         content_bytes = content.encode("utf-8")
 

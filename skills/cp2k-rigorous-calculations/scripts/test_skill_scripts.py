@@ -437,7 +437,14 @@ class OfficialSourceTests(unittest.TestCase):
         result = resolve_official_sources.resolve(["GLOBAL", "eps_scf"], "2026.2", live_check=False)
         self.assertEqual(result["status"], "pass_cached_exact")
         self.assertTrue(all(item["verification"] == "cached_exact" for item in result["resolved"]))
-        self.assertTrue(all(item["local_reference"].startswith("references/official-manual/") for item in result["resolved"]))
+        self.assertTrue(
+            all(
+                item["local_reference"].startswith(
+                    "cache://cp2k-rigorous-calculations/provider-snapshot/"
+                )
+                for item in result["resolved"]
+            )
+        )
 
     def test_version_specific_source_path_override(self) -> None:
         current = resolve_official_sources.resolve(["pdos"], "2026.2", live_check=False)
@@ -700,7 +707,12 @@ class OfficialMirrorTests(unittest.TestCase):
         result = sync_official_manuals.check_snapshot()
         self.assertEqual(result["status"], "ok", result["errors"])
         self.assertGreaterEqual(result["index_page_count"], 2900)
-        self.assertGreaterEqual(result["mirrored_topic_count"], 80)
+        self.assertGreater(result["linked_page_count"], 0)
+        self.assertEqual(
+            result["mirrored_page_count"],
+            result["index_page_count"],
+        )
+        self.assertGreater(result["internal_link_count"], 20_000)
 
 
 class ForwardFixtureTests(unittest.TestCase):

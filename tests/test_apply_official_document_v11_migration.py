@@ -216,7 +216,25 @@ class ApplyOfficialDocumentV11MigrationTests(unittest.TestCase):
             for source in cp2k.catalog["discovered_sources"].values()
             if source["disposition"] == "excluded"
         ]
+        manifest = json.loads(
+            (
+                ROOT
+                / "skills/cp2k-rigorous-calculations/references/manual-cache-receipts/manifest.json"
+            ).read_text(encoding="utf-8")
+        )
         self.assertEqual(
+            len(cp2k.catalog["discovered_sources"]),
+            manifest["index_page_count"],
+        )
+        self.assertEqual(
+            len(excluded),
+            manifest["index_page_count"]
+            - sum(
+                source["disposition"] == "included"
+                for source in cp2k.catalog["discovered_sources"].values()
+            ),
+        )
+        self.assertGreaterEqual(
             len(excluded),
             CP2K_MANUAL_LOCATOR_REPAIR.expected_excluded_sources,
         )

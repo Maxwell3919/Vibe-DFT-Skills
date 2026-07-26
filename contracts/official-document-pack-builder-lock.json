@@ -64,7 +64,7 @@
   "runtime_refs": [
     {
       "path": "skills/qe-rigorous-calculations/scripts/qe_guard.py",
-      "sha256": "b9934d79c8126a722df4aa1ae0c3ec548a232856409a15511d8167549789ea6d"
+      "sha256": "3fd6894c0c97d1f87865cd9f09d777ed284b86e61f1ceaa5e063f60f9980d1c7"
     },
     {
       "path": "tools/environment_profiles.py",
@@ -72,7 +72,7 @@
     },
     {
       "path": "tools/extract_official_document_pack_inputs.py",
-      "sha256": "9c1915f60831af9ffbac1a382449e4d9c685ba1026f3ef11553c81bfb760157c"
+      "sha256": "cd462d56956a7cf580dfd825ac55c38473dbdb982461e609bc4969678849a622"
     },
     {
       "path": "tools/interface_registry.py",
@@ -80,7 +80,7 @@
     },
     {
       "path": "tools/official_source_authorities.py",
-      "sha256": "9f903d82765820eb59682ecf5a73aebba2816590556bbad5c7ecb53317c007b4"
+      "sha256": "eef8ab7b320e3450fc39213a179268a6e2dc91d59bbb5a9a59f6b39115b9ed4e"
     },
     {
       "path": "tools/operation_routes.py",

@@ -27,45 +27,45 @@ artifact_sets:
     selectors:
       - {kind: prefix, value: skills/qe-rigorous-calculations/references/official-}
     baseline:
-      path_count: 1819
-      byte_count: 8676290
-      digest_sha256: 8d199a50d34df5840e1c6fe6b00b4488affc73cf9c5faa56e00c1b6c2ddc5fa7
+      path_count: 0
+      byte_count: 0
+      digest_sha256: e4b514857867ff812824cbe1a94f9866048a2f49792c5b4be57fd0737a4e71f3
   vasp-wiki:
     provider_id: vasp
     authority_ids: [vasp-official-wiki]
     selectors:
       - {kind: prefix, value: skills/vasp-rigorous-calculations/references/official-}
     baseline:
-      path_count: 164
-      byte_count: 1737986
-      digest_sha256: 0cca6e8b6eb2bc988bc4235efbcc69852af974818826cd6ab00d42d7c186db93
+      path_count: 0
+      byte_count: 0
+      digest_sha256: e4b514857867ff812824cbe1a94f9866048a2f49792c5b4be57fd0737a4e71f3
   cp2k-manual:
     provider_id: cp2k
     authority_ids: [cp2k-official-manual]
     selectors:
       - {kind: prefix, value: skills/cp2k-rigorous-calculations/references/official-manual/}
     baseline:
-      path_count: 88
-      byte_count: 8244746
-      digest_sha256: f7e58a40ddf76a2fe561d4ff8387e4cf07d3b00607ed4167f37cc09b2f1c4718
+      path_count: 0
+      byte_count: 0
+      digest_sha256: e4b514857867ff812824cbe1a94f9866048a2f49792c5b4be57fd0737a4e71f3
   cp2k-source-registry:
     provider_id: cp2k
     authority_ids: [cp2k-official-manual, cp2k-release-source-docs]
     selectors:
       - {kind: exact, value: skills/cp2k-rigorous-calculations/references/official-source-registry.json}
     baseline:
-      path_count: 1
-      byte_count: 9258
-      digest_sha256: 597796cf21ee1fd7791183716dc7f02cda757951912ec0c9100d78e92498743e
+      path_count: 0
+      byte_count: 0
+      digest_sha256: e4b514857867ff812824cbe1a94f9866048a2f49792c5b4be57fd0737a4e71f3
   siesta-portal-registry:
     provider_id: siesta
     authority_ids: [siesta-official-docs]
     selectors:
       - {kind: exact, value: skills/siesta-rigorous-calculations/references/official-source-registry.json}
     baseline:
-      path_count: 1
-      byte_count: 2594
-      digest_sha256: 138fb3083adbc31834d04b9fdfb9e1d57df4f3d5f637b046a50cf746435d6a8a
+      path_count: 0
+      byte_count: 0
+      digest_sha256: e4b514857867ff812824cbe1a94f9866048a2f49792c5b4be57fd0737a4e71f3
   siesta-release-derived:
     provider_id: siesta
     authority_ids: [siesta-release-source-docs]
@@ -73,14 +73,14 @@ artifact_sets:
       - {kind: exact, value: skills/siesta-rigorous-calculations/references/official-fdf-index.json}
       - {kind: exact, value: skills/siesta-rigorous-calculations/references/official-source-supplements.json}
     baseline:
-      path_count: 2
-      byte_count: 279830
-      digest_sha256: eec04514942c1af7163ce554e7b473df6b602459ba414f3c1262614ac0ef4b6d
+      path_count: 0
+      byte_count: 0
+      digest_sha256: e4b514857867ff812824cbe1a94f9866048a2f49792c5b4be57fd0737a4e71f3
 
 local_controls:
   - provider_id: cp2k
     path: skills/cp2k-rigorous-calculations/references/official-source-policy.md
-    baseline: {mode: "100644", byte_count: 4680, blob_oid: c60cad4d7fbff2951046067772569fa31b759206}
+    baseline: {mode: "100644", byte_count: 4797, blob_oid: 189b49fba1d18523dd823c7ff1dd7586633bbd18}
   - provider_id: siesta
     path: skills/siesta-rigorous-calculations/references/official-artifact-fixtures.json
     baseline: {mode: "100644", byte_count: 2006, blob_oid: f8bfa7e534bd526e4eec93ff4193fcd4dbaf6c3f}
@@ -89,4 +89,4 @@ local_controls:
     baseline: {mode: "100644", byte_count: 1411, blob_oid: f4faff5bc154a85046f92d88cb7679d3e936cc45}
   - provider_id: siesta
     path: skills/siesta-rigorous-calculations/references/official-sources.md
-    baseline: {mode: "100644", byte_count: 3886, blob_oid: 48c4806386ef768790e1b8ddef8ec2e93613086e}
+    baseline: {mode: "100644", byte_count: 3938, blob_oid: 3f48c23b7543f969d61a56effb95e081a80570d1}

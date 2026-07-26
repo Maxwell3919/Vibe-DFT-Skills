@@ -30,8 +30,20 @@ import urllib.request
 TOOL_VERSION = "1.1.0"
 REPORT_SCHEMA_VERSION = "1.0"
 SKILL_ROOT = Path(__file__).resolve().parent.parent
-REFERENCES = SKILL_ROOT / "references"
-MANIFEST_PATH = REFERENCES / "official-manifest.json"
+REPOSITORY_REFERENCES = SKILL_ROOT / "references"
+REFERENCES = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    / "vibe-dft-skills"
+    / "official-provider-mirrors"
+    / "qe-rigorous-calculations"
+    / "provider-root"
+    / "references"
+)
+MANIFEST_PATH = (
+    REPOSITORY_REFERENCES
+    / "manual-cache-receipts"
+    / "manifest.json"
+)
 PW_OFFICIAL_URL = "https://www.quantum-espresso.org/Doc/INPUT_PW.html"
 
 NAMELIST_ORDER = ["control", "system", "electrons", "ions", "cell", "fcp", "rism"]

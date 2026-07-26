@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Materialize registered official documents as local, readable Markdown.
 
-The repository's official-document packs intentionally retain metadata and
-receipts rather than redistributing third-party document bodies.  This tool
-uses those exact receipts to build a local-only cache, scoped by consumer
-Skill.  It never changes an authority, widens a URL allowlist, or treats a
+The repository's official-document packs retain source metadata and receipts.
+This tool uses those exact receipts to build a local cache scoped by consumer
+Skill. It records technical retrieval state without inferring software license
+terms, changing an authority, widening a URL allowlist, or treating a
 successful conversion as scientific validation.
 """
 
@@ -18,6 +18,7 @@ from html.parser import HTMLParser
 import json
 import os
 from pathlib import Path
+import posixpath
 import re
 import shutil
 import subprocess
@@ -28,7 +29,7 @@ import time
 from typing import Any
 import unicodedata
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote, unquote, urlsplit
+from urllib.parse import quote, unquote, urljoin, urlsplit
 from urllib.request import Request, urlopen
 
 from registry_yaml import load_yaml_strict
@@ -37,18 +38,71 @@ from registry_yaml import load_yaml_strict
 SCHEMA_VERSION = "1.0"
 USER_AGENT = "Vibe-DFT-Skills-official-manual-cache/1.0"
 MAX_DOWNLOAD_BYTES = 96 * 1024 * 1024
+DEFAULT_RST2HTML = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    / "vibe-dft-skills"
+    / "manual-converter-venv"
+    / "bin"
+    / "rst2html5"
+)
 _GITHUB_API_HAS_CAPACITY: bool | None = None
-TRACKED_MIRRORS = {
+PROVIDER_REFRESH_COMMANDS = {
+    "cp2k-rigorous-calculations": (
+        "python3 skills/cp2k-rigorous-calculations/scripts/"
+        "sync_official_manuals.py --refresh\n"
+        "python3 skills/cp2k-rigorous-calculations/scripts/"
+        "sync_official_manuals.py --check"
+    ),
+    "qe-rigorous-calculations": (
+        "python3 skills/qe-rigorous-calculations/scripts/"
+        "sync_official_manuals.py --refresh\n"
+        "python3 skills/qe-rigorous-calculations/scripts/"
+        "sync_official_manuals.py --check"
+    ),
+    "siesta-rigorous-calculations": (
+        "python3 skills/siesta-rigorous-calculations/scripts/"
+        "sync_official_manuals.py --refresh\n"
+        "python3 skills/siesta-rigorous-calculations/scripts/"
+        "sync_official_manuals.py --check"
+    ),
+    "vasp-rigorous-calculations": (
+        "python3 skills/vasp-rigorous-calculations/scripts/"
+        "sync_official_wiki.py --refresh\n"
+        "python3 skills/vasp-rigorous-calculations/scripts/"
+        "sync_official_wiki.py --check"
+    ),
+}
+PROVIDER_CACHE_ROOT = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    / "vibe-dft-skills"
+    / "official-provider-mirrors"
+)
+TRACKED_MIRRORS: dict[str, tuple[Path, str]] = {
     "cp2k-official-manual": (
-        "skills/cp2k-rigorous-calculations/references/official-manual",
+        PROVIDER_CACHE_ROOT
+        / "cp2k-rigorous-calculations"
+        / "provider-snapshot",
         "*.md",
     ),
     "qe-official-docs": (
-        "skills/qe-rigorous-calculations/references",
+        PROVIDER_CACHE_ROOT
+        / "qe-rigorous-calculations"
+        / "provider-root"
+        / "references",
         "official-*.md",
     ),
+    "siesta-official-docs": (
+        PROVIDER_CACHE_ROOT
+        / "siesta-rigorous-calculations"
+        / "provider-snapshot",
+        "*.md",
+    ),
     "vasp-official-wiki": (
-        "skills/vasp-rigorous-calculations/references/official-wiki",
+        PROVIDER_CACHE_ROOT
+        / "vasp-rigorous-calculations"
+        / "provider-root"
+        / "references"
+        / "official-wiki",
         "*.md",
     ),
 }
@@ -92,6 +146,26 @@ BODY_SOURCE_KINDS = {
     "reference-page",
     "source-documentation",
 }
+MARKDOWN_SIMPLE_LINK = re.compile(
+    r"(?P<prefix>!?\[[^\]\n]*\]\()"
+    r"(?P<destination><[^>\n]+>|[^)\s]+)"
+    r"(?P<title>\s+(?:\"[^\"]*\"|'[^']*'))?"
+    r"(?P<suffix>\))"
+)
+MARKDOWN_NESTED_IMAGE_LINK = re.compile(
+    r"(?P<prefix>\[\![^\]\n]*\]\((?:<[^>\n]+>|[^)\s]+)"
+    r"(?:\s+(?:\"[^\"]*\"|'[^']*'))?\)\]\()"
+    r"(?P<destination><[^>\n]+>|[^)\s]+)"
+    r"(?P<title>\s+(?:\"[^\"]*\"|'[^']*'))?"
+    r"(?P<suffix>\))"
+)
+MARKDOWN_REFERENCE_LINK = re.compile(
+    r"(?P<prefix>^[ \t]{0,3}\[[^\]\n]+\]:[ \t]*)"
+    r"(?P<destination><[^>\n]+>|[^\s]+)"
+    r"(?P<title>[ \t]+(?:\"[^\"]*\"|'[^']*'|\([^)]*\)))?"
+    r"(?P<suffix>[ \t]*)$"
+)
+MARKDOWN_TEX_LINK_COLLISION = re.compile(r"\]\((?=\\[A-Za-z])")
 
 
 class CacheError(RuntimeError):
@@ -619,6 +693,54 @@ def pdf_to_markdown(data: bytes, pdftotext: str) -> str:
     return fenced_source(text, "text")
 
 
+def rst_to_markdown(text: str, html2md: str) -> str:
+    """Render RST readably, then retain the exact source as a lossless appendix."""
+
+    if not DEFAULT_RST2HTML.is_file():
+        return fenced_source(text, "rst")
+    # Docutils does not know Sphinx roles. Replace only the role wrapper in the
+    # readable projection; the exact source appendix below remains untouched.
+    readable = re.sub(
+        r":[A-Za-z0-9_.+-]+:`([^`]+)`",
+        lambda match: (
+            match.group(1).split(" <", 1)[0]
+            if " <" in match.group(1)
+            else match.group(1)
+        ),
+        text,
+    )
+    result = subprocess.run(
+        [
+            str(DEFAULT_RST2HTML),
+            "--input-encoding=utf-8",
+            "--output-encoding=utf-8",
+            "--report=5",
+            "--halt=5",
+            "--exit-status=5",
+        ],
+        input=readable,
+        text=True,
+        encoding="utf-8",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=180,
+        check=False,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        rendered = fenced_source(text, "rst")
+    else:
+        try:
+            rendered = run_html2md(result.stdout, html2md)
+        except CacheError:
+            rendered = fenced_source(text, "rst")
+    return (
+        rendered.rstrip()
+        + "\n\n<details>\n<summary>Exact upstream RST source</summary>\n\n"
+        + fenced_source(text, "rst").rstrip()
+        + "\n\n</details>\n"
+    )
+
+
 def convert(record: SourceRecord, data: bytes, html2md: str, pdftotext: str) -> tuple[str, str]:
     suffix = Path(unquote(urlsplit(record.locator).path)).suffix.lower()
     if suffix == ".pdf":
@@ -653,6 +775,8 @@ def convert(record: SourceRecord, data: bytes, html2md: str, pdftotext: str) -> 
         if "\ufffd" in text:
             raise CacheError("Markdown source contains a Unicode replacement character")
         return text.rstrip() + "\n", "identity-markdown"
+    if suffix == ".rst":
+        return rst_to_markdown(text, html2md), "rst2html5+html2md+lossless-source-appendix"
     language = suffix.lstrip(".") if suffix in TEXT_SUFFIXES and suffix else "text"
     return fenced_source(text, language), "lossless-source-fence"
 
@@ -688,8 +812,8 @@ def provenance_header(
         f"- Retrieval method: `{record.retrieval_method}`\n"
         f"- Local conversion: `{conversion}`\n\n"
         f"{drift}"
-        "> Local cache only. This derived Markdown is not a redistributed official manual, "
-        "does not replace the official source, and does not establish scientific validity.\n\n"
+        "> Local cache only. This derived Markdown does not replace the official source "
+        "and does not establish scientific validity.\n\n"
     )
 
 
@@ -698,7 +822,33 @@ def tracked_files(root: Path, authority_id: str) -> tuple[Path, ...]:
     if specification is None:
         return ()
     directory, pattern = specification
-    return tuple(sorted((root / directory).glob(pattern)))
+    return tuple(sorted((root / directory).rglob(pattern)))
+
+
+def tracked_official_urls(root: Path, authority_id: str) -> dict[str, str]:
+    if authority_id != "qe-official-docs":
+        return {}
+    manifest = load_json(
+        root
+        / "skills"
+        / "qe-rigorous-calculations"
+        / "references"
+        / "manual-cache-receipts"
+        / "manifest.json"
+    )
+    source_cache = manifest.get("source_cache")
+    if not isinstance(source_cache, dict):
+        raise CacheError("QE official manifest has no source-cache mapping")
+    result: dict[str, str] = {}
+    for relative, record in source_cache.items():
+        if (
+            not isinstance(relative, str)
+            or not isinstance(record, dict)
+            or not isinstance(record.get("url"), str)
+        ):
+            raise CacheError("QE official manifest source-cache mapping is malformed")
+        result[relative] = record["url"]
+    return result
 
 
 def inventory_for(root: Path, skill_id: str, authority_id: str) -> dict[str, Any] | None:
@@ -711,7 +861,26 @@ def inventory_for(root: Path, skill_id: str, authority_id: str) -> dict[str, Any
             matches.append(value)
     if len(matches) > 1:
         raise CacheError(f"multiple source-tree inventories: {skill_id}/{authority_id}")
-    return matches[0] if matches else None
+    if matches:
+        return matches[0]
+    # An authority has one canonical exact tree even when several Skills
+    # consume it. Reuse that inventory instead of silently giving secondary
+    # consumers only their handful of selected source records.
+    for path in sorted(root.glob("skills/*/references/source-pack-inventory-*.json")):
+        value = load_json(path)
+        if value.get("authority_id") == authority_id and isinstance(value.get("entries"), list):
+            matches.append(value)
+    unique = {
+        (
+            value.get("repository_url"),
+            value.get("commit_id"),
+            sha256_bytes(canonical_json(value).encode("utf-8")),
+        ): value
+        for value in matches
+    }
+    if len(unique) > 1:
+        raise CacheError(f"conflicting cross-Skill source-tree inventories: {authority_id}")
+    return next(iter(unique.values())) if unique else None
 
 
 def git_run(argv: list[str], cwd: Path, *, timeout: int = 300) -> str:
@@ -783,6 +952,204 @@ def manual_tree_entry(path: str) -> bool:
         "templates",
     }
     return not any(part.lower() in excluded_parts for part in item.parts)
+
+
+def markdown_tree_path(source_relative: Path) -> Path:
+    """Retain the source suffix so unlike source files never collide."""
+
+    if source_relative.suffix.lower() == ".md":
+        return source_relative
+    return source_relative.with_name(source_relative.name + ".md")
+
+
+def require_unique_tree_outputs(source_paths: list[Path], authority_id: str) -> None:
+    outputs = [markdown_tree_path(path).as_posix() for path in source_paths]
+    if len(outputs) != len(set(outputs)):
+        raise CacheError(
+            f"converted manual-tree paths collide: {authority_id}"
+        )
+
+
+def rewrite_markdown_outside_fences(
+    markdown: str,
+    replacer: Any,
+) -> str:
+    """Apply one inline-link replacer without altering fenced source blocks."""
+
+    output: list[str] = []
+    fence_character: str | None = None
+    fence_length = 0
+    for line in markdown.splitlines(keepends=True):
+        fence = re.match(r"^[ \t]{0,3}(`{3,}|~{3,})", line)
+        if fence is not None:
+            marker = fence.group(1)
+            if fence_character is None:
+                fence_character = marker[0]
+                fence_length = len(marker)
+            elif marker[0] == fence_character and len(marker) >= fence_length:
+                fence_character = None
+                fence_length = 0
+            output.append(line)
+            continue
+        if fence_character is not None:
+            output.append(line)
+            continue
+        rewritten = MARKDOWN_TEX_LINK_COLLISION.sub(r"]\\(", line)
+        rewritten = MARKDOWN_SIMPLE_LINK.sub(replacer, rewritten)
+        rewritten = MARKDOWN_NESTED_IMAGE_LINK.sub(replacer, rewritten)
+        output.append(MARKDOWN_REFERENCE_LINK.sub(replacer, rewritten))
+    return "".join(output)
+
+
+def absolutize_relative_markdown_links(markdown: str, base_url: str) -> tuple[str, int]:
+    """Keep unresolved converted links usable through their official base URL."""
+
+    rewrites = 0
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal rewrites
+        wrapped = match.group("destination")
+        destination = wrapped[1:-1] if wrapped.startswith("<") else wrapped
+        parsed = urlsplit(destination)
+        if parsed.scheme or parsed.netloc or destination.startswith(("/", "#")):
+            return match.group(0)
+        if not parsed.path:
+            return match.group(0)
+        rewritten = urljoin(base_url, destination)
+        if wrapped.startswith("<"):
+            rewritten = f"<{rewritten}>"
+        rewrites += 1
+        return (
+            match.group("prefix")
+            + rewritten
+            + (match.group("title") or "")
+            + match.group("suffix")
+        )
+
+    return rewrite_markdown_outside_fences(markdown, replace), rewrites
+
+
+def rewrite_known_official_links(
+    markdown: str,
+    *,
+    current_path: str,
+    official_urls: dict[str, str],
+) -> tuple[str, int]:
+    """Resolve repository-relative raw-source links to registered official URLs."""
+
+    rewrites = 0
+    current_parent = posixpath.dirname(current_path)
+
+    def replace(match: re.Match[str]) -> str:
+        nonlocal rewrites
+        wrapped = match.group("destination")
+        destination = wrapped[1:-1] if wrapped.startswith("<") else wrapped
+        parsed = urlsplit(destination)
+        if parsed.scheme or parsed.netloc or destination.startswith(("/", "#")):
+            return match.group(0)
+        source_target = posixpath.normpath(
+            posixpath.join(current_parent, unquote(parsed.path))
+        )
+        official = official_urls.get(source_target)
+        if official is None:
+            return match.group(0)
+        rewritten = official
+        if parsed.fragment:
+            rewritten += f"#{parsed.fragment}"
+        if wrapped.startswith("<"):
+            rewritten = f"<{rewritten}>"
+        rewrites += 1
+        return (
+            match.group("prefix")
+            + rewritten
+            + (match.group("title") or "")
+            + match.group("suffix")
+        )
+
+    return rewrite_markdown_outside_fences(markdown, replace), rewrites
+
+
+def rewrite_tree_internal_links(
+    target: Path,
+    source_to_output: dict[str, Path],
+    results: list[dict[str, Any]],
+) -> None:
+    """Rewrite links between converted source-tree documents to local Markdown."""
+
+    output_to_source = {
+        output.as_posix(): source for source, output in source_to_output.items()
+    }
+    result_by_output = {
+        str(item["markdown_path"]): item
+        for item in results
+        if isinstance(item.get("markdown_path"), str)
+    }
+    for output_text, source_text in output_to_source.items():
+        result = result_by_output.get(output_text)
+        if result is None:
+            continue
+        output = target / output_text
+        markdown = output.read_text(encoding="utf-8")
+        source_parent = posixpath.dirname(source_text)
+        output_parent = posixpath.dirname(output_text)
+        rewrites = 0
+        external_rewrites = 0
+        base_url = str(result.get("official_source", ""))
+
+        def replace(match: re.Match[str]) -> str:
+            nonlocal rewrites, external_rewrites
+            wrapped = match.group("destination")
+            destination = wrapped[1:-1] if wrapped.startswith("<") else wrapped
+            parsed = urlsplit(destination)
+            if parsed.scheme or parsed.netloc or destination.startswith(("/", "#")):
+                return match.group(0)
+            decoded_path = unquote(parsed.path)
+            if not decoded_path:
+                return match.group(0)
+            source_target = posixpath.normpath(
+                posixpath.join(source_parent, decoded_path)
+            )
+            local_target = source_to_output.get(source_target)
+            if local_target is None:
+                if not base_url:
+                    return match.group(0)
+                rewritten = urljoin(base_url, destination)
+                if wrapped.startswith("<"):
+                    rewritten = f"<{rewritten}>"
+                external_rewrites += 1
+                return (
+                    match.group("prefix")
+                    + rewritten
+                    + (match.group("title") or "")
+                    + match.group("suffix")
+                )
+            relative = posixpath.relpath(local_target.as_posix(), output_parent or ".")
+            rewritten = quote(relative, safe="/._-~")
+            if parsed.query:
+                rewritten += f"?{parsed.query}"
+            if parsed.fragment:
+                rewritten += f"#{parsed.fragment}"
+            if wrapped.startswith("<"):
+                rewritten = f"<{rewritten}>"
+            rewrites += 1
+            return (
+                match.group("prefix")
+                + rewritten
+                + (match.group("title") or "")
+                + match.group("suffix")
+            )
+
+        rewritten = rewrite_markdown_outside_fences(markdown, replace)
+        if rewritten != markdown:
+            output.write_text(rewritten, encoding="utf-8", newline="\n")
+            if rewrites:
+                result["conversion"] += "+local-manual-link-rewrite"
+                result["internal_link_rewrite_count"] = rewrites
+            if external_rewrites:
+                result["conversion"] += "+official-link-absolutization"
+                result["external_official_link_rewrite_count"] = external_rewrites
+            result["markdown_bytes"] = output.stat().st_size
+            result["markdown_sha256"] = sha256_file(output)
 
 
 def git_blob_oid(data: bytes) -> str:
@@ -1050,6 +1417,10 @@ def materialize_inventory(
     ]
     if not selected:
         raise CacheError(f"inventory has no readable manual sources: {record.authority_id}")
+    require_unique_tree_outputs(
+        [Path(item["path"]) for item in selected],
+        record.authority_id,
+    )
     receipt_bytes = "".join(
         f"{item['mode']} {item['object_type']} {item['object_id']}\t{item['path']}\n"
         for item in sorted(entries, key=lambda value: value["path"])
@@ -1057,6 +1428,7 @@ def materialize_inventory(
     if len(receipt_bytes) != record.raw_bytes or sha256_bytes(receipt_bytes) != record.raw_sha256:
         raise CacheError(f"source-tree inventory receipt mismatch: {record.authority_id}")
     results: list[dict[str, Any]] = []
+    source_to_output: dict[str, Path] = {}
     with tempfile.TemporaryDirectory(prefix="official-manual-tree-") as temporary:
         temporary_path = Path(temporary)
         exact_archive = archive_url(repository_url, commit_id)
@@ -1114,9 +1486,9 @@ def materialize_inventory(
                 Path(record.skill_id)
                 / safe_component(record.authority_id)
                 / "tree"
-                / source_relative.parent
-                / f"{source_relative.name}.md"
+                / markdown_tree_path(source_relative)
             )
+            source_to_output[source_relative.as_posix()] = output_relative
             output = target / output_relative
             output.parent.mkdir(parents=True, exist_ok=True)
             output.write_text(markdown, encoding="utf-8", newline="\n")
@@ -1135,6 +1507,7 @@ def materialize_inventory(
                     "source_id": derived_record.source_id,
                 }
             )
+    rewrite_tree_internal_links(target, source_to_output, results)
     return results
 
 
@@ -1203,7 +1576,12 @@ def materialize_unregistered_tree(
         raise CacheError(f"cannot read exact documentation tree: {record.source_id}") from exc
     if not sources:
         raise CacheError(f"exact documentation tree contains no readable sources: {record.source_id}")
+    require_unique_tree_outputs(
+        [source_relative for source_relative, _ in sources],
+        record.authority_id,
+    )
     results: list[dict[str, Any]] = []
+    source_to_output: dict[str, Path] = {}
     for source_relative, data in sources:
         derived_record = SourceRecord(
             skill_id=record.skill_id,
@@ -1234,9 +1612,9 @@ def materialize_unregistered_tree(
             Path(record.skill_id)
             / safe_component(record.authority_id)
             / "tree"
-            / source_relative.parent
-            / f"{source_relative.name}.md"
+            / markdown_tree_path(source_relative)
         )
+        source_to_output[source_relative.as_posix()] = output_relative
         output = target / output_relative
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(markdown, encoding="utf-8", newline="\n")
@@ -1256,6 +1634,7 @@ def materialize_unregistered_tree(
                 "source_id": derived_record.source_id,
             }
         )
+    rewrite_tree_internal_links(target, source_to_output, results)
     return results
 
 
@@ -1329,13 +1708,27 @@ def build_cache(
         mirror_key = (record.skill_id, record.authority_id)
         mirror = tracked_files(root, record.authority_id)
         if mirror and mirror_key not in mirrored:
+            mirror_directory = root / TRACKED_MIRRORS[record.authority_id][0]
+            official_urls = tracked_official_urls(root, record.authority_id)
             for source in mirror:
-                relative = Path(record.skill_id) / safe_component(record.authority_id) / source.name
+                source_relative = source.relative_to(mirror_directory)
+                relative = (
+                    Path(record.skill_id)
+                    / safe_component(record.authority_id)
+                    / source_relative
+                )
                 output = target / relative
                 output.parent.mkdir(parents=True, exist_ok=True)
                 snapshot = source.read_text(encoding="utf-8")
+                snapshot, official_link_rewrites = rewrite_known_official_links(
+                    snapshot,
+                    current_path=source_relative.as_posix(),
+                    official_urls=official_urls,
+                )
                 snapshot, controls_changed = normalize_visible_controls(snapshot)
-                snapshot_conversion = "validated-repository-snapshot"
+                snapshot_conversion = "validated-provider-cache-snapshot"
+                if official_link_rewrites:
+                    snapshot_conversion += "+official-raw-link-absolutization"
                 if controls_changed:
                     snapshot_conversion += "+visible-control-escapes"
                 output.write_text(snapshot, encoding="utf-8", newline="\n")
@@ -1347,6 +1740,9 @@ def build_cache(
                         "markdown_path": relative.as_posix(),
                         "markdown_sha256": sha256_file(output),
                         "official_source": None,
+                        "external_official_link_rewrite_count": (
+                            official_link_rewrites
+                        ),
                         "skill_id": record.skill_id,
                         "source_id": f"tracked:{source.name}",
                     }
@@ -1363,9 +1759,9 @@ def build_cache(
                     conversion="external-publisher-body-not-retrieved",
                     explanation=(
                         "The registered authority supplies publication metadata or an "
-                        "author-literature identity, not a redistributable software manual body. "
-                        "Consult the official publisher URL under its access terms; do not treat "
-                        "this cache record as a software parameter reference."
+                        "author-literature identity, not a software manual body. Consult the "
+                        "official publisher URL; do not treat this cache record as a software "
+                        "parameter reference."
                     ),
                 )
             )
@@ -1422,28 +1818,22 @@ def build_cache(
                 ),
             )
         except CacheError:
-            license_policy = authority.get("license_policy")
-            if (
-                isinstance(license_policy, dict)
-                and license_policy.get("status") == "known-restricted"
-            ):
+            if record.source_kind != "index":
                 entries.append(
                     metadata_entry(
                         target,
                         record,
-                        conversion="metadata-only-restricted-body-unavailable",
+                        conversion="metadata-only-body-unavailable",
                         explanation=(
                             "The official body could not be retrieved through the registered "
-                            "HTTPS route, and this authority is explicitly license-restricted. "
-                            "The cache does not bypass access controls or substitute a third-party "
-                            "copy. Consult the official locator under its terms; this record is "
-                            "not manual body text and cannot support parameter-level claims."
+                            "route. The cache records this technical availability state without "
+                            "inferring a software license or substituting a third-party copy. "
+                            "This record is not manual body text and cannot support "
+                            "parameter-level claims."
                         ),
                     )
                 )
                 continue
-            if record.source_kind != "index":
-                raise
             entries.append(
                 metadata_entry(
                     target,
@@ -1459,6 +1849,12 @@ def build_cache(
             )
             continue
         body, conversion = convert(record, data, html2md, pdftotext)
+        body, absolute_link_rewrites = absolutize_relative_markdown_links(
+            body,
+            resolved_locator,
+        )
+        if absolute_link_rewrites:
+            conversion += "+official-link-absolutization"
         body, controls_changed = normalize_visible_controls(body)
         if controls_changed:
             conversion += "+visible-control-escapes"
@@ -1494,6 +1890,7 @@ def build_cache(
                 "raw_sha256": record.raw_sha256,
                 "live_raw_bytes": len(data),
                 "live_raw_sha256": sha256_bytes(data),
+                "external_official_link_rewrite_count": absolute_link_rewrites,
                 "skill_id": record.skill_id,
                 "source_id": record.source_id,
             }
@@ -1502,10 +1899,13 @@ def build_cache(
         missing = selected_skills - {entry["skill_id"] for entry in entries}
         if missing:
             raise CacheError(f"selected Skills have no materialized sources: {sorted(missing)}")
+    markdown_paths = [entry["markdown_path"] for entry in entries]
+    if len(markdown_paths) != len(set(markdown_paths)):
+        raise CacheError("materialized source records collide on a cache Markdown path")
     write_indexes(target, entries)
     manifest = {
         "schema_version": SCHEMA_VERSION,
-        "cache_policy": "local-only-no-redistribution",
+        "cache_policy": "local-only-body-cache",
         "generated_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "html2md_identity": html2md_identity(html2md),
         "entries": entries,
@@ -1540,6 +1940,18 @@ def write_indexes(target: Path, entries: list[dict[str, Any]]) -> None:
 def routing_document(skill_id: str, records: list[SourceRecord]) -> str:
     authorities = sorted({record.authority_id for record in records})
     authority_lines = "\n".join(f"- `{authority_id}`" for authority_id in authorities)
+    provider_command = PROVIDER_REFRESH_COMMANDS.get(skill_id)
+    provider_section = ""
+    if provider_command is not None:
+        provider_section = (
+            "\nFor this provider, build and verify the complete recursive manual mirror "
+            "under `${XDG_CACHE_HOME:-$HOME/.cache}/vibe-dft-skills/"
+            "official-provider-mirrors/` (the default output is outside Git and "
+            "transactionally separate from the compact cache):\n\n"
+            "```bash\n"
+            f"{provider_command}\n"
+            "```\n"
+        )
     return (
         "# Local official-manual Markdown cache\n\n"
         "Use the repository-wide cache tool before relying on an external official "
@@ -1552,6 +1964,7 @@ def routing_document(skill_id: str, records: list[SourceRecord]) -> str:
         f"python3 tools/sync_official_manual_cache.py --refresh --skill {skill_id}\n"
         "python3 tools/sync_official_manual_cache.py --check\n"
         "```\n\n"
+        f"{provider_section}\n"
         "If a mutable official page has changed since its registered receipt, "
         "`--allow-live-drift` may be used to create a readable local copy only. The "
         "result is labeled `blocked-for-version-sensitive-use-until-registry-refresh`; "
@@ -1560,8 +1973,8 @@ def routing_document(skill_id: str, records: list[SourceRecord]) -> str:
         "`${XDG_CACHE_HOME:-$HOME/.cache}/vibe-dft-skills/official-manuals/"
         f"{skill_id}/`. Keep the official URL, authority/version identity, and local "
         "conversion label in every claim. A cache pass proves document identity and "
-        "readability only; it does not prove executable behavior, convergence, physical "
-        "validity, or permission to redistribute the cached body.\n\n"
+        "readability only; it does not prove executable behavior, convergence, or physical "
+        "validity.\n\n"
         f"This Skill has {len(records)} registered source records across these authorities:\n\n"
         f"{authority_lines}\n"
     )

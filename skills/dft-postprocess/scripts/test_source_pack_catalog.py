@@ -114,7 +114,7 @@ class SourcePackCatalogTests(unittest.TestCase):
             / "skills"
             / "cp2k-rigorous-calculations"
             / "references"
-            / "official-manual"
+            / "manual-cache-receipts"
             / "manifest.json"
         )
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

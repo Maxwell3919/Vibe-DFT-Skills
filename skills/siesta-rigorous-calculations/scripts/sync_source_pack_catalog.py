@@ -315,9 +315,10 @@ def profile_labels(tasks: dict[str, Any]) -> set[str]:
 
 
 def _build_legacy_catalogs() -> dict[str, dict[str, Any]]:
-    registry_path = REFERENCES / "official-source-registry.json"
-    index_path = REFERENCES / "official-fdf-index.json"
-    supplement_path = REFERENCES / "official-source-supplements.json"
+    receipts = REFERENCES / "manual-cache-receipts"
+    registry_path = receipts / "source-registry.json"
+    index_path = receipts / "fdf-index.json"
+    supplement_path = receipts / "source-supplements.json"
     task_path = REFERENCES / "task-evidence-profiles.json"
     registry = load_json(registry_path)
     index = load_json(index_path)
@@ -342,13 +343,13 @@ def _build_legacy_catalogs() -> dict[str, dict[str, Any]]:
         raise ValueError("SIESTA raw-byte receipt paths do not match 47+6 inventory")
 
     registry_origin = origin_ref(
-        f"skills/{SKILL_ID}/references/official-source-registry.json"
+        f"skills/{SKILL_ID}/references/manual-cache-receipts/source-registry.json"
     )
     index_origin = origin_ref(
-        f"skills/{SKILL_ID}/references/official-fdf-index.json"
+        f"skills/{SKILL_ID}/references/manual-cache-receipts/fdf-index.json"
     )
     supplement_origin = origin_ref(
-        f"skills/{SKILL_ID}/references/official-source-supplements.json"
+        f"skills/{SKILL_ID}/references/manual-cache-receipts/source-supplements.json"
     )
     task_origin = origin_ref(
         f"skills/{SKILL_ID}/references/task-evidence-profiles.json"

@@ -1646,7 +1646,7 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             self.assertEqual(verified["official_document_pack_audit"], "partial")
             self.assertEqual(verified["official_document_pack_count"], 7)
             self.assertEqual(verified["source_registry_snapshot_count"], 10)
-            self.assertGreater(
+            self.assertEqual(
                 verified["official_document_externalized_source_count"],
                 0,
             )

@@ -136,10 +136,10 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
                 "sources_by_id",
             },
         )
-        self.assertIs(cp2k["integrity_verified"], True)
+        self.assertIs(cp2k["integrity_verified"], False)
         self.assertIs(cp2k["upstream_universe_complete"], True)
-        self.assertEqual(cp2k["upstream_source_count"], 2946)
-        self.assertEqual(len(cp2k["upstream_sources_by_id"]), 2946)
+        self.assertEqual(cp2k["upstream_source_count"], 3030)
+        self.assertEqual(len(cp2k["upstream_sources_by_id"]), 3030)
         self.assertEqual(cp2k["curated_source_count"], 86)
         self.assertEqual(len(cp2k["sources_by_id"]), 86)
         for source in cp2k["sources_by_id"].values():
@@ -156,7 +156,7 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
                 },
             )
             self.assertIs(source["raw_integrity_verified"], False)
-            self.assertIs(source["derived_snapshot"]["integrity_verified"], True)
+            self.assertIs(source["derived_snapshot"]["integrity_verified"], False)
             self.assertNotEqual(
                 source["raw_sha256"],
                 source["derived_snapshot"]["sha256"],
@@ -401,7 +401,7 @@ class OfficialSourceAuthorityTests(unittest.TestCase):
             projection["cp2k-official-manual"]["canonical_snapshot"][
                 "integrity_verified"
             ],
-            True,
+            False,
         )
 
     def test_canonical_manifest_digest_is_verified_from_exact_bytes(self) -> None:

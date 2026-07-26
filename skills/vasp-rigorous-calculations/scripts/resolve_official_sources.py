@@ -6,13 +6,23 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 from typing import Any
 
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_MANIFEST = SKILL_ROOT / "references" / "official-wiki" / "manifest.json"
+DEFAULT_MANIFEST = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    / "vibe-dft-skills"
+    / "official-provider-mirrors"
+    / "vasp-rigorous-calculations"
+    / "provider-root"
+    / "references"
+    / "official-wiki"
+    / "manifest.json"
+)
 DEFAULT_CATALOG = SKILL_ROOT / "references" / "source-pack-input-catalog.json"
 DEFAULT_SEED = SKILL_ROOT / "references" / "source-pack-seed.json"
 
@@ -310,8 +320,8 @@ def resolve(
             "platform_attestation_status": "not_evaluated",
         },
         "rule": (
-            "Local integrity verifies only the exact pinned legacy artifacts. "
-            "It does not prove freshness, redistribution clearance, or "
+            "Local integrity verifies only the exact pinned provider artifacts. "
+            "It does not prove freshness or "
             "platform-attested external resolution. Missing, corrupt, "
             "unpinned, or unattested evidence never authorizes a remembered "
             "software-behavior claim."

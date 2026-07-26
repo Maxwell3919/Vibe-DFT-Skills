@@ -9,6 +9,10 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Separate documented behavior, input integrity, external data provenance, execution completion, SCF or ionic convergence, numerical convergence, task-specific validity, and physical validity. Fail closed: missing or ambiguous evidence is unresolved, never an inferred pass.
 
+## Organize the calculation campaign
+
+For a new calculation-side workspace, read [the CP2K workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Before the first calculation side effect, have the user select `off`, `silent-update`, or `milestone-review`; do not infer the choice from silence. Use `tools/manage_calculation_workspace.py` to separate source structures, prepared CP2K inputs, attempt directories, derived data, figures, and reports and, when enabled, to append immutable taskbook revisions. Keep each attempt's main input, included files, output, restart ancestry, and generated audit evidence together without mixing attempts. Pause at recorded milestones in review mode; in silent mode update without routine pauses, but never read the mode as execution authorization, permission to change the scientific route, or scientific acceptance. Inventory existing runs first and never move or clean a directory while CP2K may be writing it.
+
 ## Apply the execution contract
 
 Read [references/fail-closed-execution-contract.md](references/fail-closed-execution-contract.md) before designing, auditing, or accepting a calculation.
@@ -156,7 +160,7 @@ python3 scripts/test_skill_scripts.py
 python3 ../../tools/validate_all_skills.py
 ```
 
-The full generated manual inventory and curated decisive-page snapshot live under `references/official-manual/`. Refresh only from official CP2K documentation, keep stable version paths explicit, preserve manifest hashes, and retain retrieval-time/live-verification limitations:
+The repository keeps body-free inventories and receipts under `references/manual-cache-receipts/`; the full generated manual and curated decisive-page snapshot live in the local cache described by [references/manual-cache-route.md](references/manual-cache-route.md). Refresh only from official CP2K documentation, keep stable version paths explicit, preserve manifest hashes, and retain retrieval-time/live-verification limitations:
 
 ```bash
 python3 scripts/sync_official_manuals.py --refresh --version 2026.2

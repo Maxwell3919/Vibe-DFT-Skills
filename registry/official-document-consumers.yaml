@@ -465,38 +465,38 @@ processors:
     version: '1.0'
     implementation_ref:
       path: tools/build_official_document_packs.py
-      sha256: e8cc4b4e3bf6ee7ceb736e563306ee769999d36f134cdb7a396ef7214274972f
+      sha256: 8f324b8bcf6881027f873838aa72df73f1b8029d7f77cc8fff1740215e40d4fc
     configuration_ref:
       path: contracts/official-document-pack-seed.schema.json
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
     dependency_lock_ref:
       path: contracts/official-document-pack-builder-lock.json
-      sha256: 8c974a232f007686ca64a0963dc994931aba2ddb23cff8fd18e0a9a6f12b4e8c
+      sha256: 94aca99c335773056788a991b555fd405c381508990870ffa1f10f4640b8b711
     attested_runs: []
   official-document-pack-transformer:
     kind: transformer
     version: '1.0'
     implementation_ref:
       path: tools/build_official_document_packs.py
-      sha256: e8cc4b4e3bf6ee7ceb736e563306ee769999d36f134cdb7a396ef7214274972f
+      sha256: 8f324b8bcf6881027f873838aa72df73f1b8029d7f77cc8fff1740215e40d4fc
     configuration_ref:
       path: contracts/official-document-pack-seed.schema.json
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
     dependency_lock_ref:
       path: contracts/official-document-pack-builder-lock.json
-      sha256: 8c974a232f007686ca64a0963dc994931aba2ddb23cff8fd18e0a9a6f12b4e8c
+      sha256: 94aca99c335773056788a991b555fd405c381508990870ffa1f10f4640b8b711
     attested_runs: []
   official-document-pack-scope-extractor:
     kind: extractor
     version: '1.0'
     implementation_ref:
       path: tools/build_official_document_packs.py
-      sha256: e8cc4b4e3bf6ee7ceb736e563306ee769999d36f134cdb7a396ef7214274972f
+      sha256: 8f324b8bcf6881027f873838aa72df73f1b8029d7f77cc8fff1740215e40d4fc
     configuration_ref:
       path: contracts/official-document-pack-seed.schema.json
       sha256: 82d86a53e420836161b1fe901736d83315c7e265c42f7771e5d8bd8ce9785599
     dependency_lock_ref:
       path: contracts/official-document-pack-builder-lock.json
-      sha256: 8c974a232f007686ca64a0963dc994931aba2ddb23cff8fd18e0a9a6f12b4e8c
+      sha256: 94aca99c335773056788a991b555fd405c381508990870ffa1f10f4640b8b711
     attested_runs: []
 resolver_trust: {}
