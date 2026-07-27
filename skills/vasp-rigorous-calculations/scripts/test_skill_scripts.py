@@ -25,6 +25,11 @@ import sync_official_wiki  # noqa: E402
 import validate_claim_package  # noqa: E402
 
 
+def require_official_mirror(test_case: unittest.TestCase) -> None:
+    if not resolve_official_sources.DEFAULT_MANIFEST.parent.exists():
+        test_case.skipTest("external VASP Wiki provider mirror is not installed")
+
+
 class ConvergenceTests(unittest.TestCase):
     def evidence_row(self, x: float, y: float, index: int) -> dict[str, object]:
         return {
@@ -215,6 +220,7 @@ class AuditTests(unittest.TestCase):
         )
 
     def test_consistent_case(self) -> None:
+        require_official_mirror(self)
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-6\nISMEAR=0\nSIGMA=0.05\n")
             result = audit_vasp_case.audit(case)
@@ -379,6 +385,7 @@ class AuditTests(unittest.TestCase):
             self.assertEqual(result["verdict"], "blocked")
 
     def test_completed_run_passes_technical_gates_only(self) -> None:
+        require_official_mirror(self)
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory), "ENCUT=400\nEDIFF=1E-8\nNELM=60\nISMEAR=0\nSIGMA=0.05\n")
             self.set_explicit_kpoints(case)
@@ -692,6 +699,7 @@ class AuditTests(unittest.TestCase):
 
 class OfficialSourceTests(unittest.TestCase):
     def test_exact_tag_resolves_with_revision(self) -> None:
+        require_official_mirror(self)
         result = resolve_official_sources.resolve(["ENCUT", "vasprun.xml"])
         self.assertEqual(result["status"], "local_integrity_verified")
         self.assertEqual(
@@ -774,6 +782,7 @@ class OfficialSourceTests(unittest.TestCase):
             self.assertNotEqual(result["status"], "pass")
 
     def test_auditor_coverage_never_collapses_local_integrity_to_pass(self) -> None:
+        require_official_mirror(self)
         result = audit_vasp_case.mirror_coverage({"ENCUT": "400"})
         self.assertEqual(result["status"], "local_integrity_verified")
         self.assertNotEqual(result["status"], "pass")
@@ -948,6 +957,7 @@ class CliContractTests(unittest.TestCase):
             self.assertIn("--task-type", completed.stderr)
 
     def test_audit_cli_emits_privacy_safe_gate_json(self) -> None:
+        require_official_mirror(self)
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory))
             completed = subprocess.run(
@@ -970,6 +980,7 @@ class CliContractTests(unittest.TestCase):
             self.assertNotIn(directory, completed.stdout)
 
     def test_audit_cli_warnings_fail_without_optional_strict_flag(self) -> None:
+        require_official_mirror(self)
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory))
             case.joinpath("INCAR").write_text("ENCUT=400\n")
@@ -992,6 +1003,7 @@ class CliContractTests(unittest.TestCase):
             self.assertEqual(result["gates"]["input_reproducibility"], "unresolved")
 
     def test_run_cli_requires_expected_version_for_identity_pass(self) -> None:
+        require_official_mirror(self)
         with tempfile.TemporaryDirectory() as directory:
             case = self.make_case(Path(directory))
             case.joinpath("KPOINTS").write_text(
@@ -1180,6 +1192,8 @@ class MirrorHelperTests(unittest.TestCase):
 
     def test_cached_mirror_is_complete_main_namespace(self) -> None:
         root = sync_official_wiki.DEFAULT_CACHE_ROOT
+        if not root.exists():
+            self.skipTest("external VASP Wiki provider mirror is not installed")
         manifest = json.loads(
             (
                 root

@@ -1214,6 +1214,11 @@ def build_parser() -> argparse.ArgumentParser:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--refresh", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument(
+        "--check-if-present",
+        action="store_true",
+        help="strictly check an installed external snapshot, or skip when it is absent",
+    )
     parser.add_argument("--version", default="2026.2")
     parser.add_argument("--registry", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--snapshot", type=Path, default=DEFAULT_SNAPSHOT)
@@ -1241,13 +1246,18 @@ def main() -> int:
                 "index_page_count": result["index_page_count"],
                 "mirrored_topic_count": result["mirrored_topic_count"],
             }
+        elif args.check_if_present and not args.snapshot.exists():
+            summary = {
+                "status": "skipped",
+                "reason": "external CP2K provider snapshot is not installed",
+            }
         else:
             summary = check_snapshot(registry_path=args.registry, snapshot_dir=args.snapshot)
     except (OSError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
         print(json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False))
         return 2
     print(json.dumps(summary, indent=2, sort_keys=True))
-    return 0 if summary["status"] == "ok" else 2
+    return 0 if summary["status"] in {"ok", "skipped"} else 2
 
 
 if __name__ == "__main__":

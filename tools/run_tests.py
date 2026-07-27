@@ -4,8 +4,10 @@
 Controlled local hooks are ``tests/test_*.py`` (one unittest discovery run),
 ``scripts/test_*.py`` (direct script), ``scripts/check_*.py`` (direct check),
 and ``scripts/sync_*.py`` (only when a literal argparse ``--check`` option is
-declared, and always invoked in that mode). Non-active Skill trees are never
-scanned. Any new active Skill without a local hook fails discovery.
+declared). Sync hooks that also declare ``--check-if-present`` use that mode so
+an external provider cache is strictly checked when installed and explicitly
+skipped when absent. Non-active Skill trees are never scanned. Any new active
+Skill without a local hook fails discovery.
 """
 
 from __future__ import annotations
@@ -156,7 +158,7 @@ def _canonical_hook_files(directory: Path, prefix: str, pattern: re.Pattern[str]
     return tuple(hooks)
 
 
-def _declares_check_flag(path: Path) -> bool:
+def _declares_literal_flag(path: Path, flag: str) -> bool:
     try:
         tree = ast.parse(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, SyntaxError) as exc:
@@ -167,7 +169,7 @@ def _declares_check_flag(path: Path) -> bool:
         if node.func.attr != "add_argument" or not node.args:
             continue
         first = node.args[0]
-        if isinstance(first, ast.Constant) and first.value == "--check":
+        if isinstance(first, ast.Constant) and first.value == flag:
             return True
     return False
 
@@ -220,16 +222,21 @@ def discover_skill_commands(
 
         sync_checks = _canonical_hook_files(scripts_dir, "sync_", CANONICAL_CHECK_HOOK)
         for hook in sync_checks:
-            if not _declares_check_flag(hook):
+            if not _declares_literal_flag(hook, "--check"):
                 raise DiscoveryError(
                     "CHECK_HOOK_FLAG_MISSING",
                     "a sync hook does not declare the required offline --check mode",
                 )
+            check_flag = (
+                "--check-if-present"
+                if _declares_literal_flag(hook, "--check-if-present")
+                else "--check"
+            )
             hooks_found += 1
             commands.append(
                 Command(
                     label=f"skill:{skill.name}:check:{hook.name}",
-                    argv=(python, PurePosixPath("scripts", hook.name).as_posix(), "--check"),
+                    argv=(python, PurePosixPath("scripts", hook.name).as_posix(), check_flag),
                     cwd=skill.absolute_path,
                 )
             )

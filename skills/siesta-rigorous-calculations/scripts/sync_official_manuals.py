@@ -843,6 +843,11 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--refresh", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument(
+        "--check-if-present",
+        action="store_true",
+        help="strictly check an installed external snapshot, or skip when it is absent",
+    )
     parser.add_argument("--snapshot", type=Path, default=DEFAULT_SNAPSHOT)
     parser.add_argument("--html2md-adapter", type=Path, default=DEFAULT_HTML2MD_ADAPTER)
     parser.add_argument("--html2md-root", type=Path, default=DEFAULT_HTML2MD_ROOT)
@@ -856,13 +861,18 @@ def main() -> int:
                 html2md_root=args.html2md_root,
                 sphinx=args.sphinx,
             )
+        elif args.check_if_present and not args.snapshot.exists():
+            result = {
+                "status": "skipped",
+                "reason": "external SIESTA provider snapshot is not installed",
+            }
         else:
             result = check(snapshot=args.snapshot, adapter=args.html2md_adapter)
     except (OSError, RuntimeError, ValueError, json.JSONDecodeError, tarfile.TarError) as exc:
         print(json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False))
         return 2
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
-    return 0 if result["status"] == "ok" else 2
+    return 0 if result["status"] in {"ok", "skipped"} else 2
 
 
 if __name__ == "__main__":

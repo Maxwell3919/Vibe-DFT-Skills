@@ -216,6 +216,27 @@ class TestDiscoveryTests(unittest.TestCase):
 
         self.assertEqual(caught.exception.code, "CHECK_HOOK_FLAG_MISSING")
 
+    def test_external_sync_hook_uses_check_if_present_mode(self) -> None:
+        self._write_registry([("external-cache", "active")])
+        skill = self._add_skill("external-cache")
+        write_text(
+            skill / "scripts" / "sync_external.py",
+            self._sync_hook_source(check_if_present=True),
+        )
+
+        commands = run_tests.discover_skill_commands(
+            self.repo,
+            sys.executable,
+            root_test_covered=frozenset(),
+        )
+
+        sync = next(command for command in commands if command.label.endswith("sync_external.py"))
+        self.assertEqual(
+            sync.argv[-2:],
+            ("scripts/sync_external.py", "--check-if-present"),
+        )
+        self.assertEqual(run_tests.execute_commands((sync,)), 0)
+
     def test_noncanonical_matching_hook_fails_discovery(self) -> None:
         self._write_registry([("bad-hook", "active")])
         skill = self._add_skill("bad-hook")
@@ -297,13 +318,24 @@ class TestDiscoveryTests(unittest.TestCase):
         self.assertIn("FAILED", completed.stderr)
 
     @staticmethod
-    def _sync_hook_source() -> str:
+    def _sync_hook_source(*, check_if_present: bool = False) -> str:
+        optional_flag = (
+            "parser.add_argument('--check-if-present', action='store_true')\n"
+            if check_if_present
+            else ""
+        )
+        success_expression = (
+            "arguments.check_if_present"
+            if check_if_present
+            else "arguments.check"
+        )
         return (
             "import argparse\n\n"
             "parser = argparse.ArgumentParser()\n"
             "parser.add_argument('--check', action='store_true')\n"
+            f"{optional_flag}"
             "arguments = parser.parse_args()\n"
-            "raise SystemExit(0 if arguments.check else 3)\n"
+            f"raise SystemExit(0 if {success_expression} else 3)\n"
         )
 
 
