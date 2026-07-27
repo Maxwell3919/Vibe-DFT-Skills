@@ -18,7 +18,8 @@ SKILL_ID = "dft-postprocess"
 EXTRACTOR_ID = "dft-postprocess-scope-v1"
 RETRIEVED_UTC = "2026-07-24T00:00:00Z"
 CP2K_MANIFEST_RELATIVE = (
-    "skills/cp2k-rigorous-calculations/references/official-manual/manifest.json"
+    "skills/cp2k-rigorous-calculations/references/manual-cache-receipts/"
+    "manifest.json"
 )
 CP2K_RECEIPT_UTC = "2026-07-18T00:00:00Z"
 CP2K_POSTPROCESS_TOPICS = {
@@ -638,7 +639,24 @@ def cp2k_curated_partition(
         raise ValueError(
             f"{CP2K_MANIFEST_RELATIVE}: invalid CP2K 2026.2 curated manifest"
         )
-    missing_topics = sorted(set(CP2K_POSTPROCESS_TOPICS) - set(pages))
+    curated_pages: dict[str, dict[str, Any]] = {}
+    for page_id, page in pages.items():
+        if not isinstance(page, dict):
+            raise ValueError(
+                f"{CP2K_MANIFEST_RELATIVE}: invalid page record {page_id!r}"
+            )
+        curated_topic = page.get("curated_topic")
+        if curated_topic is None:
+            continue
+        if not isinstance(curated_topic, str) or curated_topic in curated_pages:
+            raise ValueError(
+                f"{CP2K_MANIFEST_RELATIVE}: invalid or duplicate curated topic "
+                f"{curated_topic!r}"
+            )
+        curated_pages[curated_topic] = page
+    missing_topics = sorted(
+        set(CP2K_POSTPROCESS_TOPICS) - set(curated_pages)
+    )
     if missing_topics:
         raise ValueError(
             f"{CP2K_MANIFEST_RELATIVE}: missing selected topics {missing_topics}"
@@ -652,11 +670,7 @@ def cp2k_curated_partition(
     sources: list[dict[str, Any]] = []
     exclusions: list[dict[str, Any]] = []
     source_ids: set[str] = set()
-    for topic, page in sorted(pages.items()):
-        if not isinstance(page, dict):
-            raise ValueError(
-                f"{CP2K_MANIFEST_RELATIVE}: invalid page record {topic!r}"
-            )
+    for page_id, page in sorted(pages.items()):
         required = {
             "source_path": str,
             "source_url": str,
@@ -666,7 +680,7 @@ def cp2k_curated_partition(
         for key, expected_type in required.items():
             if not isinstance(page.get(key), expected_type):
                 raise ValueError(
-                    f"{CP2K_MANIFEST_RELATIVE}: {topic!r} lacks valid {key}"
+                    f"{CP2K_MANIFEST_RELATIVE}: {page_id!r} lacks valid {key}"
                 )
         source_id = cp2k_canonical_source_id(page["source_path"])
         if source_id in source_ids:
@@ -674,8 +688,12 @@ def cp2k_curated_partition(
                 f"{CP2K_MANIFEST_RELATIVE}: duplicate canonical id {source_id!r}"
             )
         source_ids.add(source_id)
-        if topic in CP2K_POSTPROCESS_TOPICS:
-            title = f"CP2K 2026.2 {CP2K_POSTPROCESS_TOPICS[topic]}"
+        curated_topic = page.get("curated_topic")
+        if curated_topic in CP2K_POSTPROCESS_TOPICS:
+            title = (
+                f"CP2K 2026.2 "
+                f"{CP2K_POSTPROCESS_TOPICS[curated_topic]}"
+            )
             sources.append(
                 external_source(
                     source_id=source_id,

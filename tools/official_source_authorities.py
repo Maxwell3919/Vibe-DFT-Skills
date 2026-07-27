@@ -84,10 +84,16 @@ CANONICAL_SNAPSHOT_FIELDS = {
 }
 CP2K_MANIFEST_FIELDS = {
     "converter",
+    "curated_topic_count",
+    "genindex_page_count",
     "index_page_count",
     "index_sha256",
+    "internal_link_count",
+    "linked_page_count",
+    "manual_index_sha256",
     "manual_branch",
     "manual_version",
+    "mirrored_page_count",
     "mirrored_topic_count",
     "pages",
     "registry_sha256",
@@ -96,6 +102,7 @@ CP2K_MANIFEST_FIELDS = {
 }
 CP2K_PAGE_FIELDS = {
     "conversion_quality",
+    "curated_topic",
     "indexed",
     "path",
     "raw_bytes",
@@ -122,11 +129,14 @@ CP2K_CONVERTER_DEPENDENCIES = {
     "turndown-plugin-gfm",
 }
 CP2K_CONVERSION_QUALITY_FIELDS = {
+    "anchor_count",
+    "internal_link_count",
     "markdown_token_count",
     "max_line_chars",
     "non_ascii_characters_preserved",
     "replacement_characters",
     "source_non_ascii_chars",
+    "source_alphanumeric_character_count",
     "source_text_chars",
     "source_text_sha256",
     "source_token_count",
@@ -137,6 +147,8 @@ CP2K_CONVERSION_QUALITY_FIELDS = {
 HTML2MD_UPSTREAM = "https://github.com/helloworld-Co/html2md"
 HTML2MD_COMMIT = "ca08965af93e6565806a79087868daa439565ffc"
 CP2K_INDEX_FIELDS = {
+    "genindex_page_count",
+    "linked_page_count",
     "manual_branch",
     "manual_version",
     "page_count",
@@ -154,7 +166,7 @@ SOURCE_KINDS = {
     "official-api-metadata",
 }
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
-MAX_MANIFEST_BYTES = 4 * 1024 * 1024
+MAX_MANIFEST_BYTES = 16 * 1024 * 1024
 MAX_SNAPSHOT_BYTES = 16 * 1024 * 1024
 MAX_SNAPSHOT_COUNT = 4096
 MAX_TOTAL_SNAPSHOT_BYTES = 512 * 1024 * 1024
@@ -163,7 +175,10 @@ MAX_TOTAL_SNAPSHOT_BYTES = 512 * 1024 * 1024
 def cp2k_source_id(source_path: str) -> str:
     """Return the stable corpus ID for one canonical CP2K index path."""
 
-    return source_path.lower().replace("/", ".")
+    return (
+        "cp2k-page-"
+        + hashlib.sha256(source_path.encode("utf-8")).hexdigest()[:32]
+    )
 
 
 def repo_root() -> Path:
@@ -477,8 +492,15 @@ def _canonical_snapshot_projection(
     declared_manifest_hash = canonical.get("manifest_raw_sha256")
     if not isinstance(declared_manifest_hash, str) or SHA256.fullmatch(declared_manifest_hash) is None:
         failures.append(f"{location}/manifest_raw_sha256: expected a SHA-256")
-    if canonical.get("artifact_basis") != "derived-snapshot-file-exact-bytes":
+    artifact_basis = canonical.get("artifact_basis")
+    if artifact_basis not in {
+        "derived-snapshot-file-exact-bytes",
+        "external-cache-manifest-receipt-exact-bytes",
+    }:
         failures.append(f"{location}/artifact_basis: unsupported artifact basis")
+    receipt_only = (
+        artifact_basis == "external-cache-manifest-receipt-exact-bytes"
+    )
     if root is None or relative is None or failures:
         if root is None:
             failures.append(f"{location}: source_root is required to verify a canonical snapshot")
@@ -557,8 +579,8 @@ def _canonical_snapshot_projection(
     if set(manifest) != CP2K_MANIFEST_FIELDS:
         failures.append(f"{location}/manifest_path: unsupported manifest fields")
         return failures, None
-    if manifest.get("schema_version") != "1.0":
-        failures.append(f"{location}/manifest_path: expected schema_version '1.0'")
+    if manifest.get("schema_version") != "2.0":
+        failures.append(f"{location}/manifest_path: expected schema_version '2.0'")
     manual_branch = manifest.get("manual_branch")
     authority_prefixes = entry.get("content_policy", {}).get("allowed_path_prefixes", [])
     if (
@@ -645,12 +667,28 @@ def _canonical_snapshot_projection(
         return failures, None
     if manifest.get("mirrored_topic_count") != len(pages):
         failures.append(f"{location}/manifest_path: mirrored_topic_count does not match pages")
+    if manifest.get("mirrored_page_count") != len(pages):
+        failures.append(f"{location}/manifest_path: mirrored_page_count does not match pages")
     if (
         not isinstance(manifest.get("index_page_count"), int)
         or isinstance(manifest.get("index_page_count"), bool)
-        or manifest["index_page_count"] < len(pages)
+        or manifest["index_page_count"] != len(pages)
     ):
         failures.append(f"{location}/manifest_path: invalid index_page_count")
+    for field in ("genindex_page_count", "linked_page_count"):
+        if (
+            not isinstance(manifest.get(field), int)
+            or isinstance(manifest.get(field), bool)
+            or manifest[field] < 0
+        ):
+            failures.append(f"{location}/manifest_path: invalid {field}")
+    if (
+        isinstance(manifest.get("genindex_page_count"), int)
+        and isinstance(manifest.get("linked_page_count"), int)
+        and manifest["genindex_page_count"] + manifest["linked_page_count"]
+        != manifest.get("index_page_count")
+    ):
+        failures.append(f"{location}/manifest_path: link-closure counts do not close")
 
     manifest_parent = relative.parent
     index_relative = manifest_parent / "index.json"
@@ -678,7 +716,7 @@ def _canonical_snapshot_projection(
         else:
             index_pages = index.get("pages")
             if (
-                index.get("schema_version") != "1.0"
+                index.get("schema_version") != "2.0"
                 or index.get("manual_branch") != manifest.get("manual_branch")
                 or index.get("manual_version") != manifest.get("manual_version")
                 or not isinstance(index_pages, list)
@@ -687,6 +725,12 @@ def _canonical_snapshot_projection(
                 or len(index_pages) != len(set(index_pages))
                 or index.get("page_count") != len(index_pages)
                 or manifest.get("index_page_count") != len(index_pages)
+                or index.get("genindex_page_count")
+                != manifest.get("genindex_page_count")
+                or index.get("linked_page_count") != manifest.get("linked_page_count")
+                or index.get("genindex_page_count", 0)
+                + index.get("linked_page_count", 0)
+                != len(index_pages)
             ):
                 failures.append(
                     f"{location}/manifest_path: canonical index does not declare one "
@@ -749,9 +793,8 @@ def _canonical_snapshot_projection(
             or "%" in local_name
             or "\\" in local_name
             or ".." in local_relative.parts
-            or len(local_relative.parts) != 1
         ):
-            failures.append(f"{page_location}/path: expected one safe snapshot filename")
+            failures.append(f"{page_location}/path: expected one safe snapshot path")
             continue
         if local_relative.as_posix() in local_paths:
             failures.append(f"{page_location}/path: duplicate snapshot path")
@@ -774,6 +817,8 @@ def _canonical_snapshot_projection(
             failures.append(f"{page_location}/source_path: invalid source path")
         elif isinstance(source_url, str) and not urlsplit(source_url).path.endswith("/" + source_path):
             failures.append(f"{page_location}/source_path: does not match canonical URL")
+        if isinstance(source_path, str) and source_id != cp2k_source_id(source_path):
+            failures.append(f"{page_location}: source ID does not match source path")
         for field in ("raw_sha256", "snapshot_sha256"):
             if not isinstance(page.get(field), str) or SHA256.fullmatch(page[field]) is None:
                 failures.append(f"{page_location}/{field}: expected a SHA-256")
@@ -790,19 +835,24 @@ def _canonical_snapshot_projection(
                 failures.append(f"{location}/manifest_path: snapshots exceed the total byte limit")
                 return failures, None
         snapshot_relative = (manifest_parent / local_relative).as_posix()
-        snapshot_raw, snapshot_error = _read_regular_file(
-            root,
-            snapshot_relative,
-            maximum_bytes=MAX_SNAPSHOT_BYTES,
-        )
-        if snapshot_error is not None or snapshot_raw is None:
-            failures.append(f"{page_location}/path: {snapshot_error}")
-            continue
-        actual_snapshot_hash = hashlib.sha256(snapshot_raw).hexdigest()
-        if page.get("snapshot_sha256") != actual_snapshot_hash:
-            failures.append(f"{page_location}/snapshot_sha256: does not match exact snapshot bytes")
-        if page.get("snapshot_bytes") != len(snapshot_raw):
-            failures.append(f"{page_location}/snapshot_bytes: does not match exact snapshot bytes")
+        snapshot_raw: bytes | None = None
+        actual_snapshot_hash = page.get("snapshot_sha256")
+        actual_snapshot_bytes = page.get("snapshot_bytes")
+        if not receipt_only:
+            snapshot_raw, snapshot_error = _read_regular_file(
+                root,
+                snapshot_relative,
+                maximum_bytes=MAX_SNAPSHOT_BYTES,
+            )
+            if snapshot_error is not None or snapshot_raw is None:
+                failures.append(f"{page_location}/path: {snapshot_error}")
+                continue
+            actual_snapshot_hash = hashlib.sha256(snapshot_raw).hexdigest()
+            actual_snapshot_bytes = len(snapshot_raw)
+            if page.get("snapshot_sha256") != actual_snapshot_hash:
+                failures.append(f"{page_location}/snapshot_sha256: does not match exact snapshot bytes")
+            if page.get("snapshot_bytes") != actual_snapshot_bytes:
+                failures.append(f"{page_location}/snapshot_bytes: does not match exact snapshot bytes")
         quality = page.get("conversion_quality")
         quality_location = f"{page_location}/conversion_quality"
         if (
@@ -823,6 +873,7 @@ def _canonical_snapshot_projection(
                 failures.append(f"{quality_location}: positive quality gates are incomplete")
             for field in (
                 "source_text_chars",
+                "source_alphanumeric_character_count",
                 "source_token_count",
                 "source_non_ascii_chars",
                 "markdown_token_count",
@@ -840,26 +891,37 @@ def _canonical_snapshot_projection(
                 and quality["markdown_token_count"] < quality["source_token_count"]
             ):
                 failures.append(f"{quality_location}: Markdown token count is smaller than source")
-            try:
-                snapshot_text = snapshot_raw.decode("utf-8", errors="strict")
-            except UnicodeDecodeError:
-                failures.append(f"{quality_location}: snapshot is not valid UTF-8")
-            else:
-                actual_max_line = max(
-                    (len(line) for line in snapshot_text.splitlines()),
-                    default=0,
-                )
-                if (
-                    quality.get("max_line_chars") != actual_max_line
-                    or actual_max_line > 20_000
-                    or "\ufffd" in snapshot_text
-                    or "\uf0c1" in snapshot_text
-                ):
-                    failures.append(
-                        f"{quality_location}: display-quality evidence does not "
-                        "match exact snapshot bytes"
+            if snapshot_raw is not None:
+                try:
+                    snapshot_text = snapshot_raw.decode("utf-8", errors="strict")
+                except UnicodeDecodeError:
+                    failures.append(f"{quality_location}: snapshot is not valid UTF-8")
+                    snapshot_text = None
+                if snapshot_text is not None:
+                    actual_max_line = max(
+                        (len(line) for line in snapshot_text.splitlines()),
+                        default=0,
                     )
-        if version_scope is not None and isinstance(source_url, str):
+                    if (
+                        quality.get("max_line_chars") != actual_max_line
+                        or actual_max_line > 20_000
+                        or "\ufffd" in snapshot_text
+                        or "\uf0c1" in snapshot_text
+                    ):
+                        failures.append(
+                            f"{quality_location}: display-quality evidence does not "
+                            "match exact snapshot bytes"
+                        )
+            elif quality.get("max_line_chars", 0) > 20_000:
+                failures.append(
+                    f"{quality_location}: recorded line length exceeds limit"
+                )
+        curated_topic = page.get("curated_topic")
+        if (
+            curated_topic is not None
+            and version_scope is not None
+            and isinstance(source_url, str)
+        ):
             canonical_source_id = cp2k_source_id(source_path)
             if canonical_source_id not in upstream_sources:
                 failures.append(
@@ -873,12 +935,12 @@ def _canonical_snapshot_projection(
                 "raw_sha256": page["raw_sha256"],
                 "raw_bytes": page["raw_bytes"],
                 "raw_integrity_verified": False,
-                "topic_alias": source_id,
+                "topic_alias": curated_topic,
                 "derived_snapshot": {
                     "path": snapshot_relative,
                     "sha256": actual_snapshot_hash,
-                    "bytes": len(snapshot_raw),
-                    "integrity_verified": True,
+                    "bytes": actual_snapshot_bytes,
+                    "integrity_verified": not receipt_only,
                 },
             }
     if failures:
@@ -887,7 +949,7 @@ def _canonical_snapshot_projection(
         "snapshot_id": snapshot_id,
         "manifest_raw_sha256": actual_manifest_hash,
         "index_raw_sha256": hashlib.sha256(index_raw).hexdigest(),
-        "integrity_verified": True,
+        "integrity_verified": not receipt_only,
         "upstream_source_count": len(upstream_sources),
         "upstream_universe_complete": True,
         "upstream_sources_by_id": upstream_sources,

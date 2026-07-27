@@ -153,7 +153,6 @@ authorities:
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=31110&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=31117&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=31482&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
-      - https://www.vasp.at/wiki/api.php?action=parse&oldid=32299&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=32552&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=32772&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=32792&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
@@ -176,7 +175,6 @@ authorities:
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=35382&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=35395&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=35404&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
-      - https://www.vasp.at/wiki/api.php?action=parse&oldid=35517&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=35705&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=35874&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=35974&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
@@ -205,7 +203,9 @@ authorities:
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=37297&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=37346&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       - https://www.vasp.at/wiki/api.php?action=parse&oldid=37501&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
-      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37503&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37632&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37634&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
+      - https://www.vasp.at/wiki/api.php?action=parse&oldid=37636&prop=text%7Cwikitext%7Crevid%7Cdisplaytitle&format=json&formatversion=2
       fragment_policy: forbidden
       resolution_mode: platform-verified-only
     content_identity_policy:
@@ -263,9 +263,9 @@ authorities:
       unpinned_action: adapter-required
     canonical_snapshot:
       snapshot_id: cp2k-manual-2026-2
-      manifest_path: skills/cp2k-rigorous-calculations/references/official-manual/manifest.json
-      manifest_raw_sha256: a3fc5ee82eee83064af436ea7b0ee9aab151f9006d58f3d34fc0e83ad2990c9b
-      artifact_basis: derived-snapshot-file-exact-bytes
+      manifest_path: skills/cp2k-rigorous-calculations/references/manual-cache-receipts/manifest.json
+      manifest_raw_sha256: dd2abe62a7e4ab483196361824d6bd9c577e750af33ce4197da363561bb0980c
+      artifact_basis: external-cache-manifest-receipt-exact-bytes
     license_policy:
       status: unknown
       identifier: null

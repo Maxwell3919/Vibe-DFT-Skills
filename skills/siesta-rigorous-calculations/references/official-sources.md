@@ -14,7 +14,7 @@ The automated parameter/source set is pinned to official SIESTA tag `5.4.2`, com
 - Official repository/tags: `https://gitlab.com/siesta-project/siesta`
 - Pseudopotential landing page: `https://siesta-project.org/siesta/Documentation/Pseudopotentials/`
 
-`official-fdf-index.json` is mechanically generated from 47 hash-pinned official manual source files and contains 572 active FDF definitions. Each record preserves label, normalized lookup key, value type, documented default text, macro class, source file/line, and commit-pinned URL. `official-source-supplements.json` separately records source-observed behavior absent from manual FDF macros, including `GeometryMustConverge` and parser anchors. Never relabel a source supplement as manual documentation.
+`manual-cache-receipts/fdf-index.json` is mechanically generated from 47 hash-pinned official manual source files and contains 572 active FDF definitions. Each record preserves label, normalized lookup key, value type, documented default text, macro class, source file/line, and commit-pinned URL. `manual-cache-receipts/source-supplements.json` separately records source-observed behavior absent from manual FDF macros, including `GeometryMustConverge` and parser anchors. Never relabel a source supplement as manual documentation.
 
 The manual's `DOS.kgrid.?`, `PDOS.kgrid.?`, and `LDOS.kgrid.?` entries are
 families, not arbitrary wildcards. The deterministic resolver accepts only the
@@ -39,7 +39,7 @@ Use an official checkout at the exact pinned commit:
 python3 scripts/sync_official_parameters.py \
   --source-tree /authorized/siesta-5.4.2 \
   --expected-commit e486d12067b96ff688179f0496d0ec21b6fae0ab \
-  --out references/official-fdf-index.json
+  --out references/manual-cache-receipts/fdf-index.json
 ```
 
 Then exact-check it:
@@ -47,7 +47,7 @@ Then exact-check it:
 ```bash
 python3 scripts/sync_official_parameters.py --check \
   --source-tree /authorized/siesta-5.4.2 \
-  --out references/official-fdf-index.json
+  --out references/manual-cache-receipts/fdf-index.json
 ```
 
 Do not manually edit the generated index. Multiple official definitions sharing a normalized key remain explicitly ambiguous; `MM.Cutoff` is blocked until its context is resolved.

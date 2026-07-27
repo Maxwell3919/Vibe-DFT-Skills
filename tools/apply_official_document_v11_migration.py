@@ -26,7 +26,7 @@ from migrate_official_document_catalogs_v11 import (
     canonical_json_bytes,
     convert_catalog_v10_to_v11,
 )
-from official_source_authorities import validate_and_project
+from official_source_authorities import cp2k_source_id, validate_and_project
 from registry_yaml import load_yaml_strict
 
 
@@ -818,6 +818,32 @@ def _repair_cp2k_manual_v11_catalog(
     legacy_ids: list[str] = []
     repaired_ids: list[str] = []
     excluded_count = 0
+
+    def canonical_source_path(source_id: str, locator: object) -> str | None:
+        upstream_entry = upstream.get(source_id)
+        direct_path = (
+            upstream_entry.get("source_path")
+            if isinstance(upstream_entry, dict)
+            else None
+        )
+        if isinstance(direct_path, str) and direct_path:
+            return direct_path
+        if not isinstance(locator, str):
+            return None
+        for base in (repair.old_origin, repair.authority_root):
+            if not locator.startswith(base):
+                continue
+            candidate = locator[len(base) :]
+            canonical_entry = upstream.get(cp2k_source_id(candidate))
+            canonical_path = (
+                canonical_entry.get("source_path")
+                if isinstance(canonical_entry, dict)
+                else None
+            )
+            if canonical_path == candidate:
+                return candidate
+        return None
+
     for source_id, source in catalog["discovered_sources"].items():
         if not isinstance(source, dict):
             raise ApplyMigrationError(
@@ -834,12 +860,7 @@ def _repair_cp2k_manual_v11_catalog(
                 f"CP2K_LOCATOR_REPAIR_NONEXCLUDED: {item.catalog_path}: {source_id}"
             )
         if source.get("disposition") != "excluded":
-            upstream_entry = upstream.get(source_id)
-            source_path = (
-                upstream_entry.get("source_path")
-                if isinstance(upstream_entry, dict)
-                else None
-            )
+            source_path = canonical_source_path(source_id, content.get("locator"))
             if (
                 isinstance(source_path, str)
                 and content.get("locator") == repair.old_origin + source_path
@@ -854,13 +875,8 @@ def _repair_cp2k_manual_v11_catalog(
             raise ApplyMigrationError(
                 f"CP2K_LOCATOR_REPAIR_CONTENT_MODE_DRIFT: {item.catalog_path}: {source_id}"
             )
-        upstream_entry = upstream.get(source_id)
-        source_path = (
-            upstream_entry.get("source_path")
-            if isinstance(upstream_entry, dict)
-            else None
-        )
         locator = content.get("locator")
+        source_path = canonical_source_path(source_id, locator)
         if (
             not isinstance(source_path, str)
             or not source_path
@@ -885,18 +901,22 @@ def _repair_cp2k_manual_v11_catalog(
                 f"CP2K_LOCATOR_REPAIR_LOCATOR_DRIFT: {item.catalog_path}: {source_id}"
             )
 
-    if excluded_count != repair.expected_excluded_sources:
-        raise ApplyMigrationError(
-            "CP2K_LOCATOR_REPAIR_COUNT_DRIFT: "
-            f"{item.catalog_path}: expected={repair.expected_excluded_sources} "
-            f"actual={excluded_count}"
-        )
     if legacy_ids and repaired_ids:
         raise ApplyMigrationError(
             "CP2K_LOCATOR_REPAIR_MIXED_STATE: "
             f"{item.catalog_path}: legacy={len(legacy_ids)} repaired={len(repaired_ids)}"
         )
-    if not repaired_ids and len(legacy_ids) != repair.expected_excluded_sources:
+    if legacy_ids and excluded_count != repair.expected_excluded_sources:
+        raise ApplyMigrationError(
+            "CP2K_LOCATOR_REPAIR_COUNT_DRIFT: "
+            f"{item.catalog_path}: expected={repair.expected_excluded_sources} "
+            f"actual={excluded_count}"
+        )
+    if legacy_ids and len(legacy_ids) != repair.expected_excluded_sources:
+        raise ApplyMigrationError(
+            f"CP2K_LOCATOR_REPAIR_STATE_INVALID: {item.catalog_path}"
+        )
+    if not legacy_ids and len(repaired_ids) != excluded_count:
         raise ApplyMigrationError(
             f"CP2K_LOCATOR_REPAIR_STATE_INVALID: {item.catalog_path}"
         )

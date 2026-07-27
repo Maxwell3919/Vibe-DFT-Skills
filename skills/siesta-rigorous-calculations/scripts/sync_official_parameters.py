@@ -19,7 +19,9 @@ GENERATOR_VERSION = "1.0.0"
 DEFAULT_TAG = "5.4.2"
 DEFAULT_COMMIT = "e486d12067b96ff688179f0496d0ec21b6fae0ab"
 SKILL_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_INDEX = SKILL_ROOT / "references" / "official-fdf-index.json"
+DEFAULT_INDEX = (
+    SKILL_ROOT / "references" / "manual-cache-receipts" / "fdf-index.json"
+)
 ENTRY_RE = re.compile(
     r"\\begin\{fdfentry\}\{(?P<label>[^{}]+)\}"
     r"(?:\[(?P<value_type>[^\]]*)\])?"

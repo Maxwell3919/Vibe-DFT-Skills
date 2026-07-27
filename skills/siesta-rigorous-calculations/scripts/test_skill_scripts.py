@@ -22,6 +22,7 @@ from audit_siesta_case import (
 )
 from create_siesta_plan import build_plan, validate_plan
 from resolve_official_sources import resolve, verified_fetch
+import sync_official_manuals
 
 
 def fdf_text(*, mesh: int = 250, atoms: int = 2, coordinate_rows: int = 2, kgrid: bool = True, pseudo_spec: str = "Si.psml", extra: str = "", relax: bool = False) -> str:
@@ -934,6 +935,21 @@ class ConvergenceTests(unittest.TestCase, CaseBuilder):
             plan_path = self.make_plan(Path(temporary), abs_tol=0.003)
             with self.assertRaisesRegex(ValueError, "absolute_tolerance"):
                 validate_plan_contract(json.loads(plan_path.read_text()), "protocol-pbe-dzp", "total_energy", "eV", 0.004, None)
+
+
+class OfficialManualMirrorTests(unittest.TestCase):
+    def test_complete_source_tree_mirror_and_link_closure(self) -> None:
+        result = sync_official_manuals.check(
+            snapshot=sync_official_manuals.DEFAULT_SNAPSHOT,
+            adapter=sync_official_manuals.DEFAULT_HTML2MD_ADAPTER,
+        )
+        self.assertEqual(result["status"], "ok", result["errors"])
+        self.assertGreaterEqual(result["source_document_count"], 100)
+        self.assertGreaterEqual(
+            result["mirrored_page_count"] + result["source_only_page_count"],
+            100,
+        )
+        self.assertGreater(result["internal_link_count"], 100)
 
 
 if __name__ == "__main__":

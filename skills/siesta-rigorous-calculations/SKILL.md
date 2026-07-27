@@ -9,6 +9,10 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Separate official behavior, scientific intent, input integrity, parent/restart lineage, execution, numerical convergence, task validity, physical validity, and scientific acceptance. Missing, ambiguous, version-mismatched, or parser-unsupported evidence blocks a positive conclusion.
 
+## Organize the calculation campaign
+
+For a new calculation-side workspace, read [the SIESTA workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Before the first calculation side effect, have the user select `off`, `silent-update`, or `milestone-review`; do not infer the choice from silence. Use `tools/manage_calculation_workspace.py` to separate structures, direct FDF inputs and runtime data, attempt directories, derived data, figures, and reports and, when enabled, to append immutable taskbook revisions. Keep each attempt's direct FDF, pseudopotential manifest, runtime-only pseudopotentials, output, restart ancestry, and audit evidence together without mixing attempts. Pause at recorded milestones in review mode. Silent updates never grant execution authority, scientific-route changes, or scientific acceptance. Inventory existing runs first and never reorganize a directory while SIESTA or another process may be writing it.
+
 ## Start with the contracts
 
 Read [references/fail-closed-execution-contract.md](references/fail-closed-execution-contract.md) before designing, auditing, or accepting a run. For a new campaign, also read [references/calculation-workflow.md](references/calculation-workflow.md). Apply these invariants:

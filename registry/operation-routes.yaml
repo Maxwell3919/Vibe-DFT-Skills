@@ -106,7 +106,7 @@ routes:
     required_reads:
       - skills/qe-rigorous-calculations/SKILL.md
       - skills/qe-rigorous-calculations/references/fail-closed-contract.md
-      - skills/qe-rigorous-calculations/references/official-manual-index.md
+      - skills/qe-rigorous-calculations/references/manual-cache-route.md
     first_tool:
       explain: qe.reference
       design: qe.plan

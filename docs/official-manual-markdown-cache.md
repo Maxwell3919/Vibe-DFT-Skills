@@ -1,8 +1,8 @@
 # Official-manual Markdown cache
 
 `tools/sync_official_manual_cache.py` turns the repository's registered
-official-document receipts into a local, readable Markdown layer without
-changing the central redistribution boundary.
+official-document receipts into a local, readable Markdown layer. It reports
+technical retrieval and identity state and does not infer software licenses.
 
 ## Trust boundary
 
@@ -29,12 +29,12 @@ changing the central redistribution boundary.
 - Repository-validated QE, VASP, and CP2K Markdown snapshots are reused instead
   of being replaced by an unpinned live page.
 - Publisher literature records that are not software manuals remain metadata
-  routes. License-restricted bodies that cannot be fetched through the
-  registered HTTPS route also remain metadata-only. The tool does not bypass
-  access controls or imply manual coverage.
+  routes. Any body that cannot be fetched through the registered route remains
+  metadata-only. The tool does not bypass access controls or imply manual
+  coverage.
 
-The cache is local-only. It is not a new official-document bundle, a license
-grant, an execution validation, or scientific evidence by itself.
+The cache is local-only. It is not a new official-document bundle, an
+execution validation, or scientific evidence by itself.
 
 ## Receipt drift
 
@@ -69,11 +69,12 @@ as bullets, page breaks become explicit comments, and unknown controls become
 visible `source-control-U+XXXX` markers after the original byte or Git-object
 identity has been checked.
 
-The full local refresh verified on 2026-07-26 contains 6,622 Markdown documents
-for all 26 source-backed Skills and 45 active authorities (47,281,815 bytes and
-808,015 lines). Its manifest and all documents pass strict UTF-8, zero
-replacement-character, zero NUL, zero invisible-control-character, and
-per-file size/SHA-256 validation.
+The full local refresh verified on 2026-07-26 contains 14,635 Markdown or
+metadata-route documents for all 26 source-backed Skills. Its manifest and all
+documents pass strict UTF-8, zero replacement-character, zero NUL, zero
+invisible-control-character, and per-file size/SHA-256 validation. The
+per-Skill counts, full-provider checks, and remaining upstream gaps are recorded
+in [official-manual-cache-status.md](official-manual-cache-status.md).
 
 These gates detect corruption and gross conversion loss. They do not prove
 that a manual is complete, current for an unregistered executable version, or

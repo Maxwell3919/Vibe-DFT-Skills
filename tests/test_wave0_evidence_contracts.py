@@ -892,7 +892,7 @@ class Wave0EvidenceContractTests(unittest.TestCase):
         cp2k = projection["cp2k-official-manual"]
         snapshot = cp2k["canonical_snapshot"]
         self.assertIsNotNone(snapshot)
-        self.assertTrue(snapshot["integrity_verified"])
+        self.assertFalse(snapshot["integrity_verified"])
         self.assertEqual(len(snapshot["sources_by_id"]), 86)
         for authority_id in (
             "qe-official-docs",
@@ -914,13 +914,8 @@ class Wave0EvidenceContractTests(unittest.TestCase):
         source = snapshot["sources_by_id"][source_id]
         self.assertEqual(source["topic_alias"], "dft")
         derived_snapshot = source["derived_snapshot"]
-        snapshot_raw = (ROOT / derived_snapshot["path"]).read_bytes()
-        self.assertEqual(
-            hashlib.sha256(snapshot_raw).hexdigest(),
-            derived_snapshot["sha256"],
-        )
-        self.assertEqual(len(snapshot_raw), derived_snapshot["bytes"])
-        self.assertTrue(derived_snapshot["integrity_verified"])
+        self.assertFalse((ROOT / derived_snapshot["path"]).exists())
+        self.assertFalse(derived_snapshot["integrity_verified"])
         self.assertFalse(source["raw_integrity_verified"])
 
     def test_restricted_source_receipt_without_platform_adapter_is_exit_three_state(self) -> None:

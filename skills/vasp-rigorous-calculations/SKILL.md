@@ -9,6 +9,10 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Treat documented behavior, input integrity, reproducibility, execution completion, electronic convergence, ionic convergence, numerical convergence, task-specific validity, and physical validity as separate gates. Fail closed: missing or ambiguous evidence is `unresolved`, never an inferred pass.
 
+## Organize the calculation campaign
+
+For a new calculation-side workspace, read [the VASP workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Before the first calculation side effect, have the user select `off`, `silent-update`, or `milestone-review`; do not infer the choice from silence. Use `tools/manage_calculation_workspace.py` to keep structures, prepared inputs, native attempt directories, derived data, figures, and reports separate and, when enabled, to append immutable taskbook revisions. Keep `INCAR`, `POSCAR`, `KPOINTS`, and the runtime-only `POTCAR` together at the root of exactly one attempt directory. In review mode, pause at recorded structure, input, result, and figure milestones. Silent updates never grant execution authority, scientific-route changes, or scientific acceptance. Inventory existing runs first and never reorganize a directory while VASP or another process may be writing it.
+
 ## Apply the non-negotiable contract
 
 Read [references/fail-closed-execution-contract.md](references/fail-closed-execution-contract.md) before designing, auditing, or accepting a calculation. Follow its command sequence and mandatory report skeleton.
@@ -38,7 +42,7 @@ If the observable or tolerance is absent, provide only an input plan or missing-
 
 ### 2. Resolve official behavior exactly
 
-Read [references/official-wiki-index.md](references/official-wiki-index.md). Resolve every decisive tag/topic before stating its behavior:
+Refresh and verify the local provider cache through [references/manual-cache-route.md](references/manual-cache-route.md), then resolve every decisive tag/topic before stating its behavior:
 
 ```bash
 python3 scripts/resolve_official_sources.py ENCUT EDIFF KPOINTS --pretty
@@ -46,9 +50,9 @@ python3 scripts/resolve_official_sources.py ENCUT EDIFF KPOINTS --pretty
 
 The local resolver never emits a generic `pass`. Its strongest local state,
 `local_integrity_verified`, means only that the source-pack seed, compact
-catalog, legacy manifest, raw JSON, wikitext, and derived Markdown hashes form
+catalog, receipt manifest, cached raw JSON, wikitext, and derived Markdown hashes form
 the expected exact chain for the resolved pages. It does not establish live
-freshness, redistribution clearance, or a platform-attested external fetch.
+freshness or a platform-attested external fetch.
 `metadata_resolved_unverified` and every blocked state are insufficient for an
 official-behavior claim.
 

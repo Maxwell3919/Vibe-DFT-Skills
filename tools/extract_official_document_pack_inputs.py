@@ -152,7 +152,9 @@ def _load_qe_guard(root: Path) -> Any:
 
 def qe_catalog(root: Path) -> tuple[Path, bytes]:
     skill = root / "skills" / "qe-rigorous-calculations"
-    manifest_path = skill / "references" / "official-manifest.json"
+    manifest_path = (
+        skill / "references" / "manual-cache-receipts" / "manifest.json"
+    )
     manifest, manifest_raw = _object(manifest_path, "QE legacy manifest")
     expected_root = {
         "source_root",
@@ -171,7 +173,6 @@ def qe_catalog(root: Path) -> tuple[Path, bytes]:
         manifest["input_manuals"], list
     ):
         raise ExtractionError("QE legacy manifest root is not exact")
-    qe_guard = _load_qe_guard(root)
     manuals: list[dict[str, Any]] = []
     seen_names: set[str] = set()
     for manual in manifest["input_manuals"]:
@@ -184,6 +185,7 @@ def qe_catalog(root: Path) -> tuple[Path, bytes]:
             "last_modified",
             "retrieved_utc",
             "sha256",
+            "raw_bytes",
             "raw_file",
             "index_file",
             "sections",
@@ -194,51 +196,43 @@ def qe_catalog(root: Path) -> tuple[Path, bytes]:
         if name in seen_names:
             raise ExtractionError(f"QE duplicate manual {name!r}")
         seen_names.add(name)
-        raw = _read(
-            _contained_file(
-                manifest_path.parent,
-                manual["raw_file"],
-                f"QE raw manual {name}",
-            ),
-            f"QE raw manual {name}",
-        )
-        if _sha(raw) != manual["sha256"]:
-            raise ExtractionError(f"QE raw manual {name}: hash mismatch")
+        if (
+            not isinstance(manual["raw_bytes"], int)
+            or isinstance(manual["raw_bytes"], bool)
+            or manual["raw_bytes"] <= 0
+        ):
+            raise ExtractionError(f"QE raw manual {name}: invalid byte receipt")
         sections: list[dict[str, Any]] = []
         seen_sections: set[str] = set()
         for order, section in enumerate(manual["sections"]):
             if (
                 not isinstance(section, dict)
                 or set(section)
-                != {"order", "id", "title", "file", "sha256", "bytes"}
+                != {
+                    "order",
+                    "id",
+                    "title",
+                    "file",
+                    "sha256",
+                    "bytes",
+                    "wrapper_sha256",
+                    "wrapper_bytes",
+                }
                 or section["order"] != order
                 or section["id"] in seen_sections
             ):
                 raise ExtractionError(f"QE {name}: invalid section structure")
             seen_sections.add(section["id"])
-            wrapper, verification = qe_guard.verified_local_reference_entry(
-                manual,
-                section["title"],
-                section["file"],
-            )
-            if wrapper is None or verification.get("status") != "verified":
+            if (
+                not isinstance(section["wrapper_sha256"], str)
+                or re.fullmatch(r"[a-f0-9]{64}", section["wrapper_sha256"])
+                is None
+                or not isinstance(section["wrapper_bytes"], int)
+                or isinstance(section["wrapper_bytes"], bool)
+                or section["wrapper_bytes"] <= 0
+            ):
                 raise ExtractionError(
-                    f"QE {name} section {section['id']}: "
-                    f"{verification.get('reason', 'integrity verification failed')}"
-                )
-            wrapper_bytes = wrapper.encode("utf-8")
-            section_path = qe_guard.safe_local_reference_path(
-                section["file"],
-                f"QE {name} section {section['id']}",
-            )
-            observed_wrapper = _read(
-                section_path,
-                f"QE {name} section {section['id']} wrapper",
-            )
-            if observed_wrapper != wrapper_bytes:
-                raise ExtractionError(
-                    f"QE {name} section {section['id']}: wrapper changed "
-                    "between canonical verification and bounded read"
+                    f"QE {name} section {section['id']}: invalid wrapper receipt"
                 )
             sections.append(
                 {
@@ -248,10 +242,11 @@ def qe_catalog(root: Path) -> tuple[Path, bytes]:
                     "selected_sha256": section["sha256"],
                     "selected_bytes": section["bytes"],
                     "payload_hash_basis": (
-                        qe_guard.REFERENCE_PAYLOAD_HASH_BASIS
+                        "utf-8 bytes of the fenced text payload after removing "
+                        "the single wrapper separator newline"
                     ),
-                    "wrapper_sha256": _sha(wrapper_bytes),
-                    "wrapper_bytes": len(wrapper_bytes),
+                    "wrapper_sha256": section["wrapper_sha256"],
+                    "wrapper_bytes": section["wrapper_bytes"],
                 }
             )
         manuals.append(
@@ -261,7 +256,7 @@ def qe_catalog(root: Path) -> tuple[Path, bytes]:
                 "url": manual["url"],
                 "retrieved_utc": manual["retrieved_utc"],
                 "raw_sha256": manual["sha256"],
-                "raw_bytes": len(raw),
+                "raw_bytes": manual["raw_bytes"],
                 "sections": sections,
             }
         )
@@ -285,77 +280,107 @@ def qe_catalog(root: Path) -> tuple[Path, bytes]:
 def vasp_catalog(root: Path) -> tuple[Path, bytes]:
     skill = root / "skills" / "vasp-rigorous-calculations"
     manifest_path = (
-        skill / "references" / "official-wiki" / "manifest.json"
+        skill
+        / "references"
+        / "manual-cache-receipts"
+        / "manifest.json"
     )
     manifest, manifest_raw = _object(manifest_path, "VASP legacy manifest")
     expected_root = {
         "api_url",
         "categories",
         "core_pages",
+        "html2md_identity",
+        "internal_link_count",
+        "official_fragment_compatibility_alias_count",
         "official_root",
         "page_count",
         "pages",
+        "public_body_complete",
+        "requested_title_count",
+        "resolved_requested_title_count",
         "retrieved_utc",
         "scope",
+        "unavailable_title_count",
+        "unavailable_titles",
+        "upstream_universe",
+        "upstream_universe_complete",
     }
     if (
         set(manifest) != expected_root
-        or manifest["page_count"] != 81
         or not isinstance(manifest["pages"], list)
-        or len(manifest["pages"]) != 81
+        or manifest["page_count"] != len(manifest["pages"])
+        or manifest["scope"] != "all-main-namespace"
+        or manifest["upstream_universe_complete"] is not True
+        or manifest["public_body_complete"] is not True
     ):
-        raise ExtractionError("VASP legacy manifest is not the exact 81-page set")
+        raise ExtractionError("VASP legacy manifest is not a complete main-namespace set")
+    core_titles = {
+        title for title in manifest["core_pages"] if isinstance(title, str)
+    }
+    selected_by_pageid: dict[int, dict[str, Any]] = {}
+    for core_title in core_titles:
+        exact = [
+            page
+            for page in manifest["pages"]
+            if isinstance(page, dict) and core_title in page.get("aliases", [])
+        ]
+        candidates = exact or [
+            page
+            for page in manifest["pages"]
+            if isinstance(page, dict)
+            and any(
+                isinstance(alias, str)
+                and alias.casefold() == core_title.casefold()
+                for alias in page.get("aliases", [])
+            )
+        ]
+        if len(candidates) != 1:
+            raise ExtractionError(
+                f"VASP curated title is missing or ambiguous: {core_title}"
+            )
+        selected_by_pageid[candidates[0]["pageid"]] = candidates[0]
+    selected_pages = list(selected_by_pageid.values())
+    if len(core_titles) != 81 or len(selected_pages) != 81:
+        raise ExtractionError(
+            "VASP complete manifest does not resolve the exact 81-page curated subset"
+        )
     pages: list[dict[str, Any]] = []
     seen_pageids: set[int] = set()
-    for page in sorted(manifest["pages"], key=lambda item: item["pageid"]):
+    for page in sorted(selected_pages, key=lambda item: item["pageid"]):
         if (
             not isinstance(page, dict)
             or set(page)
             != {
+                "aliases",
+                "conversion_quality",
                 "markdown_path",
                 "markdown_sha256",
                 "pageid",
+                "raw_bytes",
                 "raw_path",
                 "raw_sha256",
                 "revid",
                 "title",
                 "url",
+                "wikitext_bytes",
+                "wikitext_sha256",
             }
             or page["pageid"] in seen_pageids
         ):
             raise ExtractionError("VASP page entry is not exact")
         seen_pageids.add(page["pageid"])
-        raw_path = _contained_file(
-            skill,
-            page["raw_path"],
-            f"VASP page {page['pageid']} raw API JSON",
-        )
-        raw_record, raw_json = _object(
-            raw_path,
-            f"VASP page {page['pageid']} raw API JSON",
-        )
         if (
-            _sha(raw_json) != page["raw_sha256"]
-            or set(raw_record)
-            != {
-                "displaytitle",
-                "html",
-                "pageid",
-                "requested_title",
-                "revid",
-                "title",
-                "wikitext",
-            }
-            or raw_record.get("pageid") != page["pageid"]
-            or raw_record.get("revid") != page["revid"]
-            or raw_record.get("title") != page["title"]
-            or not isinstance(raw_record.get("requested_title"), str)
-            or not isinstance(raw_record.get("wikitext"), str)
+            not isinstance(page["raw_bytes"], int)
+            or isinstance(page["raw_bytes"], bool)
+            or page["raw_bytes"] <= 0
+            or not isinstance(page["wikitext_bytes"], int)
+            or isinstance(page["wikitext_bytes"], bool)
+            or page["wikitext_bytes"] < 0
         ):
             raise ExtractionError(
-                f"VASP page {page['pageid']}: identity mismatch"
+                f"VASP page {page['pageid']}: invalid byte receipt"
             )
-        wikitext = raw_record["wikitext"].encode("utf-8")
         api_request_url = manifest["api_url"] + "?" + urllib.parse.urlencode(
             [
                 ("action", "parse"),
@@ -373,9 +398,9 @@ def vasp_catalog(root: Path) -> tuple[Path, bytes]:
                 "url": page["url"],
                 "api_request_url": api_request_url,
                 "raw_json_sha256": page["raw_sha256"],
-                "raw_json_bytes": len(raw_json),
-                "wikitext_sha256": _sha(wikitext),
-                "wikitext_bytes": len(wikitext),
+                "raw_json_bytes": page["raw_bytes"],
+                "wikitext_sha256": page["wikitext_sha256"],
+                "wikitext_bytes": page["wikitext_bytes"],
             }
         )
     output = {
@@ -390,7 +415,8 @@ def vasp_catalog(root: Path) -> tuple[Path, bytes]:
         "pages": pages,
         "limitations": [
             "This catalog stores pageid/revid plus separate raw-JSON and wikitext identities only; official body text is not embedded.",
-            "The 81 curated pages do not prove full Wiki, Portal, link, template, image, or third-party asset closure.",
+            "The 81 pages are the curated semantic source-pack subset; full public main-namespace body and link closure is recorded separately by the revision-bound legacy manifest.",
+            "The public VASP Portal, protected downloads, images, and third-party assets remain outside the Wiki main-namespace closure.",
         ],
     }
     return skill / "references" / TARGET_NAME, _canonical(output)

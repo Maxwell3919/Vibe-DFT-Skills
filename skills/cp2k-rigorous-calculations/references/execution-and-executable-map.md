@@ -170,10 +170,10 @@ fixtures do not substitute for running the exact local executable.
 
 ## Official mirrored sources
 
-- `references/official-manual/first-calculation.md` — installed executable
-  variants and `-i/-o` commands.
-- `references/official-manual/troubleshooting.md` — stdout/stderr and
-  MPI-launch examples.
+- local provider-cache `first-calculation.md` — installed executable variants
+  and `-i/-o` commands; locate it from `references/manual-cache-route.md`.
+- local provider-cache `troubleshooting.md` — stdout/stderr and MPI-launch
+  examples; locate it from `references/manual-cache-route.md`.
 - `references/official-source-policy.md` — exact version/live source policy.
 - `references/capability-coverage-matrix.md` — automated versus documented
   surfaces.

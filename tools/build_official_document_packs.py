@@ -814,14 +814,17 @@ def _attest_replayed_catalog(
     adapter_id = provider["adapter_id"]
     if adapter_id == "qe-input-manifest-v1":
         expected_options = (
-            context.skill_root / "references" / "official-manifest.json"
+            context.skill_root
+            / "references"
+            / "manual-cache-receipts"
+            / "manifest.json"
         )
         replay = extract_official_document_pack_inputs.qe_catalog
     elif adapter_id == "vasp-wiki-manifest-v1":
         expected_options = (
             context.skill_root
             / "references"
-            / "official-wiki"
+            / "manual-cache-receipts"
             / "manifest.json"
         )
         replay = extract_official_document_pack_inputs.vasp_catalog

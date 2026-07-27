@@ -115,6 +115,115 @@ class OfficialManualCacheTests(unittest.TestCase):
         self.assertTrue(manual_cache.manual_tree_entry("doc/README"))
         self.assertFalse(manual_cache.manual_tree_entry("doc/images/logo.svg"))
         self.assertFalse(manual_cache.manual_tree_entry("src/engine.cpp"))
+        self.assertEqual(
+            Path("docs/index.rst.md"),
+            manual_cache.markdown_tree_path(Path("docs/index.rst")),
+        )
+        self.assertEqual(
+            Path("docs/index.md"),
+            manual_cache.markdown_tree_path(Path("docs/index.md")),
+        )
+
+    def test_manual_tree_links_are_local_when_mirrored_and_official_otherwise(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary)
+            first = Path("skill/authority/tree/docs/first.md")
+            second = Path("skill/authority/tree/docs/second.md")
+            formula = Path("skill/authority/tree/docs/formula.md")
+            (target / first).parent.mkdir(parents=True)
+            (target / first).write_text(
+                "[local](second.rst#details) [license](../LICENSE)\n"
+                "[![logo](assets/logo.png)](second.rst#logo)\n"
+                "![ORCID][orcid logo]\n"
+                "[orcid logo]: assets/orcid.svg\n"
+                r"\left[1-x\right](\vec{p}\bullet\vec{r})" + "\n"
+                "```markdown\n[example](second.rst)\n```\n",
+                encoding="utf-8",
+            )
+            (target / second).write_text("# Details\n", encoding="utf-8")
+            (target / formula).write_text(
+                r"\left[1-x\right](\vec{p}\bullet\vec{r})" + "\n",
+                encoding="utf-8",
+            )
+            results = [
+                {
+                    "conversion": "identity-markdown",
+                    "markdown_path": first.as_posix(),
+                    "official_source": (
+                        "https://github.com/org/repo/blob/" + "a" * 40 + "/docs/first.md"
+                    ),
+                },
+                {
+                    "conversion": "rst",
+                    "markdown_path": second.as_posix(),
+                    "official_source": (
+                        "https://github.com/org/repo/blob/" + "a" * 40 + "/docs/second.rst"
+                    ),
+                },
+                {
+                    "conversion": "rst",
+                    "markdown_path": formula.as_posix(),
+                    "official_source": (
+                        "https://github.com/org/repo/blob/" + "a" * 40 + "/docs/formula.rst"
+                    ),
+                },
+            ]
+            manual_cache.rewrite_tree_internal_links(
+                target,
+                {
+                    "docs/first.md": first,
+                    "docs/second.rst": second,
+                    "docs/formula.rst": formula,
+                },
+                results,
+            )
+            text = (target / first).read_text(encoding="utf-8")
+            formula_text = (target / formula).read_text(encoding="utf-8")
+        self.assertIn("[local](second.md#details)", text)
+        self.assertIn(
+            "[![logo](https://github.com/org/repo/blob/"
+            + "a" * 40
+            + "/docs/assets/logo.png)](second.md#logo)",
+            text,
+        )
+        self.assertIn(
+            "[license](https://github.com/org/repo/blob/"
+            + "a" * 40
+            + "/LICENSE)",
+            text,
+        )
+        self.assertIn(
+            "[orcid logo]: https://github.com/org/repo/blob/"
+            + "a" * 40
+            + "/docs/assets/orcid.svg",
+            text,
+        )
+        self.assertIn("[example](second.rst)", text)
+        self.assertIn(r"\left[1-x\right]\(\vec{p}\bullet\vec{r})", text)
+        self.assertEqual(
+            r"\left[1-x\right]\(\vec{p}\bullet\vec{r})" + "\n",
+            formula_text,
+        )
+        self.assertEqual(2, results[0]["internal_link_rewrite_count"])
+        self.assertEqual(3, results[0]["external_official_link_rewrite_count"])
+
+    def test_known_raw_snapshot_link_rewrites_to_exact_official_url(self) -> None:
+        rewritten, count = manual_cache.rewrite_known_official_links(
+            "- Raw: [source](official-raw/INPUT_PW.txt)\n"
+            "```markdown\n[example](official-raw/INPUT_PW.txt)\n```\n",
+            current_path="official-manual-pw-index.md",
+            official_urls={
+                "official-raw/INPUT_PW.txt": (
+                    "https://www.quantum-espresso.org/Doc/INPUT_PW.txt"
+                )
+            },
+        )
+        self.assertEqual(1, count)
+        self.assertIn(
+            "[source](https://www.quantum-espresso.org/Doc/INPUT_PW.txt)",
+            rewritten,
+        )
+        self.assertIn("[example](official-raw/INPUT_PW.txt)", rewritten)
 
     def test_github_blob_uses_exact_raw_transport(self) -> None:
         self.assertEqual(

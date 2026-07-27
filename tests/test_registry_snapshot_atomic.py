@@ -47,7 +47,9 @@ class RegistrySnapshotAtomicTests(unittest.TestCase):
         canonical = snapshot.active_official_source_authorities()[
             "cp2k-official-manual"
         ]["canonical_snapshot"]
-        self.assertIs(canonical["integrity_verified"], True)
+        # The repository stores only the CP2K receipt.  Integrity becomes true
+        # only after the external provider cache is checked at runtime.
+        self.assertIs(canonical["integrity_verified"], False)
         self.assertEqual(len(canonical["sources_by_id"]), 86)
         self.assertEqual(
             snapshot.official_document_consumers["default_policy"],

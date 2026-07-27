@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import os
 import re
 import ssl
 import sys
@@ -18,8 +19,16 @@ import urllib.request
 
 
 SKILL_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_REGISTRY = SKILL_ROOT / "references" / "official-source-registry.json"
-DEFAULT_SNAPSHOT = SKILL_ROOT / "references" / "official-manual"
+DEFAULT_REGISTRY = (
+    SKILL_ROOT / "references" / "manual-cache-receipts" / "source-registry.json"
+)
+DEFAULT_SNAPSHOT = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    / "vibe-dft-skills"
+    / "official-provider-mirrors"
+    / "cp2k-rigorous-calculations"
+    / "provider-snapshot"
+)
 VERSION = re.compile(r"^[0-9]{1,4}\.[0-9]{1,2}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 POSITIVE_VERIFICATION_STATES = {"cached_exact", "live_matches_cached"}
@@ -135,13 +144,22 @@ def cached_source(
     except (OSError, json.JSONDecodeError):
         return None
     if (
-        manifest.get("schema_version") != "1.0"
+        manifest.get("schema_version") != "2.0"
         or manifest.get("manual_version") != version
         or manifest.get("manual_branch") != manual_branch(version)
         or manifest.get("registry_sha256") != sha256_file(registry_path)
     ):
         return None
-    record = manifest.get("pages", {}).get(topic)
+    pages = manifest.get("pages", {})
+    record = next(
+        (
+            candidate
+            for candidate in pages.values()
+            if isinstance(candidate, dict)
+            and candidate.get("curated_topic") == topic
+        ),
+        None,
+    ) if isinstance(pages, dict) else None
     if (
         not isinstance(record, dict)
         or record.get("path") != f"{topic}.md"
@@ -171,7 +189,10 @@ def cached_source(
         return None
     return {
         "verification": "cached_exact",
-        "local_reference": f"references/official-manual/{record['path']}",
+        "local_reference": (
+            "cache://cp2k-rigorous-calculations/provider-snapshot/"
+            f"{record['path']}"
+        ),
         "source_content_sha256": record["raw_sha256"],
         "source_content_bytes": record["raw_bytes"],
         "snapshot_sha256": snapshot_sha256,

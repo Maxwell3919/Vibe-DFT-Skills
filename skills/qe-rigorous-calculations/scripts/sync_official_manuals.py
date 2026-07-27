@@ -21,6 +21,13 @@ from pathlib import Path
 
 
 BASE_URL = "https://www.quantum-espresso.org/Doc"
+DEFAULT_CACHE_ROOT = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    / "vibe-dft-skills"
+    / "official-provider-mirrors"
+    / "qe-rigorous-calculations"
+    / "provider-root"
+)
 GUIDES = {
     "build": "user_guide",
     "pw": "pw_user_guide",
@@ -608,22 +615,21 @@ def _build_in_place(skill_root: Path, refresh: bool = False) -> dict:
             path = references / filename
             rendered_section = section_text.rstrip("\n")
             section_hash = hashlib.sha256(rendered_section.encode("utf-8")).hexdigest()
-            path.write_text(
-                official_markdown(
-                    f"{manual_id} — {section_title}",
-                    url,
-                    fetched.retrieved_utc,
-                    fetched.sha256,
-                    section_text,
-                    fetched.last_modified,
-                    (
-                        "official TXT text split without substantive additions"
-                        if source_format == "txt"
-                        else "official text extracted from official HTML without substantive additions"
-                    ),
+            wrapper = official_markdown(
+                f"{manual_id} — {section_title}",
+                url,
+                fetched.retrieved_utc,
+                fetched.sha256,
+                section_text,
+                fetched.last_modified,
+                (
+                    "official TXT text split without substantive additions"
+                    if source_format == "txt"
+                    else "official text extracted from official HTML without substantive additions"
                 ),
-                encoding="utf-8",
             )
+            path.write_text(wrapper, encoding="utf-8")
+            wrapper_raw = wrapper.encode("utf-8")
             manual_index_lines.append(f"- [{section_title}]({filename})")
             section_records.append(
                 {
@@ -633,6 +639,8 @@ def _build_in_place(skill_root: Path, refresh: bool = False) -> dict:
                     "file": filename,
                     "sha256": section_hash,
                     "bytes": len(rendered_section.encode("utf-8")),
+                    "wrapper_sha256": hashlib.sha256(wrapper_raw).hexdigest(),
+                    "wrapper_bytes": len(wrapper_raw),
                 }
             )
         (references / manual_index_filename).write_text("\n".join(manual_index_lines).rstrip() + "\n", encoding="utf-8")
@@ -646,6 +654,7 @@ def _build_in_place(skill_root: Path, refresh: bool = False) -> dict:
                 "last_modified": fetched.last_modified,
                 "retrieved_utc": fetched.retrieved_utc,
                 "sha256": fetched.sha256,
+                "raw_bytes": len(fetched.body),
                 "raw_file": str(raw_path.relative_to(references)),
                 "index_file": manual_index_filename,
                 "sections": section_records,
@@ -907,6 +916,7 @@ def _build_in_place(skill_root: Path, refresh: bool = False) -> dict:
 def sync(skill_root: Path, refresh: bool = False) -> dict:
     """Build and validate a staged mirror, then replace references with rollback on failure."""
     skill_root = skill_root.resolve()
+    skill_root.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=f".{skill_root.name}-sync-", dir=skill_root.parent) as tempdir:
         staging_root = Path(tempdir) / skill_root.name
         shutil.copytree(skill_root, staging_root, ignore=shutil.ignore_patterns(".DS_Store", "__pycache__", "*.pyc"))
@@ -1028,7 +1038,12 @@ def check(skill_root: Path) -> None:
             section_id, section_title, section_text = expected
             rendered = section_text.rstrip("\n")
             expected_hash = hashlib.sha256(rendered.encode("utf-8")).hexdigest()
-            if (section["id"], section["title"], section["sha256"], section["bytes"]) != (
+            if (
+                section["id"],
+                section["title"],
+                section["sha256"],
+                section["bytes"],
+            ) != (
                 section_id,
                 section_title,
                 expected_hash,
@@ -1043,9 +1058,18 @@ def check(skill_root: Path) -> None:
             source_hash, extracted_hash, payload = markdown_payload(section_path)
             if source_hash != manual["sha256"] or extracted_hash != expected_hash or payload != rendered:
                 mismatched.append(f"input generated payload: {section['file']}")
+            wrapper_raw = section_path.read_bytes()
+            if (
+                section.get("wrapper_sha256")
+                != hashlib.sha256(wrapper_raw).hexdigest()
+                or section.get("wrapper_bytes") != len(wrapper_raw)
+            ):
+                mismatched.append(f"input wrapper metadata: {section['file']}")
             if "[[QE_OFFICIAL_" in payload:
                 mismatched.append(f"internal marker leaked: {section['file']}")
         manual_index = references / manual["index_file"]
+        if manual.get("raw_bytes") != raw_path.stat().st_size:
+            mismatched.append(f"input raw byte count: {manual['name']}")
         expected_top_indexes.add(manual["index_file"])
         if not manual_index.is_file():
             missing.append(manual["index_file"])
@@ -1211,7 +1235,7 @@ def check(skill_root: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--skill-root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--skill-root", type=Path, default=DEFAULT_CACHE_ROOT)
     parser.add_argument("--check", action="store_true")
     parser.add_argument(
         "--refresh",

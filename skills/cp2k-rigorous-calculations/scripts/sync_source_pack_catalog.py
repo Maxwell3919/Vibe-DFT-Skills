@@ -222,11 +222,12 @@ def scope_subject(
 def build_legacy_projection_inputs() -> dict[str, dict[str, Any]]:
     """Build the exact historical inputs consumed by the pure v1.1 converter."""
 
-    registry_path = REFERENCES / "official-source-registry.json"
+    receipts = REFERENCES / "manual-cache-receipts"
+    registry_path = receipts / "source-registry.json"
     task_path = REFERENCES / "task-evidence-profiles.json"
     method_path = REFERENCES / "method-evidence-profiles.json"
-    index_path = REFERENCES / "official-manual" / "index.json"
-    manifest_path = REFERENCES / "official-manual" / "manifest.json"
+    index_path = receipts / "index.json"
+    manifest_path = receipts / "manifest.json"
     registry = load_json(registry_path)
     tasks = load_json(task_path)
     methods = load_json(method_path)
@@ -234,16 +235,31 @@ def build_legacy_projection_inputs() -> dict[str, dict[str, Any]]:
     manifest = load_json(manifest_path)
 
     topics = registry["topics"]
-    pages = manifest["pages"]
-    if len(index["pages"]) != 2946 or index["page_count"] != 2946:
-        raise ValueError("CP2K manual discovery universe must contain 2946 pages")
+    pages = {
+        page["curated_topic"]: page
+        for page in manifest["pages"].values()
+        if page.get("curated_topic") is not None
+    }
+    if (
+        len(index["pages"]) != 3030
+        or index["page_count"] != 3030
+        or index.get("genindex_page_count") != 2946
+        or index.get("linked_page_count") != 84
+        or manifest.get("genindex_page_count") != 2946
+        or manifest.get("linked_page_count") != 84
+        or manifest.get("index_page_count") != 3030
+    ):
+        raise ValueError(
+            "CP2K manual discovery universe must contain 2946 index pages "
+            "plus 84 recursively linked pages"
+        )
     if len(topics) != 86 or len(pages) != 86:
         raise ValueError("CP2K curated manual inventory must contain 86 topics")
     if set(topics) != set(pages):
         raise ValueError("CP2K registry topics and mirror manifest disagree")
 
     registry_origin = origin_ref(
-        f"skills/{SKILL_ID}/references/official-source-registry.json"
+        f"skills/{SKILL_ID}/references/manual-cache-receipts/source-registry.json"
     )
     task_origin = origin_ref(
         f"skills/{SKILL_ID}/references/task-evidence-profiles.json"
@@ -545,12 +561,14 @@ def build_legacy_projection_inputs() -> dict[str, dict[str, Any]]:
             )
         )
 
-    discovered_paths = set(index["pages"])
+    discovered_paths = {
+        page["source_path"] for page in manifest["pages"].values()
+    }
     included_paths = {page["source_path"] for page in pages.values()}
     missing_paths = sorted(discovered_paths - included_paths)
-    if len(missing_paths) != 2860:
+    if len(missing_paths) != 2944:
         raise ValueError(
-            f"CP2K reviewed exclusion count must be 2860, got {len(missing_paths)}"
+            f"CP2K reviewed exclusion count must be 2944, got {len(missing_paths)}"
         )
     manual_root = registry["manual_root"].rstrip("/") + "/"
     exclusions = [
@@ -560,8 +578,8 @@ def build_legacy_projection_inputs() -> dict[str, dict[str, Any]]:
             "locator": manual_root + path,
             "reason_code": "other",
             "rationale": (
-                "Discovered in the complete 2946-page manual index but not "
-                "yet retrieved, byte-identified, semantically sliced, and "
+                "Discovered in the complete 3030-page manual link closure but "
+                "not semantically selected and sliced "
                 "reviewed for this metadata-only curated pack."
             ),
             "reviewed_utc": manifest["retrieved_utc"],
@@ -579,7 +597,7 @@ def build_legacy_projection_inputs() -> dict[str, dict[str, Any]]:
                 "kind": "manifest",
                 "value": (
                     f"sha256:{sha256_file(index_path)};pages:"
-                    f"{index['page_count']}"
+                    f"{manifest['index_page_count']}"
                 ),
                 "content_sha256": sha256_file(index_path),
             },
@@ -610,8 +628,9 @@ def build_legacy_projection_inputs() -> dict[str, dict[str, Any]]:
             ],
         },
         "limitations": [
-            "Only 86 of 2946 discovered manual pages have exact raw external "
-            "receipts; all 2860 missing pages are enumerated exclusions.",
+            "All 3030 discovered manual pages have exact snapshot receipts; "
+            "only 86 curated pages enter the semantic pack and all 2944 "
+            "remaining pages are enumerated exclusions.",
             "Raw HTML identities and local derived Markdown snapshot "
             "identities remain distinct and are never substituted.",
             "External whole-source selection receipts are not yet backed by a "
@@ -813,18 +832,22 @@ def _repair_manual_excluded_locators(
         raise ValueError(
             "CP2K exact manual authority root disagrees with central projection"
         )
-    index = load_json(REFERENCES / "official-manual" / "index.json")
+    receipts = REFERENCES / "manual-cache-receipts"
+    index = load_json(receipts / "index.json")
+    manifest = load_json(receipts / "manifest.json")
     included_paths = {
         page["source_path"]
-        for page in load_json(
-            REFERENCES / "official-manual" / "manifest.json"
-        )["pages"].values()
+        for page in manifest["pages"].values()
+        if page.get("curated_topic") is not None
     }
-    excluded_paths = sorted(set(index["pages"]) - included_paths)
+    excluded_paths = sorted(
+        {page["source_path"] for page in manifest["pages"].values()}
+        - included_paths
+    )
     expected = {source_id(path): path for path in excluded_paths}
-    if len(expected) != 2860:
+    if len(expected) != 2944:
         raise ValueError(
-            "CP2K exact-version exclusion repair requires 2860 unique pages"
+            "CP2K exact-version exclusion repair requires 2944 unique pages"
         )
 
     actual_excluded = {
@@ -976,7 +999,7 @@ def validate_catalogs(catalogs: dict[str, dict[str, Any]]) -> None:
         for source in manual["discovered_sources"].values()
         if source["disposition"] == "excluded"
     ]
-    if len(included) != 86 or len(excluded) != 2860:
+    if len(included) != 86 or len(excluded) != 2944:
         raise ValueError("manual discovered-source partition drifted")
     if any(
         not source["content"]["locator"].startswith(manual["authority_root"])
@@ -1046,8 +1069,8 @@ def build_seed(catalogs: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "scope_catalog_ref": generated_ref("scope"),
         "providers": providers,
         "limitations": [
-            "The CP2K manual pack includes exact raw receipts for only 86 of "
-            "2946 discovered pages; all other pages remain reviewed exclusions.",
+            "The CP2K manual mirror includes exact receipts for all 3030 pages; "
+            "the semantic pack selects 86 and retains 2944 reviewed exclusions.",
             "The exact-release source catalog is deliberately bounded and the "
             "central documentation corpus identity remains unresolved.",
             "External selector receipts and complete source-tree extraction "
@@ -1177,7 +1200,7 @@ def synchronize(*, check: bool, refresh: bool) -> int:
     verb = "checked" if check else "synchronized"
     print(
         f"PASS: {verb} CP2K metadata-only source-pack catalogs "
-        f"(86 included, 2860 excluded manual pages)"
+        f"(86 included, 2944 excluded manual pages)"
     )
     return 0
 

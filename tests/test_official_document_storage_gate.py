@@ -29,20 +29,20 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
         report = storage_gate.audit_repository(ROOT)
 
         self.assertEqual(report.invalid_findings, ())
-        self.assertEqual(report.namespace_path_count, 2079)
-        self.assertEqual(report.artifact_path_count, 2075)
+        self.assertEqual(report.namespace_path_count, 4)
+        self.assertEqual(report.artifact_path_count, 0)
         self.assertEqual(report.local_control_count, 4)
-        self.assertEqual(report.local_control_bytes, 11_983)
+        self.assertEqual(report.local_control_bytes, 12_152)
         self.assertEqual(
             report.local_control_digest_sha256,
-            "6a2ddf8a50f03111d8ca246801ef0faca1666ed50af05b989a759bfc06f28b3e",
+            "7da4766131145788d339eded0aedfe3fff5920cdc5acd527ac80e223119e4dab",
         )
-        self.assertEqual(report.artifact_bytes, 18_950_704)
-        self.assertEqual(report.forbidden_path_count, 2075)
-        self.assertEqual(report.release_blocking_path_count, 2075)
+        self.assertEqual(report.artifact_bytes, 0)
+        self.assertEqual(report.forbidden_path_count, 0)
+        self.assertEqual(report.release_blocking_path_count, 0)
         self.assertEqual(report.worktree_drift_findings, ())
         self.assertEqual(storage_gate.exit_code(report, strict_release=False), 0)
-        self.assertEqual(storage_gate.exit_code(report, strict_release=True), 3)
+        self.assertEqual(storage_gate.exit_code(report, strict_release=True), 0)
         self.assertEqual(
             {result.state for result in report.artifact_sets},
             {"legacy-technical-migration-required"},
@@ -86,12 +86,14 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
         configuration = storage_gate.load_configuration(ROOT)
         authorities = copy.deepcopy(storage_gate.load_authority_projection(ROOT))
         authorities["qe-release-source-docs"]["bundle_content_policy"] = object()
-        qe_blob = next(
-            blob
-            for blob in storage_gate.load_git_index(ROOT)
-            if blob.path.startswith(
-                "skills/qe-rigorous-calculations/references/official-"
-            )
+        qe_blob = storage_gate.TrackedBlob(
+            path=(
+                "skills/qe-rigorous-calculations/references/"
+                "official-input-help.md"
+            ),
+            mode="100644",
+            oid="0" * 40,
+            size=17,
         )
 
         report = storage_gate.evaluate_storage(
@@ -170,8 +172,8 @@ class OfficialDocumentStorageGateTests(unittest.TestCase):
             enforce_baseline=True,
         )
         self.assertEqual(delegated.invalid_findings, ())
-        self.assertEqual(delegated.artifact_path_count, 2075)
-        self.assertEqual(delegated.artifact_bytes, 18_950_704)
+        self.assertEqual(delegated.artifact_path_count, 0)
+        self.assertEqual(delegated.artifact_bytes, 0)
 
         adjacent = storage_gate.evaluate_storage(
             tuple(

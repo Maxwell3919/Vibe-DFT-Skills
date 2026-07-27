@@ -17,7 +17,7 @@
 
 ## Resolver behavior
 
-`references/official-source-registry.json` defines the curated decisive surface. `references/official-manual/index.json` inventories every page discovered from the stable branch `genindex.html`; `manifest.json` binds the registry, index and each mirrored page to SHA-256.
+`references/manual-cache-receipts/source-registry.json` defines the curated decisive surface. `index.json` inventories every page discovered from the stable branch `genindex.html`; `manifest.json` binds the registry, index and each locally cached mirrored page to SHA-256. The bodies live in the local provider cache described by `manual-cache-route.md`.
 
 `scripts/resolve_official_sources.py` distinguishes:
 
@@ -28,11 +28,11 @@
 - `url_only`: the resolver constructed a registered URL but has no exact cached content;
 - `unresolved`: the live content has no checked baseline or another identity requirement cannot be established.
 
-Only `cached_exact` and a `live_matches_cached` result produced by the resolver in the current process can support a positive version-sensitive official claim, and both are bound to the checked-in source-content and snapshot hashes. A serialized bundle cannot prove that its self-declared live receipt was produced by a network retrieval: copied URLs, hashes, byte counts, status and timestamps are untrusted data. Legacy `cached_version_matched` or `live_verified` labels fail closed. `live_changed_from_cached`, `live_unavailable_cached_exact`, `url_only`, and `unresolved` support no positive claim.
+Only `cached_exact` and a `live_matches_cached` result produced by the resolver in the current process can support a positive version-sensitive official claim, and both are bound to the checked-in receipt plus locally cached source-content and snapshot hashes. A serialized bundle cannot prove that its self-declared live receipt was produced by a network retrieval: copied URLs, hashes, byte counts, status and timestamps are untrusted data. Legacy `cached_version_matched` or `live_verified` labels fail closed. `live_changed_from_cached`, `live_unavailable_cached_exact`, `url_only`, and `unresolved` support no positive claim.
 
 Live retrieval records the exact final URL, HTTP status, retrieval time, byte count, and content SHA-256. It does not store the page. Reopen the cited page when answering a version-sensitive question, but never treat TLS success alone as content identity.
 
-Claim packages must carry `pass_cached_exact` records. `validate_claim_package.py` independently reconstructs those records from the checked-in snapshot. Use its explicit `--live-replay` mode when the validation process itself must reopen every required URL and compare the returned bytes with the cached source hashes. Without that replay, a package that claims `pass_live_matches_cached` is blocked. No independent signed platform-attestation interface is currently implemented; do not promote a bundle receipt by schema, status, hash-shaped strings or timestamp syntax alone.
+Claim packages must carry `pass_cached_exact` records. `validate_claim_package.py` independently reconstructs those records from the receipt-bound local cache. Use its explicit `--live-replay` mode when the validation process itself must reopen every required URL and compare the returned bytes with the cached source hashes. Without that replay, a package that claims `pass_live_matches_cached` is blocked. No independent signed platform-attestation interface is currently implemented; do not promote a bundle receipt by schema, status, hash-shaped strings or timestamp syntax alone.
 
 ## Snapshot maintenance
 

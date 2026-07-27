@@ -19,9 +19,10 @@ from siesta_fdf_labels import matches_official_label
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 REFERENCES = SKILL_ROOT / "references"
-REGISTRY = REFERENCES / "official-source-registry.json"
-FDF_INDEX = REFERENCES / "official-fdf-index.json"
-SUPPLEMENTS = REFERENCES / "official-source-supplements.json"
+RECEIPTS = REFERENCES / "manual-cache-receipts"
+REGISTRY = RECEIPTS / "source-registry.json"
+FDF_INDEX = RECEIPTS / "fdf-index.json"
+SUPPLEMENTS = RECEIPTS / "source-supplements.json"
 ALLOWED_HOSTS = {"docs.siesta-project.org", "siesta-project.org", "www.siesta-project.org", "gitlab.com"}
 
 

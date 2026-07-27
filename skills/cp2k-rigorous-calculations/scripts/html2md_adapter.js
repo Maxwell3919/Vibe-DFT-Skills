@@ -164,6 +164,27 @@ function convert(html, installation) {
   service.use(gfmPlugin.gfm);
   service.use([gfmPlugin.tables, gfmPlugin.strikethrough]);
 
+  // Keep explicit Sphinx ids because Markdown heading slugs are renderer
+  // specific and are not guaranteed to match CP2K's fragment identifiers.
+  service.addRule("cp2kManualAnchor", {
+    filter(node) {
+      return Boolean(
+        node.nodeName === "A" &&
+          node.hasAttribute("data-cp2k-manual-anchor") &&
+          node.getAttribute("id"),
+      );
+    },
+    replacement(_content, node) {
+      const escaped = node
+        .getAttribute("id")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      return `\n<a id="${escaped}"></a>\n`;
+    },
+  });
+
   // The upstream pre rule consumes already escaped child Markdown. Reading
   // textContent directly keeps CP2K input underscores, spacing, and symbols.
   service.addRule("cp2kExactPre", {
