@@ -801,7 +801,9 @@ class OfficialMirrorTests(unittest.TestCase):
         self.assertIn("<strong>Unsupported.</strong>", html)
         self.assertIn("Trailing text remains.", source_text)
 
-    def test_html2md_adapter_removes_only_line_end_whitespace(self) -> None:
+    def test_installed_html2md_adapter_removes_only_line_end_whitespace(self) -> None:
+        if not (sync_official_manuals.DEFAULT_HTML2MD_ROOT / "package.json").is_file():
+            self.skipTest("pinned external html2md installation is not installed")
         markdown = sync_official_manuals.run_html2md(
             "<article><pre>  retained indent   \nnext\t \n</pre>"
             "<p>Visible inline   spacing.</p></article>"

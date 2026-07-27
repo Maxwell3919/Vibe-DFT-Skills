@@ -56,8 +56,9 @@ The format follows Keep a Changelog principles, with additional sections for lif
   baseline without treating them as native execution evidence.
 - Made CP2K official-source and claim-package tests hermetic by injecting a
   synthetic provider-cache fixture. A full external mirror is still validated
-  when installed, but its absence no longer makes a clean GitHub runner depend
-  on a developer workstation cache.
+  when installed, as is the pinned external html2md converter; their absence no
+  longer makes a clean GitHub runner depend on a developer workstation cache
+  or tool installation.
 - Updated repository-facing documentation for public GitHub visibility without changing Skill lifecycles, scientific evidence gates, third-party license boundaries, or the absence of a top-level repository license.
 - Expanded the repository extension checklist so every new or enlarged
   official-document pack must close its central authority, consumer binding,
