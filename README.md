@@ -76,10 +76,12 @@ validators。Agent 可以据此规划和检查工作，但改变研究路线、�
 
 ```text
 00-governance/
+  plans/
   taskbook-revisions/
 01-structures/
-02-inputs/
-03-runs/
+02-inputs/<stage-id>/<input-set-id>/
+03-runs/<stage-id>/<attempt-id>/
+  00-attempt/events/
 04-derived/
 05-figures/
 06-reports/
@@ -87,17 +89,24 @@ validators。Agent 可以据此规划和检查工作，但改变研究路线、�
 ```
 
 [`tools/manage_calculation_workspace.py`](tools/manage_calculation_workspace.py)
-负责初始化目录、维护不可变 taskbook revisions，并记录 artifact 的路径、
-字节数与 SHA-256。文件所在目录只表示工作流位置，不自动授予它“已收敛”或
-“可用于论文”的状态。
+负责生成逐文件哈希绑定的 input-set、把输入物化到彼此隔离的 attempt、维护
+attempt event 与不可变 taskbook revision chains，并检查 active workdir。
+文件所在目录只表示工作流位置，不自动授予它“已执行”“已收敛”或“可用于
+论文”的状态。
 
 任务开始前可以选择三种协作模式：
 
 | 模式 | 行为 |
 |---|---|
-| `off` | 不建立动态任务书。 |
-| `silent-update` | Agent 按里程碑更新任务书，普通阶段不暂停。 |
-| `milestone-review` | 执行前由用户批准；出现新结构、数据或图件时生成带时间戳的 revision，并在需要批准的阶段暂停。 |
+| `off` | 保留工整目录和 attempt 审计，不建立动态任务书。 |
+| `silent-update` | Agent 按里程碑静默更新任务书，普通阶段不暂停；既有执行权限与科学路线仍需单独成立。 |
+| `milestone-review` | 先把 workflow plan 与逐文件 input-set 的精确 hash 交给用户审核；批准后才可初始化相应 attempt。后续结构、输入、运行、数据、图件和报告先记录为 `pending-review` 并暂停，再由新 revision 记录批准。 |
+
+初次审核使用返回的 taskbook SHA-256 拒绝陈旧批准；任何输入 byte 或 plan
+变化都必须使用新 identity 重新审核。运行中的 attempt 会使
+`check --require-quiescent` 失败，从而阻止 Agent 在写入期间整理、移动或
+归档目录。这里记录的是“审核就绪”，不替代 execution request、human
+decision、lease、site policy 或 scientific acceptance。
 
 详细的数据布局、revision 规则和用户决定边界见
 [`docs/calculation-workspace-and-taskbook.md`](docs/calculation-workspace-and-taskbook.md)。
