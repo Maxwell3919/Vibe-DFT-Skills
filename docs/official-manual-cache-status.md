@@ -64,32 +64,31 @@ The final per-Skill document counts are:
   1,297 requested titles into 1,091 unique pages; the provider reports
   `upstream_universe_complete=true` and `public_body_complete=true`.
 
-## Explicit technical gaps
+## Explicit gap ledger
 
-These items remain explicit and must not be silently promoted to manual
-content:
+The ledger was reviewed on 2026-07-27. Its identifiers are stable across later
+refreshes: close an item by recording new provider evidence against the same
+identifier rather than deleting the historical gap. No item may be silently
+promoted to manual content.
 
-- Multiwfn has two registered external PDF routes whose bodies were not
-  technically retrievable through the registered source route. Both remain
-  `metadata-only-body-unavailable`.
-- The MACE ReadTheDocs search index body is unavailable. The pinned full
-  documentation tree is materialized separately, so this missing index does
-  not remove the documentation pages themselves.
-- Twelve LASP/LOBSTER publisher records are literature provenance, not
-  software-manual bodies. They remain `external-publisher-body-not-retrieved`.
-- One SIESTA page names two upstream image assets,
-  `Interactions.png` and `RectangularMatrix.png`, that are absent upstream.
-  The page text and source are retained; the missing images are recorded in
-  the provider manifest.
-- The VASP main-namespace enumeration records ten requested titles as missing
-  or not publicly readable: `Caveat`, `Cite`, `CONSTUCTION:LSEPK`,
-  `Extract zpr cd carbon`, `GW0 caveat`, `Meta-GGA`,
-  `NMAXFOCKAE and LMAXFOCKAE`, `Style-guide`, `Tempalte:CITE`, and
-  `Tempalte:VIDEO`. These upstream outcomes are enumerated rather than replaced
-  with guessed content.
-- Four Fair-Chem/MACE/NequIP source-tree records are intentionally
-  `metadata-only-nonmanual-source-tree`; exact documentation trees are handled
-  separately and code trees are not presented to agents as parameter manuals.
+| Gap ID | Provider and scope | State | Current usable evidence | Closure condition |
+|---|---|---|---|---|
+| `OM-GAP-001` | Multiwfn, two registered external PDF routes | `blocked-body-unavailable` | Route metadata and source identity only | Retrieve both bodies through the registered first-party route, bind exact receipts, render them, and pass character/hash checks |
+| `OM-GAP-002` | MACE ReadTheDocs search index | `compensated-index-unavailable` | The pinned full documentation tree is materialized; only the search-index body is absent | Bind and verify the official index body, or record an upstream statement that the index is no longer published |
+| `OM-GAP-003` | Twelve LASP/LOBSTER publisher records | `intentional-literature-metadata` | Bibliographic provenance only; these records are not software manuals | Reclassify only if a first-party software-manual body is published and registered |
+| `OM-GAP-004` | SIESTA `Interactions.png` and `RectangularMatrix.png` | `blocked-upstream-assets-absent` | Referencing page text and source are retained | Upstream publishes the two assets and their identities are added to the provider manifest |
+| `OM-GAP-005` | Ten VASP Wiki requested titles | `blocked-missing-or-not-public` | Exact title-level provider outcomes | Each title resolves to a public first-party page, or the provider publishes an authoritative deletion/rename mapping |
+| `OM-GAP-006` | Four Fair-Chem/MACE/NequIP source-tree records | `intentional-nonmanual-boundary` | Exact documentation trees are handled separately; source-tree identity remains metadata | No closure is required unless a source-tree path becomes the first-party parameter manual |
+
+For `OM-GAP-005`, the recorded titles are `Caveat`, `Cite`,
+`CONSTUCTION:LSEPK`, `Extract zpr cd carbon`, `GW0 caveat`, `Meta-GGA`,
+`NMAXFOCKAE and LMAXFOCKAE`, `Style-guide`, `Tempalte:CITE`, and
+`Tempalte:VIDEO`. The spelling is preserved from the provider enumeration.
+
+The ledger distinguishes missing manual evidence from intentional scope
+boundaries. `OM-GAP-003` and `OM-GAP-006` prevent literature or code trees from
+being misrepresented as parameter manuals; they are not requests to copy those
+bodies into the repository.
 
 Use `python3 tools/sync_official_manual_cache.py --check` and the provider
 `--check` commands in each active calculation Skill before relying on this

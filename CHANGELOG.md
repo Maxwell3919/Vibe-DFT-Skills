@@ -8,8 +8,16 @@ The format follows Keep a Changelog principles, with additional sections for lif
 
 ### Added
 
+- A local-only official-manual Markdown cache with per-Skill routing, pinned
+  provider receipts, character-preservation checks, internal-link validation,
+  and a stable `OM-GAP-*` ledger for unresolved upstream evidence.
+- A deterministic calculation workspace and revisioned taskbook with `off`,
+  `silent-update`, and `milestone-review` modes.
 - CIF structure-intelligence screening for formula/Z and cell quality, nearest-shell local geometry, multi-scale periodic-graph dimensionality, symmetry-only property hypotheses, and explicitly unranked source/primitive/conventional optimization starting points.
-- A centralized README index of first-party websites, manuals, source repositories, release channels, and license/access boundaries for 4 active calculation codes, 19 planned software identities, and direct standards/infrastructure dependencies.
+- Central registries and per-Skill routes for first-party websites, manuals,
+  source repositories, release channels, four active calculation codes,
+  nineteen planned software identities, and direct standards/infrastructure
+  dependencies.
 - Content-first planning, audit, troubleshooting, restart, output-acceptance, convergence, and scientific-boundary playbooks across all 19 development Skills, grounded in version-matched official manuals or upstream source where public evidence permits.
 - Architecture baseline records for source commit `33dc893ad7dee6cdab8d645f7e25ff44f345c899`.
 - Repository contribution and review policy.
@@ -32,6 +40,16 @@ The format follows Keep a Changelog principles, with additional sections for lif
 
 ### Changed
 
+- Consolidated every extant GitHub branch tip into `main` ancestry. The two
+  MacBook backup tips were history-only equivalents of trees already merged
+  through `24dd8a9`/`e1c97e6` and `66f5aff`; their ancestry was retained without
+  reintroducing obsolete generated content.
+- Rewrote the README as a concise scientific workflow narrative centered on
+  questions, provenance, convergence, reviewable artifacts, and claim-evidence
+  boundaries.
+- Moved full official-manual bodies out of Git while retaining receipts,
+  hashes, source identities, gap records, deterministic rebuild tooling, and
+  local readable caches.
 - Reconciled the planned environment authority with the content review: the internal `ovito-basic` profile now means the standalone `ovito` Python module, GPUMD v5.3 records `GPL-3.0-or-later`, and LASP records the publicly visible 3.7.3 academic/professional edition and Intel compiler/MPI baseline without treating them as native execution evidence.
 - Updated repository-facing documentation for public GitHub visibility without changing Skill lifecycles, scientific evidence gates, third-party license boundaries, or the absence of a top-level repository license.
 - Expanded the repository extension checklist so every new or enlarged
@@ -54,6 +72,17 @@ The format follows Keep a Changelog principles, with additional sections for lif
 
 ### Evidence boundary
 
+- The canonical Git tree now contains zero legacy official-manual body
+  artifacts. Local materialization passed for 14,635 Markdown or metadata-route
+  documents, but the ordinary bundle audit remains
+  `0 complete / 26 partial / 0 missing / 0 invalid`.
+- The explicit upstream ledger records two unavailable Multiwfn PDF bodies, an
+  unavailable MACE search index, twelve LASP/LOBSTER literature-only publisher
+  records, two absent SIESTA images, ten missing or non-public VASP Wiki titles,
+  and four intentional nonmanual source-tree records.
+- A taskbook revision records workflow state and artifact identity; it does not
+  turn directory placement, execution completion, or a rendered figure into
+  scientific acceptance.
 - CIF quality, topology, property screens, standardized cells, and optimization candidates do not establish energetic, dynamic, or thermodynamic stability, nonzero response, synthesizability, or complete official-document capture.
 - Content depth now supports preliminary planning and audit use; it does not establish installed-software availability, native execution, end-to-end numerical validity, or scientific acceptance.
 - The baseline records architecture and declared lifecycle state only.
@@ -68,10 +97,10 @@ The format follows Keep a Changelog principles, with additional sections for lif
   coverage therefore remains a release blocker; contract tests, synthetic
   fixtures, metadata-only identities, and legacy mirrors do not satisfy that
   gate.
-- The candidate still contains 2,075 centrally forbidden legacy
-  official-document artifacts totaling 13,412,851 bytes outside the canonical
-  pack domain; report mode keeps migration testable, while strict storage,
-  strict release, and every pushed tag remain intentionally blocked.
+- Before the metadata-only migration, the candidate contained 2,075 centrally
+  forbidden legacy official-document artifacts outside the canonical pack
+  domain. The migration removed those bodies from Git; the historical count is
+  retained here as the storage transition baseline.
 - The stable dashboard remains fail closed: corpus is `11 partial / 15
   blocked`, slice `10 partial / 16 blocked`, scope `5 partial / 21 blocked`,
   license `26 partial / 0 blocked`, storage `22 partial / 4 blocked`, and
