@@ -1,13 +1,22 @@
 # CP2K calculation workspace and taskbook route
 
-Apply the repository protocol in
-`docs/calculation-workspace-and-taskbook.md` before the first calculation side
-effect. The user must explicitly select `off`, `silent-update`, or
-`milestone-review`; this choice controls taskbook pauses only.
+Apply `docs/calculation-workspace-and-taskbook.md`. Record the user's explicit
+`off`, `silent-update`, or `milestone-review` choice before the first
+calculation side effect. The choice controls taskbook pauses only.
 
-Keep each CP2K attempt in its own `03-runs/<stage-id>/<attempt-id>/` directory.
-Preserve its main input, included files, output, restart ancestry, scheduler
-identity, and audit reports together. Put prepared inputs in `02-inputs`,
-derived tables in `04-derived`, and figures in `05-figures`. Never reorganize
-an active directory. Use `tools/manage_calculation_workspace.py check` before a
-review handoff.
+Place a complete CP2K input set under one
+`02-inputs/<stage-id>/<input-set-id>/`: main input, included files, coordinates,
+basis/potential metadata or runtime files, and restart inputs. Generate
+`input-set.json`. In review mode, freeze it with the workflow plan and obtain an
+exact-hash initial review decision before `init-attempt`.
+
+Give every launch or retry a new `03-runs/<stage-id>/<attempt-id>/`. Keep the
+main input, include tree, output, stderr, restart ancestry, scheduler identity,
+run manifest, and audits with that attempt. Append `active` only after a
+separately authorized executor actually starts it; append a terminal event from
+observed CP2K and scheduler evidence.
+
+Record stable geometry as a `structure` milestone, run evidence as `execution`,
+normalized results as `data`, and plots as `figure`. Never reorganize an active
+attempt. Run `check` before a handoff and `check --require-quiescent` before any
+move, cleanup, or archive.

@@ -11,6 +11,8 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Run the helper before making numeric structure claims. It emits a schema-validated JSON manifest and Markdown summary; optional PNGs are presentation artifacts. It can reject or flag avoidable input problems and propose bounded, unranked optimization starting points. It does not choose DFT parameters, evaluate an energy model, or identify a stable structure.
 
+When this analysis feeds a managed calculation workspace, read [the structure milestone and taskbook route](references/calculation-workspace-and-taskbook.md). Preserve each source/derived structure under a distinct `01-structures` label and append a typed `structure` milestone only after deterministic analysis passes. In review mode, record `pending-review` and pause before any later approval; approval selects reviewed bytes for the next planned step and does not prove stability or scientific acceptance.
+
 ## Analyze
 
 ```bash

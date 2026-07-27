@@ -9,6 +9,8 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Produce structured data before figures. Treat parsing, numerical analysis, visualization, and scientific interpretation as separate stages. Never infer a numerical conclusion from plot appearance alone.
 
+When outputs belong to a managed calculation workspace, read [the postprocessing milestone and taskbook route](references/calculation-workspace-and-taskbook.md). Write normalized data, figures, and reports under their fixed directories with new stable labels. Append a typed `data` milestone before any dependent `figure`; in review mode, record each produced artifact `pending-review` and pause before a later approval revision. Taskbook approval never upgrades parsing, physical-validity, or scientific-acceptance gates.
+
 ## Start with inventory and contracts
 
 1. Identify the source run, code/version, task, expected outputs, and `run_manifest.json` when available.

@@ -9,6 +9,8 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Learn only from measured campaign evidence. Preserve the scientific objective and acceptance criteria. Never present project experience as official behavior of any calculation code.
 
+When the campaign belongs to a managed calculation workspace, read [the campaign record and taskbook route](references/calculation-workspace-and-taskbook.md). Keep the private experience store outside the workspace and Git; append only authorized privacy-safe `data` or `report` artifacts. In review mode, record them `pending-review` before a later approval. Taskbook review does not promote evidence grade, transferability, efficiency, or scientific acceptance.
+
 ## Start from the case, not a template
 
 Run this workflow when a QE, VASP, CP2K, or SIESTA chain completes, stops, fails, is abandoned, reaches scientific acceptance, or reaches a costly promotion decision. An active stage may support a provisional scheduling decision, but it cannot support an accepted-result claim.

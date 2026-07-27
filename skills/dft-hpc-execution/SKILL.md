@@ -11,7 +11,7 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Read [references/repository-interface-manual.md](references/repository-interface-manual.md) for the candidate CLI and DFT artifact handoffs. Read [references/slurm-operations.md](references/slurm-operations.md) before any Slurm operation. The latter uses only official SchedMD documentation and marks all cluster commands **external not tested**.
 
-For calculation-side organization, read [the HPC workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Preserve one scheduler/run attempt per attempt directory and never move or clean an active workdir. A `milestone-review` pause is additional to, and cannot replace, exact execution authorization, a lease, site-policy review, or cancellation confirmation. This development Skill does not write or authenticate taskbook revisions.
+For calculation-side organization, read [the HPC workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Require an exact generated input set and, in `milestone-review`, its hash-bound initial approval before preparing an attempt. Preserve one scheduler submission/retry per attempt directory and append lifecycle events only from observed state. Never move, clean, or archive an active workdir. Review readiness is additional to, and cannot replace, exact execution authorization, a lease, site-policy review, or cancellation confirmation. This development Skill does not write a production taskbook or authenticate review.
 
 ## Current status
 

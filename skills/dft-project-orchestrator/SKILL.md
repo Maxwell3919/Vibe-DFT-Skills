@@ -11,7 +11,7 @@ Read [the local official-manual cache route](references/manual-cache-route.md) b
 
 Read [references/repository-interface-manual.md](references/repository-interface-manual.md) before using this candidate. It records the working directory, implemented CLI, real active-Skill entry points, artifact handoffs, route check, runnable synthetic example, and human confirmation points.
 
-For new calculation-side work, also read [the orchestration workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Record the user's `off`, `silent-update`, or `milestone-review` choice before the first calculation side effect. Treat taskbook revisions as operational audit aids around the immutable workflow plan; never mutate a plan, request, decision, or completed revision to reflect later progress. This development Skill does not initialize a real project or authenticate taskbook approval.
+For new calculation-side work, also read [the orchestration workspace and taskbook route](references/calculation-workspace-and-taskbook.md). Record the user's explicit `off`, `silent-update`, or `milestone-review` choice. In review mode, bind the initial decision to the exact immutable workflow plan and generated input set, then route structure, input, execution, data, figure, and report artifacts through typed taskbook milestones. Never mutate a plan, request, decision, completed revision, input-set identity, or attempt identity to reflect later progress. This development Skill does not initialize a real project, execute work, or authenticate approval.
 
 ## Current status
 
