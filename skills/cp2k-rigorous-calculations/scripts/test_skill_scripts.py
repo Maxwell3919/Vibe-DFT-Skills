@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -25,6 +26,70 @@ import resolve_official_sources  # noqa: E402
 import sync_official_manuals  # noqa: E402
 import sync_forward_fixtures  # noqa: E402
 import validate_claim_package  # noqa: E402
+
+
+def write_synthetic_provider_snapshot(snapshot_dir: Path) -> None:
+    """Create a test-only provider snapshot without copying official content."""
+    registry, _aliases = resolve_official_sources.load_registry()
+    version = str(registry["snapshot_version"])
+    branch = resolve_official_sources.manual_branch(version)
+    manual_root = str(registry["manual_root"]).rstrip("/")
+    pages: dict[str, dict[str, object]] = {}
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    for index, (topic, source_record) in enumerate(
+        sorted(registry["topics"].items()),
+        1,
+    ):
+        snapshot = (
+            f"# Synthetic provider-cache fixture: {topic}\n\n"
+            "This test-only file contains no official manual body.\n"
+        ).encode("utf-8")
+        raw = f"synthetic raw-source identity: {topic}\n".encode("utf-8")
+        path = f"{topic}.md"
+        (snapshot_dir / path).write_bytes(snapshot)
+        pages[f"fixture-{index:04d}"] = {
+            "curated_topic": topic,
+            "path": path,
+            "source_url": (
+                f"{manual_root}/{branch}/"
+                f"{resolve_official_sources.source_path(source_record, version)}"
+            ),
+            "raw_sha256": hashlib.sha256(raw).hexdigest(),
+            "snapshot_sha256": hashlib.sha256(snapshot).hexdigest(),
+            "raw_bytes": len(raw),
+            "snapshot_bytes": len(snapshot),
+        }
+    manifest = {
+        "schema_version": "2.0",
+        "manual_version": version,
+        "manual_branch": branch,
+        "registry_sha256": resolve_official_sources.sha256_file(
+            resolve_official_sources.DEFAULT_REGISTRY
+        ),
+        "retrieved_utc": "2026-07-27T00:00:00+00:00",
+        "pages": pages,
+    }
+    (snapshot_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+class SyntheticProviderSnapshotMixin:
+    snapshot_directory: tempfile.TemporaryDirectory[str]
+    snapshot_dir: Path
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.snapshot_directory = tempfile.TemporaryDirectory()
+        cls.snapshot_dir = Path(cls.snapshot_directory.name)
+        write_synthetic_provider_snapshot(cls.snapshot_dir)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.snapshot_directory.cleanup()
+        super().tearDownClass()
 
 
 def cp2k_input(run_type: str = "ENERGY", cutoff: int = 400) -> str:
@@ -394,7 +459,7 @@ class AuditTests(unittest.TestCase):
             self.assertEqual(json.loads(result.stdout)["decision"], "pass")
 
 
-class OfficialSourceTests(unittest.TestCase):
+class OfficialSourceTests(SyntheticProviderSnapshotMixin, unittest.TestCase):
     def test_fetch_retries_a_transient_network_failure(self) -> None:
         response = MagicMock()
         response.__enter__.return_value = response
@@ -428,13 +493,23 @@ class OfficialSourceTests(unittest.TestCase):
         self.assertEqual(context.verify_mode.name, "CERT_REQUIRED")
 
     def test_versioned_offline_urls_are_exact(self) -> None:
-        result = resolve_official_sources.resolve(["GLOBAL", "eps_scf"], "2025.2", live_check=False)
+        result = resolve_official_sources.resolve(
+            ["GLOBAL", "eps_scf"],
+            "2025.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )
         self.assertEqual(result["status"], "resolved_url_only")
         self.assertTrue(all("/cp2k-2025_2-branch/" in item["url"] for item in result["resolved"]))
         self.assertTrue(all(item["verification"] == "url_only" for item in result["resolved"]))
 
     def test_current_offline_snapshot_is_version_matched_and_hash_checked(self) -> None:
-        result = resolve_official_sources.resolve(["GLOBAL", "eps_scf"], "2026.2", live_check=False)
+        result = resolve_official_sources.resolve(
+            ["GLOBAL", "eps_scf"],
+            "2026.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )
         self.assertEqual(result["status"], "pass_cached_exact")
         self.assertTrue(all(item["verification"] == "cached_exact" for item in result["resolved"]))
         self.assertTrue(
@@ -447,13 +522,28 @@ class OfficialSourceTests(unittest.TestCase):
         )
 
     def test_version_specific_source_path_override(self) -> None:
-        current = resolve_official_sources.resolve(["pdos"], "2026.2", live_check=False)
-        older = resolve_official_sources.resolve(["pdos"], "2025.2", live_check=False)
+        current = resolve_official_sources.resolve(
+            ["pdos"],
+            "2026.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )
+        older = resolve_official_sources.resolve(
+            ["pdos"],
+            "2025.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )
         self.assertTrue(current["resolved"][0]["url"].endswith("/DFT/PRINT/DOS/PDOS.html"))
         self.assertTrue(older["resolved"][0]["url"].endswith("/DFT/PRINT/PDOS.html"))
 
     def test_live_check_records_hash(self) -> None:
-        offline = resolve_official_sources.resolve(["scf"], "2026.2", live_check=False)["resolved"][0]
+        offline = resolve_official_sources.resolve(
+            ["scf"],
+            "2026.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )["resolved"][0]
 
         def fake_fetch(url: str) -> dict[str, object]:
             return {
@@ -464,7 +554,13 @@ class OfficialSourceTests(unittest.TestCase):
                 "retrieved_utc": "2026-07-18T00:00:00+00:00",
             }
 
-        result = resolve_official_sources.resolve(["scf"], "2026.2", live_check=True, fetcher=fake_fetch)
+        result = resolve_official_sources.resolve(
+            ["scf"],
+            "2026.2",
+            live_check=True,
+            snapshot_dir=self.snapshot_dir,
+            fetcher=fake_fetch,
+        )
         self.assertEqual(result["status"], "pass_live_matches_cached")
         self.assertEqual(result["resolved"][0]["verification"], "live_matches_cached")
         self.assertEqual(result["resolved"][0]["content_sha256"], offline["source_content_sha256"])
@@ -479,12 +575,23 @@ class OfficialSourceTests(unittest.TestCase):
                 "retrieved_utc": "2026-07-18T00:00:00+00:00",
             }
 
-        result = resolve_official_sources.resolve(["scf"], "2026.2", live_check=True, fetcher=fake_fetch)
+        result = resolve_official_sources.resolve(
+            ["scf"],
+            "2026.2",
+            live_check=True,
+            snapshot_dir=self.snapshot_dir,
+            fetcher=fake_fetch,
+        )
         self.assertEqual(result["status"], "blocked_official_source")
         self.assertEqual(result["resolved"][0]["verification"], "live_changed_from_cached")
 
     def test_live_receipt_metadata_is_validated_fail_closed(self) -> None:
-        offline = resolve_official_sources.resolve(["scf"], "2026.2", live_check=False)["resolved"][0]
+        offline = resolve_official_sources.resolve(
+            ["scf"],
+            "2026.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )["resolved"][0]
         valid = {
             "http_status": 200,
             "final_url": offline["url"],
@@ -504,6 +611,7 @@ class OfficialSourceTests(unittest.TestCase):
                     ["scf"],
                     "2026.2",
                     live_check=True,
+                    snapshot_dir=self.snapshot_dir,
                     fetcher=lambda _url, value=receipt: value,
                 )
                 self.assertEqual(result["status"], "blocked_official_source")
@@ -519,12 +627,23 @@ class OfficialSourceTests(unittest.TestCase):
                 "retrieved_utc": "2026-07-18T00:00:00+00:00",
             }
 
-        result = resolve_official_sources.resolve(["scf"], "2025.2", live_check=True, fetcher=fake_fetch)
+        result = resolve_official_sources.resolve(
+            ["scf"],
+            "2025.2",
+            live_check=True,
+            snapshot_dir=self.snapshot_dir,
+            fetcher=fake_fetch,
+        )
         self.assertEqual(result["status"], "blocked_official_source")
         self.assertEqual(result["resolved"][0]["verification"], "unresolved")
 
     def test_unknown_topic_blocks(self) -> None:
-        result = resolve_official_sources.resolve(["not-a-cp2k-topic"], "2026.2", live_check=False)
+        result = resolve_official_sources.resolve(
+            ["not-a-cp2k-topic"],
+            "2026.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )
         self.assertEqual(result["status"], "blocked_official_source")
         self.assertEqual(result["missing"], ["not-a-cp2k-topic"])
 
@@ -703,7 +822,9 @@ class OfficialMirrorTests(unittest.TestCase):
                 "fixture",
             )
 
-    def test_checked_in_snapshot_matches_registry_and_inventory(self) -> None:
+    def test_installed_provider_snapshot_matches_registry_and_inventory(self) -> None:
+        if not (sync_official_manuals.DEFAULT_SNAPSHOT / "manifest.json").is_file():
+            self.skipTest("external CP2K provider snapshot is not installed")
         result = sync_official_manuals.check_snapshot()
         self.assertEqual(result["status"], "ok", result["errors"])
         self.assertGreaterEqual(result["index_page_count"], 2900)
@@ -773,7 +894,7 @@ class ToolProbeTests(unittest.TestCase):
         self.assertNotIn('"path"', serialized)
 
 
-class SkillContractTests(unittest.TestCase):
+class SkillContractTests(SyntheticProviderSnapshotMixin, unittest.TestCase):
     def test_profiles_cover_auditor_tasks_and_every_official_topic(self) -> None:
         self.assertEqual(set(audit_cp2k_case.TASK_PROFILES), set(audit_cp2k_case.TASK_RUN_TYPES))
         self.assertEqual(
@@ -785,7 +906,12 @@ class SkillContractTests(unittest.TestCase):
             topics.update(profile.get("required_source_topics", []))
         for profile in audit_cp2k_case.METHOD_PROFILES.values():
             topics.update(profile.get("source_topics", []))
-        result = resolve_official_sources.resolve(sorted(topics), "2026.2", live_check=False)
+        result = resolve_official_sources.resolve(
+            sorted(topics),
+            "2026.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )
         self.assertEqual(result["status"], "pass_cached_exact", result)
         self.assertEqual({record["topic"] for record in result["resolved"]}, topics)
 
@@ -879,7 +1005,7 @@ class ConvergenceTests(unittest.TestCase):
             analyze_convergence.analyze(rows, abs_tol=0.001, rel_tol=0, min_tail=2)
 
 
-class ClaimPackageTests(unittest.TestCase):
+class ClaimPackageTests(SyntheticProviderSnapshotMixin, unittest.TestCase):
     def make_package(self, root: Path, *, omit_check: bool = False, tamper_source: bool = False) -> Path:
         audit_paths: list[Path] = []
         rows: list[dict[str, object]] = []
@@ -916,7 +1042,12 @@ class ClaimPackageTests(unittest.TestCase):
         topics = set(selected_audit["profiles"]["task"]["required_source_topics"])
         for method in selected_audit["profiles"]["methods"]:
             topics.update(method["source_topics"])
-        official = resolve_official_sources.resolve(sorted(topics), "2026.2", live_check=False)
+        official = resolve_official_sources.resolve(
+            sorted(topics),
+            "2026.2",
+            live_check=False,
+            snapshot_dir=self.snapshot_dir,
+        )
         if tamper_source:
             official["resolved"][0]["snapshot_sha256"] = "0" * 64
         official_path = root / "official-sources.json"
@@ -950,7 +1081,10 @@ class ClaimPackageTests(unittest.TestCase):
 
     def test_complete_package_is_only_eligible_for_expert_review(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            result = validate_claim_package.validate_package(self.make_package(Path(directory)))
+            result = validate_claim_package.validate_package(
+                self.make_package(Path(directory)),
+                snapshot_dir=self.snapshot_dir,
+            )
             self.assertEqual(result["status"], "eligible_for_expert_review")
             self.assertEqual(result["gates"]["scientific_acceptance"], "requires_expert_review")
             self.assertEqual(result["official_sources"]["verification_mode"], "cached_exact")
@@ -959,7 +1093,10 @@ class ClaimPackageTests(unittest.TestCase):
 
     def test_missing_claim_check_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            result = validate_claim_package.validate_package(self.make_package(Path(directory), omit_check=True))
+            result = validate_claim_package.validate_package(
+                self.make_package(Path(directory), omit_check=True),
+                snapshot_dir=self.snapshot_dir,
+            )
             self.assertEqual(result["status"], "blocked")
             self.assertTrue(result["checks"]["missing"])
 
@@ -967,7 +1104,10 @@ class ClaimPackageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             package = self.make_package(Path(directory), tamper_source=True)
             with self.assertRaisesRegex(ValueError, "snapshot hashes"):
-                validate_claim_package.validate_package(package)
+                validate_claim_package.validate_package(
+                    package,
+                    snapshot_dir=self.snapshot_dir,
+                )
 
     def test_forged_legacy_live_verified_record_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -983,7 +1123,10 @@ class ClaimPackageTests(unittest.TestCase):
                 record.pop("source_content_sha256", None)
             official_path.write_text(json.dumps(official), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unverified topic|schema|version-verified"):
-                validate_claim_package.validate_package(package_path)
+                validate_claim_package.validate_package(
+                    package_path,
+                    snapshot_dir=self.snapshot_dir,
+                )
 
     def test_forged_live_matches_cached_receipt_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -1007,7 +1150,10 @@ class ClaimPackageTests(unittest.TestCase):
             official["resolved"][0]["final_url"] += "?forged=1"
             official_path.write_text(json.dumps(official), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "self-declared|live replay"):
-                validate_claim_package.validate_package(package_path)
+                validate_claim_package.validate_package(
+                    package_path,
+                    snapshot_dir=self.snapshot_dir,
+                )
 
     def test_perfect_self_declared_live_receipt_cannot_upgrade_cached_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -1030,7 +1176,10 @@ class ClaimPackageTests(unittest.TestCase):
                 )
             official_path.write_text(json.dumps(official), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "self-declared|live replay"):
-                validate_claim_package.validate_package(package_path)
+                validate_claim_package.validate_package(
+                    package_path,
+                    snapshot_dir=self.snapshot_dir,
+                )
 
     def test_explicit_validation_time_live_replay_can_match_cached_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -1054,6 +1203,7 @@ class ClaimPackageTests(unittest.TestCase):
                 result = validate_claim_package.validate_package(
                     package_path,
                     live_replay=True,
+                    snapshot_dir=self.snapshot_dir,
                 )
             self.assertEqual(result["status"], "eligible_for_expert_review")
             self.assertEqual(
@@ -1080,6 +1230,7 @@ class ClaimPackageTests(unittest.TestCase):
                     validate_claim_package.validate_package(
                         package_path,
                         live_replay=True,
+                        snapshot_dir=self.snapshot_dir,
                     )
 
     def test_selected_audit_must_be_in_convergence_series(self) -> None:
@@ -1093,7 +1244,10 @@ class ClaimPackageTests(unittest.TestCase):
             unrelated.write_text(json.dumps(audit), encoding="utf-8")
             package["audit_json"] = unrelated.name
             package_path.write_text(json.dumps(package), encoding="utf-8")
-            result = validate_claim_package.validate_package(package_path)
+            result = validate_claim_package.validate_package(
+                package_path,
+                snapshot_dir=self.snapshot_dir,
+            )
             self.assertEqual(result["status"], "blocked")
             self.assertIn("selected run audit is not part of the convergence series", result["blockers"])
 

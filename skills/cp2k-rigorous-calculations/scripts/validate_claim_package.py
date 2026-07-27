@@ -195,6 +195,7 @@ def validate_official_sources(
     required_topics: set[str],
     *,
     live_replay: bool = False,
+    snapshot_dir: Path = resolve_official_sources.DEFAULT_SNAPSHOT,
 ) -> dict[str, Any]:
     evidence = load_object(path, "official-source evidence")
     if (
@@ -232,9 +233,16 @@ def validate_official_sources(
     if evidence["status"] != "pass_cached_exact":
         raise ValueError("official-source evidence status differs from its verification records")
 
-    cached = resolve_official_sources.resolve(sorted(required_topics), version, live_check=False)
+    cached = resolve_official_sources.resolve(
+        sorted(required_topics),
+        version,
+        live_check=False,
+        snapshot_dir=snapshot_dir,
+    )
     if cached.get("status") != "pass_cached_exact":
-        raise ValueError("the checked-in official snapshot cannot independently verify every required topic")
+        raise ValueError(
+            "the configured official provider snapshot cannot independently verify every required topic"
+        )
     expected = {record["topic"]: record for record in cached["resolved"]}
     for topic in required_topics:
         record = by_topic[topic]
@@ -256,9 +264,12 @@ def validate_official_sources(
             sorted(required_topics),
             version,
             live_check=True,
+            snapshot_dir=snapshot_dir,
         )
         if replay.get("status") != "pass_live_matches_cached":
-            raise ValueError("validation-time live replay did not match the checked-in official snapshot")
+            raise ValueError(
+                "validation-time live replay did not match the configured official provider snapshot"
+            )
         verification_mode = "live_replayed_matches_cached"
     return {
         "sha256": sha256_file(path),
@@ -326,6 +337,7 @@ def validate_package(
     profiles_path: Path = DEFAULT_PROFILES,
     *,
     live_replay: bool = False,
+    snapshot_dir: Path = resolve_official_sources.DEFAULT_SNAPSHOT,
 ) -> dict[str, Any]:
     package = load_object(package_path, "claim package")
     missing_keys = sorted(PACKAGE_KEYS - set(package))
@@ -359,6 +371,7 @@ def validate_package(
         audit["cp2k_version"],
         audit["required_source_topics"],
         live_replay=live_replay,
+        snapshot_dir=snapshot_dir,
     )
     blockers: list[str] = []
     if not claim_supported:
@@ -443,10 +456,21 @@ def main() -> int:
         action="store_true",
         help="Reopen every required official URL during this validation and require exact cached-content hashes.",
     )
+    parser.add_argument(
+        "--snapshot",
+        type=Path,
+        default=resolve_official_sources.DEFAULT_SNAPSHOT,
+        help="Provider snapshot directory used to independently verify official-source evidence.",
+    )
     parser.add_argument("--pretty", action="store_true")
     args = parser.parse_args()
     try:
-        result = validate_package(args.package, args.profiles, live_replay=args.live_replay)
+        result = validate_package(
+            args.package,
+            args.profiles,
+            live_replay=args.live_replay,
+            snapshot_dir=args.snapshot,
+        )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"status": "blocked_invalid_package", "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 2

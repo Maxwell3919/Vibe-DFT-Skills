@@ -50,7 +50,14 @@ The format follows Keep a Changelog principles, with additional sections for lif
 - Moved full official-manual bodies out of Git while retaining receipts,
   hashes, source identities, gap records, deterministic rebuild tooling, and
   local readable caches.
-- Reconciled the planned environment authority with the content review: the internal `ovito-basic` profile now means the standalone `ovito` Python module, GPUMD v5.3 records `GPL-3.0-or-later`, and LASP records the publicly visible 3.7.3 academic/professional edition and Intel compiler/MPI baseline without treating them as native execution evidence.
+- Reconciled the planned environment authority with the content review: the
+  internal `ovito-basic` profile now means the standalone `ovito` Python
+  module, while LASP records only its publicly visible edition and compiler/MPI
+  baseline without treating them as native execution evidence.
+- Made CP2K official-source and claim-package tests hermetic by injecting a
+  synthetic provider-cache fixture. A full external mirror is still validated
+  when installed, but its absence no longer makes a clean GitHub runner depend
+  on a developer workstation cache.
 - Updated repository-facing documentation for public GitHub visibility without changing Skill lifecycles, scientific evidence gates, third-party license boundaries, or the absence of a top-level repository license.
 - Expanded the repository extension checklist so every new or enlarged
   official-document pack must close its central authority, consumer binding,
