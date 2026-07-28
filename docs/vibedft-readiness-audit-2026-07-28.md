@@ -119,22 +119,22 @@ VibeDFT should use this repository as the **scientific policy and contract plane
 
 Recommended layer ownership:
 
-1. **Skills and policy plane — this repository**  
+1. **Skills and policy plane — this repository**
    Human/agent instructions, claim ceilings, scientific gates, schemas, route declarations, official-source receipts, synthetic fixtures, and promotion evidence.
 
-2. **Runtime plane — versioned Python package**  
+2. **Runtime plane — versioned Python package**
    Route resolution, contract validation, action envelopes, authorization/lease enforcement, idempotency keys, process state, retries, cancellation, and plugin discovery.
 
-3. **Code adapters**  
+3. **Code adapters**
    QE, VASP, CP2K, and SIESTA input generation, native invocation, output parsing, restart detection, and code-specific error classification. Each adapter owns supported-version ranges and real-artifact tests.
 
-4. **Transport and scheduler adapters**  
+4. **Transport and scheduler adapters**
    Local, SSH, Slurm, PBS, and future backends. Site profiles remain outside the public Skill source and contain no credentials.
 
-5. **Durable provenance/state store**  
+5. **Durable provenance/state store**
    Immutable inputs, outputs, events, hashes, decisions, leases, environment identity, and parent-child relationships. Conversation memory and Git are not runtime databases.
 
-6. **Scientific validators**  
+6. **Scientific validators**
    Observable-specific convergence, dimensionality, model validity, cross-code checks, and publication-claim boundaries. These remain independent of scheduler success.
 
 ## Reuse instead of reimplementation
