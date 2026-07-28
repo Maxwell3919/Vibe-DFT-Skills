@@ -57,6 +57,10 @@ CELL_PARAMETERS angstrom
 
 
 class QeGuardTests(unittest.TestCase):
+    def require_official_mirror(self) -> None:
+        if not qe_guard.REFERENCES.exists():
+            self.skipTest("external QE official-manual mirror is not installed")
+
     def run_cli(self, *args: str, expected: int = 0) -> subprocess.CompletedProcess[str]:
         result = subprocess.run(
             [sys.executable, "-B", str(MODULE_PATH), *args],
@@ -578,6 +582,7 @@ class QeGuardTests(unittest.TestCase):
         self.assertIn("QE.OUTPUT.SCF_NOT_CONVERGED", {item.code for item in findings})
 
     def test_offline_reference_lookup_is_labeled_cached_only(self) -> None:
+        self.require_official_mirror()
         self.assertEqual(qe_guard.manual_record("pw.x")["name"], "INPUT_PW")
         result = self.run_cli(
             "reference",
@@ -596,6 +601,7 @@ class QeGuardTests(unittest.TestCase):
         self.assertEqual(payload["matches"][0]["manual_version"], "7.5")
 
     def test_partial_reference_page_is_explicit_and_fail_closed(self) -> None:
+        self.require_official_mirror()
         result = self.run_cli(
             "reference",
             "--executable",
@@ -629,6 +635,7 @@ class QeGuardTests(unittest.TestCase):
         self.assertIn("partial", payload["required_disclosure"].lower())
 
     def test_reference_pages_reconstruct_exact_utf8_content(self) -> None:
+        self.require_official_mirror()
         term = "K_POINTS tpiba automatic crystal gamma tpiba_b crystal_b tpiba_c crystal_c"
         token: str | None = None
         pages: list[str] = []
@@ -677,6 +684,7 @@ class QeGuardTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(reconstructed).hexdigest(), content_sha256)
 
     def test_full_reference_entry_can_be_returned_without_pagination(self) -> None:
+        self.require_official_mirror()
         result = self.run_cli(
             "reference",
             "--executable",
@@ -700,6 +708,7 @@ class QeGuardTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(match["excerpt"].encode("utf-8")).hexdigest(), match["content_sha256"])
 
     def test_reference_rejects_tampered_payload_and_outside_fence_append(self) -> None:
+        self.require_official_mirror()
         mutations = {
             "payload": lambda text: text.replace("Default:        tbipa", "Default:        tampered", 1),
             "outside-fence": lambda text: text + "untracked local appendix\n",
@@ -721,6 +730,7 @@ class QeGuardTests(unittest.TestCase):
                 self.assertNotIn("excerpt", payload["matches"][0])
 
     def test_reference_rejects_wrong_manifest_payload_hash_or_bytes(self) -> None:
+        self.require_official_mirror()
         for field, value in [("sha256", "0" * 64), ("bytes", 1)]:
             with self.subTest(field=field), tempfile.TemporaryDirectory() as tempdir:
                 fixture = self.make_reference_fixture(Path(tempdir))
@@ -736,6 +746,7 @@ class QeGuardTests(unittest.TestCase):
                 self.assertEqual(payload["matches"][0]["entry_verification"]["status"], "fail")
 
     def test_reference_rejects_section_path_escape_and_symlink(self) -> None:
+        self.require_official_mirror()
         for mode in ["escape", "symlink"]:
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as tempdir:
                 root = Path(tempdir)
@@ -766,6 +777,7 @@ class QeGuardTests(unittest.TestCase):
                 self.assertEqual(payload["matches"][0]["entry_verification"]["status"], "fail")
 
     def test_reference_continuation_revalidates_the_same_local_entry(self) -> None:
+        self.require_official_mirror()
         with tempfile.TemporaryDirectory() as tempdir:
             fixture = self.make_reference_fixture(Path(tempdir))
             status, first = self.run_reference_fixture(fixture, full_entry=False, max_chars=1000)
@@ -793,6 +805,7 @@ class QeGuardTests(unittest.TestCase):
             self.assertNotIn("excerpt", second["matches"][0])
 
     def test_reference_version_mismatch_is_blocked(self) -> None:
+        self.require_official_mirror()
         result = self.run_cli(
             "reference",
             "--executable",

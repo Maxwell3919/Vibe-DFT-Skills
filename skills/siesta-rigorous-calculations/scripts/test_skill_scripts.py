@@ -939,6 +939,8 @@ class ConvergenceTests(unittest.TestCase, CaseBuilder):
 
 class OfficialManualMirrorTests(unittest.TestCase):
     def test_complete_source_tree_mirror_and_link_closure(self) -> None:
+        if not sync_official_manuals.DEFAULT_SNAPSHOT.exists():
+            self.skipTest("external SIESTA provider snapshot is not installed")
         result = sync_official_manuals.check(
             snapshot=sync_official_manuals.DEFAULT_SNAPSHOT,
             adapter=sync_official_manuals.DEFAULT_HTML2MD_ADAPTER,

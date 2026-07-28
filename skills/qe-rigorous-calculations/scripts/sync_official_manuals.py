@@ -1238,12 +1238,31 @@ def main() -> int:
     parser.add_argument("--skill-root", type=Path, default=DEFAULT_CACHE_ROOT)
     parser.add_argument("--check", action="store_true")
     parser.add_argument(
+        "--check-if-present",
+        action="store_true",
+        help="strictly check an installed external mirror, or skip when it is absent",
+    )
+    parser.add_argument(
         "--refresh",
         action="store_true",
         help="Fetch every official source live in staging; replace the mirror only after validation",
     )
     args = parser.parse_args()
-    if args.check:
+    if args.check and args.check_if_present:
+        parser.error("--check and --check-if-present are mutually exclusive")
+    if args.refresh and (args.check or args.check_if_present):
+        parser.error("--refresh cannot be combined with a check mode")
+    if args.check_if_present and not args.skill_root.exists():
+        print(
+            json.dumps(
+                {
+                    "status": "skipped",
+                    "reason": "external Quantum ESPRESSO provider mirror is not installed",
+                },
+                sort_keys=True,
+            )
+        )
+    elif args.check or args.check_if_present:
         check(args.skill_root)
     else:
         sync(args.skill_root, refresh=args.refresh)

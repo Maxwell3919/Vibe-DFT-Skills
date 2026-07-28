@@ -975,6 +975,11 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--refresh", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument(
+        "--check-if-present",
+        action="store_true",
+        help="strictly check an installed external mirror, or skip when it is absent",
+    )
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument(
         "--scope",
@@ -988,6 +993,17 @@ def main() -> int:
     args = parser.parse_args()
     if args.workers < 1 or args.workers > 16:
         parser.error("--workers must be between 1 and 16")
+    if args.check_if_present and not args.root.exists():
+        print(
+            json.dumps(
+                {
+                    "status": "skipped",
+                    "reason": "external VASP Wiki provider mirror is not installed",
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
     return refresh(args.root, args.workers, args.scope) if args.refresh else check(args.root)
 
 

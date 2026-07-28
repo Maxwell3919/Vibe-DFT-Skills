@@ -2440,6 +2440,18 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
         self.assertIn("actions/upload-artifact@v4", workflow)
         self.assertNotIn("gh release", workflow)
 
+    def test_validation_ci_avoids_duplicate_branch_push_and_pr_runs(self) -> None:
+        workflow = yaml.load(
+            (ROOT / ".github" / "workflows" / "validate.yml").read_text(
+                encoding="utf-8"
+            ),
+            Loader=yaml.BaseLoader,
+        )
+        triggers = workflow["on"]
+        self.assertEqual(triggers["push"]["branches"], ["main"])
+        self.assertEqual(triggers["push"]["tags"], ["*"])
+        self.assertIn("pull_request", triggers)
+
 
 if __name__ == "__main__":
     unittest.main()

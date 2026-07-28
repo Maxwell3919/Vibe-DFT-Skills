@@ -229,7 +229,33 @@ def resolve(
     catalog_path: Path | None = DEFAULT_CATALOG,
     seed_path: Path | None = DEFAULT_SEED,
 ) -> dict[str, Any]:
-    manifest, index, manifest_sha256 = load_index(manifest_path)
+    try:
+        manifest, index, manifest_sha256 = load_index(manifest_path)
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {
+            "status": BLOCKED_STATUS,
+            "maximum_conclusion": "official_source_claim_blocked",
+            "mirror_scope": None,
+            "mirror_retrieved_utc": None,
+            "resolved": [],
+            "missing": list(queries),
+            "corrupt": [],
+            "integrity": {
+                "anchor_status": "blocked",
+                "anchor_reason": "mirror_manifest_unavailable_or_invalid",
+                "catalog_sha256": None,
+                "expected_manifest_sha256": None,
+                "manifest_sha256": None,
+                "body_hash_status": "not_evaluated",
+                "platform_attestation_status": "not_evaluated",
+            },
+            "rule": (
+                "Local integrity verifies only the exact pinned provider artifacts. "
+                "It does not prove freshness or platform-attested external resolution. "
+                "Missing, corrupt, unpinned, or unattested evidence never authorizes a "
+                "remembered software-behavior claim."
+            ),
+        }
     anchor, catalog_pages = anchor_manifest(
         manifest_sha256,
         catalog_path,

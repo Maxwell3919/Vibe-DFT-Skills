@@ -25,7 +25,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/qe-rigorous-calculations
-    source_tree_sha256: "e1260bef7ff4299d3c4f4eedda564b916abc182ddf085b5cfc7e91f59654ee9d"
+    source_tree_sha256: "12da5ad8206f1ebfd3c3a575b63936f43f8d7af7d6f5d418f15585c9e889494a"
     side_effects: [network-read, local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -37,7 +37,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/vasp-rigorous-calculations
-    source_tree_sha256: "333f5a6e8f968cd262985d19dddc1f62ce4f8260bc427cfbd84bbb07e7b1091c"
+    source_tree_sha256: "043d3a42a7482d7b22195a6cb17f490c1d5aa972220124042092b77b36deb209"
     side_effects: [local-execution]
     consumes:
       - structure-manifest@1.0
@@ -49,7 +49,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/cp2k-rigorous-calculations
-    source_tree_sha256: "508184c2757a60bb92ac127789dc21cc72278c83cb251bc61b038f3c3a83d3fc"
+    source_tree_sha256: "e3aaf19f18cbb98ec2744baf2214892c925c91488bdce4587008570289f8c7eb"
     side_effects: [network-read, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -61,7 +61,7 @@ skills:
     kind: calculation
     lifecycle: active
     path: skills/siesta-rigorous-calculations
-    source_tree_sha256: "ba828b3b555a6a344555246b18f4f8b5fd5314d219772be23273a2b259b8203d"
+    source_tree_sha256: "3dcc6ee9737c7d9ebcd014c6ea4e2a1d4396b3416e0941b0afba4e356f619d69"
     side_effects: [network-read, local-write, local-execution]
     consumes:
       - structure-manifest@1.0
