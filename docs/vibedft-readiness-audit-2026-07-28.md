@@ -68,6 +68,26 @@ The frozen response policy maps scheduler submission/control to `dft-hpc-executi
 - map unavailable terminal intents to `null` plus a stable blocked reason until promotion;
 - add a mutation test proving that a development target cannot enter the canonical terminal-intent map.
 
+### Phase A1 implementation note
+
+Phase A1 adds `registry/active-evidence.yaml` to the canonical registry snapshot.
+The repository history contains no retained, independently reviewed,
+commit-bound promotion bundle for any of the seven inherited active Skills, so
+all seven are recorded as `legacy-unclosed`; no reviewer, review time,
+historical test result, or promotion commit is reconstructed. Each record binds
+the current source-tree identity and a separate route/task evidence reference.
+This status prohibits claims that independent activation review or lifecycle
+evidence closure is complete, but it does not demote the Skill or lower an
+existing action/task maturity ceiling.
+
+The route validator now enforces that every non-null terminal target is active,
+routable, and has a reachable action. Scheduler, authorization, scientific
+acceptance, structure preparation, reporting, review-response, and literature
+terminal intents are therefore `null` with stable blocked reasons while their
+candidate Skills remain non-active. Scientific acceptance remains a human
+decision. `tools/vibedft_readiness.py` projects these evidence and routing
+limits deterministically from the canonical snapshot.
+
 ### P0-3 — Current CI no longer exposes all declared trust boundaries
 
 The current workflow runs on one Ubuntu/Python 3.12 job, executes the main and development tests plus Skill validation, and builds the active-only artifact only for tags. Earlier merged trust-boundary work explicitly described Python 3.11–3.13, Ubuntu/macOS smoke coverage, history privacy scanning, activation/maturity ledger checks, semantic-obligation audits, and active-only distribution checks. Several of those surfaces are no longer explicit in the current workflow and two former ledger paths are absent.
