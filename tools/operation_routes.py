@@ -123,15 +123,28 @@ RESPONSE_POLICY: dict[str, object] = {
     "terminal_intent_routes": {
         "external-publish": None,
         "destructive-delete": None,
-        "scheduler-submit": "dft-hpc-execution",
-        "scheduler-control": "dft-hpc-execution",
-        "execution-authorization": "dft-project-orchestrator",
-        "scientific-acceptance-decision": "dft-project-orchestrator",
-        "structure-export": "dft-structure-preparation",
-        "structure-transformation": "dft-structure-preparation",
-        "scientific-report": "dft-reporting",
-        "review-response": "dft-review-response",
-        "literature-plan": "literature-to-dft-plan",
+        "scheduler-submit": None,
+        "scheduler-control": None,
+        "execution-authorization": None,
+        "scientific-acceptance-decision": None,
+        "structure-export": None,
+        "structure-transformation": None,
+        "scientific-report": None,
+        "review-response": None,
+        "literature-plan": None,
+    },
+    "terminal_intent_blocked_reasons": {
+        "external-publish": "external-publish-not-routable",
+        "destructive-delete": "destructive-delete-not-routable",
+        "scheduler-submit": "runtime-route-not-active",
+        "scheduler-control": "runtime-route-not-active",
+        "execution-authorization": "human-authorization-required",
+        "scientific-acceptance-decision": "human-scientific-decision-required",
+        "structure-export": "structure-preparation-route-not-active",
+        "structure-transformation": "structure-preparation-route-not-active",
+        "scientific-report": "reporting-route-not-active",
+        "review-response": "review-response-route-not-active",
+        "literature-plan": "literature-planning-route-not-active",
     },
     "claim_ceiling_basis": "highest-fully-satisfied-gate-profile",
     "unverified_claim_ceiling": "no_positive_claim",
@@ -268,6 +281,160 @@ def _side_effect_list(
     return values
 
 
+def terminal_intent_findings(
+    data: object,
+    *,
+    skill_data: object,
+) -> list[dict[str, str]]:
+    """Enforce that every non-null terminal target is actually executable."""
+
+    findings: list[dict[str, str]] = []
+    if not isinstance(data, dict):
+        return [
+            _finding(
+                "ROUTE_TERMINAL_POLICY_INVALID",
+                "response_policy",
+                "operation-route registry must be a mapping",
+            )
+        ]
+    policy = data.get("response_policy")
+    routes = data.get("routes")
+    registered = (
+        skill_data.get("skills")
+        if isinstance(skill_data, dict)
+        else None
+    )
+    if (
+        not isinstance(policy, dict)
+        or not isinstance(routes, dict)
+        or not isinstance(registered, dict)
+    ):
+        return [
+            _finding(
+                "ROUTE_TERMINAL_POLICY_INVALID",
+                "response_policy",
+                "terminal validation requires response policy, routes, and Skills",
+            )
+        ]
+    targets = policy.get("terminal_intent_routes")
+    reasons = policy.get("terminal_intent_blocked_reasons")
+    if not isinstance(targets, dict) or not targets:
+        return [
+            _finding(
+                "ROUTE_TERMINAL_POLICY_INVALID",
+                "response_policy/terminal_intent_routes",
+                "terminal intent routes must be a nonempty mapping",
+            )
+        ]
+    if not isinstance(reasons, dict):
+        reasons = {}
+        findings.append(
+            _finding(
+                "ROUTE_TERMINAL_BLOCKED_REASON_MISSING",
+                "response_policy/terminal_intent_blocked_reasons",
+                "blocked-reason mapping is required",
+            )
+        )
+
+    null_intents: set[str] = set()
+    for intent, target in targets.items():
+        location = f"response_policy/terminal_intent_routes/{intent}"
+        if not isinstance(intent, str) or GATE_ID.fullmatch(intent) is None:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_INTENT_INVALID",
+                    location,
+                    "terminal intent must be a stable identifier",
+                )
+            )
+            continue
+        if target is None:
+            null_intents.add(intent)
+            reason = reasons.get(intent)
+            if not isinstance(reason, str) or GATE_ID.fullmatch(reason) is None:
+                findings.append(
+                    _finding(
+                        "ROUTE_TERMINAL_BLOCKED_REASON_MISSING",
+                        f"response_policy/terminal_intent_blocked_reasons/{intent}",
+                        "null terminal target requires a stable blocked reason",
+                    )
+                )
+            continue
+        if not isinstance(target, str) or SKILL_ID.fullmatch(target) is None:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_TARGET_INVALID",
+                    location,
+                    "terminal target must be a registered Skill ID or null",
+                )
+            )
+            continue
+        registered_target = registered.get(target)
+        route = routes.get(target)
+        if (
+            not isinstance(registered_target, dict)
+            or registered_target.get("lifecycle") != "active"
+            or not isinstance(route, dict)
+            or route.get("lifecycle") != "active"
+        ):
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_TARGET_NOT_ACTIVE",
+                    location,
+                    "non-null terminal target must have active lifecycle",
+                )
+            )
+        if not isinstance(route, dict) or route.get("routable") is not True:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_TARGET_NOT_ROUTABLE",
+                    location,
+                    "non-null terminal target must be routable",
+                )
+            )
+            continue
+        actions = route.get("actions")
+        if not isinstance(actions, dict) or not actions:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_TARGET_ACTIONLESS",
+                    location,
+                    "non-null terminal target must expose at least one action",
+                )
+            )
+            continue
+        sequences = route.get("tool_sequence")
+        reachable = {
+            action_id
+            for sequence in sequences.values()
+            if isinstance(sequence, list)
+            for action_id in sequence
+            if isinstance(action_id, str) and action_id in actions
+        } if isinstance(sequences, dict) else set()
+        if not reachable:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_TARGET_ACTION_UNREACHABLE",
+                    location,
+                    "non-null terminal target needs a reachable registered action",
+                )
+            )
+
+    for intent in sorted(set(reasons).difference(null_intents)):
+        findings.append(
+            _finding(
+                "ROUTE_TERMINAL_BLOCKED_REASON_UNEXPECTED",
+                f"response_policy/terminal_intent_blocked_reasons/{intent}",
+                "blocked reason is allowed only for a null terminal target",
+            )
+        )
+    return sorted(findings, key=lambda item: (
+        item["code"],
+        item["location"],
+        item["message"],
+    ))
+
+
 def validation_findings(
     data: object,
     *,
@@ -401,6 +568,12 @@ def validation_findings(
         findings.append(_finding("ROUTE_REGISTRY_NOT_MAPPING", "routes", "routes must be a nonempty mapping"))
         return findings
     registered_skills = skill_data.get("skills", {}) if isinstance(skill_data, dict) else {}
+    findings.extend(
+        terminal_intent_findings(
+            data,
+            skill_data=skill_data,
+        )
+    )
     registered_interfaces = interface_data.get("interfaces", {}) if isinstance(interface_data, dict) else {}
     if set(routes) != set(registered_skills):
         missing = sorted(set(registered_skills).difference(routes))

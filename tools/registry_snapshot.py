@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load the nine canonical registries once and validate one shared snapshot."""
+"""Load the ten canonical registries once and validate one shared snapshot."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import hashlib
 from pathlib import Path
 from typing import Any
 
+from active_evidence import validation_findings as active_evidence_validation_findings
 from environment_profiles import validation_errors as environment_validation_errors
 from interface_registry import validation_errors as interface_validation_errors
 from official_source_authorities import (
@@ -36,6 +37,7 @@ class RegistrySnapshotError(ValueError):
 @dataclass(frozen=True)
 class RegistrySnapshot:
     root: Path
+    active_evidence: dict[str, Any]
     skills: dict[str, Any]
     software: dict[str, Any]
     interfaces: dict[str, Any]
@@ -76,6 +78,7 @@ def load_registry_snapshot(
 
     selected_root = (root or repo_root()).resolve()
     filenames = {
+        "active_evidence": "active-evidence.yaml",
         "skills": "skill-registry.yaml",
         "software": "software-registry.yaml",
         "interfaces": "interface-registry.yaml",
@@ -132,6 +135,16 @@ def load_registry_snapshot(
             loaded["environments"],
         )
     )
+    failures.extend(
+        "active-evidence: "
+        f"{finding.code} {finding.location}: {finding.message}"
+        for finding in active_evidence_validation_findings(
+            loaded["active_evidence"],
+            root=selected_root,
+            skill_data=loaded["skills"],
+            validate_sources=validate_sources,
+        )
+    )
     authority_failures, authority_projection = validate_and_project_authorities(
         loaded["official_source_authorities"],
         software_data=loaded["software"],
@@ -182,6 +195,7 @@ def load_registry_snapshot(
         raise RegistrySnapshotError("invalid registry snapshot: " + "; ".join(failures))
     return RegistrySnapshot(
         root=selected_root,
+        active_evidence=loaded["active_evidence"],
         skills=loaded["skills"],
         software=loaded["software"],
         interfaces=loaded["interfaces"],

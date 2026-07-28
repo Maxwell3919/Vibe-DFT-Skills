@@ -67,6 +67,10 @@
       "sha256": "3fd6894c0c97d1f87865cd9f09d777ed284b86e61f1ceaa5e063f60f9980d1c7"
     },
     {
+      "path": "tools/active_evidence.py",
+      "sha256": "cb3003216fc587dc1dfffbf3f63cb6e00f9afdb66c14d3e167ec248e683617f0"
+    },
+    {
       "path": "tools/environment_profiles.py",
       "sha256": "3cf8335c975126c901e1d2f5b1982cfa554023a9944bd8961670a7c56068bdde"
     },
@@ -84,11 +88,11 @@
     },
     {
       "path": "tools/operation_routes.py",
-      "sha256": "230f479540a5545d0a6f1ec4f26219fdeef3c384274229a4daeb29de8a52c5bf"
+      "sha256": "d55acd34e9bbf4aceab6fbf76cc005c33949b18dee35c348e26d998a927d9d55"
     },
     {
       "path": "tools/registry_snapshot.py",
-      "sha256": "2d76e7549e2397e854ff955180751dc74e12c8160e90eb13a525bbe4bdadb2a0"
+      "sha256": "6bad64b4c4fb1ae5b1117ae7e2b78cb6c41b22ade4e1badc0903627534a32d44"
     },
     {
       "path": "tools/registry_yaml.py",
@@ -121,6 +125,10 @@
     {
       "path": "tools/validate_official_document_storage.py",
       "sha256": "11146abc7504299b47aa139e8fa5aef6292501b331c16a1d9f6292f5c0812788"
+    },
+    {
+      "path": "tools/validate_promotion.py",
+      "sha256": "4b96b5bbdb00ad40480a4ed8243d20cec7b04dbe4dd03d6762c9479facbfb761"
     }
   ],
   "output_contract_refs": [

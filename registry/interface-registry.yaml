@@ -452,7 +452,7 @@ interfaces:
     lifecycle: active
     domain: bundle-governance
     schema_path: contracts/bundle-validation-report.schema.json
-    schema_sha256: 05cd6d267889179cd57beec5feb70af116652f6f73bfe9a650cdae21f7032c26
+    schema_sha256: 0993e520105f1768b661a1793e5265165a84663d7d3ec54793aefc3379908456
     producer_policy: mixed
     classification:
       document_kind: content-addressed-record

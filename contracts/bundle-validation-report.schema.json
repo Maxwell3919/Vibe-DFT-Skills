@@ -133,7 +133,7 @@
             "required": ["label", "sha256"],
             "properties": {
               "label": {
-                "enum": ["interface-registry", "skill-registry", "software-registry", "environment-profiles", "operation-routes", "official-source-authorities", "official-document-consumers", "official-document-bundle-expectations", "official-document-storage-discovery"]
+                "enum": ["active-evidence", "interface-registry", "skill-registry", "software-registry", "environment-profiles", "operation-routes", "official-source-authorities", "official-document-consumers", "official-document-bundle-expectations", "official-document-storage-discovery"]
               },
               "sha256": {
                 "$ref": "urn:vibe-dft-skills:contract:common-definitions:1.0#/$defs/sha256"

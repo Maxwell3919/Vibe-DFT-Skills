@@ -12,15 +12,27 @@ response_policy:
   terminal_intent_routes:
     external-publish: null
     destructive-delete: null
-    scheduler-submit: dft-hpc-execution
-    scheduler-control: dft-hpc-execution
-    execution-authorization: dft-project-orchestrator
-    scientific-acceptance-decision: dft-project-orchestrator
-    structure-export: dft-structure-preparation
-    structure-transformation: dft-structure-preparation
-    scientific-report: dft-reporting
-    review-response: dft-review-response
-    literature-plan: literature-to-dft-plan
+    scheduler-submit: null
+    scheduler-control: null
+    execution-authorization: null
+    scientific-acceptance-decision: null
+    structure-export: null
+    structure-transformation: null
+    scientific-report: null
+    review-response: null
+    literature-plan: null
+  terminal_intent_blocked_reasons:
+    external-publish: external-publish-not-routable
+    destructive-delete: destructive-delete-not-routable
+    scheduler-submit: runtime-route-not-active
+    scheduler-control: runtime-route-not-active
+    execution-authorization: human-authorization-required
+    scientific-acceptance-decision: human-scientific-decision-required
+    structure-export: structure-preparation-route-not-active
+    structure-transformation: structure-preparation-route-not-active
+    scientific-report: reporting-route-not-active
+    review-response: review-response-route-not-active
+    literature-plan: literature-planning-route-not-active
   claim_ceiling_basis: highest-fully-satisfied-gate-profile
   unverified_claim_ceiling: no_positive_claim
   canonical_status_output: action-state

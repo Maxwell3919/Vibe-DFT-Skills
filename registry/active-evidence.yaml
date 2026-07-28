@@ -1,0 +1,117 @@
+schema_version: "1.0"
+registry_id: vibedft-active-evidence
+
+# This ledger records activation-evidence truth independently from lifecycle
+# and route/task maturity. A legacy-unclosed record preserves current routing
+# while prohibiting claims that an independent promotion review was completed.
+records:
+  cif-structure-analysis:
+    skill_id: cif-structure-analysis
+    lifecycle: active
+    source_tree_sha256: "fb634d7a904fc3e9ef8acdf424a373b88a8f65eecc0ca28c1837d06ef929fd00"
+    activation_evidence_status: legacy-unclosed
+    promotion_evidence: null
+    route_maturity_refs:
+      - path: skills/cif-structure-analysis/references/structure-manifest.md
+        sha256: "18a2b779fbc7eab999cccd6f64534eb245165621cb6798fca50dc211f3ab7365"
+        scope: Route-specific structure-manifest behavior only; not independent activation evidence.
+    context_refs: []
+    known_limitations: &legacy_limitations
+      - No independently reviewed, commit-bound activation or promotion bundle is retained for this inherited active lifecycle.
+    closure_requirements: &legacy_closure_requirements
+      - Complete a two-phase promotion review using activation-checklist@1.1, task-maturity@1.1, promotion-delta@1.1, and a passing validation report.
+      - Bind the verified promotion bundle to the active source-tree SHA-256.
+    prohibited_claims: &legacy_prohibited_claims
+      - independent-activation-review-complete
+      - active-lifecycle-evidence-closed
+      - aggregate-maturity-upgraded-from-activation-status
+
+  qe-rigorous-calculations:
+    skill_id: qe-rigorous-calculations
+    lifecycle: active
+    source_tree_sha256: "12da5ad8206f1ebfd3c3a575b63936f43f8d7af7d6f5d418f15585c9e889494a"
+    activation_evidence_status: legacy-unclosed
+    promotion_evidence: null
+    route_maturity_refs:
+      - path: skills/qe-rigorous-calculations/references/fail-closed-contract.md
+        sha256: "2cb24f8031f11179b6ced024bf57a27e836aa12f5e26ecfae67fd5ccac3b9945"
+        scope: Route-specific fail-closed calculation behavior only; not independent activation evidence.
+    context_refs: []
+    known_limitations: *legacy_limitations
+    closure_requirements: *legacy_closure_requirements
+    prohibited_claims: *legacy_prohibited_claims
+
+  vasp-rigorous-calculations:
+    skill_id: vasp-rigorous-calculations
+    lifecycle: active
+    source_tree_sha256: "043d3a42a7482d7b22195a6cb17f490c1d5aa972220124042092b77b36deb209"
+    activation_evidence_status: legacy-unclosed
+    promotion_evidence: null
+    route_maturity_refs:
+      - path: skills/vasp-rigorous-calculations/references/task-evidence-profiles.json
+        sha256: "84e5e72359eb87067a21555f86dd9a7f85e85c9cf2cf9aa002a127b68f07d874"
+        scope: Task-specific evidence profiles only; not independent activation evidence.
+    context_refs: []
+    known_limitations: *legacy_limitations
+    closure_requirements: *legacy_closure_requirements
+    prohibited_claims: *legacy_prohibited_claims
+
+  cp2k-rigorous-calculations:
+    skill_id: cp2k-rigorous-calculations
+    lifecycle: active
+    source_tree_sha256: "e3aaf19f18cbb98ec2744baf2214892c925c91488bdce4587008570289f8c7eb"
+    activation_evidence_status: legacy-unclosed
+    promotion_evidence: null
+    route_maturity_refs:
+      - path: skills/cp2k-rigorous-calculations/references/task-evidence-profiles.json
+        sha256: "7aca2aa9e5f66fac9846ab7ac59e6f23fb8894b35372413b3effb92b18acc973"
+        scope: Task-specific evidence profiles only; not independent activation evidence.
+    context_refs: []
+    known_limitations: *legacy_limitations
+    closure_requirements: *legacy_closure_requirements
+    prohibited_claims: *legacy_prohibited_claims
+
+  siesta-rigorous-calculations:
+    skill_id: siesta-rigorous-calculations
+    lifecycle: active
+    source_tree_sha256: "3dcc6ee9737c7d9ebcd014c6ea4e2a1d4396b3416e0941b0afba4e356f619d69"
+    activation_evidence_status: legacy-unclosed
+    promotion_evidence: null
+    route_maturity_refs:
+      - path: skills/siesta-rigorous-calculations/references/task-evidence-profiles.json
+        sha256: "f59e1b7fa12a1324ca985567d0b43d27271fc6b8c117395db35d1e5766637fd2"
+        scope: Task-specific evidence profiles only; not independent activation evidence.
+    context_refs: []
+    known_limitations: *legacy_limitations
+    closure_requirements: *legacy_closure_requirements
+    prohibited_claims: *legacy_prohibited_claims
+
+  dft-postprocess:
+    skill_id: dft-postprocess
+    lifecycle: active
+    source_tree_sha256: "f34087cdd5d612a0f69e2ec99eb2fcf9b6b1f21f5014e2c5c1d3c25e4fba3d53"
+    activation_evidence_status: legacy-unclosed
+    promotion_evidence: null
+    route_maturity_refs:
+      - path: skills/dft-postprocess/references/observable-registry.yaml
+        sha256: "6a50fbffdb6004bbcd9a27f686757684b3992feae1c955979a249a4ad035b675"
+        scope: Observable/backend route maturity only; not independent activation evidence.
+    context_refs: []
+    known_limitations: *legacy_limitations
+    closure_requirements: *legacy_closure_requirements
+    prohibited_claims: *legacy_prohibited_claims
+
+  dft-campaign-efficiency:
+    skill_id: dft-campaign-efficiency
+    lifecycle: active
+    source_tree_sha256: "3b3483e0cdff2717f7798c22a8cd551142c1803b393fa30aab1f1aade18fbb2e"
+    activation_evidence_status: legacy-unclosed
+    promotion_evidence: null
+    route_maturity_refs:
+      - path: skills/dft-campaign-efficiency/references/comparability-and-evidence.md
+        sha256: "aa133deba07a0a9f8763834a168749d92ed7ea15dfef7ad555941855d3d9e48b"
+        scope: Campaign evidence and comparability rules only; not independent activation evidence.
+    context_refs: []
+    known_limitations: *legacy_limitations
+    closure_requirements: *legacy_closure_requirements
+    prohibited_claims: *legacy_prohibited_claims

@@ -120,6 +120,17 @@ def synthetic_active_files(
         }
     }
     live_registries = {
+        "registry/active-evidence.yaml": {
+            "schema_version": "1.0",
+            "registry_id": "synthetic-active-evidence",
+            "records": {
+                skill_id: {
+                    "skill_id": skill_id,
+                    "lifecycle": "active",
+                }
+                for skill_id in active_skill_ids
+            },
+        },
         "registry/software-registry.yaml": {
             "schema_version": "1.0",
             "software": {},
@@ -1645,7 +1656,7 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             self.assertEqual(verified["legacy_official_artifact_count"], 0)
             self.assertEqual(verified["official_document_pack_audit"], "partial")
             self.assertEqual(verified["official_document_pack_count"], 7)
-            self.assertEqual(verified["source_registry_snapshot_count"], 10)
+            self.assertEqual(verified["source_registry_snapshot_count"], 11)
             self.assertEqual(
                 verified["official_document_externalized_source_count"],
                 0,

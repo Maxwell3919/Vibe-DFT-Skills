@@ -26,11 +26,12 @@ class _SyntheticHygieneFinding:
 
 
 class RegistrySnapshotAtomicTests(unittest.TestCase):
-    def test_shared_snapshot_contains_all_nine_exact_registry_documents(self) -> None:
+    def test_shared_snapshot_contains_all_ten_exact_registry_documents(self) -> None:
         snapshot = load_registry_snapshot(ROOT, validate_sources=False)
         self.assertEqual(
             set(snapshot.registry_raw),
             {
+                "active-evidence.yaml",
                 "skill-registry.yaml",
                 "software-registry.yaml",
                 "interface-registry.yaml",

@@ -53,6 +53,7 @@ COMMIT_RE = re.compile(r"^[a-f0-9]{40}(?:[a-f0-9]{24})?$")
 SKILL_ID_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 
 VERIFICATION_TOOL_PATHS = (
+    "tools/active_evidence.py",
     "tools/build_active_only_distribution.py",
     "tools/build_official_document_packs.py",
     "tools/environment_profiles.py",
@@ -70,9 +71,11 @@ VERIFICATION_TOOL_PATHS = (
     "tools/validate_official_document_bundles.py",
     "tools/validate_official_document_coverage.py",
     "tools/validate_official_document_storage.py",
+    "tools/validate_promotion.py",
 )
 
 FILTERED_REGISTRY_PATHS = (
+    "registry/active-evidence.yaml",
     "registry/skill-registry.yaml",
     "registry/software-registry.yaml",
     "registry/interface-registry.yaml",
@@ -85,6 +88,7 @@ FILTERED_REGISTRY_PATHS = (
 )
 
 SOURCE_REGISTRY_PATHS = (
+    "registry/active-evidence.yaml",
     "registry/skill-registry.yaml",
     "registry/software-registry.yaml",
     "registry/interface-registry.yaml",
@@ -886,6 +890,9 @@ def _filtered_registries(
     }
 
     filtered: dict[str, Any] = {
+        "registry/active-evidence.yaml": copy.deepcopy(
+            loaded["registry/active-evidence.yaml"]
+        ),
         "registry/skill-registry.yaml": skill_data,
         "registry/software-registry.yaml": software_data,
         "registry/interface-registry.yaml": interface_data,
