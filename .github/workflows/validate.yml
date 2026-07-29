@@ -21,6 +21,14 @@ jobs:
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install --yes poppler-utils
       - run: python -m pip install -r requirements-dev.txt
+      - name: Validate active evidence and terminal routing
+        run: |
+          python -m unittest -v \
+            tests.test_active_evidence \
+            tests.test_terminal_intents \
+            tests.test_vibedft_readiness
+          python tools/active_evidence.py
+          python tools/vibedft_readiness.py --check
       - run: python tools/run_tests.py
       - run: python tools/run_development_tests.py
       - name: Validate skills and official-document migration

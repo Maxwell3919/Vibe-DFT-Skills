@@ -68,6 +68,36 @@ The frozen response policy maps scheduler submission/control to `dft-hpc-executi
 - map unavailable terminal intents to `null` plus a stable blocked reason until promotion;
 - add a mutation test proving that a development target cannot enter the canonical terminal-intent map.
 
+### Phase A1 implementation note
+
+Phase A1 adds `registry/active-evidence.yaml` to the canonical registry snapshot.
+The repository history contains no retained, independently reviewed,
+commit-bound promotion bundle for any of the seven inherited active Skills, so
+all seven are recorded as `legacy-unclosed`; no reviewer, review time,
+historical test result, or promotion commit is reconstructed. Each record binds
+the current source-tree identity and a separate route/task evidence reference.
+This status prohibits claims that independent activation review or lifecycle
+evidence closure is complete, but it does not demote the Skill or lower an
+existing action/task maturity ceiling.
+
+The route validator now enforces that every non-null terminal target is active,
+routable, has a reachable action, and satisfies the terminal intent's explicit
+capability binding. Scheduler submit/control require the corresponding side
+effect on a reachable action; a route-level capability declaration is not
+sufficient. Structure, reporting, review-response, and literature intents bind
+the target Skill kind and produced interface. Scheduler and other missing
+operation routes remain `null`; execution authorization and scientific
+acceptance are classified as human boundaries, while external publication and
+destructive deletion are intentionally disabled.
+
+`tools/vibedft_readiness.py` reports activation-evidence readiness,
+operational readiness, and automation coverage separately. Human boundaries
+and intentionally disabled intents are excluded from the automatable-intent
+denominator, so they do not permanently block aggregate readiness. Execution
+authorization remains a human boundary because an Agent may prepare or check
+an execution request, but the authority to approve its side effects is not
+delegated by route availability.
+
 ### P0-3 — Current CI no longer exposes all declared trust boundaries
 
 The current workflow runs on one Ubuntu/Python 3.12 job, executes the main and development tests plus Skill validation, and builds the active-only artifact only for tags. Earlier merged trust-boundary work explicitly described Python 3.11–3.13, Ubuntu/macOS smoke coverage, history privacy scanning, activation/maturity ledger checks, semantic-obligation audits, and active-only distribution checks. Several of those surfaces are no longer explicit in the current workflow and two former ledger paths are absent.

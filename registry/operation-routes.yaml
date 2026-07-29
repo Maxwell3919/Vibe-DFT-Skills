@@ -12,15 +12,66 @@ response_policy:
   terminal_intent_routes:
     external-publish: null
     destructive-delete: null
-    scheduler-submit: dft-hpc-execution
-    scheduler-control: dft-hpc-execution
-    execution-authorization: dft-project-orchestrator
-    scientific-acceptance-decision: dft-project-orchestrator
-    structure-export: dft-structure-preparation
-    structure-transformation: dft-structure-preparation
-    scientific-report: dft-reporting
-    review-response: dft-review-response
-    literature-plan: literature-to-dft-plan
+    scheduler-submit: null
+    scheduler-control: null
+    execution-authorization: null
+    scientific-acceptance-decision: null
+    structure-export: null
+    structure-transformation: null
+    scientific-report: null
+    review-response: null
+    literature-plan: null
+  terminal_intent_requirements:
+    external-publish:
+      readiness_class: intentionally-disabled
+      target_policy: null-only
+    destructive-delete:
+      readiness_class: intentionally-disabled
+      target_policy: null-only
+    scheduler-submit:
+      readiness_class: missing-route
+      required_action_side_effect: scheduler-submit
+    scheduler-control:
+      readiness_class: missing-route
+      required_action_side_effect: scheduler-control
+    execution-authorization:
+      readiness_class: human-boundary
+      target_policy: null-only
+    scientific-acceptance-decision:
+      readiness_class: human-boundary
+      target_policy: null-only
+    structure-export:
+      readiness_class: missing-route
+      required_skill_kind: structure
+      required_produced_interface: structure-export-manifest@1.0
+    structure-transformation:
+      readiness_class: missing-route
+      required_skill_kind: structure
+      required_produced_interface: structure-transformation-manifest@1.0
+    scientific-report:
+      readiness_class: missing-route
+      required_skill_kind: reporting
+      required_produced_interface: scientific-report@1.0
+    review-response:
+      readiness_class: missing-route
+      required_skill_kind: reporting
+      required_produced_interface: review-evidence-map@1.0
+    literature-plan:
+      readiness_class: missing-route
+      required_skill_kind: advisory
+      required_produced_interface: literature-evidence-plan@1.0
+  terminal_intent_blocked_reasons:
+    external-publish: external-publish-not-routable
+    destructive-delete: destructive-delete-not-routable
+    scheduler-submit: runtime-route-not-active
+    scheduler-control: runtime-route-not-active
+    execution-authorization: human-authorization-required
+    scientific-acceptance-decision: human-scientific-decision-required
+    structure-export: structure-preparation-route-not-active
+    structure-transformation: structure-preparation-route-not-active
+    scientific-report: reporting-route-not-active
+    review-response: review-response-route-not-active
+    literature-plan: literature-planning-route-not-active
   claim_ceiling_basis: highest-fully-satisfied-gate-profile
   unverified_claim_ceiling: no_positive_claim
   canonical_status_output: action-state
