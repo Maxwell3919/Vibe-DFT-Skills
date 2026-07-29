@@ -30,6 +30,20 @@ PHASE_A1_BLOCKED_INTENTS = {
     "literature-plan",
 }
 
+EXPECTED_READINESS_CLASSES = {
+    "external-publish": "intentionally-disabled",
+    "destructive-delete": "intentionally-disabled",
+    "scheduler-submit": "missing-route",
+    "scheduler-control": "missing-route",
+    "execution-authorization": "human-boundary",
+    "scientific-acceptance-decision": "human-boundary",
+    "structure-export": "missing-route",
+    "structure-transformation": "missing-route",
+    "scientific-report": "missing-route",
+    "review-response": "missing-route",
+    "literature-plan": "missing-route",
+}
+
 
 class TerminalIntentTests(unittest.TestCase):
     def _codes(self, data: dict[str, object]) -> set[str]:
@@ -52,10 +66,19 @@ class TerminalIntentTests(unittest.TestCase):
         policy = ROUTES["response_policy"]
         targets = policy["terminal_intent_routes"]
         reasons = policy["terminal_intent_blocked_reasons"]
+        requirements = policy["terminal_intent_requirements"]
         self.assertTrue(PHASE_A1_BLOCKED_INTENTS <= set(targets))
+        self.assertEqual(set(requirements), set(targets))
         for intent in PHASE_A1_BLOCKED_INTENTS:
             self.assertIsNone(targets[intent])
             self.assertIn(intent, reasons)
+        self.assertEqual(
+            {
+                intent: requirement["readiness_class"]
+                for intent, requirement in requirements.items()
+            },
+            EXPECTED_READINESS_CLASSES,
+        )
         self.assertEqual(
             reasons["scientific-acceptance-decision"],
             "human-scientific-decision-required",
@@ -109,6 +132,65 @@ class TerminalIntentTests(unittest.TestCase):
         mutated["routes"][target]["tool_sequence"] = {}
         self.assertIn(
             "ROUTE_TERMINAL_TARGET_ACTION_UNREACHABLE",
+            self._codes(mutated),
+        )
+
+    def test_scheduler_submit_rejects_reachable_non_scheduler_action(self) -> None:
+        mutated = copy.deepcopy(ROUTES)
+        target = "qe-rigorous-calculations"
+        mutated["response_policy"]["terminal_intent_routes"][
+            "scheduler-submit"
+        ] = target
+        del mutated["response_policy"]["terminal_intent_blocked_reasons"][
+            "scheduler-submit"
+        ]
+        self.assertTrue(mutated["routes"][target]["actions"])
+        self.assertTrue(mutated["routes"][target]["tool_sequence"])
+        self.assertIn(
+            "ROUTE_TERMINAL_TARGET_CAPABILITY_MISMATCH",
+            self._codes(mutated),
+        )
+
+    def test_route_level_scheduler_effect_cannot_replace_action_capability(
+        self,
+    ) -> None:
+        mutated = copy.deepcopy(ROUTES)
+        target = "qe-rigorous-calculations"
+        mutated["response_policy"]["terminal_intent_routes"][
+            "scheduler-submit"
+        ] = target
+        del mutated["response_policy"]["terminal_intent_blocked_reasons"][
+            "scheduler-submit"
+        ]
+        mutated["routes"][target]["side_effects"].append("scheduler-submit")
+        self.assertIn(
+            "ROUTE_TERMINAL_TARGET_CAPABILITY_MISMATCH",
+            self._codes(mutated),
+        )
+
+    def test_human_boundary_rejects_non_null_skill_target(self) -> None:
+        mutated = copy.deepcopy(ROUTES)
+        mutated["response_policy"]["terminal_intent_routes"][
+            "scientific-acceptance-decision"
+        ] = "qe-rigorous-calculations"
+        del mutated["response_policy"]["terminal_intent_blocked_reasons"][
+            "scientific-acceptance-decision"
+        ]
+        self.assertIn(
+            "ROUTE_TERMINAL_TARGET_CAPABILITY_MISMATCH",
+            self._codes(mutated),
+        )
+
+    def test_intentionally_disabled_intent_rejects_non_null_target(self) -> None:
+        mutated = copy.deepcopy(ROUTES)
+        mutated["response_policy"]["terminal_intent_routes"][
+            "external-publish"
+        ] = "qe-rigorous-calculations"
+        del mutated["response_policy"]["terminal_intent_blocked_reasons"][
+            "external-publish"
+        ]
+        self.assertIn(
+            "ROUTE_TERMINAL_TARGET_CAPABILITY_MISMATCH",
             self._codes(mutated),
         )
 

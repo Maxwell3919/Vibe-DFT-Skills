@@ -115,6 +115,22 @@ ROUTE_FIELDS = {
     "handoff",
 }
 HANDOFF_FIELDS = {"status", "produces", "consumers", "future_consumers", "requirements"}
+TERMINAL_READINESS_CLASSES = {
+    "missing-route",
+    "human-boundary",
+    "intentionally-disabled",
+}
+TERMINAL_NULL_ONLY_CLASSES = {"human-boundary", "intentionally-disabled"}
+TERMINAL_ACTION_REQUIREMENT_FIELDS = {
+    "readiness_class",
+    "required_action_side_effect",
+}
+TERMINAL_SKILL_REQUIREMENT_FIELDS = {
+    "readiness_class",
+    "required_skill_kind",
+    "required_produced_interface",
+}
+TERMINAL_NULL_REQUIREMENT_FIELDS = {"readiness_class", "target_policy"}
 RESPONSE_POLICY: dict[str, object] = {
     "natural_language_evidence": "unverified-inventory-only",
     "positive_evidence_requirement": "bundle-verified-hash-bound-gate-evidence",
@@ -132,6 +148,57 @@ RESPONSE_POLICY: dict[str, object] = {
         "scientific-report": None,
         "review-response": None,
         "literature-plan": None,
+    },
+    "terminal_intent_requirements": {
+        "external-publish": {
+            "readiness_class": "intentionally-disabled",
+            "target_policy": "null-only",
+        },
+        "destructive-delete": {
+            "readiness_class": "intentionally-disabled",
+            "target_policy": "null-only",
+        },
+        "scheduler-submit": {
+            "readiness_class": "missing-route",
+            "required_action_side_effect": "scheduler-submit",
+        },
+        "scheduler-control": {
+            "readiness_class": "missing-route",
+            "required_action_side_effect": "scheduler-control",
+        },
+        "execution-authorization": {
+            "readiness_class": "human-boundary",
+            "target_policy": "null-only",
+        },
+        "scientific-acceptance-decision": {
+            "readiness_class": "human-boundary",
+            "target_policy": "null-only",
+        },
+        "structure-export": {
+            "readiness_class": "missing-route",
+            "required_skill_kind": "structure",
+            "required_produced_interface": "structure-export-manifest@1.0",
+        },
+        "structure-transformation": {
+            "readiness_class": "missing-route",
+            "required_skill_kind": "structure",
+            "required_produced_interface": "structure-transformation-manifest@1.0",
+        },
+        "scientific-report": {
+            "readiness_class": "missing-route",
+            "required_skill_kind": "reporting",
+            "required_produced_interface": "scientific-report@1.0",
+        },
+        "review-response": {
+            "readiness_class": "missing-route",
+            "required_skill_kind": "reporting",
+            "required_produced_interface": "review-evidence-map@1.0",
+        },
+        "literature-plan": {
+            "readiness_class": "missing-route",
+            "required_skill_kind": "advisory",
+            "required_produced_interface": "literature-evidence-plan@1.0",
+        },
     },
     "terminal_intent_blocked_reasons": {
         "external-publish": "external-publish-not-routable",
@@ -317,6 +384,7 @@ def terminal_intent_findings(
             )
         ]
     targets = policy.get("terminal_intent_routes")
+    requirements = policy.get("terminal_intent_requirements")
     reasons = policy.get("terminal_intent_blocked_reasons")
     if not isinstance(targets, dict) or not targets:
         return [
@@ -326,6 +394,15 @@ def terminal_intent_findings(
                 "terminal intent routes must be a nonempty mapping",
             )
         ]
+    if not isinstance(requirements, dict) or set(requirements) != set(targets):
+        findings.append(
+            _finding(
+                "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                "response_policy/terminal_intent_requirements",
+                "requirements must be a mapping with exactly the terminal intent keys",
+            )
+        )
+        requirements = requirements if isinstance(requirements, dict) else {}
     if not isinstance(reasons, dict):
         reasons = {}
         findings.append(
@@ -348,6 +425,91 @@ def terminal_intent_findings(
                 )
             )
             continue
+        requirement = requirements.get(intent)
+        requirement_location = (
+            f"response_policy/terminal_intent_requirements/{intent}"
+        )
+        readiness_class = (
+            requirement.get("readiness_class")
+            if isinstance(requirement, dict)
+            else None
+        )
+        requirement_valid = True
+        if not isinstance(requirement, dict):
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                    requirement_location,
+                    "terminal intent requirement must be a mapping",
+                )
+            )
+            requirement_valid = False
+        elif readiness_class not in TERMINAL_READINESS_CLASSES:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                    f"{requirement_location}/readiness_class",
+                    "unsupported terminal readiness class",
+                )
+            )
+            requirement_valid = False
+        elif readiness_class in TERMINAL_NULL_ONLY_CLASSES:
+            if (
+                set(requirement) != TERMINAL_NULL_REQUIREMENT_FIELDS
+                or requirement.get("target_policy") != "null-only"
+            ):
+                findings.append(
+                    _finding(
+                        "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                        requirement_location,
+                        "human-boundary and intentionally-disabled intents require target_policy=null-only",
+                    )
+                )
+                requirement_valid = False
+        elif set(requirement) == TERMINAL_ACTION_REQUIREMENT_FIELDS:
+            required_effect = requirement.get("required_action_side_effect")
+            if required_effect not in SIDE_EFFECT_SET:
+                findings.append(
+                    _finding(
+                        "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                        f"{requirement_location}/required_action_side_effect",
+                        "required action side effect is not canonical",
+                    )
+                )
+                requirement_valid = False
+        elif set(requirement) == TERMINAL_SKILL_REQUIREMENT_FIELDS:
+            required_kind = requirement.get("required_skill_kind")
+            required_interface = requirement.get("required_produced_interface")
+            if not isinstance(required_kind, str) or not required_kind:
+                findings.append(
+                    _finding(
+                        "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                        f"{requirement_location}/required_skill_kind",
+                        "required Skill kind must be a nonempty string",
+                    )
+                )
+                requirement_valid = False
+            if (
+                not isinstance(required_interface, str)
+                or INTERFACE_ID.fullmatch(required_interface) is None
+            ):
+                findings.append(
+                    _finding(
+                        "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                        f"{requirement_location}/required_produced_interface",
+                        "required produced interface must be a canonical interface identifier",
+                    )
+                )
+                requirement_valid = False
+        else:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_REQUIREMENT_INVALID",
+                    requirement_location,
+                    "missing-route intent requires an action-side-effect or Skill-kind/interface binding",
+                )
+            )
+            requirement_valid = False
         if target is None:
             null_intents.add(intent)
             reason = reasons.get(intent)
@@ -360,6 +522,14 @@ def terminal_intent_findings(
                     )
                 )
             continue
+        if readiness_class in TERMINAL_NULL_ONLY_CLASSES:
+            findings.append(
+                _finding(
+                    "ROUTE_TERMINAL_TARGET_CAPABILITY_MISMATCH",
+                    location,
+                    f"{readiness_class} intent requires a null terminal target",
+                )
+            )
         if not isinstance(target, str) or SKILL_ID.fullmatch(target) is None:
             findings.append(
                 _finding(
@@ -419,6 +589,47 @@ def terminal_intent_findings(
                     "non-null terminal target needs a reachable registered action",
                 )
             )
+            continue
+        if not requirement_valid or not isinstance(requirement, dict):
+            continue
+        if "required_action_side_effect" in requirement:
+            required_effect = requirement["required_action_side_effect"]
+            capable_actions = {
+                action_id
+                for action_id in reachable
+                if isinstance(actions.get(action_id), dict)
+                and isinstance(actions[action_id].get("side_effects"), list)
+                and required_effect in actions[action_id]["side_effects"]
+            }
+            if not capable_actions:
+                findings.append(
+                    _finding(
+                        "ROUTE_TERMINAL_TARGET_CAPABILITY_MISMATCH",
+                        location,
+                        f"no reachable action declares required side effect {required_effect!r}",
+                    )
+                )
+        elif "required_skill_kind" in requirement:
+            required_kind = requirement["required_skill_kind"]
+            required_interface = requirement["required_produced_interface"]
+            produced = (
+                registered_target.get("produces")
+                if isinstance(registered_target, dict)
+                else None
+            )
+            if (
+                not isinstance(registered_target, dict)
+                or registered_target.get("kind") != required_kind
+                or not isinstance(produced, list)
+                or required_interface not in produced
+            ):
+                findings.append(
+                    _finding(
+                        "ROUTE_TERMINAL_TARGET_CAPABILITY_MISMATCH",
+                        location,
+                        "target Skill does not match the required kind and produced interface",
+                    )
+                )
 
     for intent in sorted(set(reasons).difference(null_intents)):
         findings.append(

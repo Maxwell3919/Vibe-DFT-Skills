@@ -88,7 +88,7 @@
     },
     {
       "path": "tools/operation_routes.py",
-      "sha256": "d55acd34e9bbf4aceab6fbf76cc005c33949b18dee35c348e26d998a927d9d55"
+      "sha256": "1df63a682ef0d8e8e4393ab3d02944c07fd640aa13be8c5f6f7e7bb6e5a4ab09"
     },
     {
       "path": "tools/registry_snapshot.py",

@@ -27,18 +27,23 @@ def _report(root: Path) -> dict[str, Any]:
     routes = snapshot.operation_routes["routes"]
     policy = snapshot.operation_routes["response_policy"]
     terminal_targets = policy["terminal_intent_routes"]
+    terminal_requirements = policy["terminal_intent_requirements"]
     terminal_reasons = policy["terminal_intent_blocked_reasons"]
 
     active_skills = []
     prohibited_claims: set[str] = set()
-    legacy_present = False
+    legacy_skill_ids: list[str] = []
+    verified_skill_ids: list[str] = []
     for skill_id, skill in sorted(snapshot.skills["skills"].items()):
         if skill["lifecycle"] != "active":
             continue
         evidence = evidence_records[skill_id]
         route = routes[skill_id]
         status = evidence["activation_evidence_status"]
-        legacy_present = legacy_present or status == "legacy-unclosed"
+        if status == "legacy-unclosed":
+            legacy_skill_ids.append(skill_id)
+        elif status == "verified":
+            verified_skill_ids.append(skill_id)
         prohibited_claims.update(evidence["prohibited_claims"])
         active_skills.append(
             {
@@ -51,30 +56,99 @@ def _report(root: Path) -> dict[str, Any]:
             }
         )
 
-    blocked_terminal_intents = [
+    terminal_intents = [
         {
             "intent": intent,
-            "reason": terminal_reasons[intent],
+            "target": target,
+            "readiness_class": terminal_requirements[intent][
+                "readiness_class"
+            ],
+            "requirement": terminal_requirements[intent],
+            "reason": terminal_reasons.get(intent),
         }
         for intent, target in sorted(terminal_targets.items())
-        if target is None
     ]
+    missing_route_intents = [
+        item
+        for item in terminal_intents
+        if item["readiness_class"] == "missing-route"
+        and item["target"] is None
+    ]
+    ready_route_intents = [
+        item["intent"]
+        for item in terminal_intents
+        if item["readiness_class"] == "missing-route"
+        and item["target"] is not None
+    ]
+    human_boundary_intents = [
+        item["intent"]
+        for item in terminal_intents
+        if item["readiness_class"] == "human-boundary"
+    ]
+    intentionally_disabled_intents = [
+        item["intent"]
+        for item in terminal_intents
+        if item["readiness_class"] == "intentionally-disabled"
+    ]
+    automatable_intent_count = len(missing_route_intents) + len(
+        ready_route_intents
+    )
+    automated_intent_count = len(ready_route_intents)
+    coverage_ratio = (
+        automated_intent_count / automatable_intent_count
+        if automatable_intent_count
+        else 1.0
+    )
+    automation_status = (
+        "full"
+        if automated_intent_count == automatable_intent_count
+        else "none"
+        if automated_intent_count == 0
+        else "partial"
+    )
+    activation_status = "not-ready" if legacy_skill_ids else "ready"
+    operational_status = "not-ready" if missing_route_intents else "ready"
     finding_codes = []
-    if legacy_present:
+    if legacy_skill_ids:
         finding_codes.append("ACTIVE_EVIDENCE_LEGACY_UNCLOSED")
-    if blocked_terminal_intents:
-        finding_codes.append("TERMINAL_INTENT_BLOCKED")
+    if missing_route_intents:
+        finding_codes.append("OPERATIONAL_ROUTE_MISSING")
     aggregate_readiness = (
-        "blocked"
-        if finding_codes
-        else "ready"
+        "ready"
+        if activation_status == "ready" and operational_status == "ready"
+        else "not-ready"
     )
     return {
         "schema_version": SCHEMA_VERSION,
         "report_id": "vibedft-phase-a1-readiness",
         "aggregate_readiness": aggregate_readiness,
+        "aggregate_readiness_basis": [
+            "activation_evidence_readiness",
+            "operational_readiness",
+        ],
+        "activation_evidence_readiness": {
+            "status": activation_status,
+            "active_skill_count": len(active_skills),
+            "verified_count": len(verified_skill_ids),
+            "verified_skill_ids": verified_skill_ids,
+            "legacy_unclosed_count": len(legacy_skill_ids),
+            "legacy_unclosed_skill_ids": legacy_skill_ids,
+        },
+        "operational_readiness": {
+            "status": operational_status,
+            "missing_route_intents": missing_route_intents,
+            "ready_route_intents": ready_route_intents,
+        },
+        "automation_coverage": {
+            "status": automation_status,
+            "automatable_intent_count": automatable_intent_count,
+            "automated_intent_count": automated_intent_count,
+            "coverage_ratio": coverage_ratio,
+            "human_boundary_intents": human_boundary_intents,
+            "intentionally_disabled_intents": intentionally_disabled_intents,
+        },
         "active_skills": active_skills,
-        "blocked_terminal_intents": blocked_terminal_intents,
+        "terminal_intents": terminal_intents,
         "claim_readiness_limitations": sorted(prohibited_claims),
         "finding_codes": sorted(finding_codes),
     }

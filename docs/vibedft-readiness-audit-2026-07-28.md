@@ -81,12 +81,22 @@ evidence closure is complete, but it does not demote the Skill or lower an
 existing action/task maturity ceiling.
 
 The route validator now enforces that every non-null terminal target is active,
-routable, and has a reachable action. Scheduler, authorization, scientific
-acceptance, structure preparation, reporting, review-response, and literature
-terminal intents are therefore `null` with stable blocked reasons while their
-candidate Skills remain non-active. Scientific acceptance remains a human
-decision. `tools/vibedft_readiness.py` projects these evidence and routing
-limits deterministically from the canonical snapshot.
+routable, has a reachable action, and satisfies the terminal intent's explicit
+capability binding. Scheduler submit/control require the corresponding side
+effect on a reachable action; a route-level capability declaration is not
+sufficient. Structure, reporting, review-response, and literature intents bind
+the target Skill kind and produced interface. Scheduler and other missing
+operation routes remain `null`; execution authorization and scientific
+acceptance are classified as human boundaries, while external publication and
+destructive deletion are intentionally disabled.
+
+`tools/vibedft_readiness.py` reports activation-evidence readiness,
+operational readiness, and automation coverage separately. Human boundaries
+and intentionally disabled intents are excluded from the automatable-intent
+denominator, so they do not permanently block aggregate readiness. Execution
+authorization remains a human boundary because an Agent may prepare or check
+an execution request, but the authority to approve its side effects is not
+delegated by route availability.
 
 ### P0-3 — Current CI no longer exposes all declared trust boundaries
 
