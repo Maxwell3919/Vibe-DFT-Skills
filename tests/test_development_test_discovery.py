@@ -453,6 +453,8 @@ class DevelopmentTestDiscoveryTests(unittest.TestCase):
             "test_source_pack_metadata.py",
             "development:dft-structure-preparation:script-test:"
             "test_source_pack_metadata.py",
+            "development:dft-structure-preparation:unittest:"
+            "test_heterostructure_prescreen_contract.py",
             "development:gaussian-rigorous-calculations:unittest:"
             "test_official_document_seed.py",
             "development:gpumd-rigorous-simulations:script-test:"
@@ -480,8 +482,8 @@ class DevelopmentTestDiscoveryTests(unittest.TestCase):
         ]
 
         self.assertEqual(plan.skill_count, 19)
-        self.assertEqual(plan.reviewed_hook_count, 41)
-        self.assertEqual(len(plan.commands), 60)
+        self.assertEqual(plan.reviewed_hook_count, 42)
+        self.assertEqual(len(plan.commands), 61)
         self.assertEqual(plan.skipped, ())
         self.assertEqual(len(behavioral_labels), plan.reviewed_hook_count)
         self.assertEqual(len(behavioral_labels), len(set(behavioral_labels)))

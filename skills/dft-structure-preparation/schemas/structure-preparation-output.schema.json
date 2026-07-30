@@ -16,6 +16,10 @@
     },
     "schema_version": {"const": "1.0"},
     "status": {"enum": ["pass", "blocked", "planned", "available", "unavailable", "internal-error"]},
+    "operation_status": {"const": "completed"},
+    "geometry_eligibility": {"enum": ["eligible", "blocked"]},
+    "calculation_handoff": {"enum": ["ready", "requires-decision", "blocked"]},
+    "scientific_stability": {"const": "not-assessed"},
     "claim_ceiling": {"const": "no_positive_claim"},
     "future_gate_ceiling": {"enum": ["documented_behavior_only", "input_gates_only"]},
     "promotion_authorized": {"const": false},
@@ -27,7 +31,7 @@
       "required": ["tool", "tool_version"],
       "properties": {
         "tool": {"const": "structure_prepare.py"},
-        "tool_version": {"const": "0.2.0-candidate"}
+        "tool_version": {"const": "0.3.0-candidate"}
       }
     }
   },
@@ -48,6 +52,18 @@
         "properties": {"status": {"const": "internal-error"}}
       },
       "then": {"properties": {"contract_name": {"const": "structure-preparation-error"}}}
+    },
+    {
+      "if": {
+        "required": ["contract_name"],
+        "properties": {"contract_name": {"const": "structure-preparation-result"}}
+      },
+      "then": {
+        "required": [
+          "operation_status", "geometry_eligibility", "calculation_handoff",
+          "scientific_stability"
+        ]
+      }
     }
   ]
 }

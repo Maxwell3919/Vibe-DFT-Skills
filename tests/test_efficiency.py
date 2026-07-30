@@ -14,6 +14,13 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 EFF_SCRIPTS = ROOT / "skills" / "dft-campaign-efficiency" / "scripts"
+TIME_SAVERS = (
+    ROOT
+    / "skills"
+    / "dft-campaign-efficiency"
+    / "references"
+    / "operational-time-savers.md"
+)
 sys.path.insert(0, str(EFF_SCRIPTS))
 
 from campaign_efficiency.recommend import recommendation  # noqa: E402
@@ -96,6 +103,39 @@ def record(
 
 
 class EfficiencyTests(unittest.TestCase):
+    def test_operational_time_savers_are_portable_and_fail_closed(self) -> None:
+        text = TIME_SAVERS.read_text(encoding="utf-8")
+        required_rules = {
+            "STORAGE_AND_SCHEDULER_ADMISSION",
+            "DEPLOYMENT_AND_INPUT_PREFLIGHT",
+            "RUNTIME_WORLD_AND_AFFINITY_PREFLIGHT",
+            "ROLE_AWARE_EXACT_DEDUP_BEFORE_EXPENSIVE_BRANCHES",
+            "PARENT_ARTIFACT_REUSE_BEFORE_RECOMPUTE",
+            "LAST_COMPLETED_STATE_RECOVERY",
+            "TASK_ISOLATION_AND_PROMOTION_RECEIPTS",
+            "MEASURED_LONGEST_FIRST_PILOT",
+            "CHEAP_QUALIFICATION_BEFORE_SWEEP",
+            "PROMOTION_GATE_BEFORE_DOWNSTREAM",
+            "HEDGE_BUDGET_AND_FIRST_VALID_WINS",
+            "COST_OBSERVABILITY_MINIMUM",
+        }
+        for rule_id in required_rules:
+            self.assertEqual(text.count(f"`{rule_id}`"), 1)
+        self.assertIn("Never weaken", text)
+        self.assertIn("measured", text)
+        self.assertIn("estimated", text)
+        self.assertIn("counterfactual", text)
+        self.assertIn("Falsifier:", text)
+        for private_identity in (
+            "maxwell",
+            "preston",
+            "bcgong",
+            "hzw",
+            "/home/",
+            "/users/",
+        ):
+            self.assertNotIn(private_identity, text.casefold())
+
     def test_cli_init_entrypoint(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             db = Path(directory) / "experience.sqlite3"

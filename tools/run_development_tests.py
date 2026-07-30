@@ -124,6 +124,7 @@ REVIEWED_MAINTENANCE_HOOKS: Mapping[str, frozenset[str]] = {
     "dft-structure-preparation": frozenset(
         {
             "scripts/test_source_pack_metadata.py",
+            "tests/test_heterostructure_prescreen_contract.py",
             "tests/test_redteam_mutations.py",
             "tests/test_structure_prepare.py",
         }

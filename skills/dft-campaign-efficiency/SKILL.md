@@ -16,12 +16,14 @@ When the campaign belongs to a managed calculation workspace, read [the campaign
 Run this workflow when a QE, VASP, CP2K, or SIESTA chain completes, stops, fails, is abandoned, reaches scientific acceptance, or reaches a costly promotion decision. An active stage may support a provisional scheduling decision, but it cannot support an accepted-result claim.
 
 1. Read [references/case-first-learning.md](references/case-first-learning.md).
-2. Inventory actual state from scheduler metadata, output markers, required artifacts, and downstream validation. Do not infer state from a directory name, README, job name, or `JOB DONE` alone.
-3. Write a free-form case narrative in the authorized private project location. Keep only the minimal evidence kernel structured; do not force a chapter layout before repeated cases reveal one.
-4. Separate observed facts, official software behavior, inherited project practice, and current analysis.
-5. Record costs, missing metrics, failures, recoveries, scientific gates, decision lineage, and counterfactual estimates. Label estimates as estimates.
-6. Compare only evidence that passes [references/comparability-and-evidence.md](references/comparability-and-evidence.md).
-7. Emit a bounded lesson, a pilot proposal, or `No new transferable experience`.
+2. When converting cases into immediate run-control advice, read
+   [references/operational-time-savers.md](references/operational-time-savers.md).
+3. Inventory actual state from scheduler metadata, output markers, required artifacts, and downstream validation. Do not infer state from a directory name, README, job name, or `JOB DONE` alone.
+4. Write a free-form case narrative in the authorized private project location. Keep only the minimal evidence kernel structured; do not force a chapter layout before repeated cases reveal one.
+5. Separate observed facts, official software behavior, inherited project practice, and current analysis.
+6. Record costs, missing metrics, failures, recoveries, scientific gates, decision lineage, and counterfactual estimates. Label estimates as estimates.
+7. Compare only evidence that passes [references/comparability-and-evidence.md](references/comparability-and-evidence.md).
+8. Emit a bounded lesson, a pilot proposal, or `No new transferable experience`.
 
 Use a valid immutable pre-decision `run_manifest.json` when one exists, but do not discard older or failed campaigns solely because they predate the manifest contract. A completed unreviewed run may preserve measured cost, but it cannot validate a recommendation. Normalize a narrative into the JSON/SQLite store only after its meaning is stable.
 

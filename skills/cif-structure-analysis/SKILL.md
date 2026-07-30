@@ -15,6 +15,20 @@ When this analysis feeds a managed calculation workspace, read [the structure mi
 
 ## Analyze
 
+Prefer one no-clobber directory bundle:
+
+```bash
+python3 scripts/analyze_cif.py \
+  --input path/to/structure.cif \
+  --bundle-dir path/to/new-analysis-bundle
+```
+
+This captures the source once into a task-private immutable snapshot, renders and validates all
+artifacts in private staging, and atomically publishes `analysis.json`, `analysis.md`, and
+content-derived PNG names. The bundle target must not already exist.
+
+Use loose-file compatibility mode only when a surrounding workflow requires separate paths:
+
 ```bash
 python3 scripts/analyze_cif.py \
   --input path/to/structure.cif \
@@ -22,7 +36,17 @@ python3 scripts/analyze_cif.py \
   --markdown path/to/structure.analysis.md
 ```
 
-Add `--views-dir path/to/views` for static a/b/c PNGs. For a multi-block CIF, use `--block-name NAME` or `--block-index N`; default index is `0`, and the manifest inventories all blocks. Invalid selection fails without JSON/Markdown output.
+Add `--views-dir path/to/views` for static a/b/c PNGs in loose-file mode. Every target is
+no-clobber and the complete target graph is checked before publication. For a multi-block CIF,
+use `--block-name NAME` or `--block-index N`; default index is `0`, and the manifest inventories
+all blocks. A metadata-only selected block, ambiguous case-insensitive name, or invalid selection
+fails without a published artifact set.
+
+Treat the process exit as a separate machine-readable gate: `0` means a `PASS` or `WARN`
+artifact set was published, `3` means a diagnostic `BLOCK` artifact set was published, `2`
+means argument/input/output preflight refusal, and `1` means an analysis, rendering, or
+publication runtime failure. Never discard a published `BLOCK` bundle merely because its exit
+is nonzero.
 
 Use `--topology-scale-factors 1.0 1.15 1.3` to change the covalent-radius sensitivity sweep. Keep more than one scale when using a dimensionality candidate: `SENSITIVE` is an evidence result, not an error to suppress.
 
@@ -49,25 +73,35 @@ python3 scripts/analyze_cif.py \
 Read these independent payloads:
 
 - `structure.quality_analysis`: formula/Z versus the materialized cell when comparable, cell rank/conditioning, short contacts, occupancy, and disorder review needs.
+- `structure.screening_eligibility`: independent scope gates for artifact generation, geometry screening, symmetry-property screening, connectivity screening, and calculation handoff.
 - `structure.local_geometry`: per-site nearest-shell distances, angles, coordination, and geometric hints.
 - `structure.connectivity_analysis`: periodic connected components and translation-rank dimensionality across configured covalent-radius scales.
 - `structure.property_screening`: point-group permission/forbidden screens, metric anisotropy, dimensionality, and d/f-block presence as structure-only hypotheses.
 - `structure.optimization_guidance`: source, primitive, and conventional starting-point candidates plus required controls and blockers.
 
-Treat all five as screening. A geometry hint is not a bond-order assignment; graph dimensionality is not exfoliation evidence; a symmetry-allowed response is not a nonzero coefficient; d/f-block presence is not magnetism; and an available standardized cell is not a lower-energy structure.
+Treat all six as screening. Eligibility is scope-specific: one scope can be `PASS` while another
+is `WARN`, `BLOCK`, or `NOT_ASSESSED`. A geometry hint is not a bond-order assignment; graph
+dimensionality is not exfoliation evidence; a symmetry-allowed response is not a nonzero
+coefficient; d/f-block presence is not magnetism; and an available standardized cell is not a
+lower-energy structure.
 
 Optimization candidates are intentionally `NOT_RANKED`, with `stability_assessed=false` and `energy_model_used=false`. Retain the source structure as the provenance baseline. When an idealized cell is used, compare it with a lower-symmetry control under the same accepted energy/force method. Resolve occupancy/disorder and short-contact blockers before expensive relaxation.
 
 ## Evidence workflow
 
 1. Check top-level `status` and every `validation.checks` entry.
-2. Confirm source SHA-256, selected block, parser, dependency versions, and options.
+2. Confirm source SHA-256, selected block, parser, dependency versions, options, and
+   `analysis_key`. Reuse a parent audit only when its full `analysis_key` matches; path or mtime
+   equality is not a cache key.
 3. Separate raw `document.metadata` from the ASE-materialized `structure`.
 4. For occupancy/disorder warnings, state that formula, density, neighbors, and symmetry describe a representative model, not a resolved ensemble.
 5. Report spglib version, tolerances, declared comparison, and tolerance sensitivity with symmetry claims.
 6. Report the topology scale factors and whether the candidate is stable across them.
-7. Preserve `NOT_RANKED`, blockers, and claim boundaries when handing starting points to a calculation Skill.
-8. Cite the JSON or Markdown artifact for each numeric claim. Return `BLOCK` when the helper fails, output is missing, or artifact status is `BLOCK`.
+7. Preserve every scoped eligibility result, `NOT_RANKED`, blockers, and claim boundaries when
+   handing starting points to a calculation Skill.
+8. Cite the JSON or Markdown artifact for each numeric claim. Return `BLOCK` when the helper
+   exits `3`, output is missing, artifact status is `BLOCK`, or another nonzero exit leaves no
+   validated artifact set.
 
 Read [structure-manifest.md](references/structure-manifest.md) for field and lineage semantics, [structure-intelligence.md](references/structure-intelligence.md) for screening methods and their limits, [dependencies-and-capabilities.md](references/dependencies-and-capabilities.md) for library boundaries, and [extension-interfaces.md](references/extension-interfaces.md) before adding modules.
 

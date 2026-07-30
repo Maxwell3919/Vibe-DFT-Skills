@@ -2,9 +2,9 @@
   "contract_name": "candidate-validation-state",
   "schema_version": "1.0",
   "skill_id": "dft-structure-preparation",
-  "validated_date": "2026-07-26",
+  "validated_date": "2026-07-30",
   "validation_host": "talos",
-  "candidate_version": "0.2.0-candidate",
+  "candidate_version": "0.3.0-candidate",
   "quick_validate": {
     "status": "pass",
     "scope": "skill metadata and layout"
@@ -12,21 +12,23 @@
   "standalone_tests": {
     "status": "pass",
     "interpreter": "python3 (Talos repository validation environment)",
-    "test_count": 35,
+    "test_count": 50,
     "redteam_test_count": 17,
-    "functional_test_count": 18,
+    "functional_test_count": 21,
+    "contract_test_count": 12,
     "environment": "Talos local environment; no dependency installation"
   },
   "validated_native_surface": [
     "active structure-manifest import and fail-closed identity/occupancy adaptation",
     "positive-determinant integer supercell and bounded Cartesian strain",
     "lattice-axis slab construction with explicit layers and vacuum",
-    "bounded coherent matching of two already oriented slabs",
+    "bounded diagonal-repeat coherent matching of two already oriented slabs with mathematically bounded full-periodic self-image, intralayer, and cross-layer distance gates that fail closed when the search cannot be certified within budget",
+    "design-only heterostructure prescreen contract with parent-audit reuse, lightweight child receipts, role-aware registry equivalence, and separate mechanism-preview and stability lanes",
     "explicit insertion, removal, and substitution with complete site lineage",
     "explicit adsorbate and host-guest placement with containment and minimum-distance gates"
   ],
   "red_to_green": {
-    "final_green_tests": 35,
+    "final_green_tests": 50,
     "weak_model_decision_cases": 14,
     "mutation_domains": [
       "identity-hash-decoupling",
@@ -38,6 +40,10 @@
       "bounded-strain",
       "lattice-axis-slab",
       "coherent-interface-search",
+      "full-precision-periodic-self-image-and-intralayer-distance",
+      "periodic-image-search-budget-and-unsafe-basis-fail-closed",
+      "heterostructure-prescreen-claim-and-coverage-boundaries",
+      "role-aware-registry-equivalence-and-two-lane-routing",
       "site-edit-lineage-and-containment",
       "adsorbate-host-guest-collision",
       "export-authority",
@@ -65,7 +71,7 @@
   },
   "native_api_validation": {
     "status": "not-run",
-    "evidence_scope": "no optional provider API was imported or executed during the Talos 0.2.0 validation",
+    "evidence_scope": "no optional provider API was imported or executed during the Talos 0.3.0 validation",
     "catalog": "references/provider-capabilities.json"
   },
   "repository_validation": {
@@ -76,12 +82,12 @@
       "python3 tools/audit_repository.py",
       "git diff --check -- . ':(exclude)skills/qe-rigorous-calculations/references/official-*'"
     ],
-    "status": "pass",
-    "evidence_location": "git commit and Research-Ops dated handoff; generated official pack refresh binds repository metadata only"
+    "status": "pending",
+    "evidence_location": "pending fresh full-repository gates after source and generated-pack stabilization"
   },
   "claim_ceiling": "no_positive_claim",
   "future_gate_ceiling": "input_gates_only",
   "promotion_authorized": false,
   "execution_authorized": false,
-  "claim_boundary": "Local deterministic geometry, lineage, and fail-closed tests pass. This does not validate stable positions, energetic ordering, arbitrary surfaces, automatic site searches, optional provider integrations, DFT execution, or scientific acceptance; the Skill remains development, non-installable, and non-routable."
+  "claim_boundary": "Local deterministic geometry, lineage, fail-closed distance gates, and design-contract tests pass. The heterostructure prescreen remains design-only: general HNF/unimodular search, a semantic validator, and an operational producer are not implemented. This does not validate stable positions, energetic ordering, arbitrary surfaces, automatic site searches, optional provider integrations, DFT execution, or scientific acceptance; the Skill remains development, non-installable, and non-routable."
 }

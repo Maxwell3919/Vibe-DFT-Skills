@@ -8,12 +8,12 @@ records:
   cif-structure-analysis:
     skill_id: cif-structure-analysis
     lifecycle: active
-    source_tree_sha256: "fb634d7a904fc3e9ef8acdf424a373b88a8f65eecc0ca28c1837d06ef929fd00"
+    source_tree_sha256: "b8b08e3a84cf4464aed1f267501841c0dfb0801ea8842fe591d49d948e4f58c0"
     activation_evidence_status: legacy-unclosed
     promotion_evidence: null
     route_maturity_refs:
       - path: skills/cif-structure-analysis/references/structure-manifest.md
-        sha256: "18a2b779fbc7eab999cccd6f64534eb245165621cb6798fca50dc211f3ab7365"
+        sha256: "eab6ca45f26ace346d20a01353410cf16c78ac19fba198ee608ed5e3dbd7f269"
         scope: Route-specific structure-manifest behavior only; not independent activation evidence.
     context_refs: []
     known_limitations: &legacy_limitations
@@ -89,7 +89,7 @@ records:
   dft-postprocess:
     skill_id: dft-postprocess
     lifecycle: active
-    source_tree_sha256: "f34087cdd5d612a0f69e2ec99eb2fcf9b6b1f21f5014e2c5c1d3c25e4fba3d53"
+    source_tree_sha256: "cfa67121b6a4c04763b95c0b73ad5025073d5e9e195e50e4d5cd4505ac26687f"
     activation_evidence_status: legacy-unclosed
     promotion_evidence: null
     route_maturity_refs:
@@ -104,7 +104,7 @@ records:
   dft-campaign-efficiency:
     skill_id: dft-campaign-efficiency
     lifecycle: active
-    source_tree_sha256: "3b3483e0cdff2717f7798c22a8cd551142c1803b393fa30aab1f1aade18fbb2e"
+    source_tree_sha256: "70afbedf0888dc0f8ec9dd5fe41c7aa0f79545dc82e52ad87c4675ac04b4194e"
     activation_evidence_status: legacy-unclosed
     promotion_evidence: null
     route_maturity_refs:

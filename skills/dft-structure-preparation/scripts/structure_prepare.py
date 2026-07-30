@@ -24,9 +24,10 @@ EXIT_UNAVAILABLE = 3
 EXIT_INTERNAL = 4
 MAX_JSON_BYTES = 5 * 1024 * 1024
 MAX_DERIVED_SITES = 4096
+MAX_PERIODIC_IMAGE_EVALUATIONS = 1_000_000
 MANIFEST_PUBLIC_CARTESIAN_TOLERANCE_ANG = 1.0e-5
 MIN_SURFACE_NORMAL_ALIGNMENT = 0.999999
-TOOL_VERSION = "0.2.0-candidate"
+TOOL_VERSION = "0.3.0-candidate"
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$")
 ELEMENTS = (
     "H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn "
@@ -454,10 +455,182 @@ def validate_bounded_float(
     return number
 
 
+def periodic_basis_lower_bound(periodic_vectors: list[list[float]]) -> float:
+    """Return a conservative positive lower bound for the periodic Gram spectrum."""
+    dimensions = len(periodic_vectors)
+    trace = sum(dot(vector, vector) for vector in periodic_vectors)
+    if not math.isfinite(trace) or trace <= 0.0:
+        raise GateError(
+            "PERIODIC_IMAGE_SEARCH_UNSAFE",
+            "a positive closest-image search bound cannot be certified for the periodic basis",
+        )
+    if dimensions == 1:
+        raw_bound = trace
+    elif dimensions == 2:
+        area_vector = cross(periodic_vectors[0], periodic_vectors[1])
+        raw_bound = dot(area_vector, area_vector) / trace
+    elif dimensions == 3:
+        volume = determinant(periodic_vectors)
+        raw_bound = volume * volume / (trace * trace)
+    else:
+        raise GateError(
+            "PERIODIC_IMAGE_SEARCH_UNSAFE",
+            "periodic closest-image search requires one to three periodic axes",
+        )
+    if not math.isfinite(raw_bound) or raw_bound <= 0.0:
+        raise GateError(
+            "PERIODIC_IMAGE_SEARCH_UNSAFE",
+            "a positive closest-image search bound cannot be certified for the periodic basis",
+        )
+    # det(G) / trace(G) ** (p - 1) is no greater than lambda_min(G).
+    # Halving it keeps the integer box conservative under ordinary float roundoff.
+    return raw_bound * 0.5
+
+
+def continuous_periodic_shift(
+    offset_cart: list[float],
+    periodic_vectors: list[list[float]],
+) -> list[float]:
+    """Return the real-valued least-squares lattice shift for the periodic basis."""
+    dimensions = len(periodic_vectors)
+    projection = [dot(vector, offset_cart) for vector in periodic_vectors]
+    if dimensions == 1:
+        denominator = dot(periodic_vectors[0], periodic_vectors[0])
+        if not math.isfinite(denominator) or denominator <= 0.0:
+            raise GateError(
+                "PERIODIC_IMAGE_SEARCH_UNSAFE",
+                "the periodic basis is singular or numerically unsafe",
+            )
+        return [-projection[0] / denominator]
+    if dimensions == 2:
+        first, second = periodic_vectors
+        first_sq = dot(first, first)
+        cross_term = dot(first, second)
+        second_sq = dot(second, second)
+        gram_determinant = dot(cross(first, second), cross(first, second))
+        if not math.isfinite(gram_determinant) or gram_determinant <= 0.0:
+            raise GateError(
+                "PERIODIC_IMAGE_SEARCH_UNSAFE",
+                "the periodic basis is singular or numerically unsafe",
+            )
+        return [
+            -(second_sq * projection[0] - cross_term * projection[1])
+            / gram_determinant,
+            -(-cross_term * projection[0] + first_sq * projection[1])
+            / gram_determinant,
+        ]
+    if dimensions == 3:
+        coefficients = cart_to_frac(offset_cart, periodic_vectors)
+        return [-value for value in coefficients]
+    raise GateError(
+        "PERIODIC_IMAGE_SEARCH_UNSAFE",
+        "periodic closest-image search requires one to three periodic axes",
+    )
+
+
+def bounded_periodic_distance(
+    offset_cart: list[float],
+    periodic_vectors: list[list[float]],
+    *,
+    exclude_zero_shift: bool,
+    search_budget: list[int],
+) -> float:
+    """Solve the closest-image problem inside a proven finite integer box."""
+    center = continuous_periodic_shift(offset_cart, periodic_vectors)
+    if not all(math.isfinite(value) for value in center):
+        raise GateError(
+            "PERIODIC_IMAGE_SEARCH_UNSAFE",
+            "the continuous closest-image center is not finite",
+        )
+    if exclude_zero_shift:
+        initial_shift = min(
+            (
+                [1 if index == axis else 0 for index in range(len(periodic_vectors))]
+                for axis in range(len(periodic_vectors))
+            ),
+            key=lambda shift: norm(
+                vector_add(
+                    offset_cart,
+                    [
+                        sum(
+                            shift[index] * periodic_vectors[index][component]
+                            for index in range(len(periodic_vectors))
+                        )
+                        for component in range(3)
+                    ],
+                )
+            ),
+        )
+    else:
+        initial_shift = [int(round(value)) for value in center]
+
+    def shifted_cart(shift: list[int] | tuple[int, ...]) -> list[float]:
+        return vector_add(
+            offset_cart,
+            [
+                sum(
+                    shift[index] * periodic_vectors[index][component]
+                    for index in range(len(periodic_vectors))
+                )
+                for component in range(3)
+            ],
+        )
+
+    initial_cart = shifted_cart(initial_shift)
+    best_sq = dot(initial_cart, initial_cart)
+    if not math.isfinite(best_sq):
+        raise GateError(
+            "PERIODIC_IMAGE_SEARCH_UNSAFE",
+            "the initial closest-image distance is not finite",
+        )
+    center_residual = vector_add(
+        offset_cart,
+        [
+            sum(
+                center[index] * periodic_vectors[index][component]
+                for index in range(len(periodic_vectors))
+            )
+            for component in range(3)
+        ],
+    )
+    spectral_lower_bound = periodic_basis_lower_bound(periodic_vectors)
+    radius = (
+        math.sqrt(max(0.0, best_sq)) + norm(center_residual)
+    ) / math.sqrt(spectral_lower_bound)
+    if not math.isfinite(radius):
+        raise GateError(
+            "PERIODIC_IMAGE_SEARCH_UNSAFE",
+            "the closest-image integer bound is not finite",
+        )
+    margin = 1.0e-10 * max(1.0, radius, *(abs(value) for value in center))
+    integer_ranges = [
+        range(
+            math.ceil(value - radius - margin),
+            math.floor(value + radius + margin) + 1,
+        )
+        for value in center
+    ]
+    candidate_count = math.prod(len(values) for values in integer_ranges)
+    if candidate_count > search_budget[0]:
+        raise GateError(
+            "PERIODIC_IMAGE_SEARCH_BUDGET_EXCEEDED",
+            "the mathematically bounded periodic closest-image search exceeds its evaluation budget",
+        )
+    search_budget[0] -= candidate_count
+    for shift in itertools.product(*integer_ranges):
+        if exclude_zero_shift and all(value == 0 for value in shift):
+            continue
+        trial = shifted_cart(shift)
+        best_sq = min(best_sq, dot(trial, trial))
+    return math.sqrt(max(0.0, best_sq))
+
+
 def nearest_periodic_distance(
     left: dict[str, Any],
     right: dict[str, Any],
     structure: dict[str, Any],
+    *,
+    search_budget: list[int] | None = None,
 ) -> float:
     if structure["cell_ang"] is None or left["fractional"] is None or right["fractional"] is None:
         return residual_norm(left["cartesian_ang"], right["cartesian_ang"])
@@ -465,21 +638,52 @@ def nearest_periodic_distance(
         right["fractional"][axis] - left["fractional"][axis]
         for axis in range(3)
     ]
-    base_shift = [
-        int(round(-delta[axis])) if structure["pbc"][axis] else 0
-        for axis in range(3)
+    periodic_vectors = [
+        structure["cell_ang"][axis]
+        for axis, periodic in enumerate(structure["pbc"])
+        if periodic
     ]
-    choices = [
-        [base_shift[axis] - 1, base_shift[axis], base_shift[axis] + 1]
-        if structure["pbc"][axis]
-        else [0]
-        for axis in range(3)
+    if not periodic_vectors:
+        return norm(frac_to_cart(delta, structure["cell_ang"]))
+    return bounded_periodic_distance(
+        frac_to_cart(delta, structure["cell_ang"]),
+        periodic_vectors,
+        exclude_zero_shift=False,
+        search_budget=(
+            [MAX_PERIODIC_IMAGE_EVALUATIONS]
+            if search_budget is None
+            else search_budget
+        ),
+    )
+
+
+def nearest_periodic_self_image_distance(
+    site: dict[str, Any],
+    structure: dict[str, Any],
+    *,
+    search_budget: list[int] | None = None,
+) -> float | None:
+    if (
+        structure["cell_ang"] is None
+        or site["fractional"] is None
+        or not any(structure["pbc"])
+    ):
+        return None
+    periodic_vectors = [
+        structure["cell_ang"][axis]
+        for axis, periodic in enumerate(structure["pbc"])
+        if periodic
     ]
-    best = math.inf
-    for shift in itertools.product(*choices):
-        trial = [delta[axis] + shift[axis] for axis in range(3)]
-        best = min(best, norm(frac_to_cart(trial, structure["cell_ang"])))
-    return best
+    return bounded_periodic_distance(
+        [0.0, 0.0, 0.0],
+        periodic_vectors,
+        exclude_zero_shift=True,
+        search_budget=(
+            [MAX_PERIODIC_IMAGE_EVALUATIONS]
+            if search_budget is None
+            else search_budget
+        ),
+    )
 
 
 def minimum_distance(
@@ -490,6 +694,28 @@ def minimum_distance(
 ) -> dict[str, Any] | None:
     sites = structure["sites"]
     best: dict[str, Any] | None = None
+    search_budget = [MAX_PERIODIC_IMAGE_EVALUATIONS]
+    if left_ids is None and right_ids is None:
+        site = next(
+            (
+                item
+                for item in sites
+                if item["fractional"] is not None
+            ),
+            None,
+        )
+        if site is not None:
+            distance = nearest_periodic_self_image_distance(
+                site,
+                structure,
+                search_budget=search_budget,
+            )
+            if distance is not None:
+                best = {
+                    "site_ids": [site["site_id"], site["site_id"]],
+                    "distance_ang": distance,
+                    "relation": "periodic-self-image",
+                }
     for left_index, left in enumerate(sites):
         for right_index in range(left_index + 1, len(sites)):
             right = sites[right_index]
@@ -503,11 +729,17 @@ def minimum_distance(
                 )
                 if not cross_pair:
                     continue
-            distance = nearest_periodic_distance(left, right, structure)
+            distance = nearest_periodic_distance(
+                left,
+                right,
+                structure,
+                search_budget=search_budget,
+            )
             if best is None or distance < best["distance_ang"]:
                 best = {
                     "site_ids": [left["site_id"], right["site_id"]],
-                    "distance_ang": round_float(distance),
+                    "distance_ang": distance,
+                    "relation": "distinct-sites",
                 }
     return best
 
@@ -1423,6 +1655,7 @@ def derived_result(
         "contract_name": "structure-preparation-result",
         "schema_version": "1.0",
         "status": "pass",
+        "operation_status": "completed",
         "sources": sources,
         "operation": operation,
         "parameters": parameters,
@@ -1447,6 +1680,13 @@ def derived_result(
         },
         "child": child,
         "child_calculation_readiness": audit["calculation_readiness"],
+        "geometry_eligibility": (
+            "blocked"
+            if any(item["severity"] == "blocker" for item in audit["findings"])
+            else "eligible"
+        ),
+        "calculation_handoff": audit["calculation_readiness"],
+        "scientific_stability": "not-assessed",
         "findings": audit["findings"],
         **candidate_lifecycle("input_gates_only"),
         "limitations": limitations,
@@ -1788,11 +2028,14 @@ def command_build_interface(args: argparse.Namespace) -> int:
     }
     child["structure_id"] = derived_structure_id("interface", child)
     child = validate_structure(child, args.tolerance_ang)
-    closest = enforce_minimum_distance(
+    closest_cross_interface = minimum_distance(
         child,
-        minimum_distance_ang,
         left_ids=substrate_child_ids,
         right_ids=film_child_ids,
+    )
+    closest_full_periodic = enforce_minimum_distance(
+        child,
+        minimum_distance_ang,
     )
     result = derived_result(
         operation="merge",
@@ -1835,7 +2078,8 @@ def command_build_interface(args: argparse.Namespace) -> int:
             "construction_metrics": {
                 "substrate_thickness_ang": round_float(substrate_thickness),
                 "film_thickness_ang": round_float(film_thickness),
-                "closest_cross_interface_pair": closest,
+                "closest_cross_interface_pair": closest_cross_interface,
+                "closest_full_periodic_pair": closest_full_periodic,
             },
         },
     )

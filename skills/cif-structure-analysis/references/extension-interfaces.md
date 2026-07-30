@@ -3,13 +3,16 @@
 ## Implemented modules
 
 - `ciftool.document`: syntax routing, data-block selection, raw metadata, uncertainty, occupancy/disorder, and tag inventory.
+- `ciftool.snapshot`: bounded one-descriptor input capture and task-private immutable parser bytes.
+- `ciftool.artifacts`: no-clobber loose-set publication and atomic no-replace directory bundles.
 - `ciftool.neighbors`: periodic-image enumeration, canonical edges, nearest shells, coordination, short-distance flags, and target bond-length matching.
 - `ciftool.symmetry`: spglib evidence, declaration comparison, tolerance sweep, and standardized-cell summaries.
 - `ciftool.quality`: formula/Z materialization consistency, cell numerics, and short-contact/occupancy/disorder screening.
 - `ciftool.local_geometry`: nearest-shell distance/angle summaries and explicitly heuristic geometry labels.
 - `ciftool.topology`: covalent-radius periodic graphs, connected components, and translation-rank dimensionality sensitivity.
 - `ciftool.screening`: symmetry-only property hypotheses and unranked optimization starting-point guidance.
-- `ciftool.manifest`: safe provenance, structure identity, validation aggregation, element styles, relative artifacts, and schema validation.
+- `ciftool.eligibility`: independent artifact, geometry, symmetry-property, connectivity, and calculation-handoff scope gates.
+- `ciftool.manifest`: safe provenance, structure and analysis identities, validation aggregation, element styles, relative artifacts, and schema validation.
 - `analyze_cif.py`: the orchestration CLI and Markdown/static-PNG presentation layer.
 
 Keep parsing, scientific analysis, presentation, and external tool execution separate. A new module must return structured payload plus diagnostics; it must not print claims or mutate another module's result silently.

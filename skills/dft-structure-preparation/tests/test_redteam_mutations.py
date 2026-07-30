@@ -246,7 +246,7 @@ class StructureMutationRedTeamTests(unittest.TestCase):
         self.assertEqual(envelope["schema_version"], "1.0")
         self.assertEqual(
             envelope["provenance"],
-            {"tool": "structure_prepare.py", "tool_version": "0.2.0-candidate"},
+            {"tool": "structure_prepare.py", "tool_version": "0.3.0-candidate"},
         )
 
     def test_atomic_output_refuses_input_path_and_hardlink_or_symlink_aliases(self) -> None:

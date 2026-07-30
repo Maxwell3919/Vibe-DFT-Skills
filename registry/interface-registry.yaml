@@ -11,7 +11,7 @@ interfaces:
     lifecycle: active
     domain: periodic-structure
     schema_path: contracts/structure-manifest.schema.json
-    schema_sha256: 4f661e5b9d02d2e70ff8ef656429cc3ed05f4eafb05bff949d4862ceaf8f3516
+    schema_sha256: bbfc0f8eb49b33085cea9f2fbc0f1ae4f3a9013b7e16cbaea3b9bc9f943b85cc
     producer_policy: skill
   run-manifest@1.0:
     display_name: Periodic DFT run manifest

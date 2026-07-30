@@ -6,16 +6,16 @@ into a weaker one.
 
 | Route | Provider | Invocation | Parser | Scientific validation | Overall | Current claim | Future gate ceiling |
 |---|---|---|---|---|---|---|---|
-| CIF manifest import | candidate 0.2.0 + repository JSON Schema | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| Audit normalized structure | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| Wrap/reorder | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| General integer supercell / bounded strain | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| Lattice-axis slab / vacuum | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| Coherent oriented-slab interface | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| Explicit interstitial/removal/substitution | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| Explicit adsorbate / host-guest placement | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| Round-trip comparison | stdlib candidate 0.2.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
-| DFT export planning | stdlib candidate 0.2.0 | synthetic-validated | synthetic-validated | design-only | design-only | no_positive_claim | input_gates_only |
+| CIF manifest import | candidate 0.3.0 + repository JSON Schema | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| Audit normalized structure | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| Wrap/reorder | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| General integer supercell / bounded strain | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| Lattice-axis slab / vacuum | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| Coherent oriented-slab interface | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| Explicit interstitial/removal/substitution | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| Explicit adsorbate / host-guest placement | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| Round-trip comparison | stdlib candidate 0.3.0 | format-fixture-validated | format-fixture-validated | synthetic-validated | synthetic-validated | no_positive_claim | input_gates_only |
+| DFT export planning | stdlib candidate 0.3.0 | synthetic-validated | synthetic-validated | design-only | design-only | no_positive_claim | input_gates_only |
 | pymatgen structure mutation | pinned wrapper/core | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
 | RDKit molecular mutation | pinned RDKit | design-only | design-only | design-only | design-only | no_positive_claim | documented_behavior_only |
 

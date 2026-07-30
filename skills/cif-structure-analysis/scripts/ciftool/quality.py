@@ -122,6 +122,14 @@ def analyze_structure_quality(
                 "message": formula_message,
             }
         )
+    elif formula_status == "NOT_COMPARABLE":
+        diagnostics.append(
+            {
+                "id": "declared-formula-not-comparable",
+                "status": "warn",
+                "message": formula_message,
+            }
+        )
 
     lattice = np.asarray(atoms.cell.array, dtype=float)
     determinant = float(np.linalg.det(lattice)) if lattice.shape == (3, 3) else 0.0
@@ -173,6 +181,14 @@ def analyze_structure_quality(
             "message": contact_message,
         }
     )
+    if contact_status == "WARN":
+        diagnostics.append(
+            {
+                "id": "configured-short-contact-screen",
+                "status": "warn",
+                "message": contact_message,
+            }
+        )
 
     overall = "PASS"
     if any(item["status"] == "FAIL" for item in checks):

@@ -46,14 +46,14 @@ def _geometry_hint(coordination: int, angles: list[float]) -> str:
 
 def analyze_local_geometry(
     atoms: Any,
-    nearest_neighbor_pairs: list[dict[str, Any]],
+    nearest_shell_directed: list[dict[str, Any]],
 ) -> dict[str, Any]:
     import numpy as np
 
     neighbors: dict[int, list[dict[str, Any]]] = {
         index: [] for index in range(len(atoms))
     }
-    for edge in nearest_neighbor_pairs:
+    for edge in nearest_shell_directed:
         i = int(edge["i"])
         j = int(edge["j"])
         vector = np.asarray(edge["vector_ang"], dtype=float)
@@ -67,16 +67,6 @@ def analyze_local_geometry(
                 "vector_ang": vector,
             }
         )
-        reverse = {
-            "index": i,
-            "shift": [-value for value in shift],
-            "distance_ang": distance,
-            "vector_ang": -vector,
-        }
-        if i != j:
-            neighbors[j].append(reverse)
-        elif any(shift):
-            neighbors[i].append(reverse)
 
     symbols = atoms.get_chemical_symbols()
     sites = []
@@ -116,7 +106,7 @@ def analyze_local_geometry(
         )
     return {
         "method": "periodic-nearest-shell-vector-geometry",
-        "method_version": "1.0",
+        "method_version": "2.0-directed-center-shell",
         "site_count": len(sites),
         "sites": sites,
         "claim_boundary": (

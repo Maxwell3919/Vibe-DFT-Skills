@@ -34,9 +34,28 @@ def analyze_property_screening(
     atoms: Any,
     symmetry: dict[str, Any],
     connectivity: dict[str, Any],
+    eligibility: dict[str, Any],
 ) -> dict[str, Any]:
+    artifact_scope = eligibility["scopes"]["artifact_generation"]
+    eligibility_scope = eligibility["scopes"]["symmetry_property_screening"]
+    artifact_available = artifact_scope["status"] == "PASS"
+    screening_available = (
+        artifact_available and eligibility_scope["status"] == "PASS"
+    )
+    unavailable_reason_ids = list(
+        dict.fromkeys(
+            [
+                *artifact_scope["reason_ids"],
+                *eligibility_scope["reason_ids"],
+            ]
+        )
+    )
     point_group = _normalized_point_group(symmetry.get("pointgroup"))
-    symmetry_available = symmetry.get("status") == "DETECTED" and point_group is not None
+    symmetry_available = (
+        screening_available
+        and symmetry.get("status") == "DETECTED"
+        and point_group is not None
+    )
     centrosymmetric = (
         point_group in CENTROSYMMETRIC_POINT_GROUPS if symmetry_available else None
     )
@@ -63,6 +82,21 @@ def analyze_property_screening(
     )
 
     hypotheses = []
+    if not screening_available:
+        hypotheses.append(
+            {
+                "id": "property-screening-eligibility",
+                "status": "NOT_ASSESSED",
+                "basis": (
+                    "eligibility reasons: "
+                    + ", ".join(unavailable_reason_ids)
+                ),
+                "limitation": (
+                    "No symmetry-derived positive or forbidden property screen "
+                    "is emitted while its prerequisites are unresolved."
+                ),
+            }
+        )
     if piezoelectric_allowed is not None:
         hypotheses.append(
             {
@@ -99,7 +133,10 @@ def analyze_property_screening(
                 ),
             }
         )
-    if connectivity.get("dimensionality_candidate") in {"0D", "1D", "2D", "3D"}:
+    if (
+        artifact_available
+        and connectivity.get("dimensionality_candidate") in {"0D", "1D", "2D", "3D"}
+    ):
         hypotheses.append(
             {
                 "id": "connectivity-dimensionality-screen",
@@ -111,7 +148,7 @@ def analyze_property_screening(
                 ),
             }
         )
-    if d_or_f_elements:
+    if artifact_available and d_or_f_elements:
         hypotheses.append(
             {
                 "id": "d-or-f-block-presence",
@@ -148,6 +185,14 @@ def analyze_property_screening(
         "d_or_f_block_elements": d_or_f_elements,
         "hypotheses": hypotheses,
         "not_assessed": [
+            *(
+                [
+                    "symmetry-only property screening prerequisites: "
+                    + ", ".join(unavailable_reason_ids)
+                ]
+                if not screening_available
+                else []
+            ),
             "formation energy or convex-hull stability",
             "band gap or metallicity",
             "magnetic ground state",
@@ -165,6 +210,7 @@ def build_optimization_guidance(
     short_flags: list[dict[str, Any]],
     partial_occupancy_rows: list[int],
     disorder_rows: list[int],
+    eligibility: dict[str, Any],
 ) -> dict[str, Any]:
     tolerance_sensitive = bool(symmetry.get("tolerance_sensitive"))
     representative_limited = bool(partial_occupancy_rows or disorder_rows)
@@ -177,16 +223,37 @@ def build_optimization_guidance(
         isinstance(standardized.get("conventional"), dict)
         and standardized["conventional"].get("status") == "GENERATED"
     )
+    eligibility_blockers = [
+        reason["message"]
+        for reason in eligibility["reasons"]
+        if reason["severity"] == "blocker"
+        and "calculation_handoff" in reason["scopes"]
+    ]
+    blockers = list(eligibility_blockers)
+    if representative_limited:
+        blockers.append("partial occupancy or disorder is unresolved")
+    if short_flags:
+        blockers.append("configured short-distance flags are present")
+    if tolerance_sensitive:
+        blockers.append("detected symmetry changes across the tolerance sweep")
+    if connectivity.get("dimensionality_candidate") in {"SENSITIVE", "MIXED"}:
+        blockers.append(
+            "connectivity dimensionality is radius-scale sensitive or mixed"
+        )
+    blockers = list(dict.fromkeys(blockers))
     idealized_recommended = (
         quality.get("status") != "FAIL"
         and not tolerance_sensitive
         and not representative_limited
+        and not short_flags
+        and connectivity.get("dimensionality_candidate") not in {"SENSITIVE", "MIXED"}
+        and not blockers
     )
     starting_points = [
         {
             "candidate_id": "source-as-read",
             "available": True,
-            "recommended_for_screening": True,
+            "recommended_for_screening": not blockers,
             "coordinates_ref": "structure.sites",
             "role": "unmodified provenance anchor and unconstrained baseline",
             "limitation": "The source geometry is not an energy-ranked structure.",
@@ -227,7 +294,6 @@ def build_optimization_guidance(
             ),
         },
     ]
-    blockers = []
     if representative_limited:
         controls.append(
             {
@@ -238,7 +304,6 @@ def build_optimization_guidance(
                 ),
             }
         )
-        blockers.append("partial occupancy or disorder is unresolved")
     if short_flags:
         controls.append(
             {
@@ -246,9 +311,6 @@ def build_optimization_guidance(
                 "reason": "Review or repair short contacts before expensive relaxation.",
             }
         )
-        blockers.append("configured short-distance flags are present")
-    if tolerance_sensitive:
-        blockers.append("detected symmetry changes across the tolerance sweep")
     if connectivity.get("dimensionality_candidate") == "2D":
         controls.append(
             {
@@ -259,8 +321,6 @@ def build_optimization_guidance(
                 ),
             }
         )
-    if connectivity.get("dimensionality_candidate") == "SENSITIVE":
-        blockers.append("connectivity dimensionality is radius-scale sensitive")
     return {
         "method_version": "optimization-starting-point-guidance-v1",
         "stability_assessed": False,

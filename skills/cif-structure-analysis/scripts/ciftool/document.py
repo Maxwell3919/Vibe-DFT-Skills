@@ -225,7 +225,7 @@ def _metadata_from_getter(
             diagnostics.append(
                 {
                     "id": "atom-site-occupancy-range",
-                    "status": "warn",
+                    "status": "fail",
                     "message": f"atom-site row {index} has occupancy {occupancy} outside [0, 1]",
                 }
             )
@@ -328,6 +328,11 @@ def _select_block(
             raise RuntimeError(
                 f"failed to select CIF data block {block_name!r}; available blocks: {', '.join(names)}"
             )
+        if len(matches) > 1:
+            raise RuntimeError(
+                f"failed to select CIF data block {block_name!r}; "
+                "the case-insensitive name is ambiguous"
+            )
         return matches[0], names[matches[0]]
     selected = 0 if block_index is None else block_index
     if selected < 0 or selected >= len(names):
@@ -335,6 +340,63 @@ def _select_block(
             f"failed to select CIF data block index {selected}; valid range is 0..{len(names) - 1}"
         )
     return selected, names[selected]
+
+
+def materialize_selected_block(
+    path: Path,
+    selected_block: dict[str, Any],
+    document_blocks: list[dict[str, Any]],
+) -> Any:
+    """Materialize the exact raw CIF block instead of an image-list ordinal.
+
+    ``ase.io.read(index=N)`` indexes only blocks that ASE can materialize.
+    Raw document ordinals also include metadata-only blocks, so the two index
+    spaces are not interchangeable.
+    """
+
+    from ase.io.cif import parse_cif
+
+    try:
+        with path.open(encoding="utf-8-sig") as handle:
+            ase_blocks = list(parse_cif(handle))
+    except Exception as exc:
+        raise RuntimeError(f"failed to parse CIF blocks with the ASE structure adapter: {exc}") from exc
+
+    expected_names = [str(item["name"]) for item in document_blocks]
+    observed_names = [str(block.name) for block in ase_blocks]
+    if len(expected_names) != len(observed_names) or any(
+        expected.casefold() != observed.casefold()
+        for expected, observed in zip(expected_names, observed_names)
+    ):
+        raise RuntimeError(
+            "failed to bind the selected CIF data block: raw-parser and "
+            "structure-adapter block inventories disagree"
+        )
+
+    index = int(selected_block["index"])
+    if index < 0 or index >= len(ase_blocks):
+        raise RuntimeError("failed to bind the selected CIF data block by raw ordinal")
+    observed_name = observed_names[index]
+    if observed_name.casefold() != str(selected_block["name"]).casefold():
+        raise RuntimeError(
+            "failed to bind the selected CIF data block: selected names disagree"
+        )
+    try:
+        atoms = ase_blocks[index].get_atoms(
+            store_tags=True,
+            fractional_occupancies=True,
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            f"selected CIF data block {selected_block['name']!r} at raw index "
+            f"{index} could not be materialized as a periodic structure: {exc}"
+        ) from exc
+    if len(atoms) == 0:
+        raise RuntimeError(
+            f"selected CIF data block {selected_block['name']!r} at raw index "
+            f"{index} contains no materialized sites"
+        )
+    return atoms
 
 
 def _inspect_with_gemmi(

@@ -13,9 +13,18 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from ciftool.document import inspect_cif_document
+from ciftool.artifacts import (
+    ArtifactPublishError,
+    publish_bundle_no_clobber,
+    publish_files_no_clobber,
+    validate_output_parent,
+    write_private_file,
+)
+from ciftool.document import inspect_cif_document, materialize_selected_block
+from ciftool.eligibility import assess_screening_eligibility
 from ciftool.local_geometry import analyze_local_geometry
 from ciftool.manifest import (
+    analysis_key,
     element_styles,
     manifest_identity,
     provenance,
@@ -27,6 +36,7 @@ from ciftool.neighbors import analyze_periodic_neighbors
 from ciftool.neighbors import match_neighbor_bonds as match_periodic_neighbor_bonds
 from ciftool.quality import analyze_structure_quality
 from ciftool.screening import analyze_property_screening, build_optimization_guidance
+from ciftool.snapshot import InputSnapshot, SnapshotError, capture_input_snapshot
 from ciftool.symmetry import analyze_symmetry
 from ciftool.topology import analyze_connectivity
 
@@ -48,17 +58,19 @@ def rounded(value: Any) -> Any:
     return round(number, ROUND_DIGITS)
 
 
-def plain(value: Any) -> Any:
+def plain(value: Any, *, digits: int = ROUND_DIGITS) -> Any:
     if isinstance(value, dict):
-        return {str(k): plain(v) for k, v in value.items()}
+        return {str(k): plain(v, digits=digits) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
-        return [plain(v) for v in value]
+        return [plain(v, digits=digits) for v in value]
     if hasattr(value, "tolist"):
-        return plain(value.tolist())
+        return plain(value.tolist(), digits=digits)
     if hasattr(value, "item"):
-        return plain(value.item())
+        return plain(value.item(), digits=digits)
     if isinstance(value, float):
-        return rounded(value)
+        if math.isnan(value) or math.isinf(value):
+            return None
+        return round(value, digits)
     return value
 
 
@@ -123,7 +135,11 @@ def nearest_distances(
     short_threshold: float,
     neighbor_cutoff: float | None = None,
     maximum_neighbor_cutoff: float | None = None,
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+) -> tuple[
+    dict[str, Any],
+    list[dict[str, Any]],
+    list[dict[str, Any]],
+]:
     return analyze_periodic_neighbors(
         atoms,
         short_threshold,
@@ -321,7 +337,7 @@ def render_projection_views(atoms: Any, views_dir: Path, stem: str) -> list[dict
             color = styles.get(symbol, {}).get("color_hex", "#D62728")
             ax.scatter(x, y, s=360, c=color, edgecolors="#111111", linewidths=0.8, alpha=0.9)
 
-        output_path = views_dir / f"view_along_{axis}.png"
+        output_path = views_dir / f"{stem}-view-along-{axis}.png"
         fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
         fig.savefig(output_path, bbox_inches="tight", pad_inches=0.02)
         plt.close(fig)
@@ -355,10 +371,15 @@ def render_projection_views(atoms: Any, views_dir: Path, stem: str) -> list[dict
     return outputs
 
 
-def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
+def build_report(
+    input_path: Path,
+    args: argparse.Namespace,
+    *,
+    source_snapshot: InputSnapshot | None = None,
+    render_views_dir: Path | None = None,
+) -> dict[str, Any]:
     try:
         import ase
-        from ase.io import read
     except Exception as exc:
         raise RuntimeError(f"failed to import ASE: {exc}") from exc
 
@@ -369,17 +390,54 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
     )
     selected_block = document["selected_block"]
     try:
-        atoms = read(
-            str(input_path),
-            index=int(selected_block["index"]),
-            store_tags=True,
-            fractional_occupancies=True,
+        atoms = materialize_selected_block(
+            input_path,
+            selected_block,
+            document["blocks"],
         )
     except Exception as exc:
         raise RuntimeError(
             f"failed to construct ASE structure from CIF data block "
             f"{selected_block['name']!r}: {exc}"
         ) from exc
+    if source_snapshot is not None and (
+        document["sha256"] != source_snapshot.sha256
+        or document["bytes"] != source_snapshot.size_bytes
+    ):
+        raise RuntimeError(
+            "immutable CIF snapshot identity disagrees with parser input identity"
+        )
+    source_name = (
+        source_snapshot.source_name if source_snapshot is not None else input_path.name
+    )
+    identity = manifest_identity(document, atoms, source_name)
+    dependency_versions = {}
+    for distribution in ("ase", "gemmi", "PyCifRW", "spglib", "matplotlib", "numpy"):
+        try:
+            dependency_versions[distribution] = importlib.metadata.version(distribution)
+        except importlib.metadata.PackageNotFoundError:
+            dependency_versions[distribution] = "unavailable"
+    options = {
+        "data_block": selected_block,
+        "short_distance_threshold_ang": args.short_distance_threshold,
+        "neighbor_cutoff_ang": args.neighbor_cutoff,
+        "maximum_neighbor_cutoff_ang": args.maximum_neighbor_cutoff,
+        "symprec": args.symprec,
+        "angle_tolerance": args.angle_tolerance,
+        "topology_scale_factors": sorted(
+            set(float(value) for value in args.topology_scale_factors)
+        ),
+        "bond_match": {
+            "element_pair": list(args.match_elements) if args.match_elements else None,
+            "target_distance_ang": args.match_bond_length,
+            "tolerance_ang": args.match_bond_tolerance,
+        },
+    }
+    selected_analysis_key = analysis_key(
+        document,
+        options,
+        dependency_versions,
+    )
 
     diagnostics: list[dict[str, str]] = list(document["diagnostics"])
     diagnostics.extend(
@@ -484,7 +542,7 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
             }
         )
 
-    nearest, short_flags = nearest_distances(
+    nearest, short_flags, nearest_shell_directed = nearest_distances(
         atoms,
         args.short_distance_threshold,
         neighbor_cutoff=args.neighbor_cutoff,
@@ -533,7 +591,7 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
         args.symprec,
         args.angle_tolerance,
         document["metadata"].get("declared_symmetry"),
-        bool(partial_occupancy_rows),
+        bool(partial_occupancy_rows or disorder_rows),
     )
     diagnostics.extend(symmetry_diagnostics)
     if symmetry.get("status") == "DETECTED":
@@ -555,13 +613,36 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
     diagnostics.extend(quality_diagnostics)
     local_geometry = analyze_local_geometry(
         atoms,
-        nearest["nearest_neighbor_bond_pairs"],
+        nearest_shell_directed,
     )
     connectivity = analyze_connectivity(atoms, args.topology_scale_factors)
+    eligibility = assess_screening_eligibility(
+        diagnostics,
+        quality,
+        symmetry,
+        connectivity,
+        nearest,
+        short_flags,
+        partial_occupancy_rows,
+        disorder_rows,
+    )
+    handoff_scope = eligibility["scopes"]["calculation_handoff"]
+    if handoff_scope["status"] != "PASS":
+        diagnostics.append(
+            {
+                "id": "calculation-handoff-eligibility",
+                "status": "warn",
+                "message": (
+                    f"calculation handoff is {handoff_scope['status']}: "
+                    + ", ".join(handoff_scope["reason_ids"])
+                ),
+            }
+        )
     property_screening = analyze_property_screening(
         atoms,
         symmetry,
         connectivity,
+        eligibility,
     )
     optimization_guidance = build_optimization_guidance(
         quality,
@@ -570,16 +651,26 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
         short_flags,
         partial_occupancy_rows,
         disorder_rows,
+        eligibility,
     )
     views = []
     if args.views_dir:
-        views = render_projection_views(atoms, Path(args.views_dir).expanduser().resolve(), input_path.stem)
+        published_views_dir = Path(args.views_dir)
+        selected_render_dir = render_views_dir or published_views_dir
+        views = render_projection_views(
+            atoms,
+            selected_render_dir,
+            f"analysis-{selected_analysis_key[:16]}",
+        )
         json_root = Path(args.json).expanduser().resolve().parent
         markdown_root = Path(args.markdown).expanduser().resolve().parent
         for view in views:
-            absolute = Path(view["path"]).resolve()
-            view["path"] = relative_artifact_path(absolute, json_root)
-            view["markdown_path"] = relative_artifact_path(absolute, markdown_root)
+            published = published_views_dir / Path(view["path"]).name
+            view["path"] = relative_artifact_path(published, json_root)
+            view["markdown_path"] = relative_artifact_path(
+                published,
+                markdown_root,
+            )
 
     validation = validation_from_diagnostics(diagnostics)
     status = {"pass": "PASS", "warn": "WARN", "block": "BLOCK"}[validation["status"]]
@@ -592,36 +683,25 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
         "axis_gap_estimates are cell-axis coordinate gaps, not physical layer or vacuum thickness"
     )
     info = {
-        "name": input_path.name,
-        "size_bytes": input_path.stat().st_size,
-        "mtime": round(input_path.stat().st_mtime, 3),
+        "name": source_name,
+        "size_bytes": (
+            source_snapshot.size_bytes
+            if source_snapshot is not None
+            else input_path.stat().st_size
+        ),
+        "mtime": round(
+            source_snapshot.mtime
+            if source_snapshot is not None
+            else input_path.stat().st_mtime,
+            3,
+        ),
         "sha256": document["sha256"],
         "data_block": selected_block,
     }
-    dependency_versions = {}
-    for distribution in ("ase", "gemmi", "PyCifRW", "spglib", "matplotlib", "numpy"):
-        try:
-            dependency_versions[distribution] = importlib.metadata.version(distribution)
-        except importlib.metadata.PackageNotFoundError:
-            dependency_versions[distribution] = "unavailable"
-    options = {
-        "data_block": selected_block,
-        "short_distance_threshold_ang": args.short_distance_threshold,
-        "neighbor_cutoff_ang": args.neighbor_cutoff,
-        "maximum_neighbor_cutoff_ang": args.maximum_neighbor_cutoff,
-        "symprec": args.symprec,
-        "angle_tolerance": args.angle_tolerance,
-        "topology_scale_factors": args.topology_scale_factors,
-        "bond_match": {
-            "element_pair": list(args.match_elements) if args.match_elements else None,
-            "target_distance_ang": args.match_bond_length,
-            "tolerance_ang": args.match_bond_tolerance,
-        },
-    }
-    identity = manifest_identity(document, atoms, input_path.name)
     report = plain(
         {
             **identity,
+            "analysis_key": selected_analysis_key,
             "status": status,
             "document": {
                 "blocks": document["blocks"],
@@ -663,6 +743,7 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
                 "axis_gap_estimates": axis_gap_estimates(atoms),
                 "symmetry_attempt": symmetry,
                 "quality_analysis": quality,
+                "screening_eligibility": eligibility,
                 "local_geometry": local_geometry,
                 "connectivity_analysis": connectivity,
                 "property_screening": property_screening,
@@ -690,6 +771,15 @@ def build_report(input_path: Path, args: argparse.Namespace) -> dict[str, Any]:
     # decimals.  The v1 identity preimage is a separate exact contract at ten
     # decimals and must not be silently presentation-rounded after hashing.
     report["structure_identity"] = identity["structure_identity"]
+    # The semantic key hashes these exact JSON options. Preserve their input
+    # precision after presentation rounding so consumers can recompute it.
+    report["provenance"]["command_options"] = options
+    report["execution"].update(options)
+    # Decision-bearing geometry retains ten decimal places so a value that is
+    # just inside/outside a threshold remains auditable in the artifact.
+    report["structure"]["nearest_distances"] = plain(nearest, digits=10)
+    report["structure"]["local_geometry"] = plain(local_geometry, digits=10)
+    report["flags"]["short_distances"] = plain(short_flags, digits=10)
     failures = schema_errors(report, Path(__file__))
     if failures:
         raise RuntimeError("generated structure manifest is invalid: " + "; ".join(failures))
@@ -1092,9 +1182,19 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         )
     )
     parser.add_argument("--input", required=True, help="Input CIF file path.")
-    parser.add_argument("--json", required=True, help="Output JSON artifact path.")
-    parser.add_argument("--markdown", required=True, help="Output Markdown artifact path.")
+    parser.add_argument("--json", help="Output JSON artifact path in legacy loose-file mode.")
+    parser.add_argument(
+        "--markdown",
+        help="Output Markdown artifact path in legacy loose-file mode.",
+    )
     parser.add_argument("--views-dir", help="Optional directory for PNG views along a, b, and c.")
+    parser.add_argument(
+        "--bundle-dir",
+        help=(
+            "Preferred no-clobber bundle target. Publishes analysis.json, "
+            "analysis.md, and content-derived PNG views as one atomic directory."
+        ),
+    )
     block_group = parser.add_mutually_exclusive_group()
     block_group.add_argument("--block-name", help="Select a CIF data block by case-insensitive name.")
     block_group.add_argument(
@@ -1159,6 +1259,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Absolute target-length tolerance in Angstrom (default: 0.05).",
     )
     args = parser.parse_args(argv)
+    if args.bundle_dir:
+        if args.json or args.markdown or args.views_dir:
+            parser.error(
+                "--bundle-dir cannot be combined with --json, --markdown, or --views-dir"
+            )
+    elif not args.json or not args.markdown:
+        parser.error(
+            "provide --bundle-dir, or provide both --json and --markdown"
+        )
     if args.block_index is not None and args.block_index < 0:
         parser.error("--block-index must be greater than or equal to zero")
     if not math.isfinite(args.angle_tolerance) or (
@@ -1175,69 +1284,144 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def write_artifacts(
-    report: dict[str, Any], json_path: Path, markdown_path: Path
+    report: dict[str, Any],
+    json_path: Path,
+    markdown_path: Path,
+    *,
+    rendered_views_dir: Path | None = None,
+    published_views_dir: Path | None = None,
 ) -> None:
-    payloads = [
-        (json_path, json.dumps(report, indent=2, sort_keys=True) + "\n"),
-        (markdown_path, render_markdown(report)),
+    payloads: list[tuple[Path, bytes]] = [
+        (
+            json_path,
+            (json.dumps(report, indent=2, sort_keys=True) + "\n").encode("utf-8"),
+        ),
+        (markdown_path, render_markdown(report).encode("utf-8")),
     ]
-    staged: list[tuple[Path, Path]] = []
-    try:
-        for target, payload in payloads:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                encoding="utf-8",
-                dir=target.parent,
-                prefix=f".{target.name}.",
-                suffix=".tmp",
-                delete=False,
-            ) as handle:
-                handle.write(payload)
-                handle.flush()
-                os.fsync(handle.fileno())
-                staged.append((Path(handle.name), target))
-        for temporary, target in staged:
-            os.replace(temporary, target)
-    finally:
-        for temporary, _ in staged:
-            temporary.unlink(missing_ok=True)
+    if report["views"]:
+        if rendered_views_dir is None or published_views_dir is None:
+            raise RuntimeError(
+                "rendered and published view directories are required for view artifacts"
+            )
+        for view in report["views"]:
+            filename = Path(view["path"]).name
+            payloads.append(
+                (
+                    published_views_dir / filename,
+                    (rendered_views_dir / filename).read_bytes(),
+                )
+            )
+    publish_files_no_clobber(payloads)
+
+
+def _absolute_without_resolving_final_symlink(value: str) -> Path:
+    return Path(os.path.abspath(os.path.expanduser(value)))
 
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
-    input_path = Path(args.input).expanduser().resolve()
-    json_path = Path(args.json).expanduser().resolve()
-    markdown_path = Path(args.markdown).expanduser().resolve()
-
-    if not input_path.exists():
-        print(f"failed: input CIF does not exist: {input_path}", file=sys.stderr)
-        return 2
-    if not input_path.is_file():
-        print(f"failed: input path is not a file: {input_path}", file=sys.stderr)
-        return 2
-    if json_path == markdown_path:
-        print("failed: --json and --markdown must use different paths", file=sys.stderr)
-        return 2
-    if input_path in {json_path, markdown_path}:
-        print("failed: output paths must not overwrite the input CIF", file=sys.stderr)
-        return 2
+    input_path = _absolute_without_resolving_final_symlink(args.input)
+    bundle_path = (
+        _absolute_without_resolving_final_symlink(args.bundle_dir)
+        if args.bundle_dir
+        else None
+    )
+    if bundle_path is not None:
+        json_path = bundle_path / "analysis.json"
+        markdown_path = bundle_path / "analysis.md"
+        published_views_dir = bundle_path / "views"
+        work_parent = bundle_path.parent
+        try:
+            validate_output_parent(work_parent, create=False)
+        except ArtifactPublishError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+    else:
+        json_path = _absolute_without_resolving_final_symlink(args.json)
+        markdown_path = _absolute_without_resolving_final_symlink(args.markdown)
+        published_views_dir = (
+            _absolute_without_resolving_final_symlink(args.views_dir)
+            if args.views_dir
+            else None
+        )
+        work_parent = None
+    args.json = str(json_path)
+    args.markdown = str(markdown_path)
+    args.views_dir = (
+        str(published_views_dir) if published_views_dir is not None else None
+    )
 
     try:
-        report = build_report(input_path, args)
+        with tempfile.TemporaryDirectory(
+            prefix=".cif-analysis-",
+            dir=work_parent,
+        ) as temporary:
+            work_root = Path(temporary)
+            snapshot = capture_input_snapshot(input_path, work_root)
+            if bundle_path is not None:
+                staged_bundle = work_root / "bundle"
+                staged_bundle.mkdir(mode=0o700)
+                rendered_views_dir = staged_bundle / "views"
+            else:
+                staged_bundle = None
+                rendered_views_dir = (
+                    work_root / "views"
+                    if published_views_dir is not None
+                    else None
+                )
+            report = build_report(
+                snapshot.path,
+                args,
+                source_snapshot=snapshot,
+                render_views_dir=rendered_views_dir,
+            )
+            if staged_bundle is not None:
+                write_private_file(
+                    staged_bundle / "analysis.json",
+                    (
+                        json.dumps(report, indent=2, sort_keys=True) + "\n"
+                    ).encode("utf-8"),
+                )
+                write_private_file(
+                    staged_bundle / "analysis.md",
+                    render_markdown(report).encode("utf-8"),
+                )
+                publish_bundle_no_clobber(staged_bundle, bundle_path)
+            else:
+                write_artifacts(
+                    report,
+                    json_path,
+                    markdown_path,
+                    rendered_views_dir=rendered_views_dir,
+                    published_views_dir=published_views_dir,
+                )
+    except SnapshotError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    except ArtifactPublishError as exc:
+        print(str(exc), file=sys.stderr)
+        return (
+            2
+            if exc.code
+            in {
+                "OUTPUT_COLLISION",
+                "OUTPUT_EXISTS",
+                "OUTPUT_PARENT_INVALID",
+                "OUTPUT_PATH_INVALID",
+                "OUTPUT_PREFLIGHT_FAILED",
+            }
+            else 1
+        )
     except Exception as exc:
         print(str(exc), file=sys.stderr)
         return 1
 
-    try:
-        write_artifacts(report, json_path, markdown_path)
-    except Exception as exc:
-        print(f"failed to write artifacts: {exc}", file=sys.stderr)
-        return 1
-
-    print(f"wrote {json_path}")
-    print(f"wrote {markdown_path}")
-    return 0
+    if bundle_path is not None:
+        print(f"wrote bundle {bundle_path}")
+    else:
+        print(f"wrote {json_path}")
+        print(f"wrote {markdown_path}")
+    return 3 if report["status"] == "BLOCK" else 0
 
 
 if __name__ == "__main__":

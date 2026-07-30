@@ -147,6 +147,48 @@ def manifest_identity(document: dict[str, Any], atoms: Any, source_label: str) -
     }
 
 
+def analysis_key_from_fields(
+    *,
+    source_sha256: str,
+    data_block: dict[str, Any],
+    command_options: dict[str, Any],
+    dependency_versions: dict[str, str],
+    producer_version: str,
+) -> str:
+    payload = {
+        "contract": "cif-analysis-key-v1",
+        "schema_version": "1.0",
+        "producer": "cif-structure-analysis",
+        "producer_version": producer_version,
+        "source_sha256": source_sha256,
+        "data_block": data_block,
+        "command_options": command_options,
+        "dependency_versions": dependency_versions,
+    }
+    canonical = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def analysis_key(
+    document: dict[str, Any],
+    command_options: dict[str, Any],
+    dependency_versions: dict[str, str],
+) -> str:
+    return analysis_key_from_fields(
+        source_sha256=document["sha256"],
+        data_block=document["selected_block"],
+        command_options=command_options,
+        dependency_versions=dependency_versions,
+        producer_version=__version__,
+    )
+
+
 def provenance(command_options: dict[str, Any], dependency_versions: dict[str, str]) -> dict[str, Any]:
     return {
         "producer": "cif-structure-analysis",

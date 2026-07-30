@@ -52,6 +52,7 @@
   "properties": {
     "schema_version": {"const": "1.0"},
     "manifest_id": {"type": "string", "pattern": "^structure-[a-f0-9]{16}-b[0-9]+$"},
+    "analysis_key": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "status": {"enum": ["PASS", "WARN", "BLOCK"]},
     "source": {"$ref": "#/$defs/source"},
     "parser": {"$ref": "#/$defs/parser"},
@@ -760,7 +761,7 @@
       ],
       "properties": {
         "method": {"const": "ase.neighborlist.neighbor_list"},
-        "method_version": {"const": "periodic-images-v1"},
+        "method_version": {"const": "periodic-images-v2-full-precision-decisions"},
         "neighbor_cutoff_ang": {"type": "number", "exclusiveMinimum": 0},
         "maximum_neighbor_cutoff_ang": {"type": "number", "exclusiveMinimum": 0},
         "cutoff_was_user_supplied": {"type": "boolean"},
@@ -967,6 +968,7 @@
         "axis_gap_estimates": {"type": "array", "items": {"$ref": "#/$defs/axisGap"}},
         "symmetry_attempt": {"$ref": "#/$defs/symmetry"},
         "quality_analysis": {"$ref": "#/$defs/qualityAnalysis"},
+        "screening_eligibility": {"$ref": "#/$defs/screeningEligibility"},
         "local_geometry": {"$ref": "#/$defs/localGeometry"},
         "connectivity_analysis": {"$ref": "#/$defs/connectivityAnalysis"},
         "property_screening": {"$ref": "#/$defs/propertyScreening"},
@@ -1105,7 +1107,7 @@
       "required": ["method", "method_version", "site_count", "sites", "claim_boundary"],
       "properties": {
         "method": {"const": "periodic-nearest-shell-vector-geometry"},
-        "method_version": {"const": "1.0"},
+        "method_version": {"const": "2.0-directed-center-shell"},
         "site_count": {"type": "integer", "minimum": 0},
         "sites": {"type": "array", "items": {"$ref": "#/$defs/localGeometrySite"}},
         "claim_boundary": {"type": "string", "minLength": 1}
@@ -1193,6 +1195,74 @@
         "status": {"type": "string", "minLength": 1},
         "basis": {"type": "string", "minLength": 1},
         "limitation": {"type": "string", "minLength": 1}
+      }
+    },
+    "screeningEligibilityScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason_ids"],
+      "properties": {
+        "status": {"enum": ["PASS", "WARN", "BLOCK", "NOT_ASSESSED"]},
+        "reason_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}
+        }
+      }
+    },
+    "screeningEligibilityReason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "scopes", "message"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "severity": {"enum": ["warning", "blocker"]},
+        "scopes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "artifact_generation",
+              "geometry_screening",
+              "symmetry_property_screening",
+              "connectivity_screening",
+              "calculation_handoff"
+            ]
+          }
+        },
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "screeningEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method_version", "scopes", "reasons", "claim_boundary"],
+      "properties": {
+        "method_version": {"const": "cif-screening-eligibility-v1"},
+        "scopes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "artifact_generation",
+            "geometry_screening",
+            "symmetry_property_screening",
+            "connectivity_screening",
+            "calculation_handoff"
+          ],
+          "properties": {
+            "artifact_generation": {"$ref": "#/$defs/screeningEligibilityScope"},
+            "geometry_screening": {"$ref": "#/$defs/screeningEligibilityScope"},
+            "symmetry_property_screening": {"$ref": "#/$defs/screeningEligibilityScope"},
+            "connectivity_screening": {"$ref": "#/$defs/screeningEligibilityScope"},
+            "calculation_handoff": {"$ref": "#/$defs/screeningEligibilityScope"}
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/screeningEligibilityReason"}
+        },
+        "claim_boundary": {"type": "string", "minLength": 1}
       }
     },
     "propertyScreening": {

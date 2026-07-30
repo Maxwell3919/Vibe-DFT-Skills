@@ -10,7 +10,7 @@ skills:
     kind: structure
     lifecycle: active
     path: skills/cif-structure-analysis
-    source_tree_sha256: "fb634d7a904fc3e9ef8acdf424a373b88a8f65eecc0ca28c1837d06ef929fd00"
+    source_tree_sha256: "b8b08e3a84cf4464aed1f267501841c0dfb0801ea8842fe591d49d948e4f58c0"
     side_effects: [local-write, local-execution]
     consumes: []
     produces:
@@ -73,7 +73,7 @@ skills:
     kind: postprocess
     lifecycle: active
     path: skills/dft-postprocess
-    source_tree_sha256: "f34087cdd5d612a0f69e2ec99eb2fcf9b6b1f21f5014e2c5c1d3c25e4fba3d53"
+    source_tree_sha256: "cfa67121b6a4c04763b95c0b73ad5025073d5e9e195e50e4d5cd4505ac26687f"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0
@@ -89,7 +89,7 @@ skills:
     kind: advisory
     lifecycle: active
     path: skills/dft-campaign-efficiency
-    source_tree_sha256: "3b3483e0cdff2717f7798c22a8cd551142c1803b393fa30aab1f1aade18fbb2e"
+    source_tree_sha256: "70afbedf0888dc0f8ec9dd5fe41c7aa0f79545dc82e52ad87c4675ac04b4194e"
     side_effects: [local-write, local-execution]
     consumes:
       - run-manifest@1.0
@@ -228,7 +228,7 @@ skills:
     kind: structure
     lifecycle: development
     path: skills/dft-structure-preparation
-    source_tree_sha256: "302da580ab93f3d5cfb22466b59043e20421da88e0193c395acda5ef3061ad38"
+    source_tree_sha256: "93042744c02be463719d6c3ab570ef13efcc92098b37843bd642c64fe8f761c3"
     side_effects: [local-write, local-execution]
     consumes:
       - structure-manifest@1.0

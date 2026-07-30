@@ -7,12 +7,22 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
+
+from jsonschema import Draft202012Validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "structure_prepare.py"
 FIXTURES = ROOT / "fixtures"
 CIF_SCRIPT = ROOT.parents[1] / "skills" / "cif-structure-analysis" / "scripts" / "analyze_cif.py"
+sys.path.insert(0, str(ROOT / "scripts"))
+import structure_prepare  # noqa: E402
+from structure_prepare import (  # noqa: E402
+    GateError,
+    enforce_minimum_distance,
+    minimum_distance,
+)
 
 
 def run_cli(*arguments: object) -> subprocess.CompletedProcess[str]:
@@ -426,6 +436,13 @@ Si1 Si 0 0 0 1
         )
         interface_report = json.loads(interface.stdout)
         self.assertEqual(interface_report["operation"], "merge")
+        self.assertEqual(interface_report["operation_status"], "completed")
+        self.assertEqual(interface_report["geometry_eligibility"], "eligible")
+        self.assertEqual(
+            interface_report["calculation_handoff"],
+            interface_report["child_calculation_readiness"],
+        )
+        self.assertEqual(interface_report["scientific_stability"], "not-assessed")
         self.assertEqual(interface_report["operation_family"], "interface")
         self.assertEqual(interface_report["match_search"]["selected"]["substrate_repeat"], [1, 1])
         self.assertEqual(interface_report["match_search"]["selected"]["film_repeat"], [1, 1])
@@ -445,6 +462,119 @@ Si1 Si 0 0 0 1
         self.assertEqual(accepted_strain.returncode, 0, accepted_strain.stderr)
         strained_match = json.loads(accepted_strain.stdout)["match_search"]["selected"]
         self.assertAlmostEqual(strained_match["film_length_strain"][0], -0.038461538462)
+
+    def test_minimum_distance_solves_skew_periodic_closest_vectors(self) -> None:
+        periodic = {
+            "cell_ang": [
+                [1.0, 0.0, 0.0],
+                [10.1, 0.1, 0.0],
+                [0.0, 0.0, 10.0],
+            ],
+            "pbc": [True, True, False],
+            "sites": [
+                {
+                    "site_id": "X-0",
+                    "fractional": [0.0, 0.0, 0.5],
+                    "cartesian_ang": [0.0, 0.0, 5.0],
+                }
+            ],
+        }
+        closest = minimum_distance(periodic)
+        self.assertIsNotNone(closest)
+        self.assertEqual(closest["site_ids"], ["X-0", "X-0"])
+        self.assertEqual(closest["relation"], "periodic-self-image")
+        self.assertAlmostEqual(closest["distance_ang"], 2.0**0.5 / 10.0)
+        with self.assertRaises(GateError):
+            enforce_minimum_distance(periodic, 0.5)
+
+        periodic["sites"].append(
+            {
+                "site_id": "X-1",
+                "fractional": [0.2, 0.2, 0.5],
+                "cartesian_ang": [2.22, 0.02, 5.0],
+            }
+        )
+        closest_distinct = minimum_distance(
+            periodic,
+            left_ids={"X-0"},
+            right_ids={"X-1"},
+        )
+        self.assertIsNotNone(closest_distinct)
+        self.assertEqual(closest_distinct["site_ids"], ["X-0", "X-1"])
+        self.assertEqual(closest_distinct["relation"], "distinct-sites")
+        self.assertAlmostEqual(closest_distinct["distance_ang"], 0.0208**0.5)
+
+        with mock.patch.object(
+            structure_prepare,
+            "MAX_PERIODIC_IMAGE_EVALUATIONS",
+            10,
+        ):
+            with self.assertRaises(GateError) as caught:
+                minimum_distance(periodic)
+        self.assertEqual(
+            caught.exception.finding_id,
+            "PERIODIC_IMAGE_SEARCH_BUDGET_EXCEEDED",
+        )
+
+    def test_minimum_distance_keeps_full_precision_at_threshold(self) -> None:
+        near_threshold = {
+            "cell_ang": None,
+            "pbc": [False, False, False],
+            "sites": [
+                {
+                    "site_id": "A-0",
+                    "fractional": None,
+                    "cartesian_ang": [0.0, 0.0, 0.0],
+                },
+                {
+                    "site_id": "B-0",
+                    "fractional": None,
+                    "cartesian_ang": [0.5999999999996, 0.0, 0.0],
+                },
+            ],
+        }
+        with self.assertRaises(GateError):
+            enforce_minimum_distance(near_threshold, 0.6)
+
+    def test_result_schema_requires_decoupled_state_axes(self) -> None:
+        generated = run_cli(
+            "make-slab",
+            FIXTURES / "si-periodic.json",
+            "--axis",
+            2,
+            "--layers",
+            2,
+            "--vacuum-ang",
+            12,
+        )
+        self.assertEqual(generated.returncode, 0, generated.stderr)
+        report = json.loads(generated.stdout)
+        schema = json.loads(
+            (ROOT / "schemas" / "structure-preparation-output.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        Draft202012Validator.check_schema(schema)
+        validator = Draft202012Validator(schema)
+        self.assertEqual(list(validator.iter_errors(report)), [])
+
+        tampered_values = {
+            "operation_status": "pending",
+            "geometry_eligibility": "stable",
+            "calculation_handoff": "completed",
+            "scientific_stability": "stable",
+        }
+        for field, value in tampered_values.items():
+            with self.subTest(tampered=field):
+                tampered = json.loads(json.dumps(report))
+                tampered[field] = value
+                self.assertTrue(list(validator.iter_errors(tampered)))
+
+        for field in tampered_values:
+            with self.subTest(missing=field):
+                missing = json.loads(json.dumps(report))
+                del missing[field]
+                self.assertTrue(list(validator.iter_errors(missing)))
 
     def test_site_edits_preserve_created_removed_and_substitution_lineage(self) -> None:
         inserted = run_cli(

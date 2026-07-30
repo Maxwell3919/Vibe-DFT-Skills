@@ -1,0 +1,2117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:candidate:heterostructure-prescreen:1.0",
+  "title": "candidate-heterostructure-prescreen@1.0",
+  "description": "Design-only candidate-local schema for a future geometry-only heterostructure prescreen. No semantic validator or operational producer is implemented, so schema-valid records cannot accept, reject, select, materialize, route, queue, or calculate real candidates. The current development claim remains no_positive_claim; geometric_eligibility_only is only a future post-promotion ceiling.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_name",
+    "schema_version",
+    "record_id",
+    "skill_id",
+    "lifecycle",
+    "implementation_state",
+    "semantic_validator_state",
+    "operational_use_authorized",
+    "blocker_ids",
+    "semantic_validator_obligations",
+    "claim_ceiling",
+    "future_claim_ceiling",
+    "stability_assessed",
+    "energy_model_used",
+    "promotion_authorized",
+    "execution_authorized",
+    "policy",
+    "parent_audit_cache",
+    "commensurate_search",
+    "registry_equivalence",
+    "lanes",
+    "workflow_states",
+    "child_receipts",
+    "limitations",
+    "provenance"
+  ],
+  "properties": {
+    "contract_name": {
+      "const": "candidate-heterostructure-prescreen"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "record_id": {
+      "$ref": "#/$defs/safeId"
+    },
+    "skill_id": {
+      "const": "dft-structure-preparation"
+    },
+    "lifecycle": {
+      "const": "development"
+    },
+    "implementation_state": {
+      "const": "design-only"
+    },
+    "semantic_validator_state": {
+      "const": "not-implemented"
+    },
+    "operational_use_authorized": {
+      "const": false
+    },
+    "blocker_ids": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "const": "HETEROSTRUCTURE_PRESCREEN_DESIGN_ONLY"
+        },
+        {
+          "const": "SEMANTIC_VALIDATOR_NOT_IMPLEMENTED"
+        },
+        {
+          "const": "OPERATIONAL_USE_NOT_AUTHORIZED"
+        },
+        {
+          "const": "SCHEMA_VALIDITY_IS_NOT_GEOMETRIC_VALIDITY"
+        }
+      ],
+      "items": false
+    },
+    "semantic_validator_obligations": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "prefixItems": [
+        {
+          "const": "RECOMPUTE_HNF_AND_UNIMODULAR_ALGEBRA"
+        },
+        {
+          "const": "RECOMPUTE_DEFORMATION_AND_STRAIN"
+        },
+        {
+          "const": "RECOMPUTE_GATE_BOUNDS_AND_OUTCOMES"
+        },
+        {
+          "const": "VERIFY_PARENT_CHILD_ARTIFACT_HASHES_AND_PREIMAGES"
+        },
+        {
+          "const": "VERIFY_REFERENTIAL_INTEGRITY_AND_ROLE_HASHES"
+        },
+        {
+          "const": "VERIFY_COUNTS_AND_WORKFLOW_AGGREGATES"
+        },
+        {
+          "const": "VERIFY_PARETO_COMPARISON_UNIVERSE"
+        },
+        {
+          "const": "VERIFY_REGISTRY_EQUIVALENCE_AND_STABILITY_SET_COVERAGE"
+        },
+        {
+          "const": "VERIFY_MATERIALIZATION_AND_SELECTION_SET_EQUALITIES"
+        }
+      ],
+      "items": false
+    },
+    "claim_ceiling": {
+      "const": "no_positive_claim"
+    },
+    "future_claim_ceiling": {
+      "const": "geometric_eligibility_only"
+    },
+    "stability_assessed": {
+      "const": false
+    },
+    "energy_model_used": {
+      "const": false
+    },
+    "promotion_authorized": {
+      "const": false
+    },
+    "execution_authorized": {
+      "const": false
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_sha256",
+        "hard_rejection_basis",
+        "aggregate_score_used",
+        "single_registry_hard_rejection_allowed",
+        "single_registry_can_establish_stability",
+        "mechanism_preview_can_remove_stability_candidate",
+        "parent_rich_audit_reuse_required",
+        "child_receipt_kind"
+      ],
+      "properties": {
+        "policy_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "hard_rejection_basis": {
+          "const": "explicit-geometric-gates-only"
+        },
+        "aggregate_score_used": {
+          "const": false
+        },
+        "single_registry_hard_rejection_allowed": {
+          "const": false
+        },
+        "single_registry_can_establish_stability": {
+          "const": false
+        },
+        "mechanism_preview_can_remove_stability_candidate": {
+          "const": false
+        },
+        "parent_rich_audit_reuse_required": {
+          "const": true
+        },
+        "child_receipt_kind": {
+          "const": "lightweight-derived-child"
+        }
+      }
+    },
+    "parent_audit_cache": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/parentAuditCacheEntry"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "required": ["layer_role"],
+            "properties": {
+              "layer_role": {
+                "const": "bottom"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "required": ["layer_role"],
+            "properties": {
+              "layer_role": {
+                "const": "top"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      ]
+    },
+    "commensurate_search": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm_scope",
+        "coverage",
+        "bounds",
+        "candidates"
+      ],
+      "properties": {
+        "algorithm_scope": {
+          "const": "general-2d-hnf-unimodular-full-deformation-shared-strain"
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "general_2d_hnf",
+            "unimodular_basis_changes",
+            "full_2d_deformation",
+            "shared_strain_split",
+            "enumerated_candidate_count",
+            "evaluated_candidate_count",
+            "geometrically_eligible_candidate_count",
+            "excluded_space"
+          ],
+          "properties": {
+            "state": {
+              "$ref": "#/$defs/coverageState"
+            },
+            "general_2d_hnf": {
+              "$ref": "#/$defs/coverageState"
+            },
+            "unimodular_basis_changes": {
+              "$ref": "#/$defs/coverageState"
+            },
+            "full_2d_deformation": {
+              "$ref": "#/$defs/coverageState"
+            },
+            "shared_strain_split": {
+              "$ref": "#/$defs/coverageState"
+            },
+            "enumerated_candidate_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "evaluated_candidate_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "geometrically_eligible_candidate_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "excluded_space": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "bounds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "max_hnf_determinant",
+            "max_unimodular_entry_abs",
+            "max_total_atoms",
+            "max_abs_principal_strain",
+            "strain_measure",
+            "shared_strain_objective"
+          ],
+          "properties": {
+            "max_hnf_determinant": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_unimodular_entry_abs": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "max_total_atoms": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "max_abs_principal_strain": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "strain_measure": {
+              "const": "principal-strain-from-full-2d-deformation"
+            },
+            "shared_strain_objective": {
+              "const": "minimize-maximum-absolute-principal-strain-across-roles"
+            }
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/commensurateCandidate"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["coverage"],
+            "properties": {
+              "coverage": {
+                "required": ["state"],
+                "properties": {
+                  "state": {
+                    "const": "not_implemented"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "coverage": {
+                "properties": {
+                  "general_2d_hnf": {
+                    "const": "not_implemented"
+                  },
+                  "unimodular_basis_changes": {
+                    "const": "not_implemented"
+                  },
+                  "full_2d_deformation": {
+                    "const": "not_implemented"
+                  },
+                  "shared_strain_split": {
+                    "const": "not_implemented"
+                  },
+                  "enumerated_candidate_count": {
+                    "const": 0
+                  },
+                  "evaluated_candidate_count": {
+                    "const": 0
+                  },
+                  "geometrically_eligible_candidate_count": {
+                    "const": 0
+                  },
+                  "excluded_space": {
+                    "minItems": 1
+                  }
+                }
+              },
+              "candidates": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["coverage"],
+            "properties": {
+              "coverage": {
+                "required": ["state"],
+                "properties": {
+                  "state": {
+                    "const": "complete"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "coverage": {
+                "properties": {
+                  "general_2d_hnf": {
+                    "const": "complete"
+                  },
+                  "unimodular_basis_changes": {
+                    "const": "complete"
+                  },
+                  "full_2d_deformation": {
+                    "const": "complete"
+                  },
+                  "shared_strain_split": {
+                    "const": "complete"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["coverage"],
+            "properties": {
+              "coverage": {
+                "required": ["state"],
+                "properties": {
+                  "state": {
+                    "const": "partial"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "coverage": {
+                "properties": {
+                  "excluded_space": {
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "registry_equivalence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage_state",
+        "method",
+        "layer_roles_preserved",
+        "single_representative_is_stability_complete",
+        "enumeration_policy",
+        "matcher",
+        "periodic_axes",
+        "configuration_sha256",
+        "nominal_registry_count",
+        "unique_role_aware_registry_count",
+        "excluded_space",
+        "classes"
+      ],
+      "properties": {
+        "coverage_state": {
+          "$ref": "#/$defs/coverageState"
+        },
+        "method": {
+          "const": "role-aware-periodic-geometry-equivalence"
+        },
+        "layer_roles_preserved": {
+          "const": true
+        },
+        "single_representative_is_stability_complete": {
+          "const": false
+        },
+        "enumeration_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "policy_ref",
+            "policy_version",
+            "policy_sha256",
+            "registry_set_preimage_sha256",
+            "nominal_registry_ids_sha256",
+            "translation_domain",
+            "vertical_ordering_policy",
+            "layer_flip_policy",
+            "initial_gap_policy_sha256"
+          ],
+          "properties": {
+            "policy_ref": {
+              "$ref": "#/$defs/safeId"
+            },
+            "policy_version": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$"
+            },
+            "policy_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "registry_set_preimage_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "nominal_registry_ids_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "translation_domain": {
+              "const": "fractional-in-plane"
+            },
+            "vertical_ordering_policy": {
+              "const": "explicit-in-enumeration-preimage"
+            },
+            "layer_flip_policy": {
+              "const": "explicit-in-enumeration-preimage"
+            },
+            "initial_gap_policy_sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "matcher": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "matcher_name",
+            "matcher_version",
+            "configuration_sha256",
+            "role_partition_required",
+            "tolerances"
+          ],
+          "properties": {
+            "matcher_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$"
+            },
+            "matcher_version": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$"
+            },
+            "configuration_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "role_partition_required": {
+              "const": true
+            },
+            "tolerances": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "site_distance_ang",
+                "lattice_length_relative",
+                "lattice_angle_deg"
+              ],
+              "properties": {
+                "site_distance_ang": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "lattice_length_relative": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "lattice_angle_deg": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        "periodic_axes": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "const": true
+            },
+            {
+              "const": true
+            },
+            {
+              "const": false
+            }
+          ],
+          "items": false
+        },
+        "configuration_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "nominal_registry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unique_role_aware_registry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "excluded_space": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "uniqueItems": true
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/registryEquivalenceClass"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["coverage_state"],
+            "properties": {
+              "coverage_state": {
+                "const": "not_implemented"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "nominal_registry_count": {
+                "const": 0
+              },
+              "unique_role_aware_registry_count": {
+                "const": 0
+              },
+              "classes": {
+                "maxItems": 0
+              },
+              "excluded_space": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["coverage_state"],
+            "properties": {
+              "coverage_state": {
+                "const": "partial"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "excluded_space": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["nominal_registry_count"],
+            "properties": {
+              "nominal_registry_count": {
+                "const": 0
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unique_role_aware_registry_count": {
+                "const": 0
+              },
+              "classes": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "lanes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mechanism_preview",
+        "stability"
+      ],
+      "properties": {
+        "mechanism_preview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "purpose",
+            "registry_scope",
+            "single_registry_preview_allowed",
+            "hard_rejection_authorized",
+            "stability_assessment_authorized",
+            "preview_execution_authorized",
+            "outcome_can_remove_stability_candidate"
+          ],
+          "properties": {
+            "purpose": {
+              "const": "mechanism-preview-and-queue-ordering-only"
+            },
+            "registry_scope": {
+              "const": "optional-subset-of-geometrically-eligible-role-aware-registries"
+            },
+            "single_registry_preview_allowed": {
+              "const": true
+            },
+            "hard_rejection_authorized": {
+              "const": false
+            },
+            "stability_assessment_authorized": {
+              "const": false
+            },
+            "preview_execution_authorized": {
+              "const": false
+            },
+            "outcome_can_remove_stability_candidate": {
+              "const": false
+            }
+          }
+        },
+        "stability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "purpose",
+            "required_registry_scope",
+            "geometric_prescreen_is_sufficient",
+            "consistent_relaxation_required",
+            "common_refined_static_ranking_required",
+            "result_recorded_by_this_contract"
+          ],
+          "properties": {
+            "purpose": {
+              "const": "downstream-stability-evidence-generation"
+            },
+            "required_registry_scope": {
+              "const": "all-geometrically-eligible-role-aware-unique-registries"
+            },
+            "geometric_prescreen_is_sufficient": {
+              "const": false
+            },
+            "consistent_relaxation_required": {
+              "const": true
+            },
+            "common_refined_static_ranking_required": {
+              "const": true
+            },
+            "result_recorded_by_this_contract": {
+              "const": false
+            }
+          }
+        }
+      }
+    },
+    "workflow_states": {
+      "type": "object",
+      "description": "Four orthogonal state axes. No axis may be inferred from another.",
+      "additionalProperties": false,
+      "required": [
+        "coverage",
+        "gate",
+        "selection",
+        "materialization"
+      ],
+      "properties": {
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "reasons"],
+          "properties": {
+            "state": {
+              "$ref": "#/$defs/coverageState"
+            },
+            "reasons": {
+              "$ref": "#/$defs/reasons"
+            }
+          }
+        },
+        "gate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "reasons"],
+          "properties": {
+            "state": {
+              "enum": [
+                "not_evaluated",
+                "pass",
+                "blocked",
+                "mixed"
+              ]
+            },
+            "reasons": {
+              "$ref": "#/$defs/reasons"
+            }
+          }
+        },
+        "selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "mechanism_preview_count",
+            "stability_lane_count",
+            "reasons"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "not_run",
+                "no_geometrically_eligible_candidate",
+                "candidates_routed"
+              ]
+            },
+            "mechanism_preview_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "stability_lane_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "reasons": {
+              "$ref": "#/$defs/reasons"
+            }
+          }
+        },
+        "materialization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "materialized_receipt_count",
+            "reasons"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "not_requested",
+                "not_materialized",
+                "partial",
+                "complete",
+                "failed"
+              ]
+            },
+            "materialized_receipt_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "reasons": {
+              "$ref": "#/$defs/reasons"
+            }
+          }
+        }
+      }
+    },
+    "child_receipts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/childReceipt"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 360
+      },
+      "uniqueItems": true
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "producer",
+        "producer_version",
+        "input_bundle_sha256"
+      ],
+      "properties": {
+        "producer": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{1,63}$"
+        },
+        "producer_version": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$"
+        },
+        "input_bundle_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["child_receipts"],
+        "properties": {
+          "child_receipts": {
+            "minItems": 1
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "parent_audit_cache": {
+            "items": {
+              "properties": {
+                "rich_audit_state": {
+                  "const": "pass"
+                },
+                "cache_reuse_state": {
+                  "const": "reusable"
+                }
+              }
+            }
+          },
+          "commensurate_search": {
+            "properties": {
+              "coverage": {
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "partial",
+                      "complete"
+                    ]
+                  }
+                }
+              },
+              "candidates": {
+                "minItems": 1
+              }
+            }
+          },
+          "registry_equivalence": {
+            "properties": {
+              "coverage_state": {
+                "enum": [
+                  "partial",
+                  "complete"
+                ]
+              },
+              "classes": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "coverageState": {
+      "enum": [
+        "not_implemented",
+        "partial",
+        "complete"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 240
+      },
+      "uniqueItems": true
+    },
+    "integerMatrix2": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "integer"
+        }
+      }
+    },
+    "numberMatrix2": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "numberVector2": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "number"
+      }
+    },
+    "parentAuditCacheEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parent_ref",
+        "layer_role",
+        "source_snapshot_sha256",
+        "structure_manifest_sha256",
+        "rich_audit_artifact_ref",
+        "rich_audit_artifact_sha256",
+        "rich_audit_cache_preimage_ref",
+        "rich_audit_cache_preimage",
+        "rich_audit_cache_preimage_sha256",
+        "rich_audit_cache_key_sha256",
+        "rich_audit_state",
+        "cache_reuse_state",
+        "rich_audit_repeated_per_child"
+      ],
+      "properties": {
+        "parent_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "layer_role": {
+          "enum": [
+            "bottom",
+            "top"
+          ]
+        },
+        "source_snapshot_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "structure_manifest_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "rich_audit_artifact_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "rich_audit_artifact_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "rich_audit_cache_preimage_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "rich_audit_cache_preimage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_snapshot_sha256",
+            "structure_manifest_sha256",
+            "audit_policy_sha256",
+            "audit_producer_identity_sha256",
+            "normalized_options_sha256"
+          ],
+          "properties": {
+            "source_snapshot_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "structure_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "audit_policy_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "audit_producer_identity_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "normalized_options_sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "rich_audit_cache_preimage_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "rich_audit_cache_key_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "rich_audit_state": {
+          "enum": [
+            "pass",
+            "review_required",
+            "blocked"
+          ]
+        },
+        "cache_reuse_state": {
+          "enum": [
+            "reusable",
+            "revalidation_required",
+            "unavailable"
+          ]
+        },
+        "rich_audit_repeated_per_child": {
+          "const": false
+        }
+      }
+    },
+    "roleDeformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deformation_gradient_2d",
+        "green_lagrange_strain_2d",
+        "principal_strains",
+        "max_abs_principal_strain"
+      ],
+      "properties": {
+        "deformation_gradient_2d": {
+          "$ref": "#/$defs/numberMatrix2"
+        },
+        "green_lagrange_strain_2d": {
+          "$ref": "#/$defs/numberMatrix2"
+        },
+        "principal_strains": {
+          "$ref": "#/$defs/numberVector2"
+        },
+        "max_abs_principal_strain": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "gateEvaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "criterion",
+        "comparator",
+        "observed",
+        "threshold",
+        "unit",
+        "outcome",
+        "finding_id",
+        "evidence_sha256"
+      ],
+      "properties": {
+        "criterion": {
+          "enum": [
+            "atom_budget",
+            "principal_strain",
+            "cell_angle",
+            "interlayer_overlap",
+            "vacuum"
+          ]
+        },
+        "comparator": {
+          "enum": [
+            "less_than_or_equal",
+            "greater_than_or_equal"
+          ]
+        },
+        "observed": {
+          "type": "number"
+        },
+        "threshold": {
+          "type": "number"
+        },
+        "unit": {
+          "enum": [
+            "count",
+            "fraction",
+            "degree",
+            "angstrom"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "pass",
+            "blocked"
+          ]
+        },
+        "finding_id": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]*$"
+            }
+          ]
+        },
+        "evidence_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["criterion"],
+            "properties": {
+              "criterion": {
+                "const": "atom_budget"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "comparator": {
+                "const": "less_than_or_equal"
+              },
+              "unit": {
+                "const": "count"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["criterion"],
+            "properties": {
+              "criterion": {
+                "const": "principal_strain"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "comparator": {
+                "const": "less_than_or_equal"
+              },
+              "unit": {
+                "const": "fraction"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["criterion"],
+            "properties": {
+              "criterion": {
+                "const": "cell_angle"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "comparator": {
+                "const": "less_than_or_equal"
+              },
+              "unit": {
+                "const": "degree"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["criterion"],
+            "properties": {
+              "criterion": {
+                "const": "interlayer_overlap"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "comparator": {
+                "const": "greater_than_or_equal"
+              },
+              "unit": {
+                "const": "angstrom"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["criterion"],
+            "properties": {
+              "criterion": {
+                "const": "vacuum"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "comparator": {
+                "const": "greater_than_or_equal"
+              },
+              "unit": {
+                "const": "angstrom"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["outcome"],
+            "properties": {
+              "outcome": {
+                "const": "pass"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finding_id": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["outcome"],
+            "properties": {
+              "outcome": {
+                "const": "blocked"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "finding_id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "paretoMetricVector": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "value", "direction", "unit"],
+          "properties": {
+            "metric": {
+              "const": "max_abs_principal_strain"
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "direction": {
+              "const": "minimize"
+            },
+            "unit": {
+              "const": "fraction"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "value", "direction", "unit"],
+          "properties": {
+            "metric": {
+              "const": "total_interface_atoms"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 2
+            },
+            "direction": {
+              "const": "minimize"
+            },
+            "unit": {
+              "const": "count"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "value", "direction", "unit"],
+          "properties": {
+            "metric": {
+              "const": "interface_area"
+            },
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "direction": {
+              "const": "minimize"
+            },
+            "unit": {
+              "const": "angstrom_squared"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "value", "direction", "unit"],
+          "properties": {
+            "metric": {
+              "const": "cell_condition_number"
+            },
+            "value": {
+              "type": "number",
+              "minimum": 1
+            },
+            "direction": {
+              "const": "minimize"
+            },
+            "unit": {
+              "const": "dimensionless"
+            }
+          }
+        }
+      ],
+      "items": false
+    },
+    "commensurateCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "bottom_parent_ref",
+        "top_parent_ref",
+        "bottom_hnf",
+        "top_hnf",
+        "bottom_unimodular",
+        "top_unimodular",
+        "common_interface_basis_ang",
+        "shared_strain",
+        "total_interface_atoms",
+        "gate_evaluations",
+        "geometric_gate",
+        "pareto_state"
+      ],
+      "properties": {
+        "candidate_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "bottom_parent_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "top_parent_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "bottom_hnf": {
+          "$ref": "#/$defs/integerMatrix2"
+        },
+        "top_hnf": {
+          "$ref": "#/$defs/integerMatrix2"
+        },
+        "bottom_unimodular": {
+          "$ref": "#/$defs/integerMatrix2"
+        },
+        "top_unimodular": {
+          "$ref": "#/$defs/integerMatrix2"
+        },
+        "common_interface_basis_ang": {
+          "$ref": "#/$defs/numberMatrix2"
+        },
+        "shared_strain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "allocation_method",
+            "objective_value",
+            "bottom",
+            "top"
+          ],
+          "properties": {
+            "allocation_method": {
+              "const": "minimax-principal-strain"
+            },
+            "objective_value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "bottom": {
+              "$ref": "#/$defs/roleDeformation"
+            },
+            "top": {
+              "$ref": "#/$defs/roleDeformation"
+            }
+          }
+        },
+        "total_interface_atoms": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "gate_evaluations": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "$ref": "#/$defs/gateEvaluation"
+          },
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "required": ["criterion"],
+                "properties": {
+                  "criterion": {
+                    "const": "atom_budget"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["criterion"],
+                "properties": {
+                  "criterion": {
+                    "const": "principal_strain"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["criterion"],
+                "properties": {
+                  "criterion": {
+                    "const": "cell_angle"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["criterion"],
+                "properties": {
+                  "criterion": {
+                    "const": "interlayer_overlap"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["criterion"],
+                "properties": {
+                  "criterion": {
+                    "const": "vacuum"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
+        },
+        "geometric_gate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "finding_ids"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "pass",
+                "blocked"
+              ]
+            },
+            "finding_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "uniqueItems": true
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "required": ["state"],
+                "properties": {
+                  "state": {
+                    "const": "blocked"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "finding_ids": {
+                    "minItems": 1
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "required": ["state"],
+                "properties": {
+                  "state": {
+                    "const": "pass"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "finding_ids": {
+                    "maxItems": 0
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "pareto_state": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "basis",
+            "comparison_universe_sha256",
+            "comparison_policy_sha256",
+            "comparison_universe_size",
+            "metric_vector"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "not_evaluated",
+                "nondominated",
+                "dominated"
+              ]
+            },
+            "basis": {
+              "const": "explicit-metric-vector-without-aggregate-score"
+            },
+            "comparison_universe_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "comparison_policy_sha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "comparison_universe_size": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "metric_vector": {
+              "$ref": "#/$defs/paretoMetricVector"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["geometric_gate"],
+            "properties": {
+              "geometric_gate": {
+                "required": ["state"],
+                "properties": {
+                  "state": {
+                    "const": "pass"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "gate_evaluations": {
+                "items": {
+                  "properties": {
+                    "outcome": {
+                      "const": "pass"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["geometric_gate"],
+            "properties": {
+              "geometric_gate": {
+                "required": ["state"],
+                "properties": {
+                  "state": {
+                    "const": "blocked"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "gate_evaluations": {
+                "contains": {
+                  "type": "object",
+                  "required": ["outcome"],
+                  "properties": {
+                    "outcome": {
+                      "const": "blocked"
+                    }
+                  }
+                },
+                "minContains": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "registryEquivalenceClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_id",
+        "representative_registry_id",
+        "member_registry_ids",
+        "bottom_role_membership_sha256",
+        "top_role_membership_sha256",
+        "equivalence_evidence_sha256"
+      ],
+      "properties": {
+        "class_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "representative_registry_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "member_registry_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/safeId"
+          },
+          "uniqueItems": true
+        },
+        "bottom_role_membership_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "top_role_membership_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "equivalence_evidence_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "receiptStates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage",
+        "gate",
+        "selection",
+        "materialization"
+      ],
+      "properties": {
+        "coverage": {
+          "enum": [
+            "within_evaluated_scope",
+            "outside_evaluated_scope"
+          ]
+        },
+        "gate": {
+          "enum": [
+            "not_evaluated",
+            "pass",
+            "blocked"
+          ]
+        },
+        "selection": {
+          "enum": [
+            "not_selected",
+            "queued_mechanism_preview",
+            "retained_stability_lane",
+            "retained_both_lanes"
+          ]
+        },
+        "materialization": {
+          "enum": [
+            "not_requested",
+            "not_materialized",
+            "materialized",
+            "failed"
+          ]
+        }
+      }
+    },
+    "childReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_id",
+        "receipt_kind",
+        "bottom_parent_ref",
+        "top_parent_ref",
+        "commensurate_candidate_id",
+        "registry_id",
+        "registry_shift_fractional_2d",
+        "registry_equivalence_class_id",
+        "bottom_role_membership_sha256",
+        "top_role_membership_sha256",
+        "transformation_parameters_sha256",
+        "transformation_artifact_ref",
+        "transformation_artifact_sha256",
+        "site_mapping_artifact_ref",
+        "site_mapping_sha256",
+        "gate_evaluations_sha256",
+        "parent_rich_audit_reused",
+        "child_rich_audit_repeated",
+        "child_snapshot_ref",
+        "child_structure_id",
+        "child_structure_sha256",
+        "states",
+        "gate_findings"
+      ],
+      "properties": {
+        "receipt_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "receipt_kind": {
+          "const": "lightweight-derived-child"
+        },
+        "bottom_parent_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "top_parent_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "commensurate_candidate_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "registry_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "registry_shift_fractional_2d": {
+          "$ref": "#/$defs/numberVector2"
+        },
+        "registry_equivalence_class_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "bottom_role_membership_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "top_role_membership_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "transformation_parameters_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "transformation_artifact_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "transformation_artifact_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "site_mapping_artifact_ref": {
+          "$ref": "#/$defs/safeId"
+        },
+        "site_mapping_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "gate_evaluations_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "parent_rich_audit_reused": {
+          "const": true
+        },
+        "child_rich_audit_repeated": {
+          "const": false
+        },
+        "child_snapshot_ref": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/safeId"
+            }
+          ]
+        },
+        "child_structure_id": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/safeId"
+            }
+          ]
+        },
+        "child_structure_sha256": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/sha256"
+            }
+          ]
+        },
+        "states": {
+          "$ref": "#/$defs/receiptStates"
+        },
+        "gate_findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "finding_id",
+              "criterion",
+              "observed",
+              "threshold",
+              "unit"
+            ],
+            "properties": {
+              "finding_id": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "criterion": {
+                "enum": [
+                  "atom_budget",
+                  "principal_strain",
+                  "cell_angle",
+                  "interlayer_overlap",
+                  "vacuum"
+                ]
+              },
+              "observed": {
+                "type": "number"
+              },
+              "threshold": {
+                "type": "number"
+              },
+              "unit": {
+                "enum": [
+                  "count",
+                  "fraction",
+                  "degree",
+                  "angstrom"
+                ]
+              }
+            }
+          },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["states"],
+            "properties": {
+              "states": {
+                "required": ["materialization"],
+                "properties": {
+                  "materialization": {
+                    "const": "materialized"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "child_structure_id": {
+                "$ref": "#/$defs/safeId"
+              },
+              "child_snapshot_ref": {
+                "$ref": "#/$defs/safeId"
+              },
+              "child_structure_sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "child_structure_id": {
+                "type": "null"
+              },
+              "child_snapshot_ref": {
+                "type": "null"
+              },
+              "child_structure_sha256": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["states"],
+            "properties": {
+              "states": {
+                "required": ["gate"],
+                "properties": {
+                  "gate": {
+                    "const": "blocked"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "states": {
+                "properties": {
+                  "selection": {
+                    "const": "not_selected"
+                  }
+                }
+              },
+              "gate_findings": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["states"],
+            "properties": {
+              "states": {
+                "required": ["selection"],
+                "properties": {
+                  "selection": {
+                    "enum": [
+                      "queued_mechanism_preview",
+                      "retained_stability_lane",
+                      "retained_both_lanes"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "states": {
+                "properties": {
+                  "gate": {
+                    "const": "pass"
+                  }
+                }
+              },
+              "gate_findings": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["states"],
+            "properties": {
+              "states": {
+                "required": ["gate"],
+                "properties": {
+                  "gate": {
+                    "const": "pass"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "gate_findings": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["states"],
+            "properties": {
+              "states": {
+                "required": ["gate"],
+                "properties": {
+                  "gate": {
+                    "const": "not_evaluated"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "states": {
+                "properties": {
+                  "selection": {
+                    "const": "not_selected"
+                  }
+                }
+              },
+              "gate_findings": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

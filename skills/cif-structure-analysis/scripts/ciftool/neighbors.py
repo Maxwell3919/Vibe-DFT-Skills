@@ -75,8 +75,11 @@ def _enumerate(atoms: Any, cutoff: float) -> list[dict[str, Any]]:
                 "j": int(j),
                 "symbols": [symbols[int(i)], symbols[int(j)]],
                 "shift": [int(value) for value in shift],
-                "vector_ang": [_rounded(float(value)) for value in vector],
-                "distance_ang": _rounded(float(distance)),
+                # Preserve exact backend floats for all decisions.  The
+                # presentation layer rounds only after shell, threshold, and
+                # bond-match comparisons are complete.
+                "vector_ang": [float(value) for value in vector],
+                "distance_ang": float(distance),
             }
         )
     return sorted(
@@ -96,7 +99,11 @@ def analyze_periodic_neighbors(
     requested_cutoff: float | None = None,
     maximum_cutoff: float | None = None,
     shell_tolerance: float = 0.05,
-) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+) -> tuple[
+    dict[str, Any],
+    list[dict[str, Any]],
+    list[dict[str, Any]],
+]:
     default_initial, default_maximum = _default_cutoffs(atoms, short_threshold)
     cutoff = float(requested_cutoff) if requested_cutoff is not None else default_initial
     limit = float(maximum_cutoff) if maximum_cutoff is not None else default_maximum
@@ -185,7 +192,7 @@ def analyze_periodic_neighbors(
     complete = not atoms_without_neighbors or (len(atoms) <= 1 and not any(atoms.get_pbc()))
     summary = {
         "method": "ase.neighborlist.neighbor_list",
-        "method_version": "periodic-images-v1",
+        "method_version": "periodic-images-v2-full-precision-decisions",
         "neighbor_cutoff_ang": _rounded(cutoff),
         "maximum_neighbor_cutoff_ang": _rounded(limit),
         "cutoff_was_user_supplied": requested_cutoff is not None,
@@ -208,7 +215,7 @@ def analyze_periodic_neighbors(
         "self_image_neighbors_enumerated": True,
         "canonicalization": "undirected edge (i,j,S) is equivalent to (j,i,-S)",
     }
-    return summary, short_flags
+    return summary, short_flags, nearest_directed
 
 
 def match_neighbor_bonds(
@@ -251,7 +258,7 @@ def match_neighbor_bonds(
             continue
         distance = float(record["distance_ang"])
         delta = abs(distance - target_distance) if target_distance is not None else None
-        candidates.append({**record, "absolute_delta_ang": _rounded(delta)})
+        candidates.append({**record, "absolute_delta_ang": delta})
 
     candidates.sort(
         key=lambda item: (

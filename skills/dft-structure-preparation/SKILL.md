@@ -36,6 +36,10 @@ Choose exactly one primary route:
 - Use `make-slab` for a lattice-vector-aligned cleave with explicit layer repeat and vacuum.
 - Use `build-interface` to search bounded in-plane repeat pairs and construct one coherent
   interface from two already oriented slabs.
+- Read [heterostructure-prescreen.md](references/heterostructure-prescreen.md) before reducing
+  repeated parent audits or routing registry candidates. Its local schema records a two-lane,
+  geometry-only prescreen; the current native matcher remains diagonal-repeat-only and therefore
+  cannot claim general 2D HNF coverage.
 - Use `site-edit` for one explicit interstitial insertion, removal, or substitution.
 - Use `place-guest` for explicit adsorbate or periodic host-guest placement.
 - Use `plan-export` to create a non-executed QE/VASP/CP2K/SIESTA structure handoff plan.
@@ -106,6 +110,10 @@ Spglib is reference-only here, not an independently registered provider or activ
    replica shifts, explicit construction parameters, minimum-distance result, occupancy findings,
    and round-trip classification. Treat every cell-, composition-, interface-, or placement-changing
    operation as a derived structure, never an equivalent round-trip.
+   For repeated heterostructure registries, reuse one rich parent audit only through its immutable
+   cache key, keep role-aware bottom/top membership hashes, and issue a lightweight child receipt
+   for each registry. Re-run all child-specific strain, overlap, vacuum, mapping, and atom-budget
+   gates. A mechanism-preview subset must not remove a stability-lane registry.
 7. Plan a DFT handoff only after readiness is explicit:
 
    ```bash
@@ -129,7 +137,8 @@ Spglib is reference-only here, not an independently registered provider or activ
   budgets before certifying a derived candidate.
 - Reset charge/spin claims after a composition edit unless the operation has exact charge
   arithmetic; never infer charge compensation, oxidation state, or magnetic order.
-- Require two already oriented slabs for native interface matching. Treat its minimum-strain
+- Require two already oriented slabs for native interface matching. Check full-periodic
+  self-image, intralayer, and cross-layer distances at full precision. Treat its minimum-strain
   selection as geometric ranking, never a stable-interface claim.
 - Require an explicit coordinate for native interstitials and an explicit anchor, position, and
   orientation for guests. Do not describe either as a site search.
