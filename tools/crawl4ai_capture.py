@@ -58,6 +58,20 @@ CONTROL_RECEIPT = [
     "deep-crawl-forbidden",
     "cache-reuse-forbidden",
 ]
+ROLE_PATHS = {
+    "capture-request": "request.json",
+    "robots-policy": "robots.txt",
+    "direct-response": "direct-response.bin",
+    "rendered-dom": "rendered.html",
+    "readable-markdown": "content.md",
+}
+ROLE_IDENTITIES = {
+    "capture-request": "request-evidence",
+    "robots-policy": "transport-evidence",
+    "direct-response": "transport-evidence",
+    "rendered-dom": "rendered-derivative",
+    "readable-markdown": "readable-derivative",
+}
 
 
 class CaptureBlocked(ValueError):
@@ -86,6 +100,37 @@ def canonical_json(value: object) -> bytes:
 
 def sha256(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def is_within(candidate: Path, parent: Path) -> bool:
+    candidate_resolved = candidate.resolve(strict=False)
+    parent_resolved = parent.resolve(strict=False)
+    return candidate_resolved == parent_resolved or parent_resolved in candidate_resolved.parents
+
+
+def expected_robots_url(value: str) -> str:
+    parts, _origin = parsed_http_url(value, allow_http=True)
+    return f"{parts.scheme}://{parts.hostname.lower().rstrip('.')}/robots.txt"
+
+
+def deterministic_request_id(request: dict[str, Any]) -> str:
+    identity = {
+        "source_class": request["source_class"],
+        "profile_id": request["profile_id"],
+        "url": request["url"],
+        "fallback_condition": request["native_route"]["fallback_condition"],
+        "native_evidence": request["native_route"]["evidence"],
+        "required_css_selectors": request["content_gate"]["required_css_selectors"],
+        "required_markdown_substrings": request["content_gate"]["required_markdown_substrings"],
+        "forbidden_markdown_substrings": request["content_gate"]["forbidden_markdown_substrings"],
+        "minimum_markdown_bytes": request["content_gate"]["minimum_markdown_bytes"],
+        "page_timeout_ms": request["limits"]["page_timeout_ms"],
+    }
+    return f"capture-request-{sha256(canonical_json(identity))[:24]}"
+
+
+def deterministic_record_id(request_raw: bytes, captured_utc: str) -> str:
+    return f"web-capture-{sha256(request_raw + captured_utc.encode('ascii'))[:24]}"
 
 
 def load_schema(root: Path, name: str) -> dict[str, Any]:
@@ -277,8 +322,8 @@ def robots_receipt(
     max_bytes: int,
     max_redirects: int,
 ) -> tuple[str, str, bytes | None, int]:
-    parts, _origin = parsed_http_url(url, allow_http=bool(profile["allow_http"]))
-    robots_url = f"{parts.scheme}://{parts.hostname.lower().rstrip('.')}/robots.txt"
+    parsed_http_url(url, allow_http=bool(profile["allow_http"]))
+    robots_url = expected_robots_url(url)
     try:
         raw, status, _final_url, _media_type = fetch_bytes(
             robots_url,
@@ -472,11 +517,10 @@ def base_manifest(
     captured_utc: str,
     config_sha: str,
 ) -> dict[str, Any]:
-    seed = request_raw + captured_utc.encode("ascii")
     return {
         "schema_version": "1.0",
         "contract_name": "web-source-capture-manifest",
-        "record_id": f"web-capture-{sha256(seed)[:24]}",
+        "record_id": deterministic_record_id(request_raw, captured_utc),
         "captured_utc": captured_utc,
         "request_ref": {"request_id": request["request_id"], "sha256": sha256(request_raw)},
         "status": "failed",
@@ -498,7 +542,7 @@ def base_manifest(
             "config_sha256": config_sha,
         },
         "policy": {
-            "robots_url": request["url"],
+            "robots_url": expected_robots_url(request["url"]),
             "robots_status": "unavailable",
             "robots_sha256": None,
             "robots_bytes": None,
@@ -519,7 +563,7 @@ def base_manifest(
 
 def ensure_output_scope(output: Path, root: Path) -> None:
     resolved = output.resolve(strict=False)
-    if resolved == root or root in resolved.parents:
+    if is_within(resolved, root):
         raise CaptureBlocked("OUTPUT_INSIDE_GIT_WORKTREE")
     if output.exists() or output.is_symlink():
         raise CaptureBlocked("OUTPUT_ALREADY_EXISTS")
@@ -612,6 +656,8 @@ def run_capture(request_path: Path, output: Path, root: Path) -> tuple[int, dict
         manifest["adapter"]["playwright_version"] = playwright_version
         manifest["adapter"]["browser_version"] = browser_version
         manifest["result"]["http_status"] = http_status
+        if not isinstance(http_status, int) or not 200 <= http_status <= 299:
+            raise CaptureFailed("HTTP_STATUS_NOT_SUCCESS")
         if not content_gate_passes(request, rendered, markdown):
             raise CaptureFailed("CONTENT_GATE_FAILED")
         manifest["status"] = "success"
@@ -646,14 +692,33 @@ def run_capture(request_path: Path, output: Path, root: Path) -> tuple[int, dict
 def validate_capture(manifest_path: Path, artifact_root: Path, root: Path) -> list[str]:
     failures: list[str] = []
     try:
+        root_resolved = artifact_root.resolve(strict=True)
+        if not artifact_root.is_dir() or artifact_root.is_symlink():
+            raise OSError("unsafe artifact root")
+    except OSError:
+        return ["artifact_root: missing or unsafe directory"]
+    if is_within(root_resolved, root):
+        failures.append("artifact_root: capture directory is inside the Git worktree")
+    try:
+        manifest_resolved = manifest_path.resolve(strict=True)
+        if (
+            manifest_resolved != root_resolved / "manifest.json"
+            or manifest_path.is_symlink()
+            or not manifest_path.is_file()
+        ):
+            raise OSError("unsafe manifest")
+    except OSError:
+        return failures + ["manifest: must be the regular artifact-root/manifest.json file"]
+    try:
         manifest = load_object(manifest_path, manifest_path.name, max_bytes=2 * 1024 * 1024)
     except (OSError, StrictJSONError) as exc:
         return [f"manifest: {exc}"]
     failures.extend(schema_errors(manifest, load_schema(root, MANIFEST_SCHEMA)))
     roles: set[str] = set()
     role_paths: dict[str, Path] = {}
+    role_bytes: dict[str, bytes] = {}
     bound_request: dict[str, Any] | None = None
-    root_resolved = artifact_root.resolve()
+    bound_profile: dict[str, Any] | None = None
     for index, item in enumerate(manifest.get("artifacts", [])):
         role = item.get("role") if isinstance(item, dict) else None
         if role in roles:
@@ -663,6 +728,10 @@ def validate_capture(manifest_path: Path, artifact_root: Path, root: Path) -> li
         relative = item.get("path") if isinstance(item, dict) else None
         if not isinstance(relative, str):
             continue
+        if isinstance(role, str) and relative != ROLE_PATHS.get(role):
+            failures.append(f"artifacts/{index}/path: role must use its canonical path")
+        if isinstance(role, str) and item.get("identity_role") != ROLE_IDENTITIES.get(role):
+            failures.append(f"artifacts/{index}/identity_role: role identity mismatch")
         pure = PurePosixPath(relative)
         if pure.is_absolute() or ".." in pure.parts:
             failures.append(f"artifacts/{index}/path: unsafe path")
@@ -680,24 +749,87 @@ def validate_capture(manifest_path: Path, artifact_root: Path, root: Path) -> li
             failures.append(f"artifacts/{index}: content identity mismatch")
         elif isinstance(role, str):
             role_paths[role] = path
+            role_bytes[role] = raw
+    expected_entries = {"manifest.json"} | {
+        item.get("path")
+        for item in manifest.get("artifacts", [])
+        if isinstance(item, dict) and isinstance(item.get("path"), str)
+    }
+    observed_entries = {item.name for item in artifact_root.iterdir()}
+    if observed_entries != expected_entries or any(
+        item.is_symlink() or not item.is_file() for item in artifact_root.iterdir()
+    ):
+        failures.append("artifact_root: unmanifested, nested, or unsafe entries present")
     if "capture-request" in roles:
         try:
-            request_path = artifact_root / "request.json"
+            request_path = role_paths["capture-request"]
             request_raw = read_bytes_bounded(request_path, "request.json", max_bytes=256 * 1024)
             request = load_object(request_path, "request.json", max_bytes=256 * 1024)
             bound_request = request
             failures.extend(f"request/{item}" for item in schema_errors(request, load_schema(root, REQUEST_SCHEMA)))
+            if request.get("request_id") != deterministic_request_id(request):
+                failures.append("request/request_id: deterministic identity mismatch")
             if sha256(request_raw) != manifest["request_ref"]["sha256"]:
                 failures.append("request_ref/sha256: request bytes do not match")
             adapter_data, authorities = load_registries(root)
             profile = source_profile(request, adapter_data, authorities)
+            bound_profile = profile
             validate_profile_url(request["url"], profile)
             if request["request_id"] != manifest["request_ref"]["request_id"]:
                 failures.append("request_ref/request_id: request identity does not match")
             if request["source_class"] != manifest["source"]["source_class"] or request["profile_id"] != manifest["source"]["profile_id"] or request["url"] != manifest["source"]["requested_url"]:
                 failures.append("source: manifest does not match request")
-        except (OSError, ValueError, StrictJSONError, CaptureBlocked):
+            expected_config = sha256(canonical_json(adapter_config(request)))
+            if manifest["adapter"]["config_sha256"] != expected_config:
+                failures.append("adapter/config_sha256: adapter configuration mismatch")
+            if manifest["record_id"] != deterministic_record_id(request_raw, manifest["captured_utc"]):
+                failures.append("record_id: deterministic identity mismatch")
+        except (KeyError, OSError, UnicodeError, ValueError, StrictJSONError, CaptureBlocked):
             failures.append("request: cannot validate bound request")
+    else:
+        failures.append("artifacts: capture-request role is required")
+
+    final_url = manifest.get("source", {}).get("final_url")
+    final_verified = manifest.get("policy", {}).get("final_url_profile_verified")
+    if (final_url is None) != (final_verified is False):
+        failures.append("source/final_url: final URL and verification receipt disagree")
+    if isinstance(final_url, str) and bound_profile is not None:
+        try:
+            validate_profile_url(final_url, bound_profile)
+        except CaptureBlocked:
+            failures.append("source/final_url: URL is outside the bound profile")
+
+    if bound_request is not None and bound_profile is not None:
+        policy = manifest.get("policy", {})
+        robots_url = expected_robots_url(bound_request["url"])
+        if policy.get("robots_url") != robots_url:
+            failures.append("policy/robots_url: URL does not match the request origin")
+        robots_raw = role_bytes.get("robots-policy")
+        if robots_raw is None:
+            if policy.get("robots_sha256") is not None or policy.get("robots_bytes") is not None:
+                failures.append("policy/robots_sha256: receipt lacks a bound robots artifact")
+        else:
+            if (
+                policy.get("robots_sha256") != sha256(robots_raw)
+                or policy.get("robots_bytes") != len(robots_raw)
+            ):
+                failures.append("policy/robots_sha256: robots receipt identity mismatch")
+        if policy.get("robots_status") == "allowed":
+            if robots_raw is None:
+                failures.append("policy/robots_status: allowed status lacks robots evidence")
+            else:
+                parser = RobotFileParser()
+                parser.set_url(robots_url)
+                parser.parse(robots_raw.decode("utf-8", errors="replace").splitlines())
+                delay = parser.crawl_delay(USER_AGENT) or parser.crawl_delay("*") or 0
+                if not parser.can_fetch(USER_AGENT, bound_request["url"]):
+                    failures.append("policy/robots_status: bound policy does not allow the request")
+                elif not isinstance(delay, (int, float)) or delay < 0 or delay > 60:
+                    failures.append("policy/minimum_delay_seconds: invalid robots crawl delay")
+                elif policy.get("minimum_delay_seconds") != max(
+                    int(bound_profile["minimum_delay_seconds"]), int(delay)
+                ):
+                    failures.append("policy/minimum_delay_seconds: delay receipt mismatch")
     if manifest.get("status") == "success":
         required = {"capture-request", "robots-policy", "rendered-dom", "readable-markdown"}
         if not required.issubset(roles):
@@ -710,29 +842,17 @@ def validate_capture(manifest_path: Path, artifact_root: Path, root: Path) -> li
                     failures.append("result/content_gate_passed: content gate does not pass")
             except (OSError, UnicodeError, KeyError):
                 failures.append("result/content_gate_passed: cannot replay content gate")
+        http_status = manifest.get("result", {}).get("http_status")
+        if not isinstance(http_status, int) or not 200 <= http_status <= 299:
+            failures.append("result/http_status: successful capture requires HTTP 2xx")
     return failures
 
 
 def plan_request(args: argparse.Namespace, root: Path) -> dict[str, Any]:
     adapter_data, authorities = load_registries(root)
-    seed = canonical_json(
-        {
-            "source_class": args.source_class,
-            "profile_id": args.profile_id,
-            "url": args.url,
-            "fallback_condition": args.fallback_condition,
-            "native_evidence": args.native_evidence,
-            "required_css_selectors": args.require_css,
-            "required_markdown_substrings": args.require_text,
-            "forbidden_markdown_substrings": args.forbid_text,
-            "minimum_markdown_bytes": args.minimum_markdown_bytes,
-            "page_timeout_ms": args.page_timeout_ms,
-        }
-    )
     request = {
         "schema_version": "1.0",
         "contract_name": "web-source-capture-request",
-        "request_id": f"capture-request-{sha256(seed)[:24]}",
         "created_utc": utc_now(),
         "source_class": args.source_class,
         "profile_id": args.profile_id,
@@ -768,6 +888,7 @@ def plan_request(args: argparse.Namespace, root: Path) -> dict[str, Any]:
             "allow_cache_reuse": False,
         },
     }
+    request["request_id"] = deterministic_request_id(request)
     validate_profile_url(args.url, source_profile(request, adapter_data, authorities))
     failures = schema_errors(request, load_schema(root, REQUEST_SCHEMA))
     if failures:

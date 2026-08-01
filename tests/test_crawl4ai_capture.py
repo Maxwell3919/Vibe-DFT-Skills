@@ -32,6 +32,76 @@ def plan_args(**overrides):
     return argparse.Namespace(**values)
 
 
+def write_success_capture(artifact_root: Path):
+    request = crawl4ai_capture.plan_request(plan_args(), ROOT)
+    request_raw = crawl4ai_capture.canonical_json(request)
+    (artifact_root / "request.json").write_bytes(request_raw)
+    (artifact_root / "robots.txt").write_text("User-agent: *\nAllow: /\n", encoding="utf-8")
+    (artifact_root / "rendered.html").write_text(
+        "<html><body>ASE</body></html>\n",
+        encoding="utf-8",
+    )
+    (artifact_root / "content.md").write_text("# ASE\n", encoding="utf-8")
+    captured = "2026-08-01T00:00:00Z"
+    manifest = crawl4ai_capture.base_manifest(
+        request,
+        request_raw,
+        captured,
+        crawl4ai_capture.sha256(
+            crawl4ai_capture.canonical_json(crawl4ai_capture.adapter_config(request))
+        ),
+    )
+    manifest["status"] = "success"
+    manifest["adapter"]["playwright_version"] = "1.55.0"
+    manifest["adapter"]["browser_version"] = "Chromium 140.0.0.0"
+    manifest["source"]["final_url"] = request["url"]
+    robots_raw = (artifact_root / "robots.txt").read_bytes()
+    manifest["policy"].update(
+        {
+            "robots_url": "https://ase-lib.org/robots.txt",
+            "robots_status": "allowed",
+            "robots_sha256": crawl4ai_capture.sha256(robots_raw),
+            "robots_bytes": len(robots_raw),
+            "minimum_delay_seconds": 1,
+            "final_url_profile_verified": True,
+        }
+    )
+    manifest["result"] = {
+        "http_status": 200,
+        "error_code": None,
+        "content_gate_passed": True,
+    }
+    manifest["artifacts"] = [
+        crawl4ai_capture.artifact(
+            artifact_root / "request.json",
+            "capture-request",
+            "application/json",
+            "request-evidence",
+        ),
+        crawl4ai_capture.artifact(
+            artifact_root / "robots.txt",
+            "robots-policy",
+            "text/plain",
+            "transport-evidence",
+        ),
+        crawl4ai_capture.artifact(
+            artifact_root / "rendered.html",
+            "rendered-dom",
+            "text/html",
+            "rendered-derivative",
+        ),
+        crawl4ai_capture.artifact(
+            artifact_root / "content.md",
+            "readable-markdown",
+            "text/markdown",
+            "readable-derivative",
+        ),
+    ]
+    manifest_path = artifact_root / "manifest.json"
+    manifest_path.write_bytes(crawl4ai_capture.canonical_json(manifest))
+    return request, manifest, manifest_path
+
+
 class Crawl4AICaptureTests(unittest.TestCase):
     def test_plan_is_closed_and_native_route_first(self) -> None:
         request = crawl4ai_capture.plan_request(plan_args(), ROOT)
@@ -114,57 +184,9 @@ class Crawl4AICaptureTests(unittest.TestCase):
                 crawl4ai_capture.ensure_output_scope(existing, ROOT)
 
     def test_success_manifest_hashes_and_claim_ceiling_are_verified(self) -> None:
-        request = crawl4ai_capture.plan_request(plan_args(), ROOT)
-        request_raw = crawl4ai_capture.canonical_json(request)
         with tempfile.TemporaryDirectory() as temporary:
             artifact_root = Path(temporary)
-            (artifact_root / "request.json").write_bytes(request_raw)
-            (artifact_root / "robots.txt").write_text("User-agent: *\nAllow: /\n", encoding="utf-8")
-            (artifact_root / "rendered.html").write_text("<html><body>ASE</body></html>\n", encoding="utf-8")
-            (artifact_root / "content.md").write_text("# ASE\n", encoding="utf-8")
-            captured = "2026-08-01T00:00:00Z"
-            manifest = crawl4ai_capture.base_manifest(
-                request,
-                request_raw,
-                captured,
-                crawl4ai_capture.sha256(crawl4ai_capture.canonical_json(crawl4ai_capture.adapter_config(request))),
-            )
-            manifest["status"] = "success"
-            manifest["adapter"]["playwright_version"] = "1.55.0"
-            manifest["adapter"]["browser_version"] = "Chromium 140.0.0.0"
-            manifest["source"]["final_url"] = request["url"]
-            robots_raw = (artifact_root / "robots.txt").read_bytes()
-            manifest["policy"].update(
-                {
-                    "robots_url": "https://ase-lib.org/robots.txt",
-                    "robots_status": "allowed",
-                    "robots_sha256": crawl4ai_capture.sha256(robots_raw),
-                    "robots_bytes": len(robots_raw),
-                    "minimum_delay_seconds": 1,
-                    "final_url_profile_verified": True,
-                }
-            )
-            manifest["result"] = {
-                "http_status": 200,
-                "error_code": None,
-                "content_gate_passed": True,
-            }
-            manifest["artifacts"] = [
-                crawl4ai_capture.artifact(
-                    artifact_root / "request.json", "capture-request", "application/json", "request-evidence"
-                ),
-                crawl4ai_capture.artifact(
-                    artifact_root / "robots.txt", "robots-policy", "text/plain", "transport-evidence"
-                ),
-                crawl4ai_capture.artifact(
-                    artifact_root / "rendered.html", "rendered-dom", "text/html", "rendered-derivative"
-                ),
-                crawl4ai_capture.artifact(
-                    artifact_root / "content.md", "readable-markdown", "text/markdown", "readable-derivative"
-                ),
-            ]
-            manifest_path = artifact_root / "manifest.json"
-            manifest_path.write_bytes(crawl4ai_capture.canonical_json(manifest))
+            _request, _manifest, manifest_path = write_success_capture(artifact_root)
             self.assertEqual(
                 crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT),
                 [],
@@ -176,6 +198,72 @@ class Crawl4AICaptureTests(unittest.TestCase):
                     for item in crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
                 )
             )
+
+    def test_success_manifest_semantics_are_cross_bound(self) -> None:
+        cases = (
+            ("adapter", "config_sha256", "0" * 64, "adapter configuration mismatch"),
+            ("source", "final_url", "https://example.com/", "outside the bound profile"),
+            ("result", "http_status", 404, "requires HTTP 2xx"),
+            ("policy", "robots_sha256", "0" * 64, "robots receipt identity mismatch"),
+            ("policy", "robots_url", "https://ase-lib.org/not-robots.txt", "does not match"),
+            ("policy", "minimum_delay_seconds", 2, "delay receipt mismatch"),
+        )
+        for section, field, value, expected in cases:
+            with self.subTest(section=section, field=field):
+                with tempfile.TemporaryDirectory() as temporary:
+                    artifact_root = Path(temporary)
+                    _request, manifest, manifest_path = write_success_capture(artifact_root)
+                    manifest[section][field] = value
+                    manifest_path.write_bytes(crawl4ai_capture.canonical_json(manifest))
+                    failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+                    self.assertTrue(any(expected in item for item in failures), failures)
+
+    def test_validator_rejects_in_repository_or_unmanifested_capture_bytes(self) -> None:
+        with tempfile.TemporaryDirectory(dir=ROOT) as temporary:
+            artifact_root = Path(temporary)
+            _request, _manifest, manifest_path = write_success_capture(artifact_root)
+            failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+            self.assertTrue(any("inside the Git worktree" in item for item in failures), failures)
+        with tempfile.TemporaryDirectory() as temporary:
+            artifact_root = Path(temporary)
+            _request, _manifest, manifest_path = write_success_capture(artifact_root)
+            (artifact_root / "unmanifested.txt").write_text("unexpected\n", encoding="utf-8")
+            failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+            self.assertTrue(any("unmanifested" in item for item in failures), failures)
+
+    def test_validator_rejects_forged_deterministic_ids_and_role_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            artifact_root = Path(temporary)
+            request, manifest, manifest_path = write_success_capture(artifact_root)
+            request["request_id"] = f"capture-request-{'f' * 24}"
+            request_raw = crawl4ai_capture.canonical_json(request)
+            (artifact_root / "request.json").write_bytes(request_raw)
+            manifest["request_ref"] = {
+                "request_id": request["request_id"],
+                "sha256": crawl4ai_capture.sha256(request_raw),
+            }
+            manifest["record_id"] = crawl4ai_capture.deterministic_record_id(
+                request_raw,
+                manifest["captured_utc"],
+            )
+            manifest["artifacts"][0] = crawl4ai_capture.artifact(
+                artifact_root / "request.json",
+                "capture-request",
+                "application/json",
+                "request-evidence",
+            )
+            manifest_path.write_bytes(crawl4ai_capture.canonical_json(manifest))
+            failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+            self.assertTrue(any("deterministic identity mismatch" in item for item in failures), failures)
+        with tempfile.TemporaryDirectory() as temporary:
+            artifact_root = Path(temporary)
+            _request, manifest, manifest_path = write_success_capture(artifact_root)
+            manifest["record_id"] = f"web-capture-{'f' * 24}"
+            manifest["artifacts"][0]["identity_role"] = "transport-evidence"
+            manifest_path.write_bytes(crawl4ai_capture.canonical_json(manifest))
+            failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+            self.assertTrue(any("record_id" in item for item in failures), failures)
+            self.assertTrue(any("role identity mismatch" in item for item in failures), failures)
 
     def test_manifest_cannot_promote_browser_output_to_version_sensitive_use(self) -> None:
         request = crawl4ai_capture.plan_request(plan_args(), ROOT)

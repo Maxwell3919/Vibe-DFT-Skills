@@ -88,6 +88,12 @@ Discovery may identify candidate URLs through a provider API, static index, or
 human-selected forum page. The Crawl4AI adapter itself forbids deep crawling,
 so a discovery result cannot silently expand into a domain-wide scrape.
 
+Validation is semantic as well as structural. It cross-binds the deterministic
+request and record identities, canonical artifact paths and roles, adapter
+configuration, registered final URL, HTTP 2xx status, captured robots bytes and
+delay, replayed content gate, outside-Git directory, and absence of
+unmanifested files.
+
 ## Security and failure semantics
 
 The adapter rejects credentials in URLs, explicit ports, fragments, duplicate
