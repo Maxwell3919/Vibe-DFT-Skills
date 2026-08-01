@@ -92,7 +92,9 @@ Validation is semantic as well as structural. It cross-binds the deterministic
 request and record identities, canonical artifact paths and roles, adapter
 configuration, registered final URL, HTTP 2xx status, captured robots bytes and
 delay, replayed content gate, outside-Git directory, and absence of
-unmanifested files.
+unmanifested files. Schema-invalid manifests and requests stop before semantic
+interpretation, and request parsing plus content-gate replay consume the single
+hash-verified byte snapshots instead of rereading mutable paths.
 
 ## Security and failure semantics
 

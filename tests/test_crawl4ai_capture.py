@@ -265,6 +265,113 @@ class Crawl4AICaptureTests(unittest.TestCase):
             self.assertTrue(any("record_id" in item for item in failures), failures)
             self.assertTrue(any("role identity mismatch" in item for item in failures), failures)
 
+    def test_validator_returns_schema_failures_for_malformed_manifest_shapes(self) -> None:
+        cases = (
+            ("artifacts", None),
+            ("source", "forged"),
+            ("request_ref", "forged"),
+            ("result", "forged"),
+        )
+        for field, value in cases:
+            with self.subTest(field=field):
+                with tempfile.TemporaryDirectory() as temporary:
+                    artifact_root = Path(temporary)
+                    _request, manifest, manifest_path = write_success_capture(artifact_root)
+                    manifest[field] = value
+                    manifest_path.write_bytes(crawl4ai_capture.canonical_json(manifest))
+                    failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+                    self.assertTrue(failures)
+
+    def test_validator_returns_schema_failures_for_malformed_request_shapes(self) -> None:
+        cases = (
+            ("native_route", "forged"),
+            ("content_gate", None),
+            ("limits", []),
+            ("controls", "forged"),
+        )
+        for field, value in cases:
+            with self.subTest(field=field):
+                with tempfile.TemporaryDirectory() as temporary:
+                    artifact_root = Path(temporary)
+                    request, manifest, manifest_path = write_success_capture(artifact_root)
+                    request[field] = value
+                    request_raw = crawl4ai_capture.canonical_json(request)
+                    (artifact_root / "request.json").write_bytes(request_raw)
+                    manifest["request_ref"]["sha256"] = crawl4ai_capture.sha256(request_raw)
+                    manifest["record_id"] = crawl4ai_capture.deterministic_record_id(
+                        request_raw,
+                        manifest["captured_utc"],
+                    )
+                    manifest["artifacts"][0] = crawl4ai_capture.artifact(
+                        artifact_root / "request.json",
+                        "capture-request",
+                        "application/json",
+                        "request-evidence",
+                    )
+                    manifest_path.write_bytes(crawl4ai_capture.canonical_json(manifest))
+                    failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+                    self.assertTrue(any(item.startswith("request/") for item in failures), failures)
+
+    def test_validator_replays_content_gate_from_hash_verified_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            artifact_root = Path(temporary)
+            _request, _manifest, manifest_path = write_success_capture(artifact_root)
+            with mock.patch.object(
+                Path,
+                "read_text",
+                side_effect=AssertionError("content artifacts must not be read twice"),
+            ):
+                failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+            self.assertEqual(failures, [])
+
+    def test_request_semantics_use_the_single_verified_byte_snapshot(self) -> None:
+        original_load_object = crawl4ai_capture.load_object
+
+        def reject_second_request_read(path, *args, **kwargs):
+            if Path(path).name in {"request.json", "source-request.json"}:
+                raise AssertionError("request.json must not be read twice")
+            return original_load_object(path, *args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary_root = Path(temporary)
+            request = crawl4ai_capture.plan_request(plan_args(), ROOT)
+            request_path = temporary_root / "source-request.json"
+            request_path.write_bytes(crawl4ai_capture.canonical_json(request))
+            output = temporary_root / "capture"
+            with (
+                mock.patch.object(
+                    crawl4ai_capture,
+                    "load_object",
+                    side_effect=reject_second_request_read,
+                ),
+                mock.patch.object(
+                    crawl4ai_capture,
+                    "robots_receipt",
+                    return_value=(
+                        "https://ase-lib.org/robots.txt",
+                        "blocked",
+                        b"User-agent: *\nDisallow: /\n",
+                        1,
+                    ),
+                ),
+            ):
+                exit_code, _manifest = crawl4ai_capture.run_capture(
+                    request_path,
+                    output,
+                    ROOT,
+                )
+            self.assertEqual(exit_code, 3)
+        with tempfile.TemporaryDirectory() as temporary:
+            artifact_root = Path(temporary)
+            _request, _manifest, manifest_path = write_success_capture(artifact_root)
+            with mock.patch.object(
+                crawl4ai_capture,
+                "load_object",
+                side_effect=reject_second_request_read,
+            ):
+                failures = crawl4ai_capture.validate_capture(manifest_path, artifact_root, ROOT)
+            self.assertEqual(failures, [])
+
     def test_manifest_cannot_promote_browser_output_to_version_sensitive_use(self) -> None:
         request = crawl4ai_capture.plan_request(plan_args(), ROOT)
         manifest = crawl4ai_capture.base_manifest(

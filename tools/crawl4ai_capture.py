@@ -36,7 +36,7 @@ import document_fetch_adapters
 from official_source_authorities import validate_and_project_technical
 from registry_yaml import load_yaml_strict
 from software_registry import load_registry as load_software_registry
-from strict_json import StrictJSONError, load_object, read_bytes_bounded
+from strict_json import StrictJSONError, load_object, loads_object, read_bytes_bounded
 
 
 USER_AGENT = "Vibe-DFT-Skills-document-capture/1.0"
@@ -572,7 +572,7 @@ def ensure_output_scope(output: Path, root: Path) -> None:
 
 def run_capture(request_path: Path, output: Path, root: Path) -> tuple[int, dict[str, Any]]:
     request_raw = read_bytes_bounded(request_path, request_path.name, max_bytes=256 * 1024)
-    request = load_object(request_path, request_path.name, max_bytes=256 * 1024)
+    request = loads_object(request_raw, request_path.name, max_bytes=256 * 1024)
     request_failures = schema_errors(request, load_schema(root, REQUEST_SCHEMA))
     if request_failures:
         raise CaptureBlocked("REQUEST_SCHEMA_INVALID")
@@ -713,7 +713,10 @@ def validate_capture(manifest_path: Path, artifact_root: Path, root: Path) -> li
         manifest = load_object(manifest_path, manifest_path.name, max_bytes=2 * 1024 * 1024)
     except (OSError, StrictJSONError) as exc:
         return [f"manifest: {exc}"]
-    failures.extend(schema_errors(manifest, load_schema(root, MANIFEST_SCHEMA)))
+    manifest_schema_failures = schema_errors(manifest, load_schema(root, MANIFEST_SCHEMA))
+    failures.extend(manifest_schema_failures)
+    if manifest_schema_failures:
+        return failures
     roles: set[str] = set()
     role_paths: dict[str, Path] = {}
     role_bytes: dict[str, bytes] = {}
@@ -762,11 +765,13 @@ def validate_capture(manifest_path: Path, artifact_root: Path, root: Path) -> li
         failures.append("artifact_root: unmanifested, nested, or unsafe entries present")
     if "capture-request" in roles:
         try:
-            request_path = role_paths["capture-request"]
-            request_raw = read_bytes_bounded(request_path, "request.json", max_bytes=256 * 1024)
-            request = load_object(request_path, "request.json", max_bytes=256 * 1024)
+            request_raw = role_bytes["capture-request"]
+            request = loads_object(request_raw, "request.json", max_bytes=256 * 1024)
+            request_schema_failures = schema_errors(request, load_schema(root, REQUEST_SCHEMA))
+            failures.extend(f"request/{item}" for item in request_schema_failures)
+            if request_schema_failures:
+                raise CaptureBlocked("REQUEST_SCHEMA_INVALID")
             bound_request = request
-            failures.extend(f"request/{item}" for item in schema_errors(request, load_schema(root, REQUEST_SCHEMA)))
             if request.get("request_id") != deterministic_request_id(request):
                 failures.append("request/request_id: deterministic identity mismatch")
             if sha256(request_raw) != manifest["request_ref"]["sha256"]:
@@ -836,8 +841,8 @@ def validate_capture(manifest_path: Path, artifact_root: Path, root: Path) -> li
             failures.append("artifacts: successful capture lacks required roles")
         elif bound_request is not None:
             try:
-                rendered = role_paths["rendered-dom"].read_text(encoding="utf-8")
-                markdown = role_paths["readable-markdown"].read_text(encoding="utf-8")
+                rendered = role_bytes["rendered-dom"].decode("utf-8", errors="strict")
+                markdown = role_bytes["readable-markdown"].decode("utf-8", errors="strict")
                 if not content_gate_passes(bound_request, rendered, markdown):
                     failures.append("result/content_gate_passed: content gate does not pass")
             except (OSError, UnicodeError, KeyError):
