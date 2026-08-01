@@ -148,6 +148,11 @@ def synthetic_active_files(
             },
             "response_policy": {"terminal_intent_routes": {}},
         },
+        "registry/document-fetch-adapters.yaml": yaml.safe_load(
+            (ROOT / "registry/document-fetch-adapters.yaml").read_text(
+                encoding="utf-8"
+            )
+        ),
         "registry/official-source-authorities.yaml": {
             "schema_version": "1.0",
             "authorities": {},
@@ -1656,7 +1661,7 @@ class ActiveOnlyDistributionTests(unittest.TestCase):
             self.assertEqual(verified["legacy_official_artifact_count"], 0)
             self.assertEqual(verified["official_document_pack_audit"], "partial")
             self.assertEqual(verified["official_document_pack_count"], 7)
-            self.assertEqual(verified["source_registry_snapshot_count"], 11)
+            self.assertEqual(verified["source_registry_snapshot_count"], 12)
             self.assertEqual(
                 verified["official_document_externalized_source_count"],
                 0,

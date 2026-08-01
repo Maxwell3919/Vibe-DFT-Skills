@@ -274,6 +274,11 @@ def discover_skill_commands(
 def core_commands(root: Path, python: str) -> tuple[Command, ...]:
     return (
         Command("core:software-registry", (python, "tools/software_registry.py"), root),
+        Command(
+            "core:document-fetch-adapters",
+            (python, "tools/document_fetch_adapters.py"),
+            root,
+        ),
         Command("core:skill-registry", (python, "tools/skill_registry.py"), root),
         Command("core:contract-enums", (python, "tools/sync_contract_codes.py"), root),
         Command("core:repository-audit", (python, "tools/audit_repository.py"), root),

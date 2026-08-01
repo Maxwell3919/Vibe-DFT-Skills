@@ -357,6 +357,8 @@ class InterfaceRegistryTests(unittest.TestCase):
                 "artifact-manifest@1.0",
                 "campaign-record@1.0",
                 "recommendation-record@1.0",
+                "web-source-capture-request@1.0",
+                "web-source-capture-manifest@1.0",
                 "structure-snapshot@1.0",
                 "molecular-structure-manifest@1.0",
                 "structure-transformation-manifest@1.0",
@@ -474,6 +476,10 @@ class InterfaceRegistryTests(unittest.TestCase):
             "qe-source-pack-input",
             "vasp-source-pack-input",
         }
+        source_ingestion_contracts = {
+            "web-source-capture-request",
+            "web-source-capture-manifest",
+        }
         for interface_id, specification in registry["interfaces"].items():
             if specification["lifecycle"] != "active":
                 continue
@@ -504,6 +510,16 @@ class InterfaceRegistryTests(unittest.TestCase):
                             / "build_official_document_packs.py"
                         ).is_file()
                     )
+                elif contract.name in source_ingestion_contracts:
+                    self.assertEqual(
+                        specification["domain"],
+                        "source-ingestion",
+                    )
+                    self.assertEqual(
+                        specification["classification"]["routing_scope"],
+                        "shared-handoff",
+                    )
+                    self.assertTrue((ROOT / "tools" / "crawl4ai_capture.py").is_file())
                 else:
                     self.assertIn(
                         contract.name,

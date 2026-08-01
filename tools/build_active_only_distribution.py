@@ -56,6 +56,8 @@ VERIFICATION_TOOL_PATHS = (
     "tools/active_evidence.py",
     "tools/build_active_only_distribution.py",
     "tools/build_official_document_packs.py",
+    "tools/crawl4ai_capture.py",
+    "tools/document_fetch_adapters.py",
     "tools/environment_profiles.py",
     "tools/extract_official_document_pack_inputs.py",
     "tools/interface_registry.py",
@@ -80,6 +82,7 @@ FILTERED_REGISTRY_PATHS = (
     "registry/software-registry.yaml",
     "registry/interface-registry.yaml",
     "registry/operation-routes.yaml",
+    "registry/document-fetch-adapters.yaml",
     "registry/official-source-authorities.yaml",
     "registry/official-document-consumers.yaml",
     "registry/official-document-bundle-expectations.yaml",
@@ -94,6 +97,7 @@ SOURCE_REGISTRY_PATHS = (
     "registry/interface-registry.yaml",
     "registry/environment-profiles.yaml",
     "registry/operation-routes.yaml",
+    "registry/document-fetch-adapters.yaml",
     "registry/official-source-authorities.yaml",
     "registry/official-document-consumers.yaml",
     "registry/official-document-bundle-expectations.yaml",
@@ -899,6 +903,9 @@ def _filtered_registries(
         "registry/operation-routes.yaml": _filter_routes(
             loaded["registry/operation-routes.yaml"],
             active,
+        ),
+        "registry/document-fetch-adapters.yaml": copy.deepcopy(
+            loaded["registry/document-fetch-adapters.yaml"]
         ),
         "registry/official-source-authorities.yaml": authority_data,
         "registry/official-document-consumers.yaml": consumer_data,

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-dft-skills:contract:web-source-capture-request:1.0",
+  "title": "Bounded web source capture request",
+  "description": "A single-page, native-route-first request for the registered Crawl4AI browser-render adapter.",
+  "x-vibe-document-kind": "projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_name",
+    "request_id",
+    "created_utc",
+    "source_class",
+    "profile_id",
+    "url",
+    "adapter_id",
+    "native_route",
+    "content_gate",
+    "limits",
+    "controls"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "contract_name": {"const": "web-source-capture-request"},
+    "request_id": {"type": "string", "pattern": "^capture-request-[a-f0-9]{24}$"},
+    "created_utc": {"type": "string", "format": "date-time"},
+    "source_class": {
+      "enum": ["official-software", "official-package", "public-community"]
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "url": {"type": "string", "format": "uri", "maxLength": 4096},
+    "adapter_id": {"const": "crawl4ai-render-v1"},
+    "native_route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fallback_condition", "evidence"],
+      "properties": {
+        "fallback_condition": {
+          "enum": [
+            "javascript-required",
+            "browser-render-required",
+            "native-response-incomplete"
+          ]
+        },
+        "evidence": {"type": "string", "minLength": 1, "maxLength": 512}
+      }
+    },
+    "content_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_css_selectors",
+        "required_markdown_substrings",
+        "forbidden_markdown_substrings",
+        "minimum_markdown_bytes"
+      ],
+      "properties": {
+        "required_css_selectors": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z][A-Za-z0-9_-]*|[.#][A-Za-z][A-Za-z0-9_-]*)$"
+          }
+        },
+        "required_markdown_substrings": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 200}
+        },
+        "forbidden_markdown_substrings": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 200}
+        },
+        "minimum_markdown_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16777216
+        }
+      },
+      "anyOf": [
+        {"properties": {"required_css_selectors": {"minItems": 1}}},
+        {"properties": {"required_markdown_substrings": {"minItems": 1}}}
+      ]
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_pages", "max_depth", "page_timeout_ms", "max_artifact_bytes"],
+      "properties": {
+        "max_pages": {"const": 1},
+        "max_depth": {"const": 0},
+        "page_timeout_ms": {"type": "integer", "minimum": 1000, "maximum": 60000},
+        "max_artifact_bytes": {"const": 16777216}
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_robots_txt",
+        "public_network_only",
+        "allow_credentials",
+        "allow_cookie_input",
+        "allow_proxy",
+        "allow_stealth",
+        "allow_custom_javascript",
+        "allow_llm_extraction",
+        "capture_screenshot",
+        "allow_deep_crawl",
+        "allow_cache_reuse"
+      ],
+      "properties": {
+        "check_robots_txt": {"const": true},
+        "public_network_only": {"const": true},
+        "allow_credentials": {"const": false},
+        "allow_cookie_input": {"const": false},
+        "allow_proxy": {"const": false},
+        "allow_stealth": {"const": false},
+        "allow_custom_javascript": {"const": false},
+        "allow_llm_extraction": {"const": false},
+        "capture_screenshot": {"const": false},
+        "allow_deep_crawl": {"const": false},
+        "allow_cache_reuse": {"const": false}
+      }
+    }
+  }
+}

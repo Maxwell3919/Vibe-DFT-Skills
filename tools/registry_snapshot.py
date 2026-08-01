@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Load the ten canonical registries once and validate one shared snapshot."""
+"""Load the eleven canonical registries once and validate one shared snapshot."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from active_evidence import validation_findings as active_evidence_validation_findings
+from document_fetch_adapters import validation_errors as document_fetch_validation_errors
 from environment_profiles import validation_errors as environment_validation_errors
 from interface_registry import validation_errors as interface_validation_errors
 from official_source_authorities import (
@@ -43,6 +44,7 @@ class RegistrySnapshot:
     interfaces: dict[str, Any]
     environments: dict[str, Any]
     operation_routes: dict[str, Any]
+    document_fetch_adapters: dict[str, Any]
     official_source_authorities: dict[str, Any]
     official_source_authority_projection: dict[str, dict[str, Any]]
     official_document_consumers: dict[str, Any]
@@ -84,6 +86,7 @@ def load_registry_snapshot(
         "interfaces": "interface-registry.yaml",
         "environments": "environment-profiles.yaml",
         "operation_routes": "operation-routes.yaml",
+        "document_fetch_adapters": "document-fetch-adapters.yaml",
         "official_source_authorities": "official-source-authorities.yaml",
         "official_document_consumers": "official-document-consumers.yaml",
         "official_document_bundle_expectations": (
@@ -124,6 +127,12 @@ def load_registry_snapshot(
     failures.extend(
         f"interfaces: {failure}"
         for failure in interface_validation_errors(loaded["interfaces"], selected_root)
+    )
+    failures.extend(
+        f"document-fetch-adapters: {failure}"
+        for failure in document_fetch_validation_errors(
+            loaded["document_fetch_adapters"], selected_root
+        )
     )
     failures.extend(
         f"skills: {failure}"
@@ -201,6 +210,7 @@ def load_registry_snapshot(
         interfaces=loaded["interfaces"],
         environments=loaded["environments"],
         operation_routes=loaded["operation_routes"],
+        document_fetch_adapters=loaded["document_fetch_adapters"],
         official_source_authorities=loaded["official_source_authorities"],
         official_source_authority_projection=authority_projection,
         official_document_consumers=loaded["official_document_consumers"],

@@ -331,11 +331,22 @@ gaps 的未完成工作。逐 Skill 路由、数量与 `OM-GAP-001` 至 `OM-GAP-
 缓存协议见
 [`docs/official-manual-markdown-cache.md`](docs/official-manual-markdown-cache.md)。
 
+动态页面和公开社区只在原生 route 无法给出所需渲染内容时使用可选的
+`crawl4ai-render-v1` 单页适配器。它强制 registered URL scope、`robots.txt`、
+public-network guard、exact runtime identity、outside-Git content addressing 和
+claim ceiling；不提供 stealth、proxy/cookie/login bypass、deep crawl 或 LLM
+extraction。11 个 core implementation packages 的官方文档入口从
+`requirements-dev.txt` 派生校验，23 个 scientific software identities 仍只由
+`software-registry.yaml` 管理。这里的 coverage 是 acquisition route coverage，
+不是官方文档完整性。设计与 Agent protocol 见
+[`docs/crawl4ai-source-ingestion.md`](docs/crawl4ai-source-ingestion.md)。
+
 ```bash
 python3 tools/sync_official_manual_cache.py --inventory
 python3 tools/sync_official_manual_cache.py --refresh
 python3 tools/sync_official_manual_cache.py --check
 python3 tools/sync_official_manual_cache.py --check-routing-docs
+python3 tools/document_fetch_adapters.py
 ```
 
 ## 生命周期与发展路线

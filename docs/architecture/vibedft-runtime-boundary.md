@@ -29,6 +29,13 @@ Native execution is implemented in a separate, versioned **VibeDFT runtime packa
 
 The runtime may use an established process engine such as AiiDA or jobflow-remote through an adapter. The selected engine is an implementation detail and cannot redefine VibeDFT scientific gates, claim ceilings, or authorization boundaries.
 
+The same split applies to document acquisition. This repository owns
+registered URL scopes, native-first selection, optional adapter identity,
+request/manifest contracts, validators, and claim ceilings. The runtime owns
+the isolated browser executable, network session, public source bodies, cache,
+and capture directory. A validated browser capture is not an official-source
+receipt, scientific acceptance record, or execution authorization.
+
 ## Ownership boundary
 
 ### Vibe-DFT-Skills owns

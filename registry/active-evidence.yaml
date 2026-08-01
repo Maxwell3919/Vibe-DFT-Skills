@@ -104,7 +104,7 @@ records:
   dft-campaign-efficiency:
     skill_id: dft-campaign-efficiency
     lifecycle: active
-    source_tree_sha256: "70afbedf0888dc0f8ec9dd5fe41c7aa0f79545dc82e52ad87c4675ac04b4194e"
+    source_tree_sha256: "f67f024e21bb5583c7ad330cabe65cde33ec1798225261280a708288cd4db0a0"
     activation_evidence_status: legacy-unclosed
     promotion_evidence: null
     route_maturity_refs:

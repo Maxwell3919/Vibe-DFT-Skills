@@ -71,6 +71,10 @@
       "sha256": "cb3003216fc587dc1dfffbf3f63cb6e00f9afdb66c14d3e167ec248e683617f0"
     },
     {
+      "path": "tools/document_fetch_adapters.py",
+      "sha256": "cdf58d4be004d2630026b472bdae301be0e682a89a5b63ba9feab2c371b99a2a"
+    },
+    {
       "path": "tools/environment_profiles.py",
       "sha256": "3cf8335c975126c901e1d2f5b1982cfa554023a9944bd8961670a7c56068bdde"
     },
@@ -92,7 +96,7 @@
     },
     {
       "path": "tools/registry_snapshot.py",
-      "sha256": "6bad64b4c4fb1ae5b1117ae7e2b78cb6c41b22ade4e1badc0903627534a32d44"
+      "sha256": "1f27ac86c3e7a19f9e4db8b17bc2e1281c5e7a17e9afc4f95ff00c82b9f319e2"
     },
     {
       "path": "tools/registry_yaml.py",

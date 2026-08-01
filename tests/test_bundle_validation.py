@@ -977,7 +977,7 @@ class BundleValidationTests(unittest.TestCase):
             for interface_id, specification in snapshot.interfaces["interfaces"].items()
             if specification["lifecycle"] == "active"
         }
-        self.assertEqual(len(active), 35)
+        self.assertEqual(len(active), 37)
         self.assertEqual(bundle_semantics.builtin_ownership_errors(), [])
         special_paths = {
             "agent-action-envelope@1.0": TOOLS / "validate_agent_answer.py",
@@ -1003,6 +1003,13 @@ class BundleValidationTests(unittest.TestCase):
                 "vasp-source-pack-input@1.0",
             )
         }
+        source_ingestion_paths = {
+            interface_id: TOOLS / "crawl4ai_capture.py"
+            for interface_id in (
+                "web-source-capture-request@1.0",
+                "web-source-capture-manifest@1.0",
+            )
+        }
         for interface_id, specification in active.items():
             with self.subTest(interface=interface_id):
                 name, version = interface_id.rsplit("@", 1)
@@ -1026,6 +1033,14 @@ class BundleValidationTests(unittest.TestCase):
                     self.assertEqual(
                         specification["domain"],
                         "official-documentation",
+                    )
+                    continue
+                if interface_id in source_ingestion_paths:
+                    self.assertTrue(source_ingestion_paths[interface_id].is_file())
+                    self.assertEqual(specification["domain"], "source-ingestion")
+                    self.assertEqual(
+                        specification.get("classification", {}).get("routing_scope"),
+                        "shared-handoff",
                     )
                     continue
                 self.assertTrue(contract.is_record_ref_target)

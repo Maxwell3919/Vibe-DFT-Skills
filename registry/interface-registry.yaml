@@ -62,6 +62,26 @@ interfaces:
     schema_path: contracts/recommendation-record.schema.json
     schema_sha256: 2c6ca73bcd0725b0ca2392900ac5c5f5aefdd1fc2db52295e585eecf8833be99
     producer_policy: skill
+  web-source-capture-request@1.0:
+    display_name: Bounded web source capture request
+    lifecycle: active
+    domain: source-ingestion
+    schema_path: contracts/web-source-capture-request.schema.json
+    schema_sha256: 40d5615d28afc3dd2181d235ff4e90f2133c29dad1f841af41838cb3c24b0e52
+    producer_policy: mixed
+    classification:
+      document_kind: projection
+      routing_scope: shared-handoff
+  web-source-capture-manifest@1.0:
+    display_name: Content-addressed web source capture manifest
+    lifecycle: active
+    domain: source-ingestion
+    schema_path: contracts/web-source-capture-manifest.schema.json
+    schema_sha256: 649dbcf86d9cd1bd4a8ba71717d9c41a2591ff2ac4c59615ca7462e25fc68baf
+    producer_policy: mixed
+    classification:
+      document_kind: content-addressed-record
+      routing_scope: shared-handoff
 
   structure-snapshot@1.0:
     display_name: General atomistic structure snapshot
@@ -452,7 +472,7 @@ interfaces:
     lifecycle: active
     domain: bundle-governance
     schema_path: contracts/bundle-validation-report.schema.json
-    schema_sha256: 0993e520105f1768b661a1793e5265165a84663d7d3ec54793aefc3379908456
+    schema_sha256: 3106cd15cde9dea04fe095da900d831f8353fe1f21e4c16790318ac18c64a126
     producer_policy: mixed
     classification:
       document_kind: content-addressed-record

@@ -7,6 +7,12 @@ description: Record, compare, and maintain privacy-safe QE, VASP, CP2K, and SIES
 
 Read [the local official-manual cache route](references/manual-cache-route.md) before using external code documentation to classify an efficiency observation.
 
+When a public community or JavaScript-rendered source is needed, read
+[the controlled source-ingestion route](references/community-source-ingestion.md).
+Use native registered sources first; keep browser bodies outside Git and never
+promote a captured community claim without official cross-check and comparable
+campaign evidence.
+
 Learn only from measured campaign evidence. Preserve the scientific objective and acceptance criteria. Never present project experience as official behavior of any calculation code.
 
 When the campaign belongs to a managed calculation workspace, read [the campaign record and taskbook route](references/calculation-workspace-and-taskbook.md). Keep the private experience store outside the workspace and Git; append only authorized privacy-safe `data` or `report` artifacts. In review mode, record them `pending-review` before a later approval. Taskbook review does not promote evidence grade, transferability, efficiency, or scientific acceptance.
@@ -45,6 +51,10 @@ Never collapse these states into one completion flag. A stage may be software-fi
 
 - The corresponding code's official documentation controls syntax, defaults, prerequisites, and program behavior.
 - Campaign records contain measured project evidence only.
+- Browser-rendered official pages are derived discovery evidence until exact
+  registered bytes and version identity are bound.
+- Public community captures remain `community-source-claim`; artifact
+  validation does not promote their scientific or efficiency evidence grade.
 - Recommendations are current analysis derived from cited record ids.
 - If experience conflicts with official behavior, correct or supersede the experience record.
 - Never write campaign records into a calculation skill's official-reference directory.

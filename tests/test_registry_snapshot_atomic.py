@@ -26,7 +26,7 @@ class _SyntheticHygieneFinding:
 
 
 class RegistrySnapshotAtomicTests(unittest.TestCase):
-    def test_shared_snapshot_contains_all_ten_exact_registry_documents(self) -> None:
+    def test_shared_snapshot_contains_all_eleven_exact_registry_documents(self) -> None:
         snapshot = load_registry_snapshot(ROOT, validate_sources=False)
         self.assertEqual(
             set(snapshot.registry_raw),
@@ -37,6 +37,7 @@ class RegistrySnapshotAtomicTests(unittest.TestCase):
                 "interface-registry.yaml",
                 "environment-profiles.yaml",
                 "operation-routes.yaml",
+                "document-fetch-adapters.yaml",
                 "official-source-authorities.yaml",
                 "official-document-consumers.yaml",
                 "official-document-bundle-expectations.yaml",

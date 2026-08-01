@@ -648,6 +648,7 @@ routes:
       - skills/dft-campaign-efficiency/SKILL.md
       - skills/dft-campaign-efficiency/references/case-first-learning.md
       - skills/dft-campaign-efficiency/references/comparability-and-evidence.md
+      - skills/dft-campaign-efficiency/references/community-source-ingestion.md
     first_tool:
       explain: efficiency.validate-run
       efficiency: efficiency.validate-run

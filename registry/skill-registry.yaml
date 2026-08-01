@@ -89,11 +89,12 @@ skills:
     kind: advisory
     lifecycle: active
     path: skills/dft-campaign-efficiency
-    source_tree_sha256: "70afbedf0888dc0f8ec9dd5fe41c7aa0f79545dc82e52ad87c4675ac04b4194e"
+    source_tree_sha256: "f67f024e21bb5583c7ad330cabe65cde33ec1798225261280a708288cd4db0a0"
     side_effects: [local-write, local-execution]
     consumes:
       - run-manifest@1.0
       - artifact-manifest@1.0
+      - web-source-capture-manifest@1.0
     produces:
       - campaign-record@1.0
       - recommendation-record@1.0

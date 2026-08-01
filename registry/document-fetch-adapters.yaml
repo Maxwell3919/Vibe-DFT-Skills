@@ -1,0 +1,181 @@
+schema_version: "1.0"
+
+# This registry does not replace official-source-authorities.yaml. It defines
+# how an Agent may fall back from byte-stable/native retrieval to browser
+# rendering, and it binds the official documentation entry points for the
+# implementation packages derived from requirements-dev.txt.
+selection_policy:
+  ordered_routes:
+    - registered-pinned-receipt
+    - registered-provider-api
+    - registered-direct-http
+    - crawl4ai-render-v1
+  browser_fallback_conditions:
+    - javascript-required
+    - browser-render-required
+    - native-response-incomplete
+  canonical_body_policy: browser-rendered-bodies-are-derived-only
+  body_storage_policy: outside-git-content-addressed
+  unregistered_source_action: block
+
+adapters:
+  crawl4ai-render-v1:
+    lifecycle: active
+    implementation_path: tools/crawl4ai_capture.py
+    package_identity:
+      distribution: Crawl4AI
+      exact_version: 0.9.2
+      upstream_url: https://github.com/unclecode/crawl4ai
+      release_tag: v0.9.2
+      release_commit: 7e801521428ee12509994d39151006f64055ebe3
+    input_interface: web-source-capture-request@1.0
+    output_interface: web-source-capture-manifest@1.0
+    source_classes:
+      - official-software
+      - official-package
+      - public-community
+    side_effects:
+      - network-read
+      - local-write
+      - local-browser-execution
+    security_controls:
+      robots_required: true
+      public_network_only: true
+      credentials_forbidden: true
+      cookies_input_forbidden: true
+      proxy_forbidden: true
+      stealth_forbidden: true
+      custom_javascript_forbidden: true
+      llm_extraction_forbidden: true
+      screenshots_forbidden: true
+      deep_crawl_forbidden: true
+      cache_reuse_forbidden: true
+    limits:
+      max_pages: 1
+      max_depth: 0
+      max_page_timeout_ms: 60000
+      max_artifact_bytes: 16777216
+      max_robots_bytes: 524288
+      max_redirects: 5
+
+community_profiles:
+  keinsci-public:
+    display_name: 计算化学公社公开论坛
+    allowed_origins:
+      - http://bbs.keinsci.com
+      - https://bbs.keinsci.com
+    allowed_path_prefixes:
+      - /forum.php
+      - /forum-
+      - /thread-
+    allowed_query_keys:
+      - extra
+      - fid
+      - mod
+      - page
+      - tid
+    minimum_delay_seconds: 5
+    robots_unavailable_action: block
+    native_route_first: true
+    public_access_only: true
+    evidence_class: community-source-claim
+    claim_ceiling: source-claim-only
+    retention_policy: manifest-and-private-body-outside-git
+  matsci-public:
+    display_name: Materials Science Community Discourse
+    allowed_origins:
+      - https://matsci.org
+    allowed_path_prefixes:
+      - /c/
+      - /t/
+    allowed_query_keys:
+      - page
+    minimum_delay_seconds: 2
+    robots_unavailable_action: block
+    native_route_first: true
+    public_access_only: true
+    evidence_class: community-source-claim
+    claim_ceiling: source-claim-only
+    retention_policy: manifest-and-private-body-outside-git
+
+# Keys must exactly equal the normalized distributions parsed from
+# requirements-dev.txt. This is a documentation-source mapping, not a second
+# software inventory.
+implementation_package_docs:
+  ase:
+    requirement_name: ase
+    allowed_origins: [https://ase-lib.org]
+    allowed_path_prefixes: [/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  beautifulsoup4:
+    requirement_name: beautifulsoup4
+    allowed_origins: [https://www.crummy.com]
+    allowed_path_prefixes: [/software/BeautifulSoup/bs4/doc/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  certifi:
+    requirement_name: certifi
+    allowed_origins: [https://github.com]
+    allowed_path_prefixes: [/certifi/python-certifi/]
+    allowed_query_keys: []
+    version_binding: exact-tag-or-commit-required-before-version-sensitive-use
+    retrieval_policy: native-git-first-browser-fallback
+  gemmi:
+    requirement_name: gemmi
+    allowed_origins: [https://gemmi.readthedocs.io]
+    allowed_path_prefixes: [/en/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  jsonschema:
+    requirement_name: jsonschema
+    allowed_origins: [https://python-jsonschema.readthedocs.io]
+    allowed_path_prefixes: [/en/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  lxml:
+    requirement_name: lxml
+    allowed_origins: [https://lxml.de]
+    allowed_path_prefixes: [/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  matplotlib:
+    requirement_name: matplotlib
+    allowed_origins: [https://matplotlib.org]
+    allowed_path_prefixes: [/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  numpy:
+    requirement_name: numpy
+    allowed_origins: [https://numpy.org]
+    allowed_path_prefixes: [/doc/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  pycifrw:
+    requirement_name: PyCifRW
+    allowed_origins: [https://www.iucr.org]
+    allowed_path_prefixes: [/resources/cif/software/pycifrw]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  pyyaml:
+    requirement_name: PyYAML
+    allowed_origins: [https://pyyaml.org]
+    allowed_path_prefixes: [/wiki/PyYAMLDocumentation]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
+  spglib:
+    requirement_name: spglib
+    allowed_origins: [https://spglib.readthedocs.io]
+    allowed_path_prefixes: [/en/]
+    allowed_query_keys: []
+    version_binding: installed-version-required-before-version-sensitive-use
+    retrieval_policy: native-first-browser-fallback
